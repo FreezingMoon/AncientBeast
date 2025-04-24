@@ -2189,3 +2189,28 @@ input {
 	// Fix for Safari iOS handling of 100vh
 	min-height: -webkit-fill-available !important;
 }
+
+.ios-fullscreen-container {
+	position: fixed !important;
+	top: 0 !important;
+	left: 0 !important;
+	right: 0 !important;
+	bottom: 0 !important;
+	width: 100vw !important;
+	height: 100vh !important;
+	display: block !important;
+	overflow: visible !important;
+	z-index: 9990 !important;
+	background-color: black !important;
+	
+	// Ensure proper display in landscape
+	@media (orientation: landscape) {
+		display: flex !important;
+		align-items: center !important;
+		justify-content: center !important;
+	}
+}
+
+.ios-fullscreen-redraw {
+	opacity: 0.99 !important;
+}

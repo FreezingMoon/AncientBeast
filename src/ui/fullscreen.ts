@@ -1,6 +1,8 @@
 export class Fullscreen {
 	public button: HTMLElement;
 	private isIOS: boolean;
+	// Track fullscreen state internally for iOS
+	private isInIOSFullscreen = false;
 
 	constructor(button: HTMLElement, isFullscreen = false) {
 		this.button = button;
@@ -58,79 +60,141 @@ export class Fullscreen {
 	}
 
 	private handleIOSFullscreen() {
-		// On iOS, we need to handle several elements to get the proper fullscreen experience
-		const gameWrapperElement = document.getElementById('combatwrapper') || document.body;
+		if (this.isInIOSFullscreen) {
+			this.exitIOSFullscreen();
+		} else {
+			this.enterIOSFullscreen();
+		}
+	}
+
+	private enterIOSFullscreen() {
+		// Main elements we need to modify
 		const gameElement = document.getElementById('AncientBeast');
 		const htmlElement = document.documentElement;
 		const bodyElement = document.body;
 
-		// Check if we're currently in "fullscreen" mode by looking at body class
-		const isCurrentlyFullscreen = bodyElement.classList.contains('ios-fullscreen-body');
+		// Save current scroll position to restore later
+		const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+		const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
 
-		if (isCurrentlyFullscreen) {
-			// Exit iOS "fullscreen"
-			if (gameElement) {
-				gameElement.classList.remove('ios-fullscreen');
-			}
-			if (gameWrapperElement) {
-				gameWrapperElement.classList.remove('ios-fullscreen');
-			}
-			htmlElement.classList.remove('ios-fullscreen-html');
-			bodyElement.classList.remove('ios-fullscreen-body');
-			this.button.classList.remove('fullscreenMode');
-			this.button
-				.querySelectorAll('.fullscreen__title')
-				.forEach((el) => (el.textContent = 'FullScreen'));
+		if (!gameElement) return;
 
-			// Restore original scroll position and viewport
-			window.scrollTo(0, 0);
+		// 1. Apply fullscreen classes to main elements
+		htmlElement.classList.add('ios-fullscreen-html');
+		bodyElement.classList.add('ios-fullscreen-body');
+		gameElement.classList.add('ios-fullscreen');
 
-			// Remove meta viewport setting for fullscreen
-			const existingViewport = document.querySelector('meta[name="viewport"]');
-			if (existingViewport) {
-				existingViewport.setAttribute(
-					'content',
-					'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no',
-				);
-			}
+		// 2. Set game container to fill screen
+		const gameContainer = document.getElementById('combatwrapper') || 
+							  document.getElementById('matchMaking') || 
+							  gameElement;
+
+		if (gameContainer) {
+			gameContainer.classList.add('ios-fullscreen-container');
+
+			// Make sure the game container is visible
+			gameContainer.style.display = 'block';
+		}
+
+		// 3. Update button state
+		this.button.classList.add('fullscreenMode');
+		this.button
+			.querySelectorAll('.fullscreen__title')
+			.forEach((el) => (el.textContent = 'Contract'));
+
+		// 4. Handle iOS specific viewport settings
+		this.setIOSViewport(true);
+
+		// 5. Force layout recalculation
+		window.scrollTo(0, 0);
+		document.body.scrollTop = 0;
+
+		// 6. Set internal state
+		this.isInIOSFullscreen = true;
+
+		// 7. Add orientation change handler
+		this.addOrientationChangeHandler();
+	}
+
+	private exitIOSFullscreen() {
+		// Main elements to modify
+		const gameElement = document.getElementById('AncientBeast');
+		const htmlElement = document.documentElement;
+		const bodyElement = document.body;
+
+		if (!gameElement) return;
+
+		// 1. Remove fullscreen classes
+		htmlElement.classList.remove('ios-fullscreen-html');
+		bodyElement.classList.remove('ios-fullscreen-body');
+		gameElement.classList.remove('ios-fullscreen');
+
+		// 2. Restore game container
+		const gameContainer = document.getElementById('combatwrapper') || document.getElementById('matchMaking') ||gameElement;
+
+		if (gameContainer) {
+			gameContainer.classList.remove('ios-fullscreen-container');
+		}
+
+		// 3. Update button state
+		this.button.classList.remove('fullscreenMode');
+		this.button
+			.querySelectorAll('.fullscreen__title')
+			.forEach((el) => (el.textContent = 'FullScreen'));
+
+		// 4. Restore viewport settings
+		this.setIOSViewport(false);
+
+		// 5. Reset internal state
+		this.isInIOSFullscreen = false;
+	}
+
+	private setIOSViewport(fullscreen: boolean) {
+		let viewport = document.querySelector('meta[name="viewport"]');
+
+		if (!viewport) {
+			viewport = document.createElement('meta');
+			viewport.setAttribute('name', 'viewport');
+			document.head.appendChild(viewport);
+		}
+
+		if (fullscreen) {
+			viewport.setAttribute(
+				'content',
+				'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover',
+			);
 		} else {
-			// Enter iOS "fullscreen"
-			if (gameElement) {
-				gameElement.classList.add('ios-fullscreen');
-			}
-			if (gameWrapperElement) {
-				gameWrapperElement.classList.add('ios-fullscreen');
-			}
-			htmlElement.classList.add('ios-fullscreen-html');
-			bodyElement.classList.add('ios-fullscreen-body');
-			this.button.classList.add('fullscreenMode');
-			this.button
-				.querySelectorAll('.fullscreen__title')
-				.forEach((el) => (el.textContent = 'Contract'));
-
-			// Force scroll to top to ensure we're at the correct position
-			window.scrollTo(0, 0);
-
-			// Adjust viewport for fullscreen
-			const existingViewport = document.querySelector('meta[name="viewport"]');
-			if (existingViewport) {
-				existingViewport.setAttribute(
-					'content',
-					'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover',
-				);
-			}
-
-			// Add one-time listener to reorient if needed
-			window.addEventListener(
-				'orientationchange',
-				() => {
-					if (bodyElement.classList.contains('ios-fullscreen-body')) {
-						setTimeout(() => window.scrollTo(0, 0), 300);
-					}
-				},
-				{ once: true },
+			viewport.setAttribute(
+				'content',
+				'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no',
 			);
 		}
+	}
+
+	private addOrientationChangeHandler() {
+		// Add a one-time orientation change handler to ensure proper fullscreen on orientation change
+		window.addEventListener(
+			'orientationchange',
+			() => {
+				if (this.isInIOSFullscreen) {
+					// Wait for orientation change to complete
+					setTimeout(() => {
+						window.scrollTo(0, 0);
+
+						// Force redraw of fullscreen elements
+						const gameElement = document.getElementById('AncientBeast');
+						if (gameElement) {
+							// Briefly toggle a class to force redraw
+							gameElement.classList.add('ios-fullscreen-redraw');
+							setTimeout(() => {
+								gameElement.classList.remove('ios-fullscreen-redraw');
+							}, 50);
+						}
+					}, 300);
+				}
+			},
+			{ once: true },
+		);
 	}
 
 	private requestFullscreen(element: HTMLElement) {
