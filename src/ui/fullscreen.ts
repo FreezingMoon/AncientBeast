@@ -58,28 +58,78 @@ export class Fullscreen {
 	}
 
 	private handleIOSFullscreen() {
-		// For iOS we'll use a different approach - toggling a class for CSS-based fullscreen
+		// On iOS, we need to handle several elements to get the proper fullscreen experience
+		const gameWrapperElement = document.getElementById('combatwrapper') || document.body;
 		const gameElement = document.getElementById('AncientBeast');
-		if (gameElement) {
-			const isCurrentlyFullscreen = gameElement.classList.contains('ios-fullscreen');
+		const htmlElement = document.documentElement;
+		const bodyElement = document.body;
 
-			if (isCurrentlyFullscreen) {
-				// Exit iOS "fullscreen"
+		// Check if we're currently in "fullscreen" mode by looking at body class
+		const isCurrentlyFullscreen = bodyElement.classList.contains('ios-fullscreen-body');
+
+		if (isCurrentlyFullscreen) {
+			// Exit iOS "fullscreen"
+			if (gameElement) {
 				gameElement.classList.remove('ios-fullscreen');
-				document.body.classList.remove('ios-fullscreen-body');
-				this.button.classList.remove('fullscreenMode');
-				this.button
-					.querySelectorAll('.fullscreen__title')
-					.forEach((el) => (el.textContent = 'FullScreen'));
-			} else {
-				// Enter iOS "fullscreen"
-				gameElement.classList.add('ios-fullscreen');
-				document.body.classList.add('ios-fullscreen-body');
-				this.button.classList.add('fullscreenMode');
-				this.button
-					.querySelectorAll('.fullscreen__title')
-					.forEach((el) => (el.textContent = 'Contract'));
 			}
+			if (gameWrapperElement) {
+				gameWrapperElement.classList.remove('ios-fullscreen');
+			}
+			htmlElement.classList.remove('ios-fullscreen-html');
+			bodyElement.classList.remove('ios-fullscreen-body');
+			this.button.classList.remove('fullscreenMode');
+			this.button
+				.querySelectorAll('.fullscreen__title')
+				.forEach((el) => (el.textContent = 'FullScreen'));
+
+			// Restore original scroll position and viewport
+			window.scrollTo(0, 0);
+
+			// Remove meta viewport setting for fullscreen
+			const existingViewport = document.querySelector('meta[name="viewport"]');
+			if (existingViewport) {
+				existingViewport.setAttribute(
+					'content',
+					'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no',
+				);
+			}
+		} else {
+			// Enter iOS "fullscreen"
+			if (gameElement) {
+				gameElement.classList.add('ios-fullscreen');
+			}
+			if (gameWrapperElement) {
+				gameWrapperElement.classList.add('ios-fullscreen');
+			}
+			htmlElement.classList.add('ios-fullscreen-html');
+			bodyElement.classList.add('ios-fullscreen-body');
+			this.button.classList.add('fullscreenMode');
+			this.button
+				.querySelectorAll('.fullscreen__title')
+				.forEach((el) => (el.textContent = 'Contract'));
+
+			// Force scroll to top to ensure we're at the correct position
+			window.scrollTo(0, 0);
+
+			// Adjust viewport for fullscreen
+			const existingViewport = document.querySelector('meta[name="viewport"]');
+			if (existingViewport) {
+				existingViewport.setAttribute(
+					'content',
+					'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover',
+				);
+			}
+
+			// Add one-time listener to reorient if needed
+			window.addEventListener(
+				'orientationchange',
+				() => {
+					if (bodyElement.classList.contains('ios-fullscreen-body')) {
+						setTimeout(() => window.scrollTo(0, 0), 300);
+					}
+				},
+				{ once: true },
+			);
 		}
 	}
 
