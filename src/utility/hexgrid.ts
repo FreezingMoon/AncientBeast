@@ -10,7 +10,6 @@ import { DEBUG } from '../debug';
 import { HEX_WIDTH_PX } from './const';
 import { Point } from './pointfacade';
 import { AugmentedMatrix } from './matrices';
-import { Ability } from '../ability';
 
 interface GridDefinition {
 	numRows: number;
@@ -305,8 +304,31 @@ export class HexGrid {
 	 */
 	queryDirection(o: Partial<QueryOptions>) {
 		o.isDirectionsQuery = true;
+		const defaultOpt = {
+			team: Team.Enemy,
+			id: 0,
+			flipped: false,
+			x: 0,
+			y: 0,
+			directions: [1, 1, 1, 1, 1, 1],
+			includeCreature: true,
+			stopOnCreature: true,
+			distance: 0,
+			minDistance: 0,
+			distanceFalloff: 0,
+			dashedHexesAfterCreatureStop: true,
+			dashedHexesDistance: 0,
+			dashedHexesUnderCreature: true,
+			sourceCreature: undefined,
+			isDirectionsQuery: true,
+		};
+
+		o = { ...defaultOpt, ...o };
+
 		o = this.getDirectionChoices(o);
 		this.queryChoice(o);
+
+		return true;
 	}
 
 	/**
@@ -333,6 +355,7 @@ export class HexGrid {
 			distanceFalloff: 0,
 			dashedHexesAfterCreatureStop: true,
 			dashedHexesDistance: 0,
+			dashedHexesUnderCreature: true,
 			sourceCreature: undefined,
 			choices: [],
 			optTest: () => true,
@@ -1664,8 +1687,8 @@ export class HexGrid {
 			(!player.flipped
 				? creatureData.display['offset-x']
 				: HEX_WIDTH_PX * creatureData.size -
-				  preview.texture.width -
-				  creatureData.display['offset-x']) +
+				preview.texture.width -
+				creatureData.display['offset-x']) +
 			preview.texture.width / 2;
 		preview.y = hex.displayPos.y + creatureData.display['offset-y'] + preview.texture.height;
 		preview.alpha = 0.5;
