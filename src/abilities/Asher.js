@@ -79,7 +79,8 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function (isPreview = false) {
+				if (isPreview) return;
 				const ability = this;
 				const crea = this.creature;
 
@@ -129,9 +130,22 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function (isPreview = false) {
 				const ability = this;
 				const crea = this.creature;
+				
+				const hexRange = G.grid.getFlyingRange(crea.x, crea.y, 50, crea.size, crea.id);
+
+				if (isPreview) {
+					G.grid.queryHexes({
+						hexes: hexRange,
+						hideNonTarget: true,
+						id: crea.id,
+						flipped: crea.player.flipped,
+						size: crea.size,
+					});
+					return;
+				}
 
 				crea.queryMove({
 					noPath: true,
@@ -233,7 +247,7 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function (isPreview = false) {
 				const ability = this;
 				const crea = this.creature;
 
@@ -243,7 +257,18 @@ export default (G) => {
 				const tail = range.indexOf(crea.hexagons[2]);
 				range.splice(head, 1);
 				range.splice(tail, 1);
-
+				
+				if (isPreview) {
+					G.grid.queryHexes({
+						hexes: range,
+						hideNonTarget: true,
+						id: crea.id,
+						flipped: crea.player.flipped,
+						size: crea.size,
+					});
+					return;
+				}
+				
 				G.grid.queryHexes({
 					fnOnConfirm: function () {
 						ability.animation(...arguments);

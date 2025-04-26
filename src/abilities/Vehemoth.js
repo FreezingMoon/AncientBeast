@@ -114,7 +114,8 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function (isPreview = false) {
+				if (isPreview) {return;}
 				const ability = this;
 				const vehemoth = this.creature;
 
@@ -315,7 +316,8 @@ export default (G) => {
 				return true;
 			},
 
-			query: function () {
+			query: function (isPreview = false) {
+				if (isPreview) {return;}
 				const ability = this;
 				const vehemoth = this.creature;
 
@@ -451,10 +453,19 @@ export default (G) => {
 				return true;
 			},
 
-			query: function () {
+			query: function (isPreview = false) {
 				const ability = this;
 				const vehemoth = this.creature;
-
+				if (isPreview) {
+					G.grid.queryHexes({
+						hexes: this._getHexes(),
+						size: vehemoth.size,
+						flipped: vehemoth.player.flipped,
+						id: vehemoth.id,
+						hideNonTarget: true,
+					});
+					return;
+				}
 				this.game.grid.queryCreature({
 					fnOnConfirm: function () {
 						ability.animation(...arguments);

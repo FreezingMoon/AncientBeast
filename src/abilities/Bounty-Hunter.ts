@@ -125,7 +125,8 @@ export default (G: Game) => {
 			},
 
 			//query():
-			query: function () {
+			query: function (isPreview = false) {
+				if (isPreview) return;
 				const ability = this;
 				const crea = this.creature;
 
@@ -241,7 +242,7 @@ export default (G: Game) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function (isPreview = false) {
 				const bellowrow = matrices.bellowrow;
 				const straitrow = matrices.straitrow;
 
@@ -262,6 +263,18 @@ export default (G: Game) => {
 				choices.forEach(function (choice) {
 					arrayUtils.filterCreature(choice, true, true, swine.id);
 				});
+
+				if (isPreview) {
+					G.grid.queryChoice({
+						choices: choices,
+						id: swine.id,
+						hideNonTarget: true,
+						flipped: swine.player.flipped,
+						team: this._targetTeam,
+						requireCreature: 1,
+					});
+					return;
+				}
 
 				G.grid.queryChoice({
 					fnOnConfirm: function () {
@@ -342,7 +355,7 @@ export default (G: Game) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function (isPreview = false) {
 				const ability = this;
 				const swine = this.creature;
 
@@ -355,6 +368,14 @@ export default (G: Game) => {
 					hexes = G.grid.getFlyingRange(swine.x, swine.y, 50, 1, 0);
 				}
 				hexes.push(G.grid.hexes[swine.y][swine.x]);
+
+				if (isPreview) {
+					G.grid.queryHexes({
+						hexes: hexes,
+						hideNonTarget: true,
+					});
+					return;
+				}
 
 				G.grid.queryHexes({
 					fnOnCancel: function () {

@@ -79,7 +79,8 @@ export default (G: Game) => {
 			},
 
 			//	query() :
-			query: function () {
+			query: function (isPreview = false) {
+				if(isPreview){return;}
 				const ability = this;
 				const crea = this.creature;
 
@@ -154,12 +155,33 @@ export default (G: Game) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function (isPreview = false) {
 				const ability = this;
 				const crea = this.creature;
 
 				const straitrow = matrices.straitrow;
 				const bellowrow = matrices.bellowrow;
+				
+				const hexes = []
+					.concat(
+						G.grid.getHexMap(crea.x, crea.y - 2, 0, false, bellowrow),
+						G.grid.getHexMap(crea.x, crea.y, 0, false, straitrow),
+						G.grid.getHexMap(crea.x, crea.y, 0, false, bellowrow),
+						G.grid.getHexMap(crea.x - 1, crea.y - 2, 0, true, bellowrow),
+						G.grid.getHexMap(crea.x - 1, crea.y, 0, true, straitrow),
+						G.grid.getHexMap(crea.x - 1, crea.y, 0, true, bellowrow)
+					);
+
+				if (isPreview) {
+					G.grid.queryHexes({
+						hexes: hexes,
+						id: crea.id,
+						size: crea.size,
+						flipped: crea.player.flipped,
+						hideNonTarget: true,
+					});
+					return;
+				}
 
 				const choices = [
 					//Front
@@ -207,6 +229,7 @@ export default (G: Game) => {
 							),
 						),
 				];
+				
 
 				G.grid.queryChoice({
 					fnOnCancel: function () {
@@ -327,7 +350,8 @@ export default (G: Game) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function (isPreview = false) {
+				if(isPreview){return;}
 				const ability = this;
 				const crea = this.creature;
 

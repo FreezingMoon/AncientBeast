@@ -97,7 +97,8 @@ export default (G: Game) => {
 			},
 
 			// query() :
-			query: function () {
+			query: function (isPreview = false) {
+				
 				const stomper = this.creature;
 				const ability = this;
 
@@ -106,6 +107,7 @@ export default (G: Game) => {
 					G.grid.queryDirection({
 						fnOnConfirm: function () {
 							// eslint-disable-next-line
+							if (isPreview) {return;}
 							ability.animation(...arguments);
 						},
 						flipped: stomper.player.flipped,
@@ -122,6 +124,7 @@ export default (G: Game) => {
 				else {
 					G.grid.queryDirection({
 						fnOnConfirm: function () {
+							if (isPreview) {return;}
 							// eslint-disable-next-line
 							if (arguments[1].hex.creature) {
 								// eslint-disable-next-line
@@ -353,7 +356,8 @@ export default (G: Game) => {
 			},
 
 			// query() :
-			query: function () {
+			query: function (isPreview = false) {
+				if (isPreview) {return;}
 				const ability = this;
 				const stomper = this.creature;
 				// Get the direction of the melee target, the dashed hex and the targets
@@ -472,10 +476,27 @@ export default (G: Game) => {
 			},
 
 			// query() :
-			query: function () {
+			query: function (isPreview = false) {
 				const ability = this;
 				const stomper = this.creature;
+				if (isPreview) {
 
+					let forward = stomper.getHexMap(matrices.frontAndBack8Hex, false);
+					let backward = stomper.getHexMap(matrices.frontAndBack8Hex, true);
+					// Combine and sort by X, left to right
+					const hexes = forward.concat(backward).sort(function (a, b) {
+						return a.x - b.x;
+					});
+					G.grid.queryHexes({
+						hexes: hexes,
+						id: stomper.id,
+						size: stomper.size,
+						flipped: stomper.player.flipped,
+						hideNonTarget: true,
+					});
+					return;
+
+				}
 				G.grid.queryChoice({
 					fnOnConfirm: function () {
 						// eslint-disable-next-line

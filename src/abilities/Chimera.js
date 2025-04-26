@@ -67,7 +67,8 @@ export default (G) => {
 			},
 
 			//	query() :
-			query: function () {
+			query: function (isPreview = false) {
+				if (isPreview) return;
 				const ability = this;
 				const chimera = this.creature;
 
@@ -128,9 +129,28 @@ export default (G) => {
 			},
 
 			//	query() :
-			query: function () {
+			query: function (isPreview = false) {
 				const ability = this;
 				const chimera = this.creature;
+
+				if (isPreview) {
+					
+					let forward = G.grid.getHexMap(chimera.x, chimera.y, 0, false, matrices.straitrow);
+					let backward = G.grid.getHexMap(chimera.x, chimera.y, 0, true, matrices.straitrow);
+					const hexes = forward.concat(backward).sort(function (a, b) {
+						return a.x - b.x;
+					});
+
+					G.grid.queryHexes({
+						hexes: hexes,
+						id: chimera.id,
+						size: chimera.size,
+						flipped: chimera.player.flipped,
+						hideNonTarget: true,
+					});
+					return;
+				
+				}
 
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
@@ -254,7 +274,8 @@ export default (G) => {
 			},
 
 			//	query() :
-			query: function () {
+			query: function (isPreview = false) {
+				if (isPreview) return;
 				const ability = this;
 				const chimera = this.creature;
 

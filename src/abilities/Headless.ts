@@ -3,6 +3,7 @@ import { isTeam, Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import { Effect } from '../effect';
 import Game from '../game';
+import * as arrayUtils from '../utility/arrayUtils';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -128,7 +129,8 @@ export default (G: Game) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function (isPreview = false) {
+				if (isPreview) {return;}
 				const ability = this;
 				const crea = this.creature;
 
@@ -240,9 +242,27 @@ export default (G: Game) => {
 				return true;
 			},
 
-			query: function () {
+			query: function (isPreview = false) {
 				const ability = this;
 				const headless = this.creature;
+
+				if (isPreview){
+					let forward = G.grid.getHexMap(headless.x, headless.y, 0, false, matrices.straitrow).slice(0, this._getMaxDistance()+1);
+					let backward = G.grid.getHexMap(headless.x, headless.y, 0, true, matrices.straitrow).slice(0, this._getMaxDistance()+2);
+					// Combine and sort by X, left to right
+					const hexes = forward.concat(backward).sort(function (a, b) {
+						return a.x - b.x;
+					});
+
+					G.grid.queryHexes({
+						hexes: hexes,
+						id: headless.id,
+						size: headless.size,
+						flipped: headless.player.flipped,
+						hideNonTarget: true,
+					});
+					return;
+				}
 
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
@@ -379,12 +399,23 @@ export default (G: Game) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function (isPreview = false) {
 				const ability = this;
 				const crea = this.creature;
 
 				const hexes = this._getHexes();
 
+				if (isPreview) {
+					let choices = [crea.getHexMap(hexes, false), crea.getHexMap(hexes, true)];
+					G.grid.queryHexes({
+						hexes: choices.flat(),
+						id: crea.id,
+						size: crea.size,
+						flipped: crea.player.flipped,
+						hideNonTarget: true,
+					});
+					return;
+				}
 				G.grid.queryChoice({
 					fnOnConfirm: function () {
 						// eslint-disable-next-line

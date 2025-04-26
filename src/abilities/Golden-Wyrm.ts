@@ -109,7 +109,8 @@ export default (G: Game) => {
 				return true;
 			},
 
-			query: function () {
+			query: function (isPreview = false) {
+				if (isPreview) {return;}
 				const wyrm = this.creature;
 				const ability = this;
 
@@ -213,11 +214,22 @@ export default (G: Game) => {
 				return true;
 			},
 
-			query: function () {
+			query: function (isPreview = false) {
+				if (isPreview) {return;}
 				const ability = this;
 				const wyrm = this.creature;
 
 				const range = this.game.grid.getFlyingRange(wyrm.x, wyrm.y, 10, wyrm.size, wyrm.id);
+				if (isPreview) {
+					G.grid.queryHexes({
+						hexes: range,
+						size: wyrm.size,
+						flipped: wyrm.player.flipped,
+						id: wyrm.id,
+						hideNonTarget: true,
+					});
+					return;
+				}
 
 				this.game.grid.queryHexes({
 					fnOnSelect: function () {
@@ -344,7 +356,8 @@ export default (G: Game) => {
 				return true;
 			},
 
-			query: function () {
+			query: function (isPreview = false) {
+				if (isPreview) {return;}
 				const ability = this;
 				const wyrm = this.creature;
 

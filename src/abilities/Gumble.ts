@@ -82,7 +82,7 @@ export default (G: Game) => {
 			},
 
 			// query() :
-			query: function () {
+			query: function (isPreview = false) {
 				const ability = this;
 				// Gummy Mallet can hit a 7-hexagon circular area in 6 directions, where the
 				// center of each area is two hexes away. Each area can be chosen regardless
@@ -109,6 +109,20 @@ export default (G: Game) => {
 				choices.sort(function (choice1, choice2) {
 					return choice1.length - choice2.length;
 				});
+
+				/*currently not disyplaying preview hexes for Gumble*/
+				if (isPreview) {
+					console.log("PROBLEMHERE")
+					G.grid.queryChoice({
+						choices: choices,
+						id: this.creature.id,
+						hideNonTarget: true,
+						flipped: this.creature.player.flipped,
+						team: this._targetTeam,
+						requireCreature: 1,
+					});
+					return;
+				}
 				G.grid.queryChoice({
 					fnOnCancel: function () {
 						G.activeCreature.queryMove();
@@ -174,7 +188,7 @@ export default (G: Game) => {
 			},
 
 			// query() :
-			query: function () {
+			query: function (isPreview = false) {
 				const ability = this;
 				const creature = this.creature;
 
@@ -183,6 +197,17 @@ export default (G: Game) => {
 				const hexes = creature.hexagons.concat(
 					G.grid.getFlyingRange(creature.x, creature.y, range, creature.size, creature.id),
 				);
+
+				if (isPreview) {
+					G.grid.queryHexes({
+						hexes: hexes,
+						size: creature.size,
+						flipped: creature.player.flipped,
+						id: creature.id,
+						hideNonTarget: true,
+					});
+					return;
+				}
 
 				G.grid.queryHexes({
 					fnOnConfirm: function () {
@@ -295,10 +320,25 @@ export default (G: Game) => {
 			},
 
 			// query() :
-			query: function () {
+			query: function (isPreview = false) {
 				const ability = this;
 				const crea = this.creature;
 
+				if (isPreview) {
+					
+					let forward = G.grid.getHexMap(crea.x, crea.y, 0, false, matrices.straitrow);
+					const hexes = forward;
+
+					G.grid.queryHexes({
+						hexes: hexes,
+						id: crea.id,
+						size: crea.size,
+						flipped: crea.player.flipped,
+						hideNonTarget: true,
+					});
+					return;
+				
+				}
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
 						// eslint-disable-next-line

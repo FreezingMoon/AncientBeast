@@ -102,7 +102,8 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function (isPreview = false) {
+				if (isPreview) {return;}
 				const ability = this;
 				const magmaSpawn = this.creature;
 
@@ -189,12 +190,22 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function (isPreview = false) {
 				const ability = this;
 				const magmaSpawn = this.creature;
 
 				this.map.origin = [0, 2];
-
+				if (isPreview) {
+					let choices = [magmaSpawn.getHexMap(this.map), magmaSpawn.getHexMap(this.map, true)];
+					G.grid.queryHexes({
+						hexes: choices.flat(),
+						id: magmaSpawn.id,
+						size: magmaSpawn.size,
+						flipped: magmaSpawn.player.flipped,
+						hideNonTarget: true,
+					});
+					return;
+				}
 				G.grid.queryChoice({
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
@@ -274,11 +285,23 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function (isPreview = false) {
 				const ability = this;
 				const magmaSpawn = this.creature;
 
 				const x = magmaSpawn.player.flipped ? magmaSpawn.x - magmaSpawn.size + 1 : magmaSpawn.x;
+
+				if (isPreview) {
+					let forward = G.grid.getHexMap(magmaSpawn.x, magmaSpawn.y, 0, false, matrices.straitrow);
+					G.grid.queryHexes({
+						hexes: forward,
+						id: magmaSpawn.id,
+						size: magmaSpawn.size,
+						flipped: magmaSpawn.player.flipped,
+						hideNonTarget: true,
+					});
+					return;
+				}
 
 				G.grid.queryDirection({
 					fnOnConfirm: function () {

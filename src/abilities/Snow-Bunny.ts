@@ -244,7 +244,8 @@ export default (G: Game) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function (isPreview = false) {
+				if (isPreview) {return;}
 				const ability = this;
 				const snowBunny = this.creature;
 
@@ -318,10 +319,28 @@ export default (G: Game) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function (isPreview = false) {
 				const ability = this;
 				const snowBunny = this.creature;
 
+				if (isPreview){
+				
+					let forward = G.grid.getHexMap(snowBunny.x, snowBunny.y, 0, false, matrices.straitrow);
+					let backward = G.grid.getHexMap(snowBunny.x, snowBunny.y, 0, true, matrices.straitrow);
+					// Combine and sort by X, left to right
+					const hexes = forward.concat(backward).sort(function (a, b) {
+						return a.x - b.x;
+					});
+
+					G.grid.queryHexes({
+						hexes: hexes,
+						id: snowBunny.id,
+						size: snowBunny.size,
+						flipped: snowBunny.player.flipped,
+						hideNonTarget: true,
+					});
+					return;
+				}
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
 						// eslint-disable-next-line
@@ -438,10 +457,24 @@ export default (G: Game) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function (isPreview = false) {
 				const ability = this;
 				const snowBunny = this.creature;
+				if (isPreview){
+				
+					let forward = G.grid.getHexMap(snowBunny.x, snowBunny.y, 0, false, matrices.straitrow);
+					// Combine and sort by X, left to right
 
+
+					G.grid.queryHexes({
+						hexes: forward,
+						id: snowBunny.id,
+						size: snowBunny.size,
+						flipped: snowBunny.player.flipped,
+						hideNonTarget: true,
+					});
+					return;
+				}
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
 						// eslint-disable-next-line

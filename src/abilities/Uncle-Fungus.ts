@@ -103,7 +103,8 @@ export default (G: Game) => {
 			},
 
 			// query() :
-			query: function () {
+			query: function (isPreview = false) {
+				if(isPreview){return;}
 				const uncle = this.creature;
 
 				G.grid.queryCreature({
@@ -191,13 +192,24 @@ export default (G: Game) => {
 			},
 
 			// query() :
-			query: function () {
+			query: function (isPreview = false) {
 				const uncle = this.creature;
 
 				// Don't jump over creatures if we're not upgraded, or we are in a second
 				// "low" jump
 				const stopOnCreature = !this.isUpgraded() || this._isSecondLowJump();
 				const hexes = this._getHexRange(stopOnCreature);
+
+				if (isPreview) {
+					G.grid.queryHexes({
+						hexes: hexes,
+						size: uncle.size,
+						flipped: uncle.player.flipped,
+						id: uncle.id,
+						hideNonTarget: true,
+					});
+					return;
+				}
 
 				G.grid.queryHexes({
 					fnOnSelect: function (...args) {
@@ -361,7 +373,8 @@ export default (G: Game) => {
 			},
 
 			// query() :
-			query: function () {
+			query: function (isPreview = false) {
+				if(isPreview){return;}
 				const uncle = this.creature;
 
 				G.grid.queryCreature({

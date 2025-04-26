@@ -108,12 +108,28 @@ export default (G) => {
 				return true;
 			},
 
-			query() {
+			query(isPreview = false) {
 				const ability = this;
 				const abolished = this.creature;
 
 				// TODO: Visually show reduced damage hexes for 4-6 range
-
+				const forwardHexes = G.grid.getHexLine(
+					abolished.x,
+					abolished.y,
+					abolished.facing,
+					this.range.regular // Distance: 3 hexes straight ahead
+				);
+			
+				if (isPreview) {
+					G.grid.queryHexes({
+						hexes: forwardHexes,
+						hideNonTarget: true,
+						id: abolished.id,
+						size: abolished.size,
+						flipped: abolished.player.flipped,
+					});
+					return;
+				}
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
@@ -216,12 +232,25 @@ export default (G) => {
 				return this.testRequirements();
 			},
 
-			query() {
+			query(isPreview = false) {
 				const ability = this;
 				const crea = this.creature;
 				let totalRange = this.range;
 				if (this.isUpgraded()) {
 					totalRange = this.range + this.creature.accumulatedTeleportRange - 1;
+				}
+
+				const range = G.grid.getFlyingRange(crea.x, crea.y, totalRange, crea.size, crea.id);
+
+				if (isPreview) {
+					G.grid.queryHexes({
+						hexes: range,
+						hideNonTarget: true,
+						id: crea.id,
+						size: crea.size,
+						flipped: crea.player.flipped,
+					});
+					return;
 				}
 
 				// Relocates to any hex within range except for the current hex
@@ -319,13 +348,24 @@ export default (G) => {
 			require() {
 				return this.testRequirements();
 			},
-			query() {
+			query(isPreview = false) {
 				const ability = this;
 				const crea = this.creature;
 
 				// var inRangeCreatures = crea.hexagons[1].adjacentHex(1);
 
 				const range = crea.adjacentHexes(1);
+
+				if (isPreview) {
+					G.grid.queryHexes({
+						hexes: range,
+						hideNonTarget: true,
+						id: crea.id,
+						size: crea.size,
+						flipped: crea.player.flipped,
+					});
+					return;
+				}
 
 				G.grid.queryHexes({
 					fnOnConfirm: function () {

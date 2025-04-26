@@ -3,6 +3,7 @@ import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import { Creature } from '../creature';
 import { Effect } from '../effect';
+import * as arrayUtils from '../utility/arrayUtils';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -85,7 +86,8 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function (isPreview = false) {
+				if (isPreview) {return;}
 				const ability = this;
 
 				G.grid.queryCreature({
@@ -161,7 +163,8 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function (isPreview = false) {
+				if (isPreview) {return;}
 				const ability = this;
 
 				G.grid.queryCreature({
@@ -256,12 +259,29 @@ export default (G) => {
 			},
 
 			// 	query() :
-			query: function () {
+			query: function (isPreview = false) {
 				const ability = this;
 				const crea = this.creature;
 
 				const x = crea.player.flipped ? crea.x - crea.size + 1 : crea.x;
+				if (isPreview){
 
+					let forward = G.grid.getHexMap(crea.x, crea.y, 0, false, matrices.straitrow).slice(0, this._getDistance()+1);
+					let backward = G.grid.getHexMap(crea.x, crea.y, 0, true, matrices.straitrow).slice(0, this._getDistance()+1);
+					// Combine and sort by X, left to right
+					const hexes = forward.concat(backward).sort(function (a, b) {
+						return a.x - b.x;
+					});
+
+					G.grid.queryHexes({
+						hexes: hexes,
+						id: crea.id,
+						size: crea.size,
+						flipped: crea.player.flipped,
+						hideNonTarget: true,
+					});
+					return;
+				}
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
