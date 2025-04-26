@@ -39,7 +39,7 @@ export class Fullscreen {
 
 	requestFullscreen(element: HTMLElement) {
 		if (element.requestFullscreen) {
-			element.requestFullscreen().catch(e => console.error('Fullscreen error:', e));
+			element.requestFullscreen().catch((e) => console.error('Fullscreen error:', e));
 		} else if ((element as any).webkitRequestFullscreen) {
 			(element as any).webkitRequestFullscreen();
 		} else if ((element as any).mozRequestFullScreen) {
@@ -65,7 +65,7 @@ export class Fullscreen {
 		try {
 			// Try to lock screen orientation to landscape
 			if ((screen as any).orientation && (screen as any).orientation.lock) {
-				(screen as any).orientation.lock('landscape').catch(e => {
+				(screen as any).orientation.lock('landscape').catch((e) => {
 					console.error('Failed to lock orientation:', e);
 				});
 			} else if ((screen as any).lockOrientation) {
