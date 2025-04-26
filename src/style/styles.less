@@ -2150,3 +2150,48 @@ input {
 		}
 	}
 }
+
+/* Orientation message for mobile devices */
+#orientation-message {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.9);
+	z-index: 9999;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	color: white;
+	text-align: center;
+	font-size: 1.2em;
+	padding: 20px;
+}
+
+#orientation-message .rotate-icon {
+	width: 64px;
+	height: 64px;
+	background-image: url('~assets/icons/rotate.svg');
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	margin-bottom: 20px;
+	animation: rotate 2s infinite ease-in-out;
+}
+
+@keyframes rotate {
+	0% { transform: rotate(0deg); }
+	25% { transform: rotate(90deg); }
+	50% { transform: rotate(90deg); }
+	75% { transform: rotate(0deg); }
+	100% { transform: rotate(0deg); }
+}
+
+/* Show orientation message only on mobile devices in portrait mode */
+@media screen and (max-width: 823px) and (orientation: portrait) {
+	#orientation-message {
+		display: flex;
+	}
+}
