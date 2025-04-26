@@ -901,6 +901,18 @@ export default class Game {
 		// NOTE: If skipping a turn and there is a temp creature, destroy it.
 		this.creatures.filter((c) => c.temp).forEach((c) => c.destroy());
 
+		// Removing any potential previews - specifically addressing skipTurn after Scavenger Escort Service
+		if (this.grid.materialize_overlay) {
+			this.grid.fadeOutTempCreature();                // tween alpha → 0
+			this.grid.materialize_overlay.destroy();        // remove from display list
+			this.grid.materialize_overlay = null;           // clear the reference
+		}
+		if (this.grid.secondary_overlay) {
+			this.grid.fadeOutTempCreature(this.grid.secondary_overlay);
+			this.grid.secondary_overlay.destroy();
+			this.grid.secondary_overlay = null;
+		}
+
 		// Send skip turn to server
 
 		if (this.turnThrottle) {
