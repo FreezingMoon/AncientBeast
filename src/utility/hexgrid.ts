@@ -304,9 +304,31 @@ export class HexGrid {
 	 * @param {QueryOptions} o
 	 */
 	queryDirection(o: Partial<QueryOptions>) {
-		o.isDirectionsQuery = true;
+		const defaultOpt = {
+			team: Team.Enemy,
+			id: 0,
+			flipped: false,
+			x: 0,
+			y: 0,
+			directions: [1, 1, 1, 1, 1, 1],
+			includeCreature: true,
+			stopOnCreature: true,
+			distance: 0,
+			minDistance: 0,
+			distanceFalloff: 0,
+			dashedHexesAfterCreatureStop: true,
+			dashedHexesDistance: 0,
+			dashedHexesUnderCreature: true,
+			sourceCreature: undefined,
+			isDirectionsQuery: true,
+		};
+
+		o = { ...defaultOpt, ...o };
+
 		o = this.getDirectionChoices(o);
 		this.queryChoice(o);
+
+		return true;
 	}
 
 	/**
@@ -333,6 +355,7 @@ export class HexGrid {
 			distanceFalloff: 0,
 			dashedHexesAfterCreatureStop: true,
 			dashedHexesDistance: 0,
+			dashedHexesUnderCreature: true,
 			sourceCreature: undefined,
 			choices: [],
 			optTest: () => true,

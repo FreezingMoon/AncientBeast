@@ -567,7 +567,13 @@ export class Hex {
 		} else if (this.displayClasses.match(/adj/)) {
 			this.display.loadTexture('hex_path');
 		} else if (this.displayClasses.match(/dashed/)) {
-			this.display.loadTexture('hex_dashed');
+			// Check if this is a dashed hex with a creature (blocked target)
+			if (this.creature instanceof Creature) {
+				// Use colored dashed texture for the creature's team
+				this.display.loadTexture(`hex_dashed_p${this.creature.team}`);
+			} else {
+				this.display.loadTexture('hex_dashed');
+			}
 		} else if (this.displayClasses.match(/deadzone/)) {
 			this.display.loadTexture('hex_deadzone');
 		} else {
