@@ -1,4 +1,5 @@
 import { event } from 'jquery';
+import { Fullscreen } from '../ui/fullscreen';
 
 export class Hotkeys {
 	constructor(ui) {
@@ -144,6 +145,13 @@ export class Hotkeys {
 	pressSpace() {
 		!this.ui.dashopen && this.ui.game.grid.confirmHex();
 	}
+
+	pressF11(event) {
+		event.preventDefault();
+		const fullscreen = new Fullscreen(document.getElementById('fullscreen'));
+
+		fullscreen.toggle();
+	}
 }
 export function getHotKeys(hk) {
 	const hotkeys = {
@@ -275,21 +283,8 @@ export function getHotKeys(hk) {
 			},
 		},
 		F11: {
-			onkeydown() {
-				// Update UI state on F11 key press
-				setTimeout(() => {
-					const fullscreenButton =
-						document.querySelector('#fullscreen.button') || document.getElementById('fullscreen');
-					if (fullscreenButton && fullscreenButton.__proto__.constructor.name === 'HTMLElement') {
-						// Get the Fullscreen instance if possible
-						const game = window.G;
-						if (game && game.ui && game.ui.fullscreen) {
-							game.ui.fullscreen.updateButtonState();
-						} else if (window.fullscreen) {
-							window.fullscreen.updateButtonState();
-						}
-					}
-				}, 100);
+			onkeydown(event) {
+				hk.pressF11(event);
 			},
 		},
 	};
