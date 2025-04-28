@@ -12,18 +12,21 @@ export class Fullscreen {
 		document.addEventListener('mozfullscreenchange', () => this.updateButtonState());
 	}
 
-	toggle() {
-		if (document.fullscreenElement) {
-			document.exitFullscreen();
-		} else {
-			const gameElement = document.getElementById('AncientBeast');
-			if (gameElement) {
-				gameElement.requestFullscreen();
+	async toggle() {
+		try {
+			if (document.fullscreenElement) {
+				await document.exitFullscreen();
+			} else {
+				const gameElement = document.getElementById('AncientBeast');
+				if (gameElement) {
+					await gameElement.requestFullscreen();
+				}
 			}
-		}
 
-		// Update button state after a short delay
-		setTimeout(() => this.updateButtonState(), 100);
+			setTimeout(() => this.updateButtonState(), 100);
+		} catch (error) {
+			console.error('Error toggling fullscreen:', error);
+		}
 	}
 
 	updateButtonState() {

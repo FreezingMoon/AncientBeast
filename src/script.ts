@@ -118,6 +118,15 @@ $j(() => {
 				fullscreen.toggle();
 			},
 		},
+		F11: {
+			keyDownTest() {
+				return true;
+			},
+			keyDownAction(event) {
+				event.preventDefault();
+				fullscreen.toggle();
+			},
+		},
 		KeyL: {
 			keyDownTest(event) {
 				return event.metaKey && event.ctrlKey;
