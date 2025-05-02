@@ -6,6 +6,11 @@ export class Fullscreen {
 		if (isFullscreen) {
 			button.classList.add('fullscreenMode');
 		}
+		if (window.innerHeight === screen.height) {
+			this.button.style.pointerEvents = 'none';
+			this.button.style.opacity = '0.3';
+			return;
+		}
 	}
 
 	toggle() {
@@ -15,15 +20,13 @@ export class Fullscreen {
 				.querySelectorAll('.fullscreen__title')
 				.forEach((el) => (el.textContent = 'FullScreen'));
 			document.exitFullscreen();
-		} else if (!isAppInNativeFullscreenMode() && window.innerHeight === screen.height) {
-			alert('Use F11 to exit fullscreen');
-		} else {
-			this.button.classList.add('fullscreenMode');
-			this.button
-				.querySelectorAll('.fullscreen__title')
-				.forEach((el) => (el.textContent = 'Contract'));
-			document.getElementById('AncientBeast').requestFullscreen();
+			return;
 		}
+		this.button.classList.add('fullscreenMode');
+		this.button
+			.querySelectorAll('.fullscreen__title')
+			.forEach((el) => (el.textContent = 'Contract'));
+		document.getElementById('AncientBeast').requestFullscreen();
 	}
 }
 
@@ -31,10 +34,13 @@ export class Fullscreen {
  * @returns {boolean} true if app is currently in [fullscreen mode using the native API](https://developer.mozilla.org/en-US/docs/Web/API/Fullscreen_API), else false.
  */
 function isAppInNativeFullscreenMode(): boolean {
-	// NOTE: These properties were vendor-prefixed until very recently.
-	// Keeping vendor prefixes, though they make TS report an error.
-	return (
+	return !!(
+		document.fullscreenElement ||
 		// @ts-expect-error 2551
-		document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement
+		document.webkitFullscreenElement ||
+		// @ts-expect-error 2551
+		document.mozFullScreenElement ||
+		// @ts-expect-error 2551
+		document.msFullscreenElement
 	);
 }
