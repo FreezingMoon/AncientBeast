@@ -8,6 +8,9 @@
 ![1vs1 Dark Forest](https://raw.github.com/FreezingMoon/AncientBeast-Website/master/multimedia/screenshots/v0.3%20Dark%20Forest.jpg)
 **"We all die. The goal isn't to live forever. The goal is to create something that will."** _Chuck Palahniuk_
 
+### 🪙 Token
+**Warning!** ⚠️ Less than a week remaining to mint our awesome token, **$BEAST** and have access to various goodies while helping big time to make this project a success! Check it out! -> https://q-acc.giveth.io/project/ancient-beast 🐺
+
 ### 🎓 Intro
 
 **Ancient Beast** is a turn based strategy indie game project played online against other people featuring a wide variety of creatures to acquire, putting them to use in order to defeat your opponents. This project was carefully designed to be easy to learn, fun to play and hard to master. We hope you'll enjoy it!
