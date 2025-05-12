@@ -19,18 +19,17 @@ export default class Authenticate {
 		this.client = client;
 	}
 	async register() {
-		var session = await this.client.authenticateEmail(
+		const session = await this.client.authenticateEmail(
 			this.email,
 			this.password,
 			true,
 			this.username,
 		);
-
 		return Promise.resolve(session);
 	}
 
 	async authenticateEmail() {
-		var session = await this.client.authenticateEmail(this.email, this.password, false);
+		const session = await this.client.authenticateEmail(this.email, this.password, false);
 		return Promise.resolve(session);
 	}
 }
