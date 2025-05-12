@@ -1,7 +1,21 @@
 import * as $j from 'jquery';
+import Game from '../game';
+import MatchI from './match';
+import { Player } from '../player';
+
+type matchData = {
+	match_id?: string;
+};
 
 export default class Gameplay {
-	constructor(game, match) {
+	private game: Game;
+	private match: MatchI;
+	private players: Player[];
+	private matchData: matchData;
+	private configData: object;
+	private matchUsers: any[];
+	private matchTurn: any;
+	constructor(game: Game, match: MatchI) {
 		this.game = game;
 		this.match = match;
 		this.matchData = {};
