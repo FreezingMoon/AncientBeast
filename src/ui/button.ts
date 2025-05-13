@@ -228,7 +228,7 @@ export class Button {
 	/**
 	 * Apply a CSS class on a button for a duration
 	 * Useful for flashing a different icon etc for a certain period of time
-	 * @param {string} transitionClass A CSS class to apply for the transitition
+	 * @param {string} transitionClass A CSS class to apply for the transition
 	 * @param {number} transitionMs Time spent in the transition
 	 */
 	cssTransition(transitionClass, transitionMs) {

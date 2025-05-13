@@ -266,7 +266,7 @@ export class Hex {
 	 * @deprecated There's no longer a need to set hex.creature. Simply update the creature.
 	 */
 	set creature(creature: Creature) {
-		// NOTE: solely for compatability.
+		// NOTE: solely for compatibility.
 	}
 
 	onSelectFn(_: this) {
@@ -433,7 +433,7 @@ export class Hex {
 			}
 		}
 
-		return !blocked; // Its walkable if it's NOT blocked
+		return !blocked; // It's walkable if it's NOT blocked
 	}
 
 	/**

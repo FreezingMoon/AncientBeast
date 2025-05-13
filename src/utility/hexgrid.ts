@@ -74,7 +74,7 @@ export interface QueryOptions {
 	choices: Hex[][];
 
 	/**
-	 * Object given to the events function (to easily pass variable for these function).
+	 * Object given to the events function (to easily pass variables for these functions).
 	 */
 	arg: any;
 
@@ -1621,7 +1621,7 @@ export class HexGrid {
 	}
 
 	/**
-	 * Shorcut for $allDispHex.removeClass()
+	 * Shortcut for $allDispHex.removeClass()
 	 * @param {string} cssClass - Class(es) name(s) to remove with jQuery removeClass function
 	 * @deprecated use this.allhexes.forEach(hex => hex.cleanDisplayVisualState(cssClass))
 	 */
@@ -1651,7 +1651,7 @@ export class HexGrid {
 
 		if (!secondary) {
 			if (!this.materialize_overlay) {
-				// If sprite does not exists
+				// If sprite does not exist
 				// Adding sprite
 				this.materialize_overlay = this.creatureGroup.create(0, 0, cardboard);
 				this.materialize_overlay.anchor.setTo(0.5, 1);
@@ -1687,8 +1687,8 @@ export class HexGrid {
 			(!player.flipped
 				? creatureData.display['offset-x']
 				: HEX_WIDTH_PX * creatureData.size -
-				preview.texture.width -
-				creatureData.display['offset-x']) +
+				  preview.texture.width -
+				  creatureData.display['offset-x']) +
 			preview.texture.width / 2;
 		preview.y = hex.displayPos.y + creatureData.display['offset-y'] + preview.texture.height;
 		preview.alpha = 0.5;

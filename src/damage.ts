@@ -63,7 +63,7 @@ export class Damage {
 			result.total += result[key];
 		});
 
-		// NOTE: Always do a minimium of 1 total damage
+		// NOTE: Always do a minimum of 1 total damage
 		result.total = Math.max(result.total, 1);
 
 		return result;
