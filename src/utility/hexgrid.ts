@@ -946,7 +946,6 @@ export class HexGrid {
 				return true;
 			}
 		};
-
 		// Set reachable the given hexes
 		o.hexes.forEach((hex) => {
 			hex.setReachable();
@@ -957,6 +956,8 @@ export class HexGrid {
 				if (hex.creature instanceof Creature) {
 					if (hex.creature.id != this.game.activeCreature.id) {
 						hex.overlayVisualState('reachable h_player' + hex.creature.team);
+						// Add dashed hexagons under targets for ranged abilities
+						hex.displayVisualState('dashed');
 					}
 				} else {
 					if (o.fillOnlyHoveredCreature && !emptyHexBeforeCreature(hex)) {
@@ -981,10 +982,13 @@ export class HexGrid {
 				} else {
 					creature.displayHealthStats();
 				}
-			}
-			creature.hexagons.forEach((h) => {
+			}			creature.hexagons.forEach((h) => {
 				// Flashing outline
 				h.overlayVisualState('hover h_player' + creature.team);
+				// Keep the dashed hexagons visible under targets
+				if (h.displayClasses.indexOf('dashed') === -1) {
+					h.displayVisualState('dashed');
+				}
 			});
 			if (creature !== game.activeCreature) {
 				if (!hex.reachable) {
