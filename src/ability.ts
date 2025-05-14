@@ -377,7 +377,7 @@ export class Ability {
 	/**
 	 * Animate the creature
 	 */
-	animation(...args: IArguments[]): false | void {
+	animation(...args): false | void {
 		const game = this.game;
 		// Gamelog Event Registration
 		if (game.triggers.onQuery.test(this.getTrigger())) {
