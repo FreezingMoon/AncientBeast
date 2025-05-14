@@ -127,7 +127,7 @@ export class Ability {
 	_damaged: boolean;
 	_executeHealthThreshold: number;
 	_highlightDestination: (...args: any) => void;
-
+	_getDirections: () => number[];
 	_activateOnAttacker: (...arg: any) => boolean;
 	_activateOnTarget: (t: Creature) => void;
 	_pushMove: (destination: Hex, target: Creature, targetDestination: Hex) => void;
@@ -164,7 +164,7 @@ export class Ability {
 	resetTimesUsed(): void {
 		this.timesUsedThisTurn = 0;
 	}
-	
+
 	directions: [1, 1, 1, 1, 1, 1];
 	constructor(creature: Creature, abilityID: AbilitySlot, game: Game) {
 		this.creature = creature;
@@ -377,7 +377,7 @@ export class Ability {
 	/**
 	 * Animate the creature
 	 */
-	animation(...args): false | void {
+	animation(...args: IArguments[]): false | void {
 		const game = this.game;
 		// Gamelog Event Registration
 		if (game.triggers.onQuery.test(this.getTrigger())) {
