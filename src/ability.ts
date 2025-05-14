@@ -68,7 +68,7 @@ type AbilityEffect = {
 	frost?: number;
 };
 
-type OffesnsiveBuff = number;
+type OffensiveBuff = number;
 type DefensiveBuff = number;
 
 export class Ability {
@@ -109,10 +109,10 @@ export class Ability {
 
 	_energyNormal?: number;
 	_energySelfUpgraded: number;
-	mbuff?: OffesnsiveBuff;
+	mbuff?: OffensiveBuff;
 	obuff?: DefensiveBuff;
 	abilityName?: string;
-	// TODO: Once all abilities files are converted to TS, look into deleteing the `name` param as it appears unecessary
+	// TODO: Once all abilities files are converted to TS, look into deleting the `name` param as it appears unnecessary
 	getAbilityName?: (name: string) => string;
 	getMovementBuff?: (buff: number) => number;
 	getOffenseBuff?: (buff: number) => number;
@@ -164,7 +164,7 @@ export class Ability {
 	resetTimesUsed(): void {
 		this.timesUsedThisTurn = 0;
 	}
-	
+
 	directions: [1, 1, 1, 1, 1, 1];
 	constructor(creature: Creature, abilityID: AbilitySlot, game: Game) {
 		this.creature = creature;

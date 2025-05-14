@@ -161,7 +161,7 @@ $j(() => {
 	}
 
 	if (G.multiplayer) {
-		// TODO Remove after implementaion 2 vs 2 in multiplayer mode
+		// TODO Remove after implementation 2 vs 2 in multiplayer mode
 		forceTwoPlayerMode();
 	}
 
@@ -185,7 +185,7 @@ $j(() => {
 		$j('#startMatchButton').show();
 		$j('#startButton').hide();
 
-		// TODO Remove after implementaion 2 vs 2 in multiplayer mode
+		// TODO Remove after implementation 2 vs 2 in multiplayer mode
 		forceTwoPlayerMode();
 	});
 
@@ -361,7 +361,7 @@ $j(() => {
 
 /**
  * force 1 vs 1 game mode
- * should be removed after implementaion 2 vs 2 in multiplayer mode
+ * should be removed after implementation 2 vs 2 in multiplayer mode
  */
 function forceTwoPlayerMode() {
 	$j('#p2').trigger('click');
