@@ -1687,8 +1687,8 @@ export class HexGrid {
 			(!player.flipped
 				? creatureData.display['offset-x']
 				: HEX_WIDTH_PX * creatureData.size -
-				preview.texture.width -
-				creatureData.display['offset-x']) +
+				  preview.texture.width -
+				  creatureData.display['offset-x']) +
 			preview.texture.width / 2;
 		preview.y = hex.displayPos.y + creatureData.display['offset-y'] + preview.texture.height;
 		preview.alpha = 0.5;

@@ -256,7 +256,7 @@ export default (G: Game) => {
 
 			_highlightDestination: function (hex: Hex) {
 				const ghostData = this.game.retrieveCreatureStats(this.creature.type);
-			    this.game.grid.previewCreature(hex, ghostData, this.creature.player);
+				this.game.grid.previewCreature(hex, ghostData, this.creature.player);
 				this.creature.tracePosition({
 					x: hex.x,
 					y: hex.y,

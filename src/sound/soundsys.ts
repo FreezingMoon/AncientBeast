@@ -3,7 +3,6 @@ import { getUrl } from '../assets';
 import { MusicPlayer } from './musicplayer';
 import { clamp } from '../utility/math';
 
-
 export type AudioMode = 'full' | 'sfx' | 'muted';
 let currentAudioMode: AudioMode = 'full';
 
@@ -75,13 +74,18 @@ export class SoundSys {
 		}
 	}
 
+	get musicVolume() {
+		return this._musicVol;
+	}
 	set musicVolume(level: number) {
 		if (this.envHasSound) {
 			this._musicVol = clamp(level, 0, 1);
 			this.musicGainNode.gain.value = this._musicVol;
 		}
 	}
-
+	get effectsVolume() {
+		return this._effectsVol;
+	}
 	set effectsVolume(level: number) {
 		if (this.envHasSound) {
 			this._effectsVol = clamp(level, 0, 1);
@@ -89,6 +93,9 @@ export class SoundSys {
 		}
 	}
 
+	get heartbeatVolume() {
+		return this._heartbeatVol;
+	}
 	set heartbeatVolume(level: number) {
 		if (this.envHasSound) {
 			this._heartbeatVol = clamp(level, 0, 1);
@@ -96,29 +103,15 @@ export class SoundSys {
 		}
 	}
 
+	get announcerVolume() {
+		return this._announcerVol;
+	}
 	set announcerVolume(level: number) {
 		if (this.envHasSound) {
 			this._announcerVol = clamp(level, 0, 1);
 			this.announcerGainNode.gain.value = this._announcerVol * this._allEffectsCoeff;
 		}
 	}
-
-	get musicVolume() {
-		return this._musicVol;
-	}
-
-	get effectsVolume() {
-		return this._effectsVol;
-	}
-
-	get heartbeatVolume() {
-		return this._heartbeatVol;
-	}
-
-	get announcerVolume() {
-		return this._announcerVol;
-	}
-
 
 	set allEffectsMultiplier(level: number) {
 		if (this.envHasSound) {
@@ -208,7 +201,6 @@ export function isNullAudioBufferSourcNode(o: any) {
 }
 
 type SoundSysAudioBufferSourceNode = AudioBufferSourceNode | NullAudioBufferSourceNode;
-
 
 export function setAudioMode(mode, soundSysInstance, uiInstance) {
 	currentAudioMode = mode;

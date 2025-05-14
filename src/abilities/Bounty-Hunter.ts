@@ -169,7 +169,7 @@ export default (G: Game) => {
 						target.takeDamage(damage);
 						G.log('%CreatureName' + ability.creature.id + '% used ' + ability.title + ' twice');
 					}, 1000);
-				} else target.takeDamage(damage); 
+				} else target.takeDamage(damage);
 			},
 		},
 
