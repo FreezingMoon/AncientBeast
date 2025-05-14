@@ -419,8 +419,8 @@ function readLogFromFile() {
  */
 function getLogin() {
 	const login = {
-		email: $j('.login input[name="email"]').val(),
-		password: $j('.login input[name="password"]').val(),
+		email: $j('.login input[name="email"]').val() as string,
+		password: $j('.login input[name="password"]').val() as string,
 	};
 	return login;
 }
