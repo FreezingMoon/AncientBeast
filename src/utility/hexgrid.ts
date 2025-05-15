@@ -953,11 +953,12 @@ export class HexGrid {
 				hex.unsetNotTarget();
 			}
 			if (o.targeting) {
-				if (hex.creature instanceof Creature) {
-					if (hex.creature.id != this.game.activeCreature.id) {
+				if (hex.creature instanceof Creature) {					if (hex.creature.id != this.game.activeCreature.id) {
 						hex.overlayVisualState('reachable h_player' + hex.creature.team);
 						// Add dashed hexagons under targets for ranged abilities
 						hex.displayVisualState('dashed');
+						// Ensure dashed hexagons are on top for better visibility
+						hex.grid.displayHexesGroup.bringToTop(hex.display);
 					}
 				} else {
 					if (o.fillOnlyHoveredCreature && !emptyHexBeforeCreature(hex)) {
@@ -989,6 +990,8 @@ export class HexGrid {
 				if (h.displayClasses.indexOf('dashed') === -1) {
 					h.displayVisualState('dashed');
 				}
+				// Make sure the display hexagon is brought to the top for better visibility
+				h.grid.displayHexesGroup.bringToTop(h.display);
 			});
 			if (creature !== game.activeCreature) {
 				if (!hex.reachable) {
