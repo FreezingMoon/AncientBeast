@@ -211,25 +211,36 @@ export default (G) => {
 
 				const select = (hex) => {
 					for (let i = 0; i < trg.hexagons.length; i++) {
-						G.grid.cleanHex(trg.hexagons[i]);
-						trg.hexagons[i].displayVisualState('dashed');
+						const hexTrg = trg.hexagons[i];
+						G.grid.cleanHex(hexTrg);
+						hexTrg.cleanDisplayVisualState();
+						hexTrg.cleanOverlayVisualState();
+						hexTrg.displayVisualState('creature hover player' + trg.player.id); // ✅ fixed
 					}
+
 					for (let i = 0; i < crea.hexagons.length; i++) {
-						G.grid.cleanHex(crea.hexagons[i]);
-						crea.hexagons[i].overlayVisualState('hover h_player' + crea.team);
+						const hexCrea = crea.hexagons[i];
+						G.grid.cleanHex(hexCrea);
+						hexCrea.cleanDisplayVisualState();
+						hexCrea.cleanOverlayVisualState();
+						hexCrea.overlayVisualState('hover h_player' + crea.team);
 					}
+
 					for (let i = 0; i < size; i++) {
-						if (!G.grid.hexExists({ y: hex.y, x: hex.x - i })) {
-							continue;
-						}
+						if (!G.grid.hexExists({ y: hex.y, x: hex.x - i })) continue;
+
 						const h = G.grid.hexes[hex.y][hex.x - i];
+
 						let color;
 						if (trgIsInfront) {
 							color = i < trg.size ? trg.team : crea.team;
 						} else {
 							color = i > 1 ? trg.team : crea.team;
 						}
+
 						G.grid.cleanHex(h);
+						h.cleanDisplayVisualState(); // ✅ critical to stop flickering
+						h.cleanOverlayVisualState(); // ✅ critical to stop grey flash
 						h.overlayVisualState('active creature player' + color);
 						h.displayVisualState('creature player' + color);
 
@@ -241,7 +252,12 @@ export default (G) => {
 							: { x: hex.pos.x - 2, y: hex.pos.y };
 
 						G.grid.previewCreature(creaPos, creatureData, crea.player);
-						G.grid.previewCreature(trgPos, targetData, trg.player, true);
+
+						// ⚠️ Disabled due to visual conflict:
+						// previewCreature causes the target (trg) to flicker between grey and blue
+						// by overriding displayVisualState every frame.
+						// This breaks hover clarity during cross-team Escort previews.
+						// G.grid.previewCreature(trgPos, targetData, trg.player, true);
 					}
 				};
 
