@@ -127,7 +127,7 @@ export class Ability {
 	_damaged: boolean;
 	_executeHealthThreshold: number;
 	_highlightDestination: (...args: any) => void;
-
+	_getDirections: () => number[];
 	_activateOnAttacker: (...arg: any) => boolean;
 	_activateOnTarget: (t: Creature) => void;
 	_pushMove: (destination: Hex, target: Creature, targetDestination: Hex) => void;
