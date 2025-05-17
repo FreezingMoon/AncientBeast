@@ -269,19 +269,19 @@ export class Hex {
 		// NOTE: solely for compatibility.
 	}
 
-	onSelectFn(_: this) {
+	onSelectFn() {
 		// No-op function.
 	}
 
-	onHoverOffFn(_: this) {
+	onHoverOffFn() {
 		// No-op function.
 	}
 
-	onConfirmFn(_: this) {
+	onConfirmFn() {
 		// No-op function.
 	}
 
-	onRightClickFn(_: this) {
+	onRightClickFn() {
 		// No-op function.
 	}
 
