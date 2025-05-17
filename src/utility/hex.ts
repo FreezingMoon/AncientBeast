@@ -565,7 +565,9 @@ export class Hex {
 			this.display.loadTexture(`hex_p${player}`);
 			this.grid.displayHexesGroup.bringToTop(this.display);
 		} else if (this.displayClasses.match(/adj/)) {
-			this.display.loadTexture('hex_path');		} else if (this.displayClasses.match(/dashed/)) {			// Check if this is a dashed hex with a creature (blocked target)
+			this.display.loadTexture('hex_path');
+		} else if (this.displayClasses.match(/dashed/)) {
+			// Check if this is a dashed hex with a creature (blocked target)
 			if (this.creature instanceof Creature) {
 				// Use colored dashed texture for the creature's team
 				this.display.loadTexture(`hex_dashed_p${this.creature.team}`);
@@ -644,7 +646,13 @@ export class Hex {
 				this.overlay.loadTexture(`hex_p${player}`);
 			}
 
-			this.grid.overlayHexesGroup.bringToTop(this.overlay);
+			// Always bring the overlay to the top when it's active
+			if (targetAlpha) {
+				// Ensure the display hex is below the overlay
+				this.grid.displayHexesGroup.bringToTop(this.display);
+				// Then bring the overlay to the top of its group
+				this.grid.overlayHexesGroup.bringToTop(this.overlay);
+			}
 		} else {
 			this.overlay.loadTexture('cancel');
 			this.overlay.anchor.set(0.5, 0.5);
