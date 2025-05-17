@@ -269,19 +269,23 @@ export class Hex {
 		// NOTE: solely for compatibility.
 	}
 
-	onSelectFn() {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	onSelectFn(_hex: this) {
 		// No-op function.
 	}
 
-	onHoverOffFn() {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	onHoverOffFn(_hex: this) {
 		// No-op function.
 	}
 
-	onConfirmFn() {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	onConfirmFn(_hex: this) {
 		// No-op function.
 	}
 
-	onRightClickFn() {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	onRightClickFn(_hex: this) {
 		// No-op function.
 	}
 
