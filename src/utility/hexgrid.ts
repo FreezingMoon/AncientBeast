@@ -948,15 +948,15 @@ export class HexGrid {
 		};
 		// Set reachable the given hexes
 		o.hexes.forEach((hex) => {
-			hex.setReachable();
+			hex.setReachable();	
 			if (o.hideNonTarget) {
 				hex.unsetNotTarget();
 			}
 			if (o.targeting) {
 				if (hex.creature instanceof Creature) {					if (hex.creature.id != this.game.activeCreature.id) {
 						hex.overlayVisualState('reachable h_player' + hex.creature.team);
-						// Add dashed hexagons under targets for ranged abilities
-						hex.displayVisualState('dashed');
+						// Add dashed hexagons under targets for ranged abilities with team color
+						hex.displayVisualState('dashed player' + hex.creature.team);
 						// Ensure dashed hexagons are on top for better visibility
 						hex.grid.displayHexesGroup.bringToTop(hex.display);
 					}
@@ -986,9 +986,9 @@ export class HexGrid {
 			}			creature.hexagons.forEach((h) => {
 				// Flashing outline
 				h.overlayVisualState('hover h_player' + creature.team);
-				// Keep the dashed hexagons visible under targets
+				// Keep the dashed hexagons visible under targets with team color
 				if (h.displayClasses.indexOf('dashed') === -1) {
-					h.displayVisualState('dashed');
+					h.displayVisualState('dashed player' + creature.team);
 				}
 				// Make sure the display hexagon is brought to the top for better visibility
 				h.grid.displayHexesGroup.bringToTop(h.display);
