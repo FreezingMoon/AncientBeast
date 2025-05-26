@@ -6,6 +6,7 @@ import Game from './game';
 import { PreMatchAudioPlayer } from './sound/pre-match-audio';
 import { Fullscreen } from './ui/fullscreen';
 import { buttonSlide } from './ui/button';
+import { Maps } from './ui/maps';
 
 import Connect from './multiplayer/connect';
 import Authenticate from './multiplayer/authenticate';
@@ -57,10 +58,16 @@ $j(() => {
 	scrim.removeClass('loading');
 	renderPlayerModeType(G.multiplayer);
 
-	// Select a random combat location
-	const locationSelector = $j("input[name='combatLocation']");
-	const randomLocationIndex = Math.floor(Math.random() * locationSelector.length);
-	locationSelector.eq(randomLocationIndex).prop('checked', true).trigger('click');
+	// For the location rendering. The logic is in src/ui/maps.ts
+	const maps: Maps = new Maps();
+	maps.renderMaps();
+	
+	// Random location logic
+	$j('#randomLocation').on('click', () => {
+		const radios = $j("input[name='combatLocation']");
+		const index = Math.floor(Math.random() * radios.length);
+		radios.eq(index).prop('checked', true);
+	});
 
 	// Disable initial game setup until browser tab has focus
 	window.addEventListener('blur', G.onBlur.bind(G), false);
