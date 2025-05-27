@@ -205,10 +205,10 @@ export const unitData = [
 			walk_speed: 500,
 		},
 		display: {
-			width: 108,
-			height: 200,
-			'offset-x': 0,
-			'offset-y': -164,
+			width: 120,
+			height: 185,
+			'offset-x': -5,
+			'offset-y': -155,
 		},
 		ability_info: [
 			{
