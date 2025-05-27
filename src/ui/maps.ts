@@ -9,7 +9,7 @@ export class Maps {
     "Dragon Bones",
   ];
 
-  // gets all the maps and puts them in the UI (src/index.ejs)
+  // Gets all the maps and puts them in the UI (src/index.ejs)
   renderMaps() {
   	for (let index = 0; index < this.maps.length; index += 1) {
   		$j('#combatLocation').append(
@@ -21,7 +21,7 @@ export class Maps {
   		);
   	}
 
-    // the background opt 1 will always be default so the
+    // The background opt 1 will always be default so the
     // game won't crash when the player doesn't choose a map
     const radios = $j("input[name='combatLocation']");
 		radios.eq(0).prop('checked', true).trigger('click');
