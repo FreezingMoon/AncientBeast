@@ -269,19 +269,23 @@ export class Hex {
 		// NOTE: solely for compatibility.
 	}
 
-	onSelectFn(_: this) {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	onSelectFn(_hex: this) {
 		// No-op function.
 	}
 
-	onHoverOffFn(_: this) {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	onHoverOffFn(_hex: this) {
 		// No-op function.
 	}
 
-	onConfirmFn(_: this) {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	onConfirmFn(_hex: this) {
 		// No-op function.
 	}
 
-	onRightClickFn(_: this) {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	onRightClickFn(_hex: this) {
 		// No-op function.
 	}
 
@@ -565,17 +569,20 @@ export class Hex {
 			this.display.loadTexture(`hex_p${player}`);
 			this.grid.displayHexesGroup.bringToTop(this.display);
 		} else if (this.displayClasses.match(/adj/)) {
-			this.display.loadTexture('hex_path');		} else if (this.displayClasses.match(/dashed/)) {			// Check if this is a dashed hex with a creature (blocked target)
-			if (this.creature instanceof Creature) {
-				// Use colored dashed texture for the creature's team
-				this.display.loadTexture(`hex_dashed_p${this.creature.team}`);
-				// Ensure dashed hexagons are visible
-				this.display.alpha = 1;
-				// Bring dashed hexes with creatures to the top of the display group for better visibility
+			this.display.loadTexture('hex_path');
+		} else if (this.displayClasses.match(/dashed/)) {
+			// Check if this is a dashed hex with a team color
+			const playerMatch = this.displayClasses.match(/player([0-3])/);
+			if (playerMatch) {
+				// Use colored dashed texture for the team
+				this.display.loadTexture(`hex_dashed_p${playerMatch[1]}`);
+				// Ensure dashed team hexagons are on top
 				this.grid.displayHexesGroup.bringToTop(this.display);
 			} else {
 				this.display.loadTexture('hex_dashed');
 			}
+			// Always ensure dashed hexagons are visible
+			this.display.alpha = 1;
 		} else if (this.displayClasses.match(/deadzone/)) {
 			this.display.loadTexture('hex_deadzone');
 		} else {
@@ -644,7 +651,13 @@ export class Hex {
 				this.overlay.loadTexture(`hex_p${player}`);
 			}
 
-			this.grid.overlayHexesGroup.bringToTop(this.overlay);
+			// Always bring the overlay to the top when it's active
+			if (targetAlpha) {
+				// Ensure the display hex is below the overlay
+				this.grid.displayHexesGroup.bringToTop(this.display);
+				// Then bring the overlay to the top of its group
+				this.grid.overlayHexesGroup.bringToTop(this.overlay);
+			}
 		} else {
 			this.overlay.loadTexture('cancel');
 			this.overlay.anchor.set(0.5, 0.5);
