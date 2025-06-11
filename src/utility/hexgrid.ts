@@ -11,6 +11,11 @@ import { HEX_WIDTH_PX } from './const';
 import { Point } from './pointfacade';
 import { AugmentedMatrix } from './matrices';
 
+// Define the 'ExtendedSprite' interface to resolve the 'no-undef' error.
+interface ExtendedSprite extends Phaser.Sprite {
+	posy: number;
+}
+
 interface GridDefinition {
 	numRows: number;
 	numCols: number;
@@ -76,7 +81,7 @@ export interface QueryOptions {
 	/**
 	 * Object given to the events function (to easily pass variables for these functions).
 	 */
-	arg: any;
+	arg: Record<string, unknown>;
 
 	optTest: (arg: Creature) => boolean;
 
@@ -135,10 +140,10 @@ export class HexGrid {
 	trapOverGroup: Phaser.Group;
 	selectedHex: Hex;
 	_executionMode: boolean;
-	materialize_overlay: any;
-	secondary_overlay: any;
-	lastQueryOpt: any;
-	_flickerTween: any;
+	materialize_overlay: ExtendedSprite;
+	secondary_overlay: ExtendedSprite;
+	lastQueryOpt: unknown;
+	_flickerTween: Phaser.Tween;
 
 	get allhexes(): Hex[] {
 		return this.hexes.flat(1);
@@ -237,13 +242,13 @@ export class HexGrid {
 		}
 	}
 
-	handleUIEvent(message, payload) {
+	handleUIEvent(message: string) {
 		if (message === 'onOpenDash') {
 			// NOTE: This is a rather hacky bugfix.
 			// If a "query" is going on, and the dash is opened,
 			// creatures can remain in a "hovered" state.
 			// This hack undoes the "hovered" state.
-			this.forEachHex((hex) => {
+			this.forEachHex((hex: Hex) => {
 				const creature = hex.creature;
 				if (creature instanceof Creature) {
 					creature.resetBounce();
@@ -948,12 +953,13 @@ export class HexGrid {
 		};
 		// Set reachable the given hexes
 		o.hexes.forEach((hex) => {
-			hex.setReachable();	
+			hex.setReachable();
 			if (o.hideNonTarget) {
 				hex.unsetNotTarget();
 			}
 			if (o.targeting) {
-				if (hex.creature instanceof Creature) {					if (hex.creature.id != this.game.activeCreature.id) {
+				if (hex.creature instanceof Creature) {
+					if (hex.creature.id != this.game.activeCreature.id) {
 						hex.overlayVisualState('reachable h_player' + hex.creature.team);
 						// Add dashed hexagons under targets for ranged abilities with team color
 						hex.displayVisualState('dashed player' + hex.creature.team);
@@ -983,7 +989,8 @@ export class HexGrid {
 				} else {
 					creature.displayHealthStats();
 				}
-			}			creature.hexagons.forEach((h) => {
+			}
+			creature.hexagons.forEach((h) => {
 				// Flashing outline
 				h.overlayVisualState('hover h_player' + creature.team);
 				// Keep the dashed hexagons visible under targets with team color

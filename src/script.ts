@@ -59,13 +59,12 @@ $j(() => {
 	renderPlayerModeType(G.multiplayer);
 
 	// For the location rendering. The logic is in src/ui/locations.ts
-	const locations: Locations = new Locations();
-	locations.renderLocations();
-	
+	const locationManager: Locations = new Locations();
+	locationManager.renderLocations();
 	// #randomLocation is the random button (dice) in the pre-match ui.
 	$j('#randomLocation').on('click', () => {
 		// logic in src/ui/locations.ts
-		locations.selectRandomLocation();
+		locationManager.selectRandomLocation();
 	});
 
 	// Disable initial game setup until browser tab has focus
