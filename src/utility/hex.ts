@@ -10,7 +10,6 @@ import { getPointFacade } from './pointfacade';
 import * as Const from './const';
 import { Effect } from '../effect';
 import { Player } from '../player';
-
 export enum Direction {
 	None = -1,
 	UpRight = 0,
@@ -20,9 +19,7 @@ export enum Direction {
 	Left = 4,
 	UpLeft = 5,
 }
-
 const shrinkScale = 0.5;
-
 /**
  * Object containing hex information and positions.
  */
@@ -81,29 +78,24 @@ export class Hex {
 	overlayClasses: string;
 	width: number;
 	height: number;
-
 	/**
 	 * Pos object to position creature with absolute coordinates {left,top}.
 	 */
 	displayPos: { x: number; y: number };
-
 	/**
 	 * Set to true if cursor is outside movement range.
 	 */
 	isSpinning: boolean;
-
 	/**
 	 * Store ID of animation frame request.
 	 */
 	spinRequest: number;
-
 	originalDisplayPos: { x: number; y: number };
 	tween: Phaser.Tween;
 	hitBox: Phaser.Sprite;
 	display: Phaser.Sprite;
 	overlay: Phaser.Sprite;
 	coordText: Phaser.Text;
-
 	/**
 	 *
 	 * @param x Hex coordinates
@@ -555,15 +547,12 @@ export class Hex {
 		if (this.isSpinning) {
 			this.stopSpinning();
 		}
-
 		// Display Hex
 		let targetAlpha = this.reachable || Boolean(this.displayClasses.match(/creature/g));
-
 		targetAlpha = !this.displayClasses.match(/hidden/g) && targetAlpha;
 		targetAlpha = Boolean(this.displayClasses.match(/showGrid/g)) || targetAlpha;
 		targetAlpha = Boolean(this.displayClasses.match(/dashed/g)) || targetAlpha;
 		targetAlpha = Boolean(this.displayClasses.match(/deadzone/g)) || targetAlpha;
-
 		if (this.displayClasses.match(/0|1|2|3/)) {
 			const player = this.displayClasses.match(/0|1|2|3/);
 			this.display.loadTexture(`hex_p${player}`);
@@ -602,7 +591,6 @@ export class Hex {
 			this.display.alignIn(this.hitBox, Phaser.CENTER);
 			this.overlay.alignIn(this.hitBox, Phaser.CENTER);
 		}
-
 		// Display Coord
 		if (this.displayClasses.match(/showGrid/g)) {
 			if (!(this.coordText && this.coordText.exists)) {
@@ -626,10 +614,8 @@ export class Hex {
 		} else if (this.coordText && this.coordText.exists) {
 			this.coordText.destroy();
 		}
-
 		// Overlay Hex
 		targetAlpha = Boolean(this.overlayClasses.match(/hover|creature/g));
-
 		if (this.overlayClasses.match(/0|1|2|3/)) {
 			const player = this.overlayClasses.match(/0|1|2|3/);
 
