@@ -726,4 +726,4 @@ export class Hex {
 			y: this.y,
 		};
 	}
-} // End of Hex Class
+}
