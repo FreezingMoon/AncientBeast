@@ -11,6 +11,16 @@ export class Locations {
 
   // Gets all the locations and puts them in the UI (src/index.ejs)
   renderLocations() {
+      //A random location button. Location is set at render.
+      $j('#combatLocation').append(
+          `<input type="radio" id="bgOpt-1" `  +
+          'name="combatLocation" ' +
+          `value="${this.locations[Math.floor(Math.random() * this.locations.length)]}">` +
+          `<label for="bgOpt${-1}" class="dragIt">` +
+          `⚄</label>`
+     );
+     //Sets random as default
+     $j('#bgOpt-1').prop('checked',true);
   	for (let index = 0; index < this.locations.length; index += 1) {
   		$j('#combatLocation').append(
   			`<input type="radio" id="bgOpt${index + 1}" `  +
@@ -21,14 +31,7 @@ export class Locations {
   		);
   	}
 
-    // When the locations are rendered, a random location is selected by default.
-    this.selectRandomLocation();
+
   }
 
-  // selects a random location and checks it as selected
-  selectRandomLocation() {
-    const options = $j("input[name='combatLocation']");
-		const index = Math.floor(Math.random() * options.length);
-		options.eq(index).prop('checked', true);
-  }
 }

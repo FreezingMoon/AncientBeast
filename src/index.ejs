@@ -59,11 +59,11 @@
 							<div>
 								<div class="announcement-text">Warning: This is early alpha. Drop by <a href="https://discord.gg/MJfMF4R" target="_blank" title="Discord" rel="noopener">Discord</a> if no players online.</div>
 								<div class="buttons-wrapper">
-									<div class="button-wrapper">                
-										<input class="crimson-button" id="createMatchButton" type="submit" value="Create Match">                   
+									<div class="button-wrapper">
+										<input class="crimson-button" id="createMatchButton" type="submit" value="Create Match">
 									</div>
-									<div class="button-wrapper">                
-										<input class="crimson-button" id="joinMatchButton" type="submit" value="Join Match">                   
+									<div class="button-wrapper">
+										<input class="crimson-button" id="joinMatchButton" type="submit" value="Join Match">
 									</div>
 								</div>
 							</div>
@@ -153,7 +153,6 @@
 								<div class="gameOption">
 									<h2>Combat Location [ no influence to the actual gameplay ]</h2>
 									<div id="combatLocation" class="typeRadio">
-										<button id="randomLocation" type="button" class="dice-button" title="Random Location">⚄</button>
 									</div>
 								</div>
 							</div>
@@ -173,18 +172,18 @@
 								<form id="login">
 									<div class="table-fields">
 										<div class="flex-row">
-											<label for="email"><span class="error-req">*</span>Email</label>                
+											<label for="email"><span class="error-req">*</span>Email</label>
 											<input type="text" id="email" name="email">
 										</div>
-										<div class="flex-row"> 
-											<label for="password"><span class="error-req">*</span>Password</label>             
+										<div class="flex-row">
+											<label for="password"><span class="error-req">*</span>Password</label>
 											<input type="password" id="password" name="password">
 										</div>
 									</div>
 									<div class="error-msg error-req-message">* required</div>
 									<div class="error-msg login-error-req-message">Login is not valid</div>
-									<div class="button-wrapper">                
-										<input class="crimson-button" id="login-button" type="submit" value="Login">                   
+									<div class="button-wrapper">
+										<input class="crimson-button" id="login-button" type="submit" value="Login">
 									</div>
 								</form>
 							</div>
@@ -193,11 +192,11 @@
 								<form id="register">
 									<div class="table-fields">
 										<div class="flex-row">
-											<label for="username"><span class="error-req">*</span>User Name</label>										
+											<label for="username"><span class="error-req">*</span>User Name</label>
 											<input type="text" id="username" name="username">
 										</div>
 										<div class="flex-row">
-											<label for="login"><span class="error-req">*</span>Email</label>				
+											<label for="login"><span class="error-req">*</span>Email</label>
 											<input type="text" id="email" name="email">
 										</div>
 										<div class="flex-row">
@@ -212,8 +211,8 @@
 									<div class="error-msg error-req-message">* required</div>
 									<div class="error-msg error-pw">Passwords must match</div>
 									<div class="error-msg error-pw-length">Password must be at least 8 characters</div>
-									<div class="button-wrapper">								
-										<input class="crimson-button" id="register-button" type="submit" value="Register">                    
+									<div class="button-wrapper">
+										<input class="crimson-button" id="register-button" type="submit" value="Register">
 									</div>
 								</form>
 							</div>
@@ -227,10 +226,10 @@
 							<img src="<%= require('assets/interface/AB.gif') %>" width="32" height="32" />
 						</div>
 						<div class="buttons-wrapper">
-							<div class="button-wrapper">                
+							<div class="button-wrapper">
 								<input class="crimson-button" id="backFromMatchButton" type="button" value="Back">
 							</div>
-							<div class="button-wrapper">                
+							<div class="button-wrapper">
 								<input class="crimson-button" id="refreshMatchButton" type="button" value="Refresh">
 							</div>
 						</div>
@@ -597,7 +596,7 @@
 							</div>
 							<div id="opencollective_banner">
 								<object type="image/svg+xml"
-								data="https://opencollective.com/ancientbeast/tiers/sponsor.svg?avatarHeight=61&width=800&limit=10"> 
+								data="https://opencollective.com/ancientbeast/tiers/sponsor.svg?avatarHeight=61&width=800&limit=10">
 								</object>
 							</div>
 						</div>
@@ -608,11 +607,11 @@
 			</div>
 
 			<div id="musicplayerwrapper" class="framed-modal__wrapper hide">
-				
+
 					<div class="framed-modal__return">
 						<button class="toggle-music-player close-button"></button>
 					</div>
-					
+
 					<div class="audio-player-controls">
 						<div class="audio-player-skin">
 							<div class="audio-player-beast"></div>
@@ -622,7 +621,7 @@
 									<span class="musicgenres__title" id="genre-<%= musicGenre.id %>"><%= musicGenre.id %></span>
 								<% }); %>
 							</div>
-							
+
 							<div class="timeline">
 								<div class=" timeline-control"></div>
 								<div class="time">
@@ -638,7 +637,7 @@
 								</div>
 								</div>
 							</div>
-							
+
 							<div class="volumeSliders">
 								<div id="sfx-slider">
 									<div class="volume-label">SFX</div>
@@ -658,7 +657,7 @@
 								<li class="<%= musicGenre.id %>"><a href="<%= track.url %>"><%= track.id %></a></li>
 							<% }); %>
 						<% }); %>
-					
+
 					</ul>
 				</div>
 			</div>
@@ -694,12 +693,12 @@
 						<p>Visualize various stats related to how you've matched up against your foes.</p>
 					</div>
 				</div>
-				
+
 					<div style="position:relative">
 						<div id="audio" class="toggle-music-player button">
 							<img id="audio-icon" src="" alt="audio icon" width="32" height="32" />
 							<div class="tooltiptext" id="audio-tooltip">Audio: Full</div>
-						</div>						
+						</div>
 												<div class="desc">
 							<div class="arrow"></div>
 							<div class="shortcut">hotkey Shift + A</div>
@@ -734,8 +733,8 @@
 							<div class="shortcut">hotkey Shift + F</div>
 							<span>Fullscreen</span>
 							<p>Toggle fullscreen mode as you wish.</p>
-						</div> 
-						
+						</div>
+
 						<!-- Will be moved to another part of the ui -->
 						<!-- <div id="flee" class="button"></div>
 						<div class="desc">
@@ -745,7 +744,7 @@
 							<p>Give up but only after first 12 rounds.</p>
 						</div> -->
 					</div>
-					
+
 					<div class="progressbar">
 						<div class="bar poolbar"></div>
 						<div class="bar timebar"></div>
@@ -824,7 +823,7 @@
 					<div class="framed-modal__return">
 						<button class="toggle-meta-powers close-button"></button>
 					</div>
-					
+
 					<div class="meta-powers-header">
 						<h2>Toggled Powers</h2>
 						<button id="reset-toggled-powers" title="Click to reset selection">
@@ -834,8 +833,8 @@
 
 					<div class="meta-powers-actions">
 						<div style="position: relative;">
-							<div 
-								id="execute-monster-button" 
+							<div
+								id="execute-monster-button"
 								class="button"
 							>
 								Execution Mode
@@ -849,8 +848,8 @@
 						</div>
 
 						<div style="position: relative;">
-							<div 
-								id="disable-materialization-sickness-button" 
+							<div
+								id="disable-materialization-sickness-button"
 								class="button"
 							>
 								Disable Materialization Sickness
@@ -860,15 +859,15 @@
 								<div class="arrow"></div>
 								<span>Disable Materialization Sickness</span>
 								<p>
-									When activated, summoned creatures will not suffer from Materialization 
+									When activated, summoned creatures will not suffer from Materialization
 									Sickness on their first turn.
 								</p>
 							</div>
 						</div>
-						
+
 						<div style="position: relative;">
-							<div 
-								id="reset-cooldowns-button" 
+							<div
+								id="reset-cooldowns-button"
 								class="button"
 							>
 								Disable Cooldowns
@@ -878,7 +877,7 @@
 								<div class="arrow"></div>
 								<span>Disable Cooldowns</span>
 								<p>
-									Disable ability cooldowns for all units, including the Dark Priest, allowing 
+									Disable ability cooldowns for all units, including the Dark Priest, allowing
 									them to be used multiple times in a single round.
 								</p>
 							</div>
