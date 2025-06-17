@@ -61,12 +61,6 @@ $j(() => {
 	// For the location rendering. The logic is in src/ui/locations.ts
 	const locations: Locations = new Locations();
 	locations.renderLocations();
-	
-	// #randomLocation is the random button (dice) in the pre-match ui.
-	$j('#randomLocation').on('click', () => {
-		// logic in src/ui/locations.ts
-		locations.selectRandomLocation();
-	});
 
 	// Disable initial game setup until browser tab has focus
 	window.addEventListener('blur', G.onBlur.bind(G), false);
