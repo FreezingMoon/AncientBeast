@@ -139,6 +139,7 @@ export class HexGrid {
 	secondary_overlay: any;
 	lastQueryOpt: any;
 	_flickerTween: any;
+	_flickerTweenSecondary: any;
 
 	get allhexes(): Hex[] {
 		return this.hexes.flat(1);
@@ -900,6 +901,9 @@ export class HexGrid {
 		if (this._flickerTween) {
 			this._flickerTween.stop(true);
 		}
+		if (this._flickerTweenSecondary) {
+			this._flickerTweenSecondary.stop(true);
+		}
 
 		if (!o.ownCreatureHexShade) {
 			if (o.id instanceof Array) {
@@ -948,7 +952,7 @@ export class HexGrid {
 		};
 		// Set reachable the given hexes
 		o.hexes.forEach((hex) => {
-			hex.setReachable();	
+			hex.setReachable();
 			if (o.hideNonTarget) {
 				hex.unsetNotTarget();
 			}
@@ -1653,7 +1657,7 @@ export class HexGrid {
 		const hex = this.hexes[pos.y][pos.x - (creatureData.size - 1)];
 		const cardboard =
 			creatureData.type == '--'
-				? creatureData.name + game.activePlayer.color + '_cardboard'
+				? creatureData.name + player.color + '_cardboard'
 				: creatureData.name + '_cardboard';
 
 		if (!secondary) {
@@ -1706,7 +1710,7 @@ export class HexGrid {
 			preview.scale.setTo(1, 1);
 		}
 
-		this._flickerTween = game.Phaser.add
+		let flickering = game.Phaser.add
 			.tween(preview)
 			.to(
 				{
@@ -1718,6 +1722,19 @@ export class HexGrid {
 			.yoyo(true)
 			.repeat(-1)
 			.start();
+		if (!secondary) {
+			if(this._flickerTween) {
+				// Stop animations that are about to be orphaned #2698
+				this._flickerTween.stop(true)
+			}
+			this._flickerTween=flickering
+		}
+		else {
+			if(this._flickerTweenSecondary) {
+				this._flickerTweenSecondary.stop(true)
+			}
+			this._flickerTweenSecondary=flickering
+		}
 
 		for (let i = 0, size = creatureData.size; i < size; i++) {
 			const hexInstance = this.hexes[pos.y][pos.x - i];
