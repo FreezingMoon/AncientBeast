@@ -1723,13 +1723,14 @@ export class HexGrid {
 			.repeat(-1)
 			.start();
 		if (!secondary) {
-			if(this._flickerTween){//These stop animations that are about to be orphaned. For some reason. See issue #2698
+			if(this._flickerTween) {
+				// Stop animations that are about to be orphaned #2698
 				this._flickerTween.stop(true)
 			}
 			this._flickerTween=flickering
 		}
-		else{
-			if(this._flickerTweenSecondary){
+		else {
+			if(this._flickerTweenSecondary) {
 				this._flickerTweenSecondary.stop(true)
 			}
 			this._flickerTweenSecondary=flickering
