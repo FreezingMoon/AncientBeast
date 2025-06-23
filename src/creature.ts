@@ -515,9 +515,10 @@ export class Creature {
 		this.status.frozen = false;
 		this.status.cryostasis = false;
 		this.status.dizzy = false;
-
 		// Effects triggers
 		if (reason === 'turn-end') {
+			this.remainingMove=0;
+			this.queryMove(null);
 			this.turnsActive += 1;
 			this._nextGameTurnActive = game.turn + 1;
 			// @ts-expect-error 2554
