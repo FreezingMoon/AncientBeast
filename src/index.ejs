@@ -29,6 +29,24 @@
 		</style>
 	</head>
 	<body oncontextmenu="return false;" id="AncientBeast">
+
+
+		<!-- Loading Video Overlay -->
+
+		<div id="loading-video" style="display: none; position: fixed; inset: 0; z-index: 9999; background: black;">
+			<video
+			  autoplay
+			  muted
+			  playsinline
+			  id="introVideo"
+			  poster="/videos/loading-poster.png"
+			  style="width: 100%; height: 100%; object-fit: cover; background: black;">
+			  <source src="/videos/loading.mp4" type="video/mp4" />
+			</video>
+		  </div>
+		  
+  
+  
 		<div class="scrim loading"></div>
 		<div id="matchMaking">
 			<div id="loader" class="hide">
