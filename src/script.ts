@@ -214,6 +214,10 @@ $j(() => {
 		$j('#singleplayer').hide();
 	});
 
+	$j('#orientation-message .framed-modal__return').on('click', async () => {
+		$j('#orientation-message').hide();
+	});
+
 	// Focus the form to enable "press enter to start the game" functionality
 	$j('#startButton').trigger('focus');
 
