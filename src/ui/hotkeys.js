@@ -76,7 +76,7 @@ export class Hotkeys {
 	pressTab(event) {
 		console.log(event);
 		if (event.shiftKey) {
-			this.ui.$brandlogo.addClass('hide');
+			this.ui.brandlogo.alpha=0;
 		}
 	}
 
@@ -123,23 +123,23 @@ export class Hotkeys {
 	}
 
 	pressShiftKeyDown(event) {
-		this.ui.$brandlogo.removeClass('hide');
+		this.ui.brandlogo.alpha=1;
 		this.ui.game.grid.showGrid(true);
 		this.ui.game.grid.showCurrentCreatureMovementInOverlay(this.ui.game.activeCreature);
 	}
 
 	pressShiftKeyUp() {
-		this.ui.$brandlogo.addClass('hide');
+		this.ui.brandlogo.alpha=0;
 		this.ui.game.grid.showGrid(false);
 		this.ui.game.grid.cleanOverlay();
 		this.ui.game.grid.redoLastQuery();
 	}
 	pressControlKeyDown() {
-		this.ui.$brandlogo.addClass('hide');
+		this.ui.brandlogo.alpha=0;
 	}
 
 	pressControlKeyUp() {
-		this.ui.$brandlogo.addClass('hide');
+		this.ui.brandlogo.alpha=0;
 	}
 
 	pressSpace() {
