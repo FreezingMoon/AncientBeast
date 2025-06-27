@@ -74,8 +74,10 @@ export class Hotkeys {
 		}
 	}
 	pressTab(event) {
-		console.log(event);
-		if (event.shiftKey) {
+		if (this.ui.dashopen) {
+			if (event.shiftKey) this.ui.gridSelectPrevious();
+			else this.ui.gridSelectNext();
+		} else if (event.shiftKey) {
 			this.ui.$brandlogo.addClass('hide');
 		}
 	}
@@ -123,16 +125,20 @@ export class Hotkeys {
 	}
 
 	pressShiftKeyDown(event) {
-		this.ui.$brandlogo.removeClass('hide');
-		this.ui.game.grid.showGrid(true);
-		this.ui.game.grid.showCurrentCreatureMovementInOverlay(this.ui.game.activeCreature);
+		if (!this.ui.dashopen) {
+			this.ui.$brandlogo.removeClass('hide');
+			this.ui.game.grid.showGrid(true);
+			this.ui.game.grid.showCurrentCreatureMovementInOverlay(this.ui.game.activeCreature);
+		}
 	}
 
 	pressShiftKeyUp() {
-		this.ui.$brandlogo.addClass('hide');
-		this.ui.game.grid.showGrid(false);
-		this.ui.game.grid.cleanOverlay();
-		this.ui.game.grid.redoLastQuery();
+		if (!this.ui.dashopen) {
+			this.ui.$brandlogo.addClass('hide');
+			this.ui.game.grid.showGrid(false);
+			this.ui.game.grid.cleanOverlay();
+			this.ui.game.grid.redoLastQuery();
+		}
 	}
 	pressControlKeyDown() {
 		this.ui.$brandlogo.addClass('hide');
