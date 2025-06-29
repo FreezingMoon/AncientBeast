@@ -61,7 +61,8 @@ export class UI {
 		this.$grid = $j(this.#makeCreatureGrid(document.getElementById('creaturerasterwrapper')));
 		this.$activebox = $j('#activebox');
 		this.$scoreboard = $j('#scoreboard');
-		this.$brandlogo = $j('#brandlogo');
+          this.brandlogo=game.Phaser.add.image(670,200,"AncientBeastLogo");
+          this.brandlogo.alpha=0;
 		this.active = false;
 
 		this.queue = UI.#getQueue(this, document.getElementById('queuewrapper'));
@@ -2438,13 +2439,13 @@ export class UI {
 		}, 2000);
 
 		const onTurnEndMouseEnter = ifGameNotFrozen(() => {
-			ui.$brandlogo.removeClass('hide');
+			ui.brandlogo.alpha=0;
 			ui.game.grid.showGrid(true);
 			ui.game.grid.showCurrentCreatureMovementInOverlay(ui.game.activeCreature);
 		});
 
 		const onTurnEndMouseLeave = () => {
-			ui.$brandlogo.addClass('hide');
+			ui.brandlogo.alpha=0;
 			ui.game.grid.showGrid(false);
 			ui.game.grid.cleanOverlay();
 			ui.game.grid.redoLastQuery();
@@ -2453,7 +2454,7 @@ export class UI {
 		// Hide the project logo when navigating away using a hotkey
 		document.addEventListener('visibilitychange', function () {
 			if (document.hidden) {
-				ui.$brandlogo.addClass('hide');
+				ui.brandlogo.alpha=0;
 			}
 		});
 
@@ -2461,7 +2462,7 @@ export class UI {
 		document.addEventListener('keydown', (event) => {
 			if (event.ctrlKey && event.shiftKey && event.key === 'M') {
 				console.log('ctrl+shift+M pressed');
-				ui.$brandlogo.addClass('hide');
+				ui.brandlogo.alpha=0;
 			}
 		});
 
