@@ -180,7 +180,7 @@ export default (G: Game) => {
          * 20 pierce damage in any of 6 directions.
          * Upgrade: Can be used twice per round.
 		 */
-	
+
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
@@ -191,7 +191,7 @@ export default (G: Game) => {
 			require: function () {
 				if (!this.testRequirements()){
 					return false;
-				} 
+				}
 				return this.timesUsedThisTurn < this._getUsesPerTurn();
 			},
 
@@ -199,7 +199,7 @@ export default (G: Game) => {
 			query: function () {
 				const ab  = this;
 				const cre = ab.creature;
-			
+
 				G.grid.queryDirection({
 					fnOnConfirm: (...args) => ab.animation(...args),
 					team:          this._targetTeam,
@@ -211,7 +211,7 @@ export default (G: Game) => {
 					directions:    [1,1,1,1,1,1],
 					distance:      6,
 					minDistance:   1,
-					requireCreature: false
+					requireCreature: true
 				  });
 			  },
 
@@ -225,16 +225,16 @@ export default (G: Game) => {
 				const clicked = args.hex;
 				const tgt     = clicked && clicked.creature;
 				if (!tgt) return;
-			  
+
 				// 1) Screen shake + deal damage
 				G.Phaser.camera.shake(0.01, 150, true,G.Phaser.camera.SHAKE_HORIZONTAL,true);
 				tgt.takeDamage(new Damage(this.creature, this.damages, 1, [], G));
-			  
-				// 2) Decide if this is the final shot 
+
+				// 2) Decide if this is the final shot
 				const nextUseCount = this.timesUsedThisTurn + 1;
 				const maxUses      = this._getUsesPerTurn();
 				const isFinalShot  = nextUseCount >= maxUses;
-			  
+
 				if (!isFinalShot) {
 				  // ─── Intermediate shot ───
 				  // Tell end() not to disable the button permanently:
@@ -243,7 +243,7 @@ export default (G: Game) => {
 				  // Turn cooldowns back on for the final shot
 				  this._disableCooldowns = false;
 				  G.grid.redoLastQuery();
-			  
+
 				} else {
 				  // ─── Final shot ───
 				  // A normal end() will apply cost, log, disable the button, and return to movement.
@@ -258,10 +258,10 @@ export default (G: Game) => {
          * Very powerful long range attack that can strike up to 12 hexagons distance.
          * 40 pierce damage in any of 6 directions.
          * Upgrade: Half Damage Pierce.
-		 */ 
+		 */
 		{
   		trigger: 'onQuery',
-  		_targetTeam: Team.Both,   
+  		_targetTeam: Team.Both,
 
   		require: function () {
     		return this.testRequirements();
@@ -270,9 +270,9 @@ export default (G: Game) => {
   		query: function() {
 			const ability = this;
 			const cre     = ability.creature;
-		  
+
 			G.grid.queryDirection({
-			  fnOnSelect:  ()       => {},                        
+			  fnOnSelect:  ()       => {},
 			  fnOnConfirm: (...args) => ability.animation(...args),
 			  fnOnCancel:  ()       => G.activeCreature.queryMove(),
 		  			  team:           Team.Both,
@@ -281,13 +281,13 @@ export default (G: Game) => {
 			  x:              cre.x,
 			  y:              cre.y,
 			  sourceCreature: cre,
-		  
+
 			  directions:   [1,1,1,1,1,1],
 			  distance:     12,
 			  minDistance:  1,
 			  stopOnCreature:true,
 			  requireCreature: true,
-		  
+
 			  // only turn these on once upgraded
 			  dashedHexesAfterCreatureStop: ability.isUpgraded(),
 			  dashedHexesDistance:          ability.isUpgraded() ? 12 : 0,
@@ -302,7 +302,7 @@ export default (G: Game) => {
     		ability.end();
     		G.Phaser.camera.shake(0.01, 150, true,
             G.Phaser.camera.SHAKE_HORIZONTAL, true);
-						  
+
 			const full   = ability.damages.pierce;       // 40
     		const half   = Math.floor(full / 2);         // 20
     		const double = full + half;                  // 60
@@ -340,11 +340,12 @@ export default (G: Game) => {
 		if (first) {
   			if (this.isUpgraded() && sawFirstTwice && first.size > 1) {
 				first.takeDamage(new Damage(cre, { pierce: full + half }, 1, [], G));
-  			} else {
+  			}
+			else {
 				first.takeDamage(new Damage(cre, { pierce: full }, 1, [], G));
-    		if (this.isUpgraded() && second) {
-				second.takeDamage(new Damage(cre, { pierce: half }, 1, [], G))
-    		}
+    				if (this.isUpgraded() && second) {
+					second.takeDamage(new Damage(cre, { pierce: half }, 1, [], G))
+    				}
   			}
 		}
   	},
