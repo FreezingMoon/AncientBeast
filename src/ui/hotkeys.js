@@ -298,4 +298,4 @@ export function getHotKeys(hk) {
 		},
 	};
 	return hotkeys;
-}
+};
