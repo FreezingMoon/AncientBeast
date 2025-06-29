@@ -2457,6 +2457,13 @@ export class UI {
 				ui.brandlogo.alpha=0;
 			}
 		});
+		document.addEventListener('mousemove', () => {
+			if (ui.cursorFrozen) {
+				const canvas = document.querySelector('canvas');
+				if (canvas) canvas.style.cursor = 'progress';
+				document.body.style.cursor = 'progress';
+			}
+		});
 
 		// Hide the project logo when navigating away using a hotkey (Ctrl+Shift+M)
 		document.addEventListener('keydown', (event) => {

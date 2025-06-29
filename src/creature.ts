@@ -324,6 +324,36 @@ export class Creature {
 		this.updateHex();
 
 		this.creatureSprite = new CreatureSprite(this);
+		const sprite = this.creatureSprite.sprite;
+		sprite.inputEnabled = true;
+
+		sprite.events.onInputOver.add(() => {
+			const selectedAbilityIndex = game.UI.selectedAbility;
+
+			// Check if this is your active creature, and no ability is selected
+			if (
+				game.activeCreature === this &&
+				this.player === game.activePlayer &&
+				selectedAbilityIndex === -1
+			) {
+				console.log('[✅] Progress cursor conditions met for:', this.name);
+				document.body.style.cursor = 'progress';
+				const canvas = document.querySelector('canvas');
+				if (canvas) canvas.style.cursor = 'progress';
+
+				game.UI.cursorFrozen = true;
+			} else {
+				console.log('[❌] Conditions not met for:', this.name);
+			}
+		}, this);
+
+		sprite.events.onInputOut.add(() => {
+			document.body.style.cursor = 'default';
+			const canvas = document.querySelector('canvas');
+			if (canvas) canvas.style.cursor = 'default';
+
+			game.UI.cursorFrozen = false;
+		});
 
 		if (!this.temp) {
 			let tempCreature: Creature | undefined = undefined;
