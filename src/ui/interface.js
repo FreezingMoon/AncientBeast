@@ -453,8 +453,9 @@ export class UI {
 
 				if (keydownAction !== undefined) {
 					keydownAction.call(this, e);
-
-					if (!(e.code === 'Tab' && e.shiftKey)) {
+					if (this.dashopen) {
+						e.preventDefault();
+					} else if (!(e.code === 'Tab' && e.shiftKey)) {
 						e.preventDefault();
 					}
 				}
@@ -467,7 +468,7 @@ export class UI {
 
 				const keyupAction = ingameHotkeys[e.code] && ingameHotkeys[e.code].onkeyup;
 
-				if (keyupAction !== undefined) {
+				if (keyupAction !== undefined && !this.dashopen) {
 					keyupAction.call(this, e);
 
 					e.preventDefault();
