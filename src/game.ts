@@ -377,7 +377,7 @@ export default class Game {
 		// Background
 		this.Phaser.load.image('background', getUrl('locations/' + this.background_image + '/bg'));
 
-		//Branding
+		// Branding
 		this.Phaser.load.image('AncientBeastLogo', getUrl('interface/AncientBeast'));
 
 		// Load artwork, shout and avatar for each unit
