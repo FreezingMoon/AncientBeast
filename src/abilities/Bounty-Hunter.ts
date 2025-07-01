@@ -192,6 +192,14 @@ export default (G: Game) => {
 				if (!this.testRequirements()){
 					return false;
 				}
+				// At least one target
+				if (
+					!this.atLeastOneTarget(this.creature.getHexMap(matrices.sixDirections1,this.creature.player.flipped), {
+						team: this._targetTeam,
+					})
+				) {
+					return false;
+				}
 				return this.timesUsedThisTurn < this._getUsesPerTurn();
 			},
 
@@ -264,7 +272,20 @@ export default (G: Game) => {
   		_targetTeam: Team.Both,
 
   		require: function () {
-    		return this.testRequirements();
+    			if(!this.testRequirements()){
+				return false;
+			}
+			// At least one target
+			if (
+				!this.atLeastOneTarget(this.creature.getHexMap(matrices.sixDirections2,this.creature.player.flipped), {
+					team: this._targetTeam,
+				})
+			) {
+				return false;
+			}
+			else{
+				return true;
+			}
   		},
 
   		query: function() {
@@ -308,7 +329,7 @@ export default (G: Game) => {
     		const double = full + half;                  // 60
 
     		const line = G.grid
-  				.getHexLine(cre.x, cre.y, dir, cre.player.flipped)
+  				.getHexLine(cre.x, cre.y, dir, false)
   				.slice(1, 1 + 12);
 
 		let first = null;
