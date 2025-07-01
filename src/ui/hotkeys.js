@@ -79,9 +79,10 @@ export class Hotkeys {
 			else this.ui.gridSelectNext();
 		} else if (event.shiftKey) {
 			this.ui.$brandlogo.addClass('hide');
-		console.log(event);
-		if (event.shiftKey) {
-			this.ui.brandlogo.alpha=0;
+			console.log(event);
+			if (event.shiftKey) {
+				this.ui.brandlogo.alpha = 0;
+			}
 		}
 	}
 
@@ -144,11 +145,11 @@ export class Hotkeys {
 		}
 	}
 	pressControlKeyDown() {
-		this.ui.brandlogo.alpha=0;
+		this.ui.brandlogo.alpha = 0;
 	}
 
 	pressControlKeyUp() {
-		this.ui.brandlogo.alpha=0;
+		this.ui.brandlogo.alpha = 0;
 	}
 
 	pressSpace() {
@@ -298,4 +299,4 @@ export function getHotKeys(hk) {
 		},
 	};
 	return hotkeys;
-};
+}
