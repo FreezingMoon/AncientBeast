@@ -1084,6 +1084,149 @@ div.section.info {
 	transition: all 500ms;
 }
 
+#chat.expanded {
+	height: 140px;
+	bottom: 180px;
+	width: 95vw;
+	max-width: 500px;
+}
+
+.chat-expanded-content {
+	position: absolute;
+	top: 5px;
+	left: 5px;
+	right: 5px;
+	bottom: 5px;
+	display: none;
+	opacity: 0;
+	color: white;
+	padding: 10px;
+}
+
+#chat.expanded .chat-expanded-content {
+	display: block;
+}
+
+.chat-expanded-content .creature-name {
+	font-size: 18px;
+	font-weight: bold;
+	text-align: center;
+	margin-bottom: 10px;
+	color: #fff;
+	text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.stats-masteries-container {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.stats-row,
+.masteries-row {
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 4px;
+}
+
+.stat-item {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	min-width: 45px;
+}
+
+.stat-icon {
+	width: 20px;
+	height: 20px;
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	margin-bottom: 2px;
+}
+
+.stat-value {
+	font-size: 10px;
+	font-weight: bold;
+	color: white;
+	text-align: center;
+	text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8);
+}
+
+.stat-icon.health {
+	background-image: url('~assets/stats/health.svg');
+}
+
+.stat-icon.regrowth {
+	background-image: url('~assets/stats/regrowth.svg');
+}
+
+.stat-icon.endurance {
+	background-image: url('~assets/stats/endurance.svg');
+}
+
+.stat-icon.energy {
+	background-image: url('~assets/stats/energy.svg');
+}
+
+.stat-icon.meditation {
+	background-image: url('~assets/stats/meditation.svg');
+}
+
+.stat-icon.initiative {
+	background-image: url('~assets/stats/initiative.svg');
+}
+
+.stat-icon.offense {
+	background-image: url('~assets/stats/offense.svg');
+}
+
+.stat-icon.defense {
+	background-image: url('~assets/stats/defense.svg');
+}
+
+.stat-icon.movement {
+	background-image: url('~assets/stats/movement.svg');
+}
+
+.stat-icon.pierce {
+	background-image: url('~assets/stats/pierce.svg');
+}
+
+.stat-icon.slash {
+	background-image: url('~assets/stats/slash.svg');
+}
+
+.stat-icon.crush {
+	background-image: url('~assets/stats/crush.svg');
+}
+
+.stat-icon.shock {
+	background-image: url('~assets/stats/shock.svg');
+}
+
+.stat-icon.burn {
+	background-image: url('~assets/stats/burn.svg');
+}
+
+.stat-icon.frost {
+	background-image: url('~assets/stats/frost.svg');
+}
+
+.stat-icon.poison {
+	background-image: url('~assets/stats/poison.svg');
+}
+
+.stat-icon.sonic {
+	background-image: url('~assets/stats/sonic.svg');
+}
+
+.stat-icon.mental {
+	background-image: url('~assets/stats/mental.svg');
+}
+
 #chatbox::-webkit-scrollbar {
 	width: 7px;
 }
@@ -2192,5 +2335,16 @@ input {
 @media screen and (max-width: 823px) and (orientation: portrait) {
 	#orientation-message {
 		display: flex;
+	}
+}
+
+@media (max-width: 600px) {
+	#chat {
+		bottom: 20px;
+	}
+
+	#chat.expanded {
+		height: 120px;
+		bottom: 150px;
 	}
 }

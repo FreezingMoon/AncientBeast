@@ -1,5 +1,32 @@
 import { Point } from './pointfacade';
 
+// Stat constants
+export const PRIMARY_STATS = [
+	'health',
+	'regrowth',
+	'endurance',
+	'energy',
+	'meditation',
+	'initiative',
+	'offense',
+	'defense',
+	'movement',
+] as const;
+
+export const MASTERY_STATS = [
+	'pierce',
+	'slash',
+	'crush',
+	'shock',
+	'burn',
+	'frost',
+	'poison',
+	'sonic',
+	'mental',
+] as const;
+
+export const ALL_STATS = [...PRIMARY_STATS, ...MASTERY_STATS] as const;
+
 export const HEX_WIDTH_PX = 90;
 export const HEX_HEIGHT_PX = (HEX_WIDTH_PX / Math.sqrt(3)) * 2 * 0.75;
 
