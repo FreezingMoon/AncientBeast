@@ -189,7 +189,7 @@ export default (G: Game) => {
 
 			// 	require() :
 			require: function () {
-				if (!this.testRequirements()){
+				if (!this.testRequirements()) {
 					return false;
 				}
 				// At least one target
@@ -272,7 +272,7 @@ export default (G: Game) => {
   		_targetTeam: Team.Both,
 
   		require: function () {
-    			if(!this.testRequirements()){
+    			if(!this.testRequirements()) {
 				return false;
 			}
 			// At least one target
