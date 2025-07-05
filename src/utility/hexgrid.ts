@@ -987,7 +987,11 @@ export class HexGrid {
 				} else {
 					creature.displayHealthStats();
 				}
-			}			creature.hexagons.forEach((h) => {
+			}
+
+			game.UI.chat.showExpanded(creature);
+
+			creature.hexagons.forEach((h) => {
 				// Flashing outline
 				h.overlayVisualState('hover h_player' + creature.team);
 				// Keep the dashed hexagons visible under targets with team color
@@ -1112,6 +1116,8 @@ export class HexGrid {
 					creature.hint('Skip turn', 'confirm');
 				}
 			}
+
+			game.UI.chat.hideExpanded();
 
 			$j('canvas').css('cursor', 'default');
 		};
