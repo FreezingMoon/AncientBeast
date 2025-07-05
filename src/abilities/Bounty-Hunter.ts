@@ -1,5 +1,5 @@
 import { Damage } from '../damage';
-import { Team } from '../utility/team';
+import { Team, isTeam } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
@@ -192,6 +192,19 @@ export default (G: Game) => {
 				if (!this.testRequirements()){
 					return false;
 				}
+				// At least one target
+				const cre=this.creature;
+				let viableHexes=[]
+				for(let i=0; i<6; i++){//collect all hexes before checking for target, else ability message error
+					viableHexes=viableHexes.concat(G.grid.getHexLine(cre.x, cre.y, i, false).slice(1, 1 + 6));
+				}
+				if (
+					!this.atLeastOneTarget(viableHexes, {
+						team:  this._targetTeam,
+					})
+				) {
+					return false;
+				}
 				return this.timesUsedThisTurn < this._getUsesPerTurn();
 			},
 
@@ -261,10 +274,28 @@ export default (G: Game) => {
 		 */
 		{
   		trigger: 'onQuery',
-  		_targetTeam: Team.Both,
+  		_targetTeam: Team.Enemy,
 
   		require: function () {
-    		return this.testRequirements();
+    			if(!this.testRequirements()){
+				return false;
+			}
+			// At least one target
+			const cre=this.creature;
+			let viableHexes=[]
+			for(let i=0; i<6; i++){//collect all hexes before checking for target, else ability message error
+				viableHexes=viableHexes.concat(G.grid.getHexLine(cre.x, cre.y, i, false).slice(1, 1 + 12));
+			}
+			if (
+				!this.atLeastOneTarget(viableHexes, {
+					team:  this._targetTeam,
+				})
+			) {
+				return false;
+			}
+			else{
+				return true;
+			}
   		},
 
   		query: function() {
@@ -275,7 +306,7 @@ export default (G: Game) => {
 			  fnOnSelect:  ()       => {},
 			  fnOnConfirm: (...args) => ability.animation(...args),
 			  fnOnCancel:  ()       => G.activeCreature.queryMove(),
-		  			  team:           Team.Both,
+		  	  team:           this._targetTeam,
 			  id:             cre.id,
 			  flipped:        cre.player.flipped,
 			  x:              cre.x,
@@ -308,7 +339,7 @@ export default (G: Game) => {
     		const double = full + half;                  // 60
 
     		const line = G.grid
-  				.getHexLine(cre.x, cre.y, dir, cre.player.flipped)
+  				.getHexLine(cre.x, cre.y, dir, false)
   				.slice(1, 1 + 12);
 
 		let first = null;
@@ -317,7 +348,7 @@ export default (G: Game) => {
 
 		for (const h of line) {
   			const t = h.creature;
-  			if (!t) continue;
+  			if (!t || isTeam(cre,t,Team.Same)) continue;
 
   			if (!first) {
     			// first time we see any creature
