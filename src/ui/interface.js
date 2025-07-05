@@ -96,7 +96,7 @@ export class UI {
 				},
 				overridefreeze: true,
 			},
-			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
+			{ isAcceptingInput: this.configuration.isAcceptingInput },
 		);
 		this.buttons.push(this.btnToggleDash);
 
@@ -110,7 +110,7 @@ export class UI {
 				},
 				overridefreeze: true,
 			},
-			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
+			{ isAcceptingInput: this.configuration.isAcceptingInput },
 		);
 
 		// In-Game Fullscreen Button
@@ -121,7 +121,7 @@ export class UI {
 				click: () => this.fullscreen.toggle(),
 				overridefreeze: true,
 			},
-			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
+			{ isAcceptingInput: this.configuration.isAcceptingInput },
 		);
 		this.buttons.push(this.btnFullscreen);
 
@@ -135,7 +135,7 @@ export class UI {
 				},
 				overridefreeze: true,
 			},
-			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
+			{ isAcceptingInput: this.configuration.isAcceptingInput },
 		);
 		this.buttons.push(this.btnAudio);
 		this.btnAudio.$button.on('contextmenu', (e) => {
@@ -170,7 +170,7 @@ export class UI {
 					}
 				},
 			},
-			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
+			{ isAcceptingInput: this.configuration.isAcceptingInput },
 		);
 		this.buttons.push(this.btnSkipTurn);
 
@@ -192,7 +192,7 @@ export class UI {
 					}
 				},
 			},
-			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
+			{ isAcceptingInput: this.configuration.isAcceptingInput },
 		);
 		this.buttons.push(this.btnDelay);
 
@@ -225,7 +225,7 @@ export class UI {
 				},
 				state: ButtonStateEnum.disabled,
 			},
-			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
+			{ isAcceptingInput: this.configuration.isAcceptingInput },
 		);
 		this.buttons.push(this.btnFlee);
 
@@ -244,7 +244,7 @@ export class UI {
 				},
 				state: ButtonStateEnum.normal,
 			},
-			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
+			{ isAcceptingInput: this.configuration.isAcceptingInput },
 		);
 		this.buttons.push(this.btnExit);
 
@@ -267,7 +267,7 @@ export class UI {
 					slideIn: {},
 				},
 			},
-			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
+			{ isAcceptingInput: this.configuration.isAcceptingInput },
 		);
 
 		// Defines states for ability buttons
@@ -379,7 +379,7 @@ export class UI {
 						},
 					},
 				},
-				{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
+				{ isAcceptingInput: this.configuration.isAcceptingInput },
 			);
 			this.buttons.push(b);
 			this.abilitiesButtons.push(b);
