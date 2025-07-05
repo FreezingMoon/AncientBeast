@@ -80,7 +80,8 @@
 		"node": "20.x"
 	},
 	"scripts": {
-		"build": "webpack --mode=production",
+		"generate:avatars": "node scripts/generateAvatar.js",
+		"build": "npm run generate:avatars && webpack --mode=production",
 		"build:dev": "webpack --mode=development",
 		"start": "cross-env NODE_ENV=production webpack-dev-server",
 		"start:dev": "cross-env NODE_ENV=development webpack-dev-server",
