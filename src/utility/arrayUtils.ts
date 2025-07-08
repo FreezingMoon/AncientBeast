@@ -80,23 +80,23 @@ export function filterCreature(
 				creatureHexes = creatureHexes.concat(hexes[i].creature.hexagons);
 			}
 			if (stopOnCreature) {
-				if(pierceThroughBehavior=="pierce"){
-					if(isTeam(sourceCreature,hexes[i].creature,targetTeam)){
+				if(pierceThroughBehavior=="pierce") {
+					if(isTeam(sourceCreature,hexes[i].creature,targetTeam)) {
 						piercedCreatures+=1;
-						if(piercedCreatures==pierceNumber){
+						if(piercedCreatures==pierceNumber) {
 							hexes.splice(i + 1, 99);
 							break;
 						}
 					}
 				}
-				if(pierceThroughBehavior=="stop"){
+				if(pierceThroughBehavior=="stop") {
 					hexes.splice(i + 1, 99);
 					break;
 				}
-				if(pierceThroughBehavior=="partial"){
-					if(isTeam(sourceCreature,hexes[i].creature,targetTeam)){
+				if(pierceThroughBehavior=="partial") {
+					if(isTeam(sourceCreature,hexes[i].creature,targetTeam)) {
 						piercedCreatures+=1;
-						if(piercedCreatures==pierceNumber){
+						if(piercedCreatures==pierceNumber) {
 							hexes.splice(i + 1, 99);
 							break;
 						}
