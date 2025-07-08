@@ -480,7 +480,7 @@ export class Ability {
 		const opt = $j.extend(
 			{
 				callback: function () {
-					// Default no-op function.
+					// Default no-op function
 				},
 				arg: {},
 			},
@@ -736,18 +736,18 @@ export class Ability {
 				!options.optTest(creature)
 			) {
                     if(creature){
-                         switch (options.pierceThroughBehavior){
-                              case "stop": //Stop search as soon as any creature is found
-                                   i=len; //break for loop;
+                         switch (options.pierceThroughBehavior) {
+                              case "stop": // Stop search as soon as any creature is found
+                                   i=len; // break for loop;
                                    break;
-                              case "partial"://Pierce only members of the target team who have failed optTest
-                                   if(!isTeam(this.creature, creature, options.team)){
+                              case "partial": // Pierce only members of the target team who have failed optTest
+                                   if(!isTeam(this.creature, creature, options.team)) {
                                         i=len; //break for loop;
                                         break;
                                    }
-                              case "pierce"://Continue search until all options are checked, or valid target found
+                              case "pierce": // Continue search until all options are checked, or valid target found
                               default:
-                                   //pass
+                                   // Pass
                          }
                     }
 				continue;
