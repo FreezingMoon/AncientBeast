@@ -194,22 +194,21 @@ export default (G: Game) => {
 				}
 				// At least one target
 				const cre=this.creature;
-				for(let i=0; i<6; i++){
+				for(let i=0; i<6; i++) {
 					if (
 						this.atLeastOneTarget(G.grid.getHexLine(cre.x, cre.y, i, false).slice(1, 1 + 6), {
 							team:  this._targetTeam,
 							pierceThroughBehavior: "partial",
-							//notBlockingTeam: this._targetTeam,
 						})
 					) {
-						this.message =''; //When checking all lines, one failure=wrong message. remove message if a succuess is found
+						this.message =''; // When checking all lines, one failure=wrong message. Remove message if successful
 						return this.timesUsedThisTurn < this._getUsesPerTurn();
 					}
 				}
 				return false;
 			},
 
-			// 	query() :
+			// query() :
 			query: function () {
 				const ab  = this;
 				const cre = ab.creature;
@@ -279,7 +278,7 @@ export default (G: Game) => {
   		_targetTeam: Team.Enemy,
 
   		require: function () {
-    			if(!this.testRequirements()){
+    			if(!this.testRequirements()) {
 				return false;
 			}
 			// At least one target
@@ -291,7 +290,7 @@ export default (G: Game) => {
 						pierceThroughBehavior: "partial",
 					})
 				) {
-					this.message =''; //When checking all lines, one failure=wrong message. remove message if a succuess is found
+					this.message =''; // When checking all lines, one failure=wrong message. Remove message if successful
 					return true;
 				}
 			}
@@ -320,9 +319,8 @@ export default (G: Game) => {
 			  requireCreature: true,
 			  pierceNumber: ability.isUpgraded() ? 2 : 1,
 			  pierceThroughBehavior:  ability.isUpgraded() ? "pierce" : "partial",
-			  //canNotPierce: Team.Same,
 
-			  // only turn these on once upgraded
+			  // Only turn these on once upgraded
 			  dashedHexesAfterCreatureStop: true,
 			  dashedHexesDistance:          12,
 			  dashedHexesUnderCreature:     true,
@@ -341,7 +339,7 @@ export default (G: Game) => {
     		const half   = Math.floor(full / 2);         // 20
     		const double = full + half;                  // 60
 
-		//Maybe turn this into a special function for pierce damage?
+				// Maybe turn this into a special function for pierce damage?
     		const line = G.grid
   				.getHexLine(cre.x, cre.y, dir, false)
   				.slice(1, 1 + 12);
@@ -355,19 +353,19 @@ export default (G: Game) => {
   			if (!t || isTeam(cre,t,Team.Same)) continue;
 
   			if (!first) {
-    			// first time we see any creature
+    			// First time we see any creature
     			first = t;
     			continue;
   			}
 
-  			// if same creature showing up again immediately after first,
+  			// If the same creature showing up again immediately after first,
   			// we treat that as a double occupancy and stop
   			if (t.id === first.id) {
     			sawFirstTwice = true;
     			break;
   			}
 
-  			// otherwise it’s a second, different creature
+  			// Different creature
   			second = t;
   			break;
 		}
