@@ -194,18 +194,19 @@ export default (G: Game) => {
 				}
 				// At least one target
 				const cre=this.creature;
-				let viableHexes=[]
-				for(let i=0; i<6; i++){//collect all hexes before checking for target, else ability message error
-					viableHexes=viableHexes.concat(G.grid.getHexLine(cre.x, cre.y, i, false).slice(1, 1 + 6));
+				for(let i=0; i<6; i++){
+					if (
+						this.atLeastOneTarget(G.grid.getHexLine(cre.x, cre.y, i, false).slice(1, 1 + 6), {
+							team:  this._targetTeam,
+							pierceThroughBehavior: "partial",
+							//notBlockingTeam: this._targetTeam,
+						})
+					) {
+						this.message =''; //When checking all lines, one failure=wrong message. remove message if a succuess is found
+						return this.timesUsedThisTurn < this._getUsesPerTurn();
+					}
 				}
-				if (
-					!this.atLeastOneTarget(viableHexes, {
-						team:  this._targetTeam,
-					})
-				) {
-					return false;
-				}
-				return this.timesUsedThisTurn < this._getUsesPerTurn();
+				return false;
 			},
 
 			// 	query() :
@@ -260,6 +261,7 @@ export default (G: Game) => {
 				} else {
 				  // ─── Final shot ───
 				  // A normal end() will apply cost, log, disable the button, and return to movement.
+				  this.timesUsedThisTurn += 1;
 				  this.end();
 				}
 			  }
@@ -282,20 +284,18 @@ export default (G: Game) => {
 			}
 			// At least one target
 			const cre=this.creature;
-			let viableHexes=[]
-			for(let i=0; i<6; i++){//collect all hexes before checking for target, else ability message error
-				viableHexes=viableHexes.concat(G.grid.getHexLine(cre.x, cre.y, i, false).slice(1, 1 + 12));
+			for(let i=0; i<6; i++){
+				if (
+					this.atLeastOneTarget(G.grid.getHexLine(cre.x, cre.y, i, false).slice(1, 1 + 12), {
+						team:  this._targetTeam,
+						pierceThroughBehavior: "partial",
+					})
+				) {
+					this.message =''; //When checking all lines, one failure=wrong message. remove message if a succuess is found
+					return true;
+				}
 			}
-			if (
-				!this.atLeastOneTarget(viableHexes, {
-					team:  this._targetTeam,
-				})
-			) {
-				return false;
-			}
-			else{
-				return true;
-			}
+			return false;
   		},
 
   		query: function() {
@@ -316,13 +316,16 @@ export default (G: Game) => {
 			  directions:   [1,1,1,1,1,1],
 			  distance:     12,
 			  minDistance:  1,
-			  stopOnCreature:true,
+			  stopOnCreature: true,
 			  requireCreature: true,
+			  pierceNumber: ability.isUpgraded() ? 2 : 1,
+			  pierceThroughBehavior:  ability.isUpgraded() ? "pierce" : "partial",
+			  //canNotPierce: Team.Same,
 
 			  // only turn these on once upgraded
-			  dashedHexesAfterCreatureStop: ability.isUpgraded(),
-			  dashedHexesDistance:          ability.isUpgraded() ? 12 : 0,
-			  dashedHexesUnderCreature:     ability.isUpgraded(),
+			  dashedHexesAfterCreatureStop: true,
+			  dashedHexesDistance:          12,
+			  dashedHexesUnderCreature:     true,
 			});
 		},
 
@@ -338,6 +341,7 @@ export default (G: Game) => {
     		const half   = Math.floor(full / 2);         // 20
     		const double = full + half;                  // 60
 
+		//Maybe turn this into a special function for pierce damage?
     		const line = G.grid
   				.getHexLine(cre.x, cre.y, dir, false)
   				.slice(1, 1 + 12);
