@@ -189,7 +189,7 @@ export default (G: Game) => {
 
 			// 	require() :
 			require: function () {
-				if (!this.testRequirements()){
+				if (!this.testRequirements()) {
 					return false;
 				}
 				// At least one target
@@ -283,7 +283,7 @@ export default (G: Game) => {
 			}
 			// At least one target
 			const cre=this.creature;
-			for(let i=0; i<6; i++){
+			for(let i=0; i<6; i++) {
 				if (
 					this.atLeastOneTarget(G.grid.getHexLine(cre.x, cre.y, i, false).slice(1, 1 + 12), {
 						team:  this._targetTeam,
