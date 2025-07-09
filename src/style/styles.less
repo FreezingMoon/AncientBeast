@@ -77,96 +77,31 @@
 #hexesDisplay .displayhex {
 	background: url('~assets/autoload/phaser/interface/hex.png');
 	transition: opacity 250ms;
+	z-index: 1;
 }
 
-.displayhex {
-	position: absolute;
-	display: inline-block;
-	width: 90px;
-	height: 52px;
-	margin: -36px -10px;
-	padding: 36px 10px;
-	line-height: 52px;
-	text-align: center;
-	font-size: 35px;
+/* Colored hexagons (base layer) */
+#hexesDisplay .displayhex.creature.player0,
+#hexesDisplay .displayhex.creature.player1,
+#hexesDisplay .displayhex.creature.player2,
+#hexesDisplay .displayhex.creature.player3 {
+	z-index: 4;
 }
 
-#hexesDisplay .displayhex.not-reachable {
-	opacity: 0;
-}
-
-#hexesinput .hex div,
-.hex div:after,
-.hex div:before {
-	position: relative;
-	display: block;
-	color: black;
-	margin: 0;
-	padding: 0;
-	top: 0;
-	left: 0;
-	width: 90px;
-	height: 52px;
-	z-index: 99;
-	text-align: center;
-	font-size: 20px;
-	line-height: 20px;
-	/* For debug */
-	cursor: pointer;
-}
-
-#hexesinput .hex div:before {
-	position: relative;
-	content: '';
-	transform: rotate(-60deg);
-}
-
-#hexesinput .hex div:after {
-	position: absolute;
-	content: '';
-	transform: rotate(60deg);
-}
-
-#hexesinput .hex.not-reachable div,
-#hexesinput .hex.not-reachable div:after,
-#hexesinput .hex.not-reachable div:before {
-	cursor: default;
-}
-
-#hexesOverlay .displayhex.hover {
-	z-index: 8;
-}
-
-#hexesDisplay .adj {
-	background: url('~assets/autoload/phaser/interface/hex_path.png');
-	z-index: 5;
-	opacity: 1;
-}
-
+/* Black dashed lines (top layer) */
 #hexesDisplay .displayhex.dashed {
 	background: url('~assets/autoload/phaser/interface/hex_dashed.png');
-	z-index: 5;
+	z-index: 3;
 	opacity: 1 !important;
 }
 
-#hexesDisplay .displayhex.deadzone {
-	background: url('~assets/autoload/phaser/interface/hex_deadzone.png');
-	z-index: 5;
-	opacity: 1 !important;
-}
-
-#hexesDisplay .displayhex.showGrid {
-	opacity: 1 !important;
-}
-
-/*--------------------Players------------------*/
+/* Creature and other interactive elements */
 #hexesDisplay .displayhex.creature {
-	z-index: 6 !important;
 	opacity: 1 !important;
 }
 
 #hexesOverlay .displayhex.creature {
-	z-index: 6 !important;
+	z-index: 5 !important;
 	opacity: 1;
 }
 
