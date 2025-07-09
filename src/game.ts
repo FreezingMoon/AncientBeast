@@ -1216,7 +1216,7 @@ export default class Game {
 			const effect = effects[i];
 
 			if (
-				effect.turnLifetime > 0 &&
+				effect.turnLifetime > -1 &&
 				trigger === effect.deleteTrigger &&
 				this.turn - effect.creationTurn >= effect.turnLifetime
 			) {

@@ -35,7 +35,6 @@ export default (G: Game) => {
 		 * 50% offense and movement increase.
 		 * Upgrade: Bonus is increased to 100%.
 		 */
-		//TODO: Bug: Currently the movement buff is applied on the next turn instead
 		{
 			trigger: 'onStartPhase',
 
@@ -94,7 +93,7 @@ export default (G: Game) => {
 								},
 								stackable: false,
 								deleteTrigger: 'onEndPhase',
-								turnLifetime: 1,
+								turnLifetime: 0,
 							},
 							G,
 						),
@@ -124,7 +123,7 @@ export default (G: Game) => {
 				return true;
 			},
 
-			//query():
+			//	query():
 			query: function () {
 				const ability = this;
 				const crea = this.creature;
@@ -141,7 +140,7 @@ export default (G: Game) => {
 				});
 			},
 
-			//activate():
+			//	activate():
 			activate: function (target: Creature) {
 				const targetOriginalHealth = target.health;
 
@@ -154,6 +153,7 @@ export default (G: Game) => {
 					[], // Effects
 					G,
 				);
+				target.takeDamage(damage);
 				ability.end();
 				G.Phaser.camera.shake(0.01, 150, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 				/** damage dealt is original health - current health
@@ -161,7 +161,7 @@ export default (G: Game) => {
 				 * and the ability is upgraded,
 				 * make a second attack
 				 */
-				if (targetOriginalHealth - target.health >= target.health && this.isUpgraded()) {
+				if (targetOriginalHealth - target.health >= target.health && !target.dead && this.isUpgraded()) {
 					// Added a delay for the second attack with a custom game log
 					setTimeout(() => {
 						G.Phaser.camera.shake(0.01, 150, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
@@ -169,7 +169,7 @@ export default (G: Game) => {
 						target.takeDamage(damage);
 						G.log('%CreatureName' + ability.creature.id + '% used ' + ability.title + ' twice');
 					}, 1000);
-				} else target.takeDamage(damage);
+				};
 			},
 		},
 
@@ -339,7 +339,7 @@ export default (G: Game) => {
     		const half   = Math.floor(full / 2);         // 20
     		const double = full + half;                  // 60
 
-				// Maybe turn this into a special function for pierce damage?
+		// Maybe turn this into a special function for pierce damage?
     		const line = G.grid
   				.getHexLine(cre.x, cre.y, dir, false)
   				.slice(1, 1 + 12);
@@ -353,19 +353,19 @@ export default (G: Game) => {
   			if (!t || isTeam(cre,t,Team.Same)) continue;
 
   			if (!first) {
-    			// First time we see any creature
+    			// first time we see any creature
     			first = t;
     			continue;
   			}
 
-  			// If the same creature showing up again immediately after first,
+  			// if same creature showing up again immediately after first,
   			// we treat that as a double occupancy and stop
   			if (t.id === first.id) {
     			sawFirstTwice = true;
     			break;
   			}
 
-  			// Different creature
+  			// otherwise it’s a second, different creature
   			second = t;
   			break;
 		}
