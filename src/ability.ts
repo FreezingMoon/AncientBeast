@@ -480,7 +480,7 @@ export class Ability {
 		const opt = $j.extend(
 			{
 				callback: function () {
-					// Default no-op function.
+					// Default no-op function
 				},
 				arg: {},
 			},
@@ -722,6 +722,7 @@ export class Ability {
 			optTest: function () {
 				return true;
 			},
+               pierceThroughBehavior: "pierce",
 		};
 
 		const options = { ...defaultOpt, ...o };
@@ -729,11 +730,26 @@ export class Ability {
 		for (let i = 0, len = hexes.length; i < len; i++) {
 			const creature = hexes[i].creature;
 
-			if (
-				!creature ||
-				!isTeam(this.creature, creature, options.team) ||
-				!options.optTest(creature)
+		 		if (
+					!creature ||
+					!isTeam(this.creature, creature, options.team) ||
+					!options.optTest(creature)
 			) {
+					if(creature) {
+							 switch (options.pierceThroughBehavior) {
+										case "stop": // Stop search as soon as any creature is found
+												 i=len; // break for loop;
+												 break;
+										case "partial": // Pierce only members of the target team who have failed optTest
+												 if(!isTeam(this.creature, creature, options.team)) {
+															i=len; // break for loop;
+															break;
+												 }
+										case "pierce": // Continue search until all options are checked, or valid target found
+										default:
+												 // Pass
+							 }
+					}
 				continue;
 			}
 

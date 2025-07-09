@@ -39,6 +39,8 @@ export interface QueryOptions {
 	directions: number[];
 	includeCreature: boolean;
 	stopOnCreature: boolean;
+	pierceNumber: number;
+	pierceThroughBehavior: string;
 
 	/**
 	 * If defined, maximum distance of query in hexes.
@@ -314,6 +316,8 @@ export class HexGrid {
 			directions: [1, 1, 1, 1, 1, 1],
 			includeCreature: true,
 			stopOnCreature: true,
+			pierceNumber: 1,
+			pierceThroughBehavior: "stop",
 			distance: 0,
 			minDistance: 0,
 			distanceFalloff: 0,
@@ -351,6 +355,8 @@ export class HexGrid {
 			directions: [1, 1, 1, 1, 1, 1],
 			includeCreature: true,
 			stopOnCreature: true,
+			pierceNumber: 1,
+			pierceThroughBehavior: "stop",
 			distance: 0,
 			minDistance: 0,
 			distanceFalloff: 0,
@@ -435,7 +441,7 @@ export class HexGrid {
 				}
 			});
 
-			arrayUtils.filterCreature(dir, options.includeCreature, options.stopOnCreature, options.id);
+			arrayUtils.filterCreature(dir, options.includeCreature, options.stopOnCreature, options.id, options.sourceCreature, options.pierceNumber, options.pierceThroughBehavior, options.team);
 
 			if (dir.length === 0) {
 				continue;

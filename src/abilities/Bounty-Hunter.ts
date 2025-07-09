@@ -1,5 +1,5 @@
 import { Damage } from '../damage';
-import { Team } from '../utility/team';
+import { Team, isTeam } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
@@ -35,7 +35,6 @@ export default (G: Game) => {
 		 * 50% offense and movement increase.
 		 * Upgrade: Bonus is increased to 100%.
 		 */
-		//TODO: Bug: Currently the movement buff is applied on the next turn instead
 		{
 			trigger: 'onStartPhase',
 
@@ -94,7 +93,7 @@ export default (G: Game) => {
 								},
 								stackable: false,
 								deleteTrigger: 'onEndPhase',
-								turnLifetime: 1,
+								turnLifetime: 0,
 							},
 							G,
 						),
@@ -124,7 +123,7 @@ export default (G: Game) => {
 				return true;
 			},
 
-			//query():
+			//	query():
 			query: function () {
 				const ability = this;
 				const crea = this.creature;
@@ -141,7 +140,7 @@ export default (G: Game) => {
 				});
 			},
 
-			//activate():
+			//	activate():
 			activate: function (target: Creature) {
 				const targetOriginalHealth = target.health;
 
@@ -154,6 +153,7 @@ export default (G: Game) => {
 					[], // Effects
 					G,
 				);
+				target.takeDamage(damage);
 				ability.end();
 				G.Phaser.camera.shake(0.01, 150, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 				/** damage dealt is original health - current health
@@ -161,7 +161,7 @@ export default (G: Game) => {
 				 * and the ability is upgraded,
 				 * make a second attack
 				 */
-				if (targetOriginalHealth - target.health >= target.health && this.isUpgraded()) {
+				if (targetOriginalHealth - target.health >= target.health && !target.dead && this.isUpgraded()) {
 					// Added a delay for the second attack with a custom game log
 					setTimeout(() => {
 						G.Phaser.camera.shake(0.01, 150, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
@@ -169,7 +169,7 @@ export default (G: Game) => {
 						target.takeDamage(damage);
 						G.log('%CreatureName' + ability.creature.id + '% used ' + ability.title + ' twice');
 					}, 1000);
-				} else target.takeDamage(damage);
+				};
 			},
 		},
 
@@ -189,13 +189,26 @@ export default (G: Game) => {
 
 			// 	require() :
 			require: function () {
-				if (!this.testRequirements()){
+				if (!this.testRequirements()) {
 					return false;
 				}
-				return this.timesUsedThisTurn < this._getUsesPerTurn();
+				// At least one target
+				const cre=this.creature;
+				for(let i=0; i<6; i++) {
+					if (
+						this.atLeastOneTarget(G.grid.getHexLine(cre.x, cre.y, i, false).slice(1, 1 + 6), {
+							team:  this._targetTeam,
+							pierceThroughBehavior: "partial",
+						})
+					) {
+						this.message =''; // When checking all lines, one failure=wrong message. Remove message if successful
+						return this.timesUsedThisTurn < this._getUsesPerTurn();
+					}
+				}
+				return false;
 			},
 
-			// 	query() :
+			// query() :
 			query: function () {
 				const ab  = this;
 				const cre = ab.creature;
@@ -247,6 +260,7 @@ export default (G: Game) => {
 				} else {
 				  // ─── Final shot ───
 				  // A normal end() will apply cost, log, disable the button, and return to movement.
+				  this.timesUsedThisTurn += 1;
 				  this.end();
 				}
 			  }
@@ -261,10 +275,26 @@ export default (G: Game) => {
 		 */
 		{
   		trigger: 'onQuery',
-  		_targetTeam: Team.Both,
+  		_targetTeam: Team.Enemy,
 
   		require: function () {
-    		return this.testRequirements();
+    			if(!this.testRequirements()) {
+				return false;
+			}
+			// At least one target
+			const cre=this.creature;
+			for(let i=0; i<6; i++) {
+				if (
+					this.atLeastOneTarget(G.grid.getHexLine(cre.x, cre.y, i, false).slice(1, 1 + 12), {
+						team:  this._targetTeam,
+						pierceThroughBehavior: "partial",
+					})
+				) {
+					this.message =''; // When checking all lines, one failure=wrong message. Remove message if successful
+					return true;
+				}
+			}
+			return false;
   		},
 
   		query: function() {
@@ -275,7 +305,7 @@ export default (G: Game) => {
 			  fnOnSelect:  ()       => {},
 			  fnOnConfirm: (...args) => ability.animation(...args),
 			  fnOnCancel:  ()       => G.activeCreature.queryMove(),
-		  			  team:           Team.Both,
+		  	  team:           this._targetTeam,
 			  id:             cre.id,
 			  flipped:        cre.player.flipped,
 			  x:              cre.x,
@@ -285,13 +315,15 @@ export default (G: Game) => {
 			  directions:   [1,1,1,1,1,1],
 			  distance:     12,
 			  minDistance:  1,
-			  stopOnCreature:true,
+			  stopOnCreature: true,
 			  requireCreature: true,
+			  pierceNumber: ability.isUpgraded() ? 2 : 1,
+			  pierceThroughBehavior:  ability.isUpgraded() ? "pierce" : "partial",
 
-			  // only turn these on once upgraded
-			  dashedHexesAfterCreatureStop: ability.isUpgraded(),
-			  dashedHexesDistance:          ability.isUpgraded() ? 12 : 0,
-			  dashedHexesUnderCreature:     ability.isUpgraded(),
+			  // Only turn these on once upgraded
+			  dashedHexesAfterCreatureStop: true,
+			  dashedHexesDistance:          12,
+			  dashedHexesUnderCreature:     true,
 			});
 		},
 
@@ -307,8 +339,9 @@ export default (G: Game) => {
     		const half   = Math.floor(full / 2);         // 20
     		const double = full + half;                  // 60
 
+		// Maybe turn this into a special function for pierce damage?
     		const line = G.grid
-  				.getHexLine(cre.x, cre.y, dir, cre.player.flipped)
+  				.getHexLine(cre.x, cre.y, dir, false)
   				.slice(1, 1 + 12);
 
 		let first = null;
@@ -317,7 +350,7 @@ export default (G: Game) => {
 
 		for (const h of line) {
   			const t = h.creature;
-  			if (!t) continue;
+  			if (!t || isTeam(cre,t,Team.Same)) continue;
 
   			if (!first) {
     			// first time we see any creature
