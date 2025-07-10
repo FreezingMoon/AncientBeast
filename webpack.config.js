@@ -25,7 +25,11 @@ const Dotenv = require('dotenv-webpack');
 	const toObjString = (paths) =>
 		'{' + paths.map((path) => `"${path}":require("${path}")`).join(',') + '}';
 	const globOptions = { ignore: ['**/*.js', '**/*.ts', '**/*.md'], posix: true };
-	const phaserAutoloadAssets = toObjString(glob.sync('assets/autoload/phaser/**/*.*', globOptions));
+	const phaserAutoloadAssets = toObjString(
+		glob
+			.sync('assets/autoload/phaser/**/*.*', globOptions)
+			.concat(glob.sync('assets/units/avatars/**/*.{jpg,jpeg,png}', globOptions)),
+	);
 	const allAssets = toObjString(glob.sync('assets/**/*.*', globOptions));
 
 	fs.writeFileSync(
@@ -61,11 +65,16 @@ module.exports = (env, argv) => {
 			path: path.resolve(__dirname, 'deploy'),
 			filename: '[name].[contenthash].bundle.js',
 			clean: true, // NOTE: Clean the output folder before each build.
-			assetModuleFilename: () => {
-				if (production) {
-					return 'assets/[contenthash].[ext]';
+			assetModuleFilename: (pathData) => {
+				const fullPath = pathData.filename.replace(/\\/g, '/');
+
+				// If it's an avatar, keep the original filename
+				if (fullPath.includes('/units/avatars/')) {
+					return 'assets/units/avatars/[name][ext]'; // Avoid file hashing for avatars
 				}
-				return '[path][name].[ext]';
+
+				// For everything else, use contenthash
+				return production ? 'assets/[contenthash][ext]' : '[path][name][ext]';
 			},
 		},
 		devtool: production ? 'source-map' : 'inline-source-map',
@@ -126,8 +135,20 @@ module.exports = (env, argv) => {
 					use: ['style-loader', 'css-loader'],
 				},
 				{
-					test: /\.(png|jpg|gif|svg|ogg|ico|cur|woff|woff2)$/,
+					test: /\.(png|jpe?g)$/,
+					include: path.resolve(__dirname, 'assets/units/avatars'),
 					type: 'asset/resource',
+					generator: {
+						filename: 'assets/units/avatars/[name][ext]', // ✅ keeps Wisp.jpg etc.
+					},
+				},
+				{
+					test: /\.(png|jpg|gif|svg|ogg|ico|cur|woff|woff2)$/,
+					exclude: path.resolve(__dirname, 'assets/units/avatars'),
+					type: 'asset/resource',
+					generator: {
+						filename: 'assets/[contenthash][ext]', // ✅ keeps hashing for everything else
+					},
 				},
 			],
 		},
