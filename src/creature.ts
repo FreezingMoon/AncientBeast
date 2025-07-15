@@ -1463,7 +1463,7 @@ export class Creature {
 				if (typeof value == 'number') {
 					this.stats[key] += value;
 				}
-				if(key=="movement"){
+				if(key=="movement") {
 					this.remainingMove+=value;
 				}
 
