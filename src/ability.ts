@@ -1,7 +1,8 @@
 import * as $j from 'jquery';
-import { Damage } from './damage';
+import { Damage, DamageResult } from './damage';
 import { Direction, Hex } from './utility/hex';
-import { Creature, CreatureMasteries } from './creature';
+import { Creature, CreatureMasteries, Movement } from './creature';
+import { CreatureType } from './data/types';
 import { isTeam, Team } from './utility/team';
 import * as arrayUtils from './utility/arrayUtils';
 import Game from './game';
@@ -42,11 +43,13 @@ export type Trigger =
 	| 'oncePerDamageChain'
 	| 'onCreatureMove onOtherCreatureMove'
 	| 'onCreatureSummon onDamage onHeal'
+     | 'onCreatureSummon onOtherCreatureSummon onOtherCreatureDeath'
 	| 'onStartPhase onEndPhase'
 	| 'onDamage onStartPhase'
 	| 'onStartPhase onDamage'
 	| 'onUnderAttack onAttack'
-	| 'onUnderAttack';
+	| 'onUnderAttack'
+     | 'noTrigger';
 
 // Could get rid of the union and optionals by creating a separate (or conditional) type for Dark Priest's Cost
 // This might narrow down the types in the constructor by checking `creature.name`
@@ -97,7 +100,7 @@ export class Ability {
 	damages?: Partial<CreatureMasteries> & { pure?: number };
 	effects?: AbilityEffect[];
 	message?: string;
-	movementType?: () => 'flying'; // Currently, this functon only exists in `Scavenger.js`
+	movementType?: () => Movement; // Currently, this functon only exists in `Scavenger.js`
 	triggeredThisChain?: boolean;
 	range?: { minimum?: number; regular: number; upgraded: number };
 
@@ -116,6 +119,7 @@ export class Ability {
 	getAbilityName?: (name: string) => string;
 	getMovementBuff?: (buff: number) => number;
 	getOffenseBuff?: (buff: number) => number;
+     _getOffenseBuff?: () => number;
 	_getHexes?: () => any;
 	_getMaxDistance: () => number;
 	_directions?: Direction[];
@@ -134,6 +138,7 @@ export class Ability {
 	_maxPushDistance: number;
 	_damagePerHexTravelled: number;
 	_damage: (target: Creature, runPath: Hex[]) => void;
+     _damageTarget: (target: Creature) => {damages?: DamageResult; kill: boolean; damageObj?: Damage};
 	_pushTarget: (target: Creature, pushPath: Hex[], args: any) => void;
 
 	_isSecondLowJump: () => boolean;
@@ -155,11 +160,16 @@ export class Ability {
 		sourceCreature?: Creature;
 	};
 
+     // Only used for Dark Priest Godlet Printer
+     materialize?: (creature: CreatureType) => void;
+
 	// Below methods exist in Snow-Bunny.ts
 	_detectFrontHexesWithEnemy: () => { direction: number; hex: Hex; enemyPos: Point }[];
 	_findEnemyHexInFront: (hexWithEnemy: Hex) => Hex | undefined;
 	_getHopHex: () => Hex | undefined;
 	_getUsesPerTurn: () => 1 | 2;
+
+     _effectName: string;
 
 	resetTimesUsed(): void {
 		this.timesUsedThisTurn = 0;

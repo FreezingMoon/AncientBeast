@@ -100,7 +100,7 @@ export default class Game {
 	animationQueue: (Animation | AnimationID)[];
 	checkTimeFrequency: number;
 	gamelog: GameLog;
-	configData: object;
+	configData: Partial<GameConfig>;
 	match: MatchI | object;
 	gameplay: Gameplay;
 	session = null;

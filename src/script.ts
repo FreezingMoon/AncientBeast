@@ -441,7 +441,7 @@ function renderPlayerModeType(isMultiPlayer) {
 
 /**
  * Generate game config from form and return it.
- * @return {Object} The game config.
+ * @return {Partial<GameConfig>} The game config.
  */
 export function getGameConfig() {
 	const defaultConfig = {
