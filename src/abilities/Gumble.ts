@@ -163,10 +163,14 @@ export default (G: Game) => {
 			},
 		},
 
-		// Third Ability: Royal Seal
+		// Third Ability: Pretty Ribbon
 		{
-			// Type : Can be "onQuery", "onStartPhase", "onDamage"
-			trigger: 'onQuery',
+						// Type : Can be "onQuery", "onStartPhase", "onDamage"
+
+	
+			trigger: 'onQuery', 
+
+			_targetTeam: Team.Both,
 
 			// require() :
 			require: function () {
@@ -178,95 +182,134 @@ export default (G: Game) => {
 				const ability = this;
 				const creature = this.creature;
 
-				// Upgraded Royal Seal can target up to 3 hexagons range
-				const range = this.isUpgraded() ? 3 : 1;
-				const hexes = creature.hexagons.concat(
-					G.grid.getFlyingRange(creature.x, creature.y, range, creature.size, creature.id),
-				);
+				
+				const area = [
+					[1, 1],
+					[1, 1],
+				] as matrices.AugmentedMatrix;
 
-				G.grid.queryHexes({
+				const dx = this.creature.y % 2 !== 0 ? -1 : 0;
+				const dy = -1;
+				const choices = [
+					G.grid.getHexMap(this.creature.x + 1 + dx, this.creature.y - 1 + dy, 0, false, [
+						[1],
+						[1, 1],
+					] as matrices.AugmentedMatrix), // up-right
+					G.grid.getHexMap(this.creature.x + 1 + dx, this.creature.y + 1 + dy, 0, false, [
+						[1, 1],
+					] as matrices.AugmentedMatrix), // front
+					G.grid.getHexMap(this.creature.x + 1 + dx, this.creature.y + 2 + dy, 0, false, area), // down-right
+					G.grid.getHexMap(this.creature.x - 1 + dx, this.creature.y + 2 + dy, 0, false, [
+						[1, 1],
+						[0, 1],
+					] as matrices.AugmentedMatrix), // down-left
+					G.grid.getHexMap(this.creature.x - 2 + dx, this.creature.y + 1 + dy, 0, false, [
+						[1, 1],
+					] as matrices.AugmentedMatrix), // back
+					G.grid.getHexMap(this.creature.x - 1 + dx, this.creature.y - 1 + dy, 0, false, area), // up-left
+					G.grid.getHexMap(this.creature.x, this.creature.y, 0, false, [
+						[1],
+					] as matrices.AugmentedMatrix),
+				];
+				// Reorder choices based on number of hexes
+				// This ensures that if a choice contains overlapping hexes only, that
+				// choice won't be available for selection.
+				choices.sort(function (choice1, choice2) {
+					return choice1.length - choice2.length;
+				});
+				G.grid.queryChoice({
+					fnOnCancel: function () {
+						G.activeCreature.queryMove();
+					},
 					fnOnConfirm: function () {
 						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
-					size: creature.size,
-					flipped: creature.player.flipped,
-					id: creature.id,
-					hexes: hexes,
-					ownCreatureHexShade: true,
-					hideNonTarget: true,
+					team: Team.Both,
+					id: this.creature.id,
+					requireCreature: false,
+					choices: choices,
 				});
 			},
 
 			// activate() :
-			activate: function (hex: Hex) {
-				this.end();
+			activate: function (hex: Hex[]) {
 				const ability = this;
-				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_VERTICAL, true);
+				const swine = this.creature;
+				
+				ability.end();
 
-				const makeSeal = function () {
-					const effect = new Effect(
-						'Royal Seal',
-						ability.creature,
-						hex,
-						'onStepIn',
-						{
-							// Immunity to own trap type
-							requireFn: function () {
-								const creaOnTrap = this.trap.hex.creature;
-								return creaOnTrap && creaOnTrap.type !== ability.creature.type;
-							},
-							effectFn: function (_, crea: Creature) {
-								if (this.trap.turnLifetime === 0) {
-									crea.remainingMove = 0;
-									// Destroy the trap on the trapped creature's turn
-									this.trap.turnLifetime = 1;
-									this.trap.ownerCreature = crea;
-								}
-							},
-							// Immobilize target so that they can't move and no
-							// abilities/effects can move them
-							alterations: {
-								moveable: false,
-							},
-							deleteTrigger: 'onStartPhase',
-							turnLifetime: 1,
-						},
-						G,
-					);
+				const targets = ability.getTargets(hex);
 
-					const trap = new Trap(
-						hex.x,
-						hex.y,
-						'royal-seal',
-						[effect],
-						ability.creature.player,
-						{
-							ownerCreature: ability.creature,
-							fullTurnLifetime: true,
-						},
-						G,
-					);
+				const isSelf = hex[0].x == swine.x && hex[0].y == swine.y;
 
-					trap.hide();
-				};
-
-				// Move Gumble to the target hex if necessary
-				if (hex.x !== this.creature.x || hex.y !== this.creature.y) {
-					this.creature.moveTo(hex, {
-						callback: function () {
-							G.activeCreature.queryMove();
-							makeSeal();
-						},
-						ignoreMovementPoint: true,
-						ignorePath: true,
-						overrideSpeed: 200, // Custom speed for jumping
-						animation: 'push',
-					});
-				} else {
-					makeSeal();
+				if (isSelf) {
+					this.creature.heal(20, true);
+					this.creature.restoreEndurance(2);
+					
+					this.creature.restoreRegrowth(2);
 				}
-			},
+
+				targets.forEach(function (item) {
+					if (!(item.target instanceof Creature)) return;
+
+					const trg = item.target;
+				
+
+					G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_VERTICAL, true);
+
+					// If the target is an ally, heal it and restore endurance and regrowth
+					
+					if (isTeam(ability.creature, trg, Team.Ally)) {
+						trg.heal(20, true, true);
+						trg.restoreEndurance(2, true);
+						trg.restoreRegrowth(2, true);
+					} else if (isTeam(ability.creature, trg, Team.Enemy) && ability.isUpgraded()) { // If the target is an enemy and the ability is upgraded
+						if ((trg.name =='Dark Priest') &&  trg.hasCreaturePlayerGotPlasma())
+						{
+							
+							//if the creature is not a Dark Priest or the player has got no Plasma
+							const damage=  new Damage(ability.creature, // Attacker
+								{}, // Damage Type
+								1, // Area
+								[], // Effects
+								G,
+								0, // Damage Amount
+							);
+							trg.takeDamage(damage);
+
+						}
+						else
+						{
+							const debuffEffect = new Effect(
+								'Ribbon Debuff',
+								ability.creature,
+								trg,
+								'',
+								{
+									alterations: {
+										movement: -2,
+									},
+									turnLifetime: 1,
+									deleteTrigger: 'onStartOfRound',
+								},
+								G,
+							);
+
+							trg.addEffect(
+								debuffEffect,
+								`%CreatureName${trg.id}% is weakened by Pretty Ribbon`,
+								'',
+								false,
+								true,
+							);
+						}
+						}
+					});
+
+					
+				}
+
 		},
 
 		// Fourth Ability: Boom Box

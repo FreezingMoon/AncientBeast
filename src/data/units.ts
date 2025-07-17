@@ -1375,18 +1375,10 @@ export const unitData = [
 				},
 			},
 			{
-				title: 'Royal Seal',
-				desc: 'Sticks chewing gum nearby to hinder any passing unit for a complete turn.',
+				title: 'Pretty Ribbon',
+				desc: 'Instantly heals a nearby allie and also buffs it for the remaining of the match.',
 				info: 'Does not affect self but affects allies.',
-				upgrade: 'Can leap within 3 hexagons.',
-				effects: [
-					{
-						special: '%movement% is set to 0 for a turn.',
-					},
-				],
-				costs: {
-					energy: 20,
-				},
+				upgrade: '-2 movement enemy debuff.',
 			},
 			{
 				title: 'Boom Box',

@@ -15,6 +15,7 @@ export class Damage {
 	effects: Effect[];
 	area: number; // Number of unit hexagons (1, 2 or 3) that are being hit
 	counter = false; // Is this counter-damage?
+	dmgAmount: number;
 
 	target: Creature | undefined = undefined;
 	melee: boolean | undefined = undefined;
@@ -28,6 +29,7 @@ export class Damage {
 	 * @param {number} area Number of hexagons being hit
 	 * @param {Effect[]} effects Contains Effect object to apply to the target
 	 * @param {Game} game Game object
+	 * @param {DamageAmount} dmgAmount Specifies the damage amount which is dealt to the target
 	 */
 	constructor(
 		attacker: Creature,
@@ -35,12 +37,14 @@ export class Damage {
 		area: number,
 		effects: Effect[],
 		game: Game,
+		dmgAmount: number = 1,
 	) {
 		this.game = game;
 		this.attacker = attacker;
 		this.damages = damages;
 		this.effects = effects;
 		this.area = area;
+		this.dmgAmount = dmgAmount;
 	}
 
 	applyDamage() {
@@ -49,6 +53,8 @@ export class Damage {
 		const trg = this.target.stats;
 		const atk = this.attacker.stats;
 		const result: DamageResult = { total: 0 };
+
+		if (this.dmgAmount === 0) return result;
 
 		Object.entries(this.damages).forEach(([key, value]) => {
 			if (key == 'pure') {
