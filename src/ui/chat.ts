@@ -1,28 +1,47 @@
 import * as $j from 'jquery';
 import * as str from '../utility/string';
+import Game from '../game';
+
+type Message = {
+	message: string;
+	amount: number;
+	time: string;
+	class: string;
+	DOMObject: JQuery.Node[]; //eslint-disable-line no-undef
+};
+
+type MessageToSupress = {
+	pattern: RegExp;
+	times: number;
+};
 
 export class Chat {
+	game: Game;
+	$chat: JQuery<HTMLElement>; //eslint-disable-line no-undef
+	$content: JQuery<HTMLElement>; //eslint-disable-line no-undef
+	isOpen: boolean;
+	messages: Message[];
+	messagesToSuppress: MessageToSupress[];
 	/**
 	 * Chat/Log Functions
 	 * @constructor
 	 */
-	constructor(game) {
+	constructor(game: Game) {
 		this.game = game;
 		this.$chat = $j('#chat');
 		this.$content = $j('#chatcontent');
 		this.$chat.on('click', () => {
 			this.toggle();
 		});
-		this.$chat.on(
-			setTimeout(() => {
-				this.toggle();
-			}, 2000),
-		);
-		this.$chat.on(
-			setTimeout(() => {
-				this.toggle();
-			}, 5000),
-		);
+
+		//auto show and close chat when game starts - #1107
+		setTimeout(() => {
+			this.toggle();
+		}, 2000);
+		setTimeout(() => {
+			this.toggle();
+		}, 5000);
+
 		this.$chat.on('mouseenter', () => {
 			this.peekOpen();
 		});
@@ -48,7 +67,7 @@ export class Chat {
 	 * @param {string} message Event name.
 	 * @param {object} payload Event payload.
 	 */
-	_handleUiEvent(message, payload) {
+	_handleUiEvent(message: string, payload) {
 		if (
 			message === 'toggleDash' ||
 			message === 'toggleScore' ||
@@ -94,7 +113,9 @@ export class Chat {
 	}
 
 	getCurrentTime() {
-		const currentTime = new Date(new Date() - this.game.startMatchTime);
+		const now = Date.now();
+		const startMatchDateObject = this.game.startMatchTime;
+		const currentTime = new Date(now - startMatchDateObject.getTime());
 		return (
 			str.zfill(currentTime.getUTCHours(), 2) +
 			':' +
@@ -104,7 +125,7 @@ export class Chat {
 		);
 	}
 
-	createHTMLTemplate(msg, amount, msgTime = null, ifOuter = true, htmlClass = '') {
+	createHTMLTemplate(msg: string, amount: number, msgTime = null, ifOuter = true, htmlClass = '') {
 		const timeTemplate = msgTime ? '<i>' + msgTime + '</i> ' : '',
 			amountTemplate = amount > 1 ? ' [ ' + amount + 'x ]' : '';
 
@@ -115,7 +136,7 @@ export class Chat {
 		}
 	}
 
-	addMsg(msg, htmlClass, ifNoTimestamp = false) {
+	addMsg(msg: string, htmlClass: string, ifNoTimestamp = false) {
 		const messagesNo = this.messages.length;
 		const currentTime = ifNoTimestamp ? null : this.getCurrentTime();
 
@@ -163,7 +184,7 @@ export class Chat {
 	 * @param {RegExp} pattern If the chat log message matches this pattern, it will be suppressed.
 	 * @param {number} times Suppress the message this many times.
 	 */
-	suppressMessage(pattern, times = 1) {
+	suppressMessage(pattern: RegExp, times = 1) {
 		this.messagesToSuppress.push({
 			pattern,
 			times,
