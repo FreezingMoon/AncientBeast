@@ -2,6 +2,7 @@ import * as $j from 'jquery';
 import Cookies from 'js-cookie';
 import { capitalize } from '../utility/string';
 import { Button, ButtonStateEnum } from './button';
+import Game from '../game';
 
 const COOKIE_KEY = 'ab-meta-powers';
 
@@ -13,8 +14,26 @@ const COOKIE_KEY = 'ab-meta-powers';
  *
  * Caution: usage of these tools may break the game log
  */
+
+type defaultToggleObj = {
+	enabled: boolean;
+	label: string;
+};
 export class MetaPowers {
-	constructor(game) {
+	game: Game;
+	toggles: {
+		executeMonster: defaultToggleObj;
+		resetCooldowns: defaultToggleObj;
+		disableMaterializationSickness: defaultToggleObj;
+	};
+	// eslint-disable-next-line no-undef
+	$els: { [key: string]: JQuery<HTMLElement> } = {};
+	btnCloseModal: Button;
+	btnExecuteMonster: Button;
+	btnResetCooldowns: Button;
+	btnDisableMaterializationSickness: Button;
+
+	constructor(game: Game) {
 		this.game = game;
 
 		this.toggles = {
@@ -43,7 +62,7 @@ export class MetaPowers {
 	 * @param {string} message Event name
 	 * @param {object} payload Event payload
 	 */
-	_handleUiEvent(message, payload) {
+	_handleUiEvent(message: string, payload: object) {
 		if (message === 'toggleMetaPowers') {
 			this._toggleModal();
 		}
@@ -129,7 +148,7 @@ export class MetaPowers {
 	 * @param {string} stateKey Key for `this.state` setting
 	 * @param {Button} button Button representing the toggle state
 	 */
-	_togglePower(stateKey, button) {
+	_togglePower(stateKey: string, button: Button) {
 		const enabled = !this.toggles[stateKey].enabled;
 
 		this.toggles = {
