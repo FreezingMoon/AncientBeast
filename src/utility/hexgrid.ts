@@ -10,7 +10,6 @@ import { DEBUG } from '../debug';
 import { HEX_WIDTH_PX } from './const';
 import { Point } from './pointfacade';
 import { AugmentedMatrix } from './matrices';
-import { Ability } from '../ability';
 
 interface GridDefinition {
 	numRows: number;
@@ -40,6 +39,8 @@ export interface QueryOptions {
 	directions: number[];
 	includeCreature: boolean;
 	stopOnCreature: boolean;
+	pierceNumber: number;
+	pierceThroughBehavior: string;
 
 	/**
 	 * If defined, maximum distance of query in hexes.
@@ -75,7 +76,7 @@ export interface QueryOptions {
 	choices: Hex[][];
 
 	/**
-	 * Object given to the events function (to easily pass variable for these function).
+	 * Object given to the events function (to easily pass variables for these functions).
 	 */
 	arg: any;
 
@@ -139,6 +140,8 @@ export class HexGrid {
 	materialize_overlay: any;
 	secondary_overlay: any;
 	lastQueryOpt: any;
+	_flickerTween: any;
+	_flickerTweenSecondary: any;
 
 	get allhexes(): Hex[] {
 		return this.hexes.flat(1);
@@ -304,8 +307,33 @@ export class HexGrid {
 	 */
 	queryDirection(o: Partial<QueryOptions>) {
 		o.isDirectionsQuery = true;
+		const defaultOpt = {
+			team: Team.Enemy,
+			id: 0,
+			flipped: false,
+			x: 0,
+			y: 0,
+			directions: [1, 1, 1, 1, 1, 1],
+			includeCreature: true,
+			stopOnCreature: true,
+			pierceNumber: 1,
+			pierceThroughBehavior: "stop",
+			distance: 0,
+			minDistance: 0,
+			distanceFalloff: 0,
+			dashedHexesAfterCreatureStop: true,
+			dashedHexesDistance: 0,
+			dashedHexesUnderCreature: true,
+			sourceCreature: undefined,
+			isDirectionsQuery: true,
+		};
+
+		o = { ...defaultOpt, ...o };
+
 		o = this.getDirectionChoices(o);
 		this.queryChoice(o);
+
+		return true;
 	}
 
 	/**
@@ -327,11 +355,14 @@ export class HexGrid {
 			directions: [1, 1, 1, 1, 1, 1],
 			includeCreature: true,
 			stopOnCreature: true,
+			pierceNumber: 1,
+			pierceThroughBehavior: "stop",
 			distance: 0,
 			minDistance: 0,
 			distanceFalloff: 0,
 			dashedHexesAfterCreatureStop: true,
 			dashedHexesDistance: 0,
+			dashedHexesUnderCreature: true,
 			sourceCreature: undefined,
 			choices: [],
 			optTest: () => true,
@@ -410,7 +441,7 @@ export class HexGrid {
 				}
 			});
 
-			arrayUtils.filterCreature(dir, options.includeCreature, options.stopOnCreature, options.id);
+			arrayUtils.filterCreature(dir, options.includeCreature, options.stopOnCreature, options.id, options.sourceCreature, options.pierceNumber, options.pierceThroughBehavior, options.team);
 
 			if (dir.length === 0) {
 				continue;
@@ -873,6 +904,13 @@ export class HexGrid {
 			this.secondary_overlay.alpha = 0;
 		}
 
+		if (this._flickerTween) {
+			this._flickerTween.stop(true);
+		}
+		if (this._flickerTweenSecondary) {
+			this._flickerTweenSecondary.stop(true);
+		}
+
 		if (!o.ownCreatureHexShade) {
 			if (o.id instanceof Array) {
 				o.id.forEach((id) => {
@@ -918,7 +956,6 @@ export class HexGrid {
 				return true;
 			}
 		};
-
 		// Set reachable the given hexes
 		o.hexes.forEach((hex) => {
 			hex.setReachable();
@@ -926,9 +963,12 @@ export class HexGrid {
 				hex.unsetNotTarget();
 			}
 			if (o.targeting) {
-				if (hex.creature instanceof Creature) {
-					if (hex.creature.id != this.game.activeCreature.id) {
+				if (hex.creature instanceof Creature) {					if (hex.creature.id != this.game.activeCreature.id) {
 						hex.overlayVisualState('reachable h_player' + hex.creature.team);
+						// Add dashed hexagons under targets for ranged abilities with team color
+						hex.displayVisualState('dashed player' + hex.creature.team);
+						// Ensure dashed hexagons are on top for better visibility
+						hex.grid.displayHexesGroup.bringToTop(hex.display);
 					}
 				} else {
 					if (o.fillOnlyHoveredCreature && !emptyHexBeforeCreature(hex)) {
@@ -953,10 +993,15 @@ export class HexGrid {
 				} else {
 					creature.displayHealthStats();
 				}
-			}
-			creature.hexagons.forEach((h) => {
+			}			creature.hexagons.forEach((h) => {
 				// Flashing outline
 				h.overlayVisualState('hover h_player' + creature.team);
+				// Keep the dashed hexagons visible under targets with team color
+				if (h.displayClasses.indexOf('dashed') === -1) {
+					h.displayVisualState('dashed player' + creature.team);
+				}
+				// Make sure the display hexagon is brought to the top for better visibility
+				h.grid.displayHexesGroup.bringToTop(h.display);
 			});
 			if (creature !== game.activeCreature) {
 				if (!hex.reachable) {
@@ -1593,7 +1638,7 @@ export class HexGrid {
 	}
 
 	/**
-	 * Shorcut for $allDispHex.removeClass()
+	 * Shortcut for $allDispHex.removeClass()
 	 * @param {string} cssClass - Class(es) name(s) to remove with jQuery removeClass function
 	 * @deprecated use this.allhexes.forEach(hex => hex.cleanDisplayVisualState(cssClass))
 	 */
@@ -1618,12 +1663,12 @@ export class HexGrid {
 		const hex = this.hexes[pos.y][pos.x - (creatureData.size - 1)];
 		const cardboard =
 			creatureData.type == '--'
-				? creatureData.name + game.activePlayer.color + '_cardboard'
+				? creatureData.name + player.color + '_cardboard'
 				: creatureData.name + '_cardboard';
 
 		if (!secondary) {
 			if (!this.materialize_overlay) {
-				// If sprite does not exists
+				// If sprite does not exist
 				// Adding sprite
 				this.materialize_overlay = this.creatureGroup.create(0, 0, cardboard);
 				this.materialize_overlay.anchor.setTo(0.5, 1);
@@ -1669,6 +1714,32 @@ export class HexGrid {
 			preview.scale.setTo(-1, 1);
 		} else {
 			preview.scale.setTo(1, 1);
+		}
+
+		let flickering = game.Phaser.add
+			.tween(preview)
+			.to(
+				{
+					alpha: 0.15,
+				},
+				777,
+				Phaser.Easing.Linear.None,
+			)
+			.yoyo(true)
+			.repeat(-1)
+			.start();
+		if (!secondary) {
+			if(this._flickerTween) {
+				// Stop animations that are about to be orphaned #2698
+				this._flickerTween.stop(true)
+			}
+			this._flickerTween=flickering
+		}
+		else {
+			if(this._flickerTweenSecondary) {
+				this._flickerTweenSecondary.stop(true)
+			}
+			this._flickerTweenSecondary=flickering
 		}
 
 		for (let i = 0, size = creatureData.size; i < size; i++) {

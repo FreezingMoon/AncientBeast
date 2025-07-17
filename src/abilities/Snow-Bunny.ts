@@ -484,6 +484,11 @@ export default (G: Game) => {
 				const sprite = projectileInstance[1];
 				const dist = projectileInstance[2];
 
+				sprite.alpha = 0.4;
+				const fadeTween = G.Phaser.add
+					.tween(sprite)
+					.to({ alpha: 1 }, tween.duration, Phaser.Easing.Linear.None, true);
+
 				tween.onComplete.add(function () {
 					// @ts-expect-error this refers to the animation object, _not_ the ability
 					this.destroy();

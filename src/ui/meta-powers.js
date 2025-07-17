@@ -19,8 +19,8 @@ export class MetaPowers {
 
 		this.toggles = {
 			executeMonster: { enabled: false, label: 'Execution Mode' },
-			resetCooldowns: { enabled: false, label: 'Disable Materialization Sickness' },
-			disableMaterializationSickness: { enabled: false, label: 'Disable Cooldowns' },
+			resetCooldowns: { enabled: false, label: 'Disable Cooldowns' },
+			disableMaterializationSickness: { enabled: false, label: 'Disable Materialization Sickness' },
 		};
 
 		// Object that will contain jQuery element references
@@ -84,7 +84,7 @@ export class MetaPowers {
 				$button: this.$els.closeModal,
 				click: () => this._toggleModal(),
 			},
-			this.game,
+			{ isAcceptingInput: this.game.isAcceptingInput },
 		);
 
 		this.btnExecuteMonster = new Button(
@@ -93,7 +93,7 @@ export class MetaPowers {
 				hasShortcut: true,
 				click: () => this._togglePower('executeMonster', this.btnExecuteMonster),
 			},
-			this.game,
+			{ isAcceptingInput: this.game.isAcceptingInput },
 		);
 
 		this.btnResetCooldowns = new Button(
@@ -102,7 +102,7 @@ export class MetaPowers {
 				hasShortcut: true,
 				click: () => this._togglePower('resetCooldowns', this.btnResetCooldowns),
 			},
-			this.game,
+			{ isAcceptingInput: this.game.isAcceptingInput },
 		);
 
 		this.btnDisableMaterializationSickness = new Button(
@@ -115,7 +115,7 @@ export class MetaPowers {
 						this.btnDisableMaterializationSickness,
 					),
 			},
-			this.game,
+			{ isAcceptingInput: this.game.isAcceptingInput },
 		);
 
 		this.$els.resetPowersButton.on('click', () => {
@@ -139,6 +139,7 @@ export class MetaPowers {
 
 		button.changeState(enabled ? ButtonStateEnum.active : ButtonStateEnum.normal);
 
+		//eg toggleExecuteMonster
 		this.game.signals.metaPowers.dispatch(`toggle${capitalize(stateKey)}`, enabled);
 
 		this._updateEnabledPowersPreview();

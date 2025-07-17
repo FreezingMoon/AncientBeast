@@ -9,14 +9,22 @@ import { phaserAutoloadAssetPaths, assetPaths } from '../assets/index';
  * @throws Throws an error if two files have the same basename.
  */
 export function use(phaser: Phaser.Game): void {
-	// NOTE: currently only accepts images.
-	const urls = Object.values(phaserAutoloadAssetPaths);
+	const assets = Object.entries(phaserAutoloadAssetPaths ?? {});
 
-	const hasDuplicateBasenames = new Set(urls.map((url) => getBasename(url))).size < urls.length;
-	if (DEBUG && hasDuplicateBasenames) throwDuplicateBasenamesError();
+	const loadedKeys = new Set<string>();
 
-	for (const url of urls) {
-		phaser.load.image(getBasename(url), url);
+	for (const [path, url] of assets) {
+		if (!/\.(png|jpg|jpeg|svg)$/i.test(path)) continue; // Only load images
+
+		const key = getBasename(path);
+
+		if (loadedKeys.has(key)) {
+			console.warn(`[assets.ts] Duplicate key skipped: "${key}" from path: ${path}`);
+			continue;
+		}
+
+		phaser.load.image(key, url);
+		loadedKeys.add(key);
 	}
 }
 
@@ -40,46 +48,35 @@ function getBasename(path: string): string {
 }
 
 function throwDuplicateBasenamesError() {
-	// NOTE: Throw a useful message listing duplicate basenames.
-	const paths = assetPaths
-		.map(({ path }) => path)
-		.filter((path) => path.indexOf('/autoload/phaser/') !== -1);
+	const entries = Object.entries(assetPaths ?? {})
+		.filter(([path]) => path.includes('/autoload/phaser/'))
+		.map(([path, asset]) => path);
 
-	const basenameToPaths: { [basename: string]: string[] } = paths.reduce((obj, path) => {
-		const bn = getBasename(path);
-		if (obj.hasOwnProperty(bn)) {
-			obj[bn].push(path);
+	const basenameToPaths: { [basename: string]: string[] } = {};
+
+	for (const fullPath of entries) {
+		const base = getBasename(fullPath);
+		if (!basenameToPaths[base]) {
+			basenameToPaths[base] = [fullPath];
 		} else {
-			obj[bn] = [path];
-		}
-		return obj;
-	}, {});
-
-	const duplicates: { [basename: string]: string[] } = Object.entries(basenameToPaths).reduce(
-		(obj, [basename, paths]) => {
-			if (paths.length > 1) {
-				obj[basename] = paths;
-			}
-			return obj;
-		},
-		{},
-	);
-
-	const formatted = [];
-	for (const [basename, paths] of Object.entries(duplicates)) {
-		for (const path of paths) {
-			formatted.push(basename + '\t' + path);
+			basenameToPaths[base].push(fullPath);
 		}
 	}
 
-	throw new Error(`[Ancient Beast] 
+	const duplicates = Object.entries(basenameToPaths).filter(([_, list]) => list.length > 1);
+
+	if (duplicates.length > 0) {
+		console.error('⚠️ DUPLICATE BASENAMES FOUND:');
+		duplicates.forEach(([basename, paths]) => {
+			console.error(`→ ${basename}`);
+			paths.forEach((p) => console.error(`   ${p}`));
+		});
+
+		throw new Error(`[Ancient Beast]
 Some files under assets/autoload/phaser/ have the same basename.
 Basenames are used as keys by Phaser and must be unique.
-Please make each basename unique.
-
-Duplicate basenames:
-${formatted.join('\n')}
-`);
+Please make each basename unique.`);
+	}
 }
 
 /**

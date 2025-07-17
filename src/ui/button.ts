@@ -130,7 +130,7 @@ export class Button {
 		if (!['disabled', 'hidden'].includes(this.state)) {
 			this.$button.bind('click', () => {
 				if (!this.overridefreeze) {
-					if (!this.isGameAcceptingInput || !this.clickable) {
+					if (!this.isGameAcceptingInput() || !this.clickable) {
 						return;
 					}
 				}
@@ -141,7 +141,7 @@ export class Button {
 
 		this.$button.bind('mouseover', () => {
 			if (!this.overridefreeze) {
-				if (!this.isGameAcceptingInput || !this.clickable) {
+				if (!this.isGameAcceptingInput() || !this.clickable) {
 					return;
 				}
 			}
@@ -155,7 +155,7 @@ export class Button {
 
 		this.$button.bind('mouseleave', () => {
 			if (!this.overridefreeze) {
-				if (!this.isGameAcceptingInput || !this.clickable) {
+				if (!this.isGameAcceptingInput() || !this.clickable) {
 					return;
 				}
 			}
@@ -170,7 +170,7 @@ export class Button {
 			event.preventDefault();
 			event.stopPropagation();
 			if (!this.overridefreeze) {
-				if (!this.isGameAcceptingInput || !this.clickable) {
+				if (!this.isGameAcceptingInput() || !this.clickable) {
 					return;
 				}
 			}
@@ -187,7 +187,7 @@ export class Button {
 			event.preventDefault();
 			event.stopPropagation();
 			if (!this.overridefreeze) {
-				if (!this.isGameAcceptingInput || !this.clickable) {
+				if (!this.isGameAcceptingInput() || !this.clickable) {
 					return;
 				}
 			}
@@ -228,7 +228,7 @@ export class Button {
 	/**
 	 * Apply a CSS class on a button for a duration
 	 * Useful for flashing a different icon etc for a certain period of time
-	 * @param {string} transitionClass A CSS class to apply for the transitition
+	 * @param {string} transitionClass A CSS class to apply for the transition
 	 * @param {number} transitionMs Time spent in the transition
 	 */
 	cssTransition(transitionClass, transitionMs) {
@@ -262,7 +262,7 @@ export class Button {
 	triggerClick() {
 		if (!this.overridefreeze) {
 			if (
-				!this.isGameAcceptingInput ||
+				!this.isGameAcceptingInput() ||
 				!this.clickable ||
 				['disabled', 'hidden'].includes(this.state)
 			) {
@@ -275,7 +275,7 @@ export class Button {
 
 	triggerMouseover() {
 		if (!this.overridefreeze) {
-			if (!this.isGameAcceptingInput || !this.clickable) {
+			if (!this.isGameAcceptingInput() || !this.clickable) {
 				return;
 			}
 		}
@@ -285,7 +285,7 @@ export class Button {
 
 	triggerMouseleave() {
 		if (!this.overridefreeze) {
-			if (!this.isGameAcceptingInput || !this.clickable) {
+			if (!this.isGameAcceptingInput() || !this.clickable) {
 				return;
 			}
 		}

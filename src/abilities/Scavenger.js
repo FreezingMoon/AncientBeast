@@ -212,7 +212,7 @@ export default (G) => {
 				const select = (hex) => {
 					for (let i = 0; i < trg.hexagons.length; i++) {
 						G.grid.cleanHex(trg.hexagons[i]);
-						trg.hexagons[i].displayVisualState('dashed');
+						trg.hexagons[i].displayVisualState('dashed player' + trg.team);
 					}
 					for (let i = 0; i < crea.hexagons.length; i++) {
 						G.grid.cleanHex(crea.hexagons[i]);
@@ -265,7 +265,7 @@ export default (G) => {
 						console.log('cleaning');
 						for (let i = 0; i < trg.hexagons.length; i++) {
 							G.grid.cleanHex(trg.hexagons[i]);
-							trg.hexagons[i].displayVisualState('dashed');
+							trg.hexagons[i].displayVisualState('dashed player' + trg.team);
 						}
 					},
 					fillHexOnHover: false,

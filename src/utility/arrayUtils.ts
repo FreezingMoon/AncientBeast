@@ -1,6 +1,7 @@
 import { Creature } from '../creature';
 import { Direction, Hex } from './hex';
 import { HexGrid } from './hexgrid';
+import { Team, isTeam } from './team';
 
 /**
  * Find an object in the current Array based on its pos attribute.
@@ -46,6 +47,10 @@ export function removePos(arr: (Hex | Creature)[], obj: Hex | Creature) {
  * @param includeCreature Add creature hexes to the array.
  * @param stopOnCreature Cut the array when finding a creature.
  * @param id Creature id to remove.
+ * @param sourceCreature Creature that all filtered creatures are compared against.
+ * @param pierceNumber Integer/number, when stopOnCreature is true, this is the number of creatures that must be found before cutting the array.
+ * @param pierceThroughBehavior When stopOnCreature is true, decides if array should spilt on first creature found, rely on pierceNumber, or stop on first non-target creature
+ * @param targetTeam The team targeted by the attack
  * @returns Filtered hexes.
  */
 export function filterCreature(
@@ -53,7 +58,12 @@ export function filterCreature(
 	includeCreature: boolean,
 	stopOnCreature: boolean,
 	id?: number,
+	sourceCreature?: Creature,
+	pierceNumber=1,
+	pierceThroughBehavior="stop",
+	targetTeam=Team.Enemy
 ) {
+	let piercedCreatures=0;
 	let creatureHexes = [];
 	for (let i = 0; i < hexes.length; i++) {
 		if (hexes[i].creature instanceof Creature) {
@@ -70,8 +80,32 @@ export function filterCreature(
 				creatureHexes = creatureHexes.concat(hexes[i].creature.hexagons);
 			}
 			if (stopOnCreature) {
-				hexes.splice(i + 1, 99);
-				break;
+				if(pierceThroughBehavior=="pierce") {
+					if(isTeam(sourceCreature,hexes[i].creature,targetTeam)) {
+						piercedCreatures+=1;
+						if(piercedCreatures==pierceNumber) {
+							hexes.splice(i + 1, 99);
+							break;
+						}
+					}
+				}
+				if(pierceThroughBehavior=="stop") {
+					hexes.splice(i + 1, 99);
+					break;
+				}
+				if(pierceThroughBehavior=="partial") {
+					if(isTeam(sourceCreature,hexes[i].creature,targetTeam)) {
+						piercedCreatures+=1;
+						if(piercedCreatures==pierceNumber) {
+							hexes.splice(i + 1, 99);
+							break;
+						}
+					}
+					else{
+						hexes.splice(i, 99);
+						break;
+					}
+				}
 			}
 		}
 	}

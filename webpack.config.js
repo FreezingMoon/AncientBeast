@@ -68,7 +68,7 @@ module.exports = (env, argv) => {
 				return '[path][name].[ext]';
 			},
 		},
-		devtool: production ? undefined : 'inline-source-map',
+		devtool: production ? 'source-map' : 'inline-source-map',
 		module: {
 			rules: [
 				{ test: /\.js$/, use: ['babel-loader'], exclude: /node_modules/ },
@@ -147,9 +147,12 @@ module.exports = (env, argv) => {
 		devServer: {
 			static: process.env.PUBLIC_PATH ? process.env.PUBLIC_PATH : './',
 			port: 8080,
-			proxy: {
-				'/api': '159.65.232.104:7350',
-			},
+		proxy:[
+				{
+					context: ['/api'],
+					target: '159.65.232.104:7350',
+				},
+			],
 			allowedHosts: ['localhost', '.gitpod.io'],
 		},
 		plugins: [

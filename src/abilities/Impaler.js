@@ -218,7 +218,7 @@ export default (G) => {
 							// from appearing on screen.
 							getPointFacade()
 								.getTrapsAt(target)
-								.forEach((trap) => trap.destroy);
+								.forEach((trap) => trap.destroy());
 						}),
 					},
 					G,

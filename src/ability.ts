@@ -68,7 +68,7 @@ type AbilityEffect = {
 	frost?: number;
 };
 
-type OffesnsiveBuff = number;
+type OffensiveBuff = number;
 type DefensiveBuff = number;
 
 export class Ability {
@@ -109,10 +109,10 @@ export class Ability {
 
 	_energyNormal?: number;
 	_energySelfUpgraded: number;
-	mbuff?: OffesnsiveBuff;
+	mbuff?: OffensiveBuff;
 	obuff?: DefensiveBuff;
 	abilityName?: string;
-	// TODO: Once all abilities files are converted to TS, look into deleteing the `name` param as it appears unecessary
+	// TODO: Once all abilities files are converted to TS, look into deleting the `name` param as it appears unnecessary
 	getAbilityName?: (name: string) => string;
 	getMovementBuff?: (buff: number) => number;
 	getOffenseBuff?: (buff: number) => number;
@@ -127,7 +127,7 @@ export class Ability {
 	_damaged: boolean;
 	_executeHealthThreshold: number;
 	_highlightDestination: (...args: any) => void;
-
+	_getDirections: () => number[];
 	_activateOnAttacker: (...arg: any) => boolean;
 	_activateOnTarget: (t: Creature) => void;
 	_pushMove: (destination: Hex, target: Creature, targetDestination: Hex) => void;
@@ -160,6 +160,11 @@ export class Ability {
 	_findEnemyHexInFront: (hexWithEnemy: Hex) => Hex | undefined;
 	_getHopHex: () => Hex | undefined;
 	_getUsesPerTurn: () => 1 | 2;
+
+	resetTimesUsed(): void {
+		this.timesUsedThisTurn = 0;
+	}
+
 	directions: [1, 1, 1, 1, 1, 1];
 	constructor(creature: Creature, abilityID: AbilitySlot, game: Game) {
 		this.creature = creature;
@@ -475,7 +480,7 @@ export class Ability {
 		const opt = $j.extend(
 			{
 				callback: function () {
-					// Default no-op function.
+					// Default no-op function
 				},
 				arg: {},
 			},
@@ -717,6 +722,7 @@ export class Ability {
 			optTest: function () {
 				return true;
 			},
+               pierceThroughBehavior: "pierce",
 		};
 
 		const options = { ...defaultOpt, ...o };
@@ -724,11 +730,26 @@ export class Ability {
 		for (let i = 0, len = hexes.length; i < len; i++) {
 			const creature = hexes[i].creature;
 
-			if (
-				!creature ||
-				!isTeam(this.creature, creature, options.team) ||
-				!options.optTest(creature)
+		 		if (
+					!creature ||
+					!isTeam(this.creature, creature, options.team) ||
+					!options.optTest(creature)
 			) {
+					if(creature) {
+							 switch (options.pierceThroughBehavior) {
+										case "stop": // Stop search as soon as any creature is found
+												 i=len; // break for loop;
+												 break;
+										case "partial": // Pierce only members of the target team who have failed optTest
+												 if(!isTeam(this.creature, creature, options.team)) {
+															i=len; // break for loop;
+															break;
+												 }
+										case "pierce": // Continue search until all options are checked, or valid target found
+										default:
+												 // Pass
+							 }
+					}
 				continue;
 			}
 

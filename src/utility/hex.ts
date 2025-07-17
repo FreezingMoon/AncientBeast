@@ -87,6 +87,16 @@ export class Hex {
 	 */
 	displayPos: { x: number; y: number };
 
+	/**
+	 * Set to true if cursor is outside movement range.
+	 */
+	isSpinning: boolean;
+
+	/**
+	 * Store ID of animation frame request.
+	 */
+	spinRequest: number;
+
 	originalDisplayPos: { x: number; y: number };
 	tween: Phaser.Tween;
 	hitBox: Phaser.Sprite;
@@ -131,6 +141,9 @@ export class Hex {
 
 		this.originalDisplayPos = $j.extend({}, this.displayPos);
 
+		this.isSpinning = false;
+		this.spinRequest = null;
+
 		this.tween = null;
 
 		if (grid) {
@@ -169,21 +182,27 @@ export class Hex {
 
 			// Binding Events
 			this.hitBox.events.onInputOver.add(() => {
-				if (game.freezedInput || game.UI.dashopen) {
-					return;
+				if (game.freezedInput || game.UI.dashopen) return;
+
+				//  Show dashed overlay on current hexes of active creature
+				if (this.reachable && game.activeCreature) {
+					game.activeCreature.highlightCurrentHexesAsDashed();
 				}
+
 				game.signals.hex.dispatch('over', { hex: this });
 				grid.selectedHex = this;
 				this.onSelectFn(this);
 			}, this);
 
 			this.hitBox.events.onInputOut.add((_, pointer) => {
-				if (game.freezedInput || game.UI.dashopen || !pointer.withinGame) {
-					return;
+				if (game.freezedInput || game.UI.dashopen || !pointer.withinGame) return;
+
+				// Clear dashed overlay when leaving a reachable hex
+				if (this.reachable && game.activeCreature) {
+					game.activeCreature.clearDashedOverlayOnHexes();
 				}
 
 				game.signals.hex.dispatch('out', { hex: this });
-
 				grid.clearHexViewAlterations();
 				this.onHoverOffFn(this);
 			}, this);
@@ -247,22 +266,22 @@ export class Hex {
 	 * @deprecated There's no longer a need to set hex.creature. Simply update the creature.
 	 */
 	set creature(creature: Creature) {
-		// NOTE: solely for compatability.
+		// NOTE: solely for compatibility.
 	}
 
-	onSelectFn(arg0: this) {
+	onSelectFn(_: this) {
 		// No-op function.
 	}
 
-	onHoverOffFn(arg0: this) {
+	onHoverOffFn(_: this) {
 		// No-op function.
 	}
 
-	onConfirmFn(arg0: this) {
+	onConfirmFn(_: this) {
 		// No-op function.
 	}
 
-	onRightClickFn(arg0: this) {
+	onRightClickFn(_: this) {
 		// No-op function.
 	}
 
@@ -414,7 +433,7 @@ export class Hex {
 			}
 		}
 
-		return !blocked; // Its walkable if it's NOT blocked
+		return !blocked; // It's walkable if it's NOT blocked
 	}
 
 	/**
@@ -499,7 +518,40 @@ export class Hex {
 		this.updateStyle();
 	}
 
+	/**
+	 * Start spin effect for the targeting cursor
+	 */
+	startSpinning() {
+		this.isSpinning = true;
+		const spinSpeed = 2;
+
+		const rotate = () => {
+			if (!this.isSpinning) return;
+			this.overlay.angle += spinSpeed;
+			this.spinRequest = requestAnimationFrame(rotate);
+		};
+
+		this.spinRequest = requestAnimationFrame(rotate);
+	}
+
+	/**
+	 * Stop spin effect for the targeting cursor
+	 */
+	stopSpinning() {
+		this.isSpinning = false;
+		if (this.spinRequest) {
+			cancelAnimationFrame(this.spinRequest);
+			this.spinRequest = null;
+			this.overlay.angle = 0;
+		}
+	}
+
 	updateStyle() {
+		// Reset spinning state
+		if (this.isSpinning) {
+			this.stopSpinning();
+		}
+
 		// Display Hex
 		let targetAlpha = this.reachable || Boolean(this.displayClasses.match(/creature/g));
 
@@ -513,9 +565,17 @@ export class Hex {
 			this.display.loadTexture(`hex_p${player}`);
 			this.grid.displayHexesGroup.bringToTop(this.display);
 		} else if (this.displayClasses.match(/adj/)) {
-			this.display.loadTexture('hex_path');
-		} else if (this.displayClasses.match(/dashed/)) {
-			this.display.loadTexture('hex_dashed');
+			this.display.loadTexture('hex_path');		} else if (this.displayClasses.match(/dashed/)) {			// Check if this is a dashed hex with a creature (blocked target)
+			if (this.creature instanceof Creature) {
+				// Use colored dashed texture for the creature's team
+				this.display.loadTexture(`hex_dashed_p${this.creature.team}`);
+				// Ensure dashed hexagons are visible
+				this.display.alpha = 1;
+				// Bring dashed hexes with creatures to the top of the display group for better visibility
+				this.grid.displayHexesGroup.bringToTop(this.display);
+			} else {
+				this.display.loadTexture('hex_dashed');
+			}
 		} else if (this.displayClasses.match(/deadzone/)) {
 			this.display.loadTexture('hex_deadzone');
 		} else {
@@ -569,7 +629,6 @@ export class Hex {
 			if (this.overlayClasses.match(/reachable/)) {
 				targetAlpha = true;
 				this.overlay.loadTexture('hex_path');
-				// hover when creature is inactive
 			} else if (
 				this.overlayClasses.match(/hover/) &&
 				this.displayClasses.indexOf(`creature player${player}`) === -1
@@ -577,9 +636,10 @@ export class Hex {
 				this.display.loadTexture('hex_path');
 				this.display.alpha = 1;
 				this.overlay.loadTexture(`hex_hover_p${player}`);
-				// hover over active player
 			} else if (this.overlayClasses.match(/hover/)) {
 				this.display.loadTexture('hex_path');
+			} else if (this.overlayClasses.match(/dashed/)) {
+				this.overlay.loadTexture(`hex_dashed_p${player}`);
 			} else {
 				this.overlay.loadTexture(`hex_p${player}`);
 			}
@@ -587,6 +647,10 @@ export class Hex {
 			this.grid.overlayHexesGroup.bringToTop(this.overlay);
 		} else {
 			this.overlay.loadTexture('cancel');
+			this.overlay.anchor.set(0.5, 0.5);
+			if (!this.isSpinning) {
+				this.startSpinning();
+			}
 		}
 
 		this.overlay.alpha = targetAlpha ? 1 : 0;

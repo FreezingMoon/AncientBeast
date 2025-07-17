@@ -1,4 +1,5 @@
 import { event } from 'jquery';
+import { Fullscreen } from '../ui/fullscreen';
 
 export class Hotkeys {
 	constructor(ui) {
@@ -73,9 +74,11 @@ export class Hotkeys {
 		}
 	}
 	pressTab(event) {
-		console.log(event);
-		if (event.shiftKey) {
-			this.ui.$brandlogo.addClass('hide');
+		if (this.ui.dashopen) {
+			if (event.shiftKey) this.ui.gridSelectPrevious();
+			else this.ui.gridSelectNext();
+		} else if (event.shiftKey) {
+			this.ui.brandlogo.alpha = 0;
 		}
 	}
 
@@ -111,31 +114,49 @@ export class Hotkeys {
 			this.ui.selectAbility(-1);
 		}
 
+		// Check if we were in fullscreen mode and update button state accordingly
+		setTimeout(() => {
+			if (this.ui.fullscreen) {
+				this.ui.fullscreen.updateButtonState();
+			}
+		}, 100);
+
 		this.ui.game.signals.ui.dispatch('closeInterfaceScreens');
 	}
 
 	pressShiftKeyDown(event) {
-		this.ui.$brandlogo.removeClass('hide');
-		this.ui.game.grid.showGrid(true);
-		this.ui.game.grid.showCurrentCreatureMovementInOverlay(this.ui.game.activeCreature);
+		if (!this.ui.dashopen) {
+			this.ui.brandlogo.alpha = 1;
+			this.ui.game.grid.showGrid(true);
+			this.ui.game.grid.showCurrentCreatureMovementInOverlay(this.ui.game.activeCreature);
+		}
 	}
 
 	pressShiftKeyUp() {
-		this.ui.$brandlogo.addClass('hide');
-		this.ui.game.grid.showGrid(false);
-		this.ui.game.grid.cleanOverlay();
-		this.ui.game.grid.redoLastQuery();
+		if (!this.ui.dashopen) {
+			this.ui.brandlogo.alpha = 0;
+			this.ui.game.grid.showGrid(false);
+			this.ui.game.grid.cleanOverlay();
+			this.ui.game.grid.redoLastQuery();
+		}
 	}
 	pressControlKeyDown() {
-		this.ui.$brandlogo.addClass('hide');
+		this.ui.brandlogo.alpha = 0;
 	}
 
 	pressControlKeyUp() {
-		this.ui.$brandlogo.addClass('hide');
+		this.ui.brandlogo.alpha = 0;
 	}
 
 	pressSpace() {
 		!this.ui.dashopen && this.ui.game.grid.confirmHex();
+	}
+
+	pressF11(event) {
+		event.preventDefault();
+		const fullscreen = new Fullscreen(document.getElementById('fullscreen'));
+
+		fullscreen.toggle();
 	}
 }
 export function getHotKeys(hk) {
@@ -265,6 +286,11 @@ export function getHotKeys(hk) {
 		Space: {
 			onkeydown() {
 				hk.pressSpace();
+			},
+		},
+		F11: {
+			onkeydown(event) {
+				hk.pressF11(event);
 			},
 		},
 	};

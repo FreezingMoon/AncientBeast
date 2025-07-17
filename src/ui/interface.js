@@ -18,6 +18,8 @@ import { capitalize } from '../utility/string';
 import { throttle } from 'underscore';
 import { DEBUG_DISABLE_HOTKEYS } from '../debug';
 
+import { cycleAudioMode, getAudioMode, AudioMode } from '../sound/soundsys';
+
 /**
  * Class UI
  *
@@ -46,7 +48,8 @@ export class UI {
 	 * Create attributes and default buttons
 	 * @constructor
 	 */
-	constructor(configuration, game) {
+	constructor(configuration, game, soundSysInstance) {
+		this.soundSys = soundSysInstance;
 		this.configuration = configuration;
 		this.game = game;
 		this.fullscreen = new Fullscreen(
@@ -58,7 +61,8 @@ export class UI {
 		this.$grid = $j(this.#makeCreatureGrid(document.getElementById('creaturerasterwrapper')));
 		this.$activebox = $j('#activebox');
 		this.$scoreboard = $j('#scoreboard');
-		this.$brandlogo = $j('#brandlogo');
+          this.brandlogo=game.Phaser.add.image(670,200,"AncientBeastLogo");
+          this.brandlogo.alpha=0;
 		this.active = false;
 
 		this.queue = UI.#getQueue(this, document.getElementById('queuewrapper'));
@@ -92,7 +96,7 @@ export class UI {
 				},
 				overridefreeze: true,
 			},
-			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
+			{ isAcceptingInput: this.configuration.isAcceptingInput },
 		);
 		this.buttons.push(this.btnToggleDash);
 
@@ -106,7 +110,7 @@ export class UI {
 				},
 				overridefreeze: true,
 			},
-			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
+			{ isAcceptingInput: this.configuration.isAcceptingInput },
 		);
 
 		// In-Game Fullscreen Button
@@ -117,7 +121,7 @@ export class UI {
 				click: () => this.fullscreen.toggle(),
 				overridefreeze: true,
 			},
-			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
+			{ isAcceptingInput: this.configuration.isAcceptingInput },
 		);
 		this.buttons.push(this.btnFullscreen);
 
@@ -131,10 +135,14 @@ export class UI {
 				},
 				overridefreeze: true,
 			},
-			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
+			{ isAcceptingInput: this.configuration.isAcceptingInput },
 		);
 		this.buttons.push(this.btnAudio);
-
+		this.btnAudio.$button.on('contextmenu', (e) => {
+			e.preventDefault();
+			const newMode = cycleAudioMode(this.game.soundsys);
+			this.updateAudioIcon(newMode);
+		});
 		// Skip Turn Button
 		this.btnSkipTurn = new Button(
 			{
@@ -162,7 +170,7 @@ export class UI {
 					}
 				},
 			},
-			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
+			{ isAcceptingInput: this.configuration.isAcceptingInput },
 		);
 		this.buttons.push(this.btnSkipTurn);
 
@@ -184,7 +192,7 @@ export class UI {
 					}
 				},
 			},
-			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
+			{ isAcceptingInput: this.configuration.isAcceptingInput },
 		);
 		this.buttons.push(this.btnDelay);
 
@@ -217,7 +225,7 @@ export class UI {
 				},
 				state: ButtonStateEnum.disabled,
 			},
-			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
+			{ isAcceptingInput: this.configuration.isAcceptingInput },
 		);
 		this.buttons.push(this.btnFlee);
 
@@ -236,7 +244,7 @@ export class UI {
 				},
 				state: ButtonStateEnum.normal,
 			},
-			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
+			{ isAcceptingInput: this.configuration.isAcceptingInput },
 		);
 		this.buttons.push(this.btnExit);
 
@@ -259,7 +267,7 @@ export class UI {
 					slideIn: {},
 				},
 			},
-			{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
+			{ isAcceptingInput: this.configuration.isAcceptingInput },
 		);
 
 		// Defines states for ability buttons
@@ -371,7 +379,7 @@ export class UI {
 						},
 					},
 				},
-				{ isAcceptingInput: () => this.interfaceAPI.isAcceptingInput },
+				{ isAcceptingInput: this.configuration.isAcceptingInput },
 			);
 			this.buttons.push(b);
 			this.abilitiesButtons.push(b);
@@ -445,8 +453,9 @@ export class UI {
 
 				if (keydownAction !== undefined) {
 					keydownAction.call(this, e);
-
-					if (!(e.code === 'Tab' && e.shiftKey)) {
+					if (this.dashopen) {
+						e.preventDefault();
+					} else if (!(e.code === 'Tab' && e.shiftKey)) {
 						e.preventDefault();
 					}
 				}
@@ -459,7 +468,7 @@ export class UI {
 
 				const keyupAction = ingameHotkeys[e.code] && ingameHotkeys[e.code].onkeyup;
 
-				if (keyupAction !== undefined) {
+				if (keyupAction !== undefined && !this.dashopen) {
 					keyupAction.call(this, e);
 
 					e.preventDefault();
@@ -758,6 +767,22 @@ export class UI {
 				this.abilitiesButtons[i].triggerClick();
 				return i;
 			}
+
+			// Check if creature has at least one more ability to choose from
+			let creatureHaveAtleastOneAvailableAbility = false;
+			for (let y = i; y < 4; y++) {
+				if (creature.abilities[y].require()) {
+					creatureHaveAtleastOneAvailableAbility = true;
+					break;
+				}
+			}
+
+			// If creature has no more available abilities to choose from, return -1
+			if (!creatureHaveAtleastOneAvailableAbility) {
+				game.activeCreature.queryMove();
+				this.selectAbility(-1);
+				return -1;
+			}
 		}
 	}
 
@@ -859,6 +884,10 @@ export class UI {
 			.addClass('active');
 
 		this.selectedCreature = creatureType;
+		// Added: Visually highlight the selected creature on the grid
+		// This ensures the tile matches the active creature shown in the UI panel
+		this.$grid.find('.vignette').removeClass('active');
+		this.$grid.find(".vignette[creature='" + creatureType + "']").addClass('active');
 		const stats = game.retrieveCreatureStats(creatureType);
 		if (stats === undefined) return;
 
@@ -1585,75 +1614,67 @@ export class UI {
 	}
 
 	gridSelectUp() {
+		// 🔁 Updated: Use showCreature(...) to ensure both UI panel and grid highlight stay in sync
+
 		const game = this.game;
 		const creatureType = this.selectedCreature;
-		let nextCreature;
 
-		const isDarkPriest = creatureType === '--';
-		if (isDarkPriest) {
+		if (creatureType === '--') {
 			this.showCreature('W1', this.selectedPlayer);
 			return;
 		}
 
-		if (game.realms.indexOf(creatureType[0]) - 1 > -1) {
-			const realm = game.realms[game.realms.indexOf(creatureType[0]) - 1];
+		const currentRealmIndex = game.realms.indexOf(creatureType[0]);
+		const newRealm = game.realms[currentRealmIndex - 1];
 
-			if (realm === '-') {
-				return;
-			}
-			nextCreature = realm + creatureType[1];
-			this.lastViewedCreature = nextCreature;
+		if (newRealm && newRealm !== '-') {
+			const nextCreature = newRealm + creatureType[1];
 			this.showCreature(nextCreature, this.selectedPlayer);
 		}
 	}
 
 	gridSelectDown() {
+		// 🔁 Updated: Use showCreature(...) to ensure both UI panel and grid highlight stay in sync
+
 		const game = this.game;
 		const creatureType = this.selectedCreature;
-		let nextCreature;
 
-		const isDarkPriest = creatureType === '--';
-		if (isDarkPriest) {
+		if (creatureType === '--') {
 			this.showCreature('A1', this.selectedPlayer);
 			return;
 		}
 
-		if (game.realms.indexOf(creatureType[0]) + 1 < game.realms.length) {
-			const realm = game.realms[game.realms.indexOf(creatureType[0]) + 1];
-			nextCreature = realm + creatureType[1];
-			this.lastViewedCreature = nextCreature;
+		const currentRealmIndex = game.realms.indexOf(creatureType[0]);
+		const newRealm = game.realms[currentRealmIndex + 1];
+
+		if (newRealm) {
+			const nextCreature = newRealm + creatureType[1];
 			this.showCreature(nextCreature, this.selectedPlayer);
 		}
 	}
 
 	gridSelectLeft() {
-		const isDarkPriest = this.selectedCreature === '--';
-		const creatureType = isDarkPriest ? 'A0' : this.selectedCreature;
-		let nextCreature;
+		// 🔁 Updated: Use showCreature(...) to ensure both UI panel and grid highlight stay in sync
 
-		if (creatureType[1] - 1 < 1) {
-			// End of row
-			return;
-		} else {
-			nextCreature = creatureType[0] + (creatureType[1] - 1);
-			this.lastViewedCreature = nextCreature;
-			this.showCreature(nextCreature, this.selectedPlayer);
-		}
+		const creatureType = this.selectedCreature === '--' ? 'A0' : this.selectedCreature;
+
+		const col = parseInt(creatureType[1]);
+		if (col - 1 < 1) return;
+
+		const nextCreature = creatureType[0] + (col - 1);
+		this.showCreature(nextCreature, this.selectedPlayer);
 	}
 
 	gridSelectRight() {
-		const isDarkPriest = this.selectedCreature === '--';
-		const creatureType = isDarkPriest ? 'A8' : this.selectedCreature;
-		let nextCreature;
+		// 🔁 Updated: Use showCreature(...) to ensure both UI panel and grid highlight stay in sync
 
-		if (creatureType[1] - 0 + 1 > 7) {
-			// End of row
-			return;
-		} else {
-			nextCreature = creatureType[0] + (creatureType[1] - 0 + 1);
-			this.lastViewedCreature = nextCreature;
-			this.showCreature(nextCreature, this.selectedPlayer);
-		}
+		const creatureType = this.selectedCreature === '--' ? 'A8' : this.selectedCreature;
+
+		const col = parseInt(creatureType[1]);
+		if (col + 1 > 7) return;
+
+		const nextCreature = creatureType[0] + (col + 1);
+		this.showCreature(nextCreature, this.selectedPlayer);
 	}
 
 	gridSelectNext() {
@@ -1886,7 +1907,29 @@ export class UI {
 			}
 		}
 	}
+	updateAudioIcon(mode) {
+		let iconKey = 'icons/audio';
+		let tooltipText = 'Audio: Full';
 
+		if (mode === 'sfx') {
+			iconKey = 'icons/SFX';
+			tooltipText = 'Audio: SFX';
+		} else if (mode === 'muted') {
+			iconKey = 'icons/muted';
+			tooltipText = 'Audio: Muted';
+		}
+
+		const iconUrl = getUrl(iconKey);
+		const $audioImg = $j('#audio img');
+		if ($audioImg.length) {
+			$audioImg.attr('src', iconUrl);
+		}
+
+		const $tooltip = $j('#audio-tooltip');
+		if ($tooltip.length) {
+			$tooltip.text(tooltipText);
+		}
+	}
 	updateAbilityUpgrades() {
 		const game = this.game,
 			creature = game.activeCreature;
@@ -2396,13 +2439,13 @@ export class UI {
 		}, 2000);
 
 		const onTurnEndMouseEnter = ifGameNotFrozen(() => {
-			ui.$brandlogo.removeClass('hide');
+			ui.brandlogo.alpha=0;
 			ui.game.grid.showGrid(true);
 			ui.game.grid.showCurrentCreatureMovementInOverlay(ui.game.activeCreature);
 		});
 
 		const onTurnEndMouseLeave = () => {
-			ui.$brandlogo.addClass('hide');
+			ui.brandlogo.alpha=0;
 			ui.game.grid.showGrid(false);
 			ui.game.grid.cleanOverlay();
 			ui.game.grid.redoLastQuery();
@@ -2411,7 +2454,7 @@ export class UI {
 		// Hide the project logo when navigating away using a hotkey
 		document.addEventListener('visibilitychange', function () {
 			if (document.hidden) {
-				ui.$brandlogo.addClass('hide');
+				ui.brandlogo.alpha=0;
 			}
 		});
 
@@ -2419,7 +2462,7 @@ export class UI {
 		document.addEventListener('keydown', (event) => {
 			if (event.ctrlKey && event.shiftKey && event.key === 'M') {
 				console.log('ctrl+shift+M pressed');
-				ui.$brandlogo.addClass('hide');
+				ui.brandlogo.alpha=0;
 			}
 		});
 

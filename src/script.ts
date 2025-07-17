@@ -6,6 +6,7 @@ import Game from './game';
 import { PreMatchAudioPlayer } from './sound/pre-match-audio';
 import { Fullscreen } from './ui/fullscreen';
 import { buttonSlide } from './ui/button';
+import { Locations } from './ui/locations';
 
 import Connect from './multiplayer/connect';
 import Authenticate from './multiplayer/authenticate';
@@ -57,10 +58,9 @@ $j(() => {
 	scrim.removeClass('loading');
 	renderPlayerModeType(G.multiplayer);
 
-	// Select a random combat location
-	const locationSelector = $j("input[name='combatLocation']");
-	const randomLocationIndex = Math.floor(Math.random() * locationSelector.length);
-	locationSelector.eq(randomLocationIndex).prop('checked', true).trigger('click');
+	// For the location rendering. The logic is in src/ui/locations.ts
+	const locations: Locations = new Locations();
+	locations.renderLocations();
 
 	// Disable initial game setup until browser tab has focus
 	window.addEventListener('blur', G.onBlur.bind(G), false);
@@ -118,6 +118,15 @@ $j(() => {
 				fullscreen.toggle();
 			},
 		},
+		F11: {
+			keyDownTest() {
+				return true;
+			},
+			keyDownAction(event) {
+				event.preventDefault();
+				fullscreen.toggle();
+			},
+		},
 		KeyL: {
 			keyDownTest(event) {
 				return event.metaKey && event.ctrlKey;
@@ -152,7 +161,7 @@ $j(() => {
 	}
 
 	if (G.multiplayer) {
-		// TODO Remove after implementaion 2 vs 2 in multiplayer mode
+		// TODO Remove after implementation 2 vs 2 in multiplayer mode
 		forceTwoPlayerMode();
 	}
 
@@ -176,7 +185,7 @@ $j(() => {
 		$j('#startMatchButton').show();
 		$j('#startButton').hide();
 
-		// TODO Remove after implementaion 2 vs 2 in multiplayer mode
+		// TODO Remove after implementation 2 vs 2 in multiplayer mode
 		forceTwoPlayerMode();
 	});
 
@@ -203,6 +212,10 @@ $j(() => {
 		$j('.loginregFrame').hide();
 		$j('#multiplayer').show();
 		$j('#singleplayer').hide();
+	});
+
+	$j('#orientation-message .framed-modal__return').on('click', async () => {
+		$j('#orientation-message').hide();
 	});
 
 	// Focus the form to enable "press enter to start the game" functionality
@@ -352,7 +365,7 @@ $j(() => {
 
 /**
  * force 1 vs 1 game mode
- * should be removed after implementaion 2 vs 2 in multiplayer mode
+ * should be removed after implementation 2 vs 2 in multiplayer mode
  */
 function forceTwoPlayerMode() {
 	$j('#p2').trigger('click');
@@ -410,8 +423,8 @@ function readLogFromFile() {
  */
 function getLogin() {
 	const login = {
-		email: $j('.login input[name="email"]').val(),
-		password: $j('.login input[name="password"]').val(),
+		email: $j('.login input[name="email"]').val() as string,
+		password: $j('.login input[name="password"]').val() as string,
 	};
 	return login;
 }

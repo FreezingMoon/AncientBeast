@@ -341,11 +341,6 @@
 	&.hidden {
 		display: none;
 	}
-
-	&.active:before {
-		background-image: url('~assets/interface/frame_red.png');
-	}
-
 	&.noclick:hover {
 		opacity: 0.5;
 	}
@@ -420,11 +415,6 @@
 		height: 100%;
 	}
 }
-
-.button#audio {
-	background-image: url('~assets/icons/audio.svg');
-}
-
 .button#skip {
 	background-image: url('~assets/autoload/phaser/interface/skip.svg');
 }
@@ -758,6 +748,50 @@ div.section.info {
 	color: white !important;
 }
 
+#audio {
+	position: relative;
+	z-index: 999;
+}
+#audio .tooltiptext {
+	visibility: hidden;
+	opacity: 0;
+	position: absolute;
+	bottom: 100%;
+	left: 50%;
+	transform: translateX(-50%);
+	background-color: rgba(0, 0, 0, 0.9);
+	color: #fff;
+	font-weight: bold;
+	padding: 4px 8px;
+	border: 2px solid white;
+	border-radius: 8px;
+	font-size: 12px;
+	white-space: nowrap;
+	max-width: 100px;
+	box-shadow: 0 0 10px black;
+	z-index: 10000;
+	transition: opacity 0.2s;
+}
+
+
+#audio:hover .tooltiptext {
+	visibility: visible;
+	opacity: 1;
+}
+#audio img {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	display: block;
+}
+.button#audio {
+	width: 80px;
+	height: 80px;
+	padding: 0;
+	margin: 0;
+	background: none;
+	border: none;
+}
 .audio-player-controls {
 	align-items: center;
 	display: flex;
@@ -766,7 +800,6 @@ div.section.info {
 	margin-bottom: 14px;
 	margin-top: 55px;
 }
-
 .audio-player-beast {
 	cursor: pointer;
 	position: relative;
@@ -774,6 +807,7 @@ div.section.info {
 	width: 7%;
 	height: 40px;
 	margin: 0 auto;
+	z-index: 101;
 }
 
 .musicgenres__title {
@@ -952,11 +986,6 @@ div.section.info {
 #playeravatar.vignette {
 	height: 100px;
 	width: 100px;
-}
-
-.vignette .overlay_frame {
-	background-image: url('~assets/interface/frame_white.png');
-	opacity: 0;
 }
 
 .vignette.xray .overlay_frame {
@@ -1705,6 +1734,7 @@ span.pure {
 				margin-top: 4px;
 				text-indent: -9999px;
 				width: 16px;
+				cursor: pointer;
 			}
 
 			#reset-toggle-powers {
@@ -1719,6 +1749,9 @@ span.pure {
 
 			.button {
 				text-indent: -9999px;
+				&.active:before {
+					background-image: url('~assets/interface/frame_red.png');
+				}
 			}
 
 			.button + .desc {
@@ -2119,5 +2152,49 @@ input {
 			width: 70%;
 			margin-top: 9%;
 		}
+	}
+}
+
+/* Orientation message for mobile devices */
+#orientation-message {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.9);
+	z-index: 9999;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	color: white;
+	text-align: center;
+	font-size: 1.2em;
+}
+
+#orientation-message .rotate-icon {
+	width: 64px;
+	height: 64px;
+	background-image: url('~assets/icons/rotate.svg');
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	margin-bottom: 20px;
+	animation: rotate 2s infinite ease-in-out;
+}
+
+@keyframes rotate {
+	0% { transform: rotate(0deg); }
+	25% { transform: rotate(90deg); }
+	50% { transform: rotate(90deg); }
+	75% { transform: rotate(0deg); }
+	100% { transform: rotate(0deg); }
+}
+
+/* Show orientation message only on mobile devices in portrait mode */
+@media screen and (max-width: 823px) and (orientation: portrait) {
+	#orientation-message {
+		display: flex;
 	}
 }

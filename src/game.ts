@@ -27,7 +27,7 @@ import { GameConfig } from './script';
 import { Trap } from './utility/trap';
 import { Drop } from './drop';
 import { CreatureType, Realm, UnitData } from './data/types';
-
+import { setAudioMode } from './sound/soundsys';
 /* eslint-disable prefer-rest-params */
 
 /* NOTES/TODOS
@@ -58,24 +58,24 @@ export default class Game {
 	 * and jQuery functions can be called directly from them.
 	 *
 	 * // jQuery attributes
-	 * $combatFrame :	Combat element containing all graphics except the UI
+	 * $combatFrame :   Combat element containing all graphics except the UI
 	 *
 	 * // Game elements
-	 * players :			Array :	Contains Player objects ordered by player ID (0 to 3)
-	 * creatures :			Array :	Contains Creature objects (creatures[creature.id]) start at index 1
-	 * traps :				Array : Contains Trap objects
+	 * players :            Array : Contains Player objects ordered by player ID (0 to 3)
+	 * creatures :          Array : Contains Creature objects (creatures[creature.id]) start at index 1
+	 * traps :              Array : Contains Trap objects
 	 *
-	 * grid :				Grid :	Grid object
-	 * UI :				UI :	UI object
+	 * grid :               Grid :  Grid object
+	 * UI :             UI :    UI object
 	 *
-	 * queue :				CreatureQueue :	queue of creatures to manage phase order
+	 * queue :              CreatureQueue : queue of creatures to manage phase order
 	 *
-	 * turn :				Integer :	Current's turn number
+	 * turn :               Integer :   Current's turn number
 	 *
 	 * // Normal attributes
-	 * playerMode :		Integer :	Number of players in the game
-	 * activeCreature :	Creature :	Current active creature object reference
-	 * creatureData :		Array :		Array containing all data for the creatures
+	 * playerMode :     Integer :   Number of players in the game
+	 * activeCreature : Creature :  Current active creature object reference
+	 * creatureData :       Array :     Array containing all data for the creatures
 	 *
 	 */
 	abilities: Array<Partial<Ability>[]>;
@@ -148,7 +148,7 @@ export default class Game {
 	turnTimePool?: number;
 
 	endGameSound?: any;
-
+	isAcceptingInput: () => boolean;
 	constructor() {
 		this.abilities = [];
 		this.players = [];
@@ -186,7 +186,7 @@ export default class Game {
 		this.realms = ['-', 'A', 'E', 'G', 'L', 'P', 'S', 'W'];
 		this.availableMusic = [];
 		this.inputMethod = 'Mouse';
-
+		this.isAcceptingInput = () => !this.freezedInput;
 		// Gameplay properties
 		this.firstKill = false;
 		this.freezedInput = false;
@@ -362,13 +362,23 @@ export default class Game {
 		this.Phaser.load.onFileComplete.add(this.loadFinish, this);
 		this.Phaser.load.onLoadComplete.add(onLoadCompleteFn);
 
-		assetsUse(this.Phaser);
+		const assetsRaw = assetsUse(this.Phaser);
+		const assets = Array.isArray(assetsRaw) ? assetsRaw : [];
+
+		console.log('[DEBUG] Safe assets list:', assets);
+
+		assets.forEach((asset) => {
+			// safely process each asset here
+		});
 
 		// Ability SFX
 		this.Phaser.load.audio('MagmaSpawn0', getUrl('units/sfx/Infernal 0'));
 
 		// Background
 		this.Phaser.load.image('background', getUrl('locations/' + this.background_image + '/bg'));
+
+		// Branding
+		this.Phaser.load.image('AncientBeastLogo', getUrl('interface/AncientBeast'));
 
 		// Load artwork, shout and avatar for each unit
 		this.loadUnitData(unitData);
@@ -593,18 +603,14 @@ export default class Game {
 
 		this.activeCreature = this.players[0].creatures[0]; // Prevent errors
 
-		{
-			const self = this;
-			this.UI = new UI(
-				{
-					get isAcceptingInput() {
-						return !self.freezedInput;
-					},
-				},
-				this,
-			); // Create UI (not before because some functions require creatures to already exist)
-		}
+		this.UI = new UI(
+			{
+				isAcceptingInput: this.isAcceptingInput,
+			},
+			this,
+		); // Create UI (not before because some functions require creatures to already exist)
 
+		setAudioMode('full', this.soundsys, this.UI);
 		// DO NOT CALL LOG BEFORE UI CREATION
 		this.gameState = 'playing';
 
@@ -1100,7 +1106,7 @@ export default class Game {
 	}
 
 	/**
-	 * @param {CreatureType} type -	Creature's type (ex: "--" for Dark Priest)
+	 * @param {CreatureType} type - Creature's type (ex: "--" for Dark Priest)
 	 * Query the database for creature stats.
 	 * Additonaly, ensure that a `type` property exists on each creature.
 	 */
@@ -1206,7 +1212,7 @@ export default class Game {
 			const effect = effects[i];
 
 			if (
-				effect.turnLifetime > 0 &&
+				effect.turnLifetime > -1 &&
 				trigger === effect.deleteTrigger &&
 				this.turn - effect.creationTurn >= effect.turnLifetime
 			) {
@@ -1293,6 +1299,10 @@ export default class Game {
 	// Removed individual args from definition because we are using the arguments variable.
 	onEndPhase(/* creature, callback */) {
 		const creature = arguments[0];
+		// Check if Abolished used third ability
+		if (creature.abilities.some((ability) => ability.title === 'Bonfire Spring')) {
+			creature.accumulatedTeleportRange += 1;
+		}
 
 		this.triggerDeleteEffect('onEndPhase', creature);
 		this.triggerAbility('onEndPhase', arguments);
@@ -1532,6 +1542,11 @@ export default class Game {
 				break;
 			case 'ability': {
 				const args = $j.makeArray(o.args[1]);
+				const ability = this.activeCreature.abilities[o.id];
+				// If Abolished used Bonfire Spring, reset the range
+				if (ability.title === 'Bonfire Spring') {
+					this.activeCreature.accumulatedTeleportRange = 0;
+				}
 
 				if (o.target.type == 'hex') {
 					args.unshift(this.grid.hexes[o.target.y][o.target.x]);

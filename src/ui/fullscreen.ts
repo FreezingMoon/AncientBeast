@@ -1,40 +1,53 @@
 export class Fullscreen {
-	private button: HTMLElement;
+	public button: HTMLElement;
 
 	constructor(button: HTMLElement, isFullscreen = false) {
 		this.button = button;
 		if (isFullscreen) {
 			button.classList.add('fullscreenMode');
 		}
+		// Add listener for fullscreen changes to update UI state
+		document.addEventListener('fullscreenchange', () => this.updateButtonState());
+		document.addEventListener('webkitfullscreenchange', () => this.updateButtonState());
+		document.addEventListener('mozfullscreenchange', () => this.updateButtonState());
 	}
 
-	toggle() {
-		if (isAppInNativeFullscreenMode()) {
-			this.button.classList.remove('fullscreenMode');
-			this.button
-				.querySelectorAll('.fullscreen__title')
-				.forEach((el) => (el.textContent = 'FullScreen'));
-			document.exitFullscreen();
-		} else if (!isAppInNativeFullscreenMode() && window.innerHeight === screen.height) {
-			alert('Use F11 to exit fullscreen');
-		} else {
+	async toggle() {
+		try {
+			if (document.fullscreenElement) {
+				await document.exitFullscreen();
+			} else {
+				const gameElement = document.getElementById('AncientBeast');
+				if (gameElement) {
+					await gameElement.requestFullscreen();
+				}
+			}
+
+			setTimeout(() => this.updateButtonState(), 100);
+		} catch (error) {
+			console.error('Error toggling fullscreen:', error);
+		}
+	}
+
+	updateButtonState() {
+		if (document.fullscreenElement) {
 			this.button.classList.add('fullscreenMode');
 			this.button
 				.querySelectorAll('.fullscreen__title')
 				.forEach((el) => (el.textContent = 'Contract'));
-			document.getElementById('AncientBeast').requestFullscreen();
+		} else {
+			this.button.classList.remove('fullscreenMode');
+			this.button
+				.querySelectorAll('.fullscreen__title')
+				.forEach((el) => (el.textContent = 'FullScreen'));
 		}
 	}
 }
 
-/**
- * @returns {boolean} true if app is currently in [fullscreen mode using the native API](https://developer.mozilla.org/en-US/docs/Web/API/Fullscreen_API), else false.
- */
 function isAppInNativeFullscreenMode(): boolean {
-	// NOTE: These properties were vendor-prefixed until very recently.
-	// Keeping vendor prefixes, though they make TS report an error.
-	return (
-		// @ts-expect-error 2551
-		document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement
+	return !!(
+		document.fullscreenElement ||
+		(document as Document & { webkitFullscreenElement?: Element }).webkitFullscreenElement ||
+		(document as Document & { mozFullScreenElement?: Element }).mozFullScreenElement
 	);
 }
