@@ -24,10 +24,13 @@ import { Point } from './utility/pointfacade';
 
 export type AbilitySlot = 0 | 1 | 2 | 3;
 
+// Maybe convert this to an array of Triggers, so that you don't need
+// a new element for each permutation?
 export type Trigger =
 	| 'onQuery'
 	| 'onStartPhase'
 	| 'onDamage'
+     | 'onOtherDamage'
 	| 'onEndPhase'
 	| 'onStepIn'
 	| 'onStepOut'
@@ -50,6 +53,8 @@ export type Trigger =
 	| 'onUnderAttack onAttack'
 	| 'onUnderAttack'
      | 'noTrigger';
+
+export type PierceThroughBehavior = 'stop' | 'targetOnly' | 'pierce';
 
 // Could get rid of the union and optionals by creating a separate (or conditional) type for Dark Priest's Cost
 // This might narrow down the types in the constructor by checking `creature.name`
@@ -102,7 +107,7 @@ export class Ability {
 	message?: string;
 	movementType?: () => Movement; // Currently, this functon only exists in `Scavenger.js`
 	triggeredThisChain?: boolean;
-	range?: { minimum?: number; regular: number; upgraded: number };
+	range?: { minimum?: number; regular: number; upgraded?: number };
 
 	// Properties that begin with an underscore are used locally in a specific file in the `abilities` directory.
 	// For example: _lastBonus is unique to Gumble.ts.
@@ -170,6 +175,8 @@ export class Ability {
 	_getUsesPerTurn: () => 1 | 2;
 
      _effectName: string;
+
+     _getDamage: (path: Hex[]) => any;
 
 	resetTimesUsed(): void {
 		this.timesUsedThisTurn = 0;
@@ -746,11 +753,11 @@ export class Ability {
 					!options.optTest(creature)
 			) {
 					if(creature) {
-							 switch (options.pierceThroughBehavior) {
+							 switch (options.pierceThroughBehavior as PierceThroughBehavior) {
 										case "stop": // Stop search as soon as any creature is found
 												 i=len; // break for loop;
 												 break;
-										case "partial": // Pierce only members of the target team who have failed optTest
+										case "targetOnly": // Pierce only members of the target team who have failed optTest
 												 if(!isTeam(this.creature, creature, options.team)) {
 															i=len; // break for loop;
 															break;
@@ -921,6 +928,7 @@ export class Ability {
 			directions: [1, 1, 1, 1, 1, 1],
 			includeCreature: true,
 			stopOnCreature: true,
+               PierceThroughBehavior: "stop",
 			distance: 0,
 			minDistance: 0,
 			sourceCreature: undefined,

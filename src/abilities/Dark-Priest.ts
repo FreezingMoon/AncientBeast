@@ -242,8 +242,6 @@ export default (G: Game) => {
 				return true;
 			},
 
-			//summonRange: 4,
-
 			// 	query() :
 			query: function () {
 
@@ -252,14 +250,9 @@ export default (G: Game) => {
 				G.UI.toggleDash(true);
 			},
 
-		/*fnOnSelect: function (hex, args) {
-				const crea = G.retrieveCreatureStats(args.creature);
-				G.grid.previewCreature(hex.pos, crea, this.creature.player);
-			},*/
 
 			// Callback function to queryCreature
 			materialize: function (creature: CreatureType) {
-				//let crea: Unit =
 				const ability = this;
 				const dpriest = this.creature;
 
@@ -298,11 +291,6 @@ export default (G: Game) => {
 				});
 
 				spawnRange = arrayUtils.extendToLeft(spawnRange, crea.size, G.grid);
-
-				/*function fnOnSelect (hex: any, ...args) {
-					const crea = G.retrieveCreatureStats(args.creature);
-					G.grid.previewCreature(hex.pos, crea, ability.creature.player);
-				};*/
 
 				G.grid.queryHexes({
 					fnOnSelect: function (hex, args) {

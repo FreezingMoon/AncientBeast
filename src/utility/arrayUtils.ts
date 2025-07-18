@@ -2,6 +2,7 @@ import { Creature } from '../creature';
 import { Direction, Hex } from './hex';
 import { HexGrid } from './hexgrid';
 import { Team, isTeam } from './team';
+import { PierceThroughBehavior } from '../ability';
 
 /**
  * Find an object in the current Array based on its pos attribute.
@@ -60,7 +61,7 @@ export function filterCreature(
 	id?: number,
 	sourceCreature?: Creature,
 	pierceNumber=1,
-	pierceThroughBehavior="stop",
+	pierceThroughBehavior: PierceThroughBehavior = "stop",
 	targetTeam=Team.Enemy
 ) {
 	let piercedCreatures=0;
@@ -93,7 +94,7 @@ export function filterCreature(
 					hexes.splice(i + 1, 99);
 					break;
 				}
-				if(pierceThroughBehavior=="partial") {
+				if(pierceThroughBehavior=="targetOnly") {
 					if(isTeam(sourceCreature,hexes[i].creature,targetTeam)) {
 						piercedCreatures+=1;
 						if(piercedCreatures==pierceNumber) {
@@ -133,6 +134,7 @@ export const sortByDirection = (hexes: Hex[], direction: Direction.Left | Direct
  */
 export function extendToLeft(hexes: Hex[], size: number, grid: HexGrid) {
 	const ext: Hex[] = [];
+	size-=1;
 
 	// Sort top to bottom, and then left to right
 	hexes.sort(
@@ -175,6 +177,7 @@ export function extendToLeft(hexes: Hex[], size: number, grid: HexGrid) {
  */
 export function extendToRight(hexes: Hex[], size: number, grid: HexGrid) {
 	const ext: Hex[] = [];
+	size-=1;
 
 	// Sort top to bottom, and then left to right
 	hexes.sort(

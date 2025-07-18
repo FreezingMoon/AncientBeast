@@ -5,28 +5,32 @@ import { Effect } from '../effect';
 import * as arrayUtils from '../utility/arrayUtils';
 import { getPointFacade } from '../utility/pointfacade';
 import { isUndefined } from 'underscore';
+import Game from '../game';
 
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
  */
-export default (G) => {
+export default (G: Game) => {
 	G.abilities[7] = [
 		//	First Ability: Burning Spirit
 		{
 			trigger: 'onOtherDamage',
+
 			require(damage) {
 				if (!this.testRequirements()) {
 					return false;
 				}
-				if (damage === undefined) {
+				// Commented out due to typescript conflicts, but I don't know if that would cause errors, hence why it's not deleted
+				/*if (damage === undefined) {
 					damage = {
 						// NOTE : This code produce array with doubles
 						type: 'target',
 					}; // For the test function to work
-				}
+				}*/
 				return true;
 			},
+
 			activate(damage, target) {
 				if (this.creature.id !== damage.attacker.id) {
 					return;
@@ -90,29 +94,26 @@ export default (G) => {
 
 			_targetTeam: Team.Enemy,
 
+			range: {regular: 3, upgraded: 6},
+
 			require() {
 				if (!this.testRequirements()) {
 					return false;
-				}
-
-				if (
-					!this.testDirection({
+				};
+				const range_ = this.isUpgraded ? this.range.upgraded : this.range.regular;
+				return (
+					this.testDirection({
 						team: this._targetTeam,
-						distance: this._getDistance(),
+						distance: range_,
 						sourceCreature: this.creature,
+						PierceThroughBehavior: "stop",
 					})
-				) {
-					return false;
-				}
-
-				return true;
+				)
 			},
 
 			query() {
 				const ability = this;
 				const abolished = this.creature;
-
-				// TODO: Visually show reduced damage hexes for 4-6 range
 
 				G.grid.queryDirection({
 					fnOnConfirm: function () {
@@ -124,7 +125,7 @@ export default (G) => {
 					requireCreature: true,
 					x: abolished.x,
 					y: abolished.y,
-					distance: this._getDistance(),
+					distance: this.isUpgraded() ? this.range.upgraded : this.range.regular,
 					distanceFalloff: this.range.regular,
 					sourceCreature: abolished,
 				});
@@ -144,6 +145,7 @@ export default (G) => {
 
 				const startX = ability.creature.sprite.scale.x > 0 ? 232 : 52;
 				const projectileInstance = G.animations.projectile(
+					// @ts-expect-error `this.creature` exists once this file is extended into `ability.ts`
 					this,
 					target,
 					'effects_fiery-touch',
@@ -158,6 +160,7 @@ export default (G) => {
 
 				tween.onComplete.add(function () {
 					// `this` refers to the animation object, _not_ the ability
+					// @ts-expect-error 'this' defauls to type 'any'
 					this.destroy();
 
 					target.takeDamage(damage);
@@ -170,14 +173,6 @@ export default (G) => {
 				};
 			},
 
-			/**
-			 * Calculate the maximum distance the ability can be targeted and activated.
-			 *
-			 * @returns {number} Ability maximum distance
-			 */
-			_getDistance() {
-				return this.isUpgraded() ? this.range.upgraded : this.range.regular;
-			},
 
 			/**
 			 * Calculate the damage of the ability as it changes depending on the distance
@@ -211,7 +206,7 @@ export default (G) => {
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
-			range: 3,
+			//range: 3,
 			require() {
 				return this.testRequirements();
 			},
@@ -219,9 +214,9 @@ export default (G) => {
 			query() {
 				const ability = this;
 				const crea = this.creature;
-				let totalRange = this.range;
+				let totalRange = 3;
 				if (this.isUpgraded()) {
-					totalRange = this.range + this.creature.accumulatedTeleportRange - 1;
+					totalRange += this.creature.accumulatedTeleportRange - 1;
 				}
 
 				// Relocates to any hex within range except for the current hex
@@ -261,11 +256,13 @@ export default (G) => {
 					creature.takeDamage(new Damage(effect.attacker, ability.damages, 1, [], G), {
 						isFromTrap: true,
 					});
+					// @ts-expect-error 'this' defauls to type 'any'
 					this.trap.destroy();
 					effect.deleteEffect();
 				};
 
 				const requireFn = function () {
+					// @ts-expect-error 'this' defauls to type 'any'
 					const creature = this.trap.hex.creature,
 						type = (creature && creature.type) || null;
 
