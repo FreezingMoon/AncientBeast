@@ -1734,6 +1734,7 @@ span.pure {
 				margin-top: 4px;
 				text-indent: -9999px;
 				width: 16px;
+				cursor: pointer;
 			}
 
 			#reset-toggle-powers {
@@ -1748,6 +1749,9 @@ span.pure {
 
 			.button {
 				text-indent: -9999px;
+				&.active:before {
+					background-image: url('~assets/interface/frame_red.png');
+				}
 			}
 
 			.button + .desc {

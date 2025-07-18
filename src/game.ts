@@ -148,7 +148,7 @@ export default class Game {
 	turnTimePool?: number;
 
 	endGameSound?: any;
-
+	isAcceptingInput: () => boolean;
 	constructor() {
 		this.abilities = [];
 		this.players = [];
@@ -186,7 +186,7 @@ export default class Game {
 		this.realms = ['-', 'A', 'E', 'G', 'L', 'P', 'S', 'W'];
 		this.availableMusic = [];
 		this.inputMethod = 'Mouse';
-
+		this.isAcceptingInput = () => !this.freezedInput;
 		// Gameplay properties
 		this.firstKill = false;
 		this.freezedInput = false;
@@ -603,17 +603,13 @@ export default class Game {
 
 		this.activeCreature = this.players[0].creatures[0]; // Prevent errors
 
-		{
-			const self = this;
-			this.UI = new UI(
-				{
-					get isAcceptingInput() {
-						return !self.freezedInput;
-					},
-				},
-				this,
-			); // Create UI (not before because some functions require creatures to already exist)
-		}
+		this.UI = new UI(
+			{
+				isAcceptingInput: this.isAcceptingInput,
+			},
+			this,
+		); // Create UI (not before because some functions require creatures to already exist)
+
 		setAudioMode('full', this.soundsys, this.UI);
 		// DO NOT CALL LOG BEFORE UI CREATION
 		this.gameState = 'playing';
