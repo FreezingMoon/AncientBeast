@@ -3,12 +3,13 @@ import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import { Creature } from '../creature';
 import { Effect } from '../effect';
+import Game from '../game';
 
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
  */
-export default (G) => {
+export default (G: Game) => {
 	G.abilities[9] = [
 		// 	First Ability: Frigid Tower
 		{
@@ -26,7 +27,7 @@ export default (G) => {
 				// Check whether this ability is upgraded; if so then make sure all existing
 				// buffs include an offense buff
 				const ability = this;
-				this.creature.effects.forEach(function (effect) {
+				this.creature.effects.forEach(function (effect: Effect) {
 					if (effect.name === ability._effectName) {
 						effect.alterations.offense = ability._getOffenseBuff();
 					}
@@ -75,7 +76,7 @@ export default (G) => {
 				}
 
 				if (
-					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex), {
+					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex,this.creature.player.flipped), {
 						team: this._targetTeam,
 					})
 				) {
@@ -95,12 +96,12 @@ export default (G) => {
 					team: this._targetTeam,
 					id: this.creature.id,
 					flipped: this.creature.player.flipped,
-					hexes: this.creature.getHexMap(matrices.frontnback2hex),
+					hexes: this.creature.getHexMap(matrices.frontnback2hex, this.creature.player.flipped),
 				});
 			},
 
 			//	activate() :
-			activate: function (target) {
+			activate: function (target: Creature) {
 				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.01, 80, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
@@ -119,7 +120,7 @@ export default (G) => {
 						new Effect(
 							this.title,
 							this.creature,
-							this.target,
+							target,
 							'',
 							{
 								alterations: {
@@ -151,7 +152,7 @@ export default (G) => {
 				}
 
 				if (
-					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex), {
+					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex,this.creature.player.flipped), {
 						team: this._targetTeam,
 					})
 				) {
@@ -171,12 +172,12 @@ export default (G) => {
 					team: this._targetTeam,
 					id: this.creature.id,
 					flipped: this.creature.player.flipped,
-					hexes: this.creature.getHexMap(matrices.frontnback2hex),
+					hexes: this.creature.getHexMap(matrices.frontnback2hex, this.creature.player.flipped),
 				});
 			},
 
 			//	activate() :
-			activate: function (target) {
+			activate: function (target: Creature) {
 				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.02, 222, true, G.Phaser.camera.SHAKE_VERTICAL, true);
@@ -228,7 +229,7 @@ export default (G) => {
 			directions: [1, 1, 1, 1, 1, 1],
 			_targetTeam: Team.Both,
 
-			_getDistance: function () {
+			_getMaxDistance: function () {
 				// Upgraded ability has infinite range
 				return this.isUpgraded() ? 0 : 6;
 			},
@@ -246,7 +247,7 @@ export default (G) => {
 						team: this._targetTeam,
 						x: x,
 						directions: this.directions,
-						distance: this._getDistance(),
+						distance: this._getMaxDistance(),
 						stopOnCreature: false,
 					})
 				) {
@@ -272,7 +273,7 @@ export default (G) => {
 					x: x,
 					y: crea.y,
 					directions: this.directions,
-					distance: this._getDistance(),
+					distance: this._getMaxDistance(),
 					stopOnCreature: false,
 				});
 			},

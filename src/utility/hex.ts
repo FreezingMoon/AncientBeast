@@ -285,6 +285,10 @@ export class Hex {
 		// No-op function.
 	}
 
+	updateHealth(){
+		// No-op function. see game.ts -> triggerDeleteEffect()
+	}
+
 	/**
 	 * This function return an array containing all hexes of the grid
 	 * at the distance given of the current hex.

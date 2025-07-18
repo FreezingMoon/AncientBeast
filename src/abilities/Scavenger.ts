@@ -4,8 +4,11 @@ import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
+import { Creature } from '../creature';
+import { Hex } from '../utility/hex';
+import Game from '../game';
 
-function getEscortUsableHexes(G, crea, trg) {
+function getEscortUsableHexes(G: Game, crea: Creature, trg: Creature) {
 	const trgIsInfront =
 		G.grid.getHexMap(
 			crea.x - matrices.inlinefront2hex.origin[0],
@@ -34,7 +37,7 @@ function getEscortUsableHexes(G, crea, trg) {
  * @param {Object} G the game object
  * @return {void}
  */
-export default (G) => {
+export default (G: Game) => {
 	/*
 	 *
 	 *	Scavenger abilities
@@ -49,11 +52,11 @@ export default (G) => {
 			 * @return {string} movement type, "hover" or "flying"
 			 */
 			movementType: function () {
-				return 'flying';
+				return this.isUpgraded() ? 'flying' : 'hover';
 			},
 
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
-			trigger: '',
+			trigger: 'noTrigger',
 
 			// 	require() :
 			require: function () {
@@ -78,7 +81,7 @@ export default (G) => {
 				}
 
 				if (
-					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex), {
+					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex, this.creature.player.flipped), {
 						team: this._targetTeam,
 					})
 				) {
@@ -98,12 +101,12 @@ export default (G) => {
 					team: this._targetTeam,
 					id: this.creature.id,
 					flipped: this.creature.player.flipped,
-					hexes: this.creature.getHexMap(matrices.frontnback2hex),
+					hexes: this.creature.getHexMap(matrices.frontnback2hex, this.creature.player.flipped),
 				});
 			},
 
 			//	activate() :
-			activate: function (target) {
+			activate: function (target: Creature) {
 				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.01, 70, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
@@ -154,7 +157,7 @@ export default (G) => {
 				const ability = this;
 				const crea = this.creature;
 
-				let hexes = crea.getHexMap(matrices.inlinefrontnback2hex);
+				let hexes = crea.getHexMap(matrices.inlinefrontnback2hex, this.creature.player.flipped);
 
 				if (hexes.length < 2) {
 					// At the border of the map
@@ -204,7 +207,7 @@ export default (G) => {
 				const ability = this;
 				const crea = this.creature;
 
-				const hexes = crea.getHexMap(matrices.inlinefrontnback2hex);
+				const hexes = crea.getHexMap(matrices.inlinefrontnback2hex, this.creature.player.flipped);
 				const trg = hexes[0].creature || hexes[1].creature;
 
 				const { size, trgIsInfront, usableHexes } = getEscortUsableHexes(G, crea, trg);
@@ -337,7 +340,7 @@ export default (G) => {
 				}
 
 				if (
-					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex), {
+					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex, this.creature.player.flipped), {
 						team: this._targetTeam,
 					})
 				) {
@@ -357,12 +360,12 @@ export default (G) => {
 					team: this._targetTeam,
 					id: this.creature.id,
 					flipped: this.creature.player.flipped,
-					hexes: this.creature.getHexMap(matrices.frontnback2hex),
+					hexes: this.creature.getHexMap(matrices.frontnback2hex, this.creature.player.flipped),
 				});
 			},
 
 			//	activate() :
-			activate: function (target) {
+			activate: function (target: Creature) {
 				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
@@ -392,11 +395,12 @@ export default (G) => {
 						'onStartPhase',
 						{
 							stackable: false,
-							effectFn: function (eff, creature) {
-								G.log('%CreatureName' + creature.id + '% is affected by ' + ability.title);
-								creature.takeDamage(
+
+							effectFn: function (eff, trgCreature: Creature) {
+								G.log('%CreatureName' + trgCreature.id + '% is affected by ' + ability.title);
+								trgCreature.takeDamage(
 									new Damage(
-										eff.owner,
+										eff.owner as Creature,
 										{
 											poison: ability.damages.poison,
 										},
@@ -407,6 +411,7 @@ export default (G) => {
 									{ isFromTrap: true },
 								);
 							},
+
 						},
 						G,
 					);
