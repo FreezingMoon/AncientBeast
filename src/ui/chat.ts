@@ -113,9 +113,7 @@ export class Chat {
 	}
 
 	getCurrentTime() {
-		const now = Date.now();
-		const startMatchDateObject = this.game.startMatchTime;
-		const currentTime = new Date(now - startMatchDateObject.getTime());
+		const currentTime = new Date(new Date().valueOf() - this.game.startMatchTime.valueOf());
 		return (
 			str.zfill(currentTime.getUTCHours(), 2) +
 			':' +
