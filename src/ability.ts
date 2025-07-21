@@ -7,6 +7,7 @@ import * as arrayUtils from './utility/arrayUtils';
 import Game from './game';
 import { ScoreEvent } from './player';
 import { Point } from './utility/pointfacade';
+import { CreatureType } from './data/types';
 
 /*
  * NOTE
@@ -54,6 +55,7 @@ type Cost = {
 	special?: string;
 	plasma?: string | number;
 	energy?: number;
+	health?: number;
 };
 
 type Requirement = { plasma?: number; energy?: number } | Cost;
@@ -82,7 +84,10 @@ export class Ability {
 	token: number;
 	upgraded: boolean;
 	title: string;
-
+	//from UnitDataStructure ability_info
+	desc?: string;
+	info?: string;
+	upgrade?: string;
 	// TODO properly type all `unknown` types
 	// These properties come from extending a specific ability from `src/abilities`
 	requirements?: Requirement | undefined;
@@ -98,6 +103,8 @@ export class Ability {
 	effects?: AbilityEffect[];
 	message?: string;
 	movementType?: () => 'flying'; // Currently, this functon only exists in `Scavenger.js`
+	materialize?: (creature: string | CreatureType) => void; // This functon only exists in `Dark Priest.js`
+
 	triggeredThisChain?: boolean;
 	range?: { minimum?: number; regular: number; upgraded: number };
 
@@ -619,7 +626,7 @@ export class Ability {
 	 * @param obj Damage object.
 	 * @return damage
 	 */
-	getFormattedDamages(obj: Record<string, any>): string | false {
+	getFormattedDamages(obj?: Record<string, any>): string | false {
 		obj = obj || this.damages;
 
 		if (!obj) {
