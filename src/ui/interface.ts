@@ -346,15 +346,12 @@ export class UI {
 										if (index === 0) {
 											btn.$button.removeClass('cancelIcon');
 											btn.$button.removeClass('nextIcon');
-
-											console.log(btn.$button);
 											this.clickedAbility = -1;
 										}
 									});
 									b.cssTransition('nextIcon', 1000);
 								} else if (selectedAbility === -1) {
 									this.abilitiesButtons.forEach((btn, index) => {
-										console.log(this.clickedAbility);
 										if (index === 0) {
 											btn.$button.removeClass('nextIcon');
 											btn.$button.removeClass('cancelIcon');
@@ -2515,7 +2512,6 @@ export class UI {
 		// Hide the project logo when navigating away using a hotkey (Ctrl+Shift+M)
 		document.addEventListener('keydown', (event) => {
 			if (event.ctrlKey && event.shiftKey && event.key === 'M') {
-				console.log('ctrl+shift+M pressed');
 				ui.brandlogo.alpha = 0;
 			}
 		});
