@@ -1058,7 +1058,6 @@ export class UI {
 					.children('.info')
 					.children('#info')
 					.text(stats.ability_info[key].info);
-				//check  - works if I remove as const satisfies UnitDataStructure
 				$ability
 					.children('.wrapper')
 					.children('.info')
@@ -1136,7 +1135,6 @@ export class UI {
 							this.materializeToggled = false;
 							this.selectAbility(3);
 							this.closeDash();
-							//check this ability.ts string | CreatureType
 							if (this.lastViewedCreature) {
 								activeCreature.abilities[3].materialize(this.lastViewedCreature);
 							} else {
@@ -1654,7 +1652,6 @@ export class UI {
 		const game = this.game;
 
 		this.$dash.removeClass('active');
-		//check this
 		this.$dash.transition(
 			{
 				opacity: 0,
@@ -1942,7 +1939,6 @@ export class UI {
 					// Update upgrade info
 					this.updateAbilityUpgrades();
 					// Callback after final transition
-					//check
 					this.$activebox.children('#abilities').transition(
 						{
 							y: '0px',
@@ -2117,7 +2113,7 @@ export class UI {
 
 			// Charge
 			this.abilitiesButtons[i].$button.next('.desc').find('.charge').remove();
-			//check - is this even in use
+			// is this even in use
 			//if (ab.getCharge !== undefined) {
 			//	this.abilitiesButtons[i].$button
 			//		.next('.desc')
@@ -2546,14 +2542,12 @@ export class UI {
 					onCreatureMouseLeave();
 					break;
 				case SIGNAL_TURN_END_CLICK:
-					//check
 					onTurnEndClick();
 					break;
 				case SIGNAL_TURN_END_MOUSE_ENTER:
 					onTurnEndMouseEnter(payload.turnNumber);
 					break;
 				case SIGNAL_TURN_END_MOUSE_LEAVE:
-					//check
 					onTurnEndMouseLeave();
 					break;
 			}
