@@ -144,8 +144,8 @@ export function extendToLeft(hexes: Hex[], size: number, grid: HexGrid) {
 		}
 	)
 	let curRow=-1;
-	for (let i = 0; i < hexes.length; i++) {//for every hex
-		if(hexes[i].y != curRow) {//start of new row
+	for (let i = 0; i < hexes.length; i++) {// For every hex
+		if(hexes[i].y != curRow) {// Start of new row
 			curRow = hexes[i].y;
 			for(let j = 1; j <= size; j++) {
 				if (grid.hexExists({ y: hexes[i].y, x: hexes[i].x - j })) {
@@ -153,7 +153,8 @@ export function extendToLeft(hexes: Hex[], size: number, grid: HexGrid) {
 				}
 			}
 		}
-		else{// there is another hex already extended in this row
+		else {
+			// There is another hex already extended in this row
 			const diff = hexes[i].x - hexes[i-1].x;
 			if(diff > 1) {
 				for(let j = 1; j < diff && j <= size; j++) {
@@ -187,8 +188,8 @@ export function extendToRight(hexes: Hex[], size: number, grid: HexGrid) {
 		}
 	)
 	let curRow=-1;
-	for (let i = 0; i < hexes.length; i++) {//for every hex
-		if(hexes[i].y != curRow) {//start of new row
+	for (let i = 0; i < hexes.length; i++) {// For every hex
+		if(hexes[i].y != curRow) {// Start of new row
 			curRow = hexes[i].y;
 			for(let j = 1; j <= size; j++) {
 				if (grid.hexExists({ y: hexes[i].y, x: hexes[i].x + j })) {
