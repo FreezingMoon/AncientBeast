@@ -26,7 +26,7 @@ export class Trap {
 	 * NOTE: The following attributes are typically set in the
 	 * constructor using the "opt" argument.
 	 */
-	turnLifetime = 0;
+	turnLifetime = -1;
 	fullTurnLifetime = false;
 	ownerCreature: Creature | undefined = undefined; // Needed for fullTurnLifetime
 	destroyOnActivate = false;

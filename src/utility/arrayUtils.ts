@@ -2,6 +2,7 @@ import { Creature } from '../creature';
 import { Direction, Hex } from './hex';
 import { HexGrid } from './hexgrid';
 import { Team, isTeam } from './team';
+import { PierceThroughBehavior } from '../ability';
 
 /**
  * Find an object in the current Array based on its pos attribute.
@@ -60,7 +61,7 @@ export function filterCreature(
 	id?: number,
 	sourceCreature?: Creature,
 	pierceNumber=1,
-	pierceThroughBehavior="stop",
+	pierceThroughBehavior: PierceThroughBehavior = "stop",
 	targetTeam=Team.Enemy
 ) {
 	let piercedCreatures=0;
@@ -93,7 +94,7 @@ export function filterCreature(
 					hexes.splice(i + 1, 99);
 					break;
 				}
-				if(pierceThroughBehavior=="partial") {
+				if(pierceThroughBehavior=="targetOnly") {
 					if(isTeam(sourceCreature,hexes[i].creature,targetTeam)) {
 						piercedCreatures+=1;
 						if(piercedCreatures==pierceNumber) {
@@ -133,16 +134,38 @@ export const sortByDirection = (hexes: Hex[], direction: Direction.Left | Direct
  */
 export function extendToLeft(hexes: Hex[], size: number, grid: HexGrid) {
 	const ext: Hex[] = [];
+	size-=1;
 
-	for (let i = 0; i < hexes.length; i++) {
-		for (let j = 0; j < size; j++) {
-			// NOTE : This code produce array with doubles.
-			if (grid.hexExists({ y: hexes[i].y, x: hexes[i].x - j })) {
-				ext.push(grid.hexes[hexes[i].y][hexes[i].x - j]);
+	// Sort top to bottom, and then left to right
+	hexes.sort(
+		(a: Hex, b: Hex): number =>
+		{
+			return a.y-b.y==0 ? a.x-b.x : a.y-b.y
+		}
+	)
+	let curRow=-1;
+	for (let i = 0; i < hexes.length; i++) {// For every hex
+		if(hexes[i].y != curRow) {// Start of new row
+			curRow = hexes[i].y;
+			for(let j = 1; j <= size; j++) {
+				if (grid.hexExists({ y: hexes[i].y, x: hexes[i].x - j })) {
+					ext.push(grid.hexes[hexes[i].y][hexes[i].x - j]);
+				}
 			}
 		}
+		else {
+			// There is another hex already extended in this row
+			const diff = hexes[i].x - hexes[i-1].x;
+			if(diff > 1) {
+				for(let j = 1; j < diff && j <= size; j++) {
+					if (grid.hexExists({ y: hexes[i].y, x: hexes[i].x - j })) {
+						ext.push(grid.hexes[hexes[i].y][hexes[i].x - j]);
+					}
+				}
+			}
+		}
+		ext.push(hexes[i]);
 	}
-
 	return ext;
 }
 
@@ -155,18 +178,40 @@ export function extendToLeft(hexes: Hex[], size: number, grid: HexGrid) {
  */
 export function extendToRight(hexes: Hex[], size: number, grid: HexGrid) {
 	const ext: Hex[] = [];
+	size-=1;
 
-	for (let i = 0; i < hexes.length; i++) {
-		for (let j = 0; j < size; j++) {
-			// NOTE : This code produces array with doubles.
-			if (grid.hexExists({ y: hexes[i].y, x: hexes[i].x + j })) {
-				ext.push(grid.hexes[hexes[i].y][hexes[i].x + j]);
+	// Sort top to bottom, and then left to right
+	hexes.sort(
+		(a: Hex, b: Hex): number =>
+		{
+			return a.y-b.y==0 ? b.x-a.x : a.y-b.y
+		}
+	)
+	let curRow=-1;
+	for (let i = 0; i < hexes.length; i++) {// For every hex
+		if(hexes[i].y != curRow) {// Start of new row
+			curRow = hexes[i].y;
+			for(let j = 1; j <= size; j++) {
+				if (grid.hexExists({ y: hexes[i].y, x: hexes[i].x + j })) {
+					ext.push(grid.hexes[hexes[i].y][hexes[i].x + j]);
+				}
 			}
 		}
+		else{// there is another hex already extended in this row
+			const diff = hexes[i-1].x - hexes[i].x;
+			if(diff > 1) {
+				for(let j = 1; j < diff && j <= size; j++) {
+					if (grid.hexExists({ y: hexes[i].y, x: hexes[i].x + j })) {
+						ext.push(grid.hexes[hexes[i].y][hexes[i].x + j]);
+					}
+				}
+			}
+		}
+		ext.push(hexes[i]);
 	}
-
 	return ext;
 }
+
 
 /**
  * Return the last element of an array.

@@ -100,7 +100,7 @@ export default class Game {
 	animationQueue: (Animation | AnimationID)[];
 	checkTimeFrequency: number;
 	gamelog: GameLog;
-	configData: object;
+	configData: Partial<GameConfig>;
 	match: MatchI | object;
 	gameplay: Gameplay;
 	session = null;
@@ -1219,7 +1219,7 @@ export default class Game {
 				effect.deleteEffect();
 				// Updates UI in case effect changes it
 				if (effect.target) {
-					effect.target.updateHealth();
+					effect.target.updateHealth(); // Has no effect if target is a hex (such as when applied to a trap)
 				}
 
 				i--;
@@ -1340,7 +1340,6 @@ export default class Game {
 				effect.deleteEffect();
 				// Update UI in case effect changes it
 				if (effect.target) {
-					// @ts-expect-error 2339
 					// `this.effects` might be the wrong type or need to look at `EffectTarget` type definition
 					effect.target.updateHealth();
 				}

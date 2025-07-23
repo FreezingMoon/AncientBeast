@@ -198,7 +198,7 @@ export default (G: Game) => {
 					if (
 						this.atLeastOneTarget(G.grid.getHexLine(cre.x, cre.y, i, false).slice(1, 1 + 6), {
 							team:  this._targetTeam,
-							pierceThroughBehavior: "partial",
+							pierceThroughBehavior: "targetOnly",
 						})
 					) {
 						this.message =''; // When checking all lines, one failure=wrong message. Remove message if successful
@@ -287,7 +287,7 @@ export default (G: Game) => {
 				if (
 					this.atLeastOneTarget(G.grid.getHexLine(cre.x, cre.y, i, false).slice(1, 1 + 12), {
 						team:  this._targetTeam,
-						pierceThroughBehavior: "partial",
+						pierceThroughBehavior: "targetOnly",
 					})
 				) {
 					this.message =''; // When checking all lines, one failure=wrong message. Remove message if successful
@@ -318,7 +318,7 @@ export default (G: Game) => {
 			  stopOnCreature: true,
 			  requireCreature: true,
 			  pierceNumber: ability.isUpgraded() ? 2 : 1,
-			  pierceThroughBehavior:  ability.isUpgraded() ? "pierce" : "partial",
+			  pierceThroughBehavior:  ability.isUpgraded() ? "pierce" : "targetOnly",
 
 			  // Only turn these on once upgraded
 			  dashedHexesAfterCreatureStop: true,

@@ -2,21 +2,23 @@ import { Damage } from '../damage';
 import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
+import { Direction, Hex } from '../utility/hex';
+import { QueryOptions } from '../utility/hexgrid';
 import { Effect } from '../effect';
-import { Direction } from '../utility/hex';
+import Game from '../game';
 
 /** Creates the abilities
  * @param {Game} G the game object
  * @return {void}
  */
-export default (G) => {
+export default (G: Game) => {
 	G.abilities[6] = [
 		// 	First Ability: Lamellar Body
 		{
 			//  Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onCreatureSummon onOtherCreatureSummon onOtherCreatureDeath',
 
-			_buff: 0,
+			_defenseBuff: 0,
 
 			//  require() :
 			require: function () {
@@ -31,10 +33,10 @@ export default (G) => {
 						buff += 2;
 					}
 				});
-				if (buff == this._buff) {
+				if (buff == this._defenseBuff) {
 					return false;
 				}
-				this._buff = buff;
+				this._defenseBuff = buff;
 				return true;
 			},
 
@@ -46,7 +48,7 @@ export default (G) => {
 
 				var regrowBuff = 0;
 				if (this.isUpgraded()) {
-					regrowBuff = this._buff;
+					regrowBuff = this._defenseBuff;
 				}
 
 				this.creature.replaceEffect(
@@ -58,8 +60,8 @@ export default (G) => {
 						'', // trigger
 						{
 							alterations: {
-								defense: this._buff,
-								frost: this._buff,
+								defense: this._defenseBuff,
+								frost: this._defenseBuff,
 								regrowth: regrowBuff,
 							},
 							stackable: false,
@@ -118,7 +120,7 @@ export default (G) => {
 				const ability = this;
 				const vehemoth = this.creature;
 
-				const object = {
+				const object: Partial<QueryOptions> = {
 					fnOnConfirm: function () {
 						ability.animation(...arguments);
 					},
@@ -180,7 +182,7 @@ export default (G) => {
 
 					/* Calculate hexes the target could be pushed along. Limited by the number
 					of hexes the Vehemoth charged, and will stop when reaching obstacles. */
-					let knockbackHexes = G.grid.getHexLine(target.x, target.y, args.direction);
+					let knockbackHexes = G.grid.getHexLine(target.x, target.y, args.direction, ability.creature.player.flipped);
 					arrayUtils.filterCreature(knockbackHexes, false, true, target.id);
 					knockbackHexes = knockbackHexes.slice(0, path.length);
 
@@ -227,7 +229,7 @@ export default (G) => {
 			 * @param {Creature} target Target for the ability.
 			 * @returns {object} @see creature.takeDamage()
 			 */
-			_damageTarget(target) {
+			_damageTarget: function (target) {
 				const ability = this;
 				const shouldExecute = target.health <= ability._executeHealthThreshold && target.isFrozen();
 				const damageType = shouldExecute
@@ -259,8 +261,8 @@ export default (G) => {
 			 *
 			 * @returns {Hex[]} Refer to Creature.getHexMap()
 			 */
-			_getHexes() {
-				return this.creature.getHexMap(matrices.frontnback3hex);
+			_getHexes(): Hex[] {
+				return this.creature.getHexMap(matrices.frontnback3hex, this.creature.player.flipped);
 			},
 		},
 
@@ -293,7 +295,7 @@ export default (G) => {
 
 			_targetTeam: Team.Enemy,
 			_directions: [1, 1, 1, 1, 1, 1],
-			_distance: 5,
+
 
 			require: function () {
 				if (!this.testRequirements()) {
@@ -305,7 +307,7 @@ export default (G) => {
 						sourceCreature: this.creature,
 						team: this._targetTeam,
 						directions: this._directions,
-						distance: this._distance,
+						distance: 5, // range
 						optTest: this._confirmTarget,
 					})
 				) {
@@ -330,7 +332,7 @@ export default (G) => {
 					x: vehemoth.x,
 					y: vehemoth.y,
 					directions: this._directions,
-					distance: this._distance,
+					distance: 5, // range
 					optTest: this._confirmTarget,
 				});
 			},
@@ -344,6 +346,7 @@ export default (G) => {
 				G.Phaser.camera.shake(0.01, 50, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				const [tween, sprite] = G.animations.projectile(
+					// @ts-expect-error `this.creature` exists once this file is extended into `ability.ts`
 					this,
 					target,
 					'effects_freezing-spit',
@@ -366,6 +369,7 @@ export default (G) => {
 
 				tween.onComplete.add(function () {
 					// `this` refers to the animation object, _not_ the ability.
+					// @ts-expect-error 'this' defauls to type 'any'
 					this.destroy();
 
 					let damageResult;
@@ -473,13 +477,13 @@ export default (G) => {
 				ability.end();
 				G.Phaser.camera.shake(0.02, 123, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
-				const levelDifference = Math.max(vehemoth.level - target.level, 0);
+				const levelDifference = Math.max(vehemoth.level as number - target.level as number, 0);
 				const damages = {
 					...ability.damages,
-					frost: ability.damages.frost + levelDifference * ability.bonus_damages.frost,
+					frost: ability.damages.frost + levelDifference * 3,
 					pierce:
 						ability.damages.pierce +
-						(ability.isUpgraded() ? levelDifference * ability.bonus_damages.pierce : 0),
+						(ability.isUpgraded() ? levelDifference * 2 : 0),
 				};
 				const damage = new Damage(vehemoth, damages, 1, [], G);
 				target.takeDamage(damage);
@@ -503,7 +507,7 @@ export default (G) => {
 						true,
 						matrices.fourDistanceCone,
 					),
-					...this.creature.getHexMap(matrices.fourDistanceCone),
+					...this.creature.getHexMap(matrices.fourDistanceCone, this.creature.player.flipped),
 				];
 			},
 		},
