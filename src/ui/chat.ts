@@ -34,7 +34,7 @@ export class Chat {
 			this.toggle();
 		});
 
-		//auto show and close chat when game starts - #1107
+		// Auto show and close chat when game starts #1107
 		setTimeout(() => {
 			this.toggle();
 		}, 2000);
