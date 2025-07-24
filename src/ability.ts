@@ -163,7 +163,10 @@ export class Ability {
 		distance: number;
 		sourceCreature?: Creature;
 	};
-
+	
+	 // Only used for Dark Priest Godlet Printer
+	 materialize?: (creature: CreatureType) => void;
+	
 	// Below methods exist in Snow-Bunny.ts
 	_detectFrontHexesWithEnemy: () => { direction: number; hex: Hex; enemyPos: Point }[];
 	_findEnemyHexInFront: (hexWithEnemy: Hex) => Hex | undefined;
