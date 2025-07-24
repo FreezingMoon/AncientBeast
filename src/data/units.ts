@@ -81,7 +81,7 @@ type UnitDataStructure = readonly {
 	}[];
 }[];
 
-//removed as const because the 'type' property is added using retrieveCreatureStats() in game.ts
+// Removed as const because the 'type' property is added using retrieveCreatureStats() in game.ts
 export const unitData: UnitDataStructure = [
 	{
 		id: 0,
