@@ -1517,6 +1517,7 @@ export class UI {
 			this.$scoreboard.find('#scoreboardTitle').text('Match Over');
 
 			// Declare winner
+			let winnerText = '';
 			if (game.playerMode > 2) {
 				// 2 vs 2
 				const score1 = game.players[0].getScore().total + game.players[2].getScore().total,
@@ -1524,17 +1525,13 @@ export class UI {
 
 				if (score1 > score2) {
 					// Left side wins
-					$j('#scoreboard p').text(
-						game.players[0].name + ' and ' + game.players[2].name + ' won the match!',
-					);
+					winnerText = game.players[0].name + ' and ' + game.players[2].name + ' won the match!';
 				} else if (score1 < score2) {
 					// Right side wins
-					$j('#scoreboard p').text(
-						game.players[1].name + ' and ' + game.players[3].name + ' won the match!',
-					);
+					winnerText = game.players[1].name + ' and ' + game.players[3].name + ' won the match!';
 				} else if (score1 == score2) {
 					// Draw
-					$j('#scoreboard p').text('Draw!');
+					winnerText = 'Draw!';
 				}
 			} else {
 				// 1 vs 1
@@ -1543,15 +1540,29 @@ export class UI {
 
 				if (score1 > score2) {
 					// Left side wins
-					$j('#scoreboard p').text(game.players[0].name + ' won the match!');
+					winnerText = game.players[0].name + ' won the match!';
 				} else if (score1 < score2) {
 					// Right side wins
-					$j('#scoreboard p').text(game.players[1].name + ' won the match!');
+					winnerText = game.players[1].name + ' won the match!';
 				} else if (score1 == score2) {
 					// Draw
-					$j('#scoreboard p').text('Draw!');
+					winnerText = 'Draw!';
 				}
 			}
+			
+			// Add winner text under the title
+			// Check if winnerText element already exists, remove it if it does
+			if (this.$scoreboard.find('#winnerText').length) {
+				this.$scoreboard.find('#winnerText').remove();
+			}
+			this.$scoreboard.find('#scoreboardTitle').after('<div id="winnerText">' + winnerText + '</div>');
+			
+			// Add paragraph for backward compatibility if it doesn't exist
+			if (!this.$scoreboard.find('p').length) {
+				this.$scoreboard.find('table').before('<p></p>');
+			}
+			// Set the text of the paragraph
+			this.$scoreboard.find('p').text(winnerText);
 		}
 
 		// Finally, show the scoreboard
