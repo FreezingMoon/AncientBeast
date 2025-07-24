@@ -8,13 +8,7 @@ import * as arrayUtils from './utility/arrayUtils';
 import Game from './game';
 import { ScoreEvent } from './player';
 import { Point } from './utility/pointfacade';
-
-/*
- * NOTE
- *
- * convert game.js -> game.ts to get rid of @ts-expect-error 2339
- *
- */
+import { CreatureType } from './data/types';
 
 /**
  * Ability Class
@@ -62,6 +56,7 @@ type Cost = {
 	special?: string;
 	plasma?: string | number;
 	energy?: number;
+	health?: number;
 };
 
 type Requirement = { plasma?: number; energy?: number } | Cost;
@@ -90,7 +85,10 @@ export class Ability {
 	token: number;
 	upgraded: boolean;
 	title: string;
-
+	// From UnitDataStructure ability_info
+	desc?: string;
+	info?: string;
+	upgrade?: string;
 	// TODO properly type all `unknown` types
 	// These properties come from extending a specific ability from `src/abilities`
 	requirements?: Requirement | undefined;
@@ -105,7 +103,8 @@ export class Ability {
 	damages?: Partial<CreatureMasteries> & { pure?: number };
 	effects?: AbilityEffect[];
 	message?: string;
-	movementType?: () => Movement; // Currently, this functon only exists in `Scavenger.js`
+	movementType?: () => Movement; // Currently, this functon only exists in `Scavenger.ts`
+	materialize?: (creature: string | CreatureType) => void; // This functon only exists in `Dark Priest.ts`
 	triggeredThisChain?: boolean;
 	range?: { minimum?: number; regular: number; upgraded?: number };
 
@@ -164,10 +163,10 @@ export class Ability {
 		distance: number;
 		sourceCreature?: Creature;
 	};
-
-     // Only used for Dark Priest Godlet Printer
-     materialize?: (creature: CreatureType) => void;
-
+	
+	 // Only used for Dark Priest Godlet Printer
+	 materialize?: (creature: CreatureType) => void;
+	
 	// Below methods exist in Snow-Bunny.ts
 	_detectFrontHexesWithEnemy: () => { direction: number; hex: Hex; enemyPos: Point }[];
 	_findEnemyHexInFront: (hexWithEnemy: Hex) => Hex | undefined;
@@ -636,7 +635,7 @@ export class Ability {
 	 * @param obj Damage object.
 	 * @return damage
 	 */
-	getFormattedDamages(obj: Record<string, any>): string | false {
+	getFormattedDamages(obj?: Record<string, any>): string | false {
 		obj = obj || this.damages;
 
 		if (!obj) {

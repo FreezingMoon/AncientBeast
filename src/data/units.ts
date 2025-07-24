@@ -42,14 +42,14 @@ type UnitDataStructure = readonly {
 	drop?: { name: string } & Partial<Stats>;
 	movementType?: Movement;
 	display?: UnitDisplayInfo;
-	set?: 'α' | 'β';
+	set?: 'α' | 'β' | '';
 
-	ability_info: readonly {
+	ability_info: {
 		title: string;
 		desc: string;
 		info: string;
 		upgrade?: string;
-		affectedByMatSickness?: number;
+		affectedByMatSickness?: boolean;
 		details?: readonly string[];
 		effects?: readonly {
 			special?: string;
@@ -81,7 +81,8 @@ type UnitDataStructure = readonly {
 	}[];
 }[];
 
-export const unitData = [
+// Removed as const because the 'type' property is added using retrieveCreatureStats() in game.ts
+export const unitData: UnitDataStructure = [
 	{
 		id: 0,
 		name: 'Dark Priest',
@@ -89,6 +90,7 @@ export const unitData = [
 		level: '-',
 		realm: '-',
 		size: 1,
+		set: '',
 		stats: {
 			health: 100,
 			regrowth: 1,
@@ -1194,7 +1196,7 @@ export const unitData = [
 				desc: 'Moves away one hexagon from first enemy that comes nearby frontally.',
 				info: 'Works only once every game round.',
 				upgrade: 'Can leap twice each round.',
-				affectedByMatSickness: 1,
+				affectedByMatSickness: true,
 			},
 			{
 				title: 'Big Pliers',
@@ -2577,7 +2579,7 @@ export const unitData = [
 				desc: "Bites an adjacent inline enemy that's unfortunate to be there at turn start.",
 				info: '12 pierce damage + 10 crush damage.',
 				upgrade: 'Also bites before turn ends.',
-				affectedByMatSickness: 1,
+				affectedByMatSickness: true,
 				damages: {
 					pierce: 12,
 					crush: 10,
@@ -4079,4 +4081,4 @@ export const unitData = [
 			},
 		],
 	},
-] as const satisfies UnitDataStructure;
+];

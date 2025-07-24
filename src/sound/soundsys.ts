@@ -228,7 +228,7 @@ export function setAudioMode(mode, soundSysInstance, uiInstance) {
 		uiInstance.updateAudioIcon(mode);
 	}
 }
-export function cycleAudioMode(soundSysInstance: SoundSys, uiInstance: any): AudioMode {
+export function cycleAudioMode(soundSysInstance: SoundSys, uiInstance?: any): AudioMode {
 	let newMode: AudioMode;
 
 	if (currentAudioMode === 'full') {

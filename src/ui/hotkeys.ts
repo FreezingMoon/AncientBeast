@@ -1,8 +1,9 @@
-import { event } from 'jquery';
-import { Fullscreen } from '../ui/fullscreen';
+import { UI } from './interface';
+import { Fullscreen } from './fullscreen';
 
 export class Hotkeys {
-	constructor(ui) {
+	ui: UI;
+	constructor(ui: UI) {
 		this.ui = ui;
 	}
 

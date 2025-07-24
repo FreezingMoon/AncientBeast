@@ -66,6 +66,7 @@ export class Button {
 	resolveTransitionTask: null;
 	stateTransitionMeta: { transitionClass: any };
 	resolveCssTransitionTask: any;
+	abilityId?: number;
 	click() {
 		throw new Error('Method not implemented.');
 	}
@@ -115,7 +116,7 @@ export class Button {
 		this.resolveCssTransition = null;
 	}
 
-	changeState(state) {
+	changeState(state?: ButtonState) {
 		const wrapperElement = this.$button.parent();
 
 		state = state || this.state;
