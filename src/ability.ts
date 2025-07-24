@@ -1,20 +1,14 @@
 import * as $j from 'jquery';
-import { Damage } from './damage';
+import { Damage, DamageResult } from './damage';
 import { Direction, Hex } from './utility/hex';
-import { Creature, CreatureMasteries } from './creature';
+import { Creature, CreatureMasteries, Movement } from './creature';
+import { CreatureType } from './data/types';
 import { isTeam, Team } from './utility/team';
 import * as arrayUtils from './utility/arrayUtils';
 import Game from './game';
 import { ScoreEvent } from './player';
 import { Point } from './utility/pointfacade';
 import { CreatureType } from './data/types';
-
-/*
- * NOTE
- *
- * convert game.js -> game.ts to get rid of @ts-expect-error 2339
- *
- */
 
 /**
  * Ability Class
@@ -24,10 +18,13 @@ import { CreatureType } from './data/types';
 
 export type AbilitySlot = 0 | 1 | 2 | 3;
 
+// Maybe convert this to an array of Triggers, so that you don't need
+// a new element for each permutation?
 export type Trigger =
 	| 'onQuery'
 	| 'onStartPhase'
 	| 'onDamage'
+     | 'onOtherDamage'
 	| 'onEndPhase'
 	| 'onStepIn'
 	| 'onStepOut'
@@ -43,11 +40,15 @@ export type Trigger =
 	| 'oncePerDamageChain'
 	| 'onCreatureMove onOtherCreatureMove'
 	| 'onCreatureSummon onDamage onHeal'
+     | 'onCreatureSummon onOtherCreatureSummon onOtherCreatureDeath'
 	| 'onStartPhase onEndPhase'
 	| 'onDamage onStartPhase'
 	| 'onStartPhase onDamage'
 	| 'onUnderAttack onAttack'
-	| 'onUnderAttack';
+	| 'onUnderAttack'
+     | 'noTrigger';
+
+export type PierceThroughBehavior = 'stop' | 'targetOnly' | 'pierce';
 
 // Could get rid of the union and optionals by creating a separate (or conditional) type for Dark Priest's Cost
 // This might narrow down the types in the constructor by checking `creature.name`
@@ -84,7 +85,7 @@ export class Ability {
 	token: number;
 	upgraded: boolean;
 	title: string;
-	//from UnitDataStructure ability_info
+	// From UnitDataStructure ability_info
 	desc?: string;
 	info?: string;
 	upgrade?: string;
@@ -102,11 +103,10 @@ export class Ability {
 	damages?: Partial<CreatureMasteries> & { pure?: number };
 	effects?: AbilityEffect[];
 	message?: string;
-	movementType?: () => 'flying'; // Currently, this functon only exists in `Scavenger.js`
-	materialize?: (creature: string | CreatureType) => void; // This functon only exists in `Dark Priest.js`
-
+	movementType?: () => Movement; // Currently, this functon only exists in `Scavenger.ts`
+	materialize?: (creature: string | CreatureType) => void; // This functon only exists in `Dark Priest.ts`
 	triggeredThisChain?: boolean;
-	range?: { minimum?: number; regular: number; upgraded: number };
+	range?: { minimum?: number; regular: number; upgraded?: number };
 
 	// Properties that begin with an underscore are used locally in a specific file in the `abilities` directory.
 	// For example: _lastBonus is unique to Gumble.ts.
@@ -123,6 +123,7 @@ export class Ability {
 	getAbilityName?: (name: string) => string;
 	getMovementBuff?: (buff: number) => number;
 	getOffenseBuff?: (buff: number) => number;
+     _getOffenseBuff?: () => number;
 	_getHexes?: () => any;
 	_getMaxDistance: () => number;
 	_directions?: Direction[];
@@ -141,6 +142,7 @@ export class Ability {
 	_maxPushDistance: number;
 	_damagePerHexTravelled: number;
 	_damage: (target: Creature, runPath: Hex[]) => void;
+     _damageTarget: (target: Creature) => {damages?: DamageResult; kill: boolean; damageObj?: Damage};
 	_pushTarget: (target: Creature, pushPath: Hex[], args: any) => void;
 
 	_isSecondLowJump: () => boolean;
@@ -162,11 +164,18 @@ export class Ability {
 		sourceCreature?: Creature;
 	};
 
+     // Only used for Dark Priest Godlet Printer
+     materialize?: (creature: CreatureType) => void;
+
 	// Below methods exist in Snow-Bunny.ts
 	_detectFrontHexesWithEnemy: () => { direction: number; hex: Hex; enemyPos: Point }[];
 	_findEnemyHexInFront: (hexWithEnemy: Hex) => Hex | undefined;
 	_getHopHex: () => Hex | undefined;
 	_getUsesPerTurn: () => 1 | 2;
+
+     _effectName: string;
+
+     _getDamage: (path: Hex[]) => any;
 
 	resetTimesUsed(): void {
 		this.timesUsedThisTurn = 0;
@@ -743,11 +752,11 @@ export class Ability {
 					!options.optTest(creature)
 			) {
 					if(creature) {
-							 switch (options.pierceThroughBehavior) {
+							 switch (options.pierceThroughBehavior as PierceThroughBehavior) {
 										case "stop": // Stop search as soon as any creature is found
 												 i=len; // break for loop;
 												 break;
-										case "partial": // Pierce only members of the target team who have failed optTest
+										case "targetOnly": // Pierce only members of the target team who have failed optTest
 												 if(!isTeam(this.creature, creature, options.team)) {
 															i=len; // break for loop;
 															break;
@@ -918,6 +927,7 @@ export class Ability {
 			directions: [1, 1, 1, 1, 1, 1],
 			includeCreature: true,
 			stopOnCreature: true,
+               PierceThroughBehavior: "stop",
 			distance: 0,
 			minDistance: 0,
 			sourceCreature: undefined,

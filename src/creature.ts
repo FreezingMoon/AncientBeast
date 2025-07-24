@@ -8,7 +8,7 @@ import { Drop, DropDefinition } from './drop';
 import { Point, getPointFacade } from './utility/pointfacade';
 import { Effect } from './effect';
 import { Player, PlayerID } from './player';
-import { Damage } from './damage';
+import { Damage, DamageResult } from './damage';
 import { AugmentedMatrix } from './utility/matrices';
 import { HEX_WIDTH_PX, hashOffsetCoords, offsetCoordsToPx, offsetNeighbors } from './utility/const';
 import { CreatureType, Level, Realm, Unit, UnitName } from './data/types';
@@ -1194,12 +1194,12 @@ export class Creature {
 	 * @returns{Object} Contains damages dealt and if creature is killed or not
 	 * TODO: Once all files in `abilities` are converted to TS, consider a more representative name for `o`
 	 */
-	takeDamage(damage: Damage, o?: { isFromTrap?: boolean; ignoreRetaliation?: boolean }) {
+	takeDamage(damage: Damage, o?: { isFromTrap?: boolean; ignoreRetaliation?: boolean }): {damages?: DamageResult; kill: boolean; damageObj?: Damage} {
 		const game = this.game;
 
 		if (this.dead) {
 			console.info(`${this.name} (${this.id}) is already dead, aborting takeDamage call.`);
-			return;
+			return({kill: false});
 		}
 
 		const defaultOpt = {
@@ -1235,7 +1235,7 @@ export class Creature {
 				game.log('Oops something went wrong !');
 
 				return {
-					damages: 0,
+					damages: { total: 0 },
 					kill: false,
 				};
 			}

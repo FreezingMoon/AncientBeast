@@ -2,13 +2,16 @@ import * as $j from 'jquery';
 import { Damage } from '../damage';
 import { Team } from '../utility/team';
 import * as arrayUtils from '../utility/arrayUtils';
+import { Hex } from '../utility/hex';
 import { Creature } from '../creature';
+import { CreatureType, Unit } from '../data/types';
+import Game from '../game';
 
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
  */
-export default (G) => {
+export default (G: Game) => {
 	G.abilities[0] = [
 		// 	First Ability: Plasma Field
 		{
@@ -22,7 +25,7 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (damage) {
+			activate: function (damage: Damage) {
 				if (G.activeCreature.id == this.creature.id) {
 					/* only used when unit isn't active */
 					return damage; // Return Damage
@@ -49,10 +52,10 @@ export default (G) => {
 				this.creature.protectedFromFatigue = this.testRequirements();
 
 				damage.damages = {
-					total: 0,
+					pure: 0,
 				};
 				damage.status = 'Shielded';
-				damage.effect = [];
+				damage.effects = [];
 
 				damage.noLog = true;
 
@@ -187,24 +190,24 @@ export default (G) => {
 			},
 
 			//	activate() :
-			activate: function (target) {
+			activate: function (target: Creature) {
 				const ability = this;
 				ability.end();
 				G.Phaser.camera.shake(0.04, 111, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				const plasmaCost = target.size;
-				let damage = target.baseStats.health - target.health;
+				let damageAmount = target.baseStats.health - target.health;
 
-				if (this.isUpgraded() && damage < 40) {
-					damage = 40;
+				if (this.isUpgraded() && damageAmount < 40) {
+					damageAmount = 40;
 				}
 
 				ability.creature.player.plasma -= plasmaCost;
 
-				damage = new Damage(
+				let damage = new Damage(
 					ability.creature, // Attacker
 					{
-						pure: damage,
+						pure: damageAmount,
 					}, // Damage Type
 					1, // Area
 					[], // Effects
@@ -232,34 +235,24 @@ export default (G) => {
 					this.message = G.msg.abilities.noPlasma;
 					return false;
 				}
-				if (this.creature.player.getNbrOfCreatures() == G.creaLimitNbr) {
+				if (this.creature.player.getNbrOfCreatures() == G.configData.creaLimitNbr) {
 					this.message = G.msg.abilities.noPsy;
 					return false;
 				}
 				return true;
 			},
 
-			summonRange: 4,
-
 			// 	query() :
 			query: function () {
-				if (this.isUpgraded()) {
-					this.summonRange = 6;
-				}
 
 				// Ask the creature to summon
 				G.UI.materializeToggled = true;
 				G.UI.toggleDash(true);
 			},
 
-			fnOnSelect: function (hex, args) {
-				const crea = G.retrieveCreatureStats(args.creature);
-				G.grid.previewCreature(hex.pos, crea, this.creature.player);
-			},
 
 			// Callback function to queryCreature
-			materialize: function (creature) {
-				let crea = G.retrieveCreatureStats(creature);
+			materialize: function (creature: CreatureType) {
 				const ability = this;
 				const dpriest = this.creature;
 
@@ -267,8 +260,8 @@ export default (G) => {
 					dpriest.player.summonCreaturesWithMaterializationSickness;
 
 				// Create full temporary Creature with placeholder position to show in queue
-				crea = $j.extend(
-					crea,
+				let crea = $j.extend(
+					G.retrieveCreatureStats(creature),
 					{ x: 3, y: 3 },
 					{ team: this.creature.player.id },
 					{ temp: true },
@@ -283,11 +276,11 @@ export default (G) => {
 				// Show temporary Creature in queue
 				G.updateQueueDisplay();
 
-				G.grid.forEachHex(function (hex) {
+				G.grid.forEachHex(function (hex: Hex) {
 					hex.unsetReachable();
 				});
 
-				let spawnRange = dpriest.hexagons[0].adjacentHex(this.summonRange);
+				let spawnRange = dpriest.hexagons[0].adjacentHex(this.isUpgraded() ? 6 : 4);
 
 				spawnRange.forEach(function (item) {
 					item.setReachable();
@@ -300,8 +293,9 @@ export default (G) => {
 				spawnRange = arrayUtils.extendToLeft(spawnRange, crea.size, G.grid);
 
 				G.grid.queryHexes({
-					fnOnSelect: function () {
-						ability.fnOnSelect(...arguments);
+					fnOnSelect: function (hex, args) {
+						const crea = G.retrieveCreatureStats(args.creature);
+						G.grid.previewCreature(hex.pos, crea, ability.creature.player);
 					},
 					fnOnCancel: function () {
 						G.activeCreature.queryMove();
@@ -311,7 +305,7 @@ export default (G) => {
 					},
 					args: {
 						creature: creature,
-						cost: crea.size - 0 + (crea.level - 0),
+						cost: crea.size - 0 + ((crea.level as number) - 0),
 					}, // OptionalArgs
 					size: crea.size,
 					flipped: dpriest.player.flipped,

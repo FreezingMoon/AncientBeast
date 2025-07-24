@@ -10,6 +10,7 @@ import { DEBUG } from '../debug';
 import { HEX_WIDTH_PX } from './const';
 import { Point } from './pointfacade';
 import { AugmentedMatrix } from './matrices';
+import { PierceThroughBehavior } from '../ability';
 
 interface GridDefinition {
 	numRows: number;
@@ -441,7 +442,7 @@ export class HexGrid {
 				}
 			});
 
-			arrayUtils.filterCreature(dir, options.includeCreature, options.stopOnCreature, options.id, options.sourceCreature, options.pierceNumber, options.pierceThroughBehavior, options.team);
+			arrayUtils.filterCreature(dir, options.includeCreature, options.stopOnCreature, options.id, options.sourceCreature, options.pierceNumber, options.pierceThroughBehavior as PierceThroughBehavior, options.team);
 
 			if (dir.length === 0) {
 				continue;
