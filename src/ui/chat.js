@@ -1,5 +1,6 @@
 import * as $j from 'jquery';
 import * as str from '../utility/string';
+import { PRIMARY_STATS, MASTERY_STATS } from '../utility/const';
 
 export class Chat {
 	/**
@@ -32,7 +33,12 @@ export class Chat {
 
 		this.messages = [];
 		this.isOpen = false;
+		this.isExpanded = false;
+		this.currentExpandedCreature = null;
 		this.messagesToSuppress = [];
+
+		this.$expandedContent = $j('<div id="chatexpanded" class="chat-expanded-content"></div>');
+		this.$chat.append(this.$expandedContent);
 
 		$j('#combatwrapper, #toppanel, #dash, #endscreen').on('click', () => {
 			this.hide();
@@ -68,6 +74,7 @@ export class Chat {
 	hide() {
 		this.$chat.removeClass('focus');
 		this.isOpen = false;
+		this.hideExpanded();
 	}
 
 	toggle() {
@@ -77,13 +84,17 @@ export class Chat {
 		}
 		this.$content.parent().scrollTop(this.$content.height());
 		this.isOpen = !this.isOpen;
+
+		if (!this.isOpen) {
+			this.hideExpanded();
+		}
 	}
 
 	peekOpen() {
-		if (this.$chat.hasClass('focus') === false) {
+		if (!this.$chat.hasClass('focus')) {
 			this.$chat.addClass('peek');
 			this.$content.parent().scrollTop(this.$content.height());
-			this.isOpen = !this.isOpen;
+			this.isOpen = true;
 		}
 	}
 
@@ -91,6 +102,100 @@ export class Chat {
 		if (this.$chat.hasClass('peek')) {
 			this.$chat.removeClass('peek');
 		}
+		this.isOpen = false;
+		this.hideExpanded();
+	}
+
+	showExpanded(creature) {
+		if (!creature || creature === this.currentExpandedCreature) {
+			return;
+		}
+
+		this.currentExpandedCreature = creature;
+		this.isExpanded = true;
+
+		const statsContent = this._createStatsContent(creature);
+		const masteriesContent = this._createMasteriesContent(creature);
+
+		const expandedHTML = `
+			<div class="creature-name">${creature.name}</div>
+			<div class="stats-masteries-container">
+				<div class="stats-row">
+					${statsContent}
+				</div>
+				<div class="masteries-row">
+					${masteriesContent}
+				</div>
+			</div>
+		`;
+
+		if (this.$expandedContent.children().length > 0) {
+			this.$expandedContent.stop().animate({ opacity: 0 }, 200, () => {
+				this.$expandedContent.html(expandedHTML);
+				this.$expandedContent.animate({ opacity: 1 }, 200);
+			});
+		} else {
+			this.$expandedContent.html(expandedHTML);
+			this.$chat.addClass('expanded');
+
+			this.$content.stop().animate({ opacity: 0 }, 200);
+			this.$expandedContent.css({ opacity: 0 }).animate({ opacity: 1 }, 200);
+		}
+	}
+
+	hideExpanded() {
+		if (!this.isExpanded) {
+			return;
+		}
+
+		this.isExpanded = false;
+		this.currentExpandedCreature = null;
+
+		this.$expandedContent.stop().animate({ opacity: 0 }, 200, () => {
+			this.$expandedContent.empty();
+			this.$chat.removeClass('expanded');
+			this.$content.animate({ opacity: 1 }, 200);
+		});
+	}
+
+	_createStatsContent(creature) {
+		const stats = PRIMARY_STATS;
+		return stats
+			.map((stat) => {
+				const value =
+					stat === 'health'
+						? `${creature.health}/${creature.stats[stat]}`
+						: stat === 'energy'
+							? `${creature.energy}/${creature.stats[stat]}`
+							: stat === 'endurance'
+								? `${creature.endurance}/${creature.stats[stat]}`
+								: stat === 'movement'
+									? `${creature.remainingMove}/${creature.stats[stat]}`
+									: creature.stats[stat];
+
+				return `
+					<div class="stat-item">
+						<div class="stat-icon ${stat}"></div>
+						<div class="stat-value">${value}</div>
+					</div>
+				`;
+			})
+			.join('');
+	}
+
+	_createMasteriesContent(creature) {
+		const masteries = MASTERY_STATS;
+		return masteries
+			.map((mastery) => {
+				const value = creature.stats[mastery];
+				return `
+					<div class="stat-item">
+						<div class="stat-icon ${mastery}"></div>
+						<div class="stat-value">${value}</div>
+					</div>
+				`;
+			})
+			.join('');
 	}
 
 	getCurrentTime() {
