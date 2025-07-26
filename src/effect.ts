@@ -2,6 +2,7 @@ import { Creature } from './creature';
 import Game from './game';
 import { Hex } from './utility/hex';
 import { Trap } from './utility/trap';
+import { Damage } from './damage';
 
 /*
  * Effect Class
@@ -10,7 +11,7 @@ import { Trap } from './utility/trap';
 type EffectOwner = Creature | Hex;
 type EffectTarget = Creature | Hex;
 
-type Damage = number;
+//type Damage = number; //Why??? what about the actual Damage type? Causes conflict on impaler.ts
 type EffectFnArg = Creature | Hex | Damage;
 
 type EffectOptions = Partial<Effect>;

@@ -1143,7 +1143,7 @@ export class Creature {
 	/**
 	 * @param{number} amount - Amount of health point to restore
 	 */
-	heal(amount: number, isRegrowth: boolean, log = true) {
+	heal(amount: number, isRegrowth = false, log = true) {
 		const game = this.game;
 		// Cap health point
 		amount = Math.min(amount, this.stats.health - this.health);

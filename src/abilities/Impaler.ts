@@ -1,5 +1,5 @@
 import * as $j from 'jquery';
-import { Damage } from '../damage';
+import { Damage, DamageStats } from '../damage';
 import { Team, isTeam } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
@@ -7,12 +7,13 @@ import { Creature } from '../creature';
 import { Effect } from '../effect';
 import { once } from 'underscore';
 import { getPointFacade } from '../utility/pointfacade';
+import Game from '../game';
 
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
  */
-export default (G) => {
+export default (G: Game) => {
 	G.abilities[5] = [
 		// 	First Ability: Electrified Hair
 		{
@@ -24,9 +25,10 @@ export default (G) => {
 			},
 
 			activate: function (damage) {
-				if (damage === undefined) {
+				// Commented out due to typescript conflicts, but I don't know if that would cause errors, hence why it's not deleted
+				/*if (damage === undefined) {
 					return false;
-				}
+				}*/
 				if (!damage.damages.shock) {
 					return false;
 				}
@@ -102,12 +104,12 @@ export default (G) => {
 					{
 						poison: 0,
 					},
-					ability.damages1,
+					ability.damages,
 				);
 
 				// Poison Bonus if upgraded
 				if (this.isUpgraded()) {
-					finalDmg.poison = this.damages1.poison;
+					finalDmg.poison = this.damages.poison;
 				}
 
 				const damage = new Damage(
@@ -176,7 +178,7 @@ export default (G) => {
 				this.end();
 				const damages = this.damages;
 				// Last 1 turn, or indefinitely if upgraded
-				const lifetime = this.isUpgraded() ? 0 : 1;
+				const lifetime = this.isUpgraded() ? -1 : 1;
 				const ability = this;
 
 				// Destroy trap if it wasn't triggered and target is dead
@@ -187,13 +189,15 @@ export default (G) => {
 						target,
 						'onUnderAttack',
 						{
-							effectFn: (effect, damage) => {
+							effectFn: (effect, damage: Damage) => {
+								if(damage.damages){
 								const dmg = damage.applyDamage();
 								if (dmg.total >= target.health) {
 									target.hexagons.forEach(function (hex) {
 										hex.destroyTrap();
 									});
 								}
+							}
 							},
 						},
 						G,
@@ -203,7 +207,7 @@ export default (G) => {
 				const effect = new Effect(
 					ability.title,
 					ability.creature,
-					this,
+					target,
 					'onStepOut',
 					{
 						effectFn: once((effect) => {
@@ -315,7 +319,7 @@ export default (G) => {
 								trg,
 								'onUnderAttack',
 								{
-									effectFn: function (effect, damage) {
+									effectFn: function (effect, damage: Damage) {
 										// Simulate the damage to determine how much damage would have
 										// been dealt; then reduce the damage so that it will not kill
 										while (true) {
@@ -349,22 +353,22 @@ export default (G) => {
 						[], // Effects
 						G,
 					);
-					nextdmg = trg.takeDamage(damage);
+					let curDamage = trg.takeDamage(damage);
 
-					if (nextdmg.damages === undefined) {
+					if (curDamage.damages === undefined) {
 						break;
 					} // If attack is dodge
-					if (nextdmg.kill) {
+					if (curDamage.kill) {
 						break;
 					} // If target is killed
-					if (nextdmg.damages.total <= 0) {
+					if (curDamage.damages.total <= 0) {
 						break;
 					} // If damage is too weak
-					if (nextdmg.damageObj.status !== '') {
+					if (curDamage.damageObj.status !== '') {
 						break;
 					}
-					delete nextdmg.damages.total;
-					nextdmg = nextdmg.damages;
+					delete curDamage.damages.total;
+					nextdmg = curDamage.damages;
 
 					// Get next available targets
 					let nextTargets = ability.getTargets(trg.adjacentHexes(1));
