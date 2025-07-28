@@ -2,7 +2,6 @@ import * as $j from 'jquery';
 import * as time from '../utility/time';
 import * as emoji from 'node-emoji';
 import { Hotkeys, getHotKeys } from './hotkeys';
-
 import { Button, ButtonStateEnum } from './button';
 import { Chat } from './chat';
 import { Creature } from '../creature';
@@ -13,12 +12,16 @@ import { MetaPowers } from './meta-powers';
 import { Queue } from './queue';
 import { QuickInfo } from './quickinfo';
 import { pretty as version } from '../utility/version';
-
 import { capitalize } from '../utility/string';
 import { throttle } from 'underscore';
 import { DEBUG_DISABLE_HOTKEYS } from '../debug';
+import { cycleAudioMode } from '../sound/soundsys';
+import Game from '../game';
+import { CreatureType } from '../data/types';
 
-import { cycleAudioMode, getAudioMode, AudioMode } from '../sound/soundsys';
+type Config = {
+	isAcceptingInput: () => boolean;
+};
 
 /**
  * Class UI
@@ -44,12 +47,59 @@ export class UI {
 	 *
 	 */
 
+	configuration: {
+		isAcceptingInput: () => boolean;
+	};
+	game: Game;
+	fullscreen: Fullscreen;
+	$display: JQuery<HTMLElement>; //eslint-disable-line no-undef
+	$dash: any; //eslint-disable-line no-undef
+	$grid: JQuery<HTMLElement>; //eslint-disable-line no-undef
+	$activebox: JQuery<HTMLElement>; //eslint-disable-line no-undef
+	$scoreboard: JQuery<HTMLElement>; //eslint-disable-line no-undef
+	brandlogo: Phaser.Image;
+	active: boolean;
+	queue: Queue;
+	quickInfo: QuickInfo;
+	lastViewedCreature: string | CreatureType;
+	viewedCreature: string;
+	chat: Chat;
+	metaPowers: MetaPowers;
+	buttons: Button[];
+	abilitiesButtons: Button[];
+	btnToggleDash: Button;
+	btnToggleScore: Button;
+	btnFullscreen: Button;
+	btnAudio: Button;
+	btnSkipTurn: Button;
+	dashopen: boolean;
+	animationUpgradeTimeOutID: ReturnType<typeof setTimeout>;
+	queryUnit: string;
+	btnDelay: Button;
+	btnFlee: Button;
+	btnExit: Button;
+	materializeButton: Button;
+	clickedAbility: number;
+	selectedAbility: number;
+	healthBar: ProgressBar;
+	energyBar: ProgressBar;
+	timeBar: ProgressBar;
+	poolBar: ProgressBar;
+	hotkeys: Hotkeys;
+	selectedCreature: string;
+	selectedPlayer: number;
+	queueAnimSpeed: number;
+	dashAnimSpeed: number;
+	materializeToggled: boolean;
+	glowInterval: ReturnType<typeof setInterval>;
+	selectedCreatureObj: Creature;
+	activeAbility: boolean;
+	ignoreNextConfirmUnload: boolean;
 	/**
 	 * Create attributes and default buttons
 	 * @constructor
 	 */
-	constructor(configuration, game, soundSysInstance) {
-		this.soundSys = soundSysInstance;
+	constructor(configuration: Config, game: Game) {
 		this.configuration = configuration;
 		this.game = game;
 		this.fullscreen = new Fullscreen(
@@ -58,11 +108,11 @@ export class UI {
 		);
 		this.$display = $j('#ui');
 		this.$dash = $j('#dash');
-		this.$grid = $j(this.#makeCreatureGrid(document.getElementById('creaturerasterwrapper')));
+		this.$grid = $j(this.makeCreatureGrid(document.getElementById('creaturerasterwrapper')));
 		this.$activebox = $j('#activebox');
 		this.$scoreboard = $j('#scoreboard');
-          this.brandlogo=game.Phaser.add.image(670,200,"AncientBeastLogo");
-          this.brandlogo.alpha=0;
+		this.brandlogo = game.Phaser.add.image(670, 200, 'AncientBeastLogo');
+		this.brandlogo.alpha = 0;
 		this.active = false;
 
 		this.queue = UI.#getQueue(this, document.getElementById('queuewrapper'));
@@ -290,22 +340,18 @@ export class UI {
 							if (i == 0) {
 								// Joywin
 								const selectedAbility = this.selectNextAbility();
-								const creature = game.activeCreature;
 
 								if (selectedAbility > 0) {
 									this.abilitiesButtons.forEach((btn, index) => {
 										if (index === 0) {
 											btn.$button.removeClass('cancelIcon');
 											btn.$button.removeClass('nextIcon');
-
-											console.log(btn.$button);
 											this.clickedAbility = -1;
 										}
 									});
 									b.cssTransition('nextIcon', 1000);
 								} else if (selectedAbility === -1) {
 									this.abilitiesButtons.forEach((btn, index) => {
-										console.log(this.clickedAbility);
 										if (index === 0) {
 											btn.$button.removeClass('nextIcon');
 											btn.$button.removeClass('cancelIcon');
@@ -339,7 +385,7 @@ export class UI {
 							const $desc = $j('.desc[ability="' + i + '"]');
 
 							// Ensure tooltip stays in window - adjust
-							var rect = $desc[0].getBoundingClientRect();
+							const rect = $desc[0].getBoundingClientRect();
 							const margin = 20;
 							if (rect.bottom > window.innerHeight - margin) {
 								const value = window.innerHeight - rect.bottom - margin;
@@ -407,7 +453,7 @@ export class UI {
 		});
 
 		// Sound Effects slider
-		const slider = document.getElementById('sfx');
+		const slider = document.getElementById('sfx') as HTMLInputElement;
 		slider.addEventListener('input', () => (game.soundsys.allEffectsMultiplier = slider.value));
 
 		// Prevents default touch behaviour on slider when first touched (prevents scrolling the screen).
@@ -424,11 +470,15 @@ export class UI {
 			// Normalize the distance from the bottom of the slider to a value between 0 and 1.
 			const normDist = distFromBottom / sliderRect.height;
 			// Scale normDist to range of the slider.
-			const scaledDist = normDist * (slider.max - slider.min);
+			const scaledDist = normDist * (parseInt(slider.max) - parseInt(slider.min));
 			// New value of the slider.
 			const slidersNewVal = scaledDist + parseFloat(slider.min);
 			// Sets the slider value to the new value between the min/max bounds of the slider.
-			slider.value = Math.min(Math.max(slidersNewVal, slider.min), slider.max);
+			// eslint-disable-next-line prettier/prettier
+			slider.value = Math.min(
+				Math.max(slidersNewVal, parseInt(slider.min)),
+				parseInt(slider.max),
+			).toString();
 
 			// Manually dispatches the input event to update the sound system with new slider value.
 			slider.dispatchEvent(new Event('input'));
@@ -562,23 +612,23 @@ export class UI {
 			if (game.freezedInput) {
 				return;
 			}
-
+			const originalWheelEvent = e.originalEvent as WheelEvent;
 			// Dash
 			if (this.dashopen) {
-				if (e.originalEvent.deltaY < 0) {
+				if (originalWheelEvent.deltaY < 0) {
 					// Wheel up
 					this.gridSelectPrevious();
-				} else if (e.originalEvent.deltaY > 0) {
+				} else if (originalWheelEvent.deltaY > 0) {
 					// Wheel down
 					this.gridSelectNext();
 				}
 				// Abilities
 			} else {
-				if (e.originalEvent.deltaY < 0) {
+				if (originalWheelEvent.deltaY < 0) {
 					// Wheel up
 					this.selectPreviousAbility();
 					// TODO: Allow to cycle between the usable active abilities by pressing the passive one's icon
-				} else if (e.originalEvent.deltaY > 0) {
+				} else if (originalWheelEvent.deltaY > 0) {
 					// Wheel down
 					this.selectNextAbility();
 				}
@@ -615,7 +665,11 @@ export class UI {
 		this.glowInterval = setInterval(() => {
 			const opa =
 				0.5 +
-				Math.floor(((1 + Math.sin(Math.floor(new Date() * Math.PI * 0.2) / 100)) / 4) * 100) / 100;
+				// eslint-disable-next-line prettier/prettier
+				Math.floor(
+					((1 + Math.sin(Math.floor(new Date().valueOf() * Math.PI * 0.2) / 100)) / 4) * 100,
+				) /
+					100;
 			const opaWeak = opa / 2;
 
 			game.grid.allhexes.forEach((hex) => {
@@ -659,15 +713,15 @@ export class UI {
 	 * @param {string} message Event name.
 	 * @param {object} payload Event payload.
 	 */
-	_handleUiEvent(message, payload) {
+	_handleUiEvent(message: string, payload: object) {
 		if (message === 'toggleDash') {
-			this.toggleDash();
+			this.toggleDash(false);
 			this.closeMusicPlayer();
 			this.closeScoreboard();
 		}
 
 		if (message === 'toggleScore') {
-			this.toggleScoreboard();
+			this.toggleScoreboard(false);
 			this.closeDash();
 			this.closeMusicPlayer();
 		}
@@ -691,7 +745,7 @@ export class UI {
 		}
 	}
 
-	showAbilityCosts(abilityId) {
+	showAbilityCosts(abilityId: number) {
 		const game = this.game,
 			creature = game.activeCreature,
 			ab = creature.abilities[abilityId];
@@ -715,6 +769,7 @@ export class UI {
 			} else {
 				this.energyBar.previewSize(0);
 			}
+
 			if (typeof ab.costs.health == 'number') {
 				this.healthBar.previewSize(ab.costs.health / creature.stats.health);
 			} else {
@@ -816,11 +871,15 @@ export class UI {
 	/**
 	 * Query a creature in the available creatures of the active player.
 	 *
-	 * @param {string} creatureType Creature type
+	 * @param {CreatureType} creatureType Creature type
 	 * @param {number} player Player ID
 	 * @param {'emptyHex' | 'portrait' | 'grid'} clickMethod Method used to view creatures.
 	 */
-	showCreature(creatureType, player, clickMethod) {
+	showCreature(
+		creatureType: CreatureType,
+		player: number,
+		clickMethod?: 'emptyHex' | 'portrait' | 'grid' | '',
+	) {
 		const game = this.game;
 
 		if (!this.dashopen) {
@@ -855,7 +914,7 @@ export class UI {
 				if (game.freezedInput) {
 					return;
 				}
-				this.showCreature('--', $j(e.currentTarget).attr('player') - 0);
+				this.showCreature('--', parseInt($j(e.currentTarget).attr('player')) - 0);
 			});
 
 		// Update player info
@@ -868,7 +927,7 @@ export class UI {
 			$j('#dash .playertabs.p' + i + ' .plasma').text('Plasma ' + game.players[i].plasma);
 			$j('#dash .playertabs.p' + i + ' .score').text('Score ' + game.players[i].getScore().total);
 			$j('#dash .playertabs.p' + i + ' .units').text(
-				'Units ' + game.players[i].getNbrOfCreatures() + ' / ' + game.creaLimitNbr,
+				'Units ' + game.players[i].getNbrOfCreatures() + ' / ' + game.configData.creaLimitNbr,
 			);
 		}
 
@@ -903,7 +962,7 @@ export class UI {
 					? '&#11041 &#11041'
 					: '&#11041 &#11041 &#11041';
 
-			if (stats.level === '-' || stats.realm == '-') {
+			if (stats.level === '-' || stats.realm === '-') {
 				type = '&#9734';
 				$j('#card .sideA .type').addClass('star');
 				set = '';
@@ -923,7 +982,6 @@ export class UI {
 			creatureType == '--'
 		) {
 			// retrieve the selected unit
-			this.selectedCreatureObj = undefined;
 			game.players[player].creatures.forEach((creature) => {
 				if (creature.type == creatureType) {
 					this.selectedCreatureObj = creature;
@@ -1027,7 +1085,7 @@ export class UI {
 
 			const activeCreature = game.activeCreature;
 
-			if (activeCreature.player.getNbrOfCreatures() > game.creaLimitNbr) {
+			if (activeCreature.player.getNbrOfCreatures() > game.configData.creaLimitNbr) {
 				$j('#materialize_button p').text(game.msg.ui.dash.materializeOverload);
 			}
 			// Check if the player is viewing the wrong tab
@@ -1054,7 +1112,7 @@ export class UI {
 				activeCreature.type === '--' &&
 				activeCreature.abilities[3].used === false
 			) {
-				const lvl = creatureType.substring(1, 2) - 0,
+				const lvl = parseInt(creatureType.substring(1, 2)) - 0,
 					size = game.retrieveCreatureStats(creatureType).size - 0,
 					plasmaCost = lvl + size;
 
@@ -1074,7 +1132,6 @@ export class UI {
 							this.materializeToggled = false;
 							this.selectAbility(3);
 							this.closeDash();
-
 							if (this.lastViewedCreature) {
 								activeCreature.abilities[3].materialize(this.lastViewedCreature);
 							} else {
@@ -1100,7 +1157,7 @@ export class UI {
 					// Check one available creature at a time until we see something we can afford
 					let can_afford_a_unit = false;
 					availableTypes.forEach((type) => {
-						const lvl = type.substring(1, 2) - 0;
+						const lvl = parseInt(type.substring(1, 2)) - 0;
 						const size = game.retrieveCreatureStats(type).size - 0;
 						const plasmaCost = lvl + size;
 						if (plasmaCost <= activePlayer.plasma) {
@@ -1128,11 +1185,11 @@ export class UI {
 					activeCreature.abilities[3].used &&
 					game.activeCreature.isDarkPriest() &&
 					player == game.activeCreature.player.id &&
-					(clickMethod == 'emptyHex' || clickMethod == 'portrait' || clickMethod == 'grid')
+					(clickMethod === 'emptyHex' || clickMethod === 'portrait' || clickMethod === 'grid')
 				) {
 					if (summonedOrDead) {
 						$j('#materialize_button').hide();
-					} else if (clickMethod == 'portrait' && creatureType != '--') {
+					} else if (clickMethod === 'portrait' && creatureType !== '--') {
 						$j('#materialize_button').hide();
 					} else {
 						$j('#materialize_button p').text(game.msg.ui.dash.materializeUsed);
@@ -1255,7 +1312,7 @@ export class UI {
 		// Grab the first creature we can afford (if none, default to priest)
 		let typeToPass = '--';
 		availableTypes.some((creature) => {
-			const lvl = creature.substring(1, 2) - 0;
+			const lvl = parseInt(creature.substring(1, 2)) - 0;
 			const size = game.retrieveCreatureStats(creature).size - 0;
 			const plasmaCost = lvl + size;
 
@@ -1273,7 +1330,7 @@ export class UI {
 		return typeToPass;
 	}
 
-	selectAbility(i) {
+	selectAbility(i: number) {
 		this.checkAbilities();
 		this.selectedAbility = i;
 
@@ -1311,7 +1368,7 @@ export class UI {
 		game.players[id].availableCreatures.forEach((creature) => {
 			this.$grid.find(".vignette[creature='" + creature + "']").removeClass('locked');
 
-			const lvl = creature.substring(1, 2) - 0,
+			const lvl = parseInt(creature.substring(1, 2)) - 0,
 				size = game.retrieveCreatureStats(creature).size - 0,
 				plasmaCost = lvl + size;
 
@@ -1391,7 +1448,7 @@ export class UI {
 		const skipTurn = new Date(),
 			p = game.activeCreature.player;
 
-		p.totalTimePool = p.totalTimePool - (skipTurn - p.startTime);
+		p.totalTimePool = p.totalTimePool - (skipTurn.valueOf() - p.startTime.valueOf());
 
 		const $table = $j('#scoreboard table tbody');
 
@@ -1567,8 +1624,7 @@ export class UI {
 	 * @param{boolean} [randomize] - True selects a random creature from the grid.
 	 */
 	toggleDash(randomize) {
-		const game = this.game,
-			creature = game.activeCreature;
+		const game = this.game;
 
 		if (this.$dash.hasClass('active')) {
 			this.clickedAbility = -1;
@@ -1681,10 +1737,10 @@ export class UI {
 		const game = this.game;
 		const isDarkPriest = this.selectedCreature === '--';
 		const creatureType = isDarkPriest ? 'A0' : this.selectedCreature;
-		let valid;
-		let nextCreature;
+		let valid: boolean;
+		let nextCreature: string;
 
-		if (creatureType[1] - 0 + 1 > 7) {
+		if (parseInt(creatureType[1]) - 0 + 1 > 7) {
 			// End of row
 			if (game.realms.indexOf(creatureType[0]) + 1 < game.realms.length) {
 				const realm = game.realms[game.realms.indexOf(creatureType[0]) + 1];
@@ -1717,7 +1773,7 @@ export class UI {
 			// Test If Valid Creature
 			if (
 				$j.inArray(
-					creatureType[0] + (creatureType[1] - 0 + 1),
+					creatureType[0] + (parseInt(creatureType[1]) - 0 + 1),
 					game.players[this.selectedPlayer].availableCreatures,
 				) > 0
 			) {
@@ -1728,7 +1784,7 @@ export class UI {
 
 					if (
 						creature instanceof Creature &&
-						creature.type == creatureType[0] + (creatureType[1] - 0 + 1) &&
+						creature.type == creatureType[0] + (parseInt(creatureType[1]) - 0 + 1) &&
 						creature.dead
 					) {
 						valid = false;
@@ -1736,14 +1792,14 @@ export class UI {
 				}
 
 				if (valid) {
-					nextCreature = creatureType[0] + (creatureType[1] - 0 + 1);
+					nextCreature = creatureType[0] + (parseInt(creatureType[1]) - 0 + 1);
 					this.lastViewedCreature = nextCreature;
 					this.showCreature(nextCreature, this.selectedPlayer);
 					return;
 				}
 			}
 
-			this.selectedCreature = creatureType[0] + (creatureType[1] - 0 + 1);
+			this.selectedCreature = creatureType[0] + (parseInt(creatureType[1]) - 0 + 1);
 		}
 
 		this.gridSelectNext();
@@ -1752,10 +1808,10 @@ export class UI {
 	gridSelectPrevious() {
 		const game = this.game;
 		const creatureType = this.selectedCreature == '--' ? 'W8' : this.selectedCreature;
-		let valid;
-		let nextCreature;
+		let valid: boolean;
+		let nextCreature: string;
 
-		if (creatureType[1] - 1 < 1) {
+		if (parseInt(creatureType[1]) - 1 < 1) {
 			// End of row
 			if (game.realms.indexOf(creatureType[0]) - 1 > -1) {
 				const realm = game.realms[game.realms.indexOf(creatureType[0]) - 1];
@@ -1788,7 +1844,7 @@ export class UI {
 			// Test if valid creature
 			if (
 				$j.inArray(
-					creatureType[0] + (creatureType[1] - 1),
+					creatureType[0] + (parseInt(creatureType[1]) - 1),
 					game.players[this.selectedPlayer].availableCreatures,
 				) > 0
 			) {
@@ -1799,7 +1855,7 @@ export class UI {
 
 					if (
 						creature instanceof Creature &&
-						creature.type == creatureType[0] + (creatureType[1] - 1) &&
+						creature.type == creatureType[0] + (parseInt(creatureType[1]) - 1) &&
 						creature.dead
 					) {
 						valid = false;
@@ -1807,14 +1863,14 @@ export class UI {
 				}
 
 				if (valid) {
-					nextCreature = creatureType[0] + (creatureType[1] - 1);
+					nextCreature = creatureType[0] + (parseInt(creatureType[1]) - 1);
 					this.lastViewedCreature = nextCreature;
 					this.showCreature(nextCreature, this.selectedPlayer);
 					return;
 				}
 			}
 
-			this.selectedCreature = creatureType[0] + (creatureType[1] - 1);
+			this.selectedCreature = creatureType[0] + (parseInt(creatureType[1]) - 1);
 		}
 
 		this.gridSelectPrevious();
@@ -1843,7 +1899,7 @@ export class UI {
 	 *
 	 * Update activebox with new current creature's abilities
 	 */
-	banner(message) {
+	banner(message: string) {
 		const $bannerBox = $j('#banner');
 		$bannerBox.text(message);
 	}
@@ -1944,7 +2000,7 @@ export class UI {
 				!ab.upgraded &&
 				ab.usesLeftBeforeUpgrade() === 0 &&
 				(ab.used || !ab.isUpgradedPerUse()) &&
-				game.abilityUpgrades != 0
+				game.configData.abilityUpgrades != 0
 			) {
 				// Add the class for the background image and fade transition
 				btn.$button.addClass('upgradeTransition');
@@ -2016,8 +2072,8 @@ export class UI {
 	}
 
 	checkAbilities() {
-		let game = this.game,
-			oneUsableAbility = false;
+		const game = this.game;
+		let oneUsableAbility = false;
 		for (let i = 0; i < 4; i++) {
 			const ab = game.activeCreature.abilities[i];
 			ab.message = '';
@@ -2026,7 +2082,6 @@ export class UI {
 
 			// Tooltip for passive ability to display if there is any usable abilities or not
 			if (i === 0) {
-				const b = this.selectedAbility == -1 ? 4 : this.selectedAbility; // Checking usable abilities
 				for (let j = 0 + 1; j < 4; j++) {
 					if (
 						game.activeCreature.abilities[j].require() &&
@@ -2055,17 +2110,18 @@ export class UI {
 
 			// Charge
 			this.abilitiesButtons[i].$button.next('.desc').find('.charge').remove();
-			if (ab.getCharge !== undefined) {
-				this.abilitiesButtons[i].$button
-					.next('.desc')
-					.append(
-						'<div class="charge">Charge : ' +
-							ab.getCharge().value +
-							'/' +
-							ab.getCharge().max +
-							'</div>',
-					);
-			}
+			// is this even in use
+			//if (ab.getCharge !== undefined) {
+			//	this.abilitiesButtons[i].$button
+			//		.next('.desc')
+			//		.append(
+			//			'<div class="charge">Charge : ' +
+			//				ab.getCharge().value +
+			//				'/' +
+			//				ab.getCharge().max +
+			//				'</div>',
+			//		);
+			//}
 
 			// Message
 			this.abilitiesButtons[i].$button.next('.desc').find('.message').remove();
@@ -2086,21 +2142,16 @@ export class UI {
 
 	updateTimer() {
 		const game = this.game,
-			date = new Date() - game.pauseTime;
-
+			date = new Date().valueOf() - game.pauseTime;
+		const playerStartTime = game.activeCreature.player.startTime.valueOf();
 		// TurnTimePool
 		if (game.turnTimePool >= 0) {
-			let remainingTime =
-				game.turnTimePool - Math.round((date - game.activeCreature.player.startTime) / 1000);
+			let remainingTime = game.turnTimePool - Math.round((date - playerStartTime) / 1000);
 
 			if (game.timePool > 0) {
 				remainingTime = Math.min(
 					remainingTime,
-					Math.round(
-						(game.activeCreature.player.totalTimePool -
-							(date - game.activeCreature.player.startTime)) /
-							1000,
-					),
+					Math.round((game.activeCreature.player.totalTimePool - (date - playerStartTime)) / 1000),
 				);
 			}
 
@@ -2114,7 +2165,7 @@ export class UI {
 			}
 
 			// Time Bar
-			const timeRatio = (date - game.activeCreature.player.startTime) / 1000 / game.turnTimePool;
+			const timeRatio = (date - playerStartTime) / 1000 / game.turnTimePool;
 			this.timeBar.setSize(1 - timeRatio);
 		} else {
 			$j('.turntime').text('∞');
@@ -2125,7 +2176,7 @@ export class UI {
 			game.players.forEach((player) => {
 				let remainingTime =
 					player.id == game.activeCreature.player.id
-						? player.totalTimePool - (date - player.startTime)
+						? player.totalTimePool - (date - player.startTime.valueOf())
 						: player.totalTimePool;
 				remainingTime = Math.max(Math.round(remainingTime / 1000), 0);
 				$j('.p' + player.id + ' .timepool').text(time.getTimer(remainingTime));
@@ -2133,7 +2184,7 @@ export class UI {
 
 			// Time Bar
 			const poolRatio =
-				(game.activeCreature.player.totalTimePool - (date - game.activeCreature.player.startTime)) /
+				(game.activeCreature.player.totalTimePool - (date - playerStartTime)) /
 				1000 /
 				game.timePool;
 			this.poolBar.setSize(poolRatio);
@@ -2170,7 +2221,7 @@ export class UI {
 	}
 
 	showGameSetup() {
-		this.toggleScoreboard();
+		this.toggleScoreboard(false);
 		this.updateQueueDisplay();
 		$j('#matchMaking').show();
 		$j('#gameSetupContainer').show();
@@ -2216,7 +2267,7 @@ export class UI {
 		}
 	}
 
-	#makeCreatureGrid(rasterElement) {
+	makeCreatureGrid(rasterElement) {
 		const getLink = (type) => {
 			const stats = this.game.retrieveCreatureStats(type);
 			const snakeCaseName = stats.name.replace(' ', '_');
@@ -2291,7 +2342,7 @@ export class UI {
 			`;
 		};
 
-		const gameFormatter = (game) => {
+		const gameFormatter = () => {
 			return `<div class="vignette hex">
 			<div class="hexinfo frame">
 			<p class="name">Ancient Beast</p>
@@ -2329,7 +2380,7 @@ export class UI {
 		};
 
 		const showGameInfo = () => {
-			throttledSet(gameFormatter(ui.game));
+			throttledSet(gameFormatter());
 		};
 
 		const showDefault = () => {
@@ -2416,7 +2467,7 @@ export class UI {
 			ui.queue.xray(creature.id);
 		});
 
-		const onCreatureMouseLeave = (maybeCreature) => {
+		const onCreatureMouseLeave = () => {
 			// The mouse over adds a coloured hex to the creature, so when we mouse leave we have to remove them
 			const creatures = ui.game.creatures.filter((c) => c instanceof Creature);
 			creatures.forEach((creature) => {
@@ -2439,13 +2490,13 @@ export class UI {
 		}, 2000);
 
 		const onTurnEndMouseEnter = ifGameNotFrozen(() => {
-			ui.brandlogo.alpha=0;
+			ui.brandlogo.alpha = 0;
 			ui.game.grid.showGrid(true);
 			ui.game.grid.showCurrentCreatureMovementInOverlay(ui.game.activeCreature);
 		});
 
 		const onTurnEndMouseLeave = () => {
-			ui.brandlogo.alpha=0;
+			ui.brandlogo.alpha = 0;
 			ui.game.grid.showGrid(false);
 			ui.game.grid.cleanOverlay();
 			ui.game.grid.redoLastQuery();
@@ -2454,15 +2505,14 @@ export class UI {
 		// Hide the project logo when navigating away using a hotkey
 		document.addEventListener('visibilitychange', function () {
 			if (document.hidden) {
-				ui.brandlogo.alpha=0;
+				ui.brandlogo.alpha = 0;
 			}
 		});
 
 		// Hide the project logo when navigating away using a hotkey (Ctrl+Shift+M)
 		document.addEventListener('keydown', (event) => {
 			if (event.ctrlKey && event.shiftKey && event.key === 'M') {
-				console.log('ctrl+shift+M pressed');
-				ui.brandlogo.alpha=0;
+				ui.brandlogo.alpha = 0;
 			}
 		});
 
@@ -2485,16 +2535,16 @@ export class UI {
 					onCreatureMouseEnter(payload.creature);
 					break;
 				case SIGNAL_CREATURE_MOUSE_LEAVE:
-					onCreatureMouseLeave(payload.creature);
+					onCreatureMouseLeave();
 					break;
 				case SIGNAL_TURN_END_CLICK:
-					onTurnEndClick(payload.turnNumber);
+					onTurnEndClick();
 					break;
 				case SIGNAL_TURN_END_MOUSE_ENTER:
 					onTurnEndMouseEnter(payload.turnNumber);
 					break;
 				case SIGNAL_TURN_END_MOUSE_LEAVE:
-					onTurnEndMouseLeave(payload.turnNumber);
+					onTurnEndMouseLeave();
 					break;
 			}
 		});
@@ -2504,17 +2554,15 @@ export class UI {
 				ui.game.signals.ui.dispatch(SIGNAL_CREATURE_CLICK, { creature }),
 			onCreatureMouseEnter: (creature) =>
 				ui.game.signals.ui.dispatch(SIGNAL_CREATURE_MOUSE_ENTER, { creature }),
-			onCreatureMouseLeave: (creature) =>
-				ui.game.signals.ui.dispatch(SIGNAL_CREATURE_MOUSE_LEAVE, { creature }),
+			onCreatureMouseLeave: () => ui.game.signals.ui.dispatch(SIGNAL_CREATURE_MOUSE_LEAVE, {}),
 			onDelayClick: () => ui.game.signals.ui.dispatch(SIGNAL_DELAY_CLICK, {}),
 			onDelayMouseEnter: () => ui.game.signals.ui.dispatch(SIGNAL_DELAY_MOUSE_ENTER, {}),
 			onDelayMouseLeave: () => ui.game.signals.ui.dispatch(SIGNAL_DELAY_MOUSE_LEAVE, {}),
-			onTurnEndClick: (turnNumber) =>
+			onTurnEndClick: (turnNumber: number) =>
 				ui.game.signals.ui.dispatch(SIGNAL_TURN_END_CLICK, { turnNumber }),
-			onTurnEndMouseEnter: (turnNumber) =>
+			onTurnEndMouseEnter: (turnNumber: number) =>
 				ui.game.signals.ui.dispatch(SIGNAL_TURN_END_MOUSE_ENTER, { turnNumber }),
-			onTurnEndMouseLeave: (turnNumber) =>
-				ui.game.signals.ui.dispatch(SIGNAL_TURN_END_MOUSE_LEAVE, { turnNumber }),
+			onTurnEndMouseLeave: () => ui.game.signals.ui.dispatch(SIGNAL_TURN_END_MOUSE_LEAVE, {}),
 		};
 
 		return new Queue(queueDomElement, queueEventHandlers);

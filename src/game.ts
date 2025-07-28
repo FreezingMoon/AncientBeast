@@ -3,7 +3,6 @@ import { Animations } from './animations';
 import { CreatureQueue } from './creature_queue';
 import { GameLog } from './utility/gamelog';
 import { SoundSys } from './sound/soundsys';
-import { MusicPlayer } from './sound/musicplayer';
 import { Hex } from './utility/hex';
 import { HexGrid } from './utility/hexgrid';
 import { getUrl, use as assetsUse } from './assets';
@@ -50,7 +49,6 @@ import { setAudioMode } from './sound/soundsys';
  */
 
 type AnimationID = number;
-
 export default class Game {
 	/* Attributes
 	 *
@@ -124,7 +122,7 @@ export default class Game {
 
 	musicPlayer?: any;
 	soundsys?: any;
-
+	fullscreenMode?: boolean;
 	background_image?: string;
 
 	playerMode?: number;
@@ -952,8 +950,10 @@ export default class Game {
 
 	/**
 	 * Delay the action turn of the current creature
+	 * o - object containing a callback function
 	 */
-	delayCreature(o) {
+
+	delayCreature(o?) {
 		// Send skip turn to server
 		if (this.multiplayer && this.gameplay instanceof Gameplay) {
 			this.gameplay.delay();
@@ -1115,13 +1115,10 @@ export default class Game {
 
 		for (let i = totalCreatures - 1; i >= 0; i--) {
 			if (
-				//@ts-expect-error 2339 `type` does not exist on units in `units.ts`
 				this.creatureData[i].type == type ||
 				this.creatureData[i].realm + this.creatureData[i].level == type
 			) {
-				//@ts-expect-error 2339
 				if (!this.creatureData[i].type) {
-					//@ts-expect-error 2339
 					// When type property is missing, create it using formula: concat(realm + level)
 					this.creatureData[i].type = this.creatureData[i].realm + this.creatureData[i].level;
 				}
