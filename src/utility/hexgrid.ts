@@ -318,7 +318,7 @@ export class HexGrid {
 			includeCreature: true,
 			stopOnCreature: true,
 			pierceNumber: 1,
-			pierceThroughBehavior: "stop",
+			pierceThroughBehavior: 'stop',
 			distance: 0,
 			minDistance: 0,
 			distanceFalloff: 0,
@@ -357,7 +357,7 @@ export class HexGrid {
 			includeCreature: true,
 			stopOnCreature: true,
 			pierceNumber: 1,
-			pierceThroughBehavior: "stop",
+			pierceThroughBehavior: 'stop',
 			distance: 0,
 			minDistance: 0,
 			distanceFalloff: 0,
@@ -442,7 +442,16 @@ export class HexGrid {
 				}
 			});
 
-			arrayUtils.filterCreature(dir, options.includeCreature, options.stopOnCreature, options.id, options.sourceCreature, options.pierceNumber, options.pierceThroughBehavior as PierceThroughBehavior, options.team);
+			arrayUtils.filterCreature(
+				dir,
+				options.includeCreature,
+				options.stopOnCreature,
+				options.id,
+				options.sourceCreature,
+				options.pierceNumber,
+				options.pierceThroughBehavior as PierceThroughBehavior,
+				options.team,
+			);
 
 			if (dir.length === 0) {
 				continue;
@@ -964,7 +973,8 @@ export class HexGrid {
 				hex.unsetNotTarget();
 			}
 			if (o.targeting) {
-				if (hex.creature instanceof Creature) {					if (hex.creature.id != this.game.activeCreature.id) {
+				if (hex.creature instanceof Creature) {
+					if (hex.creature.id != this.game.activeCreature.id) {
 						hex.overlayVisualState('reachable h_player' + hex.creature.team);
 						// Add dashed hexagons under targets for ranged abilities with team color
 						hex.displayVisualState('dashed player' + hex.creature.team);
@@ -994,7 +1004,8 @@ export class HexGrid {
 				} else {
 					creature.displayHealthStats();
 				}
-			}			creature.hexagons.forEach((h) => {
+			}
+			creature.hexagons.forEach((h) => {
 				// Flashing outline
 				h.overlayVisualState('hover h_player' + creature.team);
 				// Keep the dashed hexagons visible under targets with team color
@@ -1717,7 +1728,7 @@ export class HexGrid {
 			preview.scale.setTo(1, 1);
 		}
 
-		let flickering = game.Phaser.add
+		const flickering = game.Phaser.add
 			.tween(preview)
 			.to(
 				{
@@ -1730,17 +1741,16 @@ export class HexGrid {
 			.repeat(-1)
 			.start();
 		if (!secondary) {
-			if(this._flickerTween) {
+			if (this._flickerTween) {
 				// Stop animations that are about to be orphaned #2698
-				this._flickerTween.stop(true)
+				this._flickerTween.stop(true);
 			}
-			this._flickerTween=flickering
-		}
-		else {
-			if(this._flickerTweenSecondary) {
-				this._flickerTweenSecondary.stop(true)
+			this._flickerTween = flickering;
+		} else {
+			if (this._flickerTweenSecondary) {
+				this._flickerTweenSecondary.stop(true);
 			}
-			this._flickerTweenSecondary=flickering
+			this._flickerTweenSecondary = flickering;
 		}
 
 		for (let i = 0, size = creatureData.size; i < size; i++) {

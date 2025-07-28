@@ -27,7 +27,7 @@ export default (G: Game) => {
 					return false;
 				}
 				// Stop activation if the other creature is not a sloth type
-				var buff = 0;
+				let buff = 0;
 				G.creatures.forEach((crea) => {
 					if (crea.realm == 'S' && !crea.dead && !crea.temp) {
 						buff += 2;
@@ -46,7 +46,7 @@ export default (G: Game) => {
 				// Force Vehemoth to stay facing the right way
 				this.creature.facePlayerDefault();
 
-				var regrowBuff = 0;
+				let regrowBuff = 0;
 				if (this.isUpgraded()) {
 					regrowBuff = this._defenseBuff;
 				}
@@ -182,7 +182,12 @@ export default (G: Game) => {
 
 					/* Calculate hexes the target could be pushed along. Limited by the number
 					of hexes the Vehemoth charged, and will stop when reaching obstacles. */
-					let knockbackHexes = G.grid.getHexLine(target.x, target.y, args.direction, ability.creature.player.flipped);
+					let knockbackHexes = G.grid.getHexLine(
+						target.x,
+						target.y,
+						args.direction,
+						ability.creature.player.flipped,
+					);
 					arrayUtils.filterCreature(knockbackHexes, false, true, target.id);
 					knockbackHexes = knockbackHexes.slice(0, path.length);
 
@@ -295,7 +300,6 @@ export default (G: Game) => {
 
 			_targetTeam: Team.Enemy,
 			_directions: [1, 1, 1, 1, 1, 1],
-
 
 			require: function () {
 				if (!this.testRequirements()) {
@@ -477,13 +481,11 @@ export default (G: Game) => {
 				ability.end();
 				G.Phaser.camera.shake(0.02, 123, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
-				const levelDifference = Math.max(vehemoth.level as number - target.level as number, 0);
+				const levelDifference = Math.max(((vehemoth.level as number) - target.level) as number, 0);
 				const damages = {
 					...ability.damages,
 					frost: ability.damages.frost + levelDifference * 3,
-					pierce:
-						ability.damages.pierce +
-						(ability.isUpgraded() ? levelDifference * 2 : 0),
+					pierce: ability.damages.pierce + (ability.isUpgraded() ? levelDifference * 2 : 0),
 				};
 				const damage = new Damage(vehemoth, damages, 1, [], G);
 				target.takeDamage(damage);

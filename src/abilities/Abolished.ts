@@ -94,21 +94,19 @@ export default (G: Game) => {
 
 			_targetTeam: Team.Enemy,
 
-			range: {regular: 3, upgraded: 6},
+			range: { regular: 3, upgraded: 6 },
 
 			require() {
 				if (!this.testRequirements()) {
 					return false;
-				};
+				}
 				const range_ = this.isUpgraded ? this.range.upgraded : this.range.regular;
-				return (
-					this.testDirection({
-						team: this._targetTeam,
-						distance: range_,
-						sourceCreature: this.creature,
-						PierceThroughBehavior: "stop",
-					})
-				)
+				return this.testDirection({
+					team: this._targetTeam,
+					distance: range_,
+					sourceCreature: this.creature,
+					PierceThroughBehavior: 'stop',
+				});
 			},
 
 			query() {
@@ -172,7 +170,6 @@ export default (G: Game) => {
 					duration: 425,
 				};
 			},
-
 
 			/**
 			 * Calculate the damage of the ability as it changes depending on the distance

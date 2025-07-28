@@ -204,7 +204,7 @@ export default (G: Game) => {
 
 				ability.creature.player.plasma -= plasmaCost;
 
-				let damage = new Damage(
+				const damage = new Damage(
 					ability.creature, // Attacker
 					{
 						pure: damageAmount,
@@ -244,12 +244,10 @@ export default (G: Game) => {
 
 			// 	query() :
 			query: function () {
-
 				// Ask the creature to summon
 				G.UI.materializeToggled = true;
 				G.UI.toggleDash(true);
 			},
-
 
 			// Callback function to queryCreature
 			materialize: function (creature: CreatureType) {
@@ -260,7 +258,7 @@ export default (G: Game) => {
 					dpriest.player.summonCreaturesWithMaterializationSickness;
 
 				// Create full temporary Creature with placeholder position to show in queue
-				let crea = $j.extend(
+				const crea = $j.extend(
 					G.retrieveCreatureStats(creature),
 					{ x: 3, y: 3 },
 					{ team: this.creature.player.id },

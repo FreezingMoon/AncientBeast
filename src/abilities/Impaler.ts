@@ -100,12 +100,10 @@ export default (G: Game) => {
 				ability.end();
 				G.Phaser.camera.shake(0.01, 120, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
-				const finalDmg: DamageStats =
-					{
-						pierce: 30,
-						poison: 0,
-					};
-
+				const finalDmg: DamageStats = {
+					pierce: 30,
+					poison: 0,
+				};
 
 				// Poison Bonus if upgraded
 				if (this.isUpgraded()) {
@@ -190,14 +188,14 @@ export default (G: Game) => {
 						'onUnderAttack',
 						{
 							effectFn: (effect, damage: Damage) => {
-								if(damage.damages){
-								const dmg = damage.applyDamage();
-								if (dmg.total >= target.health) {
-									target.hexagons.forEach(function (hex) {
-										hex.destroyTrap();
-									});
+								if (damage.damages) {
+									const dmg = damage.applyDamage();
+									if (dmg.total >= target.health) {
+										target.hexagons.forEach(function (hex) {
+											hex.destroyTrap();
+										});
+									}
 								}
-							}
 							},
 						},
 						G,
@@ -353,7 +351,7 @@ export default (G: Game) => {
 						[], // Effects
 						G,
 					);
-					let curDamage = trg.takeDamage(damage);
+					const curDamage = trg.takeDamage(damage);
 
 					if (curDamage.damages === undefined) {
 						break;

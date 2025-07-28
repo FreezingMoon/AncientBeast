@@ -161,7 +161,11 @@ export default (G: Game) => {
 				 * and the ability is upgraded,
 				 * make a second attack
 				 */
-				if (targetOriginalHealth - target.health >= target.health && !target.dead && this.isUpgraded()) {
+				if (
+					targetOriginalHealth - target.health >= target.health &&
+					!target.dead &&
+					this.isUpgraded()
+				) {
 					// Added a delay for the second attack with a custom game log
 					setTimeout(() => {
 						G.Phaser.camera.shake(0.01, 150, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
@@ -169,7 +173,7 @@ export default (G: Game) => {
 						target.takeDamage(damage);
 						G.log('%CreatureName' + ability.creature.id + '% used ' + ability.title + ' twice');
 					}, 1000);
-				};
+				}
 			},
 		},
 
@@ -177,8 +181,8 @@ export default (G: Game) => {
 		 * Pistol Shot
 		 * costs 15 energy pts.
 		 * Delivers a medium ranged shot that can damage target up to 6 hexagons away.
-         * 20 pierce damage in any of 6 directions.
-         * Upgrade: Can be used twice per round.
+		 * 20 pierce damage in any of 6 directions.
+		 * Upgrade: Can be used twice per round.
 		 */
 
 		{
@@ -186,22 +190,21 @@ export default (G: Game) => {
 			trigger: 'onQuery',
 			_targetTeam: Team.Enemy,
 
-
 			// 	require() :
 			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
 				// At least one target
-				const cre=this.creature;
-				for(let i=0; i<6; i++) {
+				const cre = this.creature;
+				for (let i = 0; i < 6; i++) {
 					if (
 						this.atLeastOneTarget(G.grid.getHexLine(cre.x, cre.y, i, false).slice(1, 1 + 6), {
-							team:  this._targetTeam,
-							pierceThroughBehavior: "targetOnly",
+							team: this._targetTeam,
+							pierceThroughBehavior: 'targetOnly',
 						})
 					) {
-						this.message =''; // When checking all lines, one failure=wrong message. Remove message if successful
+						this.message = ''; // When checking all lines, one failure=wrong message. Remove message if successful
 						return this.timesUsedThisTurn < this._getUsesPerTurn();
 					}
 				}
@@ -210,23 +213,23 @@ export default (G: Game) => {
 
 			// query() :
 			query: function () {
-				const ab  = this;
+				const ab = this;
 				const cre = ab.creature;
 
 				G.grid.queryDirection({
 					fnOnConfirm: (...args) => ab.animation(...args),
-					team:          this._targetTeam,
-					id:            cre.id,
-					flipped:       cre.player.flipped,
-					x:             cre.x,
-					y:             cre.y,
+					team: this._targetTeam,
+					id: cre.id,
+					flipped: cre.player.flipped,
+					x: cre.x,
+					y: cre.y,
 					sourceCreature: cre,
-					directions:    [1,1,1,1,1,1],
-					distance:      6,
-					minDistance:   1,
-					requireCreature: true
-				  });
-			  },
+					directions: [1, 1, 1, 1, 1, 1],
+					distance: 6,
+					minDistance: 1,
+					requireCreature: true,
+				});
+			},
 
 			_getUsesPerTurn: function () {
 				// If upgraded, useable twice per turn
@@ -236,152 +239,147 @@ export default (G: Game) => {
 			//	activate() :
 			activate: function (hexes, args) {
 				const clicked = args.hex;
-				const tgt     = clicked && clicked.creature;
+				const tgt = clicked && clicked.creature;
 				if (!tgt) return;
 
 				// 1) Screen shake + deal damage
-				G.Phaser.camera.shake(0.01, 150, true,G.Phaser.camera.SHAKE_HORIZONTAL,true);
+				G.Phaser.camera.shake(0.01, 150, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 				tgt.takeDamage(new Damage(this.creature, this.damages, 1, [], G));
 
 				// 2) Decide if this is the final shot
 				const nextUseCount = this.timesUsedThisTurn + 1;
-				const maxUses      = this._getUsesPerTurn();
-				const isFinalShot  = nextUseCount >= maxUses;
+				const maxUses = this._getUsesPerTurn();
+				const isFinalShot = nextUseCount >= maxUses;
 
 				if (!isFinalShot) {
-				  // ─── Intermediate shot ───
-				  // Tell end() not to disable the button permanently:
-				  this._disableCooldowns = true;
-				  this.end();
-				  // Turn cooldowns back on for the final shot
-				  this._disableCooldowns = false;
-				  G.grid.redoLastQuery();
-
+					// ─── Intermediate shot ───
+					// Tell end() not to disable the button permanently:
+					this._disableCooldowns = true;
+					this.end();
+					// Turn cooldowns back on for the final shot
+					this._disableCooldowns = false;
+					G.grid.redoLastQuery();
 				} else {
-				  // ─── Final shot ───
-				  // A normal end() will apply cost, log, disable the button, and return to movement.
-				  this.timesUsedThisTurn += 1;
-				  this.end();
+					// ─── Final shot ───
+					// A normal end() will apply cost, log, disable the button, and return to movement.
+					this.timesUsedThisTurn += 1;
+					this.end();
 				}
-			  }
+			},
 		},
 
 		/** Fourth Ability:
 		 * Rifle Assassin
 		 * costs 35 energy pts.
-         * Very powerful long range attack that can strike up to 12 hexagons distance.
-         * 40 pierce damage in any of 6 directions.
-         * Upgrade: Half Damage Pierce.
+		 * Very powerful long range attack that can strike up to 12 hexagons distance.
+		 * 40 pierce damage in any of 6 directions.
+		 * Upgrade: Half Damage Pierce.
 		 */
 		{
-  		trigger: 'onQuery',
-  		_targetTeam: Team.Enemy,
+			trigger: 'onQuery',
+			_targetTeam: Team.Enemy,
 
-  		require: function () {
-    			if(!this.testRequirements()) {
-				return false;
-			}
-			// At least one target
-			const cre=this.creature;
-			for(let i=0; i<6; i++) {
-				if (
-					this.atLeastOneTarget(G.grid.getHexLine(cre.x, cre.y, i, false).slice(1, 1 + 12), {
-						team:  this._targetTeam,
-						pierceThroughBehavior: "targetOnly",
-					})
-				) {
-					this.message =''; // When checking all lines, one failure=wrong message. Remove message if successful
-					return true;
+			require: function () {
+				if (!this.testRequirements()) {
+					return false;
 				}
-			}
-			return false;
-  		},
+				// At least one target
+				const cre = this.creature;
+				for (let i = 0; i < 6; i++) {
+					if (
+						this.atLeastOneTarget(G.grid.getHexLine(cre.x, cre.y, i, false).slice(1, 1 + 12), {
+							team: this._targetTeam,
+							pierceThroughBehavior: 'targetOnly',
+						})
+					) {
+						this.message = ''; // When checking all lines, one failure=wrong message. Remove message if successful
+						return true;
+					}
+				}
+				return false;
+			},
 
-  		query: function() {
-			const ability = this;
-			const cre     = ability.creature;
+			query: function () {
+				const ability = this;
+				const cre = ability.creature;
 
-			G.grid.queryDirection({
-			  fnOnSelect:  ()       => {},
-			  fnOnConfirm: (...args) => ability.animation(...args),
-			  fnOnCancel:  ()       => G.activeCreature.queryMove(),
-		  	  team:           this._targetTeam,
-			  id:             cre.id,
-			  flipped:        cre.player.flipped,
-			  x:              cre.x,
-			  y:              cre.y,
-			  sourceCreature: cre,
+				G.grid.queryDirection({
+					fnOnSelect: () => {},
+					fnOnConfirm: (...args) => ability.animation(...args),
+					fnOnCancel: () => G.activeCreature.queryMove(),
+					team: this._targetTeam,
+					id: cre.id,
+					flipped: cre.player.flipped,
+					x: cre.x,
+					y: cre.y,
+					sourceCreature: cre,
 
-			  directions:   [1,1,1,1,1,1],
-			  distance:     12,
-			  minDistance:  1,
-			  stopOnCreature: true,
-			  requireCreature: true,
-			  pierceNumber: ability.isUpgraded() ? 2 : 1,
-			  pierceThroughBehavior:  ability.isUpgraded() ? "pierce" : "targetOnly",
+					directions: [1, 1, 1, 1, 1, 1],
+					distance: 12,
+					minDistance: 1,
+					stopOnCreature: true,
+					requireCreature: true,
+					pierceNumber: ability.isUpgraded() ? 2 : 1,
+					pierceThroughBehavior: ability.isUpgraded() ? 'pierce' : 'targetOnly',
 
-			  // Only turn these on once upgraded
-			  dashedHexesAfterCreatureStop: true,
-			  dashedHexesDistance:          12,
-			  dashedHexesUnderCreature:     true,
-			});
+					// Only turn these on once upgraded
+					dashedHexesAfterCreatureStop: true,
+					dashedHexesDistance: 12,
+					dashedHexesUnderCreature: true,
+				});
+			},
+
+			activate: function (hexes, args) {
+				const ability = this;
+				const cre = ability.creature;
+				const dir = args.direction;
+				ability.end();
+				G.Phaser.camera.shake(0.01, 150, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+
+				const full = ability.damages.pierce; // 40
+				const half = Math.floor(full / 2); // 20
+				const double = full + half; // 60
+
+				// Maybe turn this into a special function for pierce damage?
+				const line = G.grid.getHexLine(cre.x, cre.y, dir, false).slice(1, 1 + 12);
+
+				let first = null;
+				let second = null;
+				let sawFirstTwice = false;
+
+				for (const h of line) {
+					const t = h.creature;
+					if (!t || isTeam(cre, t, Team.Same)) continue;
+
+					if (!first) {
+						// first time we see any creature
+						first = t;
+						continue;
+					}
+
+					// if same creature showing up again immediately after first,
+					// we treat that as a double occupancy and stop
+					if (t.id === first.id) {
+						sawFirstTwice = true;
+						break;
+					}
+
+					// otherwise it’s a second, different creature
+					second = t;
+					break;
+				}
+
+				if (first) {
+					if (this.isUpgraded() && sawFirstTwice && first.size > 1) {
+						first.takeDamage(new Damage(cre, { pierce: full + half }, 1, [], G));
+					} else {
+						first.takeDamage(new Damage(cre, { pierce: full }, 1, [], G));
+						if (this.isUpgraded() && second) {
+							second.takeDamage(new Damage(cre, { pierce: half }, 1, [], G));
+						}
+					}
+				}
+			},
 		},
-
-  		activate: function (hexes, args) {
-    		const ability = this;
-    		const cre     = ability.creature;
-    		const dir     = args.direction;
-    		ability.end();
-    		G.Phaser.camera.shake(0.01, 150, true,
-            G.Phaser.camera.SHAKE_HORIZONTAL, true);
-
-			const full   = ability.damages.pierce;       // 40
-    		const half   = Math.floor(full / 2);         // 20
-    		const double = full + half;                  // 60
-
-		// Maybe turn this into a special function for pierce damage?
-    		const line = G.grid
-  				.getHexLine(cre.x, cre.y, dir, false)
-  				.slice(1, 1 + 12);
-
-		let first = null;
-		let second = null;
-		let sawFirstTwice = false;
-
-		for (const h of line) {
-  			const t = h.creature;
-  			if (!t || isTeam(cre,t,Team.Same)) continue;
-
-  			if (!first) {
-    			// first time we see any creature
-    			first = t;
-    			continue;
-  			}
-
-  			// if same creature showing up again immediately after first,
-  			// we treat that as a double occupancy and stop
-  			if (t.id === first.id) {
-    			sawFirstTwice = true;
-    			break;
-  			}
-
-  			// otherwise it’s a second, different creature
-  			second = t;
-  			break;
-		}
-
-		if (first) {
-  			if (this.isUpgraded() && sawFirstTwice && first.size > 1) {
-				first.takeDamage(new Damage(cre, { pierce: full + half }, 1, [], G));
-  			}
-			else {
-				first.takeDamage(new Damage(cre, { pierce: full }, 1, [], G));
-    				if (this.isUpgraded() && second) {
-					second.takeDamage(new Damage(cre, { pierce: half }, 1, [], G))
-    				}
-  			}
-		}
-  	},
-},
 	];
 };

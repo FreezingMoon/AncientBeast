@@ -517,7 +517,7 @@ export class Creature {
 		this.status.dizzy = false;
 		// Effects triggers
 		if (reason === 'turn-end') {
-			this.remainingMove=0;
+			this.remainingMove = 0;
 			this.queryMove(null);
 			this.turnsActive += 1;
 			this._nextGameTurnActive = game.turn + 1;
@@ -1194,12 +1194,15 @@ export class Creature {
 	 * @returns{Object} Contains damages dealt and if creature is killed or not
 	 * TODO: Once all files in `abilities` are converted to TS, consider a more representative name for `o`
 	 */
-	takeDamage(damage: Damage, o?: { isFromTrap?: boolean; ignoreRetaliation?: boolean }): {damages?: DamageResult; kill: boolean; damageObj?: Damage} {
+	takeDamage(
+		damage: Damage,
+		o?: { isFromTrap?: boolean; ignoreRetaliation?: boolean },
+	): { damages?: DamageResult; kill: boolean; damageObj?: Damage } {
 		const game = this.game;
 
 		if (this.dead) {
 			console.info(`${this.name} (${this.id}) is already dead, aborting takeDamage call.`);
-			return({kill: false});
+			return { kill: false };
 		}
 
 		const defaultOpt = {
@@ -1463,8 +1466,8 @@ export class Creature {
 				if (typeof value == 'number') {
 					this.stats[key] += value;
 				}
-				if(key=="movement") {
-					this.remainingMove+=value;
+				if (key == 'movement') {
+					this.remainingMove += value;
 				}
 
 				// Boolean Buff/Debuff

@@ -76,9 +76,12 @@ export default (G: Game) => {
 				}
 
 				if (
-					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex,this.creature.player.flipped), {
-						team: this._targetTeam,
-					})
+					!this.atLeastOneTarget(
+						this.creature.getHexMap(matrices.frontnback2hex, this.creature.player.flipped),
+						{
+							team: this._targetTeam,
+						},
+					)
 				) {
 					return false;
 				}
@@ -152,9 +155,12 @@ export default (G: Game) => {
 				}
 
 				if (
-					!this.atLeastOneTarget(this.creature.getHexMap(matrices.frontnback2hex,this.creature.player.flipped), {
-						team: this._targetTeam,
-					})
+					!this.atLeastOneTarget(
+						this.creature.getHexMap(matrices.frontnback2hex, this.creature.player.flipped),
+						{
+							team: this._targetTeam,
+						},
+					)
 				) {
 					return false;
 				}
