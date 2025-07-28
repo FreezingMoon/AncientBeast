@@ -100,16 +100,16 @@ export default (G: Game) => {
 				ability.end();
 				G.Phaser.camera.shake(0.01, 120, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
-				const finalDmg = $j.extend(
+				const finalDmg: DamageStats =
 					{
+						pierce: 30,
 						poison: 0,
-					},
-					ability.damages,
-				);
+					};
+
 
 				// Poison Bonus if upgraded
 				if (this.isUpgraded()) {
-					finalDmg.poison = this.damages.poison;
+					finalDmg.poison = 10;
 				}
 
 				const damage = new Damage(
