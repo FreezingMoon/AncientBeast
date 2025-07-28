@@ -156,6 +156,7 @@ export class Creature {
 	health: number;
 	oldHealth: number;
 	endurance: number;
+	regrowth: number;
 	energy: number;
 	oldEnergy: number;
 	remainingMove: number;
@@ -283,6 +284,8 @@ export class Creature {
 			 * exceed this value.
 			 */
 			movement: this.baseStats.movement,
+
+			regrowth: this.baseStats.regrowth,
 		};
 
 		this.status = {
@@ -1122,7 +1125,15 @@ export class Creature {
 		this.endurance = Math.min(this.stats.endurance, this.endurance + amount);
 
 		if (log) {
-			this.game.log('%CreatureName' + this.id + '% recovers +' + amount + ' endurance');
+			this.game.log('%CreatureName' + this.id + '% gains +' + amount + ' endurance');
+		}
+	}
+
+	restoreRegrowth(amount: number, log = true) {
+		this.regrowth = Math.min(this.stats.regrowth, this.regrowth + amount);
+
+		if (log) {
+			this.game.log('%CreatureName' + this.id + '% gains +' + amount + ' regrowth');
 		}
 	}
 
@@ -1137,6 +1148,14 @@ export class Creature {
 
 		if (log) {
 			this.game.log('%CreatureName' + this.id + '% recovers +' + amount + ' movement');
+		}
+	}
+
+	debuffMovement(amount: number, log = true) {
+		this.remainingMove = Math.min(this.stats.movement, this.remainingMove - amount);
+
+		if (log) {
+			this.game.log('%CreatureName' + this.id + '% loses -' + amount + ' movement');
 		}
 	}
 
@@ -1390,6 +1409,7 @@ export class Creature {
 
 		this.updateAlteration();
 
+		// Log if this effect reduces movement
 		if (effect.name !== '') {
 			if (!disableHint) {
 				if (specialHint || effect.specialHint) {
@@ -1477,11 +1497,16 @@ export class Creature {
 			});
 		});
 
+
+		// Log if movement stat is reduced
 		// Maximum stat pools cannot be lower than 1.
 		this.stats.health = Math.max(this.stats.health, 1);
 		this.stats.endurance = Math.max(this.stats.endurance, 1);
 		this.stats.energy = Math.max(this.stats.energy, 1);
-		this.stats.movement = Math.max(this.stats.movement, 1);
+
+
+		//will prevent the movement from going below 0
+		this.stats.movement = Math.max(this.stats.movement, 0);
 
 		// These stats cannot exceed their maximum values.
 		this.health = Math.min(this.health, this.stats.health);
