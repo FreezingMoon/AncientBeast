@@ -97,7 +97,6 @@ export default (G: Game) => {
 			//	activate() :
 			activate: function (target) {
 				const ability = this;
-				ability.end();
 				G.Phaser.camera.shake(0.01, 120, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				const finalDmg: DamageStats = {
@@ -124,6 +123,7 @@ export default (G: Game) => {
 					G.log('%CreatureName' + this.creature.id + "%'s movement recharged");
 					G.activeCreature.queryMove();
 				}
+				ability.end();
 			},
 
 			_getHexes: function () {

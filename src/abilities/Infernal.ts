@@ -1,9 +1,11 @@
 import { Damage } from '../damage';
+import { Creature } from '../creature';
 import { Team, isTeam } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
 import { getPointFacade } from '../utility/pointfacade';
+import Game from '../game';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -36,7 +38,7 @@ export default (G) => {
 				const ability = this;
 
 				// Traps last forever if upgraded, otherwise 1 turn
-				const lifetime = this.isUpgraded() ? 0 : 1;
+				const lifetime = this.isUpgraded() ? -1 : 1;
 
 				hex.createTrap(
 					'scorched-ground',
@@ -54,7 +56,7 @@ export default (G) => {
 									// Immunity to own trap type
 									return this.trap.hex.creature.id !== ability.creature.id;
 								},
-								effectFn: function (effect, target) {
+								effectFn: function (effect, target: Creature) {
 									target.takeDamage(new Damage(effect.attacker, ability.damages, 1, [], G), {
 										isFromTrap: true,
 									});

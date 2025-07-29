@@ -1913,7 +1913,7 @@ export class UI {
 		this.$activebox
 			.find('#abilities')
 			.clearQueue()
-			.transition(
+			.animate(
 				{
 					y: '-420px',
 				},
@@ -1936,7 +1936,7 @@ export class UI {
 					// Update upgrade info
 					this.updateAbilityUpgrades();
 					// Callback after final transition
-					this.$activebox.children('#abilities').transition(
+					this.$activebox.children('#abilities').animate(
 						{
 							y: '0px',
 						},
