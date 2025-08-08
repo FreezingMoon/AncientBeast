@@ -30,16 +30,27 @@ export class Fullscreen {
 	}
 
 	updateButtonState() {
+		const chatElement = document.getElementById('chat');
+
 		if (document.fullscreenElement) {
 			this.button.classList.add('fullscreenMode');
 			this.button
 				.querySelectorAll('.fullscreen__title')
 				.forEach((el) => (el.textContent = 'Contract'));
+			// Hide the chat when entering fullscreen
+			if (chatElement) {
+				chatElement.style.display = 'none';
+			}
 		} else {
 			this.button.classList.remove('fullscreenMode');
 			this.button
 				.querySelectorAll('.fullscreen__title')
 				.forEach((el) => (el.textContent = 'FullScreen'));
+
+			// Show the chat when exiting fullscreen
+			if (chatElement) {
+				chatElement.style.display = 'block';
+			}
 		}
 	}
 }
