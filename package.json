@@ -91,6 +91,7 @@
 		"lint-staged": "lint-staged",
 		"eslint-check": "eslint --print-config .eslintrc.json | eslint-config-prettier-check",
 		"test": "npm run lint && npm run build && jest",
+		"test:jest": "jest",
 		"jest": "jest",
 		"start:jest": "jest --watch"
 	},
