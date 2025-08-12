@@ -1129,6 +1129,11 @@ export class UI {
 
 						// Bind button
 						this.materializeButton.click = () => {
+							// Prevent double-clicking when ability is already active
+							if (this.activeAbility) {
+								return;
+							}
+							
 							this.materializeToggled = false;
 							this.selectAbility(3);
 							this.closeDash();
@@ -1667,6 +1672,11 @@ export class UI {
 
 		this.dashopen = false;
 		this.materializeToggled = false;
+		
+		// Reset materialize button state to prevent stuck ability selection
+		if (this.selectedAbility === 3) {
+			this.selectAbility(-1);
+		}
 	}
 
 	gridSelectUp() {
