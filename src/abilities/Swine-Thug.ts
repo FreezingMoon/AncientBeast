@@ -158,7 +158,11 @@ export default (G: Game) => {
 				ability.end();
 				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
-				const target = arrayUtils.last(path).creature;
+				// Use the new utility function to safely get target
+				const target = arrayUtils.getTargetFromPath(path, ability.creature, Team.Enemy);
+				if (!target) {
+					return; // No valid target found
+				}
 				const damage = new Damage(
 					ability.creature, // Attacker
 					ability.damages, // Damage Type
@@ -175,7 +179,12 @@ export default (G: Game) => {
 
 					// See how far the target can be knocked back
 					// Skip the first hex as it is the same hex as the target
-					const hexes = G.grid.getHexLine(target.x, target.y, args.direction, target.flipped);
+					const hexes = G.grid.getHexLine(
+						target.x,
+						target.y,
+						args.direction,
+						target.player.flipped,
+					);
 					hexes.splice(0, 1);
 					let hex = null;
 					for (let i = 0; i < hexes.length; i++) {
@@ -329,7 +338,11 @@ export default (G: Game) => {
 				ability.end();
 				G.Phaser.camera.shake(0.01, 60, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
-				const target = arrayUtils.last(path).creature;
+				// Use the new utility function to safely get target
+				const target = arrayUtils.getTargetFromPath(path, ability.creature, Team.Enemy);
+				if (!target) {
+					return; // No valid target found
+				}
 
 				// If upgraded, hits will debuff target with -1 meditation
 				if (this.isUpgraded()) {

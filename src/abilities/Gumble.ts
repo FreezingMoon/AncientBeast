@@ -7,6 +7,7 @@ import { Effect } from '../effect';
 import { Creature } from '../creature';
 import Game from '../game';
 import { Hex } from '../utility/hex';
+import { getPointFacade } from '../utility/pointfacade';
 import { Trap } from '../utility/trap';
 
 /** Creates the abilities
@@ -320,24 +321,12 @@ export default (G: Game) => {
 				ability.end();
 				G.Phaser.camera.shake(0.02, 300, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
-				let target = arrayUtils.last(path).creature;
-				{
-					// TODO:
-					// target is undefined when Player 2 creature uses this ability.
-					// arrayUtils.last(path).creature is undefined.
-					// This block fixes the error, but it's an ugly fix.
-					if (!target) {
-						const attackingCreature = ability.creature;
-						const creatures = path
-							.map((hex) => hex.creature)
-							.filter((c) => c && c != attackingCreature);
-						if (creatures.length === 0) {
-							return;
-						} else {
-							target = creatures[0];
-						}
-					}
+				// Use the new utility function to safely get target
+				const target = arrayUtils.getTargetFromPath(path, ability.creature, Team.Enemy);
+				if (!target) {
+					return; // No valid target found
 				}
+
 				const melee = path[0].creature === target;
 
 				const d = melee
@@ -353,24 +342,48 @@ export default (G: Game) => {
 				switch (args.direction) {
 					case 0: // Upright
 						dir = G.grid
-							.getHexMap(target.x, target.y - 8, 0, target.flipped, matrices.diagonalup)
+							.getHexMap(target.x, target.y - 8, 0, target.player.flipped, matrices.diagonalup)
 							.reverse();
 						break;
 					case 1: // StraitForward
-						dir = G.grid.getHexMap(target.x, target.y, 0, target.flipped, matrices.straitrow);
+						dir = G.grid.getHexMap(
+							target.x,
+							target.y,
+							0,
+							target.player.flipped,
+							matrices.straitrow,
+						);
 						break;
 					case 2: // Downright
-						dir = G.grid.getHexMap(target.x, target.y, 0, target.flipped, matrices.diagonaldown);
+						dir = G.grid.getHexMap(
+							target.x,
+							target.y,
+							0,
+							target.player.flipped,
+							matrices.diagonaldown,
+						);
 						break;
 					case 3: // Downleft
-						dir = G.grid.getHexMap(target.x, target.y, -4, target.flipped, matrices.diagonalup);
+						dir = G.grid.getHexMap(
+							target.x,
+							target.y,
+							-4,
+							target.player.flipped,
+							matrices.diagonalup,
+						);
 						break;
 					case 4: // StraitBackward
-						dir = G.grid.getHexMap(target.x, target.y, 0, !target.flipped, matrices.straitrow);
+						dir = G.grid.getHexMap(
+							target.x,
+							target.y,
+							0,
+							!target.player.flipped,
+							matrices.straitrow,
+						);
 						break;
 					case 5: // Upleft
 						dir = G.grid
-							.getHexMap(target.x, target.y - 8, -4, target.flipped, matrices.diagonaldown)
+							.getHexMap(target.x, target.y - 8, -4, target.player.flipped, matrices.diagonaldown)
 							.reverse();
 						break;
 					default:
