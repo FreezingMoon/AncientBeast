@@ -5,7 +5,6 @@ import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
 import { getPointFacade } from '../utility/pointfacade';
-import Game from '../game';
 import { getAudioMode } from '../sound/soundsys';
 
 /** Creates the abilities
@@ -112,8 +111,8 @@ export default (G) => {
 				const magmaSpawn = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: (...args) => {
+						ability.animation(...args);
 					},
 					team: this._targetTeam,
 					id: magmaSpawn.id,
@@ -201,8 +200,8 @@ export default (G) => {
 				this.map.origin = [0, 2];
 
 				G.grid.queryChoice({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: (...args) => {
+						ability.animation(...args);
 					},
 					team: Team.Both,
 					requireCreature: 0,
@@ -286,8 +285,8 @@ export default (G) => {
 				const x = magmaSpawn.player.flipped ? magmaSpawn.x - magmaSpawn.size + 1 : magmaSpawn.x;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: (...args) => {
+						ability.animation(...args);
 					},
 					team: this._targetTeam,
 					id: magmaSpawn.id,

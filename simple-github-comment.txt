@@ -1,0 +1,13 @@
+✅ FIXED: Boiling Point ability now respects audio mode setting
+
+Issue #2779 - The ability was playing sounds even when muted.
+
+SOLUTION: Added audio mode checking before playing sound effects.
+
+Code changes in src/abilities/Infernal.ts:
+- Import getAudioMode function
+- Wrap sound call in: if (getAudioMode() !== 'muted')
+
+Testing: Set audio to muted, trigger ability, verify no sound. Set back to full/sfx, verify sound works.
+
+Bounty claim: 5 XTR - Ready for review!
