@@ -1,6 +1,14 @@
 import { Creature } from '../creature';
 import { jest, expect, describe, test, beforeEach, beforeAll } from '@jest/globals';
 
+// Mock jQuery for tests
+jest.mock('jquery', () => ({
+	__esModule: true,
+	default: jest.fn(() => ({
+		removeClass: jest.fn(),
+	})),
+}));
+
 // NOTE: ts-comments are necessary in this file to avoid mocking the entire game.
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 
@@ -264,6 +272,7 @@ const getGameMock = () => {
 		grid: {
 			orderCreatureZ: jest.fn(),
 			hexes: getHexesMock(),
+			getMovementRange: jest.fn(() => []),
 		},
 		Phaser: getPhaserMock(),
 		retrieveCreatureStats: (type: number) => {
@@ -278,6 +287,14 @@ const getGameMock = () => {
 		signals: {
 			metaPowers: {
 				add: jest.fn(),
+			},
+		},
+		UI: {
+			selectedAbility: -1,
+		},
+		triggers: {
+			oncePerDamageChain: {
+				test: jest.fn(() => false),
 			},
 		},
 		plasma_amount: 10,
