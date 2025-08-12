@@ -1129,8 +1129,8 @@ export class UI {
 
 						// Bind button
 						this.materializeButton.click = () => {
-							// Prevent double-clicking when ability is already selected
-							if (this.selectedAbility === 3) {
+							// Prevent double-clicking when ability is already active
+							if (this.activeAbility) {
 								return;
 							}
 							
