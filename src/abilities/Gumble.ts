@@ -342,24 +342,24 @@ export default (G: Game) => {
 				switch (args.direction) {
 					case 0: // Upright
 						dir = G.grid
-							.getHexMap(target.x, target.y - 8, 0, target.flipped, matrices.diagonalup)
+							.getHexMap(target.x, target.y - 8, 0, target.player.flipped, matrices.diagonalup)
 							.reverse();
 						break;
 					case 1: // StraitForward
-						dir = G.grid.getHexMap(target.x, target.y, 0, target.flipped, matrices.straitrow);
+						dir = G.grid.getHexMap(target.x, target.y, 0, target.player.flipped, matrices.straitrow);
 						break;
 					case 2: // Downright
-						dir = G.grid.getHexMap(target.x, target.y, 0, target.flipped, matrices.diagonaldown);
+						dir = G.grid.getHexMap(target.x, target.y, 0, target.player.flipped, matrices.diagonaldown);
 						break;
 					case 3: // Downleft
-						dir = G.grid.getHexMap(target.x, target.y, -4, target.flipped, matrices.diagonalup);
+						dir = G.grid.getHexMap(target.x, target.y, -4, target.player.flipped, matrices.diagonalup);
 						break;
 					case 4: // StraitBackward
-						dir = G.grid.getHexMap(target.x, target.y, 0, !target.flipped, matrices.straitrow);
+						dir = G.grid.getHexMap(target.x, target.y, 0, !target.player.flipped, matrices.straitrow);
 						break;
 					case 5: // Upleft
 						dir = G.grid
-							.getHexMap(target.x, target.y - 8, -4, target.flipped, matrices.diagonaldown)
+							.getHexMap(target.x, target.y - 8, -4, target.player.flipped, matrices.diagonaldown)
 							.reverse();
 						break;
 					default:

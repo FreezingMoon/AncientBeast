@@ -156,12 +156,12 @@ export default (G: Game) => {
 				ability.end();
 
 				// Use the new utility function to safely get target
-				const target = arrayUtils.getTargetFromPath(path, ability.creature, Team.Enemy);
+				let target = arrayUtils.getTargetFromPath(path, ability.creature, Team.Enemy);
 				if (!target) {
 					return; // No valid target found
 				}
 
-				const hexes = G.grid.getHexLine(target.x, target.y, args.direction, target.flipped);
+				const hexes = G.grid.getHexLine(target.x, target.y, args.direction, target.player.flipped);
 
 				let damage = new Damage(
 					ability.creature, // Attacker
