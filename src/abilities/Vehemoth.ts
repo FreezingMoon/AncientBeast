@@ -168,7 +168,11 @@ export default (G: Game) => {
 				ability.end();
 
 				path = arrayUtils.sortByDirection(path, args.direction);
-				const target = arrayUtils.last(path).creature;
+				// Use the new utility function to safely get target
+				const target = arrayUtils.getTargetFromPath(path, ability.creature, Team.Enemy);
+				if (!target) {
+					return; // No valid target found
+				}
 				const targetIsNearby = this._getHexes().some((hex) => hex.creature?.id === target.id);
 
 				if (targetIsNearby) {
@@ -344,7 +348,11 @@ export default (G: Game) => {
 			activate: function (path, args) {
 				const ability = this;
 				const vehemoth = this.creature;
-				const target = arrayUtils.last(path).creature;
+				// Use the new utility function to safely get target
+				const target = arrayUtils.getTargetFromPath(path, ability.creature, Team.Enemy);
+				if (!target) {
+					return; // No valid target found
+				}
 
 				ability.end();
 				G.Phaser.camera.shake(0.01, 50, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);

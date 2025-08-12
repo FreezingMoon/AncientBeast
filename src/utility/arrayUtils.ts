@@ -217,3 +217,37 @@ export function extendToRight(hexes: Hex[], size: number, grid: HexGrid) {
 export function last<T extends any[]>(arr: T): T[number] {
 	return arr[arr.length - 1];
 }
+
+/**
+ * Safely get the target creature from a path, handling cases where the last hex
+ * doesn't contain a creature (common issue with Player 2 creatures).
+ * 
+ * @param path Array of hexes representing the ability's path
+ * @param sourceCreature The creature using the ability
+ * @param targetTeam The team to target (defaults to Enemy)
+ * @returns The target creature, or undefined if no valid target found
+ */
+export function getTargetFromPath(
+	path: Hex[], 
+	sourceCreature: Creature, 
+	targetTeam: Team = Team.Enemy
+): Creature | undefined {
+	// First try to get creature from the last hex in path
+	let target = last(path)?.creature;
+	
+	// If last hex has no creature, search through the path for a valid target
+	if (!target) {
+		const validTargets = path
+			.map(hex => hex.creature)
+			.filter(creature => 
+				creature && 
+				creature !== sourceCreature && 
+				isTeam(sourceCreature, creature, targetTeam)
+			);
+		
+		// Return the first valid target found, or undefined if none
+		target = validTargets.length > 0 ? validTargets[0] : undefined;
+	}
+	
+	return target;
+}

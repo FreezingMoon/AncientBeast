@@ -158,7 +158,11 @@ export default (G: Game) => {
 				ability.end();
 				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
-				const target = arrayUtils.last(path).creature;
+				// Use the new utility function to safely get target
+				const target = arrayUtils.getTargetFromPath(path, ability.creature, Team.Enemy);
+				if (!target) {
+					return; // No valid target found
+				}
 				const damage = new Damage(
 					ability.creature, // Attacker
 					ability.damages, // Damage Type
@@ -329,7 +333,11 @@ export default (G: Game) => {
 				ability.end();
 				G.Phaser.camera.shake(0.01, 60, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
-				const target = arrayUtils.last(path).creature;
+				// Use the new utility function to safely get target
+				const target = arrayUtils.getTargetFromPath(path, ability.creature, Team.Enemy);
+				if (!target) {
+					return; // No valid target found
+				}
 
 				// If upgraded, hits will debuff target with -1 meditation
 				if (this.isUpgraded()) {

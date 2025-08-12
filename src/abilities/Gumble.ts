@@ -7,6 +7,7 @@ import { Effect } from '../effect';
 import { Creature } from '../creature';
 import Game from '../game';
 import { Hex } from '../utility/hex';
+import { getPointFacade } from '../utility/pointfacade';
 import { Trap } from '../utility/trap';
 
 /** Creates the abilities
@@ -320,24 +321,12 @@ export default (G: Game) => {
 				ability.end();
 				G.Phaser.camera.shake(0.02, 300, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
-				let target = arrayUtils.last(path).creature;
-				{
-					// TODO:
-					// target is undefined when Player 2 creature uses this ability.
-					// arrayUtils.last(path).creature is undefined.
-					// This block fixes the error, but it's an ugly fix.
-					if (!target) {
-						const attackingCreature = ability.creature;
-						const creatures = path
-							.map((hex) => hex.creature)
-							.filter((c) => c && c != attackingCreature);
-						if (creatures.length === 0) {
-							return;
-						} else {
-							target = creatures[0];
-						}
-					}
+				// Use the new utility function to safely get target
+				const target = arrayUtils.getTargetFromPath(path, ability.creature, Team.Enemy);
+				if (!target) {
+					return; // No valid target found
 				}
+
 				const melee = path[0].creature === target;
 
 				const d = melee

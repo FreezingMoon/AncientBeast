@@ -155,24 +155,10 @@ export default (G: Game) => {
 
 				ability.end();
 
-				let target = arrayUtils.last(path).creature;
-
-				{
-					// TODO:
-					// target is undefined when Player 2 Chimera uses this ability.
-					// arrayUtils.last(path).creature is undefined.
-					// This block fixes the error, but it's an ugly fix.
-					if (!target) {
-						const attackingCreature = ability.creature;
-						const creatures = path
-							.map((hex) => hex.creature)
-							.filter((c) => c && c != attackingCreature);
-						if (creatures.length === 0) {
-							return;
-						} else {
-							target = creatures[0];
-						}
-					}
+				// Use the new utility function to safely get target
+				const target = arrayUtils.getTargetFromPath(path, ability.creature, Team.Enemy);
+				if (!target) {
+					return; // No valid target found
 				}
 
 				const hexes = G.grid.getHexLine(target.x, target.y, args.direction, target.flipped);
