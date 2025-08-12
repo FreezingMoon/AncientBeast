@@ -335,12 +335,12 @@ beforeAll(() => {
 			return { Easing: { Linear: { None: 1 } } };
 		},
 	});
-	
+
 	// Mock jQuery globally
 	(global as any).$j = jest.fn(() => ({
 		removeClass: jest.fn(),
 	}));
-	
+
 	// Mock the jquery module
 	jest.doMock('jquery', () => ({
 		__esModule: true,

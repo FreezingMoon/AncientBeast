@@ -346,16 +346,40 @@ export default (G: Game) => {
 							.reverse();
 						break;
 					case 1: // StraitForward
-						dir = G.grid.getHexMap(target.x, target.y, 0, target.player.flipped, matrices.straitrow);
+						dir = G.grid.getHexMap(
+							target.x,
+							target.y,
+							0,
+							target.player.flipped,
+							matrices.straitrow,
+						);
 						break;
 					case 2: // Downright
-						dir = G.grid.getHexMap(target.x, target.y, 0, target.player.flipped, matrices.diagonaldown);
+						dir = G.grid.getHexMap(
+							target.x,
+							target.y,
+							0,
+							target.player.flipped,
+							matrices.diagonaldown,
+						);
 						break;
 					case 3: // Downleft
-						dir = G.grid.getHexMap(target.x, target.y, -4, target.player.flipped, matrices.diagonalup);
+						dir = G.grid.getHexMap(
+							target.x,
+							target.y,
+							-4,
+							target.player.flipped,
+							matrices.diagonalup,
+						);
 						break;
 					case 4: // StraitBackward
-						dir = G.grid.getHexMap(target.x, target.y, 0, !target.player.flipped, matrices.straitrow);
+						dir = G.grid.getHexMap(
+							target.x,
+							target.y,
+							0,
+							!target.player.flipped,
+							matrices.straitrow,
+						);
 						break;
 					case 5: // Upleft
 						dir = G.grid

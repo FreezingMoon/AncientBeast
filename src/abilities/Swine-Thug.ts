@@ -179,7 +179,12 @@ export default (G: Game) => {
 
 					// See how far the target can be knocked back
 					// Skip the first hex as it is the same hex as the target
-					const hexes = G.grid.getHexLine(target.x, target.y, args.direction, target.player.flipped);
+					const hexes = G.grid.getHexLine(
+						target.x,
+						target.y,
+						args.direction,
+						target.player.flipped,
+					);
 					hexes.splice(0, 1);
 					let hex = null;
 					for (let i = 0; i < hexes.length; i++) {
