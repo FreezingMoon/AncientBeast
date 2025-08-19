@@ -1036,6 +1036,7 @@ export class HexGrid {
 
 			// Clear display and overlay
 			$j('canvas').css('cursor', 'pointer');
+			hex.cleanOverlayVisualState('ability');
 
 			if (this._executionMode && hex.creature instanceof Creature) {
 				hex.creature.die({ player: game.players[0] });
@@ -1116,6 +1117,8 @@ export class HexGrid {
 		const onHoverOffFn = (hex: Hex) => {
 			const { creature } = hex;
 
+			hex.cleanOverlayVisualState('ability');
+
 			if (creature instanceof Creature) {
 				this.hoveredCreature = null;
 				creature.resetBounce();
@@ -1161,6 +1164,7 @@ export class HexGrid {
 			}
 
 			if (hex.reachable) {
+				hex.overlayVisualState('ability');
 				if (o.fillOnlyHoveredCreature && !(hex.creature instanceof Creature)) {
 					if (!emptyHexBeforeCreature(hex)) {
 						$j('canvas').css('cursor', 'not-allowed');
