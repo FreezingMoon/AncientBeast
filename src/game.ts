@@ -136,9 +136,9 @@ export default class Game {
 
 	startMatchTime?: Date;
 	$combatFrame?: JQuery<HTMLElement>; //eslint-disable-line no-undef
-	timeInterval?: NodeJS.Timer; //eslint-disable-line no-undef
+	timeInterval?: NodeJS.Timeout; //eslint-disable-line no-undef
 
-	windowResizeTimeout?: string | number | NodeJS.Timer; //eslint-disable-line no-undef
+	windowResizeTimeout?: string | number | NodeJS.Timeout; //eslint-disable-line no-undef
 
 	pauseStartTime?: Date;
 

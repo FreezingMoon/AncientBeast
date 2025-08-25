@@ -7,7 +7,6 @@ import { Effect } from '../effect';
 import { Creature } from '../creature';
 import Game from '../game';
 import { Hex } from '../utility/hex';
-import { Trap } from '../utility/trap';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -165,10 +164,9 @@ export default (G: Game) => {
 
 		// Third Ability: Pretty Ribbon
 		{
-						// Type : Can be "onQuery", "onStartPhase", "onDamage"
+			// Type : Can be "onQuery", "onStartPhase", "onDamage"
 
-	
-			trigger: 'onQuery', 
+			trigger: 'onQuery',
 
 			_targetTeam: Team.Both,
 
@@ -182,7 +180,6 @@ export default (G: Game) => {
 				const ability = this;
 				const creature = this.creature;
 
-				
 				const area = [
 					[1, 1],
 					[1, 1],
@@ -190,7 +187,7 @@ export default (G: Game) => {
 
 				const dx = this.creature.y % 2 !== 0 ? -1 : 0;
 				const dy = -1;
-				const choices = [
+				let choices = [
 					G.grid.getHexMap(this.creature.x + 1 + dx, this.creature.y - 1 + dy, 0, false, [
 						[1],
 						[1, 1],
@@ -211,6 +208,21 @@ export default (G: Game) => {
 						[1],
 					] as matrices.AugmentedMatrix),
 				];
+
+				// If not upgraded, filter out hexes that contain enemies
+				if (!this.isUpgraded()) {
+					choices = choices.filter(function (choice) {
+						// Check if any hex in this choice contains an enemy creature
+						for (let i = 0; i < choice.length; i++) {
+							const hex = choice[i];
+							if (hex.creature && isTeam(ability.creature, hex.creature, Team.Enemy)) {
+								return false; // Remove this choice if it contains an enemy
+							}
+						}
+						return true; // Keep this choice if it doesn't contain enemies
+					});
+				}
+
 				// Reorder choices based on number of hexes
 				// This ensures that if a choice contains overlapping hexes only, that
 				// choice won't be available for selection.
@@ -236,7 +248,7 @@ export default (G: Game) => {
 			activate: function (hex: Hex[]) {
 				const ability = this;
 				const swine = this.creature;
-				
+
 				ability.end();
 
 				const targets = ability.getTargets(hex);
@@ -246,7 +258,7 @@ export default (G: Game) => {
 				if (isSelf) {
 					this.creature.heal(20, true);
 					this.creature.restoreEndurance(2);
-					
+
 					this.creature.restoreRegrowth(2);
 				}
 
@@ -254,22 +266,21 @@ export default (G: Game) => {
 					if (!(item.target instanceof Creature)) return;
 
 					const trg = item.target;
-				
 
 					G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
 					// If the target is an ally, heal it and restore endurance and regrowth
-					
+
 					if (isTeam(ability.creature, trg, Team.Ally)) {
 						trg.heal(20, true, true);
 						trg.restoreEndurance(2, true);
 						trg.restoreRegrowth(2, true);
-					} else if (isTeam(ability.creature, trg, Team.Enemy) && ability.isUpgraded()) { // If the target is an enemy and the ability is upgraded
-						if ((trg.name =='Dark Priest') &&  trg.hasCreaturePlayerGotPlasma())
-						{
-							
+					} else if (isTeam(ability.creature, trg, Team.Enemy) && ability.isUpgraded()) {
+						// If the target is an enemy and the ability is upgraded
+						if (trg.name == 'Dark Priest' && trg.hasCreaturePlayerGotPlasma()) {
 							//if the creature is not a Dark Priest or the player has got no Plasma
-							const damage=  new Damage(ability.creature, // Attacker
+							const damage = new Damage(
+								ability.creature, // Attacker
 								{}, // Damage Type
 								1, // Area
 								[], // Effects
@@ -277,10 +288,7 @@ export default (G: Game) => {
 								0, // Damage Amount
 							);
 							trg.takeDamage(damage);
-
-						}
-						else
-						{
+						} else {
 							const debuffEffect = new Effect(
 								'Ribbon Debuff',
 								ability.creature,
@@ -304,12 +312,9 @@ export default (G: Game) => {
 								true,
 							);
 						}
-						}
-					});
-
-					
-				}
-
+					}
+				});
+			},
 		},
 
 		// Fourth Ability: Boom Box
