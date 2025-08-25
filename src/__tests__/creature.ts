@@ -207,6 +207,9 @@ jest.mock('../utility/hex', () => {
 	};
 });
 
+import { unitData } from '../data/units';
+import Game from '../game';
+
 const getPlayerMock = () => {
 	return {};
 };
@@ -251,9 +254,6 @@ const getHexesMock = () => {
 	return arr;
 };
 
-import { unitData } from '../data/units';
-import Game from '../game';
-
 const getGameMock = () => {
 	const self = {
 		turn: 0,
@@ -264,6 +264,7 @@ const getGameMock = () => {
 		grid: {
 			orderCreatureZ: jest.fn(),
 			hexes: getHexesMock(),
+			getMovementRange: jest.fn(() => []),
 		},
 		Phaser: getPhaserMock(),
 		retrieveCreatureStats: (type: number) => {
@@ -278,6 +279,14 @@ const getGameMock = () => {
 		signals: {
 			metaPowers: {
 				add: jest.fn(),
+			},
+		},
+		UI: {
+			selectedAbility: -1,
+		},
+		triggers: {
+			oncePerDamageChain: {
+				test: jest.fn(() => false),
 			},
 		},
 		plasma_amount: 10,
@@ -326,4 +335,17 @@ beforeAll(() => {
 			return { Easing: { Linear: { None: 1 } } };
 		},
 	});
+	
+	// Mock jQuery globally
+	(global as any).$j = jest.fn(() => ({
+		removeClass: jest.fn(),
+	}));
+	
+	// Mock the jquery module
+	jest.doMock('jquery', () => ({
+		__esModule: true,
+		default: jest.fn(() => ({
+			removeClass: jest.fn(),
+		})),
+	}));
 });

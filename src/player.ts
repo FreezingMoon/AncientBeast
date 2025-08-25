@@ -168,7 +168,7 @@ export class Player {
 	/**
 	 * Ask if the player wants to flee the match
 	 */
-	flee(o) {
+	flee(o?) {
 		this.hasFled = true;
 		this.deactivate();
 		this.game.skipTurn(o);
@@ -208,7 +208,7 @@ export class Player {
 				case 'kill':
 					// Prevent issues with non-leveled creatures, e.g. Dark Priest
 					if (s.creature.level && s.creature.level !== '-') {
-						points += s.creature.level * 5;
+						points += Number(s.creature.level) * 5;
 					}
 					break;
 				case 'combo':
@@ -231,7 +231,7 @@ export class Player {
 					break;
 				case 'creaturebonus':
 					if (s.creature.level !== '-') {
-						points += s.creature.level * 5;
+						points += Number(s.creature.level) * 5;
 					}
 					break;
 				case 'darkpriestbonus':

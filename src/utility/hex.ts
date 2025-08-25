@@ -285,6 +285,10 @@ export class Hex {
 		// No-op function.
 	}
 
+	updateHealth() {
+		// No-op function. see game.ts -> triggerDeleteEffect()
+	}
+
 	/**
 	 * This function return an array containing all hexes of the grid
 	 * at the distance given of the current hex.
@@ -565,7 +569,9 @@ export class Hex {
 			this.display.loadTexture(`hex_p${player}`);
 			this.grid.displayHexesGroup.bringToTop(this.display);
 		} else if (this.displayClasses.match(/adj/)) {
-			this.display.loadTexture('hex_path');		} else if (this.displayClasses.match(/dashed/)) {			// Check if this is a dashed hex with a creature (blocked target)
+			this.display.loadTexture('hex_path');
+		} else if (this.displayClasses.match(/dashed/)) {
+			// Check if this is a dashed hex with a creature (blocked target)
 			if (this.creature instanceof Creature) {
 				// Use colored dashed texture for the creature's team
 				this.display.loadTexture(`hex_dashed_p${this.creature.team}`);

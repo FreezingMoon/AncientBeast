@@ -24,7 +24,7 @@
 	},
 	"dependencies": {
 		"@heroiclabs/nakama-js": "^2.0.1",
-		"compression": "^1.7.4",
+		"compression": "^1.8.1",
 		"jquery": "^3.5.0",
 		"jquery.transit": "0.9.12",
 		"js-cookie": "^3.0.1",
@@ -39,6 +39,7 @@
 		"@babel/preset-typescript": "^7.21.4",
 		"@types/jest": "^29.5.0",
 		"@types/jquery": "^3.5.9",
+		"@types/jquery.transit": "^0.9.33",
 		"@types/js-cookie": "^3.0.6",
 		"@types/underscore": "^1.11.5",
 		"@typescript-eslint/eslint-plugin": "^5.47.1",
@@ -90,6 +91,7 @@
 		"lint-staged": "lint-staged",
 		"eslint-check": "eslint --print-config .eslintrc.json | eslint-config-prettier-check",
 		"test": "npm run lint && npm run build && jest",
+		"test:jest": "jest",
 		"jest": "jest",
 		"start:jest": "jest --watch"
 	},

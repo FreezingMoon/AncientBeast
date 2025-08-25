@@ -1,9 +1,11 @@
 import { Damage } from '../damage';
+import { Creature } from '../creature';
 import { Team, isTeam } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
 import { getPointFacade } from '../utility/pointfacade';
+import { getAudioMode } from '../sound/soundsys';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -27,16 +29,18 @@ export default (G) => {
 				this._addTrap(this.creature.hexagons[1]);
 				this._addTrap(this.creature.hexagons[this.creature.player.flipped ? 0 : 2]);
 
-				// SFX
-				const music = G.Phaser.add.audio('MagmaSpawn0');
-				music.play();
+				// SFX - Only play if audio is not muted
+				if (getAudioMode() !== 'muted') {
+					const music = G.Phaser.add.audio('MagmaSpawn0');
+					music.play();
+				}
 			},
 
 			_addTrap: function (hex) {
 				const ability = this;
 
 				// Traps last forever if upgraded, otherwise 1 turn
-				const lifetime = this.isUpgraded() ? 0 : 1;
+				const lifetime = this.isUpgraded() ? -1 : 1;
 
 				hex.createTrap(
 					'scorched-ground',
@@ -54,7 +58,7 @@ export default (G) => {
 									// Immunity to own trap type
 									return this.trap.hex.creature.id !== ability.creature.id;
 								},
-								effectFn: function (effect, target) {
+								effectFn: function (effect, target: Creature) {
 									target.takeDamage(new Damage(effect.attacker, ability.damages, 1, [], G), {
 										isFromTrap: true,
 									});
@@ -107,8 +111,8 @@ export default (G) => {
 				const magmaSpawn = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: (...args) => {
+						ability.animation(...args);
 					},
 					team: this._targetTeam,
 					id: magmaSpawn.id,
@@ -196,8 +200,8 @@ export default (G) => {
 				this.map.origin = [0, 2];
 
 				G.grid.queryChoice({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: (...args) => {
+						ability.animation(...args);
 					},
 					team: Team.Both,
 					requireCreature: 0,
@@ -281,8 +285,8 @@ export default (G) => {
 				const x = magmaSpawn.player.flipped ? magmaSpawn.x - magmaSpawn.size + 1 : magmaSpawn.x;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: (...args) => {
+						ability.animation(...args);
 					},
 					team: this._targetTeam,
 					id: magmaSpawn.id,

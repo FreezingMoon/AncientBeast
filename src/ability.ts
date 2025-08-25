@@ -1,19 +1,13 @@
 import * as $j from 'jquery';
-import { Damage } from './damage';
+import { Damage, DamageResult } from './damage';
 import { Direction, Hex } from './utility/hex';
-import { Creature, CreatureMasteries } from './creature';
+import { Creature, CreatureMasteries, Movement } from './creature';
+import { CreatureType } from './data/types';
 import { isTeam, Team } from './utility/team';
 import * as arrayUtils from './utility/arrayUtils';
 import Game from './game';
 import { ScoreEvent } from './player';
 import { Point } from './utility/pointfacade';
-
-/*
- * NOTE
- *
- * convert game.js -> game.ts to get rid of @ts-expect-error 2339
- *
- */
 
 /**
  * Ability Class
@@ -23,10 +17,13 @@ import { Point } from './utility/pointfacade';
 
 export type AbilitySlot = 0 | 1 | 2 | 3;
 
+// Maybe convert this to an array of Triggers, so that you don't need
+// a new element for each permutation?
 export type Trigger =
 	| 'onQuery'
 	| 'onStartPhase'
 	| 'onDamage'
+	| 'onOtherDamage'
 	| 'onEndPhase'
 	| 'onStepIn'
 	| 'onStepOut'
@@ -42,11 +39,15 @@ export type Trigger =
 	| 'oncePerDamageChain'
 	| 'onCreatureMove onOtherCreatureMove'
 	| 'onCreatureSummon onDamage onHeal'
+	| 'onCreatureSummon onOtherCreatureSummon onOtherCreatureDeath'
 	| 'onStartPhase onEndPhase'
 	| 'onDamage onStartPhase'
 	| 'onStartPhase onDamage'
 	| 'onUnderAttack onAttack'
-	| 'onUnderAttack';
+	| 'onUnderAttack'
+	| 'noTrigger';
+
+export type PierceThroughBehavior = 'stop' | 'targetOnly' | 'pierce';
 
 // Could get rid of the union and optionals by creating a separate (or conditional) type for Dark Priest's Cost
 // This might narrow down the types in the constructor by checking `creature.name`
@@ -54,6 +55,7 @@ type Cost = {
 	special?: string;
 	plasma?: string | number;
 	energy?: number;
+	health?: number;
 };
 
 type Requirement = { plasma?: number; energy?: number } | Cost;
@@ -82,7 +84,10 @@ export class Ability {
 	token: number;
 	upgraded: boolean;
 	title: string;
-
+	// From UnitDataStructure ability_info
+	desc?: string;
+	info?: string;
+	upgrade?: string;
 	// TODO properly type all `unknown` types
 	// These properties come from extending a specific ability from `src/abilities`
 	requirements?: Requirement | undefined;
@@ -97,9 +102,10 @@ export class Ability {
 	damages?: Partial<CreatureMasteries> & { pure?: number };
 	effects?: AbilityEffect[];
 	message?: string;
-	movementType?: () => 'flying'; // Currently, this functon only exists in `Scavenger.js`
+	movementType?: () => Movement; // Currently, this functon only exists in `Scavenger.ts`
+	materialize?: (creature: string | CreatureType) => void; // This functon only exists in `Dark Priest.ts`
 	triggeredThisChain?: boolean;
-	range?: { minimum?: number; regular: number; upgraded: number };
+	range?: { minimum?: number; regular: number; upgraded?: number };
 
 	// Properties that begin with an underscore are used locally in a specific file in the `abilities` directory.
 	// For example: _lastBonus is unique to Gumble.ts.
@@ -116,6 +122,7 @@ export class Ability {
 	getAbilityName?: (name: string) => string;
 	getMovementBuff?: (buff: number) => number;
 	getOffenseBuff?: (buff: number) => number;
+	_getOffenseBuff?: () => number;
 	_getHexes?: () => any;
 	_getMaxDistance: () => number;
 	_directions?: Direction[];
@@ -134,6 +141,11 @@ export class Ability {
 	_maxPushDistance: number;
 	_damagePerHexTravelled: number;
 	_damage: (target: Creature, runPath: Hex[]) => void;
+	_damageTarget: (target: Creature) => {
+		damages?: DamageResult;
+		kill: boolean;
+		damageObj?: Damage;
+	};
 	_pushTarget: (target: Creature, pushPath: Hex[], args: any) => void;
 
 	_isSecondLowJump: () => boolean;
@@ -154,12 +166,15 @@ export class Ability {
 		distance: number;
 		sourceCreature?: Creature;
 	};
-
 	// Below methods exist in Snow-Bunny.ts
 	_detectFrontHexesWithEnemy: () => { direction: number; hex: Hex; enemyPos: Point }[];
 	_findEnemyHexInFront: (hexWithEnemy: Hex) => Hex | undefined;
 	_getHopHex: () => Hex | undefined;
 	_getUsesPerTurn: () => 1 | 2;
+
+	_effectName: string;
+
+	_getDamage: (path: Hex[]) => any;
 
 	resetTimesUsed(): void {
 		this.timesUsedThisTurn = 0;
@@ -619,7 +634,7 @@ export class Ability {
 	 * @param obj Damage object.
 	 * @return damage
 	 */
-	getFormattedDamages(obj: Record<string, any>): string | false {
+	getFormattedDamages(obj?: Record<string, any>): string | false {
 		obj = obj || this.damages;
 
 		if (!obj) {
@@ -722,7 +737,7 @@ export class Ability {
 			optTest: function () {
 				return true;
 			},
-               pierceThroughBehavior: "pierce",
+			pierceThroughBehavior: 'pierce',
 		};
 
 		const options = { ...defaultOpt, ...o };
@@ -730,26 +745,26 @@ export class Ability {
 		for (let i = 0, len = hexes.length; i < len; i++) {
 			const creature = hexes[i].creature;
 
-		 		if (
-					!creature ||
-					!isTeam(this.creature, creature, options.team) ||
-					!options.optTest(creature)
+			if (
+				!creature ||
+				!isTeam(this.creature, creature, options.team) ||
+				!options.optTest(creature)
 			) {
-					if(creature) {
-							 switch (options.pierceThroughBehavior) {
-										case "stop": // Stop search as soon as any creature is found
-												 i=len; // break for loop;
-												 break;
-										case "partial": // Pierce only members of the target team who have failed optTest
-												 if(!isTeam(this.creature, creature, options.team)) {
-															i=len; // break for loop;
-															break;
-												 }
-										case "pierce": // Continue search until all options are checked, or valid target found
-										default:
-												 // Pass
-							 }
+				if (creature) {
+					switch (options.pierceThroughBehavior as PierceThroughBehavior) {
+						case 'stop': // Stop search as soon as any creature is found
+							i = len; // break for loop;
+							break;
+						case 'targetOnly': // Pierce only members of the target team who have failed optTest
+							if (!isTeam(this.creature, creature, options.team)) {
+								i = len; // break for loop;
+								break;
+							}
+						case 'pierce': // Continue search until all options are checked, or valid target found
+						default:
+						// Pass
 					}
+				}
 				continue;
 			}
 
@@ -911,6 +926,7 @@ export class Ability {
 			directions: [1, 1, 1, 1, 1, 1],
 			includeCreature: true,
 			stopOnCreature: true,
+			PierceThroughBehavior: 'stop',
 			distance: 0,
 			minDistance: 0,
 			sourceCreature: undefined,
