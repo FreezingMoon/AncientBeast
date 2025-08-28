@@ -1360,9 +1360,9 @@ export const unitData: UnitDataStructure = [
 		ability_info: [
 			{
 				title: 'Gooey Body',
-				desc: 'Receives bonus pierce, slash and crush masteries based on remaining health.',
-				info: '3 bonus points each for every 7 health.',
-				upgrade: 'Health threshold becomes 5.',
+				desc: 'When killed, it melts into a puddle that traps any unit that walks on top of it.',
+				info: "Can't move current round while on goo.",
+				upgrade: 'Does not affect allied units.',
 			},
 			{
 				title: 'Gummy Mallet',

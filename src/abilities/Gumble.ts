@@ -17,58 +17,75 @@ export default (G: Game) => {
 	G.abilities[14] = [
 		// First Ability: Gooey Body
 		{
-			// Update stat buffs whenever health changes
-			trigger: 'onCreatureSummon onDamage onHeal',
+			// Trigger when Gumble dies
+			trigger: 'onCreatureDeath',
 
 			require: function () {
-				// Always active
 				return true;
 			},
 
-			activate: function () {
-				if (this.creature.dead) {
-					return;
-				}
-				// Attach a permanent effect that gives Gumble stat buffs
-				// Bonus points to pierce, slash and crush based on remaining health
-				const healthBonusDivisor = this.isUpgraded() ? 5 : 7;
-				const bonus = Math.floor((this.creature.health / healthBonusDivisor) * 3);
-				// Log whenever the bonus applied changes
-				const noLog = bonus == this._lastBonus;
-				this._lastBonus = bonus;
-				const statsToApplyBonus = ['pierce', 'slash', 'crush'];
-				const alterations = {};
-				for (let i = 0; i < statsToApplyBonus.length; i++) {
-					const key = statsToApplyBonus[i];
-					alterations[key] = bonus;
-				}
-				this.creature.replaceEffect(
-					new Effect(
-						'Gooey Body', // name
-						this.creature, // Caster
-						this.creature, // Target
-						'', // Trigger
+			activate: function (deadCreature: Creature) {
+				const deathHex = G.grid.hexAt(deadCreature.x, deadCreature.y);
+
+				const ability = this;
+
+				// Create goo trap at Gumble's death location
+				const createGooTrap = () => {
+					console.log("Creating goo trap at Gumble's death location");
+
+					const effect = new Effect(
+						'Gooey Body',
+						ability.creature,
+						deathHex,
+						'onStepIn',
 						{
-							alterations: alterations,
-							deleteTrigger: '',
-							stackable: false,
-							effectFn: () => {
-								if (bonus !== this._lastBonus) {
-									G.log('Effect ' + this.title + ' triggered');
+							// Check if creature should be affected by the goo
+							requireFn: function () {
+								const creatureOnGoo = this.trap.hex.creature;
+								if (!creatureOnGoo) {
+									return false;
 								}
+
+								// If upgraded, don't affect allied units
+								if (ability.isUpgraded()) {
+									return creatureOnGoo.player !== ability.creature.player;
+								}
+
+								// Otherwise affect all units
+								return true;
 							},
+							effectFn: function (_, creature: Creature) {
+								// Pin the creature in place for the current round
+								creature.remainingMove = 0;
+							},
+							alterations: {},
+							deleteTrigger: '',
+							// Effect should persist as long as the trap exists
+							turnLifetime: -1,
 						},
 						G,
-					),
-				);
-				if (!noLog) {
-					G.log(
-						'%CreatureName' + this.creature.id + '% receives ' + bonus + ' pierce, slash and crush',
 					);
-				}
-			},
 
-			_lastBonus: 0,
+					new Trap(
+						deathHex.x,
+						deathHex.y,
+						'royal-seal',
+						[effect],
+						ability.creature.player,
+						{
+							ownerCreature: ability.creature,
+							fullTurnLifetime: true,
+							// Trap persists until overlapped by another trap
+							turnLifetime: -1,
+						},
+						G,
+					);
+
+					G.log('%CreatureName' + deadCreature.id + '% melts into a gooey puddle');
+				};
+
+				createGooTrap();
+			},
 		},
 
 		// Second Ability: Gummy Mallet

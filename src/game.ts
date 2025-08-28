@@ -1132,7 +1132,8 @@ export default class Game {
 
 		// For triggered creature
 		triggeredCreature.abilities.forEach((ability) => {
-			if (triggeredCreature.dead === true) {
+			// If the creature is dead and the trigger is not onCreatureDeath, return
+			if (triggeredCreature.dead === true && trigger !== 'onCreatureDeath') {
 				return;
 			}
 
@@ -1320,8 +1321,8 @@ export default class Game {
 	onCreatureDeath(/* creature, callback */) {
 		const creature = arguments[0];
 
-		this.triggerAbility('onCreatureDeath', arguments);
-		this.triggerEffect('onCreatureDeath', [creature, creature]);
+		this.triggerAbility('onCreatureDeath', [creature, creature]);
+		this.triggerEffect('onCreatureDeath', arguments);
 
 		// Looks for traps owned by this creature and destroy them
 		this.traps
