@@ -1005,7 +1005,7 @@ export class UI {
 					'cards/' + stats.type.substring(0, 1),
 				)}')`,
 			});
-			$j.each(stats.stats, (key, value) => {
+			$j.each(stats.stats, (key, value) => { //What is going on here...?
 				const $stat = $j('#card .sideB .' + key + ' .value');
 				$stat.removeClass('buff debuff');
 				if (this.selectedCreatureObj) {
@@ -2463,6 +2463,7 @@ export class UI {
 				hex.overlayVisualState('hover h_player' + creature.team);
 			});
 
+			ui.chat.showExpanded(creature);
 			ui.game.grid.showMovementRange(creature);
 			ui.queue.xray(creature.id);
 		});
@@ -2476,6 +2477,7 @@ export class UI {
 				});
 			});
 
+			ui.chat.hideExpanded();
 			ui.game.grid.redoLastQuery();
 			creatures.forEach((creature) => {
 				creature.xray(false);
