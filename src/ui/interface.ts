@@ -153,7 +153,7 @@ export class UI {
 		// Score Button
 		this.btnToggleScore = new Button(
 			{
-				$button: $j('.togglescore'),
+				$button: $j('#playerbutton.togglescore'),
 				hasShortcut: true,
 				click: () => {
 					this.game.signals.ui.dispatch('toggleScore');
@@ -1581,17 +1581,17 @@ export class UI {
 
 				if (score1 > score2) {
 					// Left side wins
-					$j('#scoreboard p').text(
+					$j('#winnerMessage').text(
 						game.players[0].name + ' and ' + game.players[2].name + ' won the match!',
 					);
 				} else if (score1 < score2) {
 					// Right side wins
-					$j('#scoreboard p').text(
+					$j('#winnerMessage').text(
 						game.players[1].name + ' and ' + game.players[3].name + ' won the match!',
 					);
 				} else if (score1 == score2) {
 					// Draw
-					$j('#scoreboard p').text('Draw!');
+					$j('#winnerMessage').text('Draw!');
 				}
 			} else {
 				// 1 vs 1
@@ -1600,15 +1600,18 @@ export class UI {
 
 				if (score1 > score2) {
 					// Left side wins
-					$j('#scoreboard p').text(game.players[0].name + ' won the match!');
+					$j('#winnerMessage').text(game.players[0].name + ' won the match!');
 				} else if (score1 < score2) {
 					// Right side wins
-					$j('#scoreboard p').text(game.players[1].name + ' won the match!');
+					$j('#winnerMessage').text(game.players[1].name + ' won the match!');
 				} else if (score1 == score2) {
 					// Draw
-					$j('#scoreboard p').text('Draw!');
+					$j('#winnerMessage').text('Draw!');
 				}
 			}
+		} else {
+			// Clear winner message when showing current score
+			$j('#winnerMessage').text('');
 		}
 
 		// Finally, show the scoreboard
