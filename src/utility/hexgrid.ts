@@ -1131,7 +1131,9 @@ export class HexGrid {
 					creature.hint('Skip turn', 'confirm');
 				}
 			}
-			game.UI.chat.hideExpanded();
+			else{
+				game.UI.chat.hideExpanded();
+			}
 			$j('canvas').css('cursor', 'default');
 		};
 

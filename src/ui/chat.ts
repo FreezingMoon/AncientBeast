@@ -2,6 +2,7 @@ import * as $j from 'jquery';
 import * as str from '../utility/string';
 import { PRIMARY_STATS, MASTERY_STATS } from '../utility/const';
 import { Creature } from '../creature';
+import { throttle } from 'underscore';
 import Game from '../game';
 
 type Message = {
@@ -130,50 +131,46 @@ export class Chat {
 	}
 
 	showExpanded(creature: Creature) {
-		if (!creature || creature === this.currentExpandedCreature) {
-			return;
-		}
+			if (!creature || creature === this.currentExpandedCreature) {
+				return;
+			}
+			this.currentExpandedCreature = creature;
+			this.isExpanded = true;
 
-		this.currentExpandedCreature = creature;
-		this.isExpanded = true;
+			const statsContent = this._createStatsContent(creature);
+			const masteriesContent = this._createMasteriesContent(creature);
 
-		const statsContent = this._createStatsContent(creature);
-		const masteriesContent = this._createMasteriesContent(creature);
-
-		const expandedHTML = `
-			<div class="creature-name">${creature.name}</div>
-			<div class="stats-masteries-container">
-				<div class="stats-row">
-					${statsContent}
+			const expandedHTML = `
+				<div class="stats-masteries-container">
+					<div class="stats-row">
+						${statsContent}
+					</div>
+					<div class="masteries-row">
+						${masteriesContent}
+					</div>
 				</div>
-				<div class="masteries-row">
-					${masteriesContent}
-				</div>
-			</div>
-		`;
+			`;
 
-		if (this.$expandedContent.children().length > 0) {
-			this.$expandedContent.stop().animate({ opacity: 0 }, 200, () => {
+			if (this.$expandedContent.children().length > 0) {
+				this.$expandedContent.stop().animate({ opacity: 0 }, 200, () => {
+					this.$expandedContent.html(expandedHTML);
+					this.$expandedContent.animate({ opacity: 1 }, 200);
+				});
+			} else {
 				this.$expandedContent.html(expandedHTML);
-				this.$expandedContent.animate({ opacity: 1 }, 200);
-			});
-		} else {
-			this.$expandedContent.html(expandedHTML);
-			this.$chat.addClass('expanded');
+				this.$chat.addClass('expanded');
 
-			this.$content.stop().animate({ opacity: 0 }, 200);
-			this.$expandedContent.css({ opacity: 0 }).animate({ opacity: 1 }, 200);
-		}
-	}
+				this.$content.stop().animate({ opacity: 0 }, 500);
+				this.$expandedContent.css({ opacity: 0 }).animate({ opacity: 1 }, 500);
+			}
+}
 
 	hideExpanded() {
 		if (!this.isExpanded) {
 			return;
 		}
-
 		this.isExpanded = false;
 		this.currentExpandedCreature = null;
-
 		this.$expandedContent.stop().animate({ opacity: 0 }, 200, () => {
 			this.$expandedContent.empty();
 			this.$chat.removeClass('expanded');
@@ -198,7 +195,7 @@ export class Chat {
 
 				return `
 					<div class="stat-item">
-						<div class="stat-icon ${stat}"></div>
+						<div class="icon ${stat}"></div>
 						<div class="stat-value">${value}</div>
 					</div>
 				`;
@@ -213,7 +210,7 @@ export class Chat {
 				const value = creature.stats[mastery];
 				return `
 					<div class="stat-item">
-						<div class="stat-icon ${mastery}"></div>
+						<div class="icon ${mastery}"></div>
 						<div class="stat-value">${value}</div>
 					</div>
 				`;

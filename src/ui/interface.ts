@@ -2476,8 +2476,9 @@ export class UI {
 					hex.cleanOverlayVisualState();
 				});
 			});
-
 			ui.chat.hideExpanded();
+
+
 			ui.game.grid.redoLastQuery();
 			creatures.forEach((creature) => {
 				creature.xray(false);
