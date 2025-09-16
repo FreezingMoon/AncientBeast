@@ -26,6 +26,7 @@ export class Chat {
 	isOpen: boolean;
 	messages: Message[];
 	isExpanded: boolean;
+	isOverCreature: boolean;
 	currentExpandedCreature: Creature;
 	messagesToSuppress: MessageToSupress[];
 
@@ -58,6 +59,7 @@ export class Chat {
 
 		this.messages = [];
 		this.isOpen = false;
+		this.isOverCreature = false;
 		this.isExpanded = false;
 		this.currentExpandedCreature = null;
 		this.messagesToSuppress = [];
@@ -99,7 +101,6 @@ export class Chat {
 	hide() {
 		this.$chat.removeClass('focus');
 		this.isOpen = false;
-		this.hideExpanded();
 	}
 
 	toggle() {
@@ -130,10 +131,12 @@ export class Chat {
 		this.hideExpanded();
 	}
 
+
 	showExpanded(creature: Creature) {
 			if (!creature || creature === this.currentExpandedCreature) {
 				return;
 			}
+			this.isOverCreature = true;
 			this.currentExpandedCreature = creature;
 			this.isExpanded = true;
 
@@ -166,16 +169,20 @@ export class Chat {
 }
 
 	hideExpanded() {
-		if (!this.isExpanded) {
-			return;
-		}
-		this.isExpanded = false;
-		this.currentExpandedCreature = null;
-		this.$expandedContent.stop().animate({ opacity: 0 }, 200, () => {
-			this.$expandedContent.empty();
-			this.$chat.removeClass('expanded');
-			this.$content.animate({ opacity: 1 }, 200);
-		});
+		this.isOverCreature = false;
+		setTimeout(() => {
+			if (!this.isExpanded || this.isOverCreature) {
+				return;
+			}
+			this.isExpanded = false;
+			this.currentExpandedCreature = null;
+			this.$expandedContent.stop().animate({ opacity: 0 }, 200, () => {
+				this.$expandedContent.empty();
+				this.$chat.removeClass('expanded');
+				this.$content.animate({ opacity: 1 }, 200);
+			});
+		}, 50);
+
 	}
 
 	_createStatsContent(creature: Creature) {

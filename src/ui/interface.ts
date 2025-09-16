@@ -2478,7 +2478,6 @@ export class UI {
 			});
 			ui.chat.hideExpanded();
 
-
 			ui.game.grid.redoLastQuery();
 			creatures.forEach((creature) => {
 				creature.xray(false);

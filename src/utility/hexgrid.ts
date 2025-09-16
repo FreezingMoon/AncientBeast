@@ -1005,7 +1005,6 @@ export class HexGrid {
 					creature.displayHealthStats();
 				}
 			}
-			game.UI.chat.showExpanded(creature);
 			creature.hexagons.forEach((h) => {
 				// Flashing outline
 				h.overlayVisualState('hover h_player' + creature.team);
@@ -1131,9 +1130,7 @@ export class HexGrid {
 					creature.hint('Skip turn', 'confirm');
 				}
 			}
-			else{
-				game.UI.chat.hideExpanded();
-			}
+			game.UI.chat.hideExpanded();
 			$j('canvas').css('cursor', 'default');
 		};
 
@@ -1150,9 +1147,9 @@ export class HexGrid {
 			$j('canvas').css('cursor', 'pointer');
 
 			if (hex.creature instanceof Creature) {
-				// Keep reference
-				this.hoveredCreature = hex.creature;
 
+				game.UI.chat.showExpanded(hex.creature);
+				// Keep reference
 				onCreatureHover(hex.creature, game.UI.xrayQueue.bind(game.UI), hex);
 
 				hex.creature.startBounce();
@@ -1161,6 +1158,7 @@ export class HexGrid {
 					// Show "Skip Turn" icon
 					hex.creature.hint('Skip turn', 'no_action');
 				}
+				game.UI.chat.isOverCreature = true;
 			}
 
 			if (hex.reachable) {
