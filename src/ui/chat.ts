@@ -119,7 +119,7 @@ export class Chat {
 		if (this.$chat.hasClass('focus') === false) {
 			this.$chat.addClass('peek');
 			this.$content.parent().scrollTop(this.$content.height());
-			this.isOpen = true;//!this.isOpen; //Weird
+			this.isOpen = !this.isOpen;
 		}
 	}
 
