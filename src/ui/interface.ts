@@ -431,6 +431,11 @@ export class UI {
 			this.abilitiesButtons.push(b);
 		}
 
+		// Scoreboard close button
+		$j('.togglescore.close-button').on('click', () => {
+			this.game.signals.ui.dispatch('toggleScore');
+		});
+
 		// ProgressBar
 		this.healthBar = new ProgressBar({
 			$bar: $j('#leftpanel .progressbar .bar.healthbar'),
@@ -1573,6 +1578,9 @@ export class UI {
 			// Set title
 			this.$scoreboard.find('#scoreboardTitle').text('Match Over');
 
+			// Hide close button on game over screen
+			this.$scoreboard.find('.framed-modal__return').hide();
+
 			// Declare winner
 			if (game.playerMode > 2) {
 				// 2 vs 2
@@ -1612,6 +1620,9 @@ export class UI {
 		} else {
 			// Clear winner message when showing current score
 			$j('#winnerMessage').text('');
+
+			// Show close button for current score view
+			this.$scoreboard.find('.framed-modal__return').show();
 		}
 
 		// Finally, show the scoreboard
