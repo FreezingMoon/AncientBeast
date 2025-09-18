@@ -64,8 +64,8 @@ export class Chat {
 		this.currentExpandedCreature = null;
 		this.messagesToSuppress = [];
 
-		this.$expandedContent = $j('<div id="chatexpanded" class="chat-expanded-content"></div>');
-		this.$chat.append(this.$expandedContent);
+		this.$expandedContent = $j('#chatexpanded');//'<div id="chatexpanded" class="chat-expanded-content"></div>');
+		//this.$chat.append(this.$expandedContent);
 
 		$j('#combatwrapper, #toppanel, #dash, #endscreen').on('click', () => {
 			this.hide();
@@ -143,6 +143,7 @@ export class Chat {
 			const statsContent = this._createStatsContent(creature);
 			const masteriesContent = this._createMasteriesContent(creature);
 
+
 			const expandedHTML = `
 				<div class="stats-masteries-container">
 					<div class="stats-row">
@@ -155,10 +156,13 @@ export class Chat {
 			`;
 
 			if (this.$expandedContent.children().length > 0) {
-				this.$expandedContent.stop().animate({ opacity: 0 }, 200, () => {
+				const statValues = this.$expandedContent.children().children().children().children('.stat-value');
+				statValues.stop().animate({ opacity: 0 }, 200, () => {
 					this.$expandedContent.html(expandedHTML);
-					this.$expandedContent.animate({ opacity: 1 }, 200);
-				});
+					statValues.animate({ opacity: 1 }, 200);
+				}
+				);
+				this.$expandedContent.stop().animate({ opacity: 1 }, 200);
 			} else {
 				this.$expandedContent.html(expandedHTML);
 				this.$chat.addClass('expanded');
@@ -181,7 +185,7 @@ export class Chat {
 				this.$chat.removeClass('expanded');
 				this.$content.animate({ opacity: 1 }, 200);
 			});
-		}, 50);
+		}, 20);
 
 	}
 
