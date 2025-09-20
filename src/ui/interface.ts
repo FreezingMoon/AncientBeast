@@ -1134,6 +1134,13 @@ export class UI {
 
 						// Bind button
 						this.materializeButton.click = () => {
+							if (this.selectedAbility === 3) {
+								// Cancel ability if already selected
+								this.closeDash();
+								game.activeCreature.queryMove();
+								this.selectAbility(-1);
+								return;
+							}
 							this.materializeToggled = false;
 							this.selectAbility(3);
 							this.closeDash();
