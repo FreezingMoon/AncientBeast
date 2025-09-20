@@ -1072,6 +1072,7 @@ div.section.info {
 /*---------------Text Box--------------*/
 #chat {
 	width: 450px;
+	max-width: 450px; /*Keeps #chat.expanded from flickering*/
 	height: 30px;
 	background-color: rgba(0, 0, 0, 0.8);
 	cursor: n-resize;
@@ -1082,6 +1083,74 @@ div.section.info {
 	border-radius: 10px 10px 0 0;
 	overflow: hidden;
 	transition: all 500ms;
+}
+
+#chat.expanded {
+	height: 130px !important;
+	bottom: 125px !important;
+}
+
+.chat-expanded-content {
+	position: absolute;
+	top: 5px;
+	left: 5px;
+	right: 5px;
+	bottom: 5px;
+	display: none;
+	opacity: 0;
+	color: white;
+	padding: 10px;
+}
+
+#chat.expanded .chat-expanded-content {
+	display: block;
+}
+
+.chat-expanded-content .creature-name {
+	font-size: 18px;
+	font-weight: bold;
+	text-align: center;
+	margin-bottom: 10px;
+	color: #fff;
+	text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.stats-masteries-container {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.stats-row,
+.masteries-row {
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+.stat-item {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	min-width: 45px;
+}
+
+.stat-icon {
+	width: 20px;
+	height: 20px;
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	margin-bottom: 2px;
+}
+
+.stat-value {
+	font-size: 10px;
+	font-weight: bold;
+	color: white;
+	text-align: center;
+	text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8);
 }
 
 #chatbox::-webkit-scrollbar {
@@ -1109,6 +1178,10 @@ div.section.info {
 #chat.peek #chatbox {
 	overflow: hidden;
 	overflow-y: scroll;
+}
+
+#chat.expanded #chatbox{
+	overflow: hidden;
 }
 
 #chat.focus #chatbox {
@@ -2196,5 +2269,16 @@ input {
 @media screen and (max-width: 823px) and (orientation: portrait) {
 	#orientation-message {
 		display: flex;
+	}
+}
+
+@media (max-width: 600px) {
+	#chat {
+		bottom: 20px;
+	}
+
+	#chat.expanded {
+		height: 120px;
+		bottom: 150px;
 	}
 }

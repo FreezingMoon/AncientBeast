@@ -1,5 +1,8 @@
 import * as $j from 'jquery';
 import * as str from '../utility/string';
+import { PRIMARY_STATS, MASTERY_STATS } from '../utility/const';
+import { Creature } from '../creature';
+import { throttle } from 'underscore';
 import Game from '../game';
 
 type Message = {
@@ -19,9 +22,14 @@ export class Chat {
 	game: Game;
 	$chat: JQuery<HTMLElement>; //eslint-disable-line no-undef
 	$content: JQuery<HTMLElement>; //eslint-disable-line no-undef
+	$expandedContent: JQuery<HTMLElement>; //eslint-disable-line no-undef
 	isOpen: boolean;
 	messages: Message[];
+	isExpanded: boolean;
+	isOverCreature: boolean;
+	currentExpandedCreature: Creature;
 	messagesToSuppress: MessageToSupress[];
+
 	/**
 	 * Chat/Log Functions
 	 * @constructor
@@ -51,8 +59,12 @@ export class Chat {
 
 		this.messages = [];
 		this.isOpen = false;
+		this.isOverCreature = false;
+		this.isExpanded = false;
+		this.currentExpandedCreature = null;
 		this.messagesToSuppress = [];
 
+		this.$expandedContent = $j('#chatexpanded');
 		$j('#combatwrapper, #toppanel, #dash, #endscreen').on('click', () => {
 			this.hide();
 		});
@@ -96,6 +108,9 @@ export class Chat {
 		}
 		this.$content.parent().scrollTop(this.$content.height());
 		this.isOpen = !this.isOpen;
+		if (!this.isOpen) {
+			this.hideExpanded();
+		}
 	}
 
 	peekOpen() {
@@ -110,6 +125,106 @@ export class Chat {
 		if (this.$chat.hasClass('peek')) {
 			this.$chat.removeClass('peek');
 		}
+		this.isOpen = false;
+		this.hideExpanded();
+	}
+
+
+	showExpanded(creature: Creature) {
+			if (!creature || creature === this.currentExpandedCreature) {
+				return;
+			}
+			this.isOverCreature = true;
+			this.currentExpandedCreature = creature;
+			this.isExpanded = true;
+
+			const statsContent = this._createStatsContent(creature);
+			const masteriesContent = this._createMasteriesContent(creature);
+
+
+			const expandedHTML = `
+				<div class="stats-masteries-container">
+					<div class="stats-row">
+						${statsContent}
+					</div>
+					<div class="masteries-row">
+						${masteriesContent}
+					</div>
+				</div>
+			`;
+
+			if (this.$expandedContent.children().length > 0) {
+				const statValues = this.$expandedContent.children().children().children().children('.stat-value');
+				statValues.stop().animate({ opacity: 0 }, 200, () => {
+					this.$expandedContent.html(expandedHTML);
+					statValues.animate({ opacity: 1 }, 200);
+				}
+				);
+				this.$expandedContent.stop().animate({ opacity: 1 }, 200);
+			} else {
+				this.$expandedContent.html(expandedHTML);
+				this.$chat.addClass('expanded');
+
+				this.$content.stop().animate({ opacity: 0 }, 500);
+				this.$expandedContent.css({ opacity: 0 }).animate({ opacity: 1 }, 500);
+			}
+}
+
+	hideExpanded() {
+		this.isOverCreature = false;
+		setTimeout(() => {
+			if (!this.isExpanded || this.isOverCreature) {
+				return;
+			}
+			this.isExpanded = false;
+			this.currentExpandedCreature = null;
+			this.$expandedContent.stop().animate({ opacity: 0 }, 200, () => {
+				this.$expandedContent.empty();
+				this.$chat.removeClass('expanded');
+				this.$content.animate({ opacity: 1 }, 200);
+			});
+		}, 20);
+
+	}
+
+	_createStatsContent(creature: Creature) {
+		const stats = PRIMARY_STATS;
+		return stats
+			.map((stat) => {
+				const value =
+					stat === 'health'
+						? `${creature.health}/${creature.stats[stat]}`
+						: stat === 'energy'
+							? `${creature.energy}/${creature.stats[stat]}`
+							: stat === 'endurance'
+								? `${creature.endurance}/${creature.stats[stat]}`
+								: stat === 'movement'
+									? `${creature.remainingMove}/${creature.stats[stat]}`
+									: creature.stats[stat];
+
+				return `
+					<div class="stat-item">
+						<div class="icon ${stat}"></div>
+						<div class="stat-value">${value}</div>
+					</div>
+				`;
+			})
+			.join('');
+	}
+
+	_createMasteriesContent(creature: Creature) {
+		const masteries = MASTERY_STATS;
+		return masteries
+			.map((mastery) => {
+				const value = creature.stats[mastery];
+				return `
+					<div class="stat-item">
+						<div class="icon ${mastery}"></div>
+						<div class="stat-value">${value}</div>
+					</div>
+				`;
+			})
+			.join('');
 	}
 
 	getCurrentTime() {
