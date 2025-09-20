@@ -64,9 +64,7 @@ export class Chat {
 		this.currentExpandedCreature = null;
 		this.messagesToSuppress = [];
 
-		this.$expandedContent = $j('#chatexpanded');//'<div id="chatexpanded" class="chat-expanded-content"></div>');
-		//this.$chat.append(this.$expandedContent);
-
+		this.$expandedContent = $j('#chatexpanded');
 		$j('#combatwrapper, #toppanel, #dash, #endscreen').on('click', () => {
 			this.hide();
 		});
