@@ -203,6 +203,11 @@ export const unitData: UnitDataStructure = [
 			sonic: 5,
 			mental: 8,
 		},
+				drop: {
+			name: 'gold coin',
+			meditation: 6,
+			initiative: 4,
+		},
 		animation: {
 			walk_speed: 500,
 		},
