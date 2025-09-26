@@ -146,6 +146,8 @@ export default (G: Game) => {
 
 				const ability = this;
 
+				const game = this.game;
+
 				const damage = new Damage(
 					ability.creature, // Attacker
 					ability.damages, // Damage Type
@@ -170,6 +172,7 @@ export default (G: Game) => {
 					setTimeout(() => {
 						G.Phaser.camera.shake(0.01, 150, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 						ability.end(true);
+						game.soundsys.playSFX('sounds/swing2');
 						target.takeDamage(damage);
 						G.log('%CreatureName' + ability.creature.id + '% used ' + ability.title + ' twice');
 					}, 1000);
