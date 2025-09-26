@@ -1013,31 +1013,13 @@ export class UI {
 			$j.each(stats.stats, (key, value) => { //What is going on here...?
 				const $stat = $j('#card .sideB .' + key + ' .value');
 				$stat.removeClass('buff debuff');
-				if (this.selectedCreatureObj) {
-					if (key == 'health') {
-						$stat.text(this.selectedCreatureObj.health + '/' + this.selectedCreatureObj.stats[key]);
-					} else if (key == 'movement') {
-						$stat.text(
-							this.selectedCreatureObj.remainingMove + '/' + this.selectedCreatureObj.stats[key],
-						);
-					} else if (key == 'energy') {
-						$stat.text(this.selectedCreatureObj.energy + '/' + this.selectedCreatureObj.stats[key]);
-					} else if (key == 'endurance') {
-						$stat.text(
-							this.selectedCreatureObj.endurance + '/' + this.selectedCreatureObj.stats[key],
-						);
-					} else {
-						$stat.text(this.selectedCreatureObj.stats[key]);
-					}
-					if (this.selectedCreatureObj.stats[key] > value) {
-						// Buff
-						$stat.addClass('buff');
-					} else if (this.selectedCreatureObj.stats[key] < value) {
-						// Debuff
-						$stat.addClass('debuff');
-					}
-				} else {
-					$stat.text(value);
+				$stat.text(value);
+				if (this.selectedCreatureObj.stats[key] > value) {
+					// Buff
+					$stat.addClass('debuff');
+				} else if (this.selectedCreatureObj.stats[key] < value) {
+					// Debuff
+					$stat.addClass('buff');
 				}
 			});
 			$j.each(game.abilities[stats.id], (key) => {
