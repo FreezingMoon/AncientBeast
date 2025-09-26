@@ -1010,17 +1010,17 @@ export class UI {
 					'cards/' + stats.type.substring(0, 1),
 				)}')`,
 			});
-			$j.each(stats.stats, (key, value) => { //What is going on here...?
+			$j.each(stats.stats, (key, value) => {
 				const $stat = $j('#card .sideB .' + key + ' .value');
 				$stat.removeClass('buff debuff');
 				$stat.text(value);
-				if (this.selectedCreatureObj.stats[key] > value) {
+				/*if (this.selectedCreatureObj.stats[key] > value) {
 					// Buff
 					$stat.addClass('debuff');
 				} else if (this.selectedCreatureObj.stats[key] < value) {
 					// Debuff
 					$stat.addClass('buff');
-				}
+				}*/
 			});
 			$j.each(game.abilities[stats.id], (key) => {
 				const $ability = $j('#card .sideB .abilities .ability:eq(' + key + ')');
