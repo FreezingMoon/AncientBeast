@@ -21,7 +21,7 @@ if (audioPlayer) {
 	if (timeline) {
 		timeline.addEventListener(
 			'click',
-			(e) => {
+			(e: PointerEvent) => {
 				const timelineWidth = window.getComputedStyle(timeline).width;
 				const timeToSeek = (e.offsetX / parseInt(timelineWidth)) * skin.duration;
 				skin.currentTime = timeToSeek;
@@ -53,7 +53,7 @@ if (audioPlayer) {
 // Song progress bar
 setInterval(() => {
 	if (audioPlayer) {
-		const progressBar = audioPlayer.querySelector('.progress-music');
+		const progressBar = audioPlayer.querySelector('.progress-music') as HTMLElement;
 		if (progressBar) {
 			progressBar.style.width = (skin.currentTime / skin.duration) * 100 + '%';
 		}
@@ -64,15 +64,15 @@ setInterval(() => {
 	}
 }, 500);
 
-function getTimeCodeFromNum(num) {
-	let seconds = parseInt(num);
-	let minutes = parseInt(seconds / 60);
+function getTimeCodeFromNum(num: number) {
+	let seconds = Math.trunc(num);
+	let minutes = Math.trunc(seconds / 60);
 	seconds -= minutes * 60;
-	const hours = parseInt(minutes / 60);
+	const hours = Math.trunc(minutes / 60);
 	minutes -= hours * 60;
 
-	if (hours === 0) return `${minutes}:${String(seconds % 60).padStart(2, 0)}`;
-	return `${String(hours).padStart(2, 0)}:${minutes}:${String(seconds % 60).padStart(2, 0)}`;
+	if (hours === 0) return `${minutes}:${String(seconds % 60).padStart(2, '0')}`;
+	return `${String(hours).padStart(2, '0')}:${minutes}:${String(seconds % 60).padStart(2, '0')}`;
 }
 
 export default skin;
