@@ -1010,35 +1010,29 @@ export class UI {
 					'cards/' + stats.type.substring(0, 1),
 				)}')`,
 			});
-			$j.each(stats.stats, (key, value) => { //What is going on here...?
+			$j.each(stats.stats, (key, value) => {
 				const $stat = $j('#card .sideB .' + key + ' .value');
 				$stat.removeClass('buff debuff');
-				if (this.selectedCreatureObj) {
+				let preText = '';
+				if(this.selectedCreatureObj.type == creatureType){
 					if (key == 'health') {
-						$stat.text(this.selectedCreatureObj.health + '/' + this.selectedCreatureObj.stats[key]);
+						preText = this.selectedCreatureObj.health + '/';
 					} else if (key == 'movement') {
-						$stat.text(
-							this.selectedCreatureObj.remainingMove + '/' + this.selectedCreatureObj.stats[key],
-						);
+						preText = this.selectedCreatureObj.remainingMove + '/';
 					} else if (key == 'energy') {
-						$stat.text(this.selectedCreatureObj.energy + '/' + this.selectedCreatureObj.stats[key]);
+						preText = this.selectedCreatureObj.energy + '/';
 					} else if (key == 'endurance') {
-						$stat.text(
-							this.selectedCreatureObj.endurance + '/' + this.selectedCreatureObj.stats[key],
-						);
-					} else {
-						$stat.text(this.selectedCreatureObj.stats[key]);
+						preText = this.selectedCreatureObj.endurance + '/';
 					}
-					if (this.selectedCreatureObj.stats[key] > value) {
-						// Buff
-						$stat.addClass('buff');
-					} else if (this.selectedCreatureObj.stats[key] < value) {
-						// Debuff
-						$stat.addClass('debuff');
-					}
-				} else {
-					$stat.text(value);
 				}
+				$stat.text(preText + value);
+				/*if (this.selectedCreatureObj.stats[key] > value) {
+					// Buff
+					$stat.addClass('debuff');
+				} else if (this.selectedCreatureObj.stats[key] < value) {
+					// Debuff
+					$stat.addClass('buff');
+				}*/
 			});
 			$j.each(game.abilities[stats.id], (key) => {
 				const $ability = $j('#card .sideB .abilities .ability:eq(' + key + ')');
