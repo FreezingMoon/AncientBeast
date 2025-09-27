@@ -1013,7 +1013,19 @@ export class UI {
 			$j.each(stats.stats, (key, value) => {
 				const $stat = $j('#card .sideB .' + key + ' .value');
 				$stat.removeClass('buff debuff');
-				$stat.text(value);
+				let preText = '';
+				if(this.selectedCreatureObj.type == creatureType){
+					if (key == 'health') {
+						preText = this.selectedCreatureObj.health + '/';
+					} else if (key == 'movement') {
+						preText = this.selectedCreatureObj.remainingMove + '/';
+					} else if (key == 'energy') {
+						preText = this.selectedCreatureObj.energy + '/';
+					} else if (key == 'endurance') {
+						preText = this.selectedCreatureObj.endurance + '/';
+					}
+				}
+				$stat.text(preText + value);
 				/*if (this.selectedCreatureObj.stats[key] > value) {
 					// Buff
 					$stat.addClass('debuff');
