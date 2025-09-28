@@ -5,21 +5,36 @@ import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
 function getEscortUsableHexes(G, crea, trg) {
-    const trgIsInfront =
-        G.grid.getHexMap(
-            crea.x - matrices.inlinefront2hex.origin[0],
-            crea.y - matrices.inlinefront2hex.origin[1],
-            0,
-            false,
-            matrices.inlinefront2hex,
-        )[0].creature === trg;
-
-    const dir = trgIsInfront ? -1 : 1;  // Direction of movement
+	const isCreatureFlipped = crea.player.flipped;
+	let originX;
+	if (isCreatureFlipped) {
+		originX = crea.x - 1 + matrices.inlinefront2hex.origin[0]; //since x is on the front feet for a not flipped creature, adjust the x to be on the front feet if flipped
+	} else {
+		originX = crea.x - matrices.inlinefront2hex.origin[0];
+	}
+	//trgIsInfront now depends on if creature is flipped
+	const trgIsInfront =
+		G.grid.getHexMap(
+			originX,
+			crea.y - matrices.inlinefront2hex.origin[1],
+			0,
+			isCreatureFlipped,
+			matrices.inlinefront2hex,
+		)[0].creature === trg;
+	const dir = isCreatureFlipped ? -1 : 1; // Direction of movement
     const creaSize = crea.size;
     const trgSize = trg.size;
     const totalBlockSize = creaSize + trgSize;
-    const blockStartX = trgIsInfront ? trg.x : crea.x;
-
+    //blockStartX is always on the leftmost or rightmost of target+scavenger
+	//assume target is at the back for now
+	let blockStartX;
+	if (!isCreatureFlipped) {
+		if (!trgIsInfront) blockStartX = trg.x - (trgSize - 1);
+		else blockStartX = crea.x - 1;
+	} else {
+		if (!trgIsInfront) blockStartX = trg.x;
+		else blockStartX = crea.x;
+	}
     const distance = crea.remainingMove;
     const usableHexes = [];
 
@@ -249,11 +264,14 @@ export default (G) => {
 				const trg = hexes[0].creature || hexes[1].creature;
 				
 				// Get data to determine usable hexes, block size, and whether target is in front
-				const { size, trgIsInfront, usableHexes } = getEscortUsableHexes(G, crea, trg);			
+				const { trgIsInfront, usableHexes, creaSize, trgSize, blockStartX } = getEscortUsableHexes(
+					G,
+					crea,
+					trg,
+				);			
 				const select = (hex) => {
 					console.log(`[SELECT] Hovered Hex: ${hex.x}, ${hex.y}`);
 			
-					const { trgIsInfront, creaSize, trgSize, dir, blockStartX } = getEscortUsableHexes(G, crea, trg);
 					
 					[ ...trg.hexagons, ...crea.hexagons ].forEach(h => {
 						G.grid.cleanHex(h);
@@ -265,17 +283,17 @@ export default (G) => {
 					
 					console.log(`[SELECT] Calculated Shift: ${shift}`);
 					
+					const targetX = trg.x + shift;
 					for (let i = 0; i < trgSize; i++) {
-						const targetX = trg.x + shift;
 						if (G.grid.hexExists({ x: targetX + i, y: trg.y })) {
 							const targetHex = G.grid.hexes[trg.y][targetX + i];
 							targetHex.overlayVisualState('active creature player' + trg.team);
 							targetHex.displayVisualState('creature player' + trg.team);
 						}
 					}
-					
+
+					const creaX = crea.x - 1 + shift;
 					for (let i = 0; i < creaSize; i++) {
-						const creaX = crea.x + shift;
 						if (G.grid.hexExists({ x: creaX + i, y: crea.y })) {
 							const creaHex = G.grid.hexes[crea.y][creaX + i];
 							creaHex.overlayVisualState('active creature player' + crea.team);
@@ -299,7 +317,6 @@ export default (G) => {
 					fnOnSelect: select,
 					team: this._targetTeam,
 					id: [crea.id, trg.id],
-					size: size,
 					flipped: crea.player.flipped,
 					hexes: usableHexes,
 					args: {
