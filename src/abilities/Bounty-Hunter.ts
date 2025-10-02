@@ -241,8 +241,11 @@ export default (G: Game) => {
 
 			//	activate() :
 			activate: function (hexes, args) {
-				const clicked = args.hex;
-				const tgt = clicked && clicked.creature;
+				// In direction queries, the confirmed callback does not include args.hex.
+				// Resolve the target from the provided hex path by selecting the first hex
+				// in the chosen direction that contains a creature.
+				const targetHex = hexes && hexes.find((h) => h.creature);
+				const tgt = targetHex && targetHex.creature;
 				if (!tgt) return;
 
 				// 1) Screen shake + deal damage
