@@ -811,6 +811,8 @@ export class Creature {
 	highlightCurrentHexesAsDashed() {
 		this.hexagons.forEach((hex) => {
 			hex.display.loadTexture(`hex_dashed_p${this.player.id}`);
+			// Bring active creature hexagons to top so they appear above targeting hexagons
+			hex.grid.displayHexesGroup.bringToTop(hex.display);
 		});
 	}
 
