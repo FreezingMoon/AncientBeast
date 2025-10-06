@@ -87,6 +87,8 @@ export default (G: Game) => {
 			//	activate() :
 			activate: function (target) {
 				const ability = this;
+			const game = this.game;
+
 
 				ability.end();
 
@@ -99,8 +101,11 @@ export default (G: Game) => {
 				);
 				target.takeDamage(damage);
 				if (this.isUpgraded()) {
-					// Second attack
+				// Second attack with sound effect
+				setTimeout(() => {
+					game.soundsys.playSFX('sounds/swing2');
 					target.takeDamage(damage);
+				}, 500);
 				}
 			},
 		},
