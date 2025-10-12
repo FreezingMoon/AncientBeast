@@ -240,14 +240,16 @@ export default (G: Game) => {
 							color = i > 1 ? trg.team : crea.team;
 						}
 						G.grid.cleanHex(h);
+						console.log('trgIsInfront: ', trgIsInfront);
+						console.log('i,color: ', i, color);
 						h.overlayVisualState('active creature player' + color);
 						h.displayVisualState('creature player' + color);
 
 						const creatureData = G.retrieveCreatureStats(crea.type);
 						const targetData = G.retrieveCreatureStats(trg.type);
-						const creaPos = trgIsInfront ? { x: hex.pos.x - trg.size, y: hex.pos.y } : hex.pos;
+						const creaPos = trgIsInfront ? { x: hex.pos.x + 1, y: hex.pos.y } : hex.pos;
 						const trgPos = trgIsInfront
-							? { x: hex.pos.x, y: hex.pos.y }
+							? { x: hex.pos.x + 2, y: hex.pos.y }
 							: { x: hex.pos.x - 2, y: hex.pos.y };
 						console.log('creaPos', creaPos, 'trgPos', trgPos);
 						G.grid.previewCreature(creaPos, creatureData, crea.player);
@@ -293,9 +295,9 @@ export default (G: Game) => {
 				const trg = G.creatures[args.trg];
 
 				const trgIF = args.trgIsInfront;
-
-				const creaDest = G.grid.hexes[hex.y][trgIF ? hex.x - trg.size : hex.x];
-				const trgDest = G.grid.hexes[hex.y][trgIF ? hex.x : hex.x - crea.size];
+				console.log('trgIF: ', trgIF);
+				const creaDest = G.grid.hexes[hex.y][trgIF ? hex.x + 1 : hex.x];
+				const trgDest = G.grid.hexes[hex.y][trgIF ? hex.x + crea.size : hex.x - crea.size];
 
 				// Determine distance
 				let distance = 0;
