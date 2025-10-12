@@ -21,7 +21,11 @@ function getEscortUsableHexes(G: Game, crea: Creature, trg: Creature) {
 	const distance = crea.remainingMove;
 	const size = crea.size + trg.size;
 	const x = trgIsInfront ? crea.x + trg.size : crea.x;
-
+	console.log(typeof x, 'typeof x');
+	console.log(
+		'G.grid.getFlyingRange',
+		G.grid.getFlyingRange(x, crea.y, distance, size, [crea.id, trg.id]),
+	);
 	const usableHexes = G.grid
 		.getFlyingRange(x, crea.y, distance, size, [crea.id, trg.id])
 		.filter(function (item) {
@@ -29,7 +33,7 @@ function getEscortUsableHexes(G: Game, crea: Creature, trg: Creature) {
 				crea.y == item.y && (trgIsInfront ? item.x < x : item.x > x - crea.size - trg.size + 1)
 			);
 		});
-
+	console.log('my usableHexes', usableHexes);
 	return { size, trgIsInfront, usableHexes };
 }
 
@@ -245,7 +249,7 @@ export default (G: Game) => {
 						const trgPos = trgIsInfront
 							? { x: hex.pos.x, y: hex.pos.y }
 							: { x: hex.pos.x - 2, y: hex.pos.y };
-
+						console.log('creaPos', creaPos, 'trgPos', trgPos);
 						G.grid.previewCreature(creaPos, creatureData, crea.player);
 						G.grid.previewCreature(trgPos, targetData, trg.player, true);
 					}
@@ -260,7 +264,7 @@ export default (G: Game) => {
 					fnOnSelect: select, // fnOnSelect,
 					team: this._targetTeam,
 					id: [crea.id, trg.id],
-					size: size,
+					size: 1,
 					flipped: crea.player.flipped,
 					hexes: usableHexes,
 					args: {

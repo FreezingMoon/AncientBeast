@@ -1147,7 +1147,6 @@ export class HexGrid {
 			$j('canvas').css('cursor', 'pointer');
 
 			if (hex.creature instanceof Creature) {
-
 				game.UI.chat.showExpanded(hex.creature);
 				// Keep reference
 				onCreatureHover(hex.creature, game.UI.xrayQueue.bind(game.UI), hex);
@@ -1192,11 +1191,17 @@ export class HexGrid {
 				const mult = o.flipped ? 1 : -1; // For flipped player
 
 				for (let i = 0, size = o.size; i < size; i++) {
+					console.log('i: ', i);
 					// Try next hexagons to see if they fit
 					if (x + offset - i * mult >= this.hexes[y].length || x + offset - i * mult < 0) {
 						continue;
 					}
-
+					console.log('x + offset - i * mult :', x + offset - i * mult);
+					console.log(
+						'this.hexes[y][x + offset - i * mult]: ',
+						this.hexes[y][x + offset - i * mult],
+					);
+					console.log('walkable: ', this.hexes[y][x + offset - i * mult].isWalkable(o.size, o.id));
 					if (this.hexes[y][x + offset - i * mult].isWalkable(o.size, o.id)) {
 						x += offset - i * mult;
 						break;
