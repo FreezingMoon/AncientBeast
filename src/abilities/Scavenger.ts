@@ -21,11 +21,6 @@ function getEscortUsableHexes(G: Game, crea: Creature, trg: Creature) {
 	const distance = crea.remainingMove;
 	const size = crea.size + trg.size;
 	const x = trgIsInfront ? crea.x + trg.size : crea.x;
-	console.log(typeof x, 'typeof x');
-	console.log(
-		'G.grid.getFlyingRange',
-		G.grid.getFlyingRange(x, crea.y, distance, size, [crea.id, trg.id]),
-	);
 	const usableHexes = G.grid
 		.getFlyingRange(x, crea.y, distance, size, [crea.id, trg.id])
 		.filter(function (item) {
@@ -33,7 +28,6 @@ function getEscortUsableHexes(G: Game, crea: Creature, trg: Creature) {
 				crea.y == item.y && (trgIsInfront ? item.x < x : item.x > x - crea.size - trg.size + 1)
 			);
 		});
-	console.log('my usableHexes', usableHexes);
 	return { size, trgIsInfront, usableHexes };
 }
 
@@ -232,16 +226,16 @@ export default (G: Game) => {
 						if (!G.grid.hexExists({ y: hex.y, x: hex.x - i })) {
 							continue;
 						}
-						const h = G.grid.hexes[hex.y][hex.x - i];
+						let h: Hex = null;
 						let color;
 						if (trgIsInfront) {
+							h = G.grid.hexes[hex.y][hex.x + i];
 							color = i < trg.size ? trg.team : crea.team;
 						} else {
+							h = G.grid.hexes[hex.y][hex.x - i];
 							color = i > 1 ? trg.team : crea.team;
 						}
 						G.grid.cleanHex(h);
-						console.log('trgIsInfront: ', trgIsInfront);
-						console.log('i,color: ', i, color);
 						h.overlayVisualState('active creature player' + color);
 						h.displayVisualState('creature player' + color);
 
@@ -251,7 +245,6 @@ export default (G: Game) => {
 						const trgPos = trgIsInfront
 							? { x: hex.pos.x + 2, y: hex.pos.y }
 							: { x: hex.pos.x - 2, y: hex.pos.y };
-						console.log('creaPos', creaPos, 'trgPos', trgPos);
 						G.grid.previewCreature(creaPos, creatureData, crea.player);
 						G.grid.previewCreature(trgPos, targetData, trg.player, true);
 					}
@@ -295,7 +288,6 @@ export default (G: Game) => {
 				const trg = G.creatures[args.trg];
 
 				const trgIF = args.trgIsInfront;
-				console.log('trgIF: ', trgIF);
 				const creaDest = G.grid.hexes[hex.y][trgIF ? hex.x + 1 : hex.x];
 				const trgDest = G.grid.hexes[hex.y][trgIF ? hex.x + crea.size : hex.x - crea.size];
 
