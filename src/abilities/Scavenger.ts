@@ -243,8 +243,8 @@ export default (G: Game) => {
 						const targetData = G.retrieveCreatureStats(trg.type);
 						const creaPos = trgIsInfront ? { x: hex.pos.x + 1, y: hex.pos.y } : hex.pos;
 						const trgPos = trgIsInfront
-							? { x: hex.pos.x + 2, y: hex.pos.y }
-							: { x: hex.pos.x - 2, y: hex.pos.y };
+							? { x: hex.pos.x + 1 + trg.size, y: hex.pos.y }
+							: { x: hex.pos.x - crea.size, y: hex.pos.y };
 						G.grid.previewCreature(creaPos, creatureData, crea.player);
 						G.grid.previewCreature(trgPos, targetData, trg.player, true);
 					}
@@ -289,7 +289,7 @@ export default (G: Game) => {
 
 				const trgIF = args.trgIsInfront;
 				const creaDest = G.grid.hexes[hex.y][trgIF ? hex.x + 1 : hex.x];
-				const trgDest = G.grid.hexes[hex.y][trgIF ? hex.x + crea.size : hex.x - crea.size];
+				const trgDest = G.grid.hexes[hex.y][trgIF ? hex.x + 1 + trg.size : hex.x - crea.size];
 
 				// Determine distance
 				let distance = 0;
