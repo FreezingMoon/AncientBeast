@@ -305,7 +305,7 @@ export default (G: Game) => {
 
 				// Substract from movement points
 				crea.remainingMove -= distance * trg.size;
-				// * 5 (randum number) because animation speed for ability should be slower than Scavenger movement (flight) speed
+				// Ability animation speed should be slower than regular movement (flight) speed
 				const escortSpeed = crea.animation.walk_speed * 5;
 				crea.moveTo(creaDest, {
 					animation: 'fly',
