@@ -21,7 +21,6 @@ function getEscortUsableHexes(G: Game, crea: Creature, trg: Creature) {
 	const distance = crea.remainingMove;
 	const size = crea.size + trg.size;
 	const x = trgIsInfront ? crea.x + trg.size : crea.x;
-
 	const usableHexes = G.grid
 		.getFlyingRange(x, crea.y, distance, size, [crea.id, trg.id])
 		.filter(function (item) {
@@ -29,7 +28,6 @@ function getEscortUsableHexes(G: Game, crea: Creature, trg: Creature) {
 				crea.y == item.y && (trgIsInfront ? item.x < x : item.x > x - crea.size - trg.size + 1)
 			);
 		});
-
 	return { size, trgIsInfront, usableHexes };
 }
 
@@ -228,11 +226,13 @@ export default (G: Game) => {
 						if (!G.grid.hexExists({ y: hex.y, x: hex.x - i })) {
 							continue;
 						}
-						const h = G.grid.hexes[hex.y][hex.x - i];
+						let h: Hex = null;
 						let color;
 						if (trgIsInfront) {
+							h = G.grid.hexes[hex.y][hex.x + i];
 							color = i < trg.size ? trg.team : crea.team;
 						} else {
+							h = G.grid.hexes[hex.y][hex.x - i];
 							color = i > 1 ? trg.team : crea.team;
 						}
 						G.grid.cleanHex(h);
@@ -241,11 +241,10 @@ export default (G: Game) => {
 
 						const creatureData = G.retrieveCreatureStats(crea.type);
 						const targetData = G.retrieveCreatureStats(trg.type);
-						const creaPos = trgIsInfront ? { x: hex.pos.x - trg.size, y: hex.pos.y } : hex.pos;
+						const creaPos = trgIsInfront ? { x: hex.pos.x + 1, y: hex.pos.y } : hex.pos;
 						const trgPos = trgIsInfront
-							? { x: hex.pos.x, y: hex.pos.y }
-							: { x: hex.pos.x - 2, y: hex.pos.y };
-
+							? { x: hex.pos.x + 1 + trg.size, y: hex.pos.y }
+							: { x: hex.pos.x - crea.size, y: hex.pos.y };
 						G.grid.previewCreature(creaPos, creatureData, crea.player);
 						G.grid.previewCreature(trgPos, targetData, trg.player, true);
 					}
@@ -260,7 +259,7 @@ export default (G: Game) => {
 					fnOnSelect: select, // fnOnSelect,
 					team: this._targetTeam,
 					id: [crea.id, trg.id],
-					size: size,
+					size: 1,
 					flipped: crea.player.flipped,
 					hexes: usableHexes,
 					args: {
@@ -289,9 +288,8 @@ export default (G: Game) => {
 				const trg = G.creatures[args.trg];
 
 				const trgIF = args.trgIsInfront;
-
-				const creaDest = G.grid.hexes[hex.y][trgIF ? hex.x - trg.size : hex.x];
-				const trgDest = G.grid.hexes[hex.y][trgIF ? hex.x : hex.x - crea.size];
+				const creaDest = G.grid.hexes[hex.y][trgIF ? hex.x + 1 : hex.x];
+				const trgDest = G.grid.hexes[hex.y][trgIF ? hex.x + 1 + trg.size : hex.x - crea.size];
 
 				// Determine distance
 				let distance = 0;
@@ -307,13 +305,15 @@ export default (G: Game) => {
 
 				// Substract from movement points
 				crea.remainingMove -= distance * trg.size;
-
+				// * 5 (randum number) because animation speed for ability should be slower than Scavenger movement (flight) speed
+				const escortSpeed = crea.animation.walk_speed * 5;
 				crea.moveTo(creaDest, {
 					animation: 'fly',
 					callback: function () {
 						trg.updateHex();
 					},
 					ignoreMovementPoint: true,
+					overrideSpeed: escortSpeed,
 				});
 
 				trg.moveTo(trgDest, {
@@ -324,7 +324,7 @@ export default (G: Game) => {
 					},
 					ignoreFacing: true,
 					ignoreMovementPoint: true,
-					overrideSpeed: crea.animation.walk_speed,
+					overrideSpeed: escortSpeed,
 				});
 			},
 		},
