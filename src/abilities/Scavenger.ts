@@ -20,14 +20,48 @@ function getEscortUsableHexes(G: Game, crea: Creature, trg: Creature) {
 
 	const distance = crea.remainingMove;
 	const size = crea.size + trg.size;
-	const x = trgIsInfront ? crea.x + trg.size : crea.x;
-	const usableHexes = G.grid
-		.getFlyingRange(x, crea.y, distance, size, [crea.id, trg.id])
-		.filter(function (item) {
-			return (
-				crea.y == item.y && (trgIsInfront ? item.x < x : item.x > x - crea.size - trg.size + 1)
-			);
-		});
+
+	console.log('[getEscortUsableHexes] Debug:');
+	console.log('  crea.x:', crea.x, 'crea.y:', crea.y, 'crea.size:', crea.size);
+	console.log('  trg.x:', trg.x, 'trg.y:', trg.y, 'trg.size:', trg.size);
+	console.log('  trgIsInfront:', trgIsInfront);
+	console.log('  distance (remainingMove):', distance);
+	console.log('  combined size:', size);
+
+	// Get the starting x position for the range check
+	// This is where the Scavenger will start moving from (accounting for target position)
+	const startX = trgIsInfront ? crea.x + trg.size : crea.x;
+
+	// Get flying range from Scavenger's current position with just its own size
+	// We need to check where the Scavenger can move, not where a combined entity can fit
+	const flyingRange = G.grid.getFlyingRange(crea.x, crea.y, distance, crea.size, [crea.id, trg.id]);
+	console.log('  flyingRange.length:', flyingRange.length);
+
+	// Filter to only inline hexes (same row as creatures) and valid x positions
+	const usableHexes = flyingRange.filter(function (item) {
+		// Must be on the same row
+		if (item.y !== crea.y) {
+			return false;
+		}
+
+		// Check if there's enough space for BOTH creatures at this position
+		// We need to verify that both the scavenger and target can fit
+		let passes;
+		if (trgIsInfront) {
+			// Target is in front, so we move backward (item.x < startX)
+			// After moving to item.x, scavenger will be at item.x, target at item.x - crea.size
+			passes = item.x < startX && item.x >= crea.size + trg.size - 1;
+			console.log(`  hex ${item.x},${item.y}: startX=${startX}, item.x < startX? ${item.x < startX}, item.x >= ${crea.size + trg.size - 1}? ${item.x >= crea.size + trg.size - 1}, passes=${passes}`);
+		} else {
+			// Target is behind, so we move forward (item.x > startX - crea.size - trg.size + 1)
+			passes = item.x > startX - crea.size - trg.size + 1;
+			console.log(`  hex ${item.x},${item.y}: startX=${startX}, item.x > ${startX - crea.size - trg.size + 1}? ${passes}`);
+		}
+		return passes;
+	});
+
+	console.log('  usableHexes.length after filter:', usableHexes.length);
+
 	return { size, trgIsInfront, usableHexes };
 }
 
@@ -151,7 +185,9 @@ export default (G: Game) => {
 
 			// 	require() :
 			require: function () {
+				console.log('[Escort Service] Checking require(), ability.used:', this.used);
 				if (!this.testRequirements()) {
+					console.log('[Escort Service] FAILED: testRequirements failed');
 					return false;
 				}
 
@@ -162,11 +198,13 @@ export default (G: Game) => {
 
 				if (hexes.length < 2) {
 					// At the border of the map
+					console.log('[Escort Service] FAILED: at border of map');
 					return false;
 				}
 
 				if (hexes[0].creature && hexes[1].creature) {
 					// Sandwiched
+					console.log('[Escort Service] FAILED: sandwiched between creatures');
 					return false;
 				}
 
@@ -184,23 +222,28 @@ export default (G: Game) => {
 						team: this._targetTeam,
 					})
 				) {
+					console.log('[Escort Service] FAILED: no valid targets');
 					return false;
 				}
 
 				const trg = hexes[0].creature || hexes[1].creature;
 
 				if (!trg.stats.moveable) {
+					console.log('[Escort Service] FAILED: target not moveable');
 					this.message = 'Target is not moveable.';
 					return false;
 				}
 
 				const { usableHexes } = getEscortUsableHexes(G, crea, trg);
+				console.log('[Escort Service] usableHexes.length:', usableHexes.length, 'remainingMove:', crea.remainingMove);
 
 				if (!usableHexes.length) {
+					console.log('[Escort Service] FAILED: not enough movement points');
 					this.message = 'Not enough movement points.';
 					return false;
 				}
 
+				console.log('[Escort Service] PASSED: ability is available');
 				return true;
 			},
 
@@ -280,7 +323,9 @@ export default (G: Game) => {
 			//	activate() :
 			activate: function (hex, args) {
 				const ability = this;
-				ability.end();
+				console.log('[Escort Service] Activating, ability.used before end():', ability.used);
+				ability.end(false, true);
+				console.log('[Escort Service] After end(), ability.used:', ability.used);
 				G.Phaser.camera.shake(0.01, 66, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				const crea = this.creature;
@@ -319,6 +364,8 @@ export default (G: Game) => {
 				trg.moveTo(trgDest, {
 					animation: 'fly',
 					callback: function () {
+						console.log('[Escort Service] Animation complete, ability.used:', ability.used);
+						console.log('[Escort Service] remainingMove:', crea.remainingMove);
 						ability.creature.updateHex();
 						ability.creature.queryMove();
 					},
