@@ -339,11 +339,6 @@ export class Ability {
 		const game = this.game;
 
 		if (val) {
-			// Log when Escort Service (ability id 2 for Scavenger) gets marked as used
-			if (this.title === 'Escort Service') {
-				console.log('[Escort Service] setUsed(true) called!');
-				console.trace(); // Show stack trace to see where this was called from
-			}
 			this.used = true;
 			// Avoid dimmed passive for current creature
 			if (this.creature.id == game.activeCreature.id) {
