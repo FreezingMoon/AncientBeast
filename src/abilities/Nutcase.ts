@@ -234,19 +234,27 @@ export default (G: Game) => {
 					'onStepOut', // Trigger
 					{
 						effectFn: function (eff) {
+							const data = ((eff as any)._data ??= { active: false, triggered: false, listener: null });
+
+							// Listener activates just once
+							if (data.active) return;
+							data.active = true;
+							data.triggered = false;
 							const waitForMovementComplete = (message, payload) => {
 								if (
 									message === 'movementComplete' &&
 									eff.target instanceof Creature &&
-									payload.creature.id === eff.target.id
+									payload.creature.id === eff.target.id &&
+									!data.triggered
 								) {
+									data.triggered = true;
 									this.game.signals.creature.remove(waitForMovementComplete);
 
 									eff.target.takeDamage(
 										new Damage(
 											eff.owner as Creature,
 											{
-												pierce: ability.damages.pierce,
+											slash: 10
 											},
 											1,
 											[],
@@ -258,12 +266,24 @@ export default (G: Game) => {
 							};
 
 							// Wait until movement is completely finished before processing effects.
+							data.listener = waitForMovementComplete;
 							this.game.signals.creature.add(waitForMovementComplete);
 						},
 					},
 					G,
 				);
 
+				// Listener cleanup
+				const originalDeleteEffect = effect.deleteEffect.bind(effect);
+				effect.deleteEffect = function () {
+					const data = (effect as any)._data;
+					if (data?.listener) {
+						G.signals.creature.remove(data.listener);
+						data.listener = null;
+					}
+					originalDeleteEffect();
+				};
+				
 				const damage = new Damage(
 					this.creature, // Attacker
 					this.damages, // Damage Type
