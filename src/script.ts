@@ -132,7 +132,7 @@ $j(() => {
 			keyDownTest(event) {
 				return event.metaKey && event.ctrlKey;
 			},
-keyDownAction() {
+			keyDownAction() {
 				throttledReadLogFromFile()
 					.then((log) => G.gamelog.load(log as string))
 					.catch((err) => {
