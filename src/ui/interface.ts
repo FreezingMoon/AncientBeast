@@ -1010,7 +1010,8 @@ export class UI {
 					'cards/' + stats.type.substring(0, 1),
 				)}')`,
 			});
-			$j.each(stats.stats, (key, value) => { //What is going on here...?
+			$j.each(stats.stats, (key, value) => {
+				//What is going on here...?
 				const $stat = $j('#card .sideB .' + key + ' .value');
 				$stat.removeClass('buff debuff');
 				if (this.selectedCreatureObj) {
@@ -1134,6 +1135,9 @@ export class UI {
 
 						// Bind button
 						this.materializeButton.click = () => {
+							// Prevent double-activation by disabling the button immediately
+							if (!this.materializeButton.clickable) return;
+							this.materializeButton.clickable = false;
 							this.materializeToggled = false;
 							this.selectAbility(3);
 							this.closeDash();
