@@ -129,20 +129,18 @@ export class Chat {
 		this.hideExpanded();
 	}
 
-
 	showExpanded(creature: Creature) {
-			if (!creature || creature === this.currentExpandedCreature) {
-				return;
-			}
-			this.isOverCreature = true;
-			this.currentExpandedCreature = creature;
-			this.isExpanded = true;
+		if (!creature || creature === this.currentExpandedCreature) {
+			return;
+		}
+		this.isOverCreature = true;
+		this.currentExpandedCreature = creature;
+		this.isExpanded = true;
 
-			const statsContent = this._createStatsContent(creature);
-			const masteriesContent = this._createMasteriesContent(creature);
+		const statsContent = this._createStatsContent(creature);
+		const masteriesContent = this._createMasteriesContent(creature);
 
-
-			const expandedHTML = `
+		const expandedHTML = `
 				<div class="stats-masteries-container">
 					<div class="stats-row">
 						${statsContent}
@@ -153,22 +151,25 @@ export class Chat {
 				</div>
 			`;
 
-			if (this.$expandedContent.children().length > 0) {
-				const statValues = this.$expandedContent.children().children().children().children('.stat-value');
-				statValues.stop().animate({ opacity: 0 }, 200, () => {
-					this.$expandedContent.html(expandedHTML);
-					statValues.animate({ opacity: 1 }, 200);
-				}
-				);
-				this.$expandedContent.stop().animate({ opacity: 1 }, 200);
-			} else {
+		if (this.$expandedContent.children().length > 0) {
+			const statValues = this.$expandedContent
+				.children()
+				.children()
+				.children()
+				.children('.stat-value');
+			statValues.stop().animate({ opacity: 0 }, 200, () => {
 				this.$expandedContent.html(expandedHTML);
-				this.$chat.addClass('expanded');
+				statValues.animate({ opacity: 1 }, 200);
+			});
+			this.$expandedContent.stop().animate({ opacity: 1 }, 200);
+		} else {
+			this.$expandedContent.html(expandedHTML);
+			this.$chat.addClass('expanded');
 
-				this.$content.stop().animate({ opacity: 0 }, 500);
-				this.$expandedContent.css({ opacity: 0 }).animate({ opacity: 1 }, 500);
-			}
-}
+			this.$content.stop().animate({ opacity: 0 }, 500);
+			this.$expandedContent.css({ opacity: 0 }).animate({ opacity: 1 }, 500);
+		}
+	}
 
 	hideExpanded() {
 		this.isOverCreature = false;
@@ -184,7 +185,6 @@ export class Chat {
 				this.$content.animate({ opacity: 1 }, 200);
 			});
 		}, 20);
-
 	}
 
 	_createStatsContent(creature: Creature) {
@@ -195,12 +195,12 @@ export class Chat {
 					stat === 'health'
 						? `${creature.health}/${creature.stats[stat]}`
 						: stat === 'energy'
-							? `${creature.energy}/${creature.stats[stat]}`
-							: stat === 'endurance'
-								? `${creature.endurance}/${creature.stats[stat]}`
-								: stat === 'movement'
-									? `${creature.remainingMove}/${creature.stats[stat]}`
-									: creature.stats[stat];
+						? `${creature.energy}/${creature.stats[stat]}`
+						: stat === 'endurance'
+						? `${creature.endurance}/${creature.stats[stat]}`
+						: stat === 'movement'
+						? `${creature.remainingMove}/${creature.stats[stat]}`
+						: creature.stats[stat];
 
 				return `
 					<div class="stat-item">
