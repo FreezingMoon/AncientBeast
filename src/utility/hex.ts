@@ -649,7 +649,7 @@ export class Hex {
 			} else {
 				this.overlay.loadTexture(`hex_p${player}`);
 			}
-			
+
 			this.grid.overlayHexesGroup.bringToTop(this.overlay);
 		} else {
 			this.overlay.loadTexture('cancel');
