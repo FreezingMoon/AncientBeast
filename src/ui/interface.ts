@@ -2463,10 +2463,6 @@ export class UI {
 		});
 
 		const onCreatureMouseEnter = ifGameNotFrozen((placeholderCreature) => {
-			// If an ability is selected, do not display hovered creature movement range (reduces visual bloat)
-			if (ui.selectedAbility !== -1) {
-				return;
-			}
 			const creatures = ui.game.creatures.filter((c) => c instanceof Creature);
 			const creature = creatures.filter((c) => c.id === placeholderCreature.id)[0];
 			const otherCreatures = creatures.filter((c) => c.id !== placeholderCreature.id);
