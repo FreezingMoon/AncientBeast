@@ -47,7 +47,7 @@ export default (G: Game) => {
 				if (this.isUpgraded()) {
 					this.creature.addEffect(
 						new Effect(
-							'Burning Heart', // Name
+							'Burning Spirit', // Name
 							this.creature, // Caster
 							this.creature, // Target
 							'', // Trigger
