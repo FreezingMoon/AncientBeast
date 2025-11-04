@@ -1013,7 +1013,7 @@ export class UI {
 					'cards/' + stats.type.substring(0, 1),
 				)}')`,
 			});
-			$j.each(stats.stats, (key, value) => { //What is going on here...?
+			$j.each(stats.stats, (key, value) => {
 				const $stat = $j('#card .sideB .' + key + ' .value');
 				$stat.removeClass('buff debuff');
 				if (this.selectedCreatureObj) {
@@ -2496,6 +2496,8 @@ export class UI {
 			ui.chat.hideExpanded();
 
 			ui.game.grid.redoLastQuery();
+			// Clear any dashed/shrunken movement visualization added on hover
+			ui.game.grid.cleanDisplay();
 			creatures.forEach((creature) => {
 				creature.xray(false);
 			});
