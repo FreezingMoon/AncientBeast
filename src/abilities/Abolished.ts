@@ -21,13 +21,6 @@ export default (G: Game) => {
 				if (!this.testRequirements()) {
 					return false;
 				}
-				// Commented out due to typescript conflicts, but I don't know if that would cause errors, hence why it's not deleted
-				/*if (damage === undefined) {
-					damage = {
-						// NOTE : This code produce array with doubles
-						type: 'target',
-					}; // For the test function to work
-				}*/
 				return true;
 			},
 
