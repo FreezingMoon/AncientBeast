@@ -5,6 +5,7 @@ import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Creature } from '../creature';
 import { Effect } from '../effect';
+import { once } from 'underscore';
 import { Direction } from '../utility/hex';
 import Game from '../game';
 import { QueryOptions } from '../utility/hexgrid';
@@ -233,56 +234,25 @@ export default (G: Game) => {
 					target, // Target
 					'onStepOut', // Trigger
 					{
-						effectFn: function (eff) {
-							const data = ((eff as any)._data ??= { active: false, triggered: false, listener: null });
 
-							// Listener activates just once
-							if (data.active) return;
-							data.active = true;
-							data.triggered = false;
-							const waitForMovementComplete = (message, payload) => {
-								if (
-									message === 'movementComplete' &&
-									eff.target instanceof Creature &&
-									payload.creature.id === eff.target.id &&
-									!data.triggered
-								) {
-									data.triggered = true;
-									this.game.signals.creature.remove(waitForMovementComplete);
+						// Listener activates just once
+						effectFn: once((eff) => {
+							if (!(eff.target instanceof Creature)) return;
+							eff.target.takeDamage(
+								new Damage(
+									eff.owner as Creature,
+									{ slash: 10 },
+									1,
+									[],
+									G,
+								),
+							);
 
-									eff.target.takeDamage(
-										new Damage(
-											eff.owner as Creature,
-											{
-											slash: 10
-											},
-											1,
-											[],
-											G,
-										),
-									);
-									eff.deleteEffect();
-								}
-							};
-
-							// Wait until movement is completely finished before processing effects.
-							data.listener = waitForMovementComplete;
-							this.game.signals.creature.add(waitForMovementComplete);
-						},
+							eff.deleteEffect();
+						}),
 					},
 					G,
 				);
-
-				// Listener cleanup
-				const originalDeleteEffect = effect.deleteEffect.bind(effect);
-				effect.deleteEffect = function () {
-					const data = (effect as any)._data;
-					if (data?.listener) {
-						G.signals.creature.remove(data.listener);
-						data.listener = null;
-					}
-					originalDeleteEffect();
-				};
 				
 				const damage = new Damage(
 					this.creature, // Attacker
