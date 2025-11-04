@@ -1134,9 +1134,6 @@ export class UI {
 
 						// Bind button
 						this.materializeButton.click = () => {
-							// Prevent double-activation by disabling the button immediately
-							if (!this.materializeButton.clickable) return;
-							this.materializeButton.clickable = false;
 							this.materializeToggled = false;
 							this.selectAbility(3);
 							this.closeDash();
