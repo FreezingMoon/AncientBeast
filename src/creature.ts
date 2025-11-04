@@ -396,7 +396,7 @@ export class Creature {
 		game.grid.orderCreatureZ();
 		game.grid.fadeOutTempCreature();
 
-		// Materialization fade-in: 1 second per occupied hex (issue #246)
+		// Materialization fade-in: 1 second per occupied hex
 		const fadeMs = 1000 * this.size;
 		this.creatureSprite.setAlpha(1, fadeMs);
 
