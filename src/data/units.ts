@@ -32,7 +32,11 @@ type Stats = {
 type UnitDataStructure = readonly {
 	id: number;
 	name: string;
-	playable: boolean;
+	// playable can be:
+	// - true: fully available
+	// - false: not available
+	// - 'secret': materializable in development builds only
+	playable: boolean | 'secret';
 	level: number | string;
 	realm: string;
 	size: UnitSize;
@@ -203,7 +207,7 @@ export const unitData: UnitDataStructure = [
 			sonic: 5,
 			mental: 8,
 		},
-				drop: {
+		drop: {
 			name: 'gold coin',
 			meditation: 6,
 			initiative: 4,
