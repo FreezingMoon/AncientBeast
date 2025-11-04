@@ -635,8 +635,7 @@ export class Hex {
 			if (this.overlayClasses.match(/reachable/)) {
 				targetAlpha = true;
 				this.overlay.loadTexture('hex_path');
-				// Ensure "reachable" overlays (black path) do not cover important colored overlays
-				// Keep them behind within the overlay group so active/hovered colored ones stay on top
+				// No partially overlapped hexagons #2734
 				if (this.grid.overlayHexesGroup.sendToBack) {
 					this.grid.overlayHexesGroup.sendToBack(this.overlay);
 				}
