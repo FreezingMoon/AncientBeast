@@ -3362,7 +3362,7 @@ export const unitData: UnitDataStructure = [
 	{
 		id: 41,
 		name: 'Mangler',
-		playable: false,
+		playable: 'secret',
 		level: 1,
 		realm: 'W',
 		size: 1,
@@ -3420,7 +3420,7 @@ export const unitData: UnitDataStructure = [
 	{
 		id: 42,
 		name: 'Batmadillo',
-		playable: false,
+		playable: 'secret',
 		level: 7,
 		realm: 'E',
 		size: 3,
@@ -3509,7 +3509,7 @@ export const unitData: UnitDataStructure = [
 	{
 		id: 43,
 		name: 'Volpyr',
-		playable: false,
+		playable: 'secret',
 		level: 7,
 		realm: 'L',
 		size: 3,
