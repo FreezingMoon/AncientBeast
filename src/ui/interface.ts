@@ -1011,7 +1011,6 @@ export class UI {
 				)}')`,
 			});
 			$j.each(stats.stats, (key, value) => {
-				//What is going on here...?
 				const $stat = $j('#card .sideB .' + key + ' .value');
 				$stat.removeClass('buff debuff');
 				if (this.selectedCreatureObj) {
