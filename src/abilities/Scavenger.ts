@@ -96,8 +96,8 @@ export default (G: Game) => {
 				const ability = this;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: function (...args) {
+						ability.animation(...args);
 					},
 					team: this._targetTeam,
 					id: this.creature.id,
@@ -251,10 +251,10 @@ export default (G: Game) => {
 				};
 
 				G.grid.queryHexes({
-					fnOnConfirm: function () {
+					fnOnConfirm: function (...args) {
 						G.grid.fadeOutTempCreature();
 						G.grid.fadeOutTempCreature(G.grid.secondary_overlay);
-						ability.animation(...arguments);
+						ability.animation(...args);
 					}, // fnOnConfirm
 					fnOnSelect: select, // fnOnSelect,
 					team: this._targetTeam,
@@ -360,8 +360,8 @@ export default (G: Game) => {
 				const ability = this;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: function (...args) {
+						ability.animation(...args);
 					},
 					team: this._targetTeam,
 					id: this.creature.id,

@@ -94,8 +94,8 @@ export default (G: Game) => {
 				const dpriest = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: function (...args) {
+						ability.animation(...args);
 					},
 					team: this._targetTeam,
 					id: dpriest.id,
@@ -176,8 +176,8 @@ export default (G: Game) => {
 				const dpriest = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: function (...args) {
+						ability.animation(...args);
 					},
 					optTest: function (creature) {
 						return creature.size <= dpriest.player.plasma;
@@ -298,8 +298,8 @@ export default (G: Game) => {
 					fnOnCancel: function () {
 						G.activeCreature.queryMove();
 					},
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: function (...args) {
+						ability.animation(...args);
 					},
 					args: {
 						creature: creature,

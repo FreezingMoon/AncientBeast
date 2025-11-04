@@ -114,8 +114,8 @@ export default (G: Game) => {
 				const abolished = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: function (...args) {
+						ability.animation(...args);
 					},
 					flipped: abolished.player.flipped,
 					team: this._targetTeam,
@@ -227,8 +227,7 @@ export default (G: Game) => {
 							ability.query();
 							return;
 						}
-						delete arguments[1];
-						ability.animation(...arguments);
+						ability.animation(hex);
 					},
 				});
 			},
@@ -322,8 +321,8 @@ export default (G: Game) => {
 				const range = crea.adjacentHexes(1);
 
 				G.grid.queryHexes({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: function (...args) {
+						ability.animation(...args);
 					},
 					fnOnSelect: function (hex) {
 						range.forEach(function (item) {
