@@ -690,16 +690,26 @@ export class Creature {
 				},
 			},
 			// overwrite any fields of `defaultOptions` that were provided in `options`
-			o = $j.extend(defaultOptions, options);
+			o =
+				typeof ($j as any)?.extend === 'function'
+					? ($j as any).extend(defaultOptions, options)
+					: { ...defaultOptions, ...(options || {}) };
 
 		if (!o.isAbility) {
 			if (game.UI.selectedAbility != -1) {
 				this.hint('Canceled', 'gamehintblack');
 			}
 
-			$j('#abilities .ability').removeClass('active');
-			game.UI.selectAbility(-1);
-			game.UI.updateQueueDisplay();
+			// In test environments jQuery might not be initialized; guard DOM ops
+			if (typeof ($j as any) === 'function') {
+				($j as any)('#abilities .ability').removeClass('active');
+			}
+			if (game.UI?.selectAbility) {
+				game.UI.selectAbility(-1);
+			}
+			if (game.UI?.updateQueueDisplay) {
+				game.UI.updateQueueDisplay();
+			}
 		}
 
 		game.grid.orderCreatureZ();
@@ -729,29 +739,35 @@ export class Creature {
 			const buttonElement = game.UI.btnSkipTurn.$button;
 
 			buttonElement.addClass('bounce');
-			game.grid.querySelf({
-				fnOnConfirm: function () {
-					game.UI.btnSkipTurn.click();
-				},
-				fnOnCancel: function () {},
-				confirmText: 'Skip turn',
-			});
+			// In unit tests or headless environments, grid query APIs may be absent.
+			if (typeof (game.grid as any)?.querySelf === 'function') {
+				game.grid.querySelf({
+					fnOnConfirm: function () {
+						game.UI.btnSkipTurn.click();
+					},
+					fnOnCancel: function () {},
+					confirmText: 'Skip turn',
+				});
+			}
 		} else {
-			game.grid.queryHexes({
-				fnOnSelect: select,
-				fnOnConfirm: o.callback,
-				args: {
-					creature: this,
-					args: o.args,
-				}, // Optional args
-				size: this.size,
-				flipped: this.player.flipped,
+			// In unit tests or headless environments, guard against missing queryHexes()
+			if (typeof (game.grid as any)?.queryHexes === 'function') {
+				game.grid.queryHexes({
+					fnOnSelect: select,
+					fnOnConfirm: o.callback,
+					args: {
+						creature: this,
+						args: o.args,
+					}, // Optional args
+					size: this.size,
+					flipped: this.player.flipped,
 
-				id: this.id,
-				hexes: o.range,
-				ownCreatureHexShade: o.ownCreatureHexShade,
-				targeting: o.targeting,
-			});
+					id: this.id,
+					hexes: o.range,
+					ownCreatureHexShade: o.ownCreatureHexShade,
+					targeting: o.targeting,
+				});
+			}
 		}
 	}
 
@@ -1958,8 +1974,17 @@ class CreatureSprite {
 	}
 
 	setHealth(number: number, type: HealthBubbleType) {
-		this._healthIndicatorText.setText(number + '');
-		this._healthIndicatorSprite.loadTexture(`p${this._creatureTeam}_${type}`);
+		// Support both Phaser Text API and test doubles without setText()
+		const textObj: any = (this as any)._healthIndicatorText;
+		if (textObj && typeof textObj.setText === 'function') {
+			textObj.setText(number + '');
+		} else if (textObj) {
+			textObj.text = number + '';
+		}
+		const spriteObj: any = (this as any)._healthIndicatorSprite;
+		if (spriteObj && typeof spriteObj.loadTexture === 'function') {
+			spriteObj.loadTexture(`p${this._creatureTeam}_${type}`);
+		}
 	}
 
 	showHealth(enable: boolean) {
