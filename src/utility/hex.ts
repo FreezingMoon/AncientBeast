@@ -635,6 +635,10 @@ export class Hex {
 			if (this.overlayClasses.match(/reachable/)) {
 				targetAlpha = true;
 				this.overlay.loadTexture('hex_path');
+				// No partially overlapped hexagons #2734
+				if (this.grid.overlayHexesGroup.sendToBack) {
+					this.grid.overlayHexesGroup.sendToBack(this.overlay);
+				}
 			} else if (
 				this.overlayClasses.match(/hover/) &&
 				this.displayClasses.indexOf(`creature player${player}`) === -1
@@ -642,15 +646,18 @@ export class Hex {
 				this.display.loadTexture('hex_path');
 				this.display.alpha = 1;
 				this.overlay.loadTexture(`hex_hover_p${player}`);
+				this.grid.overlayHexesGroup.bringToTop(this.overlay);
 			} else if (this.overlayClasses.match(/hover/)) {
 				this.display.loadTexture('hex_path');
+				this.grid.overlayHexesGroup.bringToTop(this.overlay);
 			} else if (this.overlayClasses.match(/dashed/)) {
 				this.overlay.loadTexture(`hex_dashed_p${player}`);
+				this.grid.overlayHexesGroup.bringToTop(this.overlay);
 			} else {
 				this.overlay.loadTexture(`hex_p${player}`);
+				// Colored overlays for creatures/selected should be on top
+				this.grid.overlayHexesGroup.bringToTop(this.overlay);
 			}
-
-			this.grid.overlayHexesGroup.bringToTop(this.overlay);
 		} else {
 			this.overlay.loadTexture('cancel');
 			this.overlay.anchor.set(0.5, 0.5);
