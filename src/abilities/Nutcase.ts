@@ -5,6 +5,7 @@ import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Creature } from '../creature';
 import { Effect } from '../effect';
+import { once } from 'underscore';
 import { Direction } from '../utility/hex';
 import Game from '../game';
 import { QueryOptions } from '../utility/hexgrid';
@@ -233,37 +234,26 @@ export default (G: Game) => {
 					target, // Target
 					'onStepOut', // Trigger
 					{
-						effectFn: function (eff) {
-							const waitForMovementComplete = (message, payload) => {
-								if (
-									message === 'movementComplete' &&
-									eff.target instanceof Creature &&
-									payload.creature.id === eff.target.id
-								) {
-									this.game.signals.creature.remove(waitForMovementComplete);
 
-									eff.target.takeDamage(
-										new Damage(
-											eff.owner as Creature,
-											{
-												pierce: ability.damages.pierce,
-											},
-											1,
-											[],
-											G,
-										),
-									);
-									eff.deleteEffect();
-								}
-							};
+						// Listener activates just once
+						effectFn: once((eff) => {
+							if (!(eff.target instanceof Creature)) return;
+							eff.target.takeDamage(
+								new Damage(
+									eff.owner as Creature,
+									{ slash: 10 },
+									1,
+									[],
+									G,
+								),
+							);
 
-							// Wait until movement is completely finished before processing effects.
-							this.game.signals.creature.add(waitForMovementComplete);
-						},
+							eff.deleteEffect();
+						}),
 					},
 					G,
 				);
-
+				
 				const damage = new Damage(
 					this.creature, // Attacker
 					this.damages, // Damage Type
