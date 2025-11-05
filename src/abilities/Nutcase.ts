@@ -234,26 +234,17 @@ export default (G: Game) => {
 					target, // Target
 					'onStepOut', // Trigger
 					{
-
 						// Listener activates just once
 						effectFn: once((eff) => {
 							if (!(eff.target instanceof Creature)) return;
-							eff.target.takeDamage(
-								new Damage(
-									eff.owner as Creature,
-									{ slash: 10 },
-									1,
-									[],
-									G,
-								),
-							);
+							eff.target.takeDamage(new Damage(eff.owner as Creature, { slash: 10 }, 1, [], G));
 
 							eff.deleteEffect();
 						}),
 					},
 					G,
 				);
-				
+
 				const damage = new Damage(
 					this.creature, // Attacker
 					this.damages, // Damage Type
