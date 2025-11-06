@@ -204,7 +204,8 @@ export default (G: Game) => {
 			query() {
 				const ability = this;
 				const crea = this.creature;
-				let totalRange = 3;
+				// Base relocation range is 6; upgraded version increases this by 1 per successful use
+				let totalRange = 6;
 				if (this.isUpgraded()) {
 					// Increase range based on successful prior uses of Bonfire Spring
 					totalRange += this.creature.accumulatedTeleportRange;
