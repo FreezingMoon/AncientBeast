@@ -119,7 +119,7 @@ export class Drop {
 		if (alterations.movement) {
 			// If max movement increased and the pickup consumed the last movement point,
 			// grant exactly one movement point from the new capacity. Do not restore extra.
-			if (creature.remainingMove === 0) {
+			if (alterations.movement > 0 && creature.remainingMove === 0) {
 				creature.remainingMove = 1;
 			}
 		}
