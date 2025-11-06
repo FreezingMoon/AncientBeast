@@ -1485,7 +1485,8 @@ export class Creature {
 					this.stats[key] += value;
 				}
 				if (key == 'movement') {
-					this.remainingMove += value;
+					// Do not auto-restore movement when maximum increases (see #2814).
+					// Remaining movement will be capped to the new maximum below.
 				}
 
 				// Boolean Buff/Debuff
