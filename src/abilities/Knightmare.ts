@@ -93,8 +93,8 @@ export default (G: Game) => {
 				const ability = this;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: function (...args) {
+						ability.animation(...args);
 					},
 					team: this._targetTeam,
 					id: this.creature.id,
@@ -172,8 +172,8 @@ export default (G: Game) => {
 				const ability = this;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: function (...args) {
+						ability.animation(...args);
 					},
 					team: this._targetTeam,
 					id: this.creature.id,
@@ -270,8 +270,8 @@ export default (G: Game) => {
 				const x = crea.player.flipped ? crea.x - crea.size + 1 : crea.x;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: function (...args) {
+						ability.animation(...args);
 					},
 					team: this._targetTeam,
 					id: crea.id,

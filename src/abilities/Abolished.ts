@@ -21,13 +21,6 @@ export default (G: Game) => {
 				if (!this.testRequirements()) {
 					return false;
 				}
-				// Commented out due to typescript conflicts, but I don't know if that would cause errors, hence why it's not deleted
-				/*if (damage === undefined) {
-					damage = {
-						// NOTE : This code produce array with doubles
-						type: 'target',
-					}; // For the test function to work
-				}*/
 				return true;
 			},
 
@@ -54,7 +47,7 @@ export default (G: Game) => {
 				if (this.isUpgraded()) {
 					this.creature.addEffect(
 						new Effect(
-							'Burning Heart', // Name
+							'Burning Spirit', // Name
 							this.creature, // Caster
 							this.creature, // Target
 							'', // Trigger
@@ -114,8 +107,8 @@ export default (G: Game) => {
 				const abolished = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: function (...args) {
+						ability.animation(...args);
 					},
 					flipped: abolished.player.flipped,
 					team: this._targetTeam,
@@ -228,8 +221,7 @@ export default (G: Game) => {
 							ability.query();
 							return;
 						}
-						delete arguments[1];
-						ability.animation(...arguments);
+						ability.animation(hex);
 					},
 				});
 			},
@@ -323,8 +315,8 @@ export default (G: Game) => {
 				const range = crea.adjacentHexes(1);
 
 				G.grid.queryHexes({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: function (...args) {
+						ability.animation(...args);
 					},
 					fnOnSelect: function (hex) {
 						range.forEach(function (item) {
