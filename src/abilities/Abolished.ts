@@ -206,8 +206,8 @@ export default (G: Game) => {
 				const crea = this.creature;
 				let totalRange = 3;
 				if (this.isUpgraded()) {
-					// Upgrade: increase range each usage based on accumulatedTeleportRange
-					totalRange += this.creature.accumulatedTeleportRange;
+					// Upgrade: base +1 range, plus +1 per prior successful use (accumulatedTeleportRange)
+					totalRange += 1 + this.creature.accumulatedTeleportRange;
 				}
 
 				// Relocates to any hex within range except for the current hex
