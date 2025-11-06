@@ -207,7 +207,7 @@ export default (G: Game) => {
 				// Base relocation range is 6; upgraded version increases this by 1 per successful use
 				let totalRange = 6;
 				if (this.isUpgraded()) {
-					// Increase range based on successful prior uses of Bonfire Spring
+					// Increase range based on successful prior uses
 					totalRange += this.creature.accumulatedTeleportRange;
 				}
 
