@@ -276,7 +276,10 @@ export default class Game {
 		this.creatureData = data;
 
 		data.forEach((creature) => {
-			if (!creature.playable) {
+			const isSecret = creature.playable === 'secret';
+			const isDev = process.env.NODE_ENV === 'development';
+			const isPlayable = creature.playable === true || (isSecret && isDev);
+			if (!isPlayable) {
 				return;
 			}
 
