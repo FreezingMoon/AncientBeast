@@ -484,10 +484,11 @@ export class Creature {
 			return;
 		}
 
-		if (!this.hasWait) {
-			varReset();
+		// Always reset core state at the start of activation
+		varReset();
 
-			// Trigger
+		// Trigger start-of-turn effects only if not coming from a delayed state
+		if (!this.hasWait) {
 			// @ts-expect-error 2554
 			game.onStartPhase(this);
 		}

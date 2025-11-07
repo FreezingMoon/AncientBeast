@@ -1134,6 +1134,10 @@ export class UI {
 
 						// Bind button
 						this.materializeButton.click = () => {
+							// Prevent double-activation that can leave the UI in an inconsistent state (#2775)
+							if (this.activeAbility && this.selectedAbility === 3) {
+								return;
+							}
 							this.materializeToggled = false;
 							this.selectAbility(3);
 							this.closeDash();
