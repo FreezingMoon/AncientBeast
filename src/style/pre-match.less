@@ -55,6 +55,8 @@
 	background-size: cover;
 	color: white;
 	overflow: auto;
+	/* Prevent flashing text caret in Firefox on focusable containers */
+	caret-color: transparent;
 
 	#loader.hide {
 		display: none;
@@ -66,6 +68,9 @@
 		line-height: 50px;
 		font-size: 40px;
 		display: none;
+		/* Hide caret in Firefox when this div gets focus for scroll/keys */
+		caret-color: transparent;
+		outline: none;
 
 		display: flex;
 		align-items: center;
@@ -138,6 +143,7 @@ body {
 	flex-direction: column;
 	/* flex-wrap: wrap; */
 	height: 100vh;
+	caret-color: transparent;
 
 	#pre-match {
 		flex: 1;
@@ -155,6 +161,14 @@ body {
 }
 #startMatchButton {
 	display: none;
+}
+
+/* Hide caret in Firefox near START area */
+#start-btn,
+#start,
+#pre-match {
+	caret-color: transparent;
+	outline: none;
 }
 
 .setupFrame {

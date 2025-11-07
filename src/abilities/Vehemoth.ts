@@ -121,8 +121,8 @@ export default (G: Game) => {
 				const vehemoth = this.creature;
 
 				const object: Partial<QueryOptions> = {
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: function (...args) {
+						ability.animation(...args);
 					},
 					flipped: vehemoth.player.flipped,
 					id: vehemoth.id,
@@ -326,8 +326,8 @@ export default (G: Game) => {
 				const vehemoth = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: function (...args) {
+						ability.animation(...args);
 					},
 					flipped: vehemoth.player.flipped,
 					team: this._targetTeam,
@@ -464,8 +464,8 @@ export default (G: Game) => {
 				const vehemoth = this.creature;
 
 				this.game.grid.queryCreature({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: function (...args) {
+						ability.animation(...args);
 					},
 					team: this._targetTeam,
 					id: vehemoth.id,
