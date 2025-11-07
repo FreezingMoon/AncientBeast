@@ -117,7 +117,9 @@ export class Drop {
 		}
 
 		if (alterations.movement) {
-			creature.restoreMovement(alterations.movement, false);
+			// Movement max increase is already applied in creature.updateAlteration(),
+			// which also increments remainingMove by the same amount. Avoid double-restoring here.
+			// See issue #2814.
 		}
 
 		// NOTE: Log all the gained alterations.
