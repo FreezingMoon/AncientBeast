@@ -204,9 +204,11 @@ export default (G: Game) => {
 			query() {
 				const ability = this;
 				const crea = this.creature;
-				let totalRange = 3;
+				// Base relocation range; upgraded version increases this by 1 per successful use
+				let totalRange = 6;
 				if (this.isUpgraded()) {
-					totalRange += this.creature.accumulatedTeleportRange - 1;
+					// Increase range based on successful prior uses
+					totalRange += this.creature.accumulatedTeleportRange;
 				}
 
 				// Relocates to any hex within range except for the current hex
@@ -227,7 +229,10 @@ export default (G: Game) => {
 			activate(hex) {
 				const ability = this;
 				ability.end();
-				this.creature.accumulatedTeleportRange = 0;
+				// When upgraded, each successful use increases future range by 1
+				if (this.isUpgraded()) {
+					this.creature.accumulatedTeleportRange += 1;
+				}
 				const targets = ability.getTargets(ability.creature.adjacentHexes(1));
 
 				targets.forEach(function (item) {

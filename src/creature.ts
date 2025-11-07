@@ -14,7 +14,7 @@ import { HEX_WIDTH_PX, hashOffsetCoords, offsetCoordsToPx, offsetNeighbors } fro
 import { CreatureType, Level, Realm, Unit, UnitName } from './data/types';
 import { UnitDisplayInfo, UnitSize } from './data/units';
 
-// to fix @ts-expect-error 2554: properly type the arguments for the trigger functions in `game.ts`
+// To fix @ts-expect-error 2554: properly type the arguments for the trigger functions in `game.ts`
 
 export type CreatureVitals = {
 	health: number;
@@ -689,7 +689,7 @@ export class Creature {
 					});
 				},
 			},
-			// overwrite any fields of `defaultOptions` that were provided in `options`
+			// Overwrite any fields of `defaultOptions` that were provided in `options`
 			o =
 				typeof ($j as any)?.extend === 'function'
 					? ($j as any).extend(defaultOptions, options)
