@@ -20,14 +20,29 @@ function getEscortUsableHexes(G: Game, crea: Creature, trg: Creature) {
 
 	const distance = crea.remainingMove;
 	const size = crea.size + trg.size;
-	const x = trgIsInfront ? crea.x + trg.size : crea.x;
-	const usableHexes = G.grid
-		.getFlyingRange(x, crea.y, distance, size, [crea.id, trg.id])
-		.filter(function (item) {
-			return (
-				crea.y == item.y && (trgIsInfront ? item.x < x : item.x > x - crea.size - trg.size + 1)
-			);
-		});
+	const startX = trgIsInfront ? crea.x + trg.size : crea.x;
+
+	// Get flying range from Scavenger's current position with just its own size
+	// We need to check where the Scavenger can move, not where a combined entity can fit
+	const flyingRange = G.grid.getFlyingRange(crea.x, crea.y, distance, crea.size, [crea.id, trg.id]);
+
+	// Filter to only inline hexes (same row as creatures) and valid x positions
+	const usableHexes = flyingRange.filter(function (item) {
+		// Must be on the same row
+		if (item.y !== crea.y) {
+			return false;
+		}
+
+		// Check if there's enough space for BOTH creatures at this position
+		if (trgIsInfront) {
+			// Target is in front, so we move backward (item.x < startX)
+			return item.x < startX && item.x >= crea.size + trg.size - 1;
+		} else {
+			// Target is behind, so we move forward (item.x > startX - crea.size - trg.size + 1)
+			return item.x > startX - crea.size - trg.size + 1;
+		}
+	});
+
 	return { size, trgIsInfront, usableHexes };
 }
 
@@ -280,7 +295,7 @@ export default (G: Game) => {
 			//	activate() :
 			activate: function (hex, args) {
 				const ability = this;
-				ability.end();
+				ability.end(false, true);
 				G.Phaser.camera.shake(0.01, 66, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				const crea = this.creature;
