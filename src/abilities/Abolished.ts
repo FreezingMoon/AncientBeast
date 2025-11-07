@@ -21,13 +21,6 @@ export default (G: Game) => {
 				if (!this.testRequirements()) {
 					return false;
 				}
-				// Commented out due to typescript conflicts, but I don't know if that would cause errors, hence why it's not deleted
-				/*if (damage === undefined) {
-					damage = {
-						// NOTE : This code produce array with doubles
-						type: 'target',
-					}; // For the test function to work
-				}*/
 				return true;
 			},
 
@@ -54,7 +47,7 @@ export default (G: Game) => {
 				if (this.isUpgraded()) {
 					this.creature.addEffect(
 						new Effect(
-							'Burning Heart', // Name
+							'Burning Spirit', // Name
 							this.creature, // Caster
 							this.creature, // Target
 							'', // Trigger
@@ -114,8 +107,8 @@ export default (G: Game) => {
 				const abolished = this.creature;
 
 				G.grid.queryDirection({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: function (...args) {
+						ability.animation(...args);
 					},
 					flipped: abolished.player.flipped,
 					team: this._targetTeam,
@@ -211,9 +204,11 @@ export default (G: Game) => {
 			query() {
 				const ability = this;
 				const crea = this.creature;
-				let totalRange = 3;
+				// Base relocation range; upgraded version increases this by 1 per successful use
+				let totalRange = 6;
 				if (this.isUpgraded()) {
-					totalRange += this.creature.accumulatedTeleportRange - 1;
+					// Increase range based on successful prior uses
+					totalRange += this.creature.accumulatedTeleportRange;
 				}
 
 				// Relocates to any hex within range except for the current hex
@@ -227,15 +222,17 @@ export default (G: Game) => {
 							ability.query();
 							return;
 						}
-						delete arguments[1];
-						ability.animation(...arguments);
+						ability.animation(hex);
 					},
 				});
 			},
 			activate(hex) {
 				const ability = this;
 				ability.end();
-				this.creature.accumulatedTeleportRange = 0;
+				// When upgraded, each successful use increases future range by 1
+				if (this.isUpgraded()) {
+					this.creature.accumulatedTeleportRange += 1;
+				}
 				const targets = ability.getTargets(ability.creature.adjacentHexes(1));
 
 				targets.forEach(function (item) {
@@ -322,8 +319,8 @@ export default (G: Game) => {
 				const range = crea.adjacentHexes(1);
 
 				G.grid.queryHexes({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: function (...args) {
+						ability.animation(...args);
 					},
 					fnOnSelect: function (hex) {
 						range.forEach(function (item) {

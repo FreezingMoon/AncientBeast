@@ -1483,6 +1483,8 @@ export class HexGrid {
 		// Set reachable the given hexes
 		hexes.forEach((hex) => {
 			hex.setReachable();
+			// Show smaller outlined hexagons for movement range visualization
+			hex.displayVisualState('dashed shrunken');
 		});
 	}
 

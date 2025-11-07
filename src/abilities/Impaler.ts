@@ -84,8 +84,8 @@ export default (G: Game) => {
 				const ability = this;
 				const creature = this.creature;
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: function (...args: any[]) {
+						ability.animation(...args);
 					},
 					team: this._targetTeam,
 					id: creature.id,
@@ -162,8 +162,8 @@ export default (G: Game) => {
 				const creature = this.creature;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: function (...args: any[]) {
+						ability.animation(...args);
 					},
 					team: this._targetTeam,
 					id: creature.id,
@@ -284,8 +284,8 @@ export default (G: Game) => {
 				const ability = this;
 
 				G.grid.queryCreature({
-					fnOnConfirm: function () {
-						ability.animation(...arguments);
+					fnOnConfirm: function (...args: any[]) {
+						ability.animation(...args);
 					},
 					team: this._targetTeam,
 					id: this.creature.id,

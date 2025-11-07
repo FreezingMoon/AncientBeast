@@ -3328,7 +3328,7 @@ export const unitData: UnitDataStructure = [
 				},
 				effects: [
 					{
-						special: '10 %pierce% if moving',
+						special: '10 %slash% if moving',
 					},
 				],
 			},

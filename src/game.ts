@@ -1300,10 +1300,6 @@ export default class Game {
 	// Removed individual args from definition because we are using the arguments variable.
 	onEndPhase(/* creature, callback */) {
 		const creature = arguments[0];
-		// Check if Abolished used third ability
-		if (creature.abilities.some((ability) => ability.title === 'Bonfire Spring')) {
-			creature.accumulatedTeleportRange += 1;
-		}
 
 		this.triggerDeleteEffect('onEndPhase', creature);
 		this.triggerAbility('onEndPhase', arguments);
@@ -1543,10 +1539,6 @@ export default class Game {
 			case 'ability': {
 				const args = $j.makeArray(o.args[1]);
 				const ability = this.activeCreature.abilities[o.id];
-				// If Abolished used Bonfire Spring, reset the range
-				if (ability.title === 'Bonfire Spring') {
-					this.activeCreature.accumulatedTeleportRange = 0;
-				}
 
 				if (o.target.type == 'hex') {
 					args.unshift(this.grid.hexes[o.target.y][o.target.x]);
