@@ -128,6 +128,8 @@ export default (G: Game) => {
 			activate: function (target: Creature) {
 				this.end();
 				G.Phaser.camera.shake(0.02, 200, true, G.Phaser.camera.SHAKE_BOTH, true);
+				// Removes bounce after use
+				G.UI.abilitiesButtons[1].$button.removeClass('bounce');
 
 				if (target.health <= this._executeHealthThreshold) {
 					const executeDamage = new Damage(
@@ -290,6 +292,8 @@ export default (G: Game) => {
 					this.game,
 				);
 				ability.creature.addEffect(offenseBuffEffect);
+
+				G.UI.abilitiesButtons[1].$button.addClass('bounce');
 			},
 		},
 
