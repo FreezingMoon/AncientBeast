@@ -854,7 +854,7 @@ export class Ability {
 
 		// Health
 		if (req.stats.health > 0) {
-			if (this.creature.health <= req.stats.health) {
+			if (this.creature.health < req.stats.health) {
 				this.message = abilityMsgs.notEnough.replace('%stat%', 'health');
 				return false;
 			}
@@ -865,19 +865,23 @@ export class Ability {
 			}
 		}
 
+		let requirementsMet = true;
+
 		$j.each(req.stats, (key, value) => {
 			if (value > 0) {
 				if (this.creature.stats[key] < value) {
+					requirementsMet = false;
 					return false;
 				}
 			} else if (value < 0) {
 				if (this.creature.stats[key] > value) {
+					requirementsMet = false;
 					return false;
 				}
 			}
 		});
 
-		return true;
+		return requirementsMet;
 	}
 
 	applyCost() {

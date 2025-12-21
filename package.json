@@ -38,7 +38,7 @@
 		"@babel/preset-env": "^7.21.4",
 		"@babel/preset-typescript": "^7.21.4",
 		"@types/jest": "^29.5.0",
-		"@types/jquery": "^3.5.9",
+		"@types/jquery": "^3.5.33",
 		"@types/jquery.transit": "^0.9.33",
 		"@types/js-cookie": "^3.0.6",
 		"@types/underscore": "^1.11.5",
