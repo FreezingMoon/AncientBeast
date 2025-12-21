@@ -1834,23 +1834,28 @@ class CreatureSprite {
 				: HEX_WIDTH_PX * size - sprite.texture.width - display['offset-x']) +
 			sprite.texture.width / 2;
 		sprite.y = display['offset-y'] + sprite.texture.height;
+		
+		const centerX = HEX_WIDTH_PX * (size - 0.5);
+		const healthY = - sprite.texture.height - 10;
 
 		// Hint Group
 		const hintGrp = phaser.add.group(group, 'creatureHintGrp_' + id);
-		hintGrp.x = 0.5 * HEX_WIDTH_PX * size;
-		hintGrp.y = -sprite.texture.height + 5;
+		hintGrp.x = centerX;
+		hintGrp.y = -sprite.texture.height - 5;
 
 		const healthIndicatorGroup = phaser.add.group(group, 'creatureHealthGrp_' + id);
+		healthIndicatorGroup.x = 0;
+		healthIndicatorGroup.y = healthY;
 
 		const healthIndicatorSprite = healthIndicatorGroup.create(
-			player.flipped ? 19 : 19 + HEX_WIDTH_PX * (size - 1),
-			49,
+			centerX,
+			0,
 			'p' + team + '_health',
 		);
 
 		const healthIndicatorText = phaser.add.text(
-			player.flipped ? HEX_WIDTH_PX * 0.5 : HEX_WIDTH_PX * (size - 0.5),
-			63,
+			centerX,
+			14,
 			health,
 			{
 				font: 'bold 15pt Play',
