@@ -1568,6 +1568,27 @@ span.pure {
 	animation-iteration-count: 1;
 }
 
+@keyframes button-bounce-right {
+	0% {
+		transform: translateX(0);
+	}
+	50% {
+		transform: translateX(10px);
+	}
+	100% {
+		transform: translateX(0);
+	}
+}
+
+// Bounce only when ability is usable (slideIn) and not selected (active)
+.ability.bounce.slideIn:not(.active) {
+	animation: button-bounce-right 1s ease-in-out infinite;
+}
+
+.ability.bounce.slideIn:not(.active):hover {
+	animation-iteration-count: 1;
+}
+
 /*--------------Framed Modal------------------*/
 /* Modal window with graphical border and close button. */
 .framed-modal {

@@ -1906,6 +1906,7 @@ export class UI {
 			$desc.find('span.title').text(ab.title);
 			$desc.find('p.description').html(ab.desc);
 			$desc.find('p.full-info').html(ab.info);
+			btn.$button.removeClass('bounce');
 			btn.changeState(); // Apply changes
 		});
 	}
