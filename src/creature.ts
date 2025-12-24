@@ -1827,35 +1827,61 @@ class CreatureSprite {
 		// Adding sprite
 		const sprite = group.create(0, 0, creature.name + darkPriestColorOrEmpty + '_cardboard');
 		sprite.anchor.setTo(0.5, 1);
+		//sprite.x=horizontal center
+		//sprite.y=bottom edge of sprite
 		// Placing sprite
+		//display['offset-x'] places center of sprite at offset-x
+		
 		sprite.x =
 			(!player.flipped
 				? display['offset-x']
-				: HEX_WIDTH_PX * size - sprite.texture.width - display['offset-x']) +
-			sprite.texture.width / 2;
-		sprite.y = display['offset-y'] + sprite.texture.height;
+				: HEX_WIDTH_PX * size - sprite.width - display['offset-x']) +
+			sprite.width / 2;
+		sprite.y = display['offset-y'] + sprite.height;
+
+		// sprite.x = !player.flipped
+		// 	? display['offset-x']
+		// 	: HEX_WIDTH_PX * size - display['offset-x'];
+		// sprite.y = display['offset-y'];
 		
 		const centerX = HEX_WIDTH_PX * (size - 0.5);
-		const healthY = - sprite.texture.height - 10;
+		// const healthY = - sprite.texture.height - 10;
 
 		// Hint Group
 		const hintGrp = phaser.add.group(group, 'creatureHintGrp_' + id);
 		hintGrp.x = centerX;
-		hintGrp.y = -sprite.texture.height - 5;
+		//place hint above creature
+		//hintGrp.y = -sprite.texture.height + 5;
+		//parent = sprite, y=-10, above sprite, no texture needed
+		hintGrp.y = -sprite.height-5;
 
+		//define central UI position once to avoid duplication
+		const uiX = player.flipped? HEX_WIDTH_PX * 0.5 : HEX_WIDTH_PX * (size-0.5);
+		const uiY = 63; //using original text center as new unified Y baseline
+
+		//another child group with no position set, defaults (0,0) in group space
+		//const healthIndicatorGroup = phaser.add.group(group, 'creatureHealthGrp_' + id);
+		//health ui moves with sprite
 		const healthIndicatorGroup = phaser.add.group(group, 'creatureHealthGrp_' + id);
-		healthIndicatorGroup.x = 0;
-		healthIndicatorGroup.y = healthY;
+		// healthIndicatorGroup.x = 0;
+		// healthIndicatorGroup.y = -sprite.height - 10;
 
+		//create pill at (0,0)
+		//hardcoded pixel offsets
+		//position pill sprite
 		const healthIndicatorSprite = healthIndicatorGroup.create(
-			centerX,
-			0,
+			uiX,
+			uiY,
 			'p' + team + '_health',
 		);
-
+		//set anchor center so this aligns with text
+		healthIndicatorSprite.anchor.setTo(0.5, 0.5);
+		//differ across browsers, 
+		//center text on pill
+		//position text at exact same coordinates as pill
 		const healthIndicatorText = phaser.add.text(
-			centerX,
-			14,
+			uiX,
+			uiY,
 			health,
 			{
 				font: 'bold 15pt Play',
@@ -1865,7 +1891,9 @@ class CreatureSprite {
 				strokeThickness: 6,
 			},
 		);
+		//centers text to it's position
 		healthIndicatorText.anchor.setTo(0.5, 0.5);
+		//text moves with pill, pill is mispositioned
 		healthIndicatorGroup.add(healthIndicatorText);
 		healthIndicatorGroup.visible = false;
 
@@ -1960,9 +1988,11 @@ class CreatureSprite {
 				  this._sprite.texture.width -
 				  this._frameInfo.originX) +
 			this._sprite.texture.width / 2;
-		this._healthIndicatorSprite.x = dir === -1 ? 19 : 19 + HEX_WIDTH_PX * (this._creatureSize - 1);
-		this._healthIndicatorText.x =
-			dir === -1 ? HEX_WIDTH_PX * 0.5 : HEX_WIDTH_PX * (this._creatureSize - 0.5);
+		
+		//both pill and text are center-anchored(0.5)
+		const targetX = dir === -1? HEX_WIDTH_PX* 0.5 : HEX_WIDTH_PX * (this._creatureSize - 0.5);
+		this._healthIndicatorSprite.x = targetX;
+		this._healthIndicatorText.x = targetX;
 	}
 
 	xray(enable: boolean) {
