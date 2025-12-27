@@ -1843,37 +1843,39 @@ class CreatureSprite {
 		//Position hint above the creature
 		hintGrp.y = -sprite.height-5;
 
-		//define central UI position once to avoid duplication
+		//Define central UI position once to avoid duplication
 		const uiX = player.flipped? HEX_WIDTH_PX * 0.5 : HEX_WIDTH_PX * (size-0.5);
-		const uiY = 46; //adjusted baseline for consistent cross-browser centering
+		const uiY = 58; //Base position for health pill
 
-		//group for health UI elements that move with creature
+		//Group for health UI elements that move with creature
 		const healthIndicatorGroup = phaser.add.group(group, 'creatureHealthGrp_' + id);
 
-		//health indicator pill 
+		//Health indicator pill 
 		const healthIndicatorSprite = healthIndicatorGroup.create(
 			uiX,
 			uiY,
 			'p' + team + '_health',
 		);
 
-		//set anchor to center so this aligns with text
+		//Set anchor to center so this aligns with text
 		healthIndicatorSprite.anchor.setTo(0.5, 0.5);
 
-		//browser detection for font metric offset
+		//Browser detection for font metric offset
 		const agent = navigator.userAgent.toLowerCase();
 		const isFirefox = agent.indexOf('firefox') > -1;
 		const isBrave = (navigator as any).brave !== undefined || agent.indexOf('brave') > -1;
 
-		//apply nudges:  Firefox text is too low , brave text is too high(nudge down)
+		//Apply nudges to minimize cross-browser font metric differences
 		let browserNudge = 0;
 		if(isFirefox) {
-			browserNudge = 1; //use positive nudge to move it DOWN
+			//Firefox renders low , use positive nudge to move it DOWN
+			browserNudge = 1; 
 		} else if (isBrave) {
-			browserNudge = -5; //pulls text UP into pill container
+			//Brave renders high, pull text UP into pill container
+			browserNudge = -7; 
 		}
 		
-		//center text pill to minimize cross-browser font metric differences,
+		//Health text centered on the pill 
 		const healthIndicatorText = phaser.add.text(
 			uiX,
 			uiY+ browserNudge,
@@ -1890,7 +1892,7 @@ class CreatureSprite {
 		);
 		//centers text to it's position
 		healthIndicatorText.anchor.setTo(0.5, 0.5);
-		//text is grouped with pill to ensure consistent relative positioning
+		//Text is grouped with pill to ensure consistent relative positioning
 		healthIndicatorGroup.add(healthIndicatorText);
 		healthIndicatorGroup.visible = false;
 
