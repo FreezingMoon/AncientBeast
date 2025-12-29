@@ -1827,58 +1827,59 @@ class CreatureSprite {
 		// Adding sprite
 		const sprite = group.create(0, 0, creature.name + darkPriestColorOrEmpty + '_cardboard');
 		sprite.anchor.setTo(0.5, 1);
-		
+
 		sprite.x =
 			(!player.flipped
 				? display['offset-x']
 				: HEX_WIDTH_PX * size - sprite.width - display['offset-x']) +
 			sprite.width / 2;
 		sprite.y = display['offset-y'] + sprite.height;
-		
+
 		const centerX = HEX_WIDTH_PX * (size - 0.5);
-		
+
 		// Hint Group
 		const hintGrp = phaser.add.group(group, 'creatureHintGrp_' + id);
 		hintGrp.x = centerX;
-		//Position hint above the creature
-		hintGrp.y = -sprite.height-5;
 
-		//Define central UI position once to avoid duplication
-		const uiX = player.flipped? HEX_WIDTH_PX * 0.5 : HEX_WIDTH_PX * (size-0.5);
+		// Position hint above the creature
+		hintGrp.y = -sprite.height - 5;
+
+		// Define central UI position once to avoid duplication
+		const uiX = player.flipped ? HEX_WIDTH_PX * 0.5 : HEX_WIDTH_PX * (size - 0.5);
 		const uiY = 58; //Base position for health pill
 
-		//Group for health UI elements that move with creature
+		// Group for health UI elements that move with creature
 		const healthIndicatorGroup = phaser.add.group(group, 'creatureHealthGrp_' + id);
 
-		//Health indicator pill 
+		// Health indicator pill 
 		const healthIndicatorSprite = healthIndicatorGroup.create(
 			uiX,
 			uiY,
 			'p' + team + '_health',
 		);
 
-		//Set anchor to center so this aligns with text
+		// Set anchor to center so this aligns with text
 		healthIndicatorSprite.anchor.setTo(0.5, 0.5);
 
-		//Browser detection for font metric offset
+		// Browser detection for font metric offset
 		const agent = navigator.userAgent.toLowerCase();
 		const isFirefox = agent.indexOf('firefox') > -1;
 		const isBrave = (navigator as any).brave !== undefined || agent.indexOf('brave') > -1;
-
-		//Apply nudges to minimize cross-browser font metric differences
-		let browserNudge = 0;
-		if(isFirefox) {
-			//Firefox renders low , use positive nudge to move it DOWN
-			browserNudge = 1; 
-		} else if (isBrave) {
-			//Brave renders high, pull text UP into pill container
-			browserNudge = -7; 
-		}
 		
-		//Health text centered on the pill 
+		// Apply nudges to minimize cross-browser font metric differences
+		let browserNudge = 0;
+		if (isFirefox) {
+			// Firefox renders low , use positive nudge to move it DOWN
+			browserNudge = 1;
+		} else if (isBrave) {
+			// Brave renders high, pull text UP into pill container
+			browserNudge = -7;
+		} 
+
+		// Health text centered on the pill 
 		const healthIndicatorText = phaser.add.text(
 			uiX,
-			uiY+ browserNudge,
+			uiY + browserNudge,
 			health,
 			{
 				font: 'bold 14pt Play',
@@ -1886,13 +1887,14 @@ class CreatureSprite {
 				align: 'center',
 				stroke: '#000',
 				strokeThickness: 5,
-				// vertical padding helps prevent stroke from clipping in Firefox
-				padding:{x:0, y:4},
+				// Vertical padding helps prevent stroke from clipping in Firefox
+				padding: { x: 0, y: 4 },
 			},
 		);
-		//centers text to it's position
+		// Centers text to its position
 		healthIndicatorText.anchor.setTo(0.5, 0.5);
-		//Text is grouped with pill to ensure consistent relative positioning
+		
+		// Text is grouped with pill to ensure consistent relative positioning
 		healthIndicatorGroup.add(healthIndicatorText);
 		healthIndicatorGroup.visible = false;
 
