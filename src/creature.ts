@@ -1480,15 +1480,15 @@ export class Creature {
 					}
 				}
 
-			// Usual Buff/Debuff
-			if (typeof value == 'number') {
-				this.stats[key] += value;
-			}
-			if (key == 'movement' && !(buff instanceof Drop)) {
-				// Only restore movement points for effects, not drops
-				// Drops have their own explicit restoration logic in drop.ts
-				this.remainingMove += value;
-			}
+				// Usual Buff/Debuff
+				if (typeof value == 'number') {
+					this.stats[key] += value;
+				}
+				if (key == 'movement' && !(buff instanceof Drop)) {
+					// Only restore movement points for effects, not drops
+					// Drops have their own explicit restoration logic in drop.ts
+					this.remainingMove += value;
+				}
 
 				// Boolean Buff/Debuff
 				if (typeof value == 'boolean') {
