@@ -189,6 +189,11 @@ export default (G: Game) => {
 
 				const trg = hexes[0].creature || hexes[1].creature;
 
+				// Safety check: ensure target exists and is valid
+				if (!trg) {
+						return false;
+					}
+
 				if (!trg.stats.moveable) {
 					this.message = 'Target is not moveable.';
 					return false;
@@ -209,9 +214,29 @@ export default (G: Game) => {
 				const crea = this.creature;
 
 				const hexes = crea.getHexMap(matrices.inlinefrontnback2hex, this.creature.player.flipped);
+				
+				// Validate target exists before proceeding
+			if (hexes.length < 2 || (!hexes[0].creature && !hexes[1].creature)) {
+				// No valid target, cancel query
+				crea.queryMove();
+				return;
+			}	
 				const trg = hexes[0].creature || hexes[1].creature;
+				
+				if (!trg) {
+					// Target validation failed
+					crea.queryMove();
+					return;
+				}
 
 				const { size, trgIsInfront, usableHexes } = getEscortUsableHexes(G, crea, trg);
+
+				// Re-validate usable hexes in case remainingMove changed
+				if (!usableHexes.length) {
+					this.message = 'Not enough movement points.';
+					crea.queryMove();
+					return;
+				}
 
 				const select = (hex) => {
 					for (let i = 0; i < trg.hexagons.length; i++) {
@@ -256,6 +281,19 @@ export default (G: Game) => {
 						G.grid.fadeOutTempCreature(G.grid.secondary_overlay);
 						ability.animation(...args);
 					}, // fnOnConfirm
+					fnOnCancel: function () {
+						// Cancel query without marking ability as used
+						G.grid.fadeOutTempCreature();
+						G.grid.fadeOutTempCreature(G.grid.secondary_overlay);
+						// Clean up visual states
+						for (let i = 0; i < trg.hexagons.length; i++) {
+							G.grid.cleanHex(trg.hexagons[i]);
+						}
+						for (let i = 0; i < crea.hexagons.length; i++) {
+							G.grid.cleanHex(crea.hexagons[i]);
+						}
+						crea.queryMove();
+					}, // fnOnCancel
 					fnOnSelect: select, // fnOnSelect,
 					team: this._targetTeam,
 					id: [crea.id, trg.id],
