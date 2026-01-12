@@ -1829,40 +1829,74 @@ class CreatureSprite {
 		// Adding sprite
 		const sprite = group.create(0, 0, creature.name + darkPriestColorOrEmpty + '_cardboard');
 		sprite.anchor.setTo(0.5, 1);
-		// Placing sprite
+
 		sprite.x =
 			(!player.flipped
 				? display['offset-x']
-				: HEX_WIDTH_PX * size - sprite.texture.width - display['offset-x']) +
-			sprite.texture.width / 2;
-		sprite.y = display['offset-y'] + sprite.texture.height;
+				: HEX_WIDTH_PX * size - sprite.width - display['offset-x']) +
+			sprite.width / 2;
+		sprite.y = display['offset-y'] + sprite.height;
+
+		const centerX = HEX_WIDTH_PX * (size - 0.5);
 
 		// Hint Group
 		const hintGrp = phaser.add.group(group, 'creatureHintGrp_' + id);
-		hintGrp.x = 0.5 * HEX_WIDTH_PX * size;
-		hintGrp.y = -sprite.texture.height + 5;
+		hintGrp.x = centerX;
 
+		// Position hint above the creature
+		hintGrp.y = -sprite.height - 5;
+
+		// Define central UI position once to avoid duplication
+		const uiX = player.flipped ? HEX_WIDTH_PX * 0.5 : HEX_WIDTH_PX * (size - 0.5);
+		const uiY = 58; //Base position for health pill
+
+		// Group for health UI elements that move with creature
 		const healthIndicatorGroup = phaser.add.group(group, 'creatureHealthGrp_' + id);
 
+		// Health indicator pill 
 		const healthIndicatorSprite = healthIndicatorGroup.create(
-			player.flipped ? 19 : 19 + HEX_WIDTH_PX * (size - 1),
-			49,
+			uiX,
+			uiY,
 			'p' + team + '_health',
 		);
 
+		// Set anchor to center so this aligns with text
+		healthIndicatorSprite.anchor.setTo(0.5, 0.5);
+
+		// Browser detection for font metric offset
+		const agent = navigator.userAgent.toLowerCase();
+		const isFirefox = agent.indexOf('firefox') > -1;
+		const isBrave = (navigator as any).brave !== undefined || agent.indexOf('brave') > -1;
+		
+		// Apply nudges to minimize cross-browser font metric differences
+		let browserNudge = 0;
+		if (isFirefox) {
+			// Firefox renders low , use positive nudge to move it DOWN
+			browserNudge = 1;
+		} else if (isBrave) {
+			// Brave renders high, pull text UP into pill container
+			browserNudge = -7;
+		} 
+
+		// Health text centered on the pill 
 		const healthIndicatorText = phaser.add.text(
-			player.flipped ? HEX_WIDTH_PX * 0.5 : HEX_WIDTH_PX * (size - 0.5),
-			63,
+			uiX,
+			uiY + browserNudge,
 			health,
 			{
-				font: 'bold 15pt Play',
+				font: 'bold 14pt Play',
 				fill: '#fff',
 				align: 'center',
 				stroke: '#000',
-				strokeThickness: 6,
+				strokeThickness: 5,
+				// Vertical padding helps prevent stroke from clipping in Firefox
+				padding: { x: 0, y: 4 },
 			},
 		);
+		// Centers text to its position
 		healthIndicatorText.anchor.setTo(0.5, 0.5);
+		
+		// Text is grouped with pill to ensure consistent relative positioning
 		healthIndicatorGroup.add(healthIndicatorText);
 		healthIndicatorGroup.visible = false;
 
@@ -1957,9 +1991,11 @@ class CreatureSprite {
 				  this._sprite.texture.width -
 				  this._frameInfo.originX) +
 			this._sprite.texture.width / 2;
-		this._healthIndicatorSprite.x = dir === -1 ? 19 : 19 + HEX_WIDTH_PX * (this._creatureSize - 1);
-		this._healthIndicatorText.x =
-			dir === -1 ? HEX_WIDTH_PX * 0.5 : HEX_WIDTH_PX * (this._creatureSize - 0.5);
+		
+		//both pill and text are center-anchored(0.5)
+		const targetX = dir === -1? HEX_WIDTH_PX* 0.5 : HEX_WIDTH_PX * (this._creatureSize - 0.5);
+		this._healthIndicatorSprite.x = targetX;
+		this._healthIndicatorText.x = targetX;
 	}
 
 	xray(enable: boolean) {
