@@ -387,12 +387,23 @@ function getReg() {
 	return reg;
 }
 
+// Trap to prevent multiple file pickers from opening simultaneously
+let filePickerActive = false;
+
 /**
  * read log from file
  * @returns {Promise<string>}
  */
 function readLogFromFile() {
 	// TODO: This would probably be better off in ./src/utility/gamelog.ts
+	
+	// Block consecutive calls if a file picker is already active
+	if (filePickerActive) {
+		return Promise.reject(new Error('File picker already open'));
+	}
+	
+	filePickerActive = true;
+	
 	return new Promise((resolve, reject) => {
 		const fileInput = document.createElement('input') as HTMLInputElement;
 		fileInput.accept = '.ab';
@@ -405,15 +416,27 @@ function readLogFromFile() {
 			reader.readAsText(file);
 
 			reader.onload = () => {
+				filePickerActive = false;
 				resolve(reader.result);
 			};
 
 			reader.onerror = () => {
+				filePickerActive = false;
 				reject(reader.error);
 			};
 		};
+		
+		// Reset flag if user cancels the file picker
+		fileInput.oncancel = () => {
+			filePickerActive = false;
+		};
 
 		fileInput.click();
+		
+		// Safety timeout to reset flag after 5 seconds
+		setTimeout(() => {
+			filePickerActive = false;
+		}, 5000);
 	});
 }
 
