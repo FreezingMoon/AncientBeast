@@ -191,8 +191,8 @@ export default (G: Game) => {
 
 				// Safety check: ensure target exists and is valid
 				if (!trg) {
-						return false;
-					}
+					return false;
+				}
 
 				if (!trg.stats.moveable) {
 					this.message = 'Target is not moveable.';
@@ -214,15 +214,15 @@ export default (G: Game) => {
 				const crea = this.creature;
 
 				const hexes = crea.getHexMap(matrices.inlinefrontnback2hex, this.creature.player.flipped);
-				
+
 				// Validate target exists before proceeding
-			if (hexes.length < 2 || (!hexes[0].creature && !hexes[1].creature)) {
-				// No valid target, cancel query
-				crea.queryMove();
-				return;
-			}	
+				if (hexes.length < 2 || (!hexes[0].creature && !hexes[1].creature)) {
+					// No valid target, cancel query
+					crea.queryMove();
+					return;
+				}
 				const trg = hexes[0].creature || hexes[1].creature;
-				
+
 				if (!trg) {
 					// Target validation failed
 					crea.queryMove();
