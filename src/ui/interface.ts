@@ -364,10 +364,13 @@ export class UI {
 								return;
 							}
 							// Colored frame around selected ability
-							if (ability.require() == true && i != 0) {
+							if (ability.require() == true && i != 0 && !ability.used) {
 								this.selectAbility(i);
+							} else if (i != 0) {
+								// Flash cancel icon for unusable or already-used active abilities
+								b.cssTransition('cancelIcon', 1000);
 							}
-							// Activate Ability
+							// Activate Ability (will no-op internally if not allowed)
 							game.activeCreature.abilities[i].use();
 						} else {
 							// Cancel Ability
