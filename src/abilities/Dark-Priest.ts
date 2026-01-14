@@ -251,6 +251,12 @@ export default (G: Game) => {
 
 			// Callback function to queryCreature
 			materialize: function (creature: CreatureType) {
+				// Prevent double-click / re-entrancy while already picking a location.
+				if (G.UI.materializeInProgress) {
+					return;
+				}
+				G.UI.materializeInProgress = true;
+
 				const ability = this;
 				const dpriest = this.creature;
 
@@ -266,6 +272,7 @@ export default (G: Game) => {
 					{ materializationSickness: creatureHasMaterializationSickness },
 				);
 				const fullCrea = new Creature(crea, G);
+				const tempCreatureId = fullCrea.id;
 				// Don't allow temporary Creature to take up space
 				fullCrea.cleanHex();
 				// Make temporary Creature invisible
@@ -296,6 +303,13 @@ export default (G: Game) => {
 						G.grid.previewCreature(hex.pos, crea, ability.creature.player);
 					},
 					fnOnCancel: function () {
+						// Cleanup temp creature + clear guard so user can try again.
+						const temp = G.creatures[tempCreatureId];
+						if (temp && temp.temp) {
+							temp.destroy();
+							G.updateQueueDisplay();
+						}
+						G.UI.materializeInProgress = false;
 						G.activeCreature.queryMove();
 					},
 					fnOnConfirm: function (...args) {
@@ -304,6 +318,7 @@ export default (G: Game) => {
 					args: {
 						creature: creature,
 						cost: crea.size - 0 + ((crea.level as number) - 0),
+						tempCreatureId,
 					}, // OptionalArgs
 					size: crea.size,
 					flipped: dpriest.player.flipped,
@@ -326,6 +341,16 @@ export default (G: Game) => {
 				//TODO: Make the UI show the updated number instantly
 
 				ability.end(false, true);
+
+				// Cleanup the temporary creature created during targeting.
+				if (args && args.tempCreatureId) {
+					const temp = G.creatures[args.tempCreatureId];
+					if (temp && temp.temp) {
+						temp.destroy();
+						G.updateQueueDisplay();
+					}
+				}
+				G.UI.materializeInProgress = false;
 
 				ability.creature.player.summon(creature, pos);
 				ability.creature.queryMove();
