@@ -3,9 +3,9 @@
 	"version": "0.5.0",
 	"description": "Ancient Beast Game",
 	"main": "deploy/index.html",
-	"homepage": "https://AncientBeast.com",
+	"homepage": "https://ancientbeast.com",
 	"author": " Dread Knight <dk.vali@gmail.com>",
-	"license": " (CC-BY-SA-4.0 OR AGPL-3.0)",
+	"license": "(CC-BY-SA-4.0 OR AGPL-3.0)",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/FreezingMoon/AncientBeast.git"
@@ -81,7 +81,7 @@
 		"node": "20.x"
 	},
 	"scripts": {
-		"build": "webpack --mode=production",
+		"build": "node generateAvatars.js && webpack --mode=production",
 		"build:dev": "webpack --mode=development",
 		"start": "cross-env NODE_ENV=production webpack-dev-server",
 		"start:dev": "cross-env NODE_ENV=development webpack-dev-server",
