@@ -91,6 +91,11 @@ export class UI {
 	queueAnimSpeed: number;
 	dashAnimSpeed: number;
 	materializeToggled: boolean;
+	/**
+	 * Guard to prevent re-entrancy in Dark Priest materialization flow.
+	 * Prevents double-clicking the materialize button while already picking a hex.
+	 */
+	materializeInProgress: boolean;
 	glowInterval: ReturnType<typeof setInterval>;
 	selectedCreatureObj: Creature;
 	activeAbility: boolean;
@@ -665,6 +670,7 @@ export class UI {
 		this.dashAnimSpeed = 250; // ms
 
 		this.materializeToggled = false;
+		this.materializeInProgress = false;
 		this.dashopen = false;
 
 		this.glowInterval = setInterval(() => {
@@ -1134,6 +1140,10 @@ export class UI {
 
 						// Bind button
 						this.materializeButton.click = () => {
+							// Prevent double-clicking while already in materialization flow
+							if (this.materializeInProgress) {
+								return;
+							}
 							this.materializeToggled = false;
 							this.selectAbility(3);
 							this.closeDash();
