@@ -91,6 +91,11 @@ export class UI {
 	queueAnimSpeed: number;
 	dashAnimSpeed: number;
 	materializeToggled: boolean;
+	/**
+	 * Guard to prevent re-entrancy in Dark Priest materialization flow.
+	 * Prevents double-clicking the materialize button while already picking a hex.
+	 */
+	materializeInProgress: boolean;
 	glowInterval: ReturnType<typeof setInterval>;
 	selectedCreatureObj: Creature;
 	activeAbility: boolean;
@@ -665,6 +670,7 @@ export class UI {
 		this.dashAnimSpeed = 250; // ms
 
 		this.materializeToggled = false;
+		this.materializeInProgress = false;
 		this.dashopen = false;
 
 		this.glowInterval = setInterval(() => {
@@ -1346,6 +1352,10 @@ export class UI {
 		} else {
 			this.hideAbilityCosts();
 			this.activeAbility = false;
+			// Reset materializeInProgress when deselecting ability (e.g., via cancel or hotkey)
+			// This ensures the flag is cleared if user cancels materialization via ability button/hotkey
+			// instead of the normal fnOnCancel/fnOnConfirm paths
+			this.materializeInProgress = false;
 		}
 	}
 
