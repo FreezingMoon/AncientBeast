@@ -92,6 +92,8 @@ export class UI {
 	dashAnimSpeed: number;
 	materializeToggled: boolean;
 	glowInterval: ReturnType<typeof setInterval>;
+	lastTurnWarningSecond: number | null;
+	lastTurnWarningPlayerId: number | null;
 	selectedCreatureObj: Creature;
 	activeAbility: boolean;
 	ignoreNextConfirmUnload: boolean;
@@ -665,6 +667,8 @@ export class UI {
 		this.dashAnimSpeed = 250; // ms
 
 		this.materializeToggled = false;
+		this.lastTurnWarningSecond = null;
+		this.lastTurnWarningPlayerId = null;
 		this.dashopen = false;
 
 		this.glowInterval = setInterval(() => {
@@ -2171,12 +2175,33 @@ export class UI {
 			}
 
 			const id = game.activeCreature.player.id;
-			$j('.p' + id + ' .turntime').text(time.getTimer(remainingTime));
+			const $turnTime = $j('.p' + id + ' .turntime');
+			$turnTime.text(time.getTimer(remainingTime));
+
+			if (this.lastTurnWarningPlayerId !== id) {
+				this.lastTurnWarningPlayerId = id;
+				this.lastTurnWarningSecond = null;
+			}
 			// Time Alert
 			if (remainingTime < 6) {
-				$j('.p' + id + ' .turntime').addClass('alert');
+				$turnTime.addClass('alert');
 			} else {
-				$j('.p' + id + ' .turntime').removeClass('alert');
+				$turnTime.removeClass('alert');
+			}
+
+			const isUrgentWarning = remainingTime > 0 && remainingTime <= 3;
+			if (isUrgentWarning) {
+				$turnTime.addClass('turntime-warning');
+				this.btnSkipTurn.$button.addClass('bounce');
+
+				if (this.lastTurnWarningSecond !== remainingTime) {
+					this.lastTurnWarningSecond = remainingTime;
+					game.soundsys.playSFX('sounds/drums');
+				}
+			} else {
+				$turnTime.removeClass('turntime-warning');
+				this.btnSkipTurn.$button.removeClass('bounce');
+				this.lastTurnWarningSecond = null;
 			}
 
 			// Time Bar
@@ -2184,6 +2209,10 @@ export class UI {
 			this.timeBar.setSize(1 - timeRatio);
 		} else {
 			$j('.turntime').text('∞');
+			$j('.turntime').removeClass('alert turntime-warning');
+			this.btnSkipTurn.$button.removeClass('bounce');
+			this.lastTurnWarningSecond = null;
+			this.lastTurnWarningPlayerId = null;
 		}
 
 		// TotalTimePool
