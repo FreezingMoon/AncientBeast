@@ -2196,7 +2196,7 @@ export class UI {
 
 				if (this.lastTurnWarningSecond !== remainingTime) {
 					this.lastTurnWarningSecond = remainingTime;
-					game.soundsys.playSFX('sounds/drums');
+					game.soundsys.playSFX('sounds/tick');
 				}
 			} else {
 				$turnTime.removeClass('turntime-warning');
