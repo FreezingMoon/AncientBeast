@@ -11,6 +11,7 @@ import { Locations } from './ui/locations';
 import Connect from './multiplayer/connect';
 import Authenticate from './multiplayer/authenticate';
 import SessionI from './multiplayer/session';
+import { installAvatarStyles } from './style/avatar-styles';
 import {
 	DEBUG_AUTO_START_GAME,
 	DEBUG_DISABLE_HOTKEYS,
@@ -20,6 +21,8 @@ import {
 
 // Load the stylesheet
 import './style/main.less';
+
+installAvatarStyles();
 
 export type GameConfig = ReturnType<typeof getGameConfig>;
 
