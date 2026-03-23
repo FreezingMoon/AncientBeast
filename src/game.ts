@@ -348,6 +348,7 @@ export default class Game {
 			'sounds/swing2',
 			'sounds/swing3',
 			'sounds/heartbeat',
+			'sounds/tick',
 			'sounds/drums',
 			'sounds/upgrade',
 			'sounds/mudbath',
