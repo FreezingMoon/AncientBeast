@@ -1,6 +1,7 @@
 import { throttle } from 'underscore';
 import { Creature } from '../creature';
 import { CreatureQueue } from '../creature_queue';
+import { getAvatarSet } from '../style/avatar-styles';
 
 const CONST = {
 	animDurationMS: 500,
@@ -400,8 +401,9 @@ class CreatureVignette extends Vignette {
 
 	getHTML() {
 		const c = this.creature;
+		const set = getAvatarSet(c.type);
 		const classes = ['vignette', 'creature', 'type' + c.type, 'p' + c.team].join(' ');
-		return `<div creatureid="${c.id}" class="${classes}">
+		return `<div creatureid="${c.id}" class="${classes}" data-set="${set}">
 				<div class="frame"></div>
 				<div class="overlay_frame"></div>
 				<div class="delay_frame"></div>

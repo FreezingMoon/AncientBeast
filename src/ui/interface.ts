@@ -18,6 +18,7 @@ import { DEBUG_DISABLE_HOTKEYS } from '../debug';
 import { cycleAudioMode } from '../sound/soundsys';
 import Game from '../game';
 import { CreatureType } from '../data/types';
+import { getAvatarSet } from '../style/avatar-styles';
 
 type Config = {
 	isAcceptingInput: () => boolean;
@@ -2286,7 +2287,8 @@ export class UI {
 		const getLink = (type) => {
 			const stats = this.game.retrieveCreatureStats(type);
 			const snakeCaseName = stats.name.replace(' ', '_');
-			return `<a href="#${snakeCaseName}" class="vignette realm${stats.realm} type${type}" creature="${type}">
+			const set = getAvatarSet(type);
+			return `<a href="#${snakeCaseName}" class="vignette realm${stats.realm} type${type}" data-set="${set}" creature="${type}">
 						<div class="tooltip">
 							<div class="content">${stats.name}</div>
 						</div>
