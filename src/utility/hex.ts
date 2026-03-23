@@ -334,48 +334,71 @@ export class Hex {
 
 	/**
 	 * Add ghosted class to creature on hexes behind this hex
+	 * Improved to handle both forward (lower rows) and backward (upper rows) directions
+	 * for better X-Ray visibility when targeting units on overlapping spots or rows above.
 	 */
 	ghostOverlap() {
 		const grid = this.grid || this.game.grid;
-		let ghostedCreature;
 
-		for (let i = 1; i <= 3; i++) {
-			if (this.y % 2 == 0) {
-				if (i == 1) {
-					for (let j = 0; j <= 1; j++) {
-						if (grid.hexExists({ y: this.y + i, x: this.x + j })) {
-							if (grid.hexes[this.y + i][this.x + j].creature instanceof Creature) {
-								ghostedCreature = grid.hexes[this.y + i][this.x + j].creature;
+		// Helper function to apply xray to a creature
+		const applyXray = (creature: Creature) => {
+			if (creature instanceof Creature) {
+				creature.xray(true);
+			}
+		};
+
+		// Helper function to check hexes in a specific direction (forward +1 or backward -1)
+		const checkDirection = (direction: number) => {
+			for (let i = 1; i <= 3; i++) {
+				const targetY = this.y + i * direction;
+				let ghostedCreature;
+
+				if (this.y % 2 == 0) {
+					if (i == 1) {
+						for (let j = 0; j <= 1; j++) {
+							if (grid.hexExists({ y: targetY, x: this.x + j })) {
+								ghostedCreature = grid.hexes[targetY][this.x + j].creature;
+								applyXray(ghostedCreature);
 							}
+						}
+					} else {
+						if (grid.hexExists({ y: targetY, x: this.x })) {
+							ghostedCreature = grid.hexes[targetY][this.x].creature;
+							applyXray(ghostedCreature);
 						}
 					}
 				} else {
-					if (grid.hexExists({ y: this.y + i, x: this.x })) {
-						if (grid.hexes[this.y + i][this.x].creature instanceof Creature) {
-							ghostedCreature = grid.hexes[this.y + i][this.x].creature;
-						}
-					}
-				}
-			} else {
-				if (i == 1) {
-					for (let j = 0; j <= 1; j++) {
-						if (grid.hexExists({ y: this.y + i, x: this.x - j })) {
-							if (grid.hexes[this.y + i][this.x - j].creature instanceof Creature) {
-								ghostedCreature = grid.hexes[this.y + i][this.x - j].creature;
+					if (i == 1) {
+						for (let j = 0; j <= 1; j++) {
+							if (grid.hexExists({ y: targetY, x: this.x - j })) {
+								ghostedCreature = grid.hexes[targetY][this.x - j].creature;
+								applyXray(ghostedCreature);
 							}
 						}
-					}
-				} else {
-					if (grid.hexExists({ y: this.y + i, x: this.x })) {
-						if (grid.hexes[this.y + i][this.x].creature instanceof Creature) {
-							ghostedCreature = grid.hexes[this.y + i][this.x].creature;
+					} else {
+						if (grid.hexExists({ y: targetY, x: this.x })) {
+							ghostedCreature = grid.hexes[targetY][this.x].creature;
+							applyXray(ghostedCreature);
 						}
 					}
 				}
 			}
+		};
 
-			if (ghostedCreature instanceof Creature) {
-				ghostedCreature.xray(true);
+		// Check forward direction (lower rows, y + i) - original behavior
+		checkDirection(1);
+
+		// Check backward direction (upper rows, y - i) - new for targeting units on rows above
+		checkDirection(-1);
+
+		// Also check same row for overlapping creatures (creatures sharing hexes or adjacent)
+		// This helps with overlapping spots mentioned in the issue
+		for (let offset of [-1, 1]) {
+			if (grid.hexExists({ y: this.y, x: this.x + offset })) {
+				const adjacentCreature = grid.hexes[this.y][this.x + offset].creature;
+				if (adjacentCreature instanceof Creature) {
+					adjacentCreature.xray(true);
+				}
 			}
 		}
 	}

@@ -1965,6 +1965,8 @@ class CreatureSprite {
 	xray(enable: boolean) {
 		if (this._isXray === enable) return;
 		this._isXray = enable;
+
+		// Smooth transition for transparency
 		this._phaser.add
 			.tween(this._sprite)
 			.to({ alpha: enable ? 0.5 : 1.0 }, 250, Phaser.Easing.Linear.None)
@@ -1973,6 +1975,25 @@ class CreatureSprite {
 			.tween(this._healthIndicatorGroup)
 			.to({ alpha: enable ? 0.5 : 1.0 }, 250, Phaser.Easing.Linear.None)
 			.start();
+
+		// Add or remove outline effect for better visibility of xrayed units
+		// This helps distinguish xrayed creatures when they overlap or are on higher rows
+		if (enable) {
+			// Add a subtle white outline to make the creature more visible
+			this._sprite.tint = 0xffffff;
+			// Add a glow effect using scale and brightness
+			this._phaser.add
+				.tween(this._sprite.scale)
+				.to({ x: 1.02, y: 1.02 }, 250, Phaser.Easing.Linear.None)
+				.start();
+		} else {
+			// Reset tint and scale
+			this._sprite.tint = 0xffffff;
+			this._phaser.add
+				.tween(this._sprite.scale)
+				.to({ x: 1.0, y: 1.0 }, 250, Phaser.Easing.Linear.None)
+				.start();
+		}
 	}
 
 	setHealth(number: number, type: HealthBubbleType) {
