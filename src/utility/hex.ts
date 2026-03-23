@@ -23,6 +23,13 @@ export enum Direction {
 
 const shrinkScale = 0.5;
 
+type ScreenBounds = {
+	left: number;
+	right: number;
+	top: number;
+	bottom: number;
+};
+
 /**
  * Object containing hex information and positions.
  */
@@ -333,51 +340,35 @@ export class Hex {
 	}
 
 	/**
-	 * Add ghosted class to creature on hexes behind this hex
+	 * X-ray creatures whose sprites overlap this hex on screen.
 	 */
 	ghostOverlap() {
-		const grid = this.grid || this.game.grid;
-		let ghostedCreature;
+		const targetBounds = this.getScreenBounds();
+		const targetCreature = this.creature;
 
-		for (let i = 1; i <= 3; i++) {
-			if (this.y % 2 == 0) {
-				if (i == 1) {
-					for (let j = 0; j <= 1; j++) {
-						if (grid.hexExists({ y: this.y + i, x: this.x + j })) {
-							if (grid.hexes[this.y + i][this.x + j].creature instanceof Creature) {
-								ghostedCreature = grid.hexes[this.y + i][this.x + j].creature;
-							}
-						}
-					}
-				} else {
-					if (grid.hexExists({ y: this.y + i, x: this.x })) {
-						if (grid.hexes[this.y + i][this.x].creature instanceof Creature) {
-							ghostedCreature = grid.hexes[this.y + i][this.x].creature;
-						}
-					}
-				}
-			} else {
-				if (i == 1) {
-					for (let j = 0; j <= 1; j++) {
-						if (grid.hexExists({ y: this.y + i, x: this.x - j })) {
-							if (grid.hexes[this.y + i][this.x - j].creature instanceof Creature) {
-								ghostedCreature = grid.hexes[this.y + i][this.x - j].creature;
-							}
-						}
-					}
-				} else {
-					if (grid.hexExists({ y: this.y + i, x: this.x })) {
-						if (grid.hexes[this.y + i][this.x].creature instanceof Creature) {
-							ghostedCreature = grid.hexes[this.y + i][this.x].creature;
-						}
-					}
-				}
+		this.game.creatures.forEach((creature) => {
+			if (!(creature instanceof Creature) || creature === targetCreature) {
+				return;
 			}
 
-			if (ghostedCreature instanceof Creature) {
-				ghostedCreature.xray(true);
+			const creatureBounds = creature.getScreenBounds();
+			if (creatureBounds && this.boundsOverlap(targetBounds, creatureBounds)) {
+				creature.xray(true);
 			}
-		}
+		});
+	}
+
+	getScreenBounds(): ScreenBounds {
+		return {
+			left: this.displayPos.x,
+			right: this.displayPos.x + this.width,
+			top: this.displayPos.y,
+			bottom: this.displayPos.y + this.height,
+		};
+	}
+
+	private boundsOverlap(a: ScreenBounds, b: ScreenBounds) {
+		return a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
 	}
 
 	/**

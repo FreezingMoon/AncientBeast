@@ -73,6 +73,13 @@ type Status = {
 	dizzy: boolean;
 };
 
+type ScreenBounds = {
+	left: number;
+	right: number;
+	top: number;
+	bottom: number;
+};
+
 /**
  * Creature Class
  *
@@ -1672,6 +1679,10 @@ export class Creature {
 		this.creatureSprite.xray(enable);
 	}
 
+	getScreenBounds(): ScreenBounds | null {
+		return this.creatureSprite?.getScreenBounds() ?? null;
+	}
+
 	pickupDrop() {
 		getPointFacade()
 			.getDropsAt(this)
@@ -1973,6 +1984,26 @@ class CreatureSprite {
 			.tween(this._healthIndicatorGroup)
 			.to({ alpha: enable ? 0.5 : 1.0 }, 250, Phaser.Easing.Linear.None)
 			.start();
+	}
+
+	getScreenBounds(): ScreenBounds | null {
+		const texture = this._sprite.texture;
+		const width = Math.abs(this._sprite.width || texture?.width || 0);
+		const height = Math.abs(this._sprite.height || texture?.height || 0);
+
+		if (!width || !height) {
+			return null;
+		}
+
+		const centerX = this._group.x + this._sprite.x;
+		const bottomY = this._group.y + this._sprite.y;
+
+		return {
+			left: centerX - width / 2,
+			right: centerX + width / 2,
+			top: bottomY - height,
+			bottom: bottomY,
+		};
 	}
 
 	setHealth(number: number, type: HealthBubbleType) {
