@@ -1,0 +1,15 @@
+{
+	"compilerOptions": {
+		"outDir": "./deploy/",
+		"sourceMap": true,
+		"module": "esnext",
+		"lib": ["ESNext", "dom"],
+		"target": "es2017",
+		"moduleResolution": "node",
+		"allowJs": true,
+		"noImplicitThis": true,
+		"resolveJsonModule": true,
+		"allowSyntheticDefaultImports": true
+	},
+	"include": ["src", "types"]
+}

@@ -1,0 +1,689 @@
+.flex-row {
+	display: flex;
+	label {
+		width: 25%;
+	}
+	input {
+		width: 60%;
+		background-color: #fff;
+	}
+}
+
+#gameTitle {
+	display: block;
+	margin: auto;
+	width: 555px;
+
+	div {
+		height: 125px;
+		background-image: url('~assets/interface/AncientBeast.png');
+		background-repeat: no-repeat;
+		cursor: pointer;
+		margin-top: 20px;
+		margin-left: auto;
+		margin-right: auto;
+		max-width: 555px;
+	}
+
+	&:hover {
+		filter: brightness(120%);
+	}
+}
+
+#websiteButton {
+	display: none;
+}
+
+#contribute {
+	display: none;
+}
+.user-match {
+	display: flex;
+	align-items: center;
+}
+
+#matchMaking {
+	width: 100%;
+	height: 100%;
+	min-height: 510px;
+	position: absolute;
+	left: 0;
+	top: 0;
+	z-index: 98;
+	text-align: center;
+	background: black url('~assets/interface/Reaper.jpg') no-repeat center top;
+	background-size: cover;
+	color: white;
+	overflow: auto;
+	/* Prevent flashing text caret in Firefox on focusable containers */
+	caret-color: transparent;
+
+	#loader.hide {
+		display: none;
+	}
+
+	#loader {
+		height: 100%;
+		margin-top: -2px;
+		line-height: 50px;
+		font-size: 40px;
+		display: none;
+		/* Hide caret in Firefox when this div gets focus for scroll/keys */
+		caret-color: transparent;
+		outline: none;
+
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-direction: column;
+
+		#barLoader {
+			position: relative;
+			/*margin-left: -60px;*/
+			background-image: url('~assets/interface/loadingEmpty.png');
+			background-repeat: no-repeat;
+			height: 54px;
+			width: 355px;
+
+			.progress {
+				display: block;
+				height: 100%;
+				width: 0;
+				background-image: url('~assets/interface/loadingFull.png');
+				background-repeat: no-repeat;
+			}
+		}
+	}
+}
+
+div#pre-match:focus {
+	outline: none;
+}
+
+body {
+	background: black url('~assets/interface/skulls.jpg') repeat;
+	margin: 0;
+	overflow: hidden;
+	padding: 0;
+	font-family: 'Play', sans-serif;
+}
+
+* {
+	user-select: none;
+}
+
+@keyframes fading {
+	0% {
+		opacity: 1;
+	}
+
+	50% {
+		opacity: 0.1;
+	}
+
+	100% {
+		opacity: 1;
+	}
+}
+
+.error-msg {
+	color: red;
+	display: none;
+	padding-left: 40%;
+	text-align: left;
+}
+
+.error-req {
+	color: red;
+	display: none;
+}
+
+#gameSetupContainer {
+	display: flex;
+	flex-direction: column;
+	/* flex-wrap: wrap; */
+	height: 100vh;
+	caret-color: transparent;
+
+	#pre-match {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+	}
+}
+.match-frame {
+	display: none;
+}
+.welcome {
+	margin-bottom: 1.5rem;
+}
+#startMatchButton {
+	display: none;
+}
+
+/* Hide caret in Firefox near START area */
+#start-btn,
+#start,
+#pre-match {
+	caret-color: transparent;
+	outline: none;
+}
+
+.setupFrame {
+	margin: 0 0 10px;
+	padding: 0;
+	width: auto;
+}
+
+.border-frame {
+	border: 40px solid transparent;
+	border-image: url('~assets/interface/div.png') 40 fill stretch;
+	background: none;
+	position: relative;
+	overflow: visible;
+	margin: 0 0 10px;
+	padding: 0;
+	width: 495px;
+}
+
+.loginregFrame {
+	border: 40px solid transparent;
+	border-image: url('~assets/interface/div.png') 40 fill stretch;
+	background: none;
+	position: relative;
+	overflow: visible;
+	margin: 0 0 10px;
+	padding: 0;
+	width: 700px;
+	display: none;
+	h3 {
+		text-align: left;
+	}
+}
+
+.lobby {
+	display: none;
+	border: 40px solid transparent;
+	border-image: url('~assets/interface/div.png') 40 fill stretch;
+	background: none;
+	position: relative;
+	overflow: visible;
+	margin: 0 0 10px;
+	padding: 0;
+	width: 495px;
+	h2 {
+		margin-top: 0;
+		margin-bottom: 30px;
+	}
+}
+.lobby-match-list {
+	margin: 0;
+	padding: 0;
+
+	li {
+		list-style-type: none;
+		text-align: left;
+	}
+	a {
+		font-size: 20px;
+		display: flex;
+		align-items: center;
+		line-height: 20px;
+		-moz-transition: all 1s ease-in;
+		-webkit-transition: all 0.2s ease-in;
+		-o-transition: all 0.2s ease-in;
+		transition: all 0.2s ease-in;
+		padding: 10px;
+	}
+	a:hover {
+		background-color: rgba(255, 255, 255, 0.2);
+	}
+	.user-match__col {
+		font-size: 15px;
+		text-align: left;
+		margin-right: 15px;
+	}
+	&.refreshing {
+		display: none;
+	}
+}
+.lobby-no-matches {
+	align-items: center;
+	display: flex;
+	justify-content: center;
+	// Match loading indicator height to prevent layout jump.
+	min-height: 32px;
+
+	&.hide {
+		display: none;
+	}
+}
+.lobby-loader {
+	line-height: 0;
+
+	&.hide {
+		display: none;
+	}
+}
+.avatar {
+	background-image: url('~assets/units/avatars/Dark Priest red.jpg');
+	height: 75px;
+	width: 75px;
+	display: inline-block;
+	margin-right: 10px;
+	background-size: cover;
+}
+.game-options {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+}
+
+.gameOption {
+	background: #191919cc;
+	border: #7a7a7a 1px solid;
+	border-radius: 7px;
+	margin: 2px;
+	padding: 5px;
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+	justify-content: center;
+
+	h2 {
+		margin: 5px;
+		font-size: 1em;
+	}
+
+	.dice-button {
+	color: white;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+	font-size: 1.1em;
+	margin-right: 8px;
+	}
+
+	.dice-button:hover {
+		background: #a32d00;
+	}
+
+	.typeRadio {
+		white-space: nowrap;
+		display: flex;
+		flex-grow: 1;
+
+		input[type='radio'] {
+			border: 0;
+			clip: rect(0 0 0 0);
+			height: 1px;
+			margin: -1px;
+			overflow: hidden;
+			padding: 0;
+			position: absolute;
+			width: 1px;
+
+			&:checked + label {
+				border: 1px solid #c80909;
+				background: #292929;
+				font-weight: bold;
+				color: #f55;
+				z-index: 99;
+			}
+
+			&:focus + label {
+				box-shadow: 0 0 3px 1px rgb(214, 98, 94);
+			}
+		}
+
+		label {
+			flex-grow: 1;
+			border: 1px solid #333333;
+			background: #333333;
+			font-weight: bold;
+			color: #ffffff;
+			float: left;
+			margin-left: 0;
+			margin-right: 0;
+			line-height: 26px;
+			cursor: pointer;
+
+			&:hover {
+				border: 1px solid #222222;
+				background: #a32d00;
+				font-weight: bold;
+				color: #ffffff;
+			}
+
+			&:active {
+				border: 1px solid #c80909;
+				background: #292929;
+				font-weight: bold;
+				color: #f55;
+			}
+
+			&:first-of-type {
+				border-top-left-radius: 4px;
+				border-bottom-left-radius: 4px;
+			}
+
+			&:last-of-type {
+				border-top-right-radius: 4px;
+				border-bottom-right-radius: 4px;
+			}
+		}
+	}
+}
+
+.signin-register {
+	display: flex;
+	flex-direction: row;
+	label {
+		display: inline-block;
+		text-align: right;
+		margin-right: 10px;
+	}
+	input {
+		display: inline-block;
+		height: 25px;
+		margin-bottom: 20px;
+	}
+	.button-wrapper {
+		margin-left: 8%;
+	}
+}
+.welcome {
+	display: none;
+}
+.buttons-wrapper {
+	display: flex;
+	.button-wrapper .crimson-button {
+		font-size: 1.3rem;
+	}
+}
+.login {
+	padding-right: 20px;
+	border-right: 1px solid #fff;
+	flex: 1;
+}
+.register {
+	padding-left: 30px;
+	flex: 1;
+}
+.announcement-text {
+	margin-top: 1rem;
+	text-align: left;
+	line-height: 1.4rem;
+}
+.button-wrapper {
+	font-size: 1.5em;
+	text-shadow: 2px 2px black;
+	margin: 20px auto;
+
+	.blink {
+		padding: 0;
+		font-weight: bold;
+		animation: fading 2.5s infinite;
+	}
+
+	.crimson-button {
+		background-color: transparent !important;
+		background-image: url('~assets/interface/small_button.png');
+		background-size: 190px;
+		border: 0;
+		width: 190px;
+		height: 74px;
+		color: #ffffff;
+		font-size: 0.9em;
+		font-weight: bold;
+		cursor: pointer;
+		transition: filter 0.15s ease-in-out;
+		outline: 0;
+
+		&:hover {
+			filter: brightness(135%);
+		}
+
+		&:focus {
+			color: white;
+			filter: brightness(135%);
+			text-shadow: 0 0 10px rgb(214, 98, 94);
+		}
+
+		&.disabled {
+			pointer-events: none;
+			filter: grayscale(100%);
+		}
+	}
+}
+
+#singleplayer,
+#multiplayer {
+	position: fixed;
+	top: 50%;
+	left: 0;
+	z-index: 100;
+	transform: translateY(-50%);
+	div {
+		display: block;
+		height: 100px;
+		width: 100px;
+		background-color: rgba(0, 0, 0, 0.55);
+		background-size: cover;
+		background-repeat: no-repeat;
+	}
+}
+
+#singleplayer {
+	div {
+		background-image: url('~assets/interface/frame.png'), url('~assets/icons/singleplayer.svg');
+	}
+}
+
+#multiplayer {
+	div {
+		background-image: url('~assets/interface/frame.png'), url('~assets/icons/multiplayer.svg');
+	}
+}
+
+#fullscreen {
+	cursor: pointer;
+	position: fixed;
+	width: 100px;
+	text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+	top: 0;
+	right: 0;
+	z-index: 100;
+
+	div {
+		display: block;
+		height: 100px;
+		background-color: rgba(0, 0, 0, 0.55);
+		background-image: url('~assets/interface/frame.png'), url('~assets/icons/fullscreen.svg');
+		background-repeat: no-repeat;
+		background-size: cover;
+		margin-bottom: 3px;
+	}
+
+	&.fullscreenMode div {
+		background-image: url('~assets/interface/frame.png'), url('~assets/icons/contract.svg');
+	}
+}
+
+#discord {
+	display: block;
+	width: 100px;
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	z-index: 100;
+
+	div {
+		height: 100px;
+		background-color: rgba(0, 0, 0, 0.55);
+		background-image: url('~assets/interface/frame.png'), url('~assets/icons/discord.svg');
+		background-size: cover;
+	}
+}
+
+#start {
+	display: none;
+}
+
+#version {
+	display: block;
+	width: 100px;
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	z-index: 100;
+
+	div {
+		height: 100px;
+		background: url('~assets/interface/AB.png') no-repeat;
+		background-size: cover;
+	}
+
+	&:hover {
+		filter: brightness(120%);
+	}
+}
+
+a {
+	color: white;
+	text-shadow: 2px 2px black;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+@media (max-width: 370px) {
+	#startButtonWrapper {
+		display: flex;
+		flex-direction: column;
+	}
+}
+
+@media (max-width: 555px) {
+	#gameSetup {
+		padding-bottom: 120px;
+	}
+	#singleplayer,
+	#multiplayer {
+		top: auto;
+		bottom: 0;
+		transform: none;
+		left: 50%;
+		transform: translate(-50%);
+		right: auto;
+	}
+}
+
+@media (max-height: 555px) {
+	#discord {
+		display: none;
+	}
+
+	#matchMaking {
+		background: black url('~assets/interface/skulls.jpg') repeat;
+	}
+
+	#gameTitle {
+		display: none;
+	}
+
+	#websiteButton {
+		display: block;
+		width: 100px;
+		position: fixed;
+		padding: none;
+		left: 0;
+
+		div {
+			display: block;
+			background-image: url('~assets/interface/AB.png');
+			background-repeat: no-repeat;
+			background-size: cover;
+			height: 100px;
+		}
+
+		&:hover {
+			filter: brightness(120%);
+		}
+
+		span {
+			text-shadow: 0.1em 0.1em 0.1em #000, 0 0 0.7em red;
+		}
+	}
+	#start-btn {
+		display: none;
+	}
+
+	#singleplayer,
+	#multiplayer {
+		top: 50%;
+		left: 0;
+		bottom: auto;
+		right: auto;
+		transform: translateY(-50%);
+	}
+	#contribute {
+		display: block;
+		position: fixed;
+		bottom: 0;
+		z-index: 100;
+
+		div {
+			background: url('~assets/interface/Swampler.gif');
+			background-repeat: no-repeat;
+			width: 120px;
+			height: 130px;
+			background-size: contain;
+		}
+
+		&:hover {
+			filter: brightness(120%);
+		}
+	}
+
+	#start {
+		display: block;
+		width: 100px;
+		position: fixed;
+		right: 0;
+		top: 50%;
+		transform: translateY(-50%);
+		z-index: 100;
+
+		button {
+			display: block;
+			width: 100px;
+			height: 100px;
+			border: none;
+			cursor: pointer;
+			background-color: rgba(0, 0, 0, 0.55);
+			background-image: url('~assets/interface/frame.png'), url('~assets/icons/start.svg');
+			background-repeat: no-repeat;
+			background-size: cover;
+		}
+
+		span {
+			animation: fading 2.5s infinite;
+		}
+	}
+
+	#version div {
+		background-color: rgba(0, 0, 0, 0.55);
+		background-image: url('~assets/interface/frame.png'), url('~assets/icons/version.svg');
+		background-size: cover;
+		background-repeat: no-repeat;
+	}
+}
+
+@media (max-height: 445px) {
+	.border-frame {
+		border: none !important;
+	}
+}

@@ -1,0 +1,19 @@
+{
+	"lang": "English",
+	"name": "Ancient Beast - Turn Based Strategy Game",
+	"short_name": "Ancient Beast",
+	"scope": "/",
+	"display": "fullscreen",
+	"start_url": "/?utm_source=homescreen",
+	"background_color": "black",
+	"theme_color": "black",
+	"description": "3d print your squad of creatures with unique abilities in order to defeat your enemies.",
+	"orientation": "landscape",
+	"icons": [
+		{
+			"src": "favicon.png",
+			"sizes": "512x512"
+		}
+	],
+	"url": "https://AncientBeast.com"
+}

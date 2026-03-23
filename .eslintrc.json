@@ -1,0 +1,29 @@
+{
+	"root": true,
+	"parser": "@typescript-eslint/parser",
+	"plugins": ["prettier", "@typescript-eslint"],
+	"extends": ["prettier", "plugin:prettier/recommended", "plugin:@typescript-eslint/recommended"],
+	"rules": {
+		"prettier/prettier": "error",
+		"no-undef": "error",
+		"no-multi-assign": "error",
+		// Allow some linting issues that are prevalent in the codebase, but please refactor and fix!
+		"@typescript-eslint/no-empty-function": "warn",
+		"@typescript-eslint/no-unused-vars": "warn",
+		"@typescript-eslint/no-this-alias": "warn",
+		"prefer-const": "warn"
+	},
+	"parserOptions": {
+		"ecmaVersion": 2020,
+		"sourceType": "module"
+	},
+	"env": {
+		"browser": true,
+		"es6": true,
+		"node": true
+	},
+	"globals": {
+		"Phaser": true,
+		"__WebpackModuleApi": true
+	}
+}

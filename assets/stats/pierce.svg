@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   version="1.0"
+   id="svg2"
+   height="32"
+   width="32">
+  <defs
+     id="defs4">
+    <linearGradient
+       id="linearGradient3408">
+      <stop
+         id="stop3410"
+         offset="0"
+         style="stop-color:#210000;stop-opacity:1;" />
+      <stop
+         id="stop3412"
+         offset="1"
+         style="stop-color:#ffffff;stop-opacity:1;" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient3212">
+      <stop
+         id="stop3214"
+         offset="0"
+         style="stop-color:#c41329;stop-opacity:1;" />
+      <stop
+         style="stop-color:#c23840;stop-opacity:0.49803922;"
+         offset="1"
+         id="stop3220" />
+      <stop
+         id="stop3216"
+         offset="1"
+         style="stop-color:#ca1818;stop-opacity:0;" />
+    </linearGradient>
+    <radialGradient
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1,0,0,0.895698,0.4940484,3.2060036)"
+       r="24.484351"
+       fy="30.737693"
+       fx="31.942568"
+       cy="30.737693"
+       cx="31.942568"
+       id="radialGradient3218"
+       xlink:href="#linearGradient3212" />
+    <filter
+       id="filter3398">
+      <feGaussianBlur
+         id="feGaussianBlur3400"
+         stdDeviation="1.6144325" />
+    </filter>
+    <linearGradient
+       gradientUnits="userSpaceOnUse"
+       y2="12.669081"
+       x2="21.536184"
+       y1="5.4375"
+       x1="16.0625"
+       id="linearGradient3414"
+       xlink:href="#linearGradient3408" />
+    <linearGradient
+       y2="12.669081"
+       x2="21.536184"
+       y1="5.4375"
+       x1="16.0625"
+       gradientUnits="userSpaceOnUse"
+       id="linearGradient3418"
+       xlink:href="#linearGradient3408" />
+    <linearGradient
+       y2="12.669081"
+       x2="21.536184"
+       y1="5.4375"
+       x1="16.0625"
+       gradientUnits="userSpaceOnUse"
+       id="linearGradient3422"
+       xlink:href="#linearGradient3408" />
+  </defs>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1">
+    <path
+       id="path2383"
+       d="m 23.28125,3.21875 c -4.194897,0.3477024 -7.25,5.4375 -7.25,5.4375 0,0 -4.528735,-6.3688249 -8.9375,-5.1875 -5.3291567,1.4279432 -6.390626,7.361828 -6.3125,10.6875 0.18530118,7.887922 15.25,16.40625 15.25,16.40625 0,0 14.814188,-8.659864 15.25,-16.40625 0.182122,-3.237155 -0.725471,-9.3032007 -6.125,-10.75 -0.639783,-0.1714293 -1.275729,-0.2371718 -1.875,-0.1875 z M 9.0625,9.75 c 1.21172,0 2.1875,0.97578 2.1875,2.1875 0,1.21172 -0.97578,2.1875 -2.1875,2.1875 -1.2117195,0 -2.21875,-0.97578 -2.21875,-2.1875 0,-1.21172 1.0070305,-2.1875 2.21875,-2.1875 z m 13.34375,1.9375 c 1.649698,0 3,1.319052 3,2.96875 0,1.649698 -1.350302,3 -3,3 -1.649698,0 -2.96875,-1.350302 -2.96875,-3 0,-1.649698 1.319052,-2.96875 2.96875,-2.96875 z m -5.357995,7.78401 c 1.21172,0 2.1875,0.97578 2.1875,2.1875 0,1.21172 -0.97578,2.21875 -2.1875,2.21875 -1.21172,0 -2.1875,-1.00703 -2.1875,-2.21875 0,-1.21172 0.97578,-2.1875 2.1875,-2.1875 z"
+       style="fill:#e30000;fill-opacity:1;fill-rule:evenodd;stroke:#210000;stroke-width:1.39999998;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    <path
+       id="rect3200"
+       d="m 5.6377799,5.9516777 c 3.8792657,-3.2134164 7.9283031,1.6436726 7.9283031,1.6436726 0,0 -3.8378026,-2.9710071 -7.3481839,-0.6768066 C 2.8418547,9.124949 2.447121,14.556787 2.447121,14.556787 c 0,0 -0.5751236,-5.4856971 3.1906589,-8.6051093 z"
+       style="fill:#ffffff;fill-opacity:0.80423279;stroke:none" />
+    <path
+       style="fill:#ffffff;fill-opacity:0.80952382;stroke:none"
+       d="m 20.431589,5.756353 c 3.461633,-2.8554195 5.608042,-0.085915 5.608042,-0.085915 0,0 -2.130471,-0.9217151 -4.917822,0.8591509 -2.726515,1.7419968 -4.2276,5.4126491 -4.2276,5.4126491 0,0 0.177013,-3.4139968 3.53738,-6.185885 z"
+       id="path3203" />
+  </g>
+</svg>

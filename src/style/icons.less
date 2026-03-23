@@ -1,0 +1,22 @@
+.stat {
+	text-align: center;
+	display: table-cell;
+	vertical-align: middle;
+}
+
+.icon {
+	height: 32px;
+	width: 32px;
+	display: inline-block;
+
+	.addBackgroundImage(@statList) {
+		each(@statList, {
+			&.@{value} {
+				background-image: url('~assets/stats/@{value}.svg');
+			}
+		});
+	}
+	@listOfStats: health, regrowth, energy, endurance, meditation, initiative, offense, defense,
+		movement, pierce, slash, crush, shock, burn, frost, poison, sonic, mental;
+	.addBackgroundImage(@listOfStats);
+}

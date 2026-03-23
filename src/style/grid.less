@@ -1,0 +1,131 @@
+#creatureraster {
+	display: block;
+	height: 700px;
+	width: 700px;
+	margin: 0 auto;
+	line-height: 0;
+	background-image: url('~assets/interface/set.png');
+	background-size: 100%;
+	padding: 27px;
+	transform-origin: 0 0;
+}
+
+#creatureraster .vignette,
+.vignette div.border,
+.vignette div.overlay {
+	height: 100px;
+	width: 100px;
+	background-size: 100% 100%;
+	position: relative;
+	display: inline-block;
+	overflow: hidden;
+}
+
+#creatureraster .vignette div.overlay {
+	display: block;
+	position: absolute;
+	opacity: 0.75;
+	z-index: 1;
+}
+
+#creatureraster .vignette div.border {
+	display: block;
+	position: absolute;
+	background-image: url('~assets/interface/frame_gothic.png');
+	z-index: 2;
+}
+
+#creatureraster .vignette.active div.border,
+#creatureraster .vignette:hover div.border {
+	background-image: url('~assets/interface/frame.png');
+}
+
+#creatureraster .vignette.dead div.overlay {
+	background-image: url('~assets/icons/dead.svg');
+	background-color: rgba(0, 0, 0, 0.55);
+}
+
+#creatureraster .vignette.notsummonable div.overlay {
+	background-image: url('~assets/icons/plasma.svg');
+	background-color: rgba(0, 0, 0, 0.55);
+}
+
+#creatureraster .vignette.locked div.overlay {
+	background-image: url('~assets/icons/locked.svg');
+	background-color: rgba(0, 0, 0, 0.55);
+}
+
+// Hovering on locked unit gives not-allowed cursor
+
+#creatureraster .vignette.locked:hover {
+	cursor: not-allowed;
+}
+
+#creatureraster .vignette.queued div.overlay {
+	background-image: url('~assets/icons/queue.svg');
+	animation: pulse0106 750ms infinite alternate;
+	background-color: rgba(0, 0, 0, 0.55);
+}
+
+#creatureraster .vignette .tooltip {
+	position: absolute;
+	z-index: 3;
+	bottom: 0;
+	transition: bottom 150ms;
+}
+
+#creatureraster .vignette:hover .tooltip {
+	position: absolute;
+	bottom: 20px;
+	left: 0;
+	display: block;
+	z-index: 3;
+}
+
+#dash #creatureraster .tooltip .content {
+	width: 100px;
+}
+
+#creatureraster .tooltip .content {
+	position: absolute;
+	display: block;
+	width: 128px;
+	font-size: 85%;
+	text-align: center;
+	padding: 4px 2px;
+	box-sizing: border-box;
+	color: white;
+	background: rgba(0, 0, 0, 0.8);
+	line-height: 10px;
+	border: 1px solid #555;
+}
+
+#creatureraster {
+	.realmA .content {
+		text-shadow: 0 0 5px gold;
+	}
+
+	.realmE .content {
+		text-shadow: 0 0 5px orange;
+	}
+
+	.realmG .content {
+		text-shadow: 0 0 5px green;
+	}
+
+	.realmL .content {
+		text-shadow: 0 0 5px red;
+	}
+
+	.realmP .content {
+		text-shadow: 0 0 5px violet;
+	}
+
+	.realmS .content {
+		text-shadow: 0 0 5px blue;
+	}
+
+	.realmW .content {
+		text-shadow: 0 0 5px indigo;
+	}
+}

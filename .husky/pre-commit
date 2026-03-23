@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+npm run lint-staged || ( cat << EOF
+
+[Ancient Beast says] 
+The commit was aborted because errors
+were found in the staged files. (See above.)
+Please fix the errors before committing.
+To commit anyway, use:
+
+git commit --no-verify -am "Your message"
+
+EOF
+exit 1
+)

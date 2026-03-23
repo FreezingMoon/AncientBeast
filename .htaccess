@@ -1,0 +1,50 @@
+AddDefaultCharset UTF-8
+
+<IfModule mod_deflate.c>
+AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript
+</IfModule>
+
+#ENABLE COMPRESSION
+<ifModule mod_gzip.c>
+mod_gzip_on Yes
+mod_gzip_dechunk Yes
+mod_gzip_item_include file .(html?|txt|css|js|php)$
+mod_gzip_item_include handler ^cgi-script$
+mod_gzip_item_include mime ^text/.*
+mod_gzip_item_include mime ^application/x-javascript.*
+mod_gzip_item_exclude mime ^image/.*
+mod_gzip_item_exclude rspheader ^Content-Encoding:.*gzip.*
+</ifModule>
+
+FileETag none
+
+## EXPIRES CACHING ##
+<IfModule mod_expires.c>
+ExpiresActive On
+ExpiresByType image/jpg "access plus 1 month"
+ExpiresByType image/jpeg "access plus 1 month"
+ExpiresByType image/gif "access plus 1 month"
+ExpiresByType image/png "access plus 1 month"
+ExpiresByType image/svg+xml "access plus 1 month"
+ExpiresByType text/css "access plus 1 month"
+ExpiresByType application/pdf "access plus 1 month"
+ExpiresByType text/x-javascript "access plus 1 month"
+ExpiresByType application/x-shockwave-flash "access plus 1 month"
+ExpiresByType audio/ogg "access plus 1 month"
+ExpiresByType image/x-icon "access plus 1 year"
+ExpiresDefault "access plus 2 days"
+</IfModule>
+
+#BEGIN Cache-Control Headers
+<ifModule mod_headers.c>
+	<filesMatch "\.(css|js|jpe?g|gif|png|svg|ico|xml)$">
+		ExpiresDefault "modification plus 4 weeks"
+	</filesMatch>
+</ifModule>
+
+<FilesMatch "\.(gif|jpe?g|png|ico|css|js)$">
+Header set Cache-Control "public"
+</FilesMatch>
+
+AddType image/svg+xml svg svgz
+AddEncoding gzip svgz

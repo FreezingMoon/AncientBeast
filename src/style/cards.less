@@ -1,0 +1,307 @@
+.card {
+	width: 400px;
+	height: 520px;
+	padding: 15px;
+	background-repeat: no-repeat !important;
+	background-position: center !important;
+	cursor: default;
+	display: inline-block;
+	vertical-align: top;
+	letter-spacing: -0.063em;
+	word-spacing: 0.081em;
+}
+
+/* Chrome Hack https://code.google.com/p/chromium/issues/detail?id=413183 */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+	.card {
+		letter-spacing: 0.01em;
+		word-spacing: -0.1em;
+	}
+}
+
+.card.sideA:hover {
+	cursor: pointer;
+}
+
+.section {
+	color: #fff;
+	width: 100%;
+	text-shadow: black 0.1em 0.1em 0.2em;
+	font-weight: bold;
+	font-size: 16px;
+}
+
+.sideA {
+	margin-right: -18px;
+	opacity: 1;
+
+	.info {
+		background: rgba(0, 0, 0, 0.7);
+		border-radius: 15px;
+		border: 4px ridge !important;
+		font-size: 24px;
+		text-align: center;
+		margin-top: -35px;
+		position: inherit;
+		width: 392px;
+		z-index: 1;
+	}
+
+	.info {
+		&.sin- {
+			border-color: grey !important;
+		}
+
+		&.sinA {
+			border-color: gold !important;
+		}
+
+		&.sinE {
+			border-color: orange !important;
+		}
+
+		&.sinG {
+			border-color: green !important;
+		}
+
+		&.sinL {
+			border-color: red !important;
+		}
+
+		&.sinP {
+			border-color: violet !important;
+		}
+
+		&.sinS {
+			border-color: blue !important;
+		}
+
+		&.sinW {
+			border-color: indigo !important;
+		}
+
+		&.sin- {
+			text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em grey;
+		}
+
+		&.sinA {
+			text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em gold;
+		}
+
+		&.sinE {
+			text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em orange;
+		}
+
+		&.sinG {
+			text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em green;
+		}
+
+		&.sinL {
+			text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em red;
+		}
+
+		&.sinP {
+			text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em violet;
+		}
+
+		&.sinS {
+			text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em blue;
+		}
+
+		&.sinW {
+			text-shadow: 0.1em 0.1em 0.1em black, 0 0 0.7em indigo;
+		}
+	}
+}
+
+.abilities {
+	text-align: left;
+}
+
+.abilities {
+	h3 {
+		font-size: 16px;
+		margin: 0;
+		text-decoration: underline;
+		display: inline;
+	}
+
+	.icon {
+		position: absolute;
+		left: 0;
+		top: 0;
+		background-color: rgba(0, 0, 0, 0.55);
+	}
+}
+
+.abilities .icon,
+.frame {
+	display: inline-block;
+	background-size: 100% 100%;
+	width: 100px;
+	height: 100px;
+	background-image: url('~assets/icons/missing.svg');
+}
+
+.abilities .icon .frame {
+	background-image: url('~assets/interface/frame.png');
+}
+
+.ability {
+	position: relative;
+	&:hover {
+		background-color: black;
+	}
+}
+
+.abilities {
+	.ability {
+		.wrapper {
+			height: 100px;
+			padding-left: 103px;
+			vertical-align: middle;
+		}
+
+		.info {
+			display: inline-block;
+			font-size: 16px;
+		}
+	}
+}
+
+.numbers {
+	font-size: 12px;
+	font-weight: bold;
+	text-align: center;
+	display: table;
+	height: 60px;
+}
+
+.card_info {
+	position: absolute;
+	display: none;
+	background: rgba(0, 0, 0, 0.8);
+	width: 400px;
+	color: white;
+	height: 520px;
+	opacity: 1;
+	font-size: 20px;
+	text-align: left;
+	border-radius: 15px;
+}
+
+.stats_desc {
+	padding-left: 15px;
+	width: 385px !important;
+}
+
+.masteries_desc {
+	text-align: center;
+	font-size: x-large;
+	padding-top: 15px;
+	height: 505px !important;
+}
+
+.modifiers {
+	background: black;
+	border-radius: 10px;
+	color: white;
+	font-size: 15px;
+	height: 0;
+	left: 452px;
+	line-height: 20px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	text-align: left;
+	width: 400px;
+	z-index: 2;
+}
+
+.masteries .modifiers {
+	top: auto;
+	bottom: 154px;
+}
+
+.modifiers div {
+	margin: 10px 20px;
+	text-align: center;
+}
+
+.animateStats(@statList) {
+	each(@statList, {
+		.@{value} {
+			background-image: url('~assets/stats/@{value}.gif');
+		}
+	});
+}
+@listOfStats: health, regrowth, energy, endurance, meditation, initiative, offense, defense,
+	movement, pierce, slash, crush, shock, burn, frost, poison, sonic, mental;
+.stat:hover {
+	background: black;
+	border-radius: 10px;
+	.animateStats(@listOfStats);
+}
+
+#dash .stats:hover .stat {
+	border-radius: 10px;
+}
+
+#dash .masteries:hover .stat {
+	border-radius: 10px;
+}
+
+.stats:first-child .modifiers div {
+	border-top-left-radius: 0;
+}
+
+.stats:last-child .modifiers div {
+	border-top-right-radius: 0;
+}
+
+.masteries:first-child .modifiers div {
+	border-top-left-radius: 10px;
+	border-bottom-left-radius: 0;
+}
+
+.masteries:last-child .modifiers div {
+	border-top-right-radius: 10px;
+	border-bottom-right-radius: 0;
+}
+
+.masteries:hover .modifiers,
+.stat:hover .modifiers {
+	height: auto;
+	opacity: 1;
+}
+
+span {
+	&.burn,
+	&.crush,
+	&.defense,
+	&.endurance,
+	&.energy,
+	&.frost,
+	&.health,
+	&.initiative,
+	&.meditation,
+	&.mental,
+	&.movement,
+	&.offense,
+	&.pierce,
+	&.plasma,
+	&.poison,
+	&.pure,
+	&.regrowth,
+	&.shock,
+	&.slash,
+	&.sonic {
+		display: inline-block !important;
+		width: 15px;
+		height: 15px;
+		margin: 0 3px !important;
+		padding: 0 !important;
+		background-size: 100% 100%;
+		vertical-align: -2px;
+	}
+}

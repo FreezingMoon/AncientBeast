@@ -1,0 +1,902 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset='utf-8'>
+		<meta name="Description" content="Turn Based Strategy Game">
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1">
+		<meta name="keywords" content="game, creatures, battle">
+		<meta name="author" content="Dread Knight">
+		<meta name="monetization" content="$pay.stronghold.co/1a15c4d9d46cdd64f9e9094a7c4f04240dc">
+		<meta name="theme-color" content="black">
+		<link rel="manifest" href="manifest.json">
+		<link rel="stylesheet" href="https://icono-49d6.kxcdn.com/icono.min.css">
+		<title>Ancient Beast <%= require('./utility/version').pretty %></title>
+		<style>
+			.scrim.loading {
+			opacity: 1;
+			}
+			.scrim {
+			height: 100%;
+			width: 100%;
+			background-color: black;
+			position: absolute;
+			top: 0;
+			left: 0;
+			transition: opacity 0.5s ease-in;
+			opacity: 0;
+			z-index: 666;
+			}
+		</style>
+	</head>
+	<body oncontextmenu="return false;" id="AncientBeast">
+		<div class="scrim loading"></div>
+		<div id="matchMaking">
+			<div id="loader" class="hide">
+				<img src="<%= require('assets/interface/AB.gif') %>" width="32" height="32" loading="lazy">Loading
+				<div id="barLoader">
+					<span class="progress"></span>
+				</div>
+			</div>
+			<div id="gameSetupContainer">
+				<div id="gameTitle">
+					<div></div>
+				</div>
+				<div id="websiteButton">
+					<a href="https://AncientBeast.com" tabindex="-1" target="_blank" rel="noopener">
+						<div></div>
+						<span>Ancient<br>Beast</span>
+					</a>
+				</div>
+				<div id="contribute">
+					<a href="https://discord.gg/x78rKen" target="_blank" title="Join us on Discord" rel="noopener">
+						<div></div>
+					</a>
+				</div>
+				<div id="pre-match">
+					<div class="setupFrame">
+						<div class="welcome border-frame">Welcome <span class="user"></span></div>
+						<div class="match-frame border-frame">
+							<div>
+								<div class="announcement-text">Warning: This is early alpha. Drop by <a href="https://discord.gg/MJfMF4R" target="_blank" title="Discord" rel="noopener">Discord</a> if no players online.</div>
+								<div class="buttons-wrapper">
+									<div class="button-wrapper">
+										<input class="crimson-button" id="createMatchButton" type="submit" value="Create Match">
+									</div>
+									<div class="button-wrapper">
+										<input class="crimson-button" id="joinMatchButton" type="submit" value="Join Match">
+									</div>
+								</div>
+							</div>
+						</div>
+						<form id="gameSetup">
+							<div class="game-options border-frame">
+								<div class="gameOption">
+									<h2>Player Mode&nbsp;<span id="playerModeType"></span></h2>
+									<div id="playerMode" class="typeRadio">
+										<input type="radio" id="p2" name="playerMode" value="2" checked>
+										<label for="p2" class="dragIt">1 versus 1</label>
+										<input type="radio" id="p4" name="playerMode" value="4">
+										<label for="p4" class="dragIt">2 versus 2</label>
+									</div>
+								</div>
+								<div class="gameOption">
+									<h2>Active Units [ Psyhelm limit ]</h2>
+									<div id="activeUnits" class="typeRadio">
+										<input type="radio" id="activeUnitsOpt1" name="activeUnits" value="1"><label for="activeUnitsOpt1" class="dragIt">1</label>
+										<input type="radio" id="activeUnitsOpt2" name="activeUnits" value="2"><label for="activeUnitsOpt2" class="dragIt">2</label>
+										<input type="radio" id="activeUnitsOpt3" name="activeUnits" value="3" checked><label for="activeUnitsOpt3" class="dragIt">3</label>
+										<input type="radio" id="activeUnitsOpt4" name="activeUnits" value="4"><label for="activeUnitsOpt4" class="dragIt">4</label>
+										<input type="radio" id="activeUnitsOpt5" name="activeUnits" value="5"><label for="activeUnitsOpt5" class="dragIt">5</label>
+										<input type="radio" id="activeUnitsOpt6" name="activeUnits" value="6"><label for="activeUnitsOpt6" class="dragIt">6</label>
+										<input type="radio" id="activeUnitsOpt7" name="activeUnits" value="7"><label for="activeUnitsOpt7" class="dragIt">7</label>
+									</div>
+								</div>
+								<div class="gameOption">
+									<h2>Unit Drops</h2>
+									<div id="unitDrops" class="typeRadio">
+										<input type="radio" id="unitDropsOff" name="unitDrops" value="0"><label for="unitDropsOff" class="dragIt">Off</label>
+										<input type="radio" id="unitDropsOn" name="unitDrops" value="1" checked><label for="unitDropsOn" class="dragIt">On</label>
+									</div>
+								</div>
+								<div class="gameOption">
+									<h2>Ability Upgrades [ number of rounds or uses ]</h2>
+									<div id="abilityUpgrades" class="typeRadio">
+										<input type="radio" id="abilityUpgrade1" name="abilityUpgrades" value="-1"><label for="abilityUpgrade1" class="dragIt">Disabled</label>
+										<input type="radio" id="abilityUpgrade2" name="abilityUpgrades" value="5"><label for="abilityUpgrade2" class="dragIt">5</label>
+										<input type="radio" id="abilityUpgrade3" name="abilityUpgrades" value="4"><label for="abilityUpgrade3" class="dragIt">4</label>
+										<input type="radio" id="abilityUpgrade4" name="abilityUpgrades" value="3" checked><label for="abilityUpgrade4" class="dragIt">3</label>
+										<input type="radio" id="abilityUpgrade5" name="abilityUpgrades" value="2"><label for="abilityUpgrade5" class="dragIt">2</label>
+										<input type="radio" id="abilityUpgrade6" name="abilityUpgrades" value="1"><label for="abilityUpgrade6" class="dragIt">1</label>
+										<input type="radio" id="abilityUpgrade7" name="abilityUpgrades" value="0"><label for="abilityUpgrade7" class="dragIt">Enabled</label>
+									</div>
+								</div>
+								<div class="gameOption">
+									<h2>Plasma Points [ used for unit materialization or shielding ]</h2>
+									<div id="plasmaPoints" class="typeRadio">
+										<input type="radio" id="plasmaPointsOpt1" name="plasmaPoints" value="10"><label for="plasmaPointsOpt1" class="dragIt">10</label>
+										<input type="radio" id="plasmaPointsOpt2" name="plasmaPoints" value="20"><label for="plasmaPointsOpt2" class="dragIt">20</label>
+										<input type="radio" id="plasmaPointsOpt3" name="plasmaPoints" value="30" checked><label for="plasmaPointsOpt3" class="dragIt">30</label>
+										<input type="radio" id="plasmaPointsOpt4" name="plasmaPoints" value="40"><label for="plasmaPointsOpt4" class="dragIt">40</label>
+										<input type="radio" id="plasmaPointsOpt5" name="plasmaPoints" value="50"><label for="plasmaPointsOpt5" class="dragIt">50</label>
+										<input type="radio" id="plasmaPointsOpt6" name="plasmaPoints" value="60"><label for="plasmaPointsOpt6" class="dragIt">60</label>
+										<input type="radio" id="plasmaPointsOpt7" name="plasmaPoints" value="70"><label for="plasmaPointsOpt7" class="dragIt">70</label>
+										<input type="radio" id="plasmaPointsOpt8" name="plasmaPoints" value="80"><label for="plasmaPointsOpt8" class="dragIt">80</label>
+										<input type="radio" id="plasmaPointsOpt9" name="plasmaPoints" value="90"><label for="plasmaPointsOpt9" class="dragIt">90</label>
+										<input type="radio" id="plasmaPointsOpt10" name="plasmaPoints" value="100"><label for="plasmaPointsOpt10" class="dragIt">100</label>
+										<input type="radio" id="plasmaPointsOpt11" name="plasmaPoints" value="110"><label for="plasmaPointsOpt11" class="dragIt">110</label>
+									</div>
+								</div>
+								<div class="gameOption">
+									<h2>Turn Time [ seconds ]</h2>
+									<div id="turnTime" class="typeRadio">
+										<input type="radio" id="turnTimeOpt1" name="turnTime" value="20"><label for="turnTimeOpt1" class="dragIt">20</label>
+										<input type="radio" id="turnTimeOpt2" name="turnTime" value="40"><label for="turnTimeOpt2" class="dragIt">40</label>
+										<input type="radio" id="turnTimeOpt3" name="turnTime" value="60"><label for="turnTimeOpt3" class="dragIt">60</label>
+										<input type="radio" id="turnTimeOpt4" name="turnTime" value="80"><label for="turnTimeOpt4" class="dragIt">80</label>
+										<input type="radio" id="turnTimeOpt5" name="turnTime" value="99"><label for="turnTimeOpt5" class="dragIt">99</label>
+										<input type="radio" id="turnTimeOpt6" name="turnTime" value="-1" checked><label
+											for="turnTimeOpt6" class="dragIt">&#8734;</label>
+									</div>
+								</div>
+								<div class="gameOption">
+									<h2>Time Pools [ minutes ]</h2>
+									<div id="timePool" class="typeRadio">
+										<!-- <input type="radio" id="timePoolOpt0" name="timePool" value="1" ><label for="timePoolOpt0">1 min</label> -->
+										<input type="radio" id="timePoolOpt1" name="timePool" value="15"><label for="timePoolOpt1" class="dragIt">15</label>
+										<input type="radio" id="timePoolOpt2" name="timePool" value="20"><label for="timePoolOpt2" class="dragIt">20</label>
+										<input type="radio" id="timePoolOpt3" name="timePool" value="25"><label for="timePoolOpt3" class="dragIt">25</label>
+										<input type="radio" id="timePoolOpt4" name="timePool" value="30"><label for="timePoolOpt4" class="dragIt">30</label>
+										<input type="radio" id="timePoolOpt5" name="timePool" value="-1" checked><label
+											for="timePoolOpt5" class="dragIt">&#8734;</label>
+									</div>
+								</div>
+								<div class="gameOption">
+									<h2>Combat Location [ no influence to the actual gameplay ]</h2>
+									<div id="combatLocation" class="typeRadio">
+									</div>
+								</div>
+							</div>
+							<div class="button-wrapper" id="start-btn">
+								<span class="blink">PRESS </span>
+								<input class="crimson-button" id="startButton" type="submit" value="START">
+								<input class="crimson-button" id="startMatchButton" type="submit" value="Create Match">
+								<span class="blink"> BUTTON</span>
+							</div>
+							<div id="start"><button type="submit"></button><span>Start</span></div>
+						</form>
+					</div>
+					<div class="loginregFrame">
+						<div class="signin-register">
+							<div class="login">
+								<h3>Login</h3>
+								<form id="login">
+									<div class="table-fields">
+										<div class="flex-row">
+											<label for="email"><span class="error-req">*</span>Email</label>
+											<input type="text" id="email" name="email">
+										</div>
+										<div class="flex-row">
+											<label for="password"><span class="error-req">*</span>Password</label>
+											<input type="password" id="password" name="password">
+										</div>
+									</div>
+									<div class="error-msg error-req-message">* required</div>
+									<div class="error-msg login-error-req-message">Login is not valid</div>
+									<div class="button-wrapper">
+										<input class="crimson-button" id="login-button" type="submit" value="Login">
+									</div>
+								</form>
+							</div>
+							<div class="register">
+								<h3>Register</h3>
+								<form id="register">
+									<div class="table-fields">
+										<div class="flex-row">
+											<label for="username"><span class="error-req">*</span>User Name</label>
+											<input type="text" id="username" name="username">
+										</div>
+										<div class="flex-row">
+											<label for="login"><span class="error-req">*</span>Email</label>
+											<input type="text" id="email" name="email">
+										</div>
+										<div class="flex-row">
+											<label for="password"><span class="error-req">*</span>Password</label>
+											<input type="password" id="password" name="password">
+										</div>
+										<div class="flex-row">
+											<label for="passwordmatch"><span class="error-req">*</span>Retype Password</label>
+											<input type="password" id="passwordmatch" name="passwordmatch">
+										</div>
+									</div>
+									<div class="error-msg error-req-message">* required</div>
+									<div class="error-msg error-pw">Passwords must match</div>
+									<div class="error-msg error-pw-length">Password must be at least 8 characters</div>
+									<div class="button-wrapper">
+										<input class="crimson-button" id="register-button" type="submit" value="Register">
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+					<div class="lobby">
+						<h2>Open Matches (click to join)</h2>
+						<div class="lobby-match-list"></div>
+						<div class="lobby-no-matches">No matches available.</div>
+						<div class="lobby-loader hide">
+							<img src="<%= require('assets/interface/AB.gif') %>" width="32" height="32" />
+						</div>
+						<div class="buttons-wrapper">
+							<div class="button-wrapper">
+								<input class="crimson-button" id="backFromMatchButton" type="button" value="Back">
+							</div>
+							<div class="button-wrapper">
+								<input class="crimson-button" id="refreshMatchButton" type="button" value="Refresh">
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="fullscreen">
+					<div></div>
+					<span class="fullscreen__title">Fullscreen</span>
+				</div>
+				<div id="multiplayer">
+					<a href="#" title="Play online versus others">
+						<div></div>
+						<span class="multiplayer__title">Multiplayer</span>
+					</a>
+				</div>
+				<div id="singleplayer">
+					<a href="#" title="Play offline in hotseat mode">
+						<div></div>
+						<span class="singleplayer__title">Singleplayer</span>
+					</a>
+				</div>
+				<div id="version">
+					<a href="https://play.AncientBeast.com" title="Switch to stable" tabindex="-1">
+						<div></div>
+						<%= require('./utility/version').pretty %>
+					</a>
+				</div>
+				<div id="discord">
+					<a href="https://discord.gg/x78rKen" title="Join us on Discord" target="_blank" tabindex="-1" rel="noopener">
+						<div></div>
+						Discord
+					</a>
+				</div>
+			</div>
+		</div>
+		<div id="ui">
+			<div id="scoreboard" class="framed-modal__wrapper hide">
+				<div class="framed-modal">
+					<div class="framed-modal__return">
+						<div class="togglescore close-button"></div>
+					</div>
+					<h1 id="scoreboardTitle"></h1>
+					<p id="winnerMessage" style="text-align: center; font-size: 18px; font-weight: bold; margin: 10px 0; color: #fff;"></p>
+					<table id="score">
+						<tbody>
+							<tr class="player_name">
+								<td>Players</td>
+							</tr>
+							<tr class="firstKill">
+								<td>First blood</td>
+							</tr>
+							<tr class="kill">
+								<td>Kills</td>
+							</tr>
+							<tr class="combo">
+								<td>Combos</td>
+							</tr>
+							<tr class="humiliation">
+								<td>Humiliation</td>
+							</tr>
+							<tr class="annihilation">
+								<td>Annihilation</td>
+							</tr>
+							<tr class="deny">
+								<td>Denies</td>
+							</tr>
+							<tr class="pickupDrop">
+								<td>Drops picked</td>
+							</tr>
+							<tr class="timebonus">
+								<td>Time Bonus</td>
+							</tr>
+							<tr class="nofleeing">
+								<td>No Fleeing</td>
+							</tr>
+							<tr class="creaturebonus">
+								<td>Survivor Units</td>
+							</tr>
+							<tr class="immortal">
+								<td>Immortal</td>
+							</tr>
+							<tr class="upgrade">
+								<td>Ability Upgrades</td>
+							</tr>
+							<tr class="total">
+								<td>Total</td>
+							</tr>
+						</tbody>
+					</table>
+					<div class="scoreboardActions">
+						<div id="fleeWrapper">
+							<div id="flee" class="button">
+							</div>
+							<div class="desc">
+								<div class="arrow"></div>
+								<div class="shortcut">hotkey F</div>
+								<span>Flee Match</span>
+								<p>Give up but only after first 12 rounds.</p>
+							</div>
+						</div>
+						<div id="exitWrapper">
+							<div id="exit" class="button">
+							</div>
+							<div class="desc">
+								<div class="arrow"></div>
+								<div class="shortcut">hotkey X</div>
+								<span>Exit Match</span>
+								<p>Return to the main menu.</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id="dash" class="selected0">
+				<div id="return">
+					<div class="toggledash close-button"></div>
+				</div>
+				<div id="playertabswrapper">
+					<div class="playertabs p0" player="0">
+						<div id="playeravatar" class="vignette active p0">
+							<div class="frame"></div>
+						</div>
+						<div class="infos">
+							<h3 class="name"></h3>
+							<p class="score">0 Score</p>
+							<p class="plasma">0 Plasma</p>
+							<p class="units">Units</p>
+							<p>Time <span class="activePlayer turntime">&#8734;</span> / <span class="timepool">&#8734;</span></p>
+						</div>
+					</div>
+					<div class="playertabs p1" player="1">
+						<div id="playeravatar" class="vignette active p1">
+							<div class="frame"></div>
+						</div>
+						<div class="infos">
+							<h3 class="name"></h3>
+							<p class="score">0 Score</p>
+							<p class="plasma">0 Plasma</p>
+							<p class="units">Units</p>
+							<p>Time <span class="activePlayer turntime">&#8734;</span> / <span class="timepool">&#8734;</span></p>
+						</div>
+					</div>
+					<div class="playertabs p2" player="2">
+						<div id="playeravatar" class="vignette active p2">
+							<div class="frame"></div>
+						</div>
+						<div class="infos">
+							<h3 class="name"></h3>
+							<p class="score">0 Score</p>
+							<p class="plasma">0 Plasma</p>
+							<p class="units">Units</p>
+							<p>Time <span class="activePlayer turntime">&#8734;</span> / <span class="timepool">&#8734;</span></p>
+						</div>
+					</div>
+					<div class="playertabs p3" player="3">
+						<div id="playeravatar" class="vignette active p3">
+							<div class="frame"></div>
+						</div>
+						<div class="infos">
+							<h3 class="name"></h3>
+							<p class="score">0 Score</p>
+							<p class="plasma">0 Plasma</p>
+							<p class="units">Units</p>
+							<p>Time <span class="activePlayer turntime">&#8734;</span> / <span class="timepool">&#8734;</span></p>
+						</div>
+					</div>
+				</div>
+				<div id="tabwrapper">
+					<div id="cardwrapper">
+						<div id="cardwrapper_inner">
+							<div id="card">
+								<div class="center" style="display: inline-block; vertical-align: top;">
+									<div class="card sideA"
+										style="background-image: url('<%=require(`assets/cards/margin.png`)%>'), url();">
+										<!-- On hover mini tutorial -->
+										<div class="card_info stats_desc">
+											<br>
+											<div><span class="icon health"></span> Health : The raw amount of damage points a creature can take
+												before it dies.
+											</div>
+											<div><span class="icon regrowth"></span> Regrowth : Amount of health that gets restored at the
+												beginning of every turn.
+											</div>
+											<div><span class="icon endurance"></span> Endurance : Protects unit from fatigue, which disables
+												regrowth and meditation.
+											</div>
+											<br>
+											<div><span class="icon energy"></span> Energy : Each unit ability requires a certain amount of
+												energy to be used.
+											</div>
+											<div><span class="icon meditation"></span> Meditation : Energy restored each turn.</div>
+											<div><span class="icon initiative"></span> Initiative : Units with higher amount of initiative
+												points get to act their turn faster.
+											</div>
+											<br>
+											<div><span class="icon offense"></span> Offense : Influences the damage output done by all the
+												creature's attack abilities.
+											</div>
+											<div><span class="icon defense"></span> Defense : Protects the creature by reducing some of the
+												incoming damage.
+											</div>
+											<div><span class="icon movement"></span> Movement : Any creature can move a certain number of
+												hexagons every turn.
+											</div>
+										</div>
+										<div class="card_info masteries_desc">
+											<span>There are 9 common types of damage and a rare one called Pure damage that bypasses the formula
+											below, doing a fixed non-variable amount of harm no matter what.</span><br><br>
+											<span><u>Damage Formula</u><br>attack damage +<br>attack damage / 100 *<br>(offense of attacking
+											unit -<br>defense of unit attacked /<br>number of hexagons hit +<br>mastery stat of attacker
+											-<br>mastery stat of defender)</span><br><br>
+											<span>Minimum damage is usually 1<br>unless the hit is being avoided.</span>
+										</div>
+										<!-- Card Anchor -->
+										<div style="height: 100%;"></div>
+										<div class="section info sin-">
+											<div class = "set-type-parent">
+												<div class ="creature-meta set"></div>
+												<div class="creature-meta type" creature_type=""></div>
+											</div>
+											<a class="name" creature_name=""></a>
+											<div class="creature-meta hexes"></div>
+										</div>
+									</div>
+								</div>
+								<div class="card sideB" style="background-image: url('<%=require(`assets/cards/margin.png`)%>'), url();">
+									<div class="section numbers stats">
+										<div stat="health" class="stat health" title="Health">
+											<div class="icon health"></div>
+											<br><span class="value">0</span>
+										</div>
+										<div stat="regrowth" class="stat regrowth" title="Regrowth">
+											<div class="icon regrowth"></div>
+											<br><span class="value">0</span>
+										</div>
+										<div stat="endurance" class="stat endurance" title="Endurance">
+											<div class="icon endurance"></div>
+											<br><span class="value">0</span>
+										</div>
+										<div stat="energy" class="stat energy" title="Energy">
+											<div class="icon energy"></div>
+											<br><span class="value">0</span>
+										</div>
+										<div stat="meditation" class="stat meditation" title="Meditation">
+											<div class="icon meditation"></div>
+											<br><span class="value">0</span>
+										</div>
+										<div stat="initiative" class="stat initiative" title="Initiative">
+											<div class="icon initiative"></div>
+											<br><span class="value">0</span>
+										</div>
+										<div stat="offense" class="stat offense" title="Offense">
+											<div class="icon offense"></div>
+											<br><span class="value">0</span>
+										</div>
+										<div stat="defense" class="stat defense" title="Defense">
+											<div class="icon defense"></div>
+											<br><span class="value">0</span>
+										</div>
+										<div stat="movement" class="stat movement" title="Movement">
+											<div class="icon movement"></div>
+											<br><span class="value">0</span>
+										</div>
+									</div>
+									<div class="section abilities">
+										<div class="ability">
+											<div class="icon">
+												<div class="frame"></div>
+											</div>
+											<div class="wrapper">
+												<div class="info">
+													<h3></h3>
+													<span class="desc" id="cost"></span><br>
+													<span class="desc" id="desc"></span><br>
+													<span class="desc" id="info"></span><br>
+													<span class="desc" id="upgrade"></span>
+												</div>
+											</div>
+										</div>
+										<div class="ability">
+											<div class="icon">
+												<div class="frame"></div>
+											</div>
+											<div class="wrapper">
+												<div class="info">
+													<h3></h3>
+													<span class="desc" id="cost"></span><br>
+													<span class="desc" id="desc"></span><br>
+													<span class="desc" id="info"></span><br>
+													<span class="desc" id="upgrade"></span>
+												</div>
+											</div>
+										</div>
+										<div class="ability">
+											<div class="icon">
+												<div class="frame"></div>
+											</div>
+											<div class="wrapper">
+												<div class="info">
+													<h3></h3>
+													<span class="desc" id="cost"></span><br>
+													<span class="desc" id="desc"></span><br>
+													<span class="desc" id="info"></span><br>
+													<span class="desc" id="upgrade"></span>
+												</div>
+											</div>
+										</div>
+										<div class="ability">
+											<div class="icon">
+												<div class="frame"></div>
+											</div>
+											<div class="wrapper">
+												<div class="info">
+													<h3></h3>
+													<span class="desc" id="cost"></span><br>
+													<span class="desc" id="desc"></span><br>
+													<span class="desc" id="info"></span><br>
+													<span class="desc" id="upgrade"></span>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="section numbers masteries">
+										<div stat="pierce" class="stat pierce" title="Pierce">
+											<div class="icon pierce"></div>
+											<br><span class="value">0</span>
+										</div>
+										<div stat="slash" class="stat slash" title="Slash">
+											<div class="icon slash"></div>
+											<br><span class="value">0</span>
+										</div>
+										<div stat="crush" class="stat crush" title="Crush">
+											<div class="icon crush"></div>
+											<br><span class="value">0</span>
+										</div>
+										<div stat="shock" class="stat shock" title="Shock">
+											<div class="icon shock"></div>
+											<br><span class="value">0</span>
+										</div>
+										<div stat="burn" class="stat burn" title="Burn">
+											<div class="icon burn"></div>
+											<br><span class="value">0</span>
+										</div>
+										<div stat="frost" class="stat frost" title="Frost">
+											<div class="icon frost"></div>
+											<br><span class="value">0</span>
+										</div>
+										<div stat="poison" class="stat poison" title="Poison">
+											<div class="icon poison"></div>
+											<br><span class="value">0</span>
+										</div>
+										<div stat="sonic" class="stat sonic" title="Sonic">
+											<div class="icon sonic"></div>
+											<br><span class="value">0</span>
+										</div>
+										<div stat="mental" class="stat mental" title="Mental">
+											<div class="icon mental"></div>
+											<br><span class="value">0</span>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div id="materialize_button">
+								<p></p>
+							</div>
+							<div id="opencollective_banner">
+								<object type="image/svg+xml"
+								data="https://opencollective.com/ancientbeast/tiers/sponsor.svg?avatarHeight=61&width=800&limit=10">
+								</object>
+							</div>
+						</div>
+					</div>
+					<div id="creaturerasterwrapper">
+					</div>
+				</div>
+			</div>
+
+			<div id="musicplayerwrapper" class="framed-modal__wrapper hide">
+
+					<div class="framed-modal__return">
+						<button class="toggle-music-player close-button"></button>
+					</div>
+
+					<div class="audio-player-controls">
+						<div class="audio-player-skin">
+							<div class="audio-player-beast"></div>
+
+							<div class="musicgenres__items">
+								<% require('./assets.ts').getDirectory('music').forEach(function(musicGenre) { %>
+									<span class="musicgenres__title" id="genre-<%= musicGenre.id %>"><%= musicGenre.id %></span>
+								<% }); %>
+							</div>
+
+							<div class="timeline">
+								<div class=" timeline-control"></div>
+								<div class="time">
+									<div class="current">0:00</div>
+									<div class="divider">/</div>
+									<div class="length"></div>
+								</div>
+								<div class="progress-music"></div>
+							</div>
+							<div class="controls">
+								<div class="play-container">
+									<div class="toggle-play pause">
+								</div>
+								</div>
+							</div>
+
+							<div class="volumeSliders">
+								<div id="sfx-slider">
+									<div class="volume-label">SFX</div>
+									<input id="sfx" class="slider" type="range" min="0" max="1" value="1" step="0.02">
+								</div>
+								<div id="vol-slider">
+									<div class="volume-label">VOL</div>
+									<input id="vol" class="slider" type="range" min="0" max="1" value="0.25" step="0.02">
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="framed-modal framed-modal--fluid">
+					<ul id="playlist" style="list-style-type:none; padding-left:0px;">
+						<% require('./assets.ts').getDirectory('music').forEach(function(musicGenre) { %>
+							<% musicGenre.children.forEach(function(track) { %>
+								<li class="<%= musicGenre.id %>"><a href="<%= track.url %>"><%= track.id %></a></li>
+							<% }); %>
+						<% }); %>
+
+					</ul>
+				</div>
+			</div>
+
+			<div id="toppanel">
+				<div id="queue">
+					<div id="queuewrapper"></div>
+				</div>
+
+
+
+				<div id="rightpanel">
+					<div style="position:relative">
+					<div id="playerbutton" class="quickinfowrapper togglescore vignette active frame button">
+						<div class="frame"></div>
+						<div id="playerinfo">
+							<p class="name"></p>
+							<p class="points"><span></span> Points</p>
+							<p class="plasma"><span></span> Plasma</p>
+							<p class="units"><span></span> Units</p>
+							<p><span class="activePlayer turntime">&#8734;</span> / <span class="timepool">&#8734;</span></p>
+						</div>
+					</div>
+					<div class="desc">
+						<div class="arrow"></div>
+						<div class="shortcut">hotkey T</div>
+						<span>Show Score</span>
+						<p>Visualize various stats related to how you've matched up against your foes.</p>
+					</div>
+				</div>
+
+					<div style="position:relative">
+						<div id="audio" class="toggle-music-player button">
+							<img id="audio-icon" src="" alt="audio icon" width="32" height="32" />
+							<div class="tooltiptext" id="audio-tooltip">Audio: Full</div>
+						</div>
+												<div class="desc">
+							<div class="arrow"></div>
+							<div class="shortcut">hotkey Shift + A</div>
+							<span>Audio Player</span>
+							<p>Listen to some really fine epic tracks.</p>
+						</div>
+					</div>
+					<div style="position:relative">
+						<div id="skip" class="button"></div>
+						<div class="desc">
+							<div class="arrow"></div>
+							<div class="shortcut">hotkey S</div>
+							<span>Skip Turn</span>
+							<p>End the turn of the current creature and proceed with the next in queue.</p>
+						</div>
+					</div>
+					<div style="position:relative">
+						<div id="delay" class="button"></div>
+						<div class="desc">
+							<div class="arrow"></div>
+							<div class="shortcut">hotkey D</div>
+							<span>Delay Unit</span>
+							<p>Delayed creatures will act at the end of the round, if alive and still able to.</p>
+						</div>
+					</div>
+					<div style="position:relative" >
+						<div id="fullscreen" class="button slideIn" >
+							<div></div>
+						</div>
+						<div class="desc">
+							<div class="arrow"></div>
+							<div class="shortcut">hotkey Shift + F</div>
+							<span>Fullscreen</span>
+							<p>Toggle fullscreen mode as you wish.</p>
+						</div>
+
+						<!-- Will be moved to another part of the ui -->
+						<!-- <div id="flee" class="button"></div>
+						<div class="desc">
+							<div class="arrow"></div>
+							<div class="shortcut">hotkey F</div>
+							<span>Flee Match</span>
+							<p>Give up but only after first 12 rounds.</p>
+						</div> -->
+					</div>
+
+					<div class="progressbar">
+						<div class="bar poolbar"></div>
+						<div class="bar timebar"></div>
+					</div>
+				</div>
+				<div id="leftpanel">
+					<div id="activebox">
+						<div id="abilities">
+							<div style="position:relative">
+								<div ability="0" class="ability button" style="cursor: default;"></div>
+								<div ability="0" class="desc">
+									<div class="arrow"></div>
+									<div class="abilityinfo_content">
+										<div class="shortcut">passive ability</div>
+										<span class="title"></span>
+										<p class="description"></p>
+										<p class="full-info"></p>
+									</div>
+								</div>
+							</div>
+							<div style="position:relative">
+								<div ability="1" class="ability button"></div>
+								<div ability="1" class="desc">
+									<div class="arrow"></div>
+									<div class="abilityinfo_content">
+										<div class="shortcut">hotkey W</div>
+										<span class="title"></span>
+										<p class="description"></p>
+										<p class="full-info"></p>
+									</div>
+								</div>
+							</div>
+							<div style="position:relative">
+								<div ability="2" class="ability button"></div>
+								<div ability="2" class="desc">
+									<div class="arrow"></div>
+									<div class="abilityinfo_content">
+										<div class="shortcut">hotkey E</div>
+										<span class="title"></span>
+										<p class="description"></p>
+										<p class="full-info"></p>
+									</div>
+								</div>
+							</div>
+							<div style="position:relative">
+								<div ability="3" class="ability button"></div>
+								<div ability="3" class="desc">
+									<div class="arrow"></div>
+									<div class="abilityinfo_content">
+										<div class="shortcut">hotkey R</div>
+										<span class="title"></span>
+										<p class="description"></p>
+										<p class="full-info"></p>
+									</div>
+								</div>
+							</div>
+							<div class="progressbar">
+								<div class="bar energybar"></div>
+								<div class="bar healthbar"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id="bottompanel">
+				<div id="chat">
+					<div id="chatbox">
+						<div id="chatcontent">
+						</div>
+					</div>
+					<textarea id="chatinput"></textarea>
+					<div id="chatexpanded" class="chat-expanded-content"></div>
+				</div>
+			</div>
+			<div id="meta-powers" class="framed-modal__wrapper hide">
+				<div class="framed-modal framed-modal--fluid">
+					<div class="framed-modal__return">
+						<button class="toggle-meta-powers close-button"></button>
+					</div>
+
+					<div class="meta-powers-header">
+						<h2>Toggled Powers</h2>
+						<button id="reset-toggled-powers" title="Click to reset selection">
+							Reset Toggled Powers
+						</button>
+					</div>
+
+					<div class="meta-powers-actions">
+						<div style="position: relative;">
+							<div
+								id="execute-monster-button"
+								class="button"
+							>
+								Execution Mode
+							</div>
+
+							<div class="desc">
+								<div class="arrow"></div>
+								<span>Execution Mode</span>
+								<p>When activated, clicking a creature will immediately kill it.</p>
+							</div>
+						</div>
+
+						<div style="position: relative;">
+							<div
+								id="disable-materialization-sickness-button"
+								class="button"
+							>
+								Disable Materialization Sickness
+							</div>
+
+							<div class="desc">
+								<div class="arrow"></div>
+								<span>Disable Materialization Sickness</span>
+								<p>
+									When activated, summoned creatures will not suffer from Materialization
+									Sickness on their first turn.
+								</p>
+							</div>
+						</div>
+
+						<div style="position: relative;">
+							<div
+								id="reset-cooldowns-button"
+								class="button"
+							>
+								Disable Cooldowns
+							</div>
+
+							<div class="desc">
+								<div class="arrow"></div>
+								<span>Disable Cooldowns</span>
+								<p>
+									Disable ability cooldowns for all units, including the Dark Priest, allowing
+									them to be used multiple times in a single round.
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id="meta-powers-list"></div>
+		</div>
+		<div id="banner"></div>
+		<div id="combatwrapper">
+		</div>
+
+		<div id="orientation-message">
+			<div class="framed-modal__return">
+				<div class="close-button"></div>
+			</div>
+			<div class="rotate-icon"></div>
+			<p>Please rotate your device to<br>landscape mode</p>
+		</div>
+		<% if (htmlWebpackPlugin.options.enableServiceWorker) { %>
+			<%= require('./templates/service_worker.html') %>
+		<% } %>
+	</body>
+</html>
