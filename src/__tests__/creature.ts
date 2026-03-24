@@ -4,6 +4,8 @@ import { jest, expect, describe, test, beforeEach, beforeAll } from '@jest/globa
 // NOTE: ts-comments are necessary in this file to avoid mocking the entire game.
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 
+type JQueryMock = jest.Mock<{ removeClass: jest.Mock }, []>;
+
 describe('Creature', () => {
 	describe('creature.id', () => {
 		let game: Game;
@@ -330,6 +332,8 @@ const getPhaserMock = () => {
 };
 
 beforeAll(() => {
+	const globalWithJQuery = global as typeof global & { $j: JQueryMock };
+
 	Object.defineProperty(window, 'Phaser', {
 		get() {
 			return { Easing: { Linear: { None: 1 } } };
@@ -337,7 +341,7 @@ beforeAll(() => {
 	});
 
 	// Mock jQuery globally
-	(global as any).$j = jest.fn(() => ({
+	globalWithJQuery.$j = jest.fn(() => ({
 		removeClass: jest.fn(),
 	}));
 
