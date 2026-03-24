@@ -1805,6 +1805,8 @@ export class Creature {
 }
 
 class CreatureSprite {
+	private static readonly XRAY_ALPHA = 0.3;
+
 	private _group: Phaser.Group;
 	private _sprite: Phaser.Sprite;
 	private _hintGrp: Phaser.Group;
@@ -1978,7 +1980,7 @@ class CreatureSprite {
 		this._isXray = enable;
 		this._phaser.add
 			.tween(this._sprite)
-			.to({ alpha: enable ? 0.5 : 1.0 }, 250, Phaser.Easing.Linear.None)
+			.to({ alpha: enable ? CreatureSprite.XRAY_ALPHA : 1.0 }, 250, Phaser.Easing.Linear.None)
 			.start();
 		this._phaser.add
 			.tween(this._healthIndicatorGroup)
