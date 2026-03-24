@@ -4,7 +4,7 @@ import { jest, expect, describe, test, beforeEach, beforeAll } from '@jest/globa
 // NOTE: ts-comments are necessary in this file to avoid mocking the entire game.
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 
-type JQueryMock = jest.Mock<{ removeClass: jest.Mock }, []>;
+type JQueryMock = jest.Mock<() => { removeClass: jest.Mock }>;
 
 describe('Creature', () => {
 	describe('creature.id', () => {
