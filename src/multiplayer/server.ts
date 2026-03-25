@@ -1,6 +1,6 @@
 /**
  * Multiplayer Server - Lobby-based replacement for Nakama
- * 
+ *
  * Replaces old Nakama-based server with new lobby system.
  * @file server.ts
  */
@@ -16,12 +16,12 @@ export default class LobbyServer {
 	public game: Game;
 	private playerId?: string;
 
-	constructor(game: Game, serverUrl: string = 'http://localhost:3001') {
+	constructor(game: Game, serverUrl = 'http://localhost:3001') {
 		this.serverUrl = serverUrl;
 		this.client = new LobbyClient(serverUrl);
 		this.game = game;
 		this.playerId = undefined;
-		
+
 		// Setup P2P integration (will be initialized after player registration)
 		this.p2pIntegration = null as any;
 	}
@@ -31,7 +31,7 @@ export default class LobbyServer {
 	 */
 	async initialize(): Promise<string> {
 		console.log('Initializing lobby connection...');
-		
+
 		try {
 			// Register player with auto-generated ID
 			this.playerId = await this.client.registerPlayer();
@@ -39,7 +39,7 @@ export default class LobbyServer {
 
 			// Setup P2P integration
 			this.p2pIntegration = new P2PGameIntegration(this.client, this.playerId);
-			
+
 			// Setup P2P event handlers
 			this.p2pIntegration.onGameStateUpdate((state) => {
 				console.log('Game state updated:', state);
@@ -61,7 +61,7 @@ export default class LobbyServer {
 	/**
 	 * Create a new lobby
 	 */
-	async createLobby(name: string = '', isPrivate: boolean = false, maxPlayers: number = 8): Promise<any> {
+	async createLobby(name = '', isPrivate = false, maxPlayers = 8): Promise<any> {
 		if (!this.playerId) {
 			throw new Error('Player not registered. Call initialize() first.');
 		}
@@ -86,7 +86,7 @@ export default class LobbyServer {
 
 		// Setup P2P connections with other players
 		await this.p2pIntegration.joinLobby(lobbyId);
-		
+
 		return lobby;
 	}
 
@@ -100,7 +100,7 @@ export default class LobbyServer {
 	/**
 	 * Start matchmaking
 	 */
-	async startMatchmaking(gameMode: string = 'standard'): Promise<number> {
+	async startMatchmaking(gameMode = 'standard'): Promise<number> {
 		if (!this.playerId) {
 			throw new Error('Player not registered. Call initialize() first.');
 		}
@@ -151,9 +151,10 @@ export default class LobbyServer {
 	 */
 	leaveLobby(): void {
 		if (this.p2pIntegration) {
+			const lobbyId = this.p2pIntegration.getCurrentLobbyId() || '';
 			this.p2pIntegration.leaveGame();
+			this.client.leaveLobby(lobbyId);
 		}
-		this.client.leaveLobby(this.p2pIntegration?.currentLobbyId || '');
 	}
 
 	/**
