@@ -31,6 +31,7 @@ export class LobbyClient {
 	private socket: Socket;
 	private serverUrl: string;
 	private playerId?: string;
+	private playerRegistration?: Promise<string>;
 
 	constructor(serverUrl = 'http://localhost:3001') {
 		this.serverUrl = serverUrl;
@@ -77,6 +78,19 @@ export class LobbyClient {
 	 * Register a new player
 	 */
 	public async registerPlayer(): Promise<string> {
+		if (this.playerId) {
+			return this.playerId;
+		}
+
+		if (this.playerRegistration) {
+			return this.playerRegistration;
+		}
+
+		this.playerRegistration = this.createPlayerSession();
+		return this.playerRegistration;
+	}
+
+	private async createPlayerSession(): Promise<string> {
 		const response = await fetch(`${this.serverUrl}/api/v1/player/register`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
@@ -85,8 +99,11 @@ export class LobbyClient {
 		const data = await response.json();
 		if (data.success) {
 			this.playerId = data.playerId;
+			this.playerRegistration = undefined;
 			return data.playerId;
 		}
+
+		this.playerRegistration = undefined;
 		throw new Error('Failed to register player');
 	}
 
@@ -103,19 +120,17 @@ export class LobbyClient {
 	 * Create a new lobby
 	 */
 	public async createLobby(name = '', isPrivate = false, maxPlayers = 8): Promise<LobbyInfo> {
-		if (!this.playerId) {
-			throw new Error('Player not registered');
-		}
+		const playerId = await this.registerPlayer();
 
 		const response = await fetch(`${this.serverUrl}/api/v1/lobby/create`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ playerId: this.playerId, lobbyName: name, isPrivate, maxPlayers }),
+			body: JSON.stringify({ playerId, lobbyName: name, isPrivate, maxPlayers }),
 		});
 
 		const data = await response.json();
 		if (data.success) {
-			this.socket.emit('lobby:join', { playerId: this.playerId, lobbyId: data.lobby.id });
+			this.socket.emit('lobby:join', { playerId, lobbyId: data.lobby.id });
 			return data.lobby;
 		}
 		throw new Error('Failed to create lobby');
@@ -134,19 +149,17 @@ export class LobbyClient {
 	 * Join a lobby
 	 */
 	public async joinLobby(lobbyId: string): Promise<LobbyInfo> {
-		if (!this.playerId) {
-			throw new Error('Player not registered');
-		}
+		const playerId = await this.registerPlayer();
 
 		const response = await fetch(`${this.serverUrl}/api/v1/lobby/${lobbyId}/join`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ playerId: this.playerId }),
+			body: JSON.stringify({ playerId }),
 		});
 
 		const data = await response.json();
 		if (data.success) {
-			this.socket.emit('lobby:join', { playerId: this.playerId, lobbyId });
+			this.socket.emit('lobby:join', { playerId, lobbyId });
 			return data.lobby;
 		}
 		throw new Error('Failed to join lobby');
@@ -165,14 +178,12 @@ export class LobbyClient {
 	 * Add to matchmaking queue
 	 */
 	public async addToQueue(gameMode = 'standard'): Promise<number> {
-		if (!this.playerId) {
-			throw new Error('Player not registered');
-		}
+		const playerId = await this.registerPlayer();
 
 		const response = await fetch(`${this.serverUrl}/api/v1/matchmaking/queue`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ playerId: this.playerId, gameMode }),
+			body: JSON.stringify({ playerId, gameMode }),
 		});
 
 		const data = await response.json();
@@ -186,14 +197,15 @@ export class LobbyClient {
 	 * Leave matchmaking queue
 	 */
 	public async leaveQueue(): Promise<void> {
-		if (!this.playerId) {
+		const playerId = this.playerId;
+		if (!playerId) {
 			throw new Error('Player not registered');
 		}
 
 		const response = await fetch(`${this.serverUrl}/api/v1/matchmaking/leave`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ playerId: this.playerId }),
+			body: JSON.stringify({ playerId }),
 		});
 
 		const data = await response.json();

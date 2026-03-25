@@ -10,6 +10,7 @@ export class LobbyScreen {
 	private client: LobbyClient;
 	private container: HTMLElement;
 	private currentLobby?: LobbyInfo;
+	private playerInitialized = false;
 
 	constructor(client: LobbyClient) {
 		this.client = client;
@@ -29,9 +30,8 @@ export class LobbyScreen {
                 
                 <!-- Player ID Display -->
                 <div class="player-id-section">
-                    <span>Your Player ID:</span>
-                    <code id="player-id">Not registered</code>
-                    <button id="register-btn" class="btn btn-primary">Register</button>
+                    <span>Player ID:</span>
+                    <code id="player-id">Generating...</code>
                 </div>
 
                 <!-- Main Lobby Actions -->
@@ -83,9 +83,6 @@ export class LobbyScreen {
 	 * Attach event listeners to buttons
 	 */
 	private attachEventListeners(): void {
-		// Register button
-		document.getElementById('register-btn')?.addEventListener('click', () => this.registerPlayer());
-
 		// Lobby action buttons
 		document
 			.getElementById('create-lobby-btn')
@@ -133,22 +130,28 @@ export class LobbyScreen {
 	}
 
 	/**
-	 * Register player
+	 * Initialize player session
 	 */
-	private async registerPlayer(): Promise<void> {
+	private async initializePlayer(): Promise<void> {
+		if (this.playerInitialized) {
+			return;
+		}
+
 		try {
 			const playerId = await this.client.registerPlayer();
 			document.getElementById('player-id')!.textContent = playerId;
+			this.playerInitialized = true;
 
-			// Enable lobby buttons
+			// Enable lobby actions once the temporary player session exists.
 			document.getElementById('create-lobby-btn')!.removeAttribute('disabled');
 			document.getElementById('browse-lobbies-btn')!.removeAttribute('disabled');
 			document.getElementById('matchmaking-btn')!.removeAttribute('disabled');
 
-			this.updateStats();
+			await this.updateStats();
 		} catch (error) {
-			console.error('Failed to register player:', error);
-			alert('Failed to register player');
+			console.error('Failed to initialize player:', error);
+			document.getElementById('player-id')!.textContent = 'Unavailable';
+			alert('Failed to initialize player');
 		}
 	}
 
@@ -347,7 +350,8 @@ export class LobbyScreen {
 	 */
 	public show(): void {
 		this.container.style.display = 'block';
-		this.updateStats();
+		void this.initializePlayer();
+		void this.updateStats();
 	}
 
 	/**
