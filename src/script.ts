@@ -509,3 +509,4 @@ export function isEmpty(obj) {
 	} else {
 		lockOrientation();
 	}
+})();
