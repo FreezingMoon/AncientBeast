@@ -77,6 +77,7 @@ export class UI {
 	animationUpgradeTimeOutID: ReturnType<typeof setTimeout>;
 	queryUnit: string;
 	btnDelay: Button;
+	btnUndo: Button;
 	btnFlee: Button;
 	btnExit: Button;
 	materializeButton: Button;
@@ -248,6 +249,21 @@ export class UI {
 			{ isAcceptingInput: this.configuration.isAcceptingInput },
 		);
 		this.buttons.push(this.btnDelay);
+
+		this.btnUndo = new Button(
+			{
+				$button: $j('#undo.button'),
+				hasShortcut: true,
+				click: () => {
+					if (!this.dashopen) {
+						game.undoLastAction();
+					}
+				},
+				state: ButtonStateEnum.hidden,
+			},
+			{ isAcceptingInput: this.configuration.isAcceptingInput },
+		);
+		this.buttons.push(this.btnUndo);
 
 		// Flee Match Button
 		this.btnFlee = new Button(
@@ -1966,9 +1982,7 @@ export class UI {
 							this.btnAudio.changeState(ButtonStateEnum.slideIn);
 							this.btnSkipTurn.changeState(ButtonStateEnum.slideIn);
 							this.btnFullscreen.changeState(ButtonStateEnum.slideIn);
-							if (creature.canWait && game.queue.getCurrentQueueLength() > 1) {
-								this.btnDelay.changeState(ButtonStateEnum.slideIn);
-							}
+							this.syncUndoButton(ButtonStateEnum.slideIn);
 							this.checkAbilities();
 						},
 					); // Show panel
@@ -2158,6 +2172,8 @@ export class UI {
 			game.activeCreature.noActionPossible = true;
 			this.btnSkipTurn.changeState(ButtonStateEnum.slideIn);
 		}
+
+		this.syncUndoButton(ButtonStateEnum.slideIn);
 	}
 
 	updateTimer() {
@@ -2244,6 +2260,24 @@ export class UI {
 	updateQueueDisplay() {
 		const game = this.game;
 		this.queue.setQueue(game.queue, game.turn);
+		this.syncUndoButton();
+	}
+
+	syncUndoButton(
+		state: (typeof ButtonStateEnum)[keyof typeof ButtonStateEnum] = ButtonStateEnum.slideIn,
+	) {
+		const canUndo = this.game.canUndoLastAction();
+		const canDelay =
+			Boolean(this.game.activeCreature?.canWait) && this.game.queue.getCurrentQueueLength() > 1;
+
+		if (canUndo) {
+			this.btnDelay.changeState(ButtonStateEnum.hidden);
+			this.btnUndo.changeState(state);
+			return;
+		}
+
+		this.btnUndo.changeState(ButtonStateEnum.hidden);
+		this.btnDelay.changeState(canDelay ? state : ButtonStateEnum.hidden);
 	}
 
 	xrayQueue(creaID) {

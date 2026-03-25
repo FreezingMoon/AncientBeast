@@ -323,7 +323,7 @@ export class Ability {
 			this.setUsed(true); // Should always be here
 		}
 		game.signals.creature.dispatch('abilityend', { creature: this.creature });
-		game.UI.btnDelay.changeState('disabled');
+		game.UI.syncUndoButton('disabled');
 		game.UI.selectAbility(-1);
 
 		if (this.getTrigger() === 'onQuery' && !deferredEnding) {

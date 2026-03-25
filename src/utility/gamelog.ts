@@ -46,20 +46,28 @@ export class SerializableLog {
 export class GameLog {
 	onSave: (log: SerializableLog) => void;
 	onLoad: (log: SerializableLog) => void;
+	onChange: () => void;
 	actions: any[];
 
-	constructor(onSave = (log: SerializableLog) => {}, onLoad = (log: SerializableLog) => {}) {
+	constructor(
+		onSave = (log: SerializableLog) => {},
+		onLoad = (log: SerializableLog) => {},
+		onChange = () => {},
+	) {
 		this.onSave = onSave;
 		this.onLoad = onLoad;
+		this.onChange = onChange;
 		this.actions = [];
 	}
 
 	reset() {
 		this.actions = [];
+		this.onChange();
 	}
 
 	add(action: any) {
 		this.actions.push(action);
+		this.onChange();
 	}
 
 	load(logOrStr: string | SerializableLog) {
@@ -85,6 +93,7 @@ export class GameLog {
 
 		this.actions = [...log.actions];
 		this.onLoad(log);
+		this.onChange();
 		return log;
 	}
 

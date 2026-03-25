@@ -29,7 +29,24 @@ export class Hotkeys {
 		if (event.shiftKey) {
 			this.ui.btnToggleDash.triggerClick();
 		} else {
-			this.ui.dashopen ? this.ui.gridSelectRight() : this.ui.btnDelay.triggerClick();
+			if (this.ui.dashopen) {
+				this.ui.gridSelectRight();
+				return;
+			}
+
+			if (this.ui.game.canUndoLastAction()) {
+				this.ui.btnUndo.triggerClick();
+				return;
+			}
+
+			this.ui.btnDelay.triggerClick();
+		}
+	}
+
+	pressZ(event) {
+		if (event.ctrlKey || event.metaKey) {
+			event.preventDefault();
+			this.ui.btnUndo.triggerClick();
 		}
 	}
 
@@ -215,6 +232,11 @@ export function getHotKeys(hk) {
 		KeyX: {
 			onkeydown(event) {
 				hk.pressX(event);
+			},
+		},
+		KeyZ: {
+			onkeydown(event) {
+				hk.pressZ(event);
 			},
 		},
 		Tab: {

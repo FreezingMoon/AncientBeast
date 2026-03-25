@@ -423,6 +423,10 @@
 	background-image: url('~assets/icons/delay.svg');
 }
 
+.button#undo {
+	background-image: url('~assets/icons/undo.svg');
+}
+
 .button#flee {
 	background-image: url('~assets/icons/flee.svg');
 }
@@ -776,7 +780,6 @@ div.section.info {
 	z-index: 10000;
 	transition: opacity 0.2s;
 }
-
 
 #audio:hover .tooltiptext {
 	visibility: visible;
@@ -1184,7 +1187,7 @@ div.section.info {
 	overflow-y: scroll;
 }
 
-#chat.expanded #chatbox{
+#chat.expanded #chatbox {
 	overflow: hidden;
 }
 
@@ -2283,11 +2286,21 @@ input {
 }
 
 @keyframes rotate {
-	0% { transform: rotate(0deg); }
-	25% { transform: rotate(90deg); }
-	50% { transform: rotate(90deg); }
-	75% { transform: rotate(0deg); }
-	100% { transform: rotate(0deg); }
+	0% {
+		transform: rotate(0deg);
+	}
+	25% {
+		transform: rotate(90deg);
+	}
+	50% {
+		transform: rotate(90deg);
+	}
+	75% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(0deg);
+	}
 }
 
 /* Show orientation message only on mobile devices in portrait mode */

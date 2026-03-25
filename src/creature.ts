@@ -680,7 +680,7 @@ export class Creature {
 							},
 						});
 					}
-					game.UI.btnDelay.changeState('disabled');
+					game.UI.syncUndoButton('disabled');
 					args.creature.moveTo(hex, {
 						animation: args.creature.movementType() === 'flying' ? 'fly' : 'walk',
 						callback: function () {

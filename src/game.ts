@@ -27,6 +27,7 @@ import { Trap } from './utility/trap';
 import { Drop } from './drop';
 import { CreatureType, Realm, UnitData } from './data/types';
 import { setAudioMode } from './sound/soundsys';
+import { UndoManager } from './game/undo-manager';
 /* eslint-disable prefer-rest-params */
 
 /* NOTES/TODOS
@@ -117,6 +118,7 @@ export default class Game {
 	msg: any; // type this properly
 	triggers: Record<string, RegExp>;
 	signals: any;
+	undoManager: UndoManager;
 
 	// The optionals below are created by the various methods of `Game`, mainly by `setup` and `loadGame`
 
@@ -172,6 +174,7 @@ export default class Game {
 		this.gamelog = new GameLog(
 			(log) => this.onLogSave(log),
 			(log) => this.onLogLoad(log),
+			() => this.handleGameLogChanged(),
 		);
 		this.configData = {};
 		this.match = {};
@@ -185,6 +188,7 @@ export default class Game {
 		this.availableMusic = [];
 		this.inputMethod = 'Mouse';
 		this.isAcceptingInput = () => !this.freezedInput;
+		this.undoManager = new UndoManager(this);
 		// Gameplay properties
 		this.firstKill = false;
 		this.freezedInput = false;
@@ -358,8 +362,9 @@ export default class Game {
 		this.soundsys = new SoundSys({ paths });
 		this.musicPlayer = this.soundsys.musicPlayer;
 
+		this.Phaser.load.onFileComplete.remove(this.loadFinish, this);
 		this.Phaser.load.onFileComplete.add(this.loadFinish, this);
-		this.Phaser.load.onLoadComplete.add(onLoadCompleteFn);
+		this.Phaser.load.onLoadComplete.addOnce(onLoadCompleteFn);
 
 		const assetsRaw = assetsUse(this.Phaser);
 		const assets = Array.isArray(assetsRaw) ? assetsRaw : [];
@@ -843,6 +848,55 @@ export default class Game {
 		}
 	}
 
+	handleGameLogChanged() {
+		this.UI?.syncUndoButton();
+	}
+
+	canUndoLastAction() {
+		return this.undoManager.canUndo();
+	}
+
+	undoLastAction() {
+		return this.undoManager.undo();
+	}
+
+	replayActionHistory(
+		actions,
+		onComplete = () => {},
+		setupOpt: Partial<GameConfig> = this.configData,
+		shouldReset = true,
+	) {
+		const replayActions = [...actions];
+		const configData = $j.extend(true, {}, setupOpt);
+
+		if (shouldReset) {
+			this.resetGame();
+		}
+
+		const nextAction = () => {
+			if (replayActions.length === 0) {
+				onComplete();
+				return;
+			}
+
+			const interval = setInterval(() => {
+				if (!this.freezedInput && !this.turnThrottle && this.activeCreature) {
+					clearInterval(interval);
+					this.activeCreature.queryMove();
+					this.action(replayActions.shift(), {
+						callback: nextAction,
+					});
+				}
+			}, 100);
+		};
+
+		this.loadGame(configData, undefined, undefined, () => {
+			this.gamelog.actions = [...actions];
+			this.handleGameLogChanged();
+			setTimeout(() => nextAction(), 3000);
+		});
+	}
+
 	/**
 	 * @param {any} obj - Any variable to display in console and game log
 	 * Display obj in the console log and in the game log
@@ -916,16 +970,13 @@ export default class Game {
 
 		this.turnThrottle = true;
 		this.UI.btnSkipTurn.changeState('disabled');
-		this.UI.btnDelay.changeState('disabled');
+		this.UI.syncUndoButton('disabled');
 		this.UI.btnAudio.changeState('disabled');
 
 		setTimeout(() => {
 			this.turnThrottle = false;
 			this.UI.btnSkipTurn.changeState('normal');
-
-			if (this.activeCreature?.canWait && this.queue.queue.length > 1) {
-				this.UI.btnDelay.changeState('normal');
-			}
+			this.UI.syncUndoButton('normal');
 
 			o.callback.apply();
 		}, 1000);
@@ -977,14 +1028,12 @@ export default class Game {
 
 		this.turnThrottle = true;
 		this.UI.btnSkipTurn.changeState('disabled');
-		this.UI.btnDelay.changeState('disabled');
+		this.UI.syncUndoButton('disabled');
 
 		setTimeout(() => {
 			this.turnThrottle = false;
 			this.UI.btnSkipTurn.changeState('normal');
-			if (this.activeCreature?.canWait && !this.queue.isCurrentEmpty()) {
-				this.UI.btnDelay.changeState('slideIn');
-			}
+			this.UI.syncUndoButton('slideIn');
 
 			o.callback.apply();
 		}, 1000);
@@ -1604,6 +1653,7 @@ export default class Game {
 		this.turn = 0;
 
 		this.gamelog.reset();
+		this.undoManager.reset(this.undoManager.isReplaying);
 	}
 
 	/**
@@ -1639,35 +1689,8 @@ export default class Game {
 			return;
 		}
 
-		const actions = [...log.actions];
-		const numTotalActions = actions.length;
-		const game = this;
 		const configData = log.custom.configData;
-		game.configData = log.custom.configData ?? game.configData;
-
-		const nextAction = () => {
-			if (actions.length === 0) {
-				// this.activeCreature.queryMove(); // Avoid bug: called twice breaks opening UI (may need to revisit)
-				return;
-			}
-
-			if (!DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG) {
-				console.log(`${1 + numTotalActions - actions.length} / ${numTotalActions}`);
-			}
-
-			const interval = setInterval(() => {
-				if (!game.freezedInput && !game.turnThrottle) {
-					clearInterval(interval);
-					game.activeCreature.queryMove();
-					game.action(actions.shift(), {
-						callback: nextAction,
-					});
-				}
-			}, 100);
-		};
-
-		game.loadGame(configData, undefined, undefined, () => {
-			setTimeout(() => nextAction(), 3000);
-		});
+		this.configData = log.custom.configData ?? this.configData;
+		this.replayActionHistory(log.actions, undefined, configData, false);
 	}
 }
