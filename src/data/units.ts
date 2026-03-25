@@ -1382,13 +1382,13 @@ export const unitData: UnitDataStructure = [
 				},
 			},
 			{
-				title: 'Royal Seal',
-				desc: 'Sticks chewing gum nearby to hinder any passing unit for a complete turn.',
-				info: 'Does not affect self but affects allies.',
-				upgrade: 'Can leap within 3 hexagons.',
+				title: 'Pretty Ribbon',
+				desc: 'Instantly heals a nearby ally or self and buffs it for the rest of the match.',
+				info: '20 heal, +2 regrowth & +2 endurance.',
+				upgrade: 'Can also target foes, causing -2 movement for 1 turn.',
 				effects: [
 					{
-						special: '%movement% is set to 0 for a turn.',
+						special: '+20 %health%, +2 %regrowth%, +2 %endurance%',
 					},
 				],
 				costs: {

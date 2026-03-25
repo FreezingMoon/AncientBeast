@@ -9,6 +9,93 @@ import Game from '../game';
 import { Hex } from '../utility/hex';
 import { Trap } from '../utility/trap';
 
+const PRETTY_RIBBON_HEAL = 20;
+const PRETTY_RIBBON_BUFF = 2;
+const PRETTY_RIBBON_DEBUFF = -2;
+
+const getPrettyRibbonHexes = (ability) => {
+	return ability.creature.hexagons.concat(ability.creature.adjacentHexes(2));
+};
+
+const isPrettyRibbonTarget = (ability, target: Creature) => {
+	if (target.player === ability.creature.player) {
+		return true;
+	}
+
+	return ability.isUpgraded() && isTeam(ability.creature, target, Team.Enemy);
+};
+
+const getPrettyRibbonTargetHexes = (ability) => {
+	return getPrettyRibbonHexes(ability).filter((hex: Hex) => {
+		return hex.creature instanceof Creature && isPrettyRibbonTarget(ability, hex.creature);
+	});
+};
+
+const applyFriendlyPrettyRibbon = (ability, target: Creature, game: Game) => {
+	const healedAmount = Math.min(PRETTY_RIBBON_HEAL, target.stats.health - target.health);
+
+	if (healedAmount > 0) {
+		target.heal(healedAmount, false, false);
+	}
+
+	target.addEffect(
+		new Effect(
+			ability.title,
+			ability.creature,
+			target,
+			'',
+			{
+				turnLifetime: -1,
+				alterations: {
+					regrowth: PRETTY_RIBBON_BUFF,
+					endurance: PRETTY_RIBBON_BUFF,
+				},
+			},
+			game,
+		),
+		healedAmount > 0
+			? `%CreatureName${target.id}% recovers +${healedAmount} health and gains +${PRETTY_RIBBON_BUFF} regrowth and +${PRETTY_RIBBON_BUFF} endurance`
+			: `%CreatureName${target.id}% gains +${PRETTY_RIBBON_BUFF} regrowth and +${PRETTY_RIBBON_BUFF} endurance`,
+	);
+};
+
+const applyEnemyPrettyRibbon = (ability, target: Creature, game: Game) => {
+	if (target.isDarkPriest() && target.hasCreaturePlayerGotPlasma()) {
+		target.takeDamage(
+			new Damage(
+				ability.creature,
+				{
+					slash: 1,
+				},
+				1,
+				[],
+				game,
+			),
+		);
+		return;
+	}
+
+	target.removeEffect(ability.title);
+	target.addEffect(
+		new Effect(
+			ability.title,
+			ability.creature,
+			target,
+			'',
+			{
+				stackable: false,
+				turnLifetime: 1,
+				deleteTrigger: 'onStartPhase',
+				alterations: {
+					movement: PRETTY_RIBBON_DEBUFF,
+				},
+			},
+			game,
+		),
+		`%CreatureName${target.id}% loses ${Math.abs(PRETTY_RIBBON_DEBUFF)} movement for this turn`,
+	);
+};
+
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
@@ -180,7 +267,7 @@ export default (G: Game) => {
 			},
 		},
 
-		// Third Ability: Royal Seal
+		// Third Ability: Pretty Ribbon
 		{
 			// Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
@@ -194,94 +281,47 @@ export default (G: Game) => {
 			query: function () {
 				const ability = this;
 				const creature = this.creature;
+				const targetHexes = getPrettyRibbonTargetHexes(this);
+				const queryHexes = [];
 
-				// Upgraded Royal Seal can target up to 3 hexagons range
-				const range = this.isUpgraded() ? 3 : 1;
-				const hexes = creature.hexagons.concat(
-					G.grid.getFlyingRange(creature.x, creature.y, range, creature.size, creature.id),
-				);
+				targetHexes.forEach((hex) => {
+					hex.creature.hexagons.forEach((targetHex) => {
+						if (!arrayUtils.findPos(queryHexes, targetHex)) {
+							queryHexes.push(targetHex);
+						}
+					});
+				});
 
 				G.grid.queryHexes({
-					fnOnConfirm: function () {
-						// eslint-disable-next-line
-						ability.animation(...arguments);
+					fnOnConfirm: function (hex) {
+						ability.animation(hex.creature);
 					},
-					size: creature.size,
+					fnOnSelect: function (hex) {
+						creature.faceHex(hex.creature);
+						hex.creature.tracePosition({
+							overlayClass: 'creature selected player' + hex.creature.team,
+						});
+					},
+					fnOnCancel: function () {
+						G.activeCreature.queryMove();
+					},
 					flipped: creature.player.flipped,
 					id: creature.id,
-					hexes: hexes,
+					hexes: queryHexes,
 					ownCreatureHexShade: true,
 					hideNonTarget: true,
 				});
 			},
 
 			// activate() :
-			activate: function (hex: Hex) {
+			activate: function (target: Creature) {
 				this.end();
-				const ability = this;
 				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
-				const makeSeal = function () {
-					const effect = new Effect(
-						'Royal Seal',
-						ability.creature,
-						hex,
-						'onStepIn',
-						{
-							// Immunity to own trap type
-							requireFn: function () {
-								const creaOnTrap = this.trap.hex.creature;
-								return creaOnTrap && creaOnTrap.type !== ability.creature.type;
-							},
-							effectFn: function (_, crea: Creature) {
-								if (this.trap.turnLifetime === 0) {
-									crea.remainingMove = 0;
-									// Destroy the trap on the trapped creature's turn
-									this.trap.turnLifetime = 1;
-									this.trap.ownerCreature = crea;
-								}
-							},
-							// Immobilize target so that they can't move and no
-							// abilities/effects can move them
-							alterations: {
-								moveable: false,
-							},
-							deleteTrigger: 'onStartPhase',
-							turnLifetime: 1,
-						},
-						G,
-					);
-
-					const trap = new Trap(
-						hex.x,
-						hex.y,
-						'royal-seal',
-						[effect],
-						ability.creature.player,
-						{
-							ownerCreature: ability.creature,
-							fullTurnLifetime: true,
-						},
-						G,
-					);
-
-					trap.hide();
-				};
-
-				// Move Gumble to the target hex if necessary
-				if (hex.x !== this.creature.x || hex.y !== this.creature.y) {
-					this.creature.moveTo(hex, {
-						callback: function () {
-							G.activeCreature.queryMove();
-							makeSeal();
-						},
-						ignoreMovementPoint: true,
-						ignorePath: true,
-						overrideSpeed: 200, // Custom speed for jumping
-						animation: 'push',
-					});
+				if (isTeam(this.creature, target, Team.Enemy)) {
+					applyEnemyPrettyRibbon(this, target, G);
 				} else {
-					makeSeal();
+					applyFriendlyPrettyRibbon(this, target, G);
 				}
 			},
 		},
