@@ -285,7 +285,7 @@ const client = new LobbyClient('http://localhost:3001');
 **Issue:** #2632 - Online Multiplayer Lobby  
 **Bounty:** 6,666 XTR (~$870 USD)  
 **Status:** ✅ Complete  
-**MintMe:** `0x5e56f74Df5892a5da0a585707Af3F948cb246BA8`
+**MintMe:** `0x5F6B24079E557cE354Be7242468678B36dC8CC9C`
 
 ---
 
