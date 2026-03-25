@@ -345,9 +345,14 @@ export class Hex {
 	ghostOverlap() {
 		const targetBounds = this.getScreenBounds();
 		const targetCreature = this.creature;
+		const activeCreature = this.game.activeCreature;
 
 		this.game.creatures.forEach((creature) => {
-			if (!(creature instanceof Creature) || creature === targetCreature) {
+			if (
+				!(creature instanceof Creature) ||
+				creature === targetCreature ||
+				creature === activeCreature
+			) {
 				return;
 			}
 
