@@ -478,10 +478,10 @@ export function isEmpty(obj) {
 }
 
 // Orientation Lock - Fixes #2711
-(function() {
+(function () {
 	function lockOrientation() {
 		if (screen.orientation && screen.orientation.lock) {
-			screen.orientation.lock('landscape').catch(function(error) {
+			screen.orientation.lock('landscape').catch(function () {
 				console.log('Orientation lock not supported, showing warning');
 				showOrientationWarning();
 			});
@@ -494,7 +494,7 @@ export function isEmpty(obj) {
 		const warning = document.querySelector('.orientation-warning') as HTMLElement;
 		if (warning) {
 			warning.style.display = 'flex';
-			window.addEventListener('orientationchange', function() {
+			window.addEventListener('orientationchange', function () {
 				if (window.orientation === 90 || window.orientation === -90) {
 					warning.style.display = 'none';
 				} else {
