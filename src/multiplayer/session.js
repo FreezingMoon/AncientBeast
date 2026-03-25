@@ -1,33 +1,52 @@
-import { Session } from '@heroiclabs/nakama-js';
+/**
+ * Session - Lobby-based session management
+ * 
+ * Replaces old Nakama-based session with new lobby system.
+ * @file session.js
+ */
 
-export default class SessionI {
-	constructor(session) {
-		this.session = session || '';
-	}
-	storeSession() {
-		if (typeof Storage !== 'undefined') {
-			localStorage.setItem('nakamaToken', this.session.token);
-			console.log('New Session stored.');
-		}
-	}
-	async getSessionFromStorage() {
-		if (typeof Storage !== 'undefined') {
-			return Promise.resolve(localStorage.getItem('nakamaToken'));
-		}
+export default class Session {
+	constructor() {
+		this.playerId = null;
+		this.createdAt = null;
 	}
 
-	async restoreSession() {
-		var session = null;
-		return this.getSessionFromStorage().then((token) => {
-			if (token && token != '') {
-				session = Session.restore(token);
-				var currentTimeInSec = new Date() / 1000;
-				if (!session.isexpired(currentTimeInSec)) {
-					console.log('Restored session. User ID: %o', session.user_id);
-					return Promise.resolve(session);
-				}
-				return Promise.resolve('session expired');
-			}
-		});
+	/**
+	 * Create new session with player ID
+	 */
+	static create(playerId) {
+		const session = new Session();
+		session.playerId = playerId;
+		session.createdAt = new Date();
+		return session;
+	}
+
+	/**
+	 * Get player ID
+	 */
+	getPlayerId() {
+		return this.playerId;
+	}
+
+	/**
+	 * Get session creation time
+	 */
+	getCreatedAt() {
+		return this.createdAt;
+	}
+
+	/**
+	 * Check if session is valid
+	 */
+	isValid() {
+		return this.playerId !== null;
+	}
+
+	/**
+	 * Clear session
+	 */
+	clear() {
+		this.playerId = null;
+		this.createdAt = null;
 	}
 }

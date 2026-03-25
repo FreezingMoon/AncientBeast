@@ -1,35 +1,52 @@
-import { Client } from '@heroiclabs/nakama-js';
+/**
+ * Authenticate - Lobby-based replacement for Nakama authentication
+ * 
+ * Replaces old Nakama-based authentication with new lobby system.
+ * @file authenticate.ts
+ */
 
-type loginOptions = {
-	username?: string;
-	email: string;
-	password: string;
-	passwordmatch?: string;
-};
+import { LobbyClient } from '../networking/lobby-client';
 
-export default class Authenticate {
-	private username: string;
-	private password: string;
-	private email: string;
-	private client: Client;
-	constructor(login: loginOptions, client: Client) {
-		this.username = login.username || '';
-		this.email = login.email || '';
-		this.password = login.password || '';
-		this.client = client;
-	}
-	async register() {
-		const session = await this.client.authenticateEmail(
-			this.email,
-			this.password,
-			true,
-			this.username,
-		);
-		return Promise.resolve(session);
+export default class LobbyAuthenticate {
+	private client: LobbyClient;
+
+	constructor() {
+		this.client = new LobbyClient();
 	}
 
-	async authenticateEmail() {
-		const session = await this.client.authenticateEmail(this.email, this.password, false);
-		return Promise.resolve(session);
+	/**
+	 * Register new player with auto-generated ID
+	 * Replaces Nakama email/password registration
+	 */
+	async register(): Promise<string> {
+		console.log('Registering new player...');
+		const playerId = await this.client.registerPlayer();
+		console.log(`Player registered: ${playerId}`);
+		return playerId;
+	}
+
+	/**
+	 * Authenticate player (for lobby system, this is just registration)
+	 * Replaces Nakama email/password authentication
+	 */
+	async authenticate(): Promise<string> {
+		console.log('Authenticating player...');
+		const playerId = await this.client.registerPlayer();
+		console.log(`Player authenticated: ${playerId}`);
+		return playerId;
+	}
+
+	/**
+	 * Get player info
+	 */
+	async getPlayerInfo(playerId: string): Promise<any> {
+		return await this.client.getPlayerInfo(playerId);
+	}
+
+	/**
+	 * Disconnect from lobby server
+	 */
+	disconnect(): void {
+		this.client.disconnect();
 	}
 }
