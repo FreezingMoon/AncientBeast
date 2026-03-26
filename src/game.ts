@@ -471,6 +471,12 @@ export default class Game {
 	 * Launch the game with the given number of player.
 	 */
 	setup(playerMode: number) {
+		// Prevent setup from running if the game is already in progress,
+		// which can happen when the browser tab regains focus after loading.
+		if (this.gameState === 'playing') {
+			return;
+		}
+
 		// Phaser
 		this.Phaser.scale.parentIsWindow = true;
 		this.Phaser.scale.pageAlignHorizontally = true;
