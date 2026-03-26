@@ -96,7 +96,7 @@ export class UI {
 	glowInterval: ReturnType<typeof setInterval>;
 	lastTurnWarningSecond: number | null;
 	lastTurnWarningPlayerId: number | null;
-	selectedCreatureObj: Creature;
+	selectedCreatureObj: Creature | undefined;
 	activeAbility: boolean;
 	ignoreNextConfirmUnload: boolean;
 	/**
@@ -992,6 +992,8 @@ export class UI {
 			$j.inArray(creatureType, game.players[player].availableCreatures) > 0 ||
 			creatureType == '--'
 		) {
+			this.selectedCreatureObj = undefined;
+
 			// retrieve the selected unit
 			game.players[player].creatures.forEach((creature) => {
 				if (creature.type == creatureType) {
@@ -1016,15 +1018,13 @@ export class UI {
 					'cards/' + stats.type.substring(0, 1),
 				)}')`,
 			});
-			
-			// Check if unit is materialized (alive) or just browsing
+
 			const isBrowsing = !this.selectedCreatureObj;
-			
+
 			$j.each(stats.stats, (key, value) => {
 				const $stat = $j('#card .sideB .' + key + ' .value');
-				
+
 				if (this.selectedCreatureObj) {
-					// Unit is materialized - show actual values with buff/debuff colors
 					if (key == 'health') {
 						$stat.text(this.selectedCreatureObj.health + '/' + this.selectedCreatureObj.stats[key]);
 					} else if (key == 'movement') {
@@ -1040,18 +1040,11 @@ export class UI {
 					} else {
 						$stat.text(this.selectedCreatureObj.stats[key]);
 					}
-					
-					// Apply buff/debuff styling and tooltips
-					applyBuffDebuffStyle($stat, this.selectedCreatureObj, key, value, false);
 				} else {
-					// Just browsing - show white (no colors)
-					$stat.removeClass('buff debuff');
 					$stat.text(value);
-					// Remove any tooltips
-					if ($stat.qtip) {
-						$stat.qtip('destroy');
-					}
 				}
+
+				applyBuffDebuffStyle($stat, this.selectedCreatureObj, key, value, isBrowsing);
 			});
 			$j.each(game.abilities[stats.id], (key) => {
 				const $ability = $j('#card .sideB .abilities .ability:eq(' + key + ')');

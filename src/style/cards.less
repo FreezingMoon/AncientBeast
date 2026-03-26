@@ -218,6 +218,13 @@
 	z-index: 2;
 }
 
+.stat .modifiers.stat-modifiers {
+	background: rgba(0, 0, 0, 0.82);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	box-sizing: border-box;
+	padding: 8px 0;
+}
+
 .masteries .modifiers {
 	top: auto;
 	bottom: 154px;
@@ -226,6 +233,28 @@
 .modifiers div {
 	margin: 10px 20px;
 	text-align: center;
+}
+
+.stat .modifiers.stat-modifiers div {
+	margin: 6px 20px;
+	text-align: left;
+}
+
+.stat .modifiers.stat-modifiers .stat-modifier-title {
+	color: #ffd700;
+	font-size: 14px;
+	letter-spacing: 0.08em;
+	text-align: center;
+	text-transform: uppercase;
+}
+
+.stat .modifiers.stat-modifiers .stat-modifier-summary {
+	color: #ddd;
+	font-size: 13px;
+}
+
+.stat .modifiers.stat-modifiers .stat-modifier-source {
+	font-size: 13px;
 }
 
 .animateStats(@statList) {
