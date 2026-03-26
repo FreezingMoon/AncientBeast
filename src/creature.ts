@@ -40,7 +40,7 @@ export type CreatureMasteries = {
 	mental: number;
 };
 
-export type Movement = 'normal' | 'flying' | 'hover';
+export type Movement = 'normal' | 'flying' | 'hover' | 'leap';
 
 type CreatureStats = CreatureVitals &
 	CreatureMasteries & {
@@ -718,6 +718,8 @@ export class Creature {
 
 		if (this.movementType() === 'flying') {
 			o.range = game.grid.getFlyingRange(this.x, this.y, remainingMove, this.size, this.id);
+		} else if (this.movementType() === 'leap') {
+			o.range = game.grid.getLeapRange(this.x, this.y, remainingMove, this.size, this.id);
 		}
 
 		const selectNormal = function (hex, args) {

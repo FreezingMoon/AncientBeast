@@ -399,10 +399,11 @@ export class Hex {
 	 * @param {number} size - Size of the creature.
 	 * @param {number} id - ID of the creature.
 	 * @param {boolean} ignoreReachable - Take into account the reachable property.
+	 * @param {boolean} ignoreCreatures - Ignore creatures when checking walkability (for leap movement).
 	 * @param {boolean} debug - If true and const.DEBUG is true, print debug information to the console.
 	 * @returns True if this hex is walkable.
 	 */
-	isWalkable(size: number, id: number, ignoreReachable = false, debug = false) {
+	isWalkable(size: number, id: number, ignoreReachable = false, ignoreCreatures = false, debug = false) {
 		// NOTE: If not in DEBUG mode, don't debug.
 		debug = DEBUG && debug;
 
@@ -421,7 +422,7 @@ export class Hex {
 				}
 
 				let isNotMovingCreature;
-				if (hex.creature instanceof Creature) {
+				if (hex.creature instanceof Creature && !ignoreCreatures) {
 					isNotMovingCreature = hex.creature.id !== id;
 					blocked = blocked || isNotMovingCreature; // Not blocked if this block contains the moving creature
 				}
