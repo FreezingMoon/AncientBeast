@@ -880,13 +880,27 @@ export class Creature {
 		if (attackFix && this.size > 1) {
 			//only works on 2hex creature targeting the adjacent row
 			const flipOffset = this.player.flipped ? 1 : 0;
+			// Frontal-diagonal check: target is in front but at y +/- 1
+			// For unflipped (facing right): frontal-diagonal is y-1
+			// For flipped (facing left): frontal-diagonal is y+1
+			const frontDiagY = this.player.flipped ? facefrom.y + 1 : facefrom.y - 1;
 			if (facefrom.y % 2 === 0) {
 				if (faceto.x - flipOffset == facefrom.x) {
 					this.facePlayerDefault();
 					return;
 				}
+				// Frontal-diagonal: x offset by 1 less than same-row case
+				if (faceto.y === frontDiagY && faceto.x - 1 - flipOffset == facefrom.x) {
+					this.facePlayerDefault();
+					return;
+				}
 			} else {
 				if (faceto.x + 1 - flipOffset == facefrom.x) {
+					this.facePlayerDefault();
+					return;
+				}
+				// Frontal-diagonal: x offset by 1 less than same-row case
+				if (faceto.y === frontDiagY && faceto.x + 2 - flipOffset == facefrom.x) {
 					this.facePlayerDefault();
 					return;
 				}
