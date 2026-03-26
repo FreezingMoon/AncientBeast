@@ -124,7 +124,16 @@ export class SoundSys {
 		}
 	}
 
-	playMusic() {
+	async playMusic() {
+		// On iOS, AudioContext starts suspended and must be resumed after a user gesture.
+		// Attempt to resume it before playing music to avoid silent failures.
+		if (this.envHasSound && this.context && this.context.state === 'suspended') {
+			try {
+				await this.context.resume();
+			} catch (e) {
+				console.warn('Failed to resume AudioContext:', e);
+			}
+		}
 		this.musicPlayer.playRandom();
 	}
 
