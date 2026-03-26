@@ -147,6 +147,8 @@ export class Hex {
 		this.tween = null;
 
 		if (grid) {
+			const shouldUseDirectTouchInput = () => !game.Phaser.device.desktop;
+
 			// NOTE: Set up hex hitBox and display/overlay elements.
 
 			// NOTE: (Hack) 10px is the offset from the old version.
@@ -182,7 +184,7 @@ export class Hex {
 
 			// Binding Events
 			this.hitBox.events.onInputOver.add(() => {
-				if (game.freezedInput || game.UI.dashopen) return;
+				if (game.freezedInput || game.UI.dashopen || shouldUseDirectTouchInput()) return;
 
 				//  Show dashed overlay on current hexes of active creature
 				if (this.reachable && game.activeCreature) {
@@ -195,7 +197,13 @@ export class Hex {
 			}, this);
 
 			this.hitBox.events.onInputOut.add((_, pointer) => {
-				if (game.freezedInput || game.UI.dashopen || !pointer.withinGame) return;
+				if (
+					game.freezedInput ||
+					game.UI.dashopen ||
+					shouldUseDirectTouchInput() ||
+					!pointer.withinGame
+				)
+					return;
 
 				// Clear dashed overlay when leaving a reachable hex
 				if (this.reachable && game.activeCreature) {
@@ -212,17 +220,22 @@ export class Hex {
 					return;
 				}
 
+				if (shouldUseDirectTouchInput()) {
+					this.onConfirmFn(this);
+					return;
+				}
+
 				switch (Pointer.button) {
-					case 0:
-						// Left mouse button pressed
-						this.onConfirmFn(this);
-						break;
 					case 1:
 						// Middle mouse button pressed
 						break;
 					case 2:
 						// Right mouse button pressed
 						this.onRightClickFn(this);
+						break;
+					default:
+						// Default to primary click so non-mouse pointers still confirm cleanly.
+						this.onConfirmFn(this);
 						break;
 				}
 			}, this);
