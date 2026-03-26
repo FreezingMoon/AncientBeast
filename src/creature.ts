@@ -2127,13 +2127,10 @@ class CreatureSprite {
 			combinedSprite.data.hintType = hintType;
 			combinedSprite.data.tweenAlpha = null;
 			combinedSprite.data.tweenPos = null;
-			// Fade in first, then flicker between 25% and 100% visibility (ping-pong)
+			// Frame fades in and stays visible (no flicker)
 			combinedSprite.data.tweenAlpha = this._phaser.add
 				.tween(combinedSprite)
 				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
-				.to({ alpha: 0.25 }, 500, Phaser.Easing.Linear.None)
-				.yoyo(true)
-				.repeat(-1)
 				.start();
 			this._hintGrp.add(combinedSprite);
 
@@ -2145,11 +2142,11 @@ class CreatureSprite {
 			skipTurnIcon.data.hintType = hintType;
 			skipTurnIcon.data.tweenAlpha = null;
 			skipTurnIcon.data.tweenPos = null;
-			// Fade in first, then flicker between 25% and 100% visibility (ping-pong)
+			// Icon fades in first, then slowly flicker between 25% and 100% visibility (ping-pong)
 			skipTurnIcon.data.tweenAlpha = this._phaser.add
 				.tween(skipTurnIcon)
 				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
-				.to({ alpha: 0.25 }, 500, Phaser.Easing.Linear.None)
+				.to({ alpha: 0.25 }, 2000, Phaser.Easing.Linear.None)
 				.yoyo(true)
 				.repeat(-1)
 				.start();
