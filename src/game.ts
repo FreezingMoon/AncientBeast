@@ -870,7 +870,7 @@ export default class Game {
 		const configData = $j.extend(true, {}, setupOpt);
 
 		if (shouldReset) {
-			this.resetGame();
+			this.resetGame(false);
 		}
 
 		const nextAction = () => {
@@ -1625,10 +1625,25 @@ export default class Game {
 		};
 	}
 
-	resetGame() {
+	resetGame(showSetup = true) {
 		this.endGameSound;
-		this.UI.showGameSetup();
 		this.stopTimer();
+		this.Phaser?.tweens?.removeAll();
+		this.Phaser?.time?.events?.removeAll();
+		this.Phaser?.world?.removeAll(true);
+		$j('#pause').remove();
+		$j('#chat').removeClass('focus peek expanded');
+		$j('#chatexpanded').empty();
+		$j('#chatcontent').empty();
+
+		if (showSetup) {
+			this.UI.showGameSetup();
+		} else {
+			$j('#matchMaking').hide();
+			$j('#loader').addClass('hide');
+			this.UI?.queue?.empty?.(1);
+		}
+
 		this.players = [];
 		this.creatures = [];
 		this.effects = [];
