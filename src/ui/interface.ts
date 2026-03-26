@@ -370,12 +370,12 @@ export class UI {
 							// Colored frame around selected ability
 							if (ability.require() == true && i != 0) {
 								this.selectAbility(i);
+								// Activate Ability
+								game.activeCreature.abilities[i].use();
 							} else if (i != 0) {
 								// Show cancel icon temporarily for unusable or already used abilities
 								b.cssTransition('cancelIcon', 1000);
 							}
-							// Activate Ability
-							game.activeCreature.abilities[i].use();
 						} else {
 							// Cancel Ability
 							this.closeDash();
