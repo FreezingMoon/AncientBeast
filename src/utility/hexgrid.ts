@@ -1022,7 +1022,7 @@ export class HexGrid {
 					// Filled hex with color
 					hex.displayVisualState('creature player' + hex.creature.team);
 				}
-			} else if (game.activeCreature.noActionPossible) {
+			} else if (game.activeCreature.noActionPossible || game.UI.selectedAbility === -1) {
 				$j('canvas').css('cursor', 'progress');
 			}
 			queueEffect(creature.id);
