@@ -298,13 +298,13 @@ body {
 	}
 
 	.dice-button {
-	color: white;
-  background: none;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-	font-size: 1.1em;
-	margin-right: 8px;
+		color: white;
+		background: none;
+		border: none;
+		border-radius: 4px;
+		cursor: pointer;
+		font-size: 1.1em;
+		margin-right: 8px;
 	}
 
 	.dice-button:hover {
@@ -394,6 +394,133 @@ body {
 	.button-wrapper {
 		margin-left: 8%;
 	}
+}
+
+#lobby-screen-root {
+	box-sizing: border-box;
+	padding: 24px 28px 30px;
+}
+
+.lobby-screen-container {
+	color: #ffffff;
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+	text-align: left;
+
+	h2,
+	h3,
+	p {
+		margin: 0;
+	}
+}
+
+.lobby-screen-subtitle {
+	color: #d5cdcd;
+	line-height: 1.5;
+}
+
+.player-id-section,
+.server-stats,
+.lobby-item,
+.player-item,
+#lobby-browser,
+#current-lobby,
+#matchmaking-panel {
+	background: rgba(15, 15, 15, 0.68);
+	border: 1px solid rgba(255, 255, 255, 0.15);
+	border-radius: 6px;
+}
+
+.player-id-section,
+.server-stats {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px 16px;
+	padding: 12px 14px;
+}
+
+.player-id-section code {
+	background: rgba(0, 0, 0, 0.35);
+	border-radius: 4px;
+	padding: 2px 8px;
+}
+
+.lobby-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+}
+
+.lobby-screen-container .btn {
+	background: #a32d00;
+	border: 1px solid #d65f2c;
+	border-radius: 4px;
+	color: #ffffff;
+	cursor: pointer;
+	font-size: 1rem;
+	font-weight: bold;
+	padding: 10px 16px;
+	transition: background-color 0.15s ease-in-out, filter 0.15s ease-in-out;
+
+	&:hover:not(:disabled) {
+		background: #c43b08;
+	}
+
+	&:disabled {
+		cursor: default;
+		filter: grayscale(100%);
+		opacity: 0.65;
+	}
+}
+
+#lobby-browser,
+#current-lobby,
+#matchmaking-panel {
+	padding: 16px;
+}
+
+.lobby-list,
+.player-list {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	margin-top: 14px;
+}
+
+.lobby-item,
+.player-item {
+	align-items: center;
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 12px 14px;
+}
+
+.lobby-item__details {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.lobby-name {
+	font-size: 1.05rem;
+	font-weight: bold;
+}
+
+.lobby-meta,
+.player-status,
+.empty-state {
+	color: #d5cdcd;
+}
+
+.player-item.ready {
+	border-color: rgba(76, 175, 80, 0.75);
+}
+
+.empty-state {
+	padding: 4px 0;
 }
 .welcome {
 	display: none;

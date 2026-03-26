@@ -3,12 +3,11 @@ import Game from '../game';
 
 export default class Server {
 	public client: Client;
-	public socket: Socket;
+	private socket: Socket;
 	private useSSL: boolean;
 	private verboseLogging: boolean;
 	private createStatus: boolean;
 	public game: Game;
-
 	constructor(game: Game) {
 		this.client = new Client(
 			process.env.MULTIPLAYER_KEY,
@@ -20,7 +19,7 @@ export default class Server {
 		this.verboseLogging = false;
 		this.createStatus = false;
 		this.game = game;
-		this.socket = null as unknown as Socket;
+		this.socket = null;
 	}
 
 	async serverConnect(session: Session) {

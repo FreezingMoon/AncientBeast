@@ -25,12 +25,18 @@
 	"dependencies": {
 		"@heroiclabs/nakama-js": "^2.0.1",
 		"compression": "^1.8.1",
+		"cors": "^2.8.6",
+		"express": "^5.2.1",
+		"helmet": "^8.1.0",
 		"jquery": "^3.5.0",
 		"jquery.transit": "0.9.12",
 		"js-cookie": "^3.0.1",
 		"node-emoji": "^1.10.0",
 		"phaser-ce": "2.16.0",
-		"semver": "^7.5.2"
+		"semver": "^7.5.2",
+		"socket.io": "^4.8.3",
+		"socket.io-client": "^4.8.3",
+		"uuid": "^13.0.0"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.21.4",
