@@ -210,7 +210,10 @@ export class Button {
 		this.$button.css(this.css.normal);
 
 		if (state === ButtonStateEnum.hidden) {
-			if (wrapperElement && wrapperElement.attr('id').includes(this.$button.attr('id'))) {
+			const wrapperId = wrapperElement?.attr('id');
+			const buttonId = this.$button.attr('id');
+
+			if (wrapperId?.includes(buttonId)) {
 				wrapperElement.addClass('hidden');
 			}
 		}
