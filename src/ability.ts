@@ -365,6 +365,14 @@ export class Ability {
 		// Update upgrade information
 		this.game.UI.updateAbilityUpgrades();
 
+		// Save undo snapshot and show undo button for Undo Move feature
+		if (!game.undoMoveUsedThisRound) {
+			game.saveUndoSnapshot();
+			if (game.UI.btnUndoMove) {
+				game.UI.btnUndoMove.changeState('slideIn');
+			}
+		}
+
 		// Configure score update for player
 		// When the ability is upgraded, add a single score bonus unique to that ability
 		if (this.isUpgraded() && this.usesLeftBeforeUpgrade() == 0) {

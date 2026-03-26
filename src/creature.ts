@@ -681,6 +681,13 @@ export class Creature {
 						});
 					}
 					game.UI.btnDelay.changeState('disabled');
+					// Save undo snapshot and show undo button before move
+					if (!game.undoMoveUsedThisRound) {
+						game.saveUndoSnapshot();
+						if (game.UI.btnUndoMove) {
+							game.UI.btnUndoMove.changeState('slideIn');
+						}
+					}
 					args.creature.moveTo(hex, {
 						animation: args.creature.movementType() === 'flying' ? 'fly' : 'walk',
 						callback: function () {

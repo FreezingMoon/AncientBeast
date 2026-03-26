@@ -77,6 +77,7 @@ export class UI {
 	animationUpgradeTimeOutID: ReturnType<typeof setTimeout>;
 	queryUnit: string;
 	btnDelay: Button;
+	btnUndoMove: Button;
 	btnFlee: Button;
 	btnExit: Button;
 	materializeButton: Button;
@@ -248,6 +249,22 @@ export class UI {
 			{ isAcceptingInput: this.configuration.isAcceptingInput },
 		);
 		this.buttons.push(this.btnDelay);
+
+		// Undo Move Button
+		this.btnUndoMove = new Button(
+			{
+				$button: $j('#undo.button'),
+				hasShortcut: true,
+				click: () => {
+					if (!this.dashopen) {
+						game.undoMove();
+					}
+				},
+				state: ButtonStateEnum.hidden,
+			},
+			{ isAcceptingInput: this.configuration.isAcceptingInput },
+		);
+		this.buttons.push(this.btnUndoMove);
 
 		// Flee Match Button
 		this.btnFlee = new Button(

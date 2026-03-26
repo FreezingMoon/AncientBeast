@@ -159,6 +159,13 @@ export class Hotkeys {
 
 		fullscreen.toggle();
 	}
+
+	pressZ(event) {
+		if (event.ctrlKey) {
+			event.preventDefault();
+			this.ui.game.undoMove();
+		}
+	}
 }
 export function getHotKeys(hk) {
 	const hotkeys = {
@@ -215,6 +222,11 @@ export function getHotKeys(hk) {
 		KeyX: {
 			onkeydown(event) {
 				hk.pressX(event);
+			},
+		},
+		KeyZ: {
+			onkeydown(event) {
+				hk.pressZ(event);
 			},
 		},
 		Tab: {

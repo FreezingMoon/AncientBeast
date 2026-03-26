@@ -113,6 +113,8 @@ export default class Game {
 	freezedInput: boolean;
 	turnThrottle: boolean;
 	turn: number;
+	undoMoveSnapshot: any;
+	undoMoveUsedThisRound: boolean;
 	Phaser: Phaser;
 	msg: any; // type this properly
 	triggers: Record<string, RegExp>;
@@ -190,6 +192,10 @@ export default class Game {
 		this.freezedInput = false;
 		this.turnThrottle = false;
 		this.turn = 0;
+
+		// Undo Move properties
+		this.undoMoveSnapshot = null;
+		this.undoMoveUsedThisRound = false;
 
 		// Phaser
 		this.Phaser = new Phaser.Game(1920, 1080, Phaser.AUTO, 'combatwrapper', {
@@ -754,6 +760,7 @@ export default class Game {
 	 */
 	nextRound() {
 		this.turn++;
+		this.undoMoveUsedThisRound = false;
 		this.log(`Round ${this.turn}`, 'roundmarker', true);
 		this.onStartOfRound();
 		this.nextCreature();
@@ -995,6 +1002,82 @@ export default class Game {
 		p.totalTimePool = p.totalTimePool - (skipTurn.valueOf() - p.startTime.valueOf());
 		this.activeCreature.wait();
 		this.nextCreature();
+	}
+
+	/**
+	 * Save a snapshot of the current game state for the Undo Move feature.
+	 * This captures the active creature's position, remaining move, and ability usage.
+	 */
+	saveUndoSnapshot(): void {
+		const creature = this.activeCreature;
+		if (!creature) return;
+
+		this.undoMoveSnapshot = {
+			creatureId: creature.id,
+			x: creature.x,
+			y: creature.y,
+			remainingMove: creature.remainingMove,
+			abilitiesUsed: creature.abilities.map((a) => a.used),
+			turn: this.turn,
+		};
+	}
+
+	/**
+	 * Undo the last move or ability action.
+	 * Restores the game state to before the last action was performed.
+	 */
+	undoMove(): void {
+		if (!this.undoMoveSnapshot || this.undoMoveUsedThisRound) return;
+
+		const snapshot = this.undoMoveSnapshot;
+		const creature = this.creatures[snapshot.creatureId];
+
+		if (!creature) return;
+
+		// Clean current hexes
+		creature.cleanHex();
+
+		// Restore position
+		creature.x = snapshot.x;
+		creature.y = snapshot.y;
+		creature.pos = { x: snapshot.x, y: snapshot.y };
+
+		// Restore remaining move
+		creature.remainingMove = snapshot.remainingMove;
+
+		// Restore ability usage
+		creature.abilities.forEach((a, i) => {
+			if (snapshot.abilitiesUsed[i] !== undefined) {
+				a.used = snapshot.abilitiesUsed[i];
+			}
+		});
+
+		// Update hexes with restored position
+		creature.updateHex();
+
+		// Update creature visual position
+		const hex = this.grid.hexes[creature.y][creature.x];
+		(creature as any).setPx(hex.displayPos, 0);
+		creature.updateHealth();
+		this.grid.orderCreatureZ();
+
+		// Clear any movement overlay
+		this.grid.cleanOverlay();
+
+		// Mark undo as used this round
+		this.undoMoveUsedThisRound = true;
+		this.undoMoveSnapshot = null;
+
+		// Update UI - hide undo button
+		if (this.UI.btnUndoMove) {
+			this.UI.btnUndoMove.changeState('hidden');
+		}
+
+		// Log the undo action
+		this.log('Undo Move performed by %CreatureName' + creature.id + '%', 'info');
+
+		// Resume querying movement
+		creature.queryMove();
 	}
 
 	startTimer() {
