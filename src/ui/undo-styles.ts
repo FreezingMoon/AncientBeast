@@ -1,6 +1,6 @@
 /**
  * Undo Move CSS Styles
- * 
+ *
  * Styles for undo button, feedback, and tooltips.
  */
 
@@ -155,19 +155,19 @@ export const undoStyles = `
  * Inject undo styles into document
  */
 export function injectUndoStyles(): void {
-  // Check if styles already injected
-  if (document.getElementById('undo-styles')) {
-    console.log('[UndoStyles] Already injected');
-    return;
-  }
-  
-  // Create style element
-  const styleElement = document.createElement('style');
-  styleElement.id = 'undo-styles';
-  styleElement.textContent = undoStyles;
-  
-  // Inject into document head
-  document.head.appendChild(styleElement);
-  
-  console.log('[UndoStyles] Injected');
+	// Check if styles already injected
+	if (document.getElementById('undo-styles')) {
+		console.log('[UndoStyles] Already injected');
+		return;
+	}
+
+	// Create style element
+	const styleElement = document.createElement('style');
+	styleElement.id = 'undo-styles';
+	styleElement.textContent = undoStyles;
+
+	// Inject into document head
+	document.head.appendChild(styleElement);
+
+	console.log('[UndoStyles] Injected');
 }

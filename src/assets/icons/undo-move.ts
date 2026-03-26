@@ -1,6 +1,6 @@
 /**
  * Undo Move Icon (SVG)
- * 
+ *
  * Backward time icon for undo button.
  * Source: https://game-icons.net/1x1/delapouite/backward-time.html
  * Style: White foreground, transparent background, 4px black stroke
@@ -34,20 +34,20 @@ export const undoMoveIconSVG = `
  * Create undo icon as data URL
  */
 export function createUndoIconDataURL(): string {
-  const svg = undoMoveIconSVG.trim();
-  const encoded = encodeURIComponent(svg);
-  return `data:image/svg+xml,${encoded}`;
+	const svg = undoMoveIconSVG.trim();
+	const encoded = encodeURIComponent(svg);
+	return `data:image/svg+xml,${encoded}`;
 }
 
 /**
  * Create undo icon element
  */
 export function createUndoIconElement(): HTMLImageElement {
-  const img = document.createElement('img');
-  img.src = createUndoIconDataURL();
-  img.alt = 'Undo Move';
-  img.className = 'btn-icon';
-  return img;
+	const img = document.createElement('img');
+	img.src = createUndoIconDataURL();
+	img.alt = 'Undo Move';
+	img.className = 'btn-icon';
+	return img;
 }
 
 /**
@@ -55,6 +55,6 @@ export function createUndoIconElement(): HTMLImageElement {
  * Call this during build process
  */
 export function saveUndoIconAsset(): void {
-  // This would be called during build to save the SVG file
-  console.log('Undo icon SVG:', undoMoveIconSVG);
+	// This would be called during build to save the SVG file
+	console.log('Undo icon SVG:', undoMoveIconSVG);
 }
