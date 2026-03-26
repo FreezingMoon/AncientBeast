@@ -280,7 +280,13 @@ export default (G: Game) => {
 
 				let spawnRange = dpriest.hexagons[0].adjacentHex(this.isUpgraded() ? 6 : 4);
 
+				// Show occupied adjacent hexes as dashed to reflect total area
+				let occupiedHexes: Hex[] = [];
 				spawnRange.forEach(function (item) {
+					if (item.creature instanceof Creature) {
+						occupiedHexes.push(item);
+						item.displayVisualState('dashed');
+					}
 					item.setReachable();
 				});
 
@@ -296,9 +302,19 @@ export default (G: Game) => {
 						G.grid.previewCreature(hex.pos, crea, ability.creature.player);
 					},
 					fnOnCancel: function () {
+						// Clear dashed overlay on occupied adjacent hexes
+						occupiedHexes.forEach(function (hex: Hex) {
+							hex.displayClasses = hex.displayClasses.replace(/\bdashed\b/g, '');
+							hex.updateStyle();
+						});
 						G.activeCreature.queryMove();
 					},
 					fnOnConfirm: function (...args) {
+						// Clear dashed overlay on occupied adjacent hexes
+						occupiedHexes.forEach(function (hex: Hex) {
+							hex.displayClasses = hex.displayClasses.replace(/\bdashed\b/g, '');
+							hex.updateStyle();
+						});
 						ability.animation(...args);
 					},
 					args: {
