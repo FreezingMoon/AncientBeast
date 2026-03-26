@@ -305,3 +305,52 @@ span {
 		vertical-align: -2px;
 	}
 }
+
+// Stat change tooltip for dash view card B
+.stat-tooltip {
+	display: none;
+	position: absolute;
+	background: rgba(0, 0, 0, 0.85);
+	color: white;
+	font-size: 14px;
+	line-height: 1.4;
+	text-align: left;
+	border-radius: 10px;
+	padding: 10px 14px;
+	z-index: 20;
+	min-width: 200px;
+	max-width: 320px;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+
+	&.active {
+		display: block;
+	}
+
+	.stat-tooltip-title {
+		font-weight: bold;
+		font-size: 15px;
+		margin-bottom: 6px;
+		text-transform: capitalize;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+		padding-bottom: 4px;
+	}
+
+	.stat-tooltip-changes {
+		margin-top: 4px;
+	}
+
+	.stat-tooltip-changes .buff {
+		color: #00ff00;
+	}
+
+	.stat-tooltip-changes .debuff {
+		color: #ff4444;
+	}
+
+	.stat-tooltip-no-change {
+		color: rgba(255, 255, 255, 0.6);
+		font-style: italic;
+	}
+}
