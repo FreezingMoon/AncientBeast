@@ -244,6 +244,14 @@ export class UI {
 						game.delayCreature();
 					}
 				},
+				mouseover: () => {
+					if (game.activeCreature?.canWait && !this.dashopen) {
+						this.queue.showDelayHoverPreview(game.activeCreature);
+					}
+				},
+				mouseleave: () => {
+					this.queue.hideDelayHoverPreview();
+				},
 			},
 			{ isAcceptingInput: this.configuration.isAcceptingInput },
 		);
