@@ -992,6 +992,7 @@ export class UI {
 			creatureType == '--'
 		) {
 			// retrieve the selected unit
+			this.selectedCreatureObj = undefined;
 			game.players[player].creatures.forEach((creature) => {
 				if (creature.type == creatureType) {
 					this.selectedCreatureObj = creature;
@@ -1034,12 +1035,16 @@ export class UI {
 					} else {
 						$stat.text(this.selectedCreatureObj.stats[key]);
 					}
-					if (this.selectedCreatureObj.stats[key] > value) {
-						// Buff
-						$stat.addClass('buff');
-					} else if (this.selectedCreatureObj.stats[key] < value) {
-						// Debuff
-						$stat.addClass('debuff');
+					// Only show buff/debuff colors for materialized and alive creatures
+					// Browsing dead or non-materialized units should show white
+					if (!this.selectedCreatureObj.dead && !this.selectedCreatureObj.materializationSickness) {
+						if (this.selectedCreatureObj.stats[key] > value) {
+							// Buff
+							$stat.addClass('buff');
+						} else if (this.selectedCreatureObj.stats[key] < value) {
+							// Debuff
+							$stat.addClass('debuff');
+						}
 					}
 				} else {
 					$stat.text(value);
