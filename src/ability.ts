@@ -387,6 +387,9 @@ export class Ability {
 				this.creature.player.score.push(bonus);
 			}
 		}
+
+		// Enable undo after ability use
+		game.enableUndo();
 	}
 
 	/**

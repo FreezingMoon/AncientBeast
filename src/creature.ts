@@ -502,6 +502,8 @@ export class Creature {
 			}
 
 			game.startTimer();
+			// Save undo state at the start of the creature's action phase
+			game.saveUndoState();
 			this.queryMove(null);
 			// }
 		}, 1000);
@@ -681,6 +683,8 @@ export class Creature {
 						});
 					}
 					game.UI.btnDelay.changeState('disabled');
+					// Enable undo after first action
+					game.enableUndo();
 					args.creature.moveTo(hex, {
 						animation: args.creature.movementType() === 'flying' ? 'fly' : 'walk',
 						callback: function () {

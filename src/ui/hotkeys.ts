@@ -21,6 +21,13 @@ export class Hotkeys {
 		}
 	}
 
+	pressZ(event) {
+		if (event.ctrlKey) {
+			// Ctrl+Z triggers Undo Move
+			this.ui.btnUndo.triggerClick();
+		}
+	}
+
 	pressT() {
 		this.ui.dashopen ? this.ui.closeDash() : this.ui.btnToggleScore.triggerClick();
 	}
@@ -215,6 +222,11 @@ export function getHotKeys(hk) {
 		KeyX: {
 			onkeydown(event) {
 				hk.pressX(event);
+			},
+		},
+		KeyZ: {
+			onkeydown(event) {
+				hk.pressZ(event);
 			},
 		},
 		Tab: {

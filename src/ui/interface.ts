@@ -77,6 +77,7 @@ export class UI {
 	animationUpgradeTimeOutID: ReturnType<typeof setTimeout>;
 	queryUnit: string;
 	btnDelay: Button;
+	btnUndo: Button;
 	btnFlee: Button;
 	btnExit: Button;
 	materializeButton: Button;
@@ -248,6 +249,29 @@ export class UI {
 			{ isAcceptingInput: this.configuration.isAcceptingInput },
 		);
 		this.buttons.push(this.btnDelay);
+
+		// Undo Move Button
+		this.btnUndo = new Button(
+			{
+				$button: $j('#undo.button'),
+				hasShortcut: true,
+				click: () => {
+					if (!this.dashopen) {
+						if (game.turnThrottle || !game.undoAvailable) {
+							return;
+						}
+
+						game.gamelog.add({
+							action: 'undo',
+						});
+						game.undoCreature();
+					}
+				},
+				state: ButtonStateEnum.disabled,
+			},
+			{ isAcceptingInput: this.configuration.isAcceptingInput },
+		);
+		this.buttons.push(this.btnUndo);
 
 		// Flee Match Button
 		this.btnFlee = new Button(
@@ -1966,7 +1990,10 @@ export class UI {
 							this.btnAudio.changeState(ButtonStateEnum.slideIn);
 							this.btnSkipTurn.changeState(ButtonStateEnum.slideIn);
 							this.btnFullscreen.changeState(ButtonStateEnum.slideIn);
-							if (creature.canWait && game.queue.getCurrentQueueLength() > 1) {
+							// Show undo button if available, otherwise show delay button if creature can wait
+							if (game.undoAvailable) {
+								this.btnUndo.changeState(ButtonStateEnum.slideIn);
+							} else if (creature.canWait && game.queue.getCurrentQueueLength() > 1) {
 								this.btnDelay.changeState(ButtonStateEnum.slideIn);
 							}
 							this.checkAbilities();
