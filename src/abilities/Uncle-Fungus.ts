@@ -56,7 +56,7 @@ export default (G: Game) => {
 					stackable: true,
 				};
 
-				this.end();
+				this.end(true);
 
 				// Spore Contamination
 				const effect = new Effect(
