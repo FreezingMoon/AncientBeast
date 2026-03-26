@@ -165,59 +165,7 @@
 							<div id="start"><button type="submit"></button><span>Start</span></div>
 						</form>
 					</div>
-					<div class="loginregFrame">
-						<div class="signin-register">
-							<div class="login">
-								<h3>Login</h3>
-								<form id="login">
-									<div class="table-fields">
-										<div class="flex-row">
-											<label for="email"><span class="error-req">*</span>Email</label>
-											<input type="text" id="email" name="email">
-										</div>
-										<div class="flex-row">
-											<label for="password"><span class="error-req">*</span>Password</label>
-											<input type="password" id="password" name="password">
-										</div>
-									</div>
-									<div class="error-msg error-req-message">* required</div>
-									<div class="error-msg login-error-req-message">Login is not valid</div>
-									<div class="button-wrapper">
-										<input class="crimson-button" id="login-button" type="submit" value="Login">
-									</div>
-								</form>
-							</div>
-							<div class="register">
-								<h3>Register</h3>
-								<form id="register">
-									<div class="table-fields">
-										<div class="flex-row">
-											<label for="username"><span class="error-req">*</span>User Name</label>
-											<input type="text" id="username" name="username">
-										</div>
-										<div class="flex-row">
-											<label for="login"><span class="error-req">*</span>Email</label>
-											<input type="text" id="email" name="email">
-										</div>
-										<div class="flex-row">
-											<label for="password"><span class="error-req">*</span>Password</label>
-											<input type="password" id="password" name="password">
-										</div>
-										<div class="flex-row">
-											<label for="passwordmatch"><span class="error-req">*</span>Retype Password</label>
-											<input type="password" id="passwordmatch" name="passwordmatch">
-										</div>
-									</div>
-									<div class="error-msg error-req-message">* required</div>
-									<div class="error-msg error-pw">Passwords must match</div>
-									<div class="error-msg error-pw-length">Password must be at least 8 characters</div>
-									<div class="button-wrapper">
-										<input class="crimson-button" id="register-button" type="submit" value="Register">
-									</div>
-								</form>
-							</div>
-						</div>
-					</div>
+					<div class="loginregFrame" id="lobby-screen-root"></div>
 					<div class="lobby">
 						<h2>Open Matches (click to join)</h2>
 						<div class="lobby-match-list"></div>
