@@ -19,6 +19,7 @@ import { cycleAudioMode } from '../sound/soundsys';
 import Game from '../game';
 import { CreatureType } from '../data/types';
 import { getAvatarSet } from '../style/avatar-styles';
+import { applyBuffDebuffStyle } from './buffs-debuffs';
 
 type Config = {
 	isAcceptingInput: () => boolean;
@@ -1015,10 +1016,15 @@ export class UI {
 					'cards/' + stats.type.substring(0, 1),
 				)}')`,
 			});
+			
+			// Check if unit is materialized (alive) or just browsing
+			const isBrowsing = !this.selectedCreatureObj;
+			
 			$j.each(stats.stats, (key, value) => {
 				const $stat = $j('#card .sideB .' + key + ' .value');
-				$stat.removeClass('buff debuff');
+				
 				if (this.selectedCreatureObj) {
+					// Unit is materialized - show actual values with buff/debuff colors
 					if (key == 'health') {
 						$stat.text(this.selectedCreatureObj.health + '/' + this.selectedCreatureObj.stats[key]);
 					} else if (key == 'movement') {
@@ -1034,15 +1040,17 @@ export class UI {
 					} else {
 						$stat.text(this.selectedCreatureObj.stats[key]);
 					}
-					if (this.selectedCreatureObj.stats[key] > value) {
-						// Buff
-						$stat.addClass('buff');
-					} else if (this.selectedCreatureObj.stats[key] < value) {
-						// Debuff
-						$stat.addClass('debuff');
-					}
+					
+					// Apply buff/debuff styling and tooltips
+					applyBuffDebuffStyle($stat, this.selectedCreatureObj, key, value, false);
 				} else {
+					// Just browsing - show white (no colors)
+					$stat.removeClass('buff debuff');
 					$stat.text(value);
+					// Remove any tooltips
+					if ($stat.qtip) {
+						$stat.qtip('destroy');
+					}
 				}
 			});
 			$j.each(game.abilities[stats.id], (key) => {
