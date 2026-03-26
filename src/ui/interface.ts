@@ -92,6 +92,11 @@ export class UI {
 	queueAnimSpeed: number;
 	dashAnimSpeed: number;
 	materializeToggled: boolean;
+	/**
+	 * Guard to prevent re-entrancy in Dark Priest materialization flow.
+	 * Prevents double-clicking the materialize button while already picking a hex.
+	 */
+	materializeInProgress: boolean;
 	glowInterval: ReturnType<typeof setInterval>;
 	lastTurnWarningSecond: number | null;
 	lastTurnWarningPlayerId: number | null;
@@ -668,6 +673,7 @@ export class UI {
 		this.dashAnimSpeed = 250; // ms
 
 		this.materializeToggled = false;
+		this.materializeInProgress = false;
 		this.lastTurnWarningSecond = null;
 		this.lastTurnWarningPlayerId = null;
 		this.dashopen = false;

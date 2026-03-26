@@ -17,11 +17,20 @@ export default (G: Game) => {
 	G.abilities[14] = [
 		// First Ability: Gooey Body
 		{
-			// Trigger when Gumble dies
+			/**
+			 * When upgraded, allows Gumble to leap over units during movement phase
+			 * (flying movement type).
+			 */
+			movementType: function () {
+				return this.isUpgraded() ? 'flying' : 'normal';
+			},
+
+			// Trigger when Gumble dies (only when not upgraded)
 			trigger: 'onCreatureDeath',
 
 			require: function () {
-				return true;
+				// Only trigger on death when NOT upgraded (upgraded version provides leap ability instead)
+				return !this.isUpgraded();
 			},
 
 			activate: function (deadCreature: Creature) {
@@ -39,20 +48,10 @@ export default (G: Game) => {
 						deathHex,
 						'onStepIn',
 						{
-							// Check if creature should be affected by the goo
+							// Always affect all units (allies and enemies)
 							requireFn: function () {
 								const creatureOnGoo = this.trap.hex.creature;
-								if (!creatureOnGoo) {
-									return false;
-								}
-
-								// If upgraded, don't affect allied units
-								if (ability.isUpgraded()) {
-									return creatureOnGoo.player !== ability.creature.player;
-								}
-
-								// Otherwise affect all units
-								return true;
+								return !!creatureOnGoo;
 							},
 							effectFn: function (_, creature: Creature) {
 								// Pin the creature in place for the current round
