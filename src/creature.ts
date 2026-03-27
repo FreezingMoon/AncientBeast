@@ -1807,6 +1807,7 @@ class CreatureSprite {
 	private _frameInfo: { originX: number; originY: number };
 	private _creatureSize: number;
 	private _creatureTeam: PlayerID;
+	private _creature: Creature;
 
 	private _isXray = false;
 
@@ -1818,6 +1819,7 @@ class CreatureSprite {
 		this._phaser = phaser;
 		this._creatureSize = size;
 		this._creatureTeam = team;
+		this._creature = creature;
 		this._frameInfo = { originX: display['offset-x'], originY: display['offset-y'] };
 
 		const group: Phaser.Group = phaser.add.group(game.grid.creatureGroup, 'creatureGrp_' + id);
@@ -1973,6 +1975,9 @@ class CreatureSprite {
 			.tween(this._healthIndicatorGroup)
 			.to({ alpha: enable ? 0.5 : 1.0 }, 250, Phaser.Easing.Linear.None)
 			.start();
+		if (enable) {
+			this._group.bringToTop();
+		}
 	}
 
 	setHealth(number: number, type: HealthBubbleType) {
