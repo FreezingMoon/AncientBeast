@@ -26,33 +26,19 @@ export default (G: Game) => {
 
 			activate: function (deadCreature: Creature) {
 				const deathHex = G.grid.hexAt(deadCreature.x, deadCreature.y);
-
 				const ability = this;
 
-				// Create goo trap at Gumble's death location
-				const createGooTrap = () => {
-					console.log("Creating goo trap at Gumble's death location");
-
+				// Create goo puddle at Gumble's death location
+				const createGooPuddle = () => {
 					const effect = new Effect(
 						'Gooey Body',
 						ability.creature,
 						deathHex,
 						'onStepIn',
 						{
-							// Check if creature should be affected by the goo
+							// Only trigger if there's a creature on the puddle
 							requireFn: function () {
-								const creatureOnGoo = this.trap.hex.creature;
-								if (!creatureOnGoo) {
-									return false;
-								}
-
-								// If upgraded, don't affect allied units
-								if (ability.isUpgraded()) {
-									return creatureOnGoo.player !== ability.creature.player;
-								}
-
-								// Otherwise affect all units
-								return true;
+								return this.trap.hex.creature != null;
 							},
 							effectFn: function (_, creature: Creature) {
 								// Pin the creature in place for the current round
@@ -60,13 +46,12 @@ export default (G: Game) => {
 							},
 							alterations: {},
 							deleteTrigger: '',
-							// Effect should persist as long as the trap exists
 							turnLifetime: -1,
 						},
 						G,
 					);
 
-					new Trap(
+					const puddleTrap = new Trap(
 						deathHex.x,
 						deathHex.y,
 						'royal-seal',
@@ -75,16 +60,113 @@ export default (G: Game) => {
 						{
 							ownerCreature: ability.creature,
 							fullTurnLifetime: true,
-							// Trap persists until overlapped by another trap
 							turnLifetime: -1,
 						},
 						G,
 					);
 
-					G.log('%CreatureName' + deadCreature.id + '% melts into a gooey puddle');
+					// Mark this trap as Gumble's revive puddle
+					(puddleTrap as any).isGumblePuddle = true;
+					(puddleTrap as any).gumbleOwner = ability.creature;
 				};
 
-				createGooTrap();
+				createGooPuddle();
+				G.log('%CreatureName' + deadCreature.id + '% melts into a gooey puddle');
+			},
+		},
+
+		// Second part of Gooey Body (upgraded): Revive mechanic
+		// This ability triggers via combined trigger when another creature dies
+		{
+			// Use combined trigger that includes onOtherCreatureDeath
+			trigger: 'onCreatureSummon onOtherCreatureSummon onOtherCreatureDeath',
+
+			require: function () {
+				// Only if Gumble is dead and ability is upgraded
+				return this.creature.dead && this.isUpgraded();
+			},
+
+			activate: function (_creature: Creature, otherCreature: Creature) {
+				const ability = this;
+				const gumble = ability.creature;
+
+				// This activates on onOtherCreatureDeath when another creature dies
+				// otherCreature is the creature that died
+
+				// Find Gumble's puddle trap
+				let puddleTrap: Trap | null = null;
+				for (const trap of G.traps) {
+					if ((trap as any).isGumblePuddle && (trap as any).gumbleOwner === gumble) {
+						puddleTrap = trap;
+						break;
+					}
+				}
+
+				if (!puddleTrap) {
+					return; // No puddle found
+				}
+
+				const puddleHex = puddleTrap.hex;
+
+				// Check if the killed creature died on the puddle hex
+				const killedHex = G.grid.hexAt(otherCreature.x, otherCreature.y);
+				if (killedHex !== puddleHex) {
+					return; // Death not on puddle
+				}
+
+				// --- REVIVE GUMBLE ---
+				G.log('%CreatureName' + gumble.id + '% revives from gooey puddle!');
+
+				// 1. Clear Gumble's dead flag
+				gumble.dead = false;
+
+				// 2. Restore health (nerfed to 50%) and full energy
+				const nerfedHealth = Math.ceil(gumble.stats.health * 0.5);
+				gumble.health = nerfedHealth;
+				gumble.energy = gumble.stats.energy;
+
+				// 3. Clean old hexagons
+				gumble.hexagons = [];
+
+				// 4. Reposition to puddle hex
+				const size = gumble.size;
+				const hex = puddleTrap.hex;
+
+				// Handle multi-hex creatures (size > 1)
+				if (size > 1) {
+					// For large creatures, shift left to get the "base" hex
+					gumble.x = hex.x - (size - 1);
+				} else {
+					gumble.x = hex.x;
+				}
+				gumble.y = hex.y;
+
+				// Reconstruct hexagons array based on new position
+				for (let i = 0; i < size; i++) {
+					gumble.hexagons.push(G.grid.hexes[gumble.y][gumble.x - i]);
+				}
+
+				// 5. Reset creature state
+				gumble.remainingMove = gumble.stats.movement;
+
+				// 6. Show creature sprite with fade-in
+				gumble.creatureSprite.setAlpha(1, 500);
+				gumble.healthShow();
+				gumble.updateHealth();
+
+				// 7. Trigger trap under the revived creature
+				gumble.hexagons.forEach((h) => {
+					h.activateTrap(G.triggers.onStepIn, gumble);
+				});
+
+				// 8. Update UI
+				G.updateQueueDisplay();
+
+				// 9. Destroy the puddle trap
+				puddleTrap.destroy();
+
+				// 10. Show revive hint
+				gumble.hint(gumble.name, 'creature_name');
 			},
 		},
 
