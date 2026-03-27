@@ -112,6 +112,7 @@ export default class Game {
 	firstKill: boolean;
 	freezedInput: boolean;
 	turnThrottle: boolean;
+	instantMode: boolean;
 	turn: number;
 	undoMoveAvailable: boolean;
 	undoUsedThisRound: boolean;
@@ -200,6 +201,7 @@ export default class Game {
 		this.firstKill = false;
 		this.freezedInput = false;
 		this.turnThrottle = false;
+		this.instantMode = false;
 		this.turn = 0;
 		this.undoMoveAvailable = false;
 		this.undoUsedThisRound = false;
@@ -1766,7 +1768,7 @@ export default class Game {
 		log.custom.configData = this.configData;
 	}
 
-	onLogLoad(log) {
+	onLogLoad(log, instant = false) {
 		if (this.gameState !== 'initialized') {
 			alert('Can only load game from configuration menu.');
 			return;
@@ -1778,29 +1780,42 @@ export default class Game {
 		const configData = log.custom.configData;
 		game.configData = log.custom.configData ?? game.configData;
 
-		const nextAction = () => {
-			if (actions.length === 0) {
-				// this.activeCreature.queryMove(); // Avoid bug: called twice breaks opening UI (may need to revisit)
-				return;
-			}
-
-			if (!DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG) {
-				console.log(`${1 + numTotalActions - actions.length} / ${numTotalActions}`);
-			}
-
-			const interval = setInterval(() => {
-				if (!game.freezedInput && !game.turnThrottle) {
-					clearInterval(interval);
-					game.activeCreature.queryMove();
-					game.action(actions.shift(), {
-						callback: nextAction,
-					});
+		if (instant) {
+			game.instantMode = true;
+			game.loadGame(configData, undefined, undefined, () => {
+				// Process all actions immediately without animation delays
+				game.freezedInput = false;
+				game.turnThrottle = false;
+				for (const action of actions) {
+					game.action(action, { callback: () => {} });
 				}
-			}, 100);
-		};
+				game.instantMode = false;
+				game.activeCreature.queryMove();
+			});
+		} else {
+			const nextAction = () => {
+				if (actions.length === 0) {
+					return;
+				}
 
-		game.loadGame(configData, undefined, undefined, () => {
-			setTimeout(() => nextAction(), 3000);
-		});
+				if (!DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG) {
+					console.log(`${1 + numTotalActions - actions.length} / ${numTotalActions}`);
+				}
+
+				const interval = setInterval(() => {
+					if (!game.freezedInput && !game.turnThrottle) {
+						clearInterval(interval);
+						game.activeCreature.queryMove();
+						game.action(actions.shift(), {
+							callback: nextAction,
+						});
+					}
+				}, 100);
+			};
+
+			game.loadGame(configData, undefined, undefined, () => {
+				setTimeout(() => nextAction(), 3000);
+			});
+		}
 	}
 }
