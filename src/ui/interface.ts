@@ -77,6 +77,7 @@ export class UI {
 	animationUpgradeTimeOutID: ReturnType<typeof setTimeout>;
 	queryUnit: string;
 	btnDelay: Button;
+	btnUndoMove: Button;
 	btnFlee: Button;
 	btnExit: Button;
 	materializeButton: Button;
@@ -227,13 +228,22 @@ export class UI {
 		);
 		this.buttons.push(this.btnSkipTurn);
 
-		// Delay Unit Button
+		// Delay Unit Button (also handles Undo Move when available)
 		this.btnDelay = new Button(
 			{
 				$button: $j('#delay.button'),
 				hasShortcut: true,
 				click: () => {
 					if (!this.dashopen) {
+						// If undo state is available and not yet used, trigger undo instead of delay
+						if (game.undoCreatureState && !game.undoUsedThisRound) {
+							if (game.turnThrottle) {
+								return;
+							}
+							game.undoMove();
+							return;
+						}
+						// Normal delay turn behavior
 						if (game.turnThrottle || !game.activeCreature?.canWait || game.queue.isCurrentEmpty()) {
 							return;
 						}
@@ -248,6 +258,18 @@ export class UI {
 			{ isAcceptingInput: this.configuration.isAcceptingInput },
 		);
 		this.buttons.push(this.btnDelay);
+
+		// Undo Move Button - uses same DOM element as btnDelay, triggered via btnDelay's click
+		// This is kept for explicit state management; the actual click goes through btnDelay
+		this.btnUndoMove = new Button(
+			{
+				$button: $j('<div/>'),
+				hasShortcut: false,
+				click: () => {},
+			},
+			{ isAcceptingInput: this.configuration.isAcceptingInput },
+		);
+		this.buttons.push(this.btnUndoMove);
 
 		// Flee Match Button
 		this.btnFlee = new Button(
@@ -369,6 +391,11 @@ export class UI {
 							// Colored frame around selected ability
 							if (ability.require() == true && i != 0) {
 								this.selectAbility(i);
+							} else if (i != 0 && (ability.used || !ability.require())) {
+								// Show cancel icon for already used or unusable active abilities
+								b.$button.removeClass('cancelIcon');
+								b.$button.cssTransition('cancelIcon', 1000);
+								return;
 							}
 							// Activate Ability
 							game.activeCreature.abilities[i].use();
