@@ -96,6 +96,9 @@ $j(() => {
 	const fullscreen = new Fullscreen(document.getElementById('fullscreen'));
 	$j('#fullscreen').on('click', () => fullscreen.toggle());
 
+	// Attempt to lock orientation to landscape on page load (works without fullscreen on some browsers)
+	Fullscreen.lockLandscapeOrientation();
+
 	const startScreenHotkeys = {
 		Space: {
 			keyDownTest() {

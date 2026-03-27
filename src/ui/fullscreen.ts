@@ -20,12 +20,27 @@ export class Fullscreen {
 				const gameElement = document.getElementById('AncientBeast');
 				if (gameElement) {
 					await gameElement.requestFullscreen();
+					// Lock to landscape after entering fullscreen
+					Fullscreen.lockLandscapeOrientation();
 				}
 			}
 
 			setTimeout(() => this.updateButtonState(), 100);
 		} catch (error) {
 			console.error('Error toggling fullscreen:', error);
+		}
+	}
+
+	/**
+	 * Attempts to lock the screen orientation to landscape.
+	 * Most browsers require fullscreen to be active before locking orientation.
+	 */
+	static lockLandscapeOrientation() {
+		const screenOrientation = screen as Screen & { orientation?: ScreenOrientation };
+		if (screenOrientation.orientation && 'lock' in screenOrientation.orientation) {
+			(screenOrientation.orientation as ScreenOrientation).lock('landscape').catch((err) => {
+				console.warn('Could not lock screen orientation:', err);
+			});
 		}
 	}
 
