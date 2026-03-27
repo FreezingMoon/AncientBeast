@@ -71,6 +71,9 @@ export class SoundSys {
 					this.loadSound(path);
 				}
 			}
+
+			// Unlock AudioContext on iOS - requires user gesture to resume
+			this.unlockAudioOnIOS();
 		}
 	}
 
@@ -141,6 +144,30 @@ export class SoundSys {
 
 			bufferLoader.load();
 		}
+	}
+
+	/**
+	 * Unlock AudioContext on iOS devices.
+	 * iOS Safari and Chrome require a user gesture to resume the AudioContext
+	 * which starts in a suspended state. This method adds one-time listeners
+	 * to resume the context on user interaction.
+	 */
+	private unlockAudioOnIOS() {
+		const unlock = () => {
+			if (this.context && this.context.state === 'suspended') {
+				this.context.resume().then(() => {
+					console.log('[Audio] AudioContext resumed on user interaction');
+				});
+			}
+			// Remove listeners after first interaction
+			document.removeEventListener('click', unlock);
+			document.removeEventListener('touchstart', unlock);
+			document.removeEventListener('keydown', unlock);
+		};
+
+		document.addEventListener('click', unlock, { once: true });
+		document.addEventListener('touchstart', unlock, { once: true });
+		document.addEventListener('keydown', unlock, { once: true });
 	}
 
 	private playSound(sound: AudioBuffer, node: GainNode): SoundSysAudioBufferSourceNode {
