@@ -660,16 +660,27 @@ export class Hex {
 			} else if (this.overlayClasses.match(/dashed/)) {
 				this.overlay.loadTexture(`hex_dashed_p${player}`);
 				this.grid.overlayHexesGroup.bringToTop(this.overlay);
+			} else if (this.overlayClasses.match(/reachable/)) {
+				// Reachable hexes in targeting mode (non-creature, no player class)
+				this.overlay.loadTexture('hex_path');
+				this.grid.overlayHexesGroup.bringToTop(this.overlay);
 			} else {
 				this.overlay.loadTexture(`hex_p${player}`);
 				// Colored overlays for creatures/selected should be on top
 				this.grid.overlayHexesGroup.bringToTop(this.overlay);
 			}
 		} else {
-			this.overlay.loadTexture('cancel');
-			this.overlay.anchor.set(0.5, 0.5);
-			if (!this.isSpinning) {
-				this.startSpinning();
+			if (this.overlayClasses.match(/reachable/)) {
+				// Non-player hex targeted by ability: non-spinning hex_path cursor
+				this.overlay.loadTexture('hex_path');
+				this.overlay.anchor.set(0.5, 0.5);
+				// No spinning - use static cursor
+			} else {
+				this.overlay.loadTexture('cancel');
+				this.overlay.anchor.set(0.5, 0.5);
+				if (!this.isSpinning) {
+					this.startSpinning();
+				}
 			}
 		}
 
