@@ -148,6 +148,7 @@ export class Creature {
 	private _hinderedTurn: number;
 	materializationSickness: boolean;
 	noActionPossible: boolean;
+	leapOverCreatures: boolean;
 
 	// Statistics
 	baseStats: CreatureStats;
@@ -430,6 +431,7 @@ export class Creature {
 		this.oldEnergy = this.energy;
 		this.oldHealth = this.health;
 		this.noActionPossible = false;
+		this.leapOverCreatures = false;
 
 		const game = this.game;
 		const stats = this.stats;

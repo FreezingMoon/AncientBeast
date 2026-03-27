@@ -422,8 +422,14 @@ export class Hex {
 
 				let isNotMovingCreature;
 				if (hex.creature instanceof Creature) {
-					isNotMovingCreature = hex.creature.id !== id;
-					blocked = blocked || isNotMovingCreature; // Not blocked if this block contains the moving creature
+					// Allow leaping over creatures if the moving creature has leapOverCreatures
+					const movingCreature = this.game.creatures.find((c) => c.id === id);
+					if (movingCreature?.leapOverCreatures) {
+						// Creature can leap over other creatures - don't block
+					} else {
+						isNotMovingCreature = hex.creature.id !== id;
+						blocked = blocked || isNotMovingCreature; // Not blocked if this block contains the moving creature
+					}
 				}
 				if (debug) {
 					console.log({ isNotMovingCreature });

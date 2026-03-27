@@ -24,6 +24,11 @@ export default (G: Game) => {
 				return true;
 			},
 
+			movementType: function () {
+				// Upgraded: Gumble can leap over creatures during movement
+				return this.isUpgraded() ? 'flying' : 'normal';
+			},
+
 			activate: function (deadCreature: Creature) {
 				const deathHex = G.grid.hexAt(deadCreature.x, deadCreature.y);
 

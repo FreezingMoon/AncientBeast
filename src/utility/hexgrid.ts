@@ -1396,6 +1396,13 @@ export class HexGrid {
 
 		hexes = hexes.filter((hex) => hex.isWalkable(size, id, true));
 
+		// For leaping creatures, exclude creature-occupied destination hexes
+		// (the creature leaps OVER creatures but lands on empty hexes)
+		const movingCreature = this.game.creatures.find((c) => c.id === id);
+		if (movingCreature?.leapOverCreatures) {
+			hexes = hexes.filter((hex) => !hex.creature);
+		}
+
 		return arrayUtils.extendToLeft(hexes, size, this.game.grid);
 	}
 
