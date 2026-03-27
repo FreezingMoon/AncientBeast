@@ -134,9 +134,10 @@ $j(() => {
 			keyDownTest(event) {
 				return event.metaKey && event.ctrlKey;
 			},
-			keyDownAction() {
+			keyDownAction(event) {
+				const instant = event.shiftKey;
 				readLogFromFile()
-					.then((log) => G.gamelog.load(log as string))
+					.then((log) => (instant ? G.gamelog.instantLoad(log as string) : G.gamelog.load(log as string)))
 					.catch((err) => {
 						alert('An error occurred while loading the log file');
 						console.log(err);

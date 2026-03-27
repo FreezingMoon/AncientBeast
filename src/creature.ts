@@ -502,6 +502,8 @@ export class Creature {
 			}
 
 			game.startTimer();
+			// Save undo state at the start of the creature's action phase
+			game.saveUndoState();
 			this.queryMove(null);
 			// }
 		}, 1000);
@@ -681,6 +683,8 @@ export class Creature {
 						});
 					}
 					game.UI.btnDelay.changeState('disabled');
+					// Enable undo after first action
+					game.enableUndo();
 					args.creature.moveTo(hex, {
 						animation: args.creature.movementType() === 'flying' ? 'fly' : 'walk',
 						callback: function () {
@@ -948,21 +952,39 @@ export class Creature {
 
 			this.travelDist = 0;
 
-			game.animations[opts.animation](this, path, opts);
+			if (game.instantMode) {
+				// Instantly move to final hex without animation
+				// Consume remaining movement points
+				if (opts.animation !== 'fly' && !opts.ignoreMovementPoint) {
+					this.remainingMove = 0;
+					this.travelDist += path.length - 1;
+				}
+				const finalHex = path[path.length - 1];
+				game.animations.enterHex(this, finalHex, opts);
+				game.animations.movementComplete(this, finalHex, Math.random(), opts);
+				opts.callback();
+				game.signals.creature.dispatch('movementComplete', { creature: this, hex });
+				// @ts-expect-error 2554
+				game.onCreatureMove(this, hex);
+			} else {
+				game.animations[opts.animation](this, path, opts);
+			}
 		} else {
 			game.log('This creature cannot be moved');
 		}
 
-		const interval = setInterval(() => {
-			// Check if creature's movement animation is completely finished.
-			if (!game.freezedInput) {
-				clearInterval(interval);
-				opts.callback();
-				game.signals.creature.dispatch('movementComplete', { creature: this, hex });
-				// @ts-expect-error 2554
-				game.onCreatureMove(this, hex); // Trigger
-			}
-		}, 100);
+		if (!game.instantMode) {
+			const interval = setInterval(() => {
+				// Check if creature's movement animation is completely finished.
+				if (!game.freezedInput) {
+					clearInterval(interval);
+					opts.callback();
+					game.signals.creature.dispatch('movementComplete', { creature: this, hex });
+					// @ts-expect-error 2554
+					game.onCreatureMove(this, hex); // Trigger
+				}
+			}, 100);
+		}
 	}
 
 	/**

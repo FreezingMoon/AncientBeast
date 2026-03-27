@@ -88,6 +88,32 @@ export class GameLog {
 		return log;
 	}
 
+	instantLoad(logOrStr: string | SerializableLog) {
+		let log: SerializableLog;
+
+		if (typeof logOrStr === 'string') {
+			try {
+				log = SerializableLog.from(logOrStr);
+			} catch (e) {
+				console.error('Could not load log.\n', e);
+				alert('Could not load log. See console for error details.');
+				return;
+			}
+		} else {
+			log = logOrStr;
+		}
+
+		if (!version.equals(log.version)) {
+			alert(
+				`Attempting to load log with version ${log.version}. The game version is ${version.full}.`,
+			);
+		}
+
+		this.actions = [...log.actions];
+		(this.onLoad as (log: SerializableLog, instant?: boolean) => void)(log, true);
+		return log;
+	}
+
 	stringify() {
 		const serializeableLog = new SerializableLog(this.actions);
 		this.onSave(serializeableLog);

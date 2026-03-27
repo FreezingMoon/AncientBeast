@@ -387,6 +387,9 @@ export class Ability {
 				this.creature.player.score.push(bonus);
 			}
 		}
+
+		// Enable undo after ability use
+		game.enableUndo();
 	}
 
 	/**
@@ -549,34 +552,48 @@ export class Ability {
 				animationData = $j.extend(animationData, this.getAnimationData(...[args]));
 			}
 
-			if (animationData.activateAnimation) {
-				game.Phaser.add
-					.tween(this.creature.sprite)
-					.to({ x: p1 }, 250, Phaser.Easing.Linear.None)
-					.to({ x: p2 }, 100, Phaser.Easing.Linear.None)
-					.to({ x: p0 }, 150, Phaser.Easing.Linear.None)
-					.start();
-			}
-
-			setTimeout(() => {
+			if (game.instantMode) {
+				// Skip animation, just activate immediately
 				if (!game.triggers.onUnderAttack.test(this.getTrigger())) {
-					game.soundsys.playSFX('sounds/swing2');
 					activateAbility();
 				}
-			}, animationData.delay);
-
-			setTimeout(() => {
-				const queue = game.animationQueue.filter((item) => item != animId);
-
-				if (queue.length === 0) {
+				game.animationQueue = game.animationQueue.filter((item) => item != animId);
+				if (game.animationQueue.length === 0) {
 					game.freezedInput = false;
 					if (game.multiplayer) {
 						game.freezedInput = game.UI.active ? false : true;
 					}
 				}
+			} else {
+				if (animationData.activateAnimation) {
+					game.Phaser.add
+						.tween(this.creature.sprite)
+						.to({ x: p1 }, 250, Phaser.Easing.Linear.None)
+						.to({ x: p2 }, 100, Phaser.Easing.Linear.None)
+						.to({ x: p0 }, 150, Phaser.Easing.Linear.None)
+						.start();
+				}
 
-				game.animationQueue = queue;
-			}, animationData.duration);
+				setTimeout(() => {
+					if (!game.triggers.onUnderAttack.test(this.getTrigger())) {
+						game.soundsys.playSFX('sounds/swing2');
+						activateAbility();
+					}
+				}, animationData.delay);
+
+				setTimeout(() => {
+					const queue = game.animationQueue.filter((item) => item != animId);
+
+					if (queue.length === 0) {
+						game.freezedInput = false;
+						if (game.multiplayer) {
+							game.freezedInput = game.UI.active ? false : true;
+						}
+					}
+
+					game.animationQueue = queue;
+				}, animationData.duration);
+			}
 		} else {
 			activateAbility();
 			if (game.animationQueue.length === 0) {
@@ -584,12 +601,17 @@ export class Ability {
 			}
 		}
 
-		const interval = setInterval(() => {
-			if (!game.freezedInput) {
-				clearInterval(interval);
-				opt.callback();
-			}
-		}, 100);
+		if (game.instantMode) {
+			// Immediately call callback in instant mode
+			opt.callback();
+		} else {
+			const interval = setInterval(() => {
+				if (!game.freezedInput) {
+					clearInterval(interval);
+					opt.callback();
+				}
+			}, 100);
+		}
 	}
 
 	/**

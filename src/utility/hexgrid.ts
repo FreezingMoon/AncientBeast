@@ -1161,6 +1161,14 @@ export class HexGrid {
 			}
 
 			if (hex.reachable) {
+				// Skip occupied hexes for non-creature targeting abilities (show as dashed but don't select)
+				if (hex.creature instanceof Creature && !o.fillOnlyHoveredCreature) {
+					if (this.materialize_overlay) {
+						this.materialize_overlay.alpha = 0;
+					}
+					return;
+				}
+
 				if (o.fillOnlyHoveredCreature && !(hex.creature instanceof Creature)) {
 					if (!emptyHexBeforeCreature(hex)) {
 						$j('canvas').css('cursor', 'not-allowed');
