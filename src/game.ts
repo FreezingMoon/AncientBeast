@@ -113,6 +113,17 @@ export default class Game {
 	freezedInput: boolean;
 	turnThrottle: boolean;
 	turn: number;
+	undoMoveAvailable: boolean;
+	undoUsedThisRound: boolean;
+	undoCreatureState: {
+		creatureId: number;
+		x: number;
+		y: number;
+		hexagons: { x: number; y: number }[];
+		remainingMove: number;
+		energy: number;
+		health: number;
+	} | null;
 	Phaser: Phaser;
 	msg: any; // type this properly
 	triggers: Record<string, RegExp>;
@@ -190,6 +201,9 @@ export default class Game {
 		this.freezedInput = false;
 		this.turnThrottle = false;
 		this.turn = 0;
+		this.undoMoveAvailable = false;
+		this.undoUsedThisRound = false;
+		this.undoCreatureState = null;
 
 		// Phaser
 		this.Phaser = new Phaser.Game(1920, 1080, Phaser.AUTO, 'combatwrapper', {
@@ -400,6 +414,10 @@ export default class Game {
 		return undefined;
 	}
 
+	get undoAvailable() {
+		return this.undoMoveAvailable && !this.undoUsedThisRound && this.undoCreatureState !== null;
+	}
+
 	startLoading() {
 		$j('#gameSetupContainer').hide();
 		$j('#loader').removeClass('hide');
@@ -471,6 +489,12 @@ export default class Game {
 	 * Launch the game with the given number of player.
 	 */
 	setup(playerMode: number) {
+		// Prevent setup from running if the game is already in progress,
+		// which can happen when the browser tab regains focus after loading.
+		if (this.gameState === 'playing') {
+			return;
+		}
+
 		// Phaser
 		this.Phaser.scale.parentIsWindow = true;
 		this.Phaser.scale.pageAlignHorizontally = true;
@@ -756,6 +780,8 @@ export default class Game {
 		this.turn++;
 		this.log(`Round ${this.turn}`, 'roundmarker', true);
 		this.onStartOfRound();
+		// Reset undo state for the new round
+		this.resetUndoStateForRound();
 		this.nextCreature();
 	}
 
@@ -995,6 +1021,113 @@ export default class Game {
 		p.totalTimePool = p.totalTimePool - (skipTurn.valueOf() - p.startTime.valueOf());
 		this.activeCreature.wait();
 		this.nextCreature();
+	}
+
+	/**
+	 * Save the current creature state for undo
+	 * Called at the start of a creature's turn to establish baseline
+	 */
+	saveUndoState() {
+		const creature = this.activeCreature;
+		if (!creature) return;
+
+		this.undoCreatureState = {
+			creatureId: creature.id,
+			x: creature.x,
+			y: creature.y,
+			hexagons: creature.hexagons.map((hex) => ({ x: hex.x, y: hex.y })),
+			remainingMove: creature.remainingMove,
+			energy: creature.energy,
+			health: creature.health,
+		};
+		// Don't enable undo yet - wait until an action is taken
+		this.undoMoveAvailable = false;
+		this.undoUsedThisRound = false;
+		this.updateUndoButton();
+	}
+
+	/**
+	 * Enable the undo button after an action has been taken
+	 */
+	enableUndo() {
+		if (this.undoCreatureState && !this.undoUsedThisRound) {
+			this.undoMoveAvailable = true;
+			this.updateUndoButton();
+		}
+	}
+
+	/**
+	 * Undo the last move action
+	 */
+	undoCreature() {
+		if (!this.undoAvailable || !this.undoCreatureState) {
+			return;
+		}
+
+		const creature = this.activeCreature;
+		if (!creature || creature.id !== this.undoCreatureState.creatureId) {
+			return;
+		}
+
+		const state = this.undoCreatureState;
+
+		// Clean current hexes
+		creature.cleanHex();
+
+		// Restore position
+		creature.x = state.x;
+		creature.y = state.y;
+		creature.pos = this.grid.hexes[state.y][state.x].pos;
+
+		// Restore hexes at old position
+		creature.hexagons = [];
+		creature.updateHex();
+
+		// Restore remaining movement
+		creature.remainingMove = state.remainingMove;
+
+		// Restore energy and health
+		creature.energy = state.energy;
+		creature.health = state.health;
+
+		// Update UI
+		if (this.UI.energyBar) {
+			this.UI.energyBar.setSize(creature.energy / creature.stats.energy);
+		}
+		if (this.UI.healthBar) {
+			this.UI.healthBar.setSize(creature.health / creature.stats.health);
+		}
+
+		// Mark undo as used this round
+		this.undoUsedThisRound = true;
+		this.undoMoveAvailable = false;
+		this.updateUndoButton();
+
+		this.log('Undo Move: restored creature to previous state.');
+
+		// Re-enable the move query so player can continue
+		creature.queryMove(null);
+	}
+
+	/**
+	 * Update the undo button visibility and state
+	 */
+	updateUndoButton() {
+		if (!this.UI.btnUndo) return;
+
+		if (this.undoAvailable) {
+			this.UI.btnUndo.changeState('normal');
+		} else {
+			this.UI.btnUndo.changeState('disabled');
+		}
+	}
+
+	/**
+	 * Reset undo state for a new round
+	 */
+	resetUndoStateForRound() {
+		this.undoUsedThisRound = false;
+		this.updateUndoButton();
 	}
 
 	startTimer() {
