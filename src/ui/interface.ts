@@ -1071,12 +1071,12 @@ export class UI {
 					.children('#upgrade')
 					.text('Upgrade: ' + stats.ability_info[key].upgrade);
 
-				if (stats.ability_info[key].costs !== undefined && key !== 0) {
+				if (typeof stats.ability_info[key].costs?.energy === 'number' && key !== 0) {
 					$ability
 						.children('.wrapper')
 						.children('.info')
 						.children('#cost')
-						.text(' - costs ' + stats.ability_info[key].costs.energy + ' energy pts.');
+						.text(' - costs ' + stats.ability_info[key].costs!.energy + ' energy pts.');
 				} else {
 					$ability
 						.children('.wrapper')
@@ -1260,12 +1260,12 @@ export class UI {
 					$ability.children('.wrapper').children('.info').children('#upgrade').text(' ');
 				}
 
-				if (stats.ability_info[key].costs !== undefined && key !== 0) {
+				if (typeof stats.ability_info[key].costs?.energy === 'number' && key !== 0) {
 					$ability
 						.children('.wrapper')
 						.children('.info')
 						.children('#cost')
-						.text(' - costs ' + stats.ability_info[key].costs.energy + ' energy pts.');
+						.text(' - costs ' + stats.ability_info[key].costs!.energy + ' energy pts.');
 				} else {
 					$ability
 						.children('.wrapper')

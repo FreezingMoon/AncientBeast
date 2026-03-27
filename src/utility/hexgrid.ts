@@ -1495,7 +1495,28 @@ export class HexGrid {
 		});
 	}
 
+	/**
+	 * Compute hex distance between two hexes in the offset coordinate system.
+	 * Converts to cube coordinates for the calculation.
+	 */
+	private hexDistance(hex1: { x: number; y: number }, hex2: { x: number; y: number }): number {
+		// Convert offset coordinates (odd-q) to cube coordinates
+		const offsetToCube = (x: number, y: number) => {
+			const cubeX = x - (y - (y & 1)) / 2;
+			const cubeZ = y;
+			const cubeY = -cubeX - cubeZ;
+			return { x: cubeX, y: cubeY, z: cubeZ };
+		};
+		const c1 = offsetToCube(hex1.x, hex1.y);
+		const c2 = offsetToCube(hex2.x, hex2.y);
+		return Math.max(Math.abs(c1.x - c2.x), Math.abs(c1.y - c2.y), Math.abs(c1.z - c2.z));
+	}
+
 	findCreatureMovementHexes(creature) {
+		// Gumble (type 14) with upgraded ability 0 can leap over units when moving 2+ hexes
+		const isGumbleWithLeapUpgrade =
+			creature.type === 14 && creature.abilities[0] && creature.abilities[0].isUpgraded();
+
 		if (creature.movementType() === 'flying') {
 			return this.getFlyingRange(
 				creature.x,
@@ -1505,13 +1526,34 @@ export class HexGrid {
 				creature.id,
 			);
 		} else {
-			return this.getMovementRange(
+			const hexes = this.getMovementRange(
 				creature.x,
 				creature.y,
 				creature.stats.movement,
 				creature.size,
 				creature.id,
 			);
+
+			// Add flying hexes (2+ hexes away) for Gumble's leap upgrade
+			if (isGumbleWithLeapUpgrade) {
+				const flyingHexes = this.getFlyingRange(
+					creature.x,
+					creature.y,
+					creature.stats.movement,
+					creature.size,
+					creature.id,
+				);
+				// Only include flying hexes that are at least 2 hexes away
+				const leapHexes = flyingHexes.filter((hex) => this.hexDistance(creature, hex) >= 2);
+				// Merge with normal hexes, avoiding duplicates
+				for (const hex of leapHexes) {
+					if (!hexes.some((h) => h.x === hex.x && h.y === hex.y)) {
+						hexes.push(hex);
+					}
+				}
+			}
+
+			return hexes;
 		}
 	}
 
