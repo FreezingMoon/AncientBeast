@@ -377,6 +377,32 @@
 	}
 }
 
+// Fullscreen notification toast (iOS fallback)
+#fullscreen-notification {
+	position: fixed;
+	bottom: 120px;
+	left: 50%;
+	transform: translateX(-50%) translateY(20px);
+	background: rgba(0, 0, 0, 0.85);
+	color: #fff;
+	padding: 12px 24px;
+	border-radius: 6px;
+	font-size: 14px;
+	z-index: 9999;
+	opacity: 0;
+	transition: opacity 300ms ease, transform 300ms ease;
+	pointer-events: none;
+	text-align: center;
+	max-width: 300px;
+	border: 1px solid rgba(255, 255, 255, 0.15);
+	text-shadow: 1px 1px 0 #000;
+
+	&.visible {
+		opacity: 1;
+		transform: translateX(-50%) translateY(0);
+	}
+}
+
 #fullscreen {
 	cursor: pointer;
 	position: fixed;

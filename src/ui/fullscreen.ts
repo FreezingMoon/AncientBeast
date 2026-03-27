@@ -12,7 +12,53 @@ export class Fullscreen {
 		document.addEventListener('mozfullscreenchange', () => this.updateButtonState());
 	}
 
+	private isFullscreenSupported(): boolean {
+		// Fullscreen API is not supported on iOS Safari/Chrome for arbitrary DOM elements
+		// Check for any of the vendor-prefixed or standard fullscreen support
+		const doc = document as Document & {
+			webkitFullscreenEnabled?: boolean;
+			mozFullScreenEnabled?: boolean;
+			msFullscreenEnabled?: boolean;
+		};
+		return !!(
+			document.fullscreenEnabled ||
+			doc.webkitFullscreenEnabled ||
+			doc.mozFullScreenEnabled ||
+			doc.msFullscreenEnabled
+		);
+	}
+
+	private showNotification(message: string) {
+		// Remove existing notification if any
+		const existing = document.getElementById('fullscreen-notification');
+		if (existing) {
+			existing.remove();
+		}
+
+		const notification = document.createElement('div');
+		notification.id = 'fullscreen-notification';
+		notification.textContent = message;
+		document.body.appendChild(notification);
+
+		// Trigger fade-in animation
+		requestAnimationFrame(() => {
+			notification.classList.add('visible');
+		});
+
+		// Remove after 2.5 seconds
+		setTimeout(() => {
+			notification.classList.remove('visible');
+			setTimeout(() => notification.remove(), 300);
+		}, 2500);
+	}
+
 	async toggle() {
+		// Check if fullscreen API is supported
+		if (!this.isFullscreenSupported()) {
+			this.showNotification('Fullscreen not supported on iOS. Add to home screen for fullscreen mode.');
+			return;
+		}
+
 		try {
 			if (document.fullscreenElement) {
 				await document.exitFullscreen();
@@ -25,7 +71,12 @@ export class Fullscreen {
 
 			setTimeout(() => this.updateButtonState(), 100);
 		} catch (error) {
-			console.error('Error toggling fullscreen:', error);
+			// On iOS, requestFullscreen may fail silently; notify user
+			if ((error as Error).name === 'TypeError' && /iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+				this.showNotification('Fullscreen not supported on iOS. Add to home screen for fullscreen mode.');
+			} else {
+				console.error('Error toggling fullscreen:', error);
+			}
 		}
 	}
 
