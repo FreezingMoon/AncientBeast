@@ -1383,9 +1383,9 @@ export const unitData: UnitDataStructure = [
 			},
 			{
 				title: 'Pretty Ribbon',
-				desc: 'Instantly heals a nearby ally or self and buffs it for the rest of the match.',
+				desc: 'Instantly heals a nearby allie and also buffs it for the remaining of the match.',
 				info: '20 heal, +2 regrowth & +2 endurance.',
-				upgrade: 'Can also target foes, causing -2 movement for 1 turn.',
+				upgrade: '-2 movement enemy debuff.',
 				effects: [
 					{
 						special: '+20 %health%, +2 %regrowth%, +2 %endurance%',
