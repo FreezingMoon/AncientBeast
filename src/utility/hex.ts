@@ -239,7 +239,7 @@ export class Hex {
 						this.onRightClickFn(this);
 						break;
 					default:
-						// Default to primary click so non-mouse pointers still confirm cleanly.
+						// Default to primary click so non-mouse pointers still confirm cleanly
 						confirmSelectedHex();
 						break;
 				}
