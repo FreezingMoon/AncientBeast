@@ -227,13 +227,21 @@ export class UI {
 		);
 		this.buttons.push(this.btnSkipTurn);
 
-		// Delay Unit Button
+		// Delay Unit Button / Undo Button
 		this.btnDelay = new Button(
 			{
 				$button: $j('#delay.button'),
 				hasShortcut: true,
 				click: () => {
 					if (!this.dashopen) {
+						// Check if undo is available
+						if (game.undoSnapshot !== null && !game.undoUsedThisRound) {
+							// Undo the last action
+							$j('#delay.button').css('background-image', "url('assets/icons/undo.svg')");
+							game.undoMove();
+							return;
+						}
+						// Normal delay behavior
 						if (game.turnThrottle || !game.activeCreature?.canWait || game.queue.isCurrentEmpty()) {
 							return;
 						}

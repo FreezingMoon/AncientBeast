@@ -680,6 +680,9 @@ export class Creature {
 							},
 						});
 					}
+					// Save undo state and switch button to undo mode
+					game.saveUndoState();
+					$j('#delay.button').css('background-image', "url('assets/icons/undo.svg')");
 					game.UI.btnDelay.changeState('disabled');
 					args.creature.moveTo(hex, {
 						animation: args.creature.movementType() === 'flying' ? 'fly' : 'walk',

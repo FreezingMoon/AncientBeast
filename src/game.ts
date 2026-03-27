@@ -113,6 +113,8 @@ export default class Game {
 	freezedInput: boolean;
 	turnThrottle: boolean;
 	turn: number;
+	undoUsedThisRound: boolean;
+	undoSnapshot: any;
 	Phaser: Phaser;
 	msg: any; // type this properly
 	triggers: Record<string, RegExp>;
@@ -190,6 +192,8 @@ export default class Game {
 		this.freezedInput = false;
 		this.turnThrottle = false;
 		this.turn = 0;
+		this.undoUsedThisRound = false;
+		this.undoSnapshot = null;
 
 		// Phaser
 		this.Phaser = new Phaser.Game(1920, 1080, Phaser.AUTO, 'combatwrapper', {
@@ -756,6 +760,8 @@ export default class Game {
 		this.turn++;
 		this.log(`Round ${this.turn}`, 'roundmarker', true);
 		this.onStartOfRound();
+		this.undoUsedThisRound = false;
+		this.undoSnapshot = null;
 		this.nextCreature();
 	}
 
@@ -995,6 +1001,106 @@ export default class Game {
 		p.totalTimePool = p.totalTimePool - (skipTurn.valueOf() - p.startTime.valueOf());
 		this.activeCreature.wait();
 		this.nextCreature();
+	}
+
+	/**
+	 * Save the current game state for undo.
+	 * Captures creature positions, stats, and other critical state.
+	 */
+	saveUndoState() {
+		// Only save if we haven't already saved for this action
+		if (this.undoSnapshot !== null) {
+			return;
+		}
+
+		const snapshot: any = {
+			// Save last action type for verification
+			lastAction: this.gamelog.actions.length > 0 ? this.gamelog.actions[this.gamelog.actions.length - 1].action : null,
+			// Save active creature id
+			activeCreatureId: this.activeCreature?.id,
+			// Save creature states
+			creatures: this.creatures.map((creature) => {
+				if (!creature) return null;
+				return {
+					id: creature.id,
+					x: creature.x,
+					y: creature.y,
+					health: creature.health,
+					energy: creature.energy,
+					remainingMove: creature.remainingMove,
+					travelDist: creature.travelDist,
+					waitedTurn: (creature as any)._waitedTurn,
+					turnsActive: creature.turnsActive,
+					dead: creature.dead,
+					stats: { ...creature.stats },
+					hexagons: creature.hexagons ? creature.hexagons.map((h) => ({ x: h.x, y: h.y })) : [],
+				};
+			}),
+			turn: this.turn,
+		};
+
+		this.undoSnapshot = snapshot;
+	}
+
+	/**
+	 * Undo the last action, restoring the game to its previous state.
+	 * Only usable once per round.
+	 */
+	undoMove() {
+		if (this.undoUsedThisRound || this.undoSnapshot === null) {
+			return;
+		}
+
+		const snapshot = this.undoSnapshot;
+		const game = this;
+
+		// Remove the last action from the game log
+		this.gamelog.actions.pop();
+
+		// Restore creature states
+		snapshot.creatures.forEach((savedCrea) => {
+			if (savedCrea === null) return;
+			const creature = game.creatures.find((c) => c && c.id === savedCrea.id);
+			if (!creature) return;
+
+			// Clean old hexes first
+			creature.cleanHex();
+
+			// Restore position and stats
+			creature.x = savedCrea.x;
+			creature.y = savedCrea.y;
+			creature.health = savedCrea.health;
+			creature.energy = savedCrea.energy;
+			creature.remainingMove = savedCrea.remainingMove;
+			creature.travelDist = savedCrea.travelDist;
+			(creature as any)._waitedTurn = savedCrea.waitedTurn;
+			creature.turnsActive = savedCrea.turnsActive;
+			creature.dead = savedCrea.dead;
+
+			// Restore stats
+			Object.assign(creature.stats, savedCrea.stats);
+
+			// Update hexes and sprite position
+			creature.updateHex();
+			// Teleport sprite to new position (instant, no animation)
+			const targetHex = creature.hexagons[creature.size - 1];
+			creature.creatureSprite.setHex(targetHex, 0);
+		});
+
+		// Mark undo as used this round
+		this.undoUsedThisRound = true;
+		this.undoSnapshot = null;
+
+		// Update UI
+		if (this.UI) {
+			this.UI.btnDelay.changeState('disabled');
+			// Re-query move for the active creature
+			if (this.activeCreature) {
+				this.activeCreature.queryMove();
+			}
+		}
+
+		this.log('Action undone.', 'undo');
 	}
 
 	startTimer() {
@@ -1513,6 +1619,10 @@ export default class Game {
 		opt = $j.extend(defaultOpt, opt);
 
 		this.clearOncePerDamageChain();
+		// Save undo state before each action (only if undo not used this round)
+		if (!this.undoUsedThisRound && this.gamelog.actions.length > 0) {
+			this.saveUndoState();
+		}
 		switch (o.action) {
 			case 'move':
 				this.activeCreature.moveTo(this.grid.hexes[o.target.y][o.target.x], {
