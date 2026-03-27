@@ -24,6 +24,17 @@ export default (G: Game) => {
 				return true;
 			},
 
+			/**
+			 * When upgraded, Gumble gains flying movement - can leap over units
+			 * when moving 2+ hexagons. This replaces the default normal movement.
+			 * @return {string} movement type, 'flying' when upgraded, otherwise undefined
+			 */
+			movementType: function () {
+				if (this.isUpgraded()) {
+					return 'flying';
+				}
+			},
+
 			activate: function (deadCreature: Creature) {
 				const deathHex = G.grid.hexAt(deadCreature.x, deadCreature.y);
 
