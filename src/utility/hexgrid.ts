@@ -190,12 +190,14 @@ export class HexGrid {
 		this.trapGroup = game.Phaser.add.group(this.gridGroup, 'trapGrp');
 		this.hexesGroup = game.Phaser.add.group(this.gridGroup, 'hexesGroup');
 		this.displayHexesGroup = game.Phaser.add.group(this.gridGroup, 'displayHexesGroup');
-		this.overlayHexesGroup = game.Phaser.add.group(this.gridGroup, 'overlayHexesGroup');
 		this.dropGroup = game.Phaser.add.group(this.display, 'dropGrp');
 		this.creatureGroup = game.Phaser.add.group(this.display, 'creaturesGrp');
 		// Parts of traps displayed over creatures
 		this.trapOverGroup = game.Phaser.add.group(this.display, 'trapOverGrp');
 		this.trapOverGroup.scale.set(1, 0.75);
+		// overlayHexesGroup moved here so coordinates display on top of creatures
+		this.overlayHexesGroup = game.Phaser.add.group(this.display, 'overlayHexesGroup');
+		this.overlayHexesGroup.scale.set(1, 0.75);
 
 		// Populate grid
 		for (let row = 0; row < numRows; row++) {
@@ -1456,18 +1458,21 @@ export class HexGrid {
 
 	showGrid(val) {
 		this.forEachHex((hex) => {
-			if (hex.creature) {
-				hex.creature.xray(val);
-			}
-
 			if (hex.drop) {
 				return;
 			}
 
 			if (val) {
 				hex.displayVisualState('showGrid');
+				// Show dashed overlay at 25% opacity for non-unit occupied hexes
+				if (!hex.creature) {
+					hex.overlay.loadTexture('hex_dashed');
+					hex.overlay.alpha = 0.25;
+				}
 			} else {
 				hex.cleanDisplayVisualState('showGrid');
+				// Restore overlay opacity
+				hex.overlay.alpha = 1;
 			}
 		});
 	}
