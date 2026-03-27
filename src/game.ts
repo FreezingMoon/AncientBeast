@@ -113,6 +113,9 @@ export default class Game {
 	freezedInput: boolean;
 	turnThrottle: boolean;
 	turn: number;
+	undoAvailable: boolean;
+	undoUsedThisRound: boolean;
+	undoSnapshot: any;
 	Phaser: Phaser;
 	msg: any; // type this properly
 	triggers: Record<string, RegExp>;
@@ -190,6 +193,10 @@ export default class Game {
 		this.freezedInput = false;
 		this.turnThrottle = false;
 		this.turn = 0;
+		// Undo Move properties
+		this.undoAvailable = false;
+		this.undoUsedThisRound = false;
+		this.undoSnapshot = null;
 
 		// Phaser
 		this.Phaser = new Phaser.Game(1920, 1080, Phaser.AUTO, 'combatwrapper', {
@@ -755,6 +762,7 @@ export default class Game {
 	nextRound() {
 		this.turn++;
 		this.log(`Round ${this.turn}`, 'roundmarker', true);
+		this.undoUsedThisRound = false;
 		this.onStartOfRound();
 		this.nextCreature();
 	}
@@ -995,6 +1003,117 @@ export default class Game {
 		p.totalTimePool = p.totalTimePool - (skipTurn.valueOf() - p.startTime.valueOf());
 		this.activeCreature.wait();
 		this.nextCreature();
+	}
+
+	/**
+	 * Save the current creature state for the Undo Move feature.
+	 * Called before a move or ability action.
+	 */
+	saveUndoSnapshot() {
+		if (!this.activeCreature || this.undoUsedThisRound) {
+			return;
+		}
+
+		const crea = this.activeCreature;
+		const game = this;
+
+		// Save creature's current state
+		this.undoSnapshot = {
+			creatureId: crea.id,
+			x: crea.x,
+			y: crea.y,
+			hexagons: crea.hexagons.map((h) => ({ x: h.x, y: h.y })),
+			health: crea.health,
+			energy: crea.energy,
+			remainingMove: crea.remainingMove,
+			travelDist: crea.travelDist,
+			stats: $j.extend(true, {}, crea.stats),
+			status: $j.extend(true, {}, crea.status),
+			oldEnergy: crea.oldEnergy,
+			oldHealth: crea.oldHealth,
+			// Save grid hex -> creature mapping for the creature's hexes
+			hexCreatures: crea.hexagons.map((h) => ({
+				x: h.x,
+				y: h.y,
+				creatureId: h.creature ? h.creature.id : null,
+			})),
+		};
+
+		this.undoAvailable = true;
+	}
+
+	/**
+	 * Restore the creature state from the Undo Move snapshot.
+	 */
+	restoreUndoSnapshot() {
+		if (!this.undoSnapshot || !this.undoAvailable || this.undoUsedThisRound) {
+			return false;
+		}
+
+		const snap = this.undoSnapshot;
+		const crea = this.creatures.find((c) => c.id === snap.creatureId);
+
+		if (!crea) {
+			return false;
+		}
+
+		const game = this;
+
+		// Clear current hex assignments
+		crea.hexagons.forEach((h) => {
+			h.creature = undefined;
+		});
+		crea.hexagons = [];
+
+		// Restore position
+		crea.x = snap.x;
+		crea.y = snap.y;
+
+		// Restore hexagons
+		for (let i = 0; i < snap.hexagons.length; i++) {
+			const h = game.grid.hexes[snap.hexagons[i].y][snap.hexagons[i].x];
+			crea.hexagons.push(h);
+			h.creature = crea;
+		}
+
+		// Restore creature display position
+		if (crea.creatureSprite) {
+			crea.creatureSprite.setHex(crea.hexagons[0]);
+		}
+
+		// Restore stats
+		crea.health = snap.health;
+		crea.energy = snap.energy;
+		crea.remainingMove = snap.remainingMove;
+		crea.travelDist = snap.travelDist;
+		crea.stats = $j.extend(true, {}, snap.stats);
+		crea.status = $j.extend(true, {}, snap.status);
+		crea.oldEnergy = snap.oldEnergy;
+		crea.oldHealth = snap.oldHealth;
+
+		// Update UI
+		if (game.UI) {
+			game.UI.healthBar.animSize(crea.health / crea.stats.health);
+			game.UI.energyBar.animSize(crea.energy / crea.stats.energy);
+			game.UI.updateActivebox();
+		}
+
+		// Update queue display
+		game.updateQueueDisplay();
+
+		// Reset undo state
+		this.undoAvailable = false;
+		this.undoUsedThisRound = true;
+		this.undoSnapshot = null;
+
+		// Re-enable delay button if creature can still delay
+		if (crea.canWait && !this.queue.isCurrentEmpty()) {
+			this.UI.btnDelay.changeState('slideIn');
+		}
+
+		this.log('Undo Move: restored creature to previous state');
+
+		return true;
 	}
 
 	startTimer() {

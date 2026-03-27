@@ -665,6 +665,7 @@ export class Creature {
 							.start();
 					}
 
+					game.saveUndoSnapshot();
 					game.gamelog.add({
 						action: 'move',
 						target: {
@@ -963,6 +964,10 @@ export class Creature {
 				game.signals.creature.dispatch('movementComplete', { creature: this, hex });
 				// @ts-expect-error 2554
 				game.onCreatureMove(this, hex); // Trigger
+				// Enable Undo Move button after movement completes if undo is available
+				if (game.undoAvailable && !game.undoUsedThisRound && game.UI?.btnUndo) {
+					game.UI.btnUndo.changeState('slideIn');
+				}
 			}
 		}, 100);
 	}
