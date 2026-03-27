@@ -292,34 +292,43 @@
 
 #toppanel {
 	position: fixed;
-	top: auto;
-	bottom: 92px;
-	width: 100%;
-	height: 420px;
+	inset: 0;
 	z-index: 3;
+	pointer-events: none;
 }
 
 #bottompanel {
 	position: fixed;
-	bottom: 0;
-	height: 90px;
-	width: 100%;
-	z-index: 1;
+	inset: 0;
+	z-index: 3;
+	pointer-events: none;
 }
 
 #rightpanel {
-	position: absolute;
-	right: 0px;
-	top: auto;
-	bottom: 0;
+	position: fixed;
+	right: 20px;
+	bottom: 20px;
 	z-index: 3;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 8px;
+	pointer-events: none;
 }
 
 #leftpanel {
-	position: absolute;
-	left: 0;
-	bottom: 0;
+	position: fixed;
+	left: 20px;
+	bottom: 20px;
 	z-index: 3;
+	pointer-events: none;
+}
+
+#queue,
+#leftpanel > *,
+#rightpanel > *,
+#bottompanel > * {
+	pointer-events: auto;
 }
 
 .button:not(.togglescore) {
@@ -917,10 +926,8 @@ div.section.info {
 	width: 820px;
 	height: 100px;
 	position: absolute;
-	left: 50%;
-	top: auto;
-	bottom: 0;
-	transform: translateX(-50%);
+	left: 20px;
+	top: 20px;
 	z-index: 3;
 }
 
@@ -1003,7 +1010,21 @@ div.section.info {
 }
 
 #abilities {
-	transform: translate(0px, -420px);
+	position: relative;
+	display: flex;
+	flex-direction: column-reverse;
+	gap: 8px;
+	padding-left: 20px;
+	transform: translate(0px, 0px);
+}
+
+#abilities .ability-slot {
+	pointer-events: auto;
+}
+
+#abilities .progressbar {
+	left: 0;
+	top: 0;
 }
 
 #abilities.p0 .ability.active::before,
@@ -1086,9 +1107,10 @@ div.section.info {
 	height: 30px;
 	background-color: rgba(0, 0, 0, 0.8);
 	cursor: n-resize;
-	position: relative;
-	margin: 0 auto;
-	bottom: 0;
+	position: fixed;
+	right: 132px;
+	bottom: 20px;
+	margin: 0;
 	padding: 5px;
 	border-radius: 10px 10px 0 0;
 	overflow: hidden;
@@ -1097,7 +1119,7 @@ div.section.info {
 
 #chat.expanded {
 	height: 130px !important;
-	bottom: 85px !important;
+	bottom: 105px !important;
 }
 
 .chat-expanded-content {
@@ -1175,13 +1197,13 @@ div.section.info {
 
 #chat.focus {
 	height: 300px;
-	bottom: 270px;
+	bottom: 290px;
 	cursor: s-resize;
 }
 
 #chat.peek {
 	height: 100px;
-	bottom: 70px;
+	bottom: 90px;
 }
 
 #chat.focus #chatbox,
@@ -1284,7 +1306,7 @@ div.section.info {
 /*---------------Active Unit--------------*/
 #activebox {
 	position: relative;
-	left: 20px;
+	left: 0;
 	top: auto;
 	bottom: 0;
 }
@@ -1387,6 +1409,35 @@ div.section.info {
 	width: 250px;
 	left: -259px;
 	text-align: right;
+}
+
+#rightpanel .panel-control,
+#leftpanel .ability-slot {
+	position: relative;
+}
+
+#rightpanel .audio-control {
+	order: 1;
+}
+
+#rightpanel .skip-control {
+	order: 2;
+}
+
+#rightpanel .delay-control {
+	order: 3;
+}
+
+#rightpanel .fullscreen-control {
+	order: 4;
+}
+
+#rightpanel .progressbar {
+	order: 5;
+}
+
+#rightpanel .score-control {
+	order: 6;
 }
 
 /*-----------------Costs and Damages-------------------*/
@@ -1939,9 +1990,11 @@ span.pure {
 }
 
 #rightpanel .progressbar {
-	right: 0px;
+	position: relative;
+	right: auto;
 	top: auto;
-	bottom: 100px;
+	bottom: auto;
+	align-self: flex-end;
 }
 
 .progressbar .bar {
@@ -2110,17 +2163,20 @@ input {
 /*------------------Interface-------------------*/
 	@media screen and (min-height: 200px) and (max-height: 479px) and (orientation: landscape) {
 		#queue {
-			bottom: 44px;
-			transform: translateX(-50%) scale(0.55);
-			transform-origin: center bottom;
+			left: 12px;
+			top: 12px;
+			transform: scale(0.55);
+			transform-origin: top left;
 		}
 		#leftpanel {
-			bottom: 38px;
+			left: 12px;
+			bottom: 12px;
 			transform: scale(0.55);
 			transform-origin: left bottom;
 		}
 		#rightpanel {
-			bottom: 38px;
+			right: 12px;
+			bottom: 12px;
 			transform: scale(0.55);
 			transform-origin: right bottom;
 		}
@@ -2156,17 +2212,20 @@ input {
 
 	@media screen and (min-height: 320px) and (max-height: 479px) and (orientation: landscape) {
 		#queue {
-			bottom: 54px;
-			transform: translateX(-50%) scale(0.7);
-			transform-origin: center bottom;
+			left: 16px;
+			top: 16px;
+			transform: scale(0.7);
+			transform-origin: top left;
 		}
 		#leftpanel {
-			bottom: 46px;
+			left: 16px;
+			bottom: 16px;
 			transform: scale(0.7);
 			transform-origin: left bottom;
 		}
 		#rightpanel {
-			bottom: 46px;
+			right: 16px;
+			bottom: 16px;
 			transform: scale(0.7);
 			transform-origin: right bottom;
 		}
