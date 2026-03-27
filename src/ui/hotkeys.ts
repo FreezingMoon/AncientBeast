@@ -74,6 +74,17 @@ export class Hotkeys {
 			this.ui.btnExit.triggerClick();
 		}
 	}
+
+	pressZ(event) {
+		if (event.ctrlKey) {
+			// Undo Move
+			if (this.ui.game.undoAvailable && !this.ui.game.undoUsedThisRound && !this.ui.dashopen) {
+				this.ui.game.restoreUndoSnapshot();
+				this.ui.btnUndo.changeState('disabled');
+			}
+		}
+	}
+
 	pressTab(event) {
 		if (this.ui.dashopen) {
 			if (event.shiftKey) this.ui.gridSelectPrevious();
@@ -215,6 +226,11 @@ export function getHotKeys(hk) {
 		KeyX: {
 			onkeydown(event) {
 				hk.pressX(event);
+			},
+		},
+		KeyZ: {
+			onkeydown(event) {
+				hk.pressZ(event);
 			},
 		},
 		Tab: {

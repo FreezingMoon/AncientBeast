@@ -399,10 +399,11 @@ export class Hex {
 	 * @param {number} size - Size of the creature.
 	 * @param {number} id - ID of the creature.
 	 * @param {boolean} ignoreReachable - Take into account the reachable property.
+	 * @param {boolean} ignoreCreatures - Ignore creatures when checking walkability (for leap movement).
 	 * @param {boolean} debug - If true and const.DEBUG is true, print debug information to the console.
 	 * @returns True if this hex is walkable.
 	 */
-	isWalkable(size: number, id: number, ignoreReachable = false, debug = false) {
+	isWalkable(size: number, id: number, ignoreReachable = false, ignoreCreatures = false, debug = false) {
 		// NOTE: If not in DEBUG mode, don't debug.
 		debug = DEBUG && debug;
 
@@ -421,7 +422,7 @@ export class Hex {
 				}
 
 				let isNotMovingCreature;
-				if (hex.creature instanceof Creature) {
+				if (hex.creature instanceof Creature && !ignoreCreatures) {
 					isNotMovingCreature = hex.creature.id !== id;
 					blocked = blocked || isNotMovingCreature; // Not blocked if this block contains the moving creature
 				}
@@ -568,6 +569,11 @@ export class Hex {
 			const player = this.displayClasses.match(/0|1|2|3/);
 			this.display.loadTexture(`hex_p${player}`);
 			this.grid.displayHexesGroup.bringToTop(this.display);
+		} else if (this.displayClasses.match(/dashedGrid/g)) {
+			// Dashed hex grid overlay at 25% opacity for empty (non-unit occupied) hexes
+			this.display.loadTexture('hex_dashed');
+			this.display.alpha = 0.25;
+			this.grid.displayHexesGroup.bringToTop(this.display);
 		} else if (this.displayClasses.match(/adj/)) {
 			this.display.loadTexture('hex_path');
 		} else if (this.displayClasses.match(/dashed/)) {
@@ -615,13 +621,14 @@ export class Hex {
 						align: 'center',
 					},
 				);
-				if (this.creature || this.trap || this.drop) {
-					this.coordText.stroke = '#ffffff';
-					this.coordText.strokeThickness = 5;
-				}
+				// Always add white stroke for visibility on any background (units, traps, drops, etc.)
+				this.coordText.stroke = '#ffffff';
+				this.coordText.strokeThickness = 5;
 				this.coordText.anchor.setTo(0.5);
 				this.grid.overlayHexesGroup.add(this.coordText);
 			}
+			// Ensure coord text is always on top of everything in the overlay group
+			this.grid.overlayHexesGroup.bringToTop(this.coordText);
 		} else if (this.coordText && this.coordText.exists) {
 			this.coordText.destroy();
 		}

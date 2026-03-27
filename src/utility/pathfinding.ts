@@ -8,6 +8,7 @@ import { HexGrid } from './hexgrid';
  * @param {number} creatureSize - The size of the creature who will walk the searched path
  * @param {number} creatureId - The id of the creature who will walk the searched path
  * @param {HexGrid} grid - The HexGrid instance to search
+ * @param {boolean} ignoreCreatures - If true, ignore creatures when checking walkability (for leap movement)
  * @returns {Hex[]} A path of hexes or an empty array if no path is found
  */
 export function search(
@@ -16,6 +17,7 @@ export function search(
 	creatureSize: number,
 	creatureId: number,
 	grid: HexGrid,
+	ignoreCreatures = false,
 ): Hex[] {
 	const openList = [];
 	const closedList = [];
@@ -56,7 +58,7 @@ export function search(
 
 			if (
 				arrayUtils.findPos(closedList, neighbor) ||
-				!neighbor.isWalkable(creatureSize, creatureId)
+				!neighbor.isWalkable(creatureSize, creatureId, false, ignoreCreatures)
 			) {
 				// Not a valid node to process, skip to next neighbor
 				continue;

@@ -24,6 +24,15 @@ export default (G: Game) => {
 				return true;
 			},
 
+			/**
+			 * Provides leap movement when upgraded.
+			 * Allows Gumble to leap over units when moving at least 2 hexagons.
+			 * @return {string} movement type, 'leap' when upgraded, undefined otherwise
+			 */
+			movementType: function () {
+				return this.isUpgraded() ? 'leap' : undefined;
+			},
+
 			activate: function (deadCreature: Creature) {
 				const deathHex = G.grid.hexAt(deadCreature.x, deadCreature.y);
 
@@ -84,7 +93,11 @@ export default (G: Game) => {
 					G.log('%CreatureName' + deadCreature.id + '% melts into a gooey puddle');
 				};
 
-				createGooTrap();
+				// Only create the trap when NOT upgraded.
+				// When upgraded, Gumble gains leap movement instead.
+				if (!this.isUpgraded()) {
+					createGooTrap();
+				}
 			},
 		},
 

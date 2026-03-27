@@ -1363,12 +1363,12 @@ export class HexGrid {
 	 * @param {number} id - Integer: Creature ID
 	 * @returns {Hex[]} Set of the reachable hexes
 	 */
-	getMovementRange(x, y, distance, size, id) {
+	getMovementRange(x, y, distance, size, id, ignoreCreatures = false) {
 		//	Populate distance (hex.g) in hexes by asking an impossible
 		//	destination to test all hexagons
 		this.cleanReachable(); // If not pathfinding will bug
 		this.cleanPathAttr(true); // Erase all pathfinding data
-		search(this.hexes[y][x], new Hex(-2, -2, null, this.game), size, id, this.game.grid);
+		search(this.hexes[y][x], new Hex(-2, -2, null, this.game), size, id, this.game.grid, ignoreCreatures);
 
 		// Gather all the reachable hexes
 		const hexes: Hex[] = [];
@@ -1397,6 +1397,27 @@ export class HexGrid {
 		hexes = hexes.filter((hex) => hex.isWalkable(size, id, true));
 
 		return arrayUtils.extendToLeft(hexes, size, this.game.grid);
+	}
+
+	/**
+	 * Get movement range for leap movement (ignores creature collision, requires 2+ hex path).
+	 * Used by abilities like Gumble's Goey Body upgrade.
+	 * @param {number} x - Start x position
+	 * @param {number} y - Start y position
+	 * @param {number} distance - Maximum movement distance
+	 * @param {number} size - Creature size
+	 * @param {number} id - Creature ID
+	 * @returns {Hex[]} Set of reachable hexes (paths of 2+ hexes only)
+	 */
+	getLeapRange(x, y, distance, size, id) {
+		// Get movement range ignoring creatures
+		const hexes = this.getMovementRange(x, y, distance, size, id, true);
+		// Filter to only include hexes that are at least 2 hexes away
+		// (hex.g represents the path length from start)
+		return hexes.filter((hex) => {
+			const targetHex = this.hexes[hex.y][hex.x];
+			return targetHex.g >= 2;
+		});
 	}
 
 	/**
@@ -1456,18 +1477,19 @@ export class HexGrid {
 
 	showGrid(val) {
 		this.forEachHex((hex) => {
-			if (hex.creature) {
-				hex.creature.xray(val);
-			}
-
 			if (hex.drop) {
 				return;
 			}
 
 			if (val) {
 				hex.displayVisualState('showGrid');
+				// Add dashed grid on top for empty hexes (non-unit occupied places)
+				if (!hex.creature) {
+					hex.displayVisualState('dashedGrid');
+				}
 			} else {
 				hex.cleanDisplayVisualState('showGrid');
+				hex.cleanDisplayVisualState('dashedGrid');
 			}
 		});
 	}
