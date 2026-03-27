@@ -6,3 +6,37 @@
 @import 'cards.less';
 @import 'slider.less';
 @import 'skin.css';
+
+/* Orientation Lock - Fixes #2711 */
+@media screen and (orientation: portrait) {
+  .orientation-warning {
+    display: flex !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    color: #fff;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    z-index: 99999;
+    font-family: Arial, sans-serif;
+    
+    h2 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+    
+    p {
+      font-size: 16px;
+    }
+  }
+}
+
+@media screen and (orientation: landscape) {
+  .orientation-warning {
+    display: none !important;
+  }
+}

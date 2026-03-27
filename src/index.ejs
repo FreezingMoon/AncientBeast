@@ -8,6 +8,11 @@
 		<meta name="author" content="Dread Knight">
 		<meta name="monetization" content="$pay.stronghold.co/1a15c4d9d46cdd64f9e9094a7c4f04240dc">
 		<meta name="theme-color" content="black">
+		<!-- Orientation Lock - Fixes #2711 -->
+		<meta name="mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-orientation" content="landscape">
+		<meta name="screen-orientation" content="landscape">
 		<link rel="manifest" href="manifest.json">
 		<link rel="stylesheet" href="https://icono-49d6.kxcdn.com/icono.min.css">
 		<title>Ancient Beast <%= require('./utility/version').pretty %></title>
@@ -29,6 +34,13 @@
 		</style>
 	</head>
 	<body oncontextmenu="return false;" id="AncientBeast">
+		<!-- Orientation Warning - Fixes #2711 -->
+		<div class="orientation-warning" style="display:none;">
+			<div>
+				<h2>Please Rotate Your Device</h2>
+				<p>AncientBeast works best in landscape orientation</p>
+			</div>
+		</div>
 		<div class="scrim loading"></div>
 		<div id="matchMaking">
 			<div id="loader" class="hide">
