@@ -1,6 +1,7 @@
 // Import jQuery related stuff
 import * as $j from 'jquery';
 import 'jquery.transit';
+import { throttle } from 'underscore';
 import { unitData } from './data/units';
 import Game from './game';
 import { PreMatchAudioPlayer } from './sound/pre-match-audio';
@@ -138,7 +139,7 @@ $j(() => {
 				return event.metaKey && event.ctrlKey && !filePickerOpen;
 			},
 			keyDownAction() {
-				readLogFromFile()
+				throttledReadLogFromFile()
 					.then((log) => G.gamelog.load(log as string))
 					.catch((err) => {
 						alert('An error occurred while loading the log file');
@@ -430,6 +431,9 @@ function readLogFromFile() {
 		fileInput.click();
 	});
 }
+
+/** Throttled version of readLogFromFile to block multiple file pickers - matches gamelog.ts pattern */
+const throttledReadLogFromFile = throttle(() => readLogFromFile(), 1000);
 
 /**
  * get Login.
