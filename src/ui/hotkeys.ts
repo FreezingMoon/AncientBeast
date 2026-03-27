@@ -48,7 +48,11 @@ export class Hotkeys {
 	}
 
 	pressR() {
-		this.ui.dashopen ? this.ui.closeDash() : this.ui.abilitiesButtons[3].triggerClick();
+		if (!this.ui.$scoreboard.hasClass('hide')) {
+			this.ui.btnRematch.triggerClick();
+		} else {
+			this.ui.dashopen ? this.ui.closeDash() : this.ui.abilitiesButtons[3].triggerClick();
+		}
 	}
 
 	pressA(event) {
