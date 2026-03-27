@@ -323,6 +323,11 @@ export class Ability {
 			this.setUsed(true); // Should always be here
 		}
 		game.signals.creature.dispatch('abilityend', { creature: this.creature });
+		// Save undo state and show undo button on first action
+		if (!game.undoCreatureState) {
+			game.saveUndoState();
+			game.UI.btnDelay.changeState('slideIn');
+		}
 		game.UI.btnDelay.changeState('disabled');
 		game.UI.selectAbility(-1);
 

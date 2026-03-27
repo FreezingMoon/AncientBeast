@@ -113,6 +113,15 @@ export default class Game {
 	freezedInput: boolean;
 	turnThrottle: boolean;
 	turn: number;
+	undoCreatureState: {
+		creatureId: number;
+		x: number;
+		y: number;
+		remainingMove: number;
+		health: number;
+		energy: number;
+	} | null;
+	undoUsedThisRound: boolean;
 	Phaser: Phaser;
 	msg: any; // type this properly
 	triggers: Record<string, RegExp>;
@@ -190,6 +199,8 @@ export default class Game {
 		this.freezedInput = false;
 		this.turnThrottle = false;
 		this.turn = 0;
+		this.undoCreatureState = null;
+		this.undoUsedThisRound = false;
 
 		// Phaser
 		this.Phaser = new Phaser.Game(1920, 1080, Phaser.AUTO, 'combatwrapper', {
@@ -827,6 +838,16 @@ export default class Game {
 				// Updates UI to match new creature
 				this.UI.updateActivebox();
 				this.updateQueueDisplay();
+				// Reset undo state for the new active creature
+				this.undoCreatureState = null;
+				this.undoUsedThisRound = false;
+				if (this.UI.btnDelay) {
+					if (this.activeCreature?.canWait && !this.queue.isCurrentEmpty()) {
+						this.UI.btnDelay.changeState('slideIn');
+					} else {
+						this.UI.btnDelay.changeState('disabled');
+					}
+				}
 				this.signals.creature.dispatch('activate', { creature: this.activeCreature });
 				if (this.multiplayer && this.playersReady && this.gameplay instanceof Gameplay) {
 					this.gameplay.updateTurn();
@@ -995,6 +1016,89 @@ export default class Game {
 		p.totalTimePool = p.totalTimePool - (skipTurn.valueOf() - p.startTime.valueOf());
 		this.activeCreature.wait();
 		this.nextCreature();
+	}
+
+	/**
+	 * Save the current creature state for potential undo
+	 */
+	saveUndoState() {
+		const creature = this.activeCreature;
+		if (!creature || this.undoUsedThisRound) {
+			return;
+		}
+		this.undoCreatureState = {
+			creatureId: creature.id,
+			x: creature.x,
+			y: creature.y,
+			remainingMove: creature.remainingMove,
+			health: creature.health,
+			energy: creature.energy,
+		};
+	}
+
+	/**
+	 * Undo the last action, restoring the creature to its previous state
+	 * Only usable once per round
+	 */
+	undoMove() {
+		if (this.turnThrottle || !this.undoCreatureState || this.undoUsedThisRound) {
+			return;
+		}
+
+		const state = this.undoCreatureState;
+		const creature = this.creatures[state.creatureId];
+
+		if (!creature || creature.dead || creature !== this.activeCreature) {
+			return;
+		}
+
+		this.turnThrottle = true;
+		this.undoUsedThisRound = true;
+
+		// Restore creature position
+		const oldHex = this.grid.hexes[state.y][state.x];
+		creature.x = state.x;
+		creature.y = state.y;
+		creature.pos = oldHex.pos;
+		creature.remainingMove = state.remainingMove;
+		creature.health = state.health;
+		creature.energy = state.energy;
+
+		// Update hex tracking
+		creature.cleanHex();
+		creature.updateHex();
+
+		// Update grid z-order
+		this.grid.orderCreatureZ();
+
+		// Update health/energy display
+		creature.updateHealth();
+		if (creature === this.activeCreature) {
+			if (this.UI.energyBar) {
+				this.UI.energyBar.animSize(creature.energy / creature.stats.energy);
+			}
+			if (this.UI.healthBar) {
+				this.UI.healthBar.animSize(creature.health / creature.stats.health);
+			}
+		}
+
+		// Hide undo button, show delay button if available
+		if (this.UI.btnDelay) {
+			if (creature.canWait && !this.queue.isCurrentEmpty()) {
+				this.UI.btnDelay.changeState('slideIn');
+			} else {
+				this.UI.btnDelay.changeState('disabled');
+			}
+		}
+
+		creature.hint('Undo', 'msg_effects');
+
+		this.undoCreatureState = null;
+
+		setTimeout(() => {
+			this.turnThrottle = false;
+			creature.queryMove();
+		}, 500);
 	}
 
 	startTimer() {

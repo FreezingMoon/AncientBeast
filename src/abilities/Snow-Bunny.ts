@@ -461,7 +461,6 @@ export default (G: Game) => {
 			activate: function (path, args) {
 				const ability = this;
 				ability.end();
-				G.Phaser.camera.shake(0.01, 90, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				const hexWithTarget = path.find((hex: Hex) => {
 					const creature = getPointFacade().getCreaturesAt({ x: hex.x, y: hex.y })[0];
@@ -492,6 +491,10 @@ export default (G: Game) => {
 				tween.onComplete.add(function () {
 					// @ts-expect-error this refers to the animation object, _not_ the ability
 					this.destroy();
+
+					// Play hit sound and shake screen when projectile reaches target
+					G.soundsys.playSFX('sounds/swing2');
+					G.Phaser.camera.shake(0.01, 90, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 					// Copy to not alter ability strength
 					const dmg = $j.extend({}, ability.damages);

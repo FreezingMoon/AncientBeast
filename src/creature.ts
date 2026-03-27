@@ -680,6 +680,11 @@ export class Creature {
 							},
 						});
 					}
+					// Save undo state and show undo button on first action
+					if (!game.undoCreatureState) {
+						game.saveUndoState();
+						game.UI.btnDelay.changeState('slideIn');
+					}
 					game.UI.btnDelay.changeState('disabled');
 					args.creature.moveTo(hex, {
 						animation: args.creature.movementType() === 'flying' ? 'fly' : 'walk',
