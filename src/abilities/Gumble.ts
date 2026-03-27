@@ -20,11 +20,26 @@ export default (G: Game) => {
 			// Trigger when Gumble dies
 			trigger: 'onCreatureDeath',
 
+			/**
+			 * Provides flying movement when upgraded, allowing Gumble to leap over units.
+			 * Only applies when the ability is upgraded.
+			 * @returns {string|undefined} 'flying' if upgraded, undefined otherwise
+			 */
+			movementType: function () {
+				return this.isUpgraded() ? 'flying' : undefined;
+			},
+
 			require: function () {
 				return true;
 			},
 
 			activate: function (deadCreature: Creature) {
+				// If upgraded, no trap is created - instead Gumble gains flying movement
+				// which allows it to leap over units during the moving phase
+				if (this.isUpgraded()) {
+					return;
+				}
+
 				const deathHex = G.grid.hexAt(deadCreature.x, deadCreature.y);
 
 				const ability = this;
@@ -46,12 +61,7 @@ export default (G: Game) => {
 									return false;
 								}
 
-								// If upgraded, don't affect allied units
-								if (ability.isUpgraded()) {
-									return creatureOnGoo.player !== ability.creature.player;
-								}
-
-								// Otherwise affect all units
+								// Trap affects all units when not upgraded
 								return true;
 							},
 							effectFn: function (_, creature: Creature) {
