@@ -21,6 +21,17 @@ export class Hotkeys {
 		}
 	}
 
+	pressZ(event) {
+		if (event.ctrlKey || event.metaKey) {
+			// Ctrl+Z: Undo Move
+			if (this.ui.game.undoCreatureState && !this.ui.game.undoUsedThisRound) {
+				if (!this.ui.game.turnThrottle) {
+					this.ui.game.undoMove();
+				}
+			}
+		}
+	}
+
 	pressT() {
 		this.ui.dashopen ? this.ui.closeDash() : this.ui.btnToggleScore.triggerClick();
 	}
@@ -215,6 +226,11 @@ export function getHotKeys(hk) {
 		KeyX: {
 			onkeydown(event) {
 				hk.pressX(event);
+			},
+		},
+		KeyZ: {
+			onkeydown(event) {
+				hk.pressZ(event);
 			},
 		},
 		Tab: {
