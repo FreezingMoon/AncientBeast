@@ -365,7 +365,7 @@
 	}
 
 	&.upgraded:before {
-		background-image: url('~assets/interface/frame_upgrade.png');
+		background-image: url('~assets/interface/frame_upgrade.png') !important;
 	}
 
 	&.disabled {
@@ -1018,6 +1018,22 @@ div.section.info {
 #abilities.p3 .ability.active::before,
 .vignette.p3 .frame {
 	background-image: url('~assets/interface/frame_green.png');
+}
+
+#abilities.p0 .ability.active.upgraded::before {
+	background-image: url('~assets/interface/frame_upgrade_red.png') !important;
+}
+
+#abilities.p1 .ability.active.upgraded::before {
+	background-image: url('~assets/interface/frame_upgrade_blue.png') !important;
+}
+
+#abilities.p2 .ability.active.upgraded::before {
+	background-image: url('~assets/interface/frame_upgrade_orange.png') !important;
+}
+
+#abilities.p3 .ability.active.upgraded::before {
+	background-image: url('~assets/interface/frame_upgrade_green.png') !important;
 }
 
 .vignette.type--.p0 {
