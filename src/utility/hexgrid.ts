@@ -1456,18 +1456,19 @@ export class HexGrid {
 
 	showGrid(val) {
 		this.forEachHex((hex) => {
-			if (hex.creature) {
-				hex.creature.xray(val);
-			}
-
 			if (hex.drop) {
 				return;
 			}
 
 			if (val) {
 				hex.displayVisualState('showGrid');
+				// Show dashed grid (not x-ray) for empty hexes so coordinates are visible on top of units
+				if (!hex.creature) {
+					hex.displayVisualState('dashed');
+				}
 			} else {
 				hex.cleanDisplayVisualState('showGrid');
+				hex.cleanDisplayVisualState('dashed');
 			}
 		});
 	}
