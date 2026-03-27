@@ -206,6 +206,26 @@ export default (G: Game) => {
 						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
+					fnOnSelect: function (hex: Hex) {
+						// Show creature cardboard at 10% opacity at the target hex
+						// for direct movement ability feedback (issue #2534)
+						if (hex.x !== creature.x || hex.y !== creature.y) {
+							const creaData = G.retrieveCreatureStats(creature.type);
+							G.grid.previewCreature(
+								{ x: hex.x, y: hex.y },
+								creaData,
+								creature.player,
+								false,
+								0.1,
+							);
+						}
+					},
+					fnOnCancel: function () {
+						if (G.grid.materialize_overlay) {
+							G.grid.materialize_overlay.alpha = 0;
+						}
+						creature.queryMove();
+					},
 					size: creature.size,
 					flipped: creature.player.flipped,
 					id: creature.id,

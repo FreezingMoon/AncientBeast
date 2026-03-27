@@ -1671,7 +1671,7 @@ export class HexGrid {
 	 * @param {{x:number, y:number}} pos - Coordinates {x,y}
 	 * @param {object} creatureData - Object containing info from the database (game.retrieveCreatureStats)
 	 */
-	previewCreature(pos, creatureData, player, secondary = false) {
+	previewCreature(pos, creatureData, player, secondary = false, opacity = 0.5) {
 		const game = this.game;
 		const hex = this.hexes[pos.y][pos.x - (creatureData.size - 1)];
 		const cardboard =
@@ -1721,7 +1721,7 @@ export class HexGrid {
 				  creatureData.display['offset-x']) +
 			preview.texture.width / 2;
 		preview.y = hex.displayPos.y + creatureData.display['offset-y'] + preview.texture.height;
-		preview.alpha = 0.5;
+		preview.alpha = opacity;
 
 		if (player.flipped) {
 			preview.scale.setTo(-1, 1);
@@ -1729,11 +1729,13 @@ export class HexGrid {
 			preview.scale.setTo(1, 1);
 		}
 
+		// Flicker between opacity and 30% of opacity (minimum 0.05)
+		const flickerTarget = Math.max(opacity * 0.3, 0.05);
 		const flickering = game.Phaser.add
 			.tween(preview)
 			.to(
 				{
-					alpha: 0.15,
+					alpha: flickerTarget,
 				},
 				777,
 				Phaser.Easing.Linear.None,
