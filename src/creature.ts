@@ -681,8 +681,30 @@ export class Creature {
 						});
 					}
 					game.UI.btnDelay.changeState('disabled');
+
+					// Determine animation: use 'fly' for Gumble's leap (2+ hexes when ability upgraded)
+					let animation: string = args.creature.movementType() === 'flying' ? 'fly' : 'walk';
+					if (animation === 'walk') {
+						// Check if Gumble can leap over units for this movement
+						const isGumbleLeaping =
+							args.creature.type === 14 &&
+							args.creature.abilities[0] &&
+							args.creature.abilities[0].isUpgraded();
+						if (isGumbleLeaping) {
+							// Use hex distance to determine if this is a 2+ hex leap
+							// Simple offset coord distance (conservative estimate)
+							const d = Math.max(
+								Math.abs(hex.x - args.creature.x),
+								Math.abs(hex.y - args.creature.y),
+							);
+							if (d >= 2) {
+								animation = 'fly';
+							}
+						}
+					}
+
 					args.creature.moveTo(hex, {
-						animation: args.creature.movementType() === 'flying' ? 'fly' : 'walk',
+						animation: animation,
 						callback: function () {
 							game.activeCreature.queryMove();
 						},
