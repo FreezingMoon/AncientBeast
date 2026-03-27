@@ -75,6 +75,8 @@ export class UI {
 	btnSkipTurn: Button;
 	dashopen: boolean;
 	animationUpgradeTimeOutID: ReturnType<typeof setTimeout>;
+	animationUpgradeSoundTimeOutID: ReturnType<typeof setTimeout>;
+	animationUpgradeIconTimeOutID: ReturnType<typeof setTimeout>;
 	queryUnit: string;
 	btnDelay: Button;
 	btnFlee: Button;
@@ -214,6 +216,13 @@ export class UI {
 
 						// Prevents upgrade animation from carrying on into opponent's turn and disabling their button
 						clearTimeout(this.animationUpgradeTimeOutID);
+						clearTimeout(this.animationUpgradeSoundTimeOutID);
+						clearTimeout(this.animationUpgradeIconTimeOutID);
+						// Also remove any upgrade animation classes that might be lingering
+						this.abilitiesButtons.forEach((btn) => {
+							btn.$button.removeClass('upgradeTransition');
+							btn.$button.removeClass('upgradeIcon');
+						});
 
 						game.skipTurn();
 						this.lastViewedCreature = '';
@@ -2048,12 +2057,12 @@ export class UI {
 				btn.changeState(ButtonStateEnum.slideIn); // Keep the button in view
 
 				// After .3s play the upgrade sound
-				setTimeout(() => {
+				this.animationUpgradeSoundTimeOutID = setTimeout(() => {
 					game.soundsys.playSFX('sounds/upgrade');
 				}, 300);
 
 				// After 2s remove the background and update the button if it's not a passive
-				setTimeout(() => {
+				this.animationUpgradeIconTimeOutID = setTimeout(() => {
 					btn.$button.removeClass('upgradeIcon');
 				}, 1200);
 
