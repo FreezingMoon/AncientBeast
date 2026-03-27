@@ -220,6 +220,13 @@ export class Hex {
 					return;
 				}
 
+				// Fix: Check if pointer is still over this hex when releasing
+				// This prevents confirming location at the initial hex when dragging
+				// Bug: #2931 - Location confirmation slide
+				if (!Pointer.withinGame || !this.hitBox.getBounds().contains(Pointer.x, Pointer.y)) {
+					return; // Pointer has moved away from this hex
+				}
+
 				if (shouldUseDirectTouchInput()) {
 					this.onConfirmFn(this);
 					return;
