@@ -161,6 +161,10 @@ export class Player {
 
 		this.creatures.push(creature);
 		creature.summon(!this._summonCreaturesWithMaterializationSickness);
+		// Track last materialized type (excluding Dark Priest) to avoid copy-catting
+		if (creatureData.name !== 'Dark Priest') {
+			game.lastMaterializedType = type;
+		}
 		// @ts-expect-error 2554
 		game.onCreatureSummon(creature);
 	}
