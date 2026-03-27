@@ -136,6 +136,7 @@ export class HexGrid {
 	dropGroup: Phaser.Group;
 	creatureGroup: Phaser.Group;
 	trapOverGroup: Phaser.Group;
+	coordGroup: Phaser.Group;
 	selectedHex: Hex;
 	_executionMode: boolean;
 	materialize_overlay: any;
@@ -196,6 +197,8 @@ export class HexGrid {
 		// Parts of traps displayed over creatures
 		this.trapOverGroup = game.Phaser.add.group(this.display, 'trapOverGrp');
 		this.trapOverGroup.scale.set(1, 0.75);
+		// Coord text group - rendered on top of creatures so coordinates are visible
+		this.coordGroup = game.Phaser.add.group(this.display, 'coordGrp');
 
 		// Populate grid
 		for (let row = 0; row < numRows; row++) {
@@ -1456,18 +1459,20 @@ export class HexGrid {
 
 	showGrid(val) {
 		this.forEachHex((hex) => {
-			if (hex.creature) {
-				hex.creature.xray(val);
-			}
-
 			if (hex.drop) {
 				return;
 			}
 
 			if (val) {
 				hex.displayVisualState('showGrid');
+				// Show dashed hexes at 25% opacity for non-unit occupied places
+				if (!hex.creature) {
+					hex.displayVisualState('dashed');
+				}
+				// Coord text is in coordGroup which renders above creatures
 			} else {
 				hex.cleanDisplayVisualState('showGrid');
+				hex.cleanDisplayVisualState('dashed');
 			}
 		});
 	}

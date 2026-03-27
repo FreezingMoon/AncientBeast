@@ -558,6 +558,9 @@ export class Hex {
 
 		// Display Hex
 		let targetAlpha = this.reachable || Boolean(this.displayClasses.match(/creature/g));
+		// Track non-creature dashed hexes for 25% opacity
+		const isNonCreatureDashed =
+			Boolean(this.displayClasses.match(/dashed/g)) && !(this.creature instanceof Creature);
 
 		targetAlpha = !this.displayClasses.match(/hidden/g) && targetAlpha;
 		targetAlpha = Boolean(this.displayClasses.match(/showGrid/g)) || targetAlpha;
@@ -589,6 +592,10 @@ export class Hex {
 		}
 
 		this.display.alpha = targetAlpha ? 1 : 0;
+		// Dashed hexes at 25% opacity for non-unit occupied places
+		if (isNonCreatureDashed) {
+			this.display.alpha = 0.25;
+		}
 
 		if (this.displayClasses.match(/shrunken/)) {
 			this.display.scale.setTo(shrinkScale);
@@ -620,7 +627,7 @@ export class Hex {
 					this.coordText.strokeThickness = 5;
 				}
 				this.coordText.anchor.setTo(0.5);
-				this.grid.overlayHexesGroup.add(this.coordText);
+				this.grid.coordGroup.add(this.coordText);
 			}
 		} else if (this.coordText && this.coordText.exists) {
 			this.coordText.destroy();
