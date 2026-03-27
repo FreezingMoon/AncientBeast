@@ -2552,6 +2552,77 @@ export class UI {
 			ui.game.grid.redoLastQuery();
 		};
 
+		// Show a semi-transparent preview of where the active creature will land
+		// in the queue when hovering over the delay marker
+		let delayPreviewEl: HTMLElement | null = null;
+
+		const onDelayMouseEnter = ifGameNotFrozen(() => {
+			const activeCreature = ui.game.activeCreature;
+			if (!activeCreature || !activeCreature.canWait) {
+				return;
+			}
+
+			// Get the queue element
+			const queueEl = document.getElementById('queuewrapper');
+			if (!queueEl) return;
+
+			// Calculate the position where the preview should appear.
+			// When the active creature delays, it joins the delayed section.
+			// It appears after all other delayed creatures (sorted by initiative).
+			// Position in the current queue DOM:
+			// - Active creature: position 0, width 100px
+			// - Each other vignette: width 80px
+			// - Delay marker (if delayed creatures exist): 80px
+			const queue = ui.game.queue;
+			const delayedCreatures = queue.queue.filter((c) => c.isDelayed);
+			const hasDelayed = delayedCreatures.length > 0;
+
+			// Position calculation:
+			// - Active creature at x=0, width 100
+			// - Each delayed creature before the active creature's position: 80px
+			// - Delay marker: 80px (if hasDelayed)
+			// - The preview appears at the end of the delayed section
+			const activeInitiative = activeCreature.getInitiative();
+			let delayedBeforeActive = 0;
+			for (const c of delayedCreatures) {
+				if (c.getInitiative() > activeInitiative) {
+					delayedBeforeActive++;
+				}
+			}
+
+			// Preview x = 100 (active creature) + delayedBeforeActive * 80 + (hasDelayed ? 80 : 0)
+			const previewX = 100 + delayedBeforeActive * 80 + (hasDelayed ? 80 : 0);
+
+			// Create the preview element
+			const creature = activeCreature;
+			const set = getAvatarSet(creature.type);
+			const previewHtml = `<div class="vignette type${creature.type} p${creature.team} delay-preview" data-set="${set}" style="position:absolute;left:${previewX}px;top:0px;opacity:0.45;pointer-events:none;z-index:2;">
+				<div class="frame"></div>
+				<div class="overlay_frame"></div>
+				<div class="delay_frame"></div>
+				<div class="stats">${creature.name}</div>
+			</div>`;
+
+			// Remove any existing preview
+			if (delayPreviewEl) {
+				delayPreviewEl.remove();
+				delayPreviewEl = null;
+			}
+
+			// Create and append the preview
+			const tmp = document.createElement('div');
+			tmp.innerHTML = previewHtml;
+			delayPreviewEl = tmp.firstChild as HTMLElement;
+			queueEl.appendChild(delayPreviewEl);
+		});
+
+		const onDelayMouseLeave = () => {
+			if (delayPreviewEl) {
+				delayPreviewEl.remove();
+				delayPreviewEl = null;
+			}
+		};
+
 		// Hide the project logo when navigating away using a hotkey
 		document.addEventListener('visibilitychange', function () {
 			if (document.hidden) {
@@ -2586,6 +2657,15 @@ export class UI {
 					break;
 				case SIGNAL_CREATURE_MOUSE_LEAVE:
 					onCreatureMouseLeave();
+					break;
+				case SIGNAL_DELAY_CLICK:
+					// No-op: handled by button click
+					break;
+				case SIGNAL_DELAY_MOUSE_ENTER:
+					onDelayMouseEnter();
+					break;
+				case SIGNAL_DELAY_MOUSE_LEAVE:
+					onDelayMouseLeave();
 					break;
 				case SIGNAL_TURN_END_CLICK:
 					onTurnEndClick();

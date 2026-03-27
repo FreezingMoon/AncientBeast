@@ -557,10 +557,14 @@ export class Hex {
 		}
 
 		// Display Hex
-		let targetAlpha = this.reachable || Boolean(this.displayClasses.match(/creature/g));
+		let targetAlpha: boolean | string = this.reachable || Boolean(this.displayClasses.match(/creature/g));
 
 		targetAlpha = !this.displayClasses.match(/hidden/g) && targetAlpha;
 		targetAlpha = Boolean(this.displayClasses.match(/showGrid/g)) || targetAlpha;
+		// showGrid on empty hexes: dashed at 25% opacity
+		if (this.displayClasses.match(/showGrid/) && !this.creature && !this.trap && !this.drop) {
+			targetAlpha = 'quarter';
+		}
 		targetAlpha = Boolean(this.displayClasses.match(/dashed/g)) || targetAlpha;
 		targetAlpha = Boolean(this.displayClasses.match(/deadzone/g)) || targetAlpha;
 
@@ -588,7 +592,7 @@ export class Hex {
 			this.display.loadTexture('hex');
 		}
 
-		this.display.alpha = targetAlpha ? 1 : 0;
+		this.display.alpha = targetAlpha === 'quarter' ? 0.25 : targetAlpha ? 1 : 0;
 
 		if (this.displayClasses.match(/shrunken/)) {
 			this.display.scale.setTo(shrinkScale);
@@ -622,6 +626,10 @@ export class Hex {
 				this.coordText.anchor.setTo(0.5);
 				this.grid.overlayHexesGroup.add(this.coordText);
 			}
+			// Always bring coordText to top so it's visible above creatures
+			if (this.coordText && this.coordText.exists) {
+				this.grid.overlayHexesGroup.bringToTop(this.coordText);
+			}
 		} else if (this.coordText && this.coordText.exists) {
 			this.coordText.destroy();
 		}
@@ -629,7 +637,21 @@ export class Hex {
 		// Overlay Hex
 		targetAlpha = Boolean(this.overlayClasses.match(/hover|creature/g));
 
-		if (this.overlayClasses.match(/0|1|2|3/)) {
+		// showGrid: dashed hex grid overlay on top of all hexes (including units)
+		// But don't override movement range display (reachable hexes)
+		if (this.overlayClasses.match(/showGrid/) && !this.overlayClasses.match(/reachable/)) {
+			if (this.creature) {
+				// Hex with creature: dashed overlay in creature's team color at full opacity
+				targetAlpha = true;
+				this.overlay.loadTexture(`hex_dashed_p${this.creature.team}`);
+				this.grid.overlayHexesGroup.bringToTop(this.overlay);
+			} else {
+				// Empty hex: dashed overlay at 25% opacity
+				targetAlpha = 'quarter';
+				this.overlay.loadTexture('hex_dashed');
+				this.grid.overlayHexesGroup.bringToTop(this.overlay);
+			}
+		} else if (this.overlayClasses.match(/0|1|2|3/)) {
 			const player = this.overlayClasses.match(/0|1|2|3/);
 
 			if (this.overlayClasses.match(/reachable/)) {
@@ -666,7 +688,7 @@ export class Hex {
 			}
 		}
 
-		this.overlay.alpha = targetAlpha ? 1 : 0;
+		this.overlay.alpha = targetAlpha === 'quarter' ? 0.25 : targetAlpha ? 1 : 0;
 	}
 
 	/**

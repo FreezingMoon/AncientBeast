@@ -1456,18 +1456,13 @@ export class HexGrid {
 
 	showGrid(val) {
 		this.forEachHex((hex) => {
-			if (hex.creature) {
-				hex.creature.xray(val);
-			}
-
-			if (hex.drop) {
-				return;
-			}
-
 			if (val) {
 				hex.displayVisualState('showGrid');
+				// Add dashed overlay on top of all hexes (including units)
+				hex.overlayVisualState('showGrid');
 			} else {
 				hex.cleanDisplayVisualState('showGrid');
+				hex.cleanOverlayVisualState('showGrid');
 			}
 		});
 	}
