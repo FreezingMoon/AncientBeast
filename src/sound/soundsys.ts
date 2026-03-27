@@ -35,12 +35,25 @@ export class SoundSys {
 	private _heartbeatVol = 1;
 	private _announcerVol = 1;
 	private _allEffectsCoeff = 1;
+	private _audioContextResumed = false;
 
 	constructor(config: SoundSysConfig) {
 		this.musicPlayer = new MusicPlayer();
 
 		if (this.envHasSound) {
 			this.context = new (AudioContext || (window as any).webkitAudioContext)();
+
+			// On iOS, AudioContext starts in suspended state and needs user interaction to resume.
+			// Set up a one-time listener to resume on first user gesture.
+			const resumeOnInteraction = () => {
+				this.ensureAudioContextResumed();
+				document.removeEventListener('click', resumeOnInteraction);
+				document.removeEventListener('touchstart', resumeOnInteraction);
+				document.removeEventListener('keydown', resumeOnInteraction);
+			};
+			document.addEventListener('click', resumeOnInteraction, { once: true });
+			document.addEventListener('touchstart', resumeOnInteraction, { once: true });
+			document.addEventListener('keydown', resumeOnInteraction, { once: true });
 
 			this.musicGainNode = this.context.createGain();
 			this.musicGainNode.connect(this.context.destination);
@@ -125,11 +138,27 @@ export class SoundSys {
 	}
 
 	playMusic() {
+		this.ensureAudioContextResumed();
 		this.musicPlayer.playRandom();
 	}
 
 	stopMusic() {
 		this.musicPlayer.stopMusic();
+	}
+
+	/** Resume AudioContext on iOS where it starts in suspended state.
+	 *  Call this on user interaction (click/touch) to unlock audio playback. */
+	ensureAudioContextResumed() {
+		if (!this.envHasSound) {
+			return;
+		}
+		if (this._audioContextResumed) {
+			return;
+		}
+		if (this.context.state === 'suspended') {
+			this.context.resume();
+		}
+		this._audioContextResumed = true;
 	}
 
 	loadSound(relativePath: string) {
@@ -158,6 +187,7 @@ export class SoundSys {
 
 	playSFX(relativePath: string): SoundSysAudioBufferSourceNode {
 		if (this.envHasSound && this.loadedPaths.hasOwnProperty(relativePath)) {
+			this.ensureAudioContextResumed();
 			return this.playSound(this.loadedPaths[relativePath], this.effectsGainNode);
 		}
 		return new NullAudioBufferSourceNode();
@@ -165,6 +195,7 @@ export class SoundSys {
 
 	playHeartBeat(relativePath: string): SoundSysAudioBufferSourceNode {
 		if (this.envHasSound && this.loadedPaths.hasOwnProperty(relativePath)) {
+			this.ensureAudioContextResumed();
 			return this.playSound(this.loadedPaths[relativePath], this.heartbeatGainNode);
 		}
 		return new NullAudioBufferSourceNode();
@@ -174,6 +205,7 @@ export class SoundSys {
 		const SHOUT_PATH_PREFIX = 'units/shouts/';
 		const path = SHOUT_PATH_PREFIX + shoutName;
 		if (this.envHasSound && this.loadedPaths.hasOwnProperty(path)) {
+			this.ensureAudioContextResumed();
 			return this.playSound(this.loadedPaths[path], this.announcerGainNode);
 		} else {
 			return new NullAudioBufferSourceNode();
