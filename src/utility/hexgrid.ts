@@ -1477,18 +1477,19 @@ export class HexGrid {
 
 	showGrid(val) {
 		this.forEachHex((hex) => {
-			if (hex.creature) {
-				hex.creature.xray(val);
-			}
-
 			if (hex.drop) {
 				return;
 			}
 
 			if (val) {
 				hex.displayVisualState('showGrid');
+				// Add dashed grid on top for empty hexes (non-unit occupied places)
+				if (!hex.creature) {
+					hex.displayVisualState('dashedGrid');
+				}
 			} else {
 				hex.cleanDisplayVisualState('showGrid');
+				hex.cleanDisplayVisualState('dashedGrid');
 			}
 		});
 	}
