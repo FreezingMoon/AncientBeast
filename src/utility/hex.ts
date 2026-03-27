@@ -180,9 +180,22 @@ export class Hex {
 			this.overlay = grid.overlayHexesGroup.create(x, y, 'hex');
 			this.overlay.alpha = 0;
 
+			// Track if last interaction was from touch to avoid double-firing
+			let lastInteractionTouch = false;
+
 			// Binding Events
-			this.hitBox.events.onInputOver.add(() => {
+			this.hitBox.events.onInputOver.add((_, pointer) => {
 				if (game.freezedInput || game.UI.dashopen) return;
+
+				// Skip hover effect for touch input - on Android, touch triggers
+				// onInputOver before onInputUp, making users tap twice to act.
+				// Touch input is handled directly in onInputDown instead.
+				if (pointer && pointer.pointerType === 'touch') {
+					lastInteractionTouch = true;
+					return;
+				}
+
+				lastInteractionTouch = false;
 
 				//  Show dashed overlay on current hexes of active creature
 				if (this.reachable && game.activeCreature) {
@@ -194,8 +207,26 @@ export class Hex {
 				this.onSelectFn(this);
 			}, this);
 
+			// onInputDown: handle touch directly to avoid double-tap issue on Android
+			this.hitBox.events.onInputDown.add((_, pointer) => {
+				if (game.freezedInput || game.UI.dashopen) return;
+
+				// For touch input, immediately trigger the confirm action.
+				// This bypasses the hover-first behavior that requires double-tapping on Android.
+				if (pointer && pointer.pointerType === 'touch') {
+					lastInteractionTouch = true;
+					this.onConfirmFn(this);
+				}
+			}, this);
+
 			this.hitBox.events.onInputOut.add((_, pointer) => {
 				if (game.freezedInput || game.UI.dashopen || !pointer.withinGame) return;
+
+				// Skip hover-off for touch since we skip hover-on for touch
+				if (lastInteractionTouch) {
+					lastInteractionTouch = false;
+					return;
+				}
 
 				// Clear dashed overlay when leaving a reachable hex
 				if (this.reachable && game.activeCreature) {
@@ -209,6 +240,11 @@ export class Hex {
 
 			this.hitBox.events.onInputUp.add((Sprite, Pointer) => {
 				if (game.freezedInput || game.UI.dashopen) {
+					return;
+				}
+
+				// Skip onInputUp for touch since we already handled it in onInputDown
+				if (Pointer.pointerType === 'touch') {
 					return;
 				}
 
