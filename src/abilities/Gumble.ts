@@ -17,11 +17,21 @@ export default (G: Game) => {
 	G.abilities[14] = [
 		// First Ability: Gooey Body
 		{
-			// Trigger when Gumble dies
+			/**
+			 * Upgraded Goey Body allows Gumble to leap over units during movement
+			 * (walking at least 2 hexagons) instead of creating a trap on death.
+			 * @return {string} 'leap' when upgraded, otherwise undefined
+			 */
+			movementType: function () {
+				return this.isUpgraded() ? 'leap' : undefined;
+			},
+
+			// Trigger when Gumble dies (only when NOT upgraded)
 			trigger: 'onCreatureDeath',
 
 			require: function () {
-				return true;
+				// Only trigger on death if NOT upgraded (upgraded version uses leap instead)
+				return !this.isUpgraded();
 			},
 
 			activate: function (deadCreature: Creature) {
