@@ -79,6 +79,7 @@ export class UI {
 	btnDelay: Button;
 	btnFlee: Button;
 	btnExit: Button;
+	btnRematch: Button;
 	materializeButton: Button;
 	clickedAbility: number;
 	selectedAbility: number;
@@ -300,6 +301,24 @@ export class UI {
 			{ isAcceptingInput: this.configuration.isAcceptingInput },
 		);
 		this.buttons.push(this.btnExit);
+
+		this.btnRematch = new Button(
+			{
+				$button: $j('#rematch.button'),
+				hasShortcut: true,
+				click: () => {
+					if (this.dashopen) {
+						return;
+					}
+					if (window.confirm('Are you sure you want to rematch with the same settings?')) {
+						game.rematch();
+					}
+				},
+				state: ButtonStateEnum.normal,
+			},
+			{ isAcceptingInput: this.configuration.isAcceptingInput },
+		);
+		this.buttons.push(this.btnRematch);
 
 		this.materializeButton = new Button(
 			{
