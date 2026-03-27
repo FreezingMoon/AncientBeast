@@ -93,7 +93,11 @@ export default (G: Game) => {
 					G.log('%CreatureName' + deadCreature.id + '% melts into a gooey puddle');
 				};
 
-				createGooTrap();
+				// Only create the trap when NOT upgraded.
+				// When upgraded, Gumble gains leap movement instead.
+				if (!this.isUpgraded()) {
+					createGooTrap();
+				}
 			},
 		},
 
