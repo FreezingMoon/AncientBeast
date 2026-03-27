@@ -288,6 +288,16 @@
 	display: block;
 	width: 0;
 	height: 0;
+
+	// Less distracting HUD when fullscreen views (dash, scoreboard, music player) are open
+	&.hud-transparent {
+		#toppanel,
+		#bottompanel,
+		#leftpanel,
+		#rightpanel {
+			opacity: 0.1;
+		}
+	}
 }
 
 #toppanel {
@@ -295,6 +305,7 @@
 	top: 0;
 	width: 100%;
 	z-index: 3;
+	transition: opacity 250ms;
 }
 
 #bottompanel {
@@ -303,6 +314,7 @@
 	height: 0;
 	width: 100%;
 	z-index: 1;
+	transition: opacity 250ms;
 }
 
 #rightpanel {
@@ -310,12 +322,14 @@
 	right: 0px;
 	top: 0px;
 	z-index: 3;
+	transition: opacity 250ms;
 }
 
 #leftpanel {
 	position: absolute;
 	left: 0;
 	z-index: 3;
+	transition: opacity 250ms;
 }
 
 .button:not(.togglescore) {

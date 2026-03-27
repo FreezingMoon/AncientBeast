@@ -755,6 +755,16 @@ export class UI {
 		}
 	}
 
+	/**
+	 * Update HUD transparency based on whether any fullscreen view is open.
+	 * When dash, scoreboard, or music player is shown, the HUD becomes less distracting
+	 * by fading to low opacity.
+	 */
+	private _updateHudTransparency() {
+		const anyViewOpen = this.dashopen || !this.$scoreboard.hasClass('hide') || !$j('#musicplayerwrapper').hasClass('hide');
+		this.$display.toggleClass('hud-transparent', anyViewOpen);
+	}
+
 	showAbilityCosts(abilityId: number) {
 		const game = this.game,
 			creature = game.activeCreature,
@@ -1420,10 +1430,12 @@ export class UI {
 
 	toggleMusicPlayer() {
 		$j('#musicplayerwrapper').toggleClass('hide');
+		this._updateHudTransparency();
 	}
 
 	closeMusicPlayer() {
 		$j('#musicplayerwrapper').addClass('hide');
+		this._updateHudTransparency();
 	}
 
 	// Function to close scoreboard if pressing outside of it
@@ -1632,10 +1644,12 @@ export class UI {
 
 		// Finally, show the scoreboard
 		this.$scoreboard.removeClass('hide');
+		this._updateHudTransparency();
 	}
 
 	closeScoreboard() {
 		this.$scoreboard.addClass('hide');
+		this._updateHudTransparency();
 	}
 
 	/**
@@ -1662,6 +1676,7 @@ export class UI {
 		} else {
 			this.showCreature(game.activeCreature.type, game.activeCreature.team, '');
 		}
+		this._updateHudTransparency();
 	}
 
 	closeDash() {
@@ -1686,6 +1701,7 @@ export class UI {
 
 		this.dashopen = false;
 		this.materializeToggled = false;
+		this._updateHudTransparency();
 	}
 
 	gridSelectUp() {
