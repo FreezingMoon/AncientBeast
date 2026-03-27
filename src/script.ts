@@ -228,6 +228,8 @@ $j(() => {
 	$j('#startButton').trigger('focus');
 
 	const startGame = () => {
+		// Re-attempt orientation lock when game starts (user has interacted)
+		Fullscreen.lockLandscapeOrientation();
 		G.loadGame(getGameConfig());
 	};
 
@@ -347,6 +349,8 @@ $j(() => {
 	// Login form
 	$j('form#login').on('submit', login);
 	$j('#startMatchButton').on('click', () => {
+		// Re-attempt orientation lock when match starts (user has interacted)
+		Fullscreen.lockLandscapeOrientation();
 		G.loadGame(getGameConfig(), true);
 		return false;
 	});

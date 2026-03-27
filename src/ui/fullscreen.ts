@@ -34,12 +34,19 @@ export class Fullscreen {
 	/**
 	 * Attempts to lock the screen orientation to landscape.
 	 * Most browsers require fullscreen to be active before locking orientation.
+	 * Sets up a listener to re-lock on orientation changes.
 	 */
 	static lockLandscapeOrientation() {
 		const screenOrientation = screen as Screen & { orientation?: ScreenOrientation };
 		if (screenOrientation.orientation && 'lock' in screenOrientation.orientation) {
 			(screenOrientation.orientation as ScreenOrientation).lock('landscape').catch((err) => {
 				console.warn('Could not lock screen orientation:', err);
+			});
+			// Re-lock whenever the orientation changes (e.g. user rotates device)
+			screenOrientation.orientation.addEventListener('change', () => {
+				(screenOrientation.orientation as ScreenOrientation).lock('landscape').catch((err) => {
+					console.warn('Could not lock screen orientation on change:', err);
+				});
 			});
 		}
 	}
