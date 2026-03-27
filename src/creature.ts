@@ -1807,6 +1807,7 @@ class CreatureSprite {
 	private _frameInfo: { originX: number; originY: number };
 	private _creatureSize: number;
 	private _creatureTeam: PlayerID;
+	private _creature: Creature;
 
 	private _isXray = false;
 
@@ -1816,6 +1817,7 @@ class CreatureSprite {
 		const phaser = game.Phaser;
 
 		this._phaser = phaser;
+		this._creature = creature;
 		this._creatureSize = size;
 		this._creatureTeam = team;
 		this._frameInfo = { originX: display['offset-x'], originY: display['offset-y'] };
@@ -1973,6 +1975,14 @@ class CreatureSprite {
 			.tween(this._healthIndicatorGroup)
 			.to({ alpha: enable ? 0.5 : 1.0 }, 250, Phaser.Easing.Linear.None)
 			.start();
+		// When X-ray is enabled, bring creature to top so it's drawn on top of others
+		// This helps with visibility when units overlap or are on higher rows
+		if (enable) {
+			(this._group.parent as Phaser.Group).bringToTop(this._group);
+		} else {
+			// When X-ray is disabled, restore proper creature z-ordering
+			this._creature.game.grid.orderCreatureZ();
+		}
 	}
 
 	setHealth(number: number, type: HealthBubbleType) {
