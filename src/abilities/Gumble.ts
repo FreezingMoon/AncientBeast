@@ -24,6 +24,12 @@ export default (G: Game) => {
 				return true;
 			},
 
+			// When upgraded, Gumble can leap over units during movement phase
+			// (walking at least 2 hexagons)
+			movementType: function () {
+				return this.isUpgraded() ? 'flying' : 'normal';
+			},
+
 			activate: function (deadCreature: Creature) {
 				const deathHex = G.grid.hexAt(deadCreature.x, deadCreature.y);
 

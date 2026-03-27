@@ -1365,9 +1365,9 @@ export const unitData: UnitDataStructure = [
 		ability_info: [
 			{
 				title: 'Gooey Body',
-				desc: 'When killed, it melts into a puddle that traps any unit that walks on top of it.',
+				desc: 'When killed, it melts into a puddle that traps any unit that walks on top of it. Upgraded: leaps over units during movement phase.',
 				info: "Can't move current round while on goo.",
-				upgrade: 'Does not affect allied units.',
+				upgrade: 'Leaps over units during movement (2+ hexes).',
 			},
 			{
 				title: 'Gummy Mallet',
