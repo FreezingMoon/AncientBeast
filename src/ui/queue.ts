@@ -339,7 +339,9 @@ class Vignette {
 			.map((_, i) => bounceH * Math.pow(1 / (i + 1), 2));
 		const keyframes = [restingKeyframe];
 		for (const bounceH of bounceHs) {
-			keyframes.push({ transform: `translateX(${x}px) translateY(${bounceH}px) scale(${scale})` });
+			keyframes.push({
+				transform: `translateX(${x}px) translateY(${-bounceH}px) scale(${scale})`,
+			});
 			keyframes.push(restingKeyframe);
 		}
 
