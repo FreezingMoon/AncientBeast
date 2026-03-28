@@ -1935,7 +1935,7 @@ export class UI {
 			.clearQueue()
 			.transition(
 				{
-					y: '-420px',
+					y: '420px',
 				},
 				500,
 				'easeInQuart',

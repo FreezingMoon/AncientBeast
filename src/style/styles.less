@@ -324,7 +324,7 @@
 #leftpanel {
 	position: fixed;
 	left: 20px;
-	bottom: 20px;
+	bottom: 132px;
 	z-index: 3;
 	pointer-events: none;
 }
@@ -933,10 +933,11 @@ div.section.info {
 	width: 820px;
 	height: 100px;
 	position: absolute;
-	left: 0;
-	top: 0;
+	left: 20px;
+	bottom: 20px;
 	z-index: 3;
 	pointer-events: none;
+	transform-origin: left bottom;
 }
 
 .vignette {
@@ -2185,14 +2186,14 @@ input {
 /*------------------Interface-------------------*/
 	@media screen and (min-height: 200px) and (max-height: 479px) and (orientation: landscape) {
 		#queue {
-			left: 0;
-			top: 0;
+			left: 12px;
+			bottom: 12px;
 			transform: scale(0.55);
-			transform-origin: top left;
+			transform-origin: left bottom;
 		}
 		#leftpanel {
 			left: 12px;
-			bottom: 12px;
+			bottom: 75px;
 			transform: scale(0.55);
 			transform-origin: left bottom;
 		}
@@ -2234,14 +2235,14 @@ input {
 
 	@media screen and (min-height: 320px) and (max-height: 479px) and (orientation: landscape) {
 		#queue {
-			left: 0;
-			top: 0;
+			left: 16px;
+			bottom: 16px;
 			transform: scale(0.7);
-			transform-origin: top left;
+			transform-origin: left bottom;
 		}
 		#leftpanel {
 			left: 16px;
-			bottom: 16px;
+			bottom: 94px;
 			transform: scale(0.7);
 			transform-origin: left bottom;
 		}
