@@ -102,7 +102,7 @@ describe('GameLog', () => {
 			}
 
 			const originalFileReader = window.FileReader;
-			window.FileReader = MockFileReader as typeof FileReader;
+			window.FileReader = MockFileReader as unknown as typeof FileReader;
 
 			try {
 				const firstRead = readLogFromFile();
@@ -113,7 +113,7 @@ describe('GameLog', () => {
 					configurable: true,
 					value: [{}],
 				});
-				fileInput.onchange?.({ target: fileInput } as Event);
+				fileInput.onchange?.({ target: fileInput } as unknown as Event);
 
 				await expect(firstRead).resolves.toBe('serialized-log');
 			} finally {
