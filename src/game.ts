@@ -819,7 +819,7 @@ export default class Game {
 					this.log('Its portrait is displayed in the lower left');
 					this.log("Above the portrait are the unit's abilities");
 					this.log('The ones with revealed icons are usable');
-					this.log('Use the materialize ability to summon a creature');
+					this.log('Use the materialize ability to summon');
 					this.log('Making units drains your plasma points');
 					this.log('Press the hourglass icon to skip the turn');
 					this.log('%CreatureName' + this.activeCreature.id + '%, press here to toggle tutorial!');

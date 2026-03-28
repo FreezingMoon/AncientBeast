@@ -306,25 +306,25 @@
 
 #rightpanel {
 	position: fixed;
-	right: 20px;
-	bottom: 20px;
+	right: 0;
+	bottom: 0;
 	z-index: 3;
 	display: grid;
-	grid-template-columns: 20px 100px;
+	grid-template-columns: 100px 20px;
 	grid-template-areas:
-		'bar audio'
-		'bar skip'
-		'bar delay'
-		'bar fullscreen'
-		'. score';
-	gap: 8px;
+		'audio bar'
+		'skip bar'
+		'delay bar'
+		'fullscreen bar'
+		'score .';
+	gap: 0;
 	pointer-events: none;
 }
 
 #leftpanel {
 	position: fixed;
-	left: 20px;
-	bottom: 132px;
+	left: 0;
+	bottom: 100px;
 	z-index: 3;
 	pointer-events: none;
 }
@@ -551,9 +551,9 @@
 #leftpanel .button {
 	background-color: rgba(0, 0, 0, 0.55);
 	transition: transform 0.5s;
-	transform: translateX(-50%);
+	transform: translateX(0);
 	&:hover {
-		transform: translateX(0%);
+		transform: translateX(0);
 	}
 	&.slideIn {
 		transform: translateX(0);
@@ -563,9 +563,9 @@
 #rightpanel .button:not(.togglescore) {
 	background-color: rgba(0, 0, 0, 0.55);
 	transition: transform 0.5s;
-	transform: translateX(50%);
+	transform: translateX(0);
 	&:hover {
-		transform: translateX(0%);
+		transform: translateX(0);
 	}
 	&.slideIn {
 		transform: translateX(0);
@@ -933,8 +933,8 @@ div.section.info {
 	width: 820px;
 	height: 100px;
 	position: absolute;
-	left: 20px;
-	bottom: 20px;
+	left: 0;
+	bottom: 0;
 	z-index: 3;
 	pointer-events: none;
 	transform-origin: left bottom;
@@ -1022,7 +1022,7 @@ div.section.info {
 	position: relative;
 	display: flex;
 	flex-direction: column-reverse;
-	gap: 8px;
+	gap: 0;
 	padding-left: 20px;
 	transform: translate(0px, 0px);
 }
@@ -1032,12 +1032,12 @@ div.section.info {
 }
 
 #leftpanel .passive-slot .ability.nextIcon {
-	transform: translateX(-50%) rotate(180deg);
+	transform: translateX(0);
 }
 
 #leftpanel .passive-slot .ability.nextIcon:hover,
 #leftpanel .passive-slot .ability.nextIcon.slideIn {
-	transform: translateX(0) rotate(180deg);
+	transform: translateX(0);
 }
 
 #abilities .progressbar {
@@ -1126,18 +1126,19 @@ div.section.info {
 	background-color: rgba(0, 0, 0, 0.8);
 	cursor: n-resize;
 	position: fixed;
-	right: 132px;
-	bottom: 20px;
+	right: 100px;
+	bottom: 0;
 	margin: 0;
 	padding: 5px;
 	border-radius: 10px 10px 0 0;
 	overflow: hidden;
 	transition: all 500ms;
+	z-index: 4;
 }
 
 #chat.expanded {
 	height: 130px !important;
-	bottom: 105px !important;
+	bottom: 0 !important;
 }
 
 .chat-expanded-content {
@@ -1215,13 +1216,13 @@ div.section.info {
 
 #chat.focus {
 	height: 300px;
-	bottom: 290px;
+	bottom: 0;
 	cursor: s-resize;
 }
 
 #chat.peek {
 	height: 100px;
-	bottom: 90px;
+	bottom: 0;
 }
 
 #chat.focus #chatbox,
@@ -2186,20 +2187,20 @@ input {
 /*------------------Interface-------------------*/
 	@media screen and (min-height: 200px) and (max-height: 479px) and (orientation: landscape) {
 		#queue {
-			left: 12px;
-			bottom: 12px;
+			left: 0;
+			bottom: 0;
 			transform: scale(0.55);
 			transform-origin: left bottom;
 		}
 		#leftpanel {
-			left: 12px;
-			bottom: 75px;
+			left: 0;
+			bottom: 55px;
 			transform: scale(0.55);
 			transform-origin: left bottom;
 		}
 		#rightpanel {
-			right: 12px;
-			bottom: 12px;
+			right: 0;
+			bottom: 0;
 			transform: scale(0.55);
 			transform-origin: right bottom;
 		}
@@ -2235,20 +2236,20 @@ input {
 
 	@media screen and (min-height: 320px) and (max-height: 479px) and (orientation: landscape) {
 		#queue {
-			left: 16px;
-			bottom: 16px;
+			left: 0;
+			bottom: 0;
 			transform: scale(0.7);
 			transform-origin: left bottom;
 		}
 		#leftpanel {
-			left: 16px;
-			bottom: 94px;
+			left: 0;
+			bottom: 70px;
 			transform: scale(0.7);
 			transform-origin: left bottom;
 		}
 		#rightpanel {
-			right: 16px;
-			bottom: 16px;
+			right: 0;
+			bottom: 0;
 			transform: scale(0.7);
 			transform-origin: right bottom;
 		}
@@ -2395,11 +2396,11 @@ input {
 
 @media (max-width: 600px) {
 	#chat {
-		bottom: 20px;
+		bottom: 0;
 	}
 
 	#chat.expanded {
 		height: 120px;
-		bottom: 150px;
+		bottom: 0;
 	}
 }
