@@ -933,8 +933,8 @@ div.section.info {
 	width: 820px;
 	height: 100px;
 	position: absolute;
-	left: 0;
-	bottom: 0;
+	left: -2px;
+	bottom: -2px;
 	z-index: 3;
 	pointer-events: none;
 	transform-origin: left bottom;
@@ -965,7 +965,16 @@ div.section.info {
 	left: 0;
 	height: 100%;
 	width: 100%;
-	transition: opacity 300ms;
+	transition: opacity 300ms, filter 300ms;
+}
+
+.vignette .frame {
+	filter: brightness(0.9);
+}
+
+.vignette .overlay_frame {
+	background-image: url('~assets/interface/frame_white.png');
+	opacity: 0;
 }
 
 .vignette .stats {
@@ -1016,6 +1025,11 @@ div.section.info {
 
 .vignette.xray .overlay_frame {
 	opacity: 0.5;
+}
+
+.vignette.xray .frame,
+#queue .vignette:hover .frame {
+	filter: brightness(1);
 }
 
 #abilities {
@@ -1150,7 +1164,7 @@ div.section.info {
 	display: none;
 	opacity: 0;
 	color: white;
-	padding: 10px;
+	padding: 8px 10px 4px;
 }
 
 #chat.expanded .chat-expanded-content {
@@ -1169,7 +1183,7 @@ div.section.info {
 .stats-masteries-container {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
+	gap: 4px;
 }
 
 .stats-row,
@@ -2011,7 +2025,7 @@ span.pure {
 }
 
 #leftpanel .progressbar {
-	left: -20px;
+	left: 0;
 }
 
 #rightpanel .progressbar {
