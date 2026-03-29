@@ -556,11 +556,22 @@
 	background-color: rgba(0, 0, 0, 0.55);
 	transition: transform 0.5s;
 	transform: translateX(0);
+
 	&:hover {
 		transform: translateX(0);
 	}
+
 	&.slideIn {
 		transform: translateX(0);
+	}
+
+	&.disabled,
+	&.noclick {
+		transform: translateX(-50%);
+
+		&:hover {
+			transform: translateX(0);
+		}
 	}
 }
 
@@ -568,11 +579,22 @@
 	background-color: rgba(0, 0, 0, 0.55);
 	transition: transform 0.5s;
 	transform: translateX(0);
+
 	&:hover {
 		transform: translateX(0);
 	}
+
 	&.slideIn {
 		transform: translateX(0);
+	}
+
+	&.disabled,
+	&.noclick {
+		transform: translateX(50%);
+
+		&:hover {
+			transform: translateX(0);
+		}
 	}
 }
 
