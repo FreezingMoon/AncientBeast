@@ -339,15 +339,19 @@
 }
 
 .button:not(.togglescore) {
+	position: relative;
 	background-size: 100% 100%;
 	cursor: pointer;
 	height: 80px;
 	width: 80px;
+	overflow: hidden;
 
 	&:before {
 		content: '';
 		display: block;
 		position: absolute;
+		top: 0;
+		left: 0;
 		height: 80px;
 		width: 80px;
 		background-size: 100% 100%;
@@ -933,8 +937,8 @@ div.section.info {
 	width: 820px;
 	height: 100px;
 	position: absolute;
-	left: -2px;
-	bottom: -2px;
+	left: -4px;
+	bottom: -4px;
 	z-index: 3;
 	pointer-events: none;
 	transform-origin: left bottom;
@@ -969,7 +973,7 @@ div.section.info {
 }
 
 .vignette .frame {
-	filter: brightness(0.9);
+	filter: brightness(0.82);
 }
 
 .vignette .overlay_frame {
@@ -1024,12 +1028,16 @@ div.section.info {
 }
 
 .vignette.xray .overlay_frame {
-	opacity: 0.5;
+	opacity: 0.18;
+}
+
+#queue .vignette:hover .overlay_frame {
+	opacity: 0.18;
 }
 
 .vignette.xray .frame,
 #queue .vignette:hover .frame {
-	filter: brightness(1);
+	filter: brightness(0.96);
 }
 
 #abilities {
@@ -1037,7 +1045,7 @@ div.section.info {
 	display: flex;
 	flex-direction: column-reverse;
 	gap: 0;
-	padding-left: 20px;
+	padding-left: 24px;
 	transform: translate(0px, 0px);
 }
 
@@ -1057,6 +1065,7 @@ div.section.info {
 #abilities .progressbar {
 	left: 0;
 	top: 0;
+	z-index: 2;
 }
 
 #abilities.p0 .ability.active::before,
@@ -1164,7 +1173,7 @@ div.section.info {
 	display: none;
 	opacity: 0;
 	color: white;
-	padding: 8px 10px 4px;
+	padding: 6px 8px 2px;
 }
 
 #chat.expanded .chat-expanded-content {
@@ -1183,7 +1192,7 @@ div.section.info {
 .stats-masteries-container {
 	display: flex;
 	flex-direction: column;
-	gap: 4px;
+	gap: 2px;
 }
 
 .stats-row,
@@ -2025,7 +2034,8 @@ span.pure {
 }
 
 #leftpanel .progressbar {
-	left: 0;
+	left: -2px;
+	z-index: 2;
 }
 
 #rightpanel .progressbar {
