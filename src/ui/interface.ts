@@ -992,6 +992,7 @@ export class UI {
 			creatureType == '--'
 		) {
 			// retrieve the selected unit
+			this.selectedCreatureObj = null;
 			game.players[player].creatures.forEach((creature) => {
 				if (creature.type == creatureType) {
 					this.selectedCreatureObj = creature;
@@ -1016,8 +1017,11 @@ export class UI {
 				)}')`,
 			});
 			$j.each(stats.stats, (key, value) => {
-				const $stat = $j('#card .sideB .' + key + ' .value');
+				const $statWrap = $j('#card .sideB .' + key);
+				const $stat = $statWrap.find('.value');
 				$stat.removeClass('buff debuff');
+				$statWrap.find('.modifiers').remove();
+
 				if (this.selectedCreatureObj) {
 					if (key == 'health') {
 						$stat.text(this.selectedCreatureObj.health + '/' + this.selectedCreatureObj.stats[key]);
@@ -1034,12 +1038,30 @@ export class UI {
 					} else {
 						$stat.text(this.selectedCreatureObj.stats[key]);
 					}
-					if (this.selectedCreatureObj.stats[key] > value) {
-						// Buff
-						$stat.addClass('buff');
-					} else if (this.selectedCreatureObj.stats[key] < value) {
-						// Debuff
-						$stat.addClass('debuff');
+
+					// Buff/Debuff colors only for materialized/alive units
+					if (!this.selectedCreatureObj.temp && !this.selectedCreatureObj.dead) {
+						if (this.selectedCreatureObj.stats[key] > value) {
+							// Buff
+							$stat.addClass('buff');
+						} else if (this.selectedCreatureObj.stats[key] < value) {
+							// Debuff
+							$stat.addClass('debuff');
+						}
+
+						// Modifiers Tooltip
+						if (
+							this.selectedCreatureObj.statsModifiers[key] &&
+							this.selectedCreatureObj.statsModifiers[key].length > 0
+						) {
+							let modifiersHTML = '<div class="modifiers">';
+							this.selectedCreatureObj.statsModifiers[key].forEach((mod) => {
+								const sign = typeof mod.value === 'number' && mod.value > 0 ? '+' : '';
+								modifiersHTML += `<div>${mod.name}: ${sign}${mod.value}</div>`;
+							});
+							modifiersHTML += '</div>';
+							$statWrap.append(modifiersHTML);
+						}
 					}
 				} else {
 					$stat.text(value);

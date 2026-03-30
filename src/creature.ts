@@ -161,6 +161,7 @@ export class Creature {
 	remainingMove: number;
 	abilities: Ability[];
 	accumulatedTeleportRange = 0; // Used for Abolished's third ability
+	statsModifiers: { [key: string]: { name: string; value: number | string }[] } = {};
 
 	creatureSprite: CreatureSprite;
 
@@ -1458,16 +1459,23 @@ export class Creature {
 		this.creatureSprite.hint(text, hintType);
 	}
 
-	/**
-	 * Update the stats taking into account the effects' alteration
-	 */
 	updateAlteration() {
 		this.stats = { ...this.baseStats };
+		this.statsModifiers = {};
 
 		const buffDebuffArray = [...this.effects, ...this.dropCollection];
 
 		buffDebuffArray.forEach((buff) => {
-			$j.each(buff.alterations, (key, value) => {
+			Object.keys(buff.alterations).forEach((key) => {
+				const value = buff.alterations[key];
+				if (!this.statsModifiers[key]) {
+					this.statsModifiers[key] = [];
+				}
+				this.statsModifiers[key].push({
+					name: buff.name,
+					value: value,
+				});
+
 				if (typeof value === 'string') {
 					// Multiplication Buff
 					if (value.match(/\*/)) {
