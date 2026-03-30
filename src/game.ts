@@ -816,10 +816,10 @@ export default class Game {
 				if (this.turn == 1) {
 					this.log('The active unit has a flashing hexagon');
 					this.log('It uses a plasma field to protect itself');
-					this.log('Its portrait is displayed in the upper left');
-					this.log("Under the portrait are the unit's abilities");
+					this.log('Its portrait is displayed in the lower left');
+					this.log("Above the portrait are the unit's abilities");
 					this.log('The ones with revealed icons are usable');
-					this.log('Use the last one to materialize a creature');
+					this.log('Use the materialize ability to summon');
 					this.log('Making units drains your plasma points');
 					this.log('Press the hourglass icon to skip the turn');
 					this.log('%CreatureName' + this.activeCreature.id + '%, press here to toggle tutorial!');
