@@ -156,7 +156,7 @@ export default (G: Game) => {
 					new Trap(
 						deathHex.x,
 						deathHex.y,
-						'royal-seal',
+						'gooey-body',
 						[effect],
 						ability.creature.player,
 						{
