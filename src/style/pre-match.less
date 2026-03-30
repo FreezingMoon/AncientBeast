@@ -31,7 +31,27 @@
 }
 
 #websiteButton {
-	display: none;
+	display: block;
+	width: 100px;
+	position: fixed;
+	padding: none;
+	left: 0;
+
+	div {
+		display: block;
+		background-image: url('~assets/interface/AB.png');
+		background-repeat: no-repeat;
+		background-size: cover;
+		height: 100px;
+	}
+
+	&:hover {
+		filter: brightness(120%);
+	}
+
+	span {
+		text-shadow: 0.1em 0.1em 0.1em #000, 0 0 0.7em red;
+	}
 }
 
 #contribute {
@@ -543,8 +563,10 @@ body {
 
 	div {
 		height: 100px;
-		background: url('~assets/interface/AB.png') no-repeat;
+		background-color: rgba(0, 0, 0, 0.55);
+		background-image: url('~assets/interface/frame.png'), url('~assets/icons/version.svg');
 		background-size: cover;
+		background-repeat: no-repeat;
 	}
 
 	&:hover {
@@ -594,29 +616,6 @@ a {
 		display: none;
 	}
 
-	#websiteButton {
-		display: block;
-		width: 100px;
-		position: fixed;
-		padding: none;
-		left: 0;
-
-		div {
-			display: block;
-			background-image: url('~assets/interface/AB.png');
-			background-repeat: no-repeat;
-			background-size: cover;
-			height: 100px;
-		}
-
-		&:hover {
-			filter: brightness(120%);
-		}
-
-		span {
-			text-shadow: 0.1em 0.1em 0.1em #000, 0 0 0.7em red;
-		}
-	}
 	#start-btn {
 		display: none;
 	}
@@ -672,13 +671,6 @@ a {
 		span {
 			animation: fading 2.5s infinite;
 		}
-	}
-
-	#version div {
-		background-color: rgba(0, 0, 0, 0.55);
-		background-image: url('~assets/interface/frame.png'), url('~assets/icons/version.svg');
-		background-size: cover;
-		background-repeat: no-repeat;
 	}
 }
 

@@ -19,6 +19,7 @@ import { cycleAudioMode } from '../sound/soundsys';
 import Game from '../game';
 import { CreatureType } from '../data/types';
 import { getAvatarSet } from '../style/avatar-styles';
+import { Drop } from '../drop';
 
 type Config = {
 	isAcceptingInput: () => boolean;
@@ -646,16 +647,96 @@ export class UI {
 		});
 
 		this.$dash.find('.section.numbers .stat').on('mouseover', (event) => {
-			const $section = $j(event.target).closest('.section');
-			const which = $section.hasClass('stats') ? '.stats_desc' : '.masteries_desc';
-			$j(which).addClass('shown');
+			const $statEl = $j(event.target).closest('.stat');
+			const statKey = $statEl.attr('stat');
+			if (!statKey) return;
+
+			const $section = $statEl.closest('.section');
+			const isStats = $section.hasClass('stats');
+
+			// Build stat change tooltip
+			const $tooltip = $j('#card .sideB #statttooltip');
+			let tooltipContent = '';
+
+			if (this.selectedCreatureObj && !this.selectedCreatureObj.dead && !this.selectedCreatureObj.materializationSickness) {
+				const creature = this.selectedCreatureObj;
+				const allEffects = [...creature.effects, ...creature.dropCollection];
+				const statChanges: { name: string; value: number }[] = [];
+
+				allEffects.forEach((effect) => {
+					const alterations = effect.alterations;
+					if (alterations && statKey in alterations) {
+						let val = alterations[statKey as keyof typeof alterations];
+						// Handle movement specially - it accumulates from effects
+						if (statKey === 'movement' && !(effect instanceof Drop)) {
+							// movement is tracked separately via remainingMove
+							return;
+						}
+						// Handle string-based modifications (multiplication/division)
+						if (typeof val === 'string') {
+							if (val.match(/\*/)) {
+								// Multiplication buff - extract the multiplier
+								const match = val.match(/(-?\d+)\*(-?\d+)/);
+								if (match) {
+									val = parseInt(match[1]) * parseInt(match[2]) - parseInt(match[1]);
+								}
+							} else if (val.match(/\//)) {
+								// Division debuff
+								const match = val.match(/(-?\d+)\/(-?\d+)/);
+								if (match) {
+									const base = parseInt(match[1]);
+									const div = parseInt(match[2]);
+									val = Math.round(base / div) - base;
+								}
+							}
+						}
+						if (typeof val === 'number') {
+							statChanges.push({ name: effect.name, value: val });
+						}
+					}
+				});
+
+				// Also handle movement as a drop effect (remainingMove modification)
+				if (statKey === 'movement') {
+					creature.dropCollection.forEach((drop) => {
+						if (drop.alterations.movement) {
+							statChanges.push({ name: drop.name, value: drop.alterations.movement });
+						}
+					});
+				}
+
+				const currentStat = creature.stats[statKey as keyof typeof creature.stats];
+				const baseStats = creature.baseStats;
+				const baseVal = baseStats[statKey as keyof typeof baseStats];
+
+				if (statChanges.length > 0) {
+					tooltipContent = `<div class="stat-tooltip-title">${statKey}: ${currentStat} (base: ${baseVal})</div>`;
+					tooltipContent += '<div class="stat-tooltip-changes">';
+					statChanges.forEach((change) => {
+						const sign = change.value >= 0 ? '+' : '';
+						tooltipContent += `<div class="${change.value >= 0 ? 'buff' : 'debuff'}">${change.name}: ${sign}${change.value}</div>`;
+					});
+					tooltipContent += '</div>';
+				} else {
+					tooltipContent = `<div class="stat-tooltip-title">${statKey}: ${currentStat} (base: ${baseVal})</div><div class="stat-tooltip-no-change">No modifiers</div>`;
+				}
+			} else {
+				// Show generic description for non-materialized/dead creatures
+				const which = isStats ? '.stats_desc' : '.masteries_desc';
+				$j(which).addClass('shown');
+				return;
+			}
+
+			// Also hide the generic description
+			$j('.stats_desc, .masteries_desc').removeClass('shown');
+
+			if (tooltipContent) {
+				$tooltip.html(tooltipContent).addClass('active');
+			}
 		});
 
 		this.$dash.find('.section.numbers .stat').on('mouseleave', (event) => {
-			const $section = $j(event.target).closest('.section');
-			const which = $section.hasClass('stats') ? '.stats_desc' : '.masteries_desc';
-
-			$j(which).removeClass('shown');
+			$j('#card .sideB #statttooltip').removeClass('active');
 		});
 
 		this.$dash.children('#playertabswrapper').addClass('numplayer' + game.playerMode);
@@ -992,6 +1073,7 @@ export class UI {
 			creatureType == '--'
 		) {
 			// retrieve the selected unit
+			this.selectedCreatureObj = undefined;
 			game.players[player].creatures.forEach((creature) => {
 				if (creature.type == creatureType) {
 					this.selectedCreatureObj = creature;
@@ -1034,12 +1116,16 @@ export class UI {
 					} else {
 						$stat.text(this.selectedCreatureObj.stats[key]);
 					}
-					if (this.selectedCreatureObj.stats[key] > value) {
-						// Buff
-						$stat.addClass('buff');
-					} else if (this.selectedCreatureObj.stats[key] < value) {
-						// Debuff
-						$stat.addClass('debuff');
+					// Only show buff/debuff colors for materialized and alive creatures
+					// Browsing dead or non-materialized units should show white
+					if (!this.selectedCreatureObj.dead && !this.selectedCreatureObj.materializationSickness) {
+						if (this.selectedCreatureObj.stats[key] > value) {
+							// Buff
+							$stat.addClass('buff');
+						} else if (this.selectedCreatureObj.stats[key] < value) {
+							// Debuff
+							$stat.addClass('debuff');
+						}
 					}
 				} else {
 					$stat.text(value);
