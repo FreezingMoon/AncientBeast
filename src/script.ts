@@ -449,6 +449,9 @@ function renderPlayerModeType(isMultiPlayer) {
 export function getGameConfig() {
 	const defaultConfig = {
 		playerMode: parseInt($j('input[name="playerMode"]:checked').val() as string, 10),
+		botPlayers: $j('input[name="botPlayers"]:checked')
+			.map((_, element) => parseInt($j(element).val() as string, 10))
+			.get(),
 		creaLimitNbr: parseInt($j('input[name="activeUnits"]:checked').val() as string, 10), // DP counts as One
 		unitDrops: parseInt($j('input[name="unitDrops"]:checked').val() as string, 10),
 		abilityUpgrades: parseInt($j('input[name="abilityUpgrades"]:checked').val() as string, 10),

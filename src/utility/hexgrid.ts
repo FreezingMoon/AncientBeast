@@ -1248,6 +1248,13 @@ export class HexGrid {
 			hex.onConfirmFn = onConfirmFn;
 			hex.onRightClickFn = onRightClickFn;
 		});
+
+		if (this.game.botController?.shouldAutoResolveQuery()) {
+			this.game.botController.resolveQuery(o, {
+				onSelect: onSelectFn,
+				onConfirm: onConfirmFn,
+			});
+		}
 	}
 
 	/**

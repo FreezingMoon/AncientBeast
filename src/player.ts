@@ -44,6 +44,7 @@ export type ScoreEvent = {
 export type PlayerColor = 'red' | 'blue' | 'orange' | 'green';
 
 export type PlayerID = 0 | 1 | 2 | 3;
+export type PlayerController = 'human' | 'bot';
 
 type PlayerName = `Player${1 | 2 | 3 | 4}`;
 
@@ -66,6 +67,7 @@ export class Player {
 	totalTimePool: number;
 	startTime: Date;
 	_summonCreaturesWithMaterializationSickness: boolean;
+	controller: PlayerController;
 	constructor(id: PlayerID, game: Game) {
 		/* Attributes
 		 *
@@ -105,6 +107,7 @@ export class Player {
 		this.bonusTimePool = 0;
 		this.totalTimePool = game.timePool * 1000;
 		this.startTime = new Date();
+		this.controller = 'human';
 
 		this.score = [
 			{

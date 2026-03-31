@@ -27,6 +27,7 @@ import { Trap } from './utility/trap';
 import { Drop } from './drop';
 import { CreatureType, Realm, UnitData } from './data/types';
 import { setAudioMode } from './sound/soundsys';
+import BotController from './bot';
 /* eslint-disable prefer-rest-params */
 
 /* NOTES/TODOS
@@ -117,6 +118,7 @@ export default class Game {
 	msg: any; // type this properly
 	triggers: Record<string, RegExp>;
 	signals: any;
+	botController: BotController;
 
 	// The optionals below are created by the various methods of `Game`, mainly by `setup` and `loadGame`
 
@@ -268,6 +270,7 @@ export default class Game {
 
 		const signalChannels = ['ui', 'metaPowers', 'creature', 'hex'];
 		this.signals = this.setupSignalChannels(signalChannels);
+		this.botController = new BotController(this);
 	}
 
 	loadUnitData(data: UnitData) {
@@ -546,6 +549,7 @@ export default class Game {
 
 		for (let i = 0; i < playerMode; i++) {
 			const player = new Player(i as PlayerID, this);
+			player.controller = this.configData.botPlayers?.includes(player.id) ? 'bot' : 'human';
 			this.players.push(player);
 
 			// Initialize players' starting positions
