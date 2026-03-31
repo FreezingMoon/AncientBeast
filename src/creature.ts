@@ -2120,6 +2120,9 @@ class CreatureSprite {
 			frameBackground.ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
 			frameBackground.ctx.fillRect(0, 0, frameBackground.width, frameBackground.height);
 			frameBackground.draw('frame', 0, 0);
+			// Destroy the temporary frame sprite after using it as a texture source
+			// to prevent it from lingering in the upper-left corner of the canvas
+			frame.destroy();
 			const combinedSprite = this._phaser.add.sprite(0, 50, frameBackground);
 			combinedSprite.anchor.setTo(0.5, 0.175);
 			combinedSprite.setScaleMinMax(0.75, 0.75, 0.75, 0.75);
