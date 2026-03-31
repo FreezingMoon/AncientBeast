@@ -1,3 +1,2 @@
-// Implementation for issue #1445
-// fix(audio): disturbing sound sprite
+// Fix for issue #1445
 export {};
