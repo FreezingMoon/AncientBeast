@@ -247,6 +247,18 @@ export class UI {
 			},
 			{ isAcceptingInput: this.configuration.isAcceptingInput },
 		);
+		
+		// Add hover preview for delay button
+		this.btnDelay.$button.on('mouseenter', () => {
+			if (!this.dashopen && game.activeCreature?.canWait && !game.queue.isCurrentEmpty()) {
+				this.showDelayPreview(true);
+			}
+		});
+		
+		this.btnDelay.$button.on('mouseleave', () => {
+			this.showDelayPreview(false);
+		});
+		
 		this.buttons.push(this.btnDelay);
 
 		// Flee Match Button
@@ -2253,6 +2265,21 @@ export class UI {
 	bouncexrayQueue(creaID) {
 		this.queue.xray(creaID);
 		this.queue.bounce(creaID);
+	}
+
+	showDelayPreview(show: boolean) {
+		const game = this.game;
+		if (!game.activeCreature) return;
+
+		if (show) {
+			// Show tooltip indicating delay action
+			game.activeCreature.hint('Delay: Move to end of queue', 'delay_preview');
+		} else {
+			// Clear any delay preview hints
+			if (game.activeCreature) {
+				game.activeCreature.hint('');
+			}
+		}
 	}
 
 	updateFatigue() {
