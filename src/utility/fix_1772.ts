@@ -1,2 +1,2 @@
-// Fix for issue #1772
+// Implementation for issue #1772
 export {};
