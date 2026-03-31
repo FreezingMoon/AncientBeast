@@ -59,8 +59,9 @@ export default (G: Game) => {
 				this.end();
 
 				// Spore Contamination
+				// Use empty title to suppress redundant combat log message (similar to Tentacle Bush #1947)
 				const effect = new Effect(
-					this.title, // Name
+					'', // Empty title to avoid duplicate "Uncle Fungus uses Toxic Spores" message
 					creature, // Caster
 					target, // Target
 					'', // Trigger
@@ -70,6 +71,7 @@ export default (G: Game) => {
 
 				target.addEffect(effect, undefined, 'Contaminated');
 
+				// Only log the effect application once, not twice
 				G.log(
 					'%CreatureName' + target.id + "%'s regrowth is lowered by " + this.effects[0].regrowth,
 				);
