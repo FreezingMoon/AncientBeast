@@ -60,6 +60,7 @@ $j(() => {
 	});
 	scrim.removeClass('loading');
 	renderPlayerModeType(G.multiplayer);
+	syncBotPlayerOptions();
 
 	// For the location rendering. The logic is in src/ui/locations.ts
 	const locations: Locations = new Locations();
@@ -167,6 +168,10 @@ $j(() => {
 		// TODO Remove after implementation 2 vs 2 in multiplayer mode
 		forceTwoPlayerMode();
 	}
+
+	$j('input[name="playerMode"]').on('change', () => {
+		syncBotPlayerOptions();
+	});
 
 	// Allow button game options to slide in prematch screen
 	buttonSlide();
@@ -373,6 +378,23 @@ $j(() => {
 function forceTwoPlayerMode() {
 	$j('#p2').trigger('click');
 	$j('#p4').prop('disabled', true);
+	syncBotPlayerOptions();
+}
+
+function syncBotPlayerOptions() {
+	const playerMode = parseInt($j('input[name="playerMode"]:checked').val() as string, 10) || 2;
+	$j('.botPlayerToggle').each((_, element) => {
+		const $element = $j(element);
+		const playerIndex = parseInt($element.data('playerIndex') as string, 10);
+		const enabled = playerIndex < playerMode;
+		const checkbox = $element.find('input');
+
+		$element.toggleClass('disabled', !enabled);
+		checkbox.prop('disabled', !enabled);
+		if (!enabled) {
+			checkbox.prop('checked', false);
+		}
+	});
 }
 
 /**

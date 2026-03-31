@@ -166,19 +166,49 @@ body {
 .botOption {
 	margin-top: 12px;
 	display: flex;
-	align-items: center;
-	gap: 10px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 8px;
 	font-size: 0.95rem;
+
+	h3 {
+		margin: 0;
+		font-size: 0.95rem;
+		text-transform: uppercase;
+	}
+}
+
+.botPlayerList {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 10px;
+}
+
+.botPlayerToggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	cursor: pointer;
+	line-height: 1.4;
+	padding: 4px 8px;
+	border: 1px solid fade(#ffffff, 25%);
+	background: fade(#000000, 25%);
 
 	input[type='checkbox'] {
 		width: 18px;
 		height: 18px;
 	}
 
-	label {
-		cursor: pointer;
-		line-height: 1.4;
+	&.disabled {
+		opacity: 0.45;
+		cursor: default;
 	}
+}
+
+.botOptionHelp {
+	margin: 0;
+	font-size: 0.8rem;
+	opacity: 0.8;
 }
 
 /* Hide caret in Firefox near START area */
