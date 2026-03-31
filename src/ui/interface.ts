@@ -1985,14 +1985,14 @@ export class UI {
 	}
 	updateAudioIcon(mode) {
 		let iconKey = 'icons/audio';
-		let tooltipText = 'Audio: Full';
+		let tooltipText = 'Audio: Full (A: open, Shift+A: cycle)';
 
 		if (mode === 'sfx') {
 			iconKey = 'icons/SFX';
-			tooltipText = 'Audio: SFX';
+			tooltipText = 'Audio: SFX only (A: open, Shift+A: cycle)';
 		} else if (mode === 'muted') {
 			iconKey = 'icons/muted';
-			tooltipText = 'Audio: Muted';
+			tooltipText = 'Audio: Muted (A: open, Shift+A: cycle)';
 		}
 
 		const iconUrl = getUrl(iconKey);
