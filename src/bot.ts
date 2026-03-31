@@ -2,6 +2,7 @@ import type Game from './game';
 import { Creature } from './creature';
 import { CreatureType } from './data/types';
 import { Hex } from './utility/hex';
+import { Team, isTeam } from './utility/team';
 
 type BotPendingAction =
 	| { type: 'ability'; abilityIndex: number }
@@ -272,6 +273,7 @@ export default class BotController {
 			}
 			this.pendingAction = null;
 			handlers.onConfirm(chosenHex);
+			this.queueDecision(1200);
 		}, 140);
 	}
 
@@ -336,7 +338,7 @@ export default class BotController {
 			.adjacentHex(1)
 			.some(
 				(adjacentHex) =>
-					adjacentHex.creature && adjacentHex.creature.player !== activeCreature.player,
+					adjacentHex.creature && isTeam(activeCreature, adjacentHex.creature, Team.Enemy),
 			);
 
 		let score = 0;
@@ -362,7 +364,7 @@ export default class BotController {
 			.adjacentHex(1)
 			.some(
 				(adjacentHex) =>
-					adjacentHex.creature && adjacentHex.creature.player !== activeCreature.player,
+					adjacentHex.creature && isTeam(activeCreature, adjacentHex.creature, Team.Enemy),
 			);
 
 		let score = 200 - nearestEnemyDistance * 12;
@@ -377,7 +379,7 @@ export default class BotController {
 		}
 
 		if (hex.creature instanceof Creature) {
-			if (hex.creature.player !== activeCreature.player) {
+			if (isTeam(activeCreature, hex.creature, Team.Enemy)) {
 				return 1000 - hex.creature.health + hex.creature.size * 10;
 			}
 
@@ -403,7 +405,7 @@ export default class BotController {
 				!creature ||
 				creature.dead ||
 				creature.temp ||
-				creature.player === activeCreature.player
+				!isTeam(activeCreature, creature, Team.Enemy)
 			) {
 				return;
 			}

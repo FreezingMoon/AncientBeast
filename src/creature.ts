@@ -1458,6 +1458,10 @@ export class Creature {
 		this.creatureSprite.hint(text, hintType);
 	}
 
+	clearHints(hintTypes: CreatureHintType[] = ['confirm', 'no_action']) {
+		this.creatureSprite.clearHints(hintTypes);
+	}
+
 	/**
 	 * Update the stats taking into account the effects' alteration
 	 */
@@ -2164,6 +2168,30 @@ class CreatureSprite {
 					.tween(hint)
 					.to({ y: offset }, tooltipSpeed, tooltipTransition)
 					.start();
+			},
+			this,
+			true,
+		);
+	}
+
+	clearHints(hintTypes: CreatureHintType[] = ['confirm', 'no_action']) {
+		const tooltipTransition = Phaser.Easing.Linear.None;
+
+		this._hintGrp.forEach(
+			(hint: Phaser.Text | Phaser.Sprite) => {
+				if (!hintTypes.includes(hint.data.hintType)) {
+					return;
+				}
+
+				hint.data.hintType = 'confirm_deleted';
+				if (hint.data.tweenAlpha) {
+					hint.data.tweenAlpha.stop();
+				}
+				hint.data.tweenAlpha = this._phaser.add
+					.tween(hint)
+					.to({ alpha: 0 }, 100, tooltipTransition)
+					.start();
+				hint.data.tweenAlpha.onComplete.add(() => hint.destroy());
 			},
 			this,
 			true,

@@ -1127,7 +1127,7 @@ export class HexGrid {
 
 				if (game.activeCreature === hex.creature && hex.creature.noActionPossible) {
 					// Remove "Skip Turn" icon
-					creature.hint('Skip turn', 'confirm');
+					creature.clearHints(['confirm', 'no_action']);
 				}
 			}
 			game.UI.chat.hideExpanded();
