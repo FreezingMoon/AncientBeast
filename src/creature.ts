@@ -1846,12 +1846,12 @@ class CreatureSprite {
 
 		// Define central UI position once to avoid duplication
 		const uiX = player.flipped ? HEX_WIDTH_PX * 0.5 : HEX_WIDTH_PX * (size - 0.5);
-		const uiY = 58; //Base position for health pill
+		const uiY = 54; //Base position for health pill, move a fix pixels up
 
 		// Group for health UI elements that move with creature
 		const healthIndicatorGroup = phaser.add.group(group, 'creatureHealthGrp_' + id);
 
-		// Health indicator pill 
+		// Health indicator pill
 		const healthIndicatorSprite = healthIndicatorGroup.create(
 			uiX,
 			uiY,
@@ -1865,7 +1865,7 @@ class CreatureSprite {
 		const agent = navigator.userAgent.toLowerCase();
 		const isFirefox = agent.indexOf('firefox') > -1;
 		const isBrave = (navigator as any).brave !== undefined || agent.indexOf('brave') > -1;
-		
+
 		// Apply nudges to minimize cross-browser font metric differences
 		let browserNudge = 0;
 		if (isFirefox) {
@@ -1874,15 +1874,15 @@ class CreatureSprite {
 		} else if (isBrave) {
 			// Brave renders high, pull text UP into pill container
 			browserNudge = -7;
-		} 
+		}
 
-		// Health text centered on the pill 
+		// Health text centered on the pill
 		const healthIndicatorText = phaser.add.text(
 			uiX,
 			uiY + browserNudge,
 			health,
 			{
-				font: 'bold 14pt Play',
+				font: 'bold 11pt Play',
 				fill: '#fff',
 				align: 'center',
 				stroke: '#000',
@@ -1893,7 +1893,7 @@ class CreatureSprite {
 		);
 		// Centers text to its position
 		healthIndicatorText.anchor.setTo(0.5, 0.5);
-		
+
 		// Text is grouped with pill to ensure consistent relative positioning
 		healthIndicatorGroup.add(healthIndicatorText);
 		healthIndicatorGroup.visible = false;
@@ -1989,7 +1989,7 @@ class CreatureSprite {
 				  this._sprite.texture.width -
 				  this._frameInfo.originX) +
 			this._sprite.texture.width / 2;
-		
+
 		//both pill and text are center-anchored(0.5)
 		const targetX = dir === -1? HEX_WIDTH_PX* 0.5 : HEX_WIDTH_PX * (this._creatureSize - 0.5);
 		this._healthIndicatorSprite.x = targetX;
