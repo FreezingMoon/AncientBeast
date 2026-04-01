@@ -490,8 +490,11 @@ export default (G: Game) => {
 					.to({ alpha: 1 }, tween.duration, Phaser.Easing.Linear.None, true);
 
 				tween.onComplete.add(function () {
-					// @ts-expect-error this refers to the animation object, _not_ the ability
+					// @ts-expect-error 'this' refers to the animation object, _not_ the ability
 					this.destroy();
+
+					// Play hit sound when projectile reaches target
+					G.soundsys.playSFX('sounds/shatter');
 
 					// Copy to not alter ability strength
 					const dmg = $j.extend({}, ability.damages);

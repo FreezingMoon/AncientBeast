@@ -175,6 +175,7 @@
 	text-align: center;
 	display: table;
 	height: 60px;
+	position: relative;
 }
 
 .card_info {
@@ -203,19 +204,28 @@
 }
 
 .modifiers {
-	background: black;
+	background: rgba(0, 0, 0, 0.8);
 	border-radius: 10px;
 	color: white;
 	font-size: 15px;
 	height: 0;
-	left: 452px;
 	line-height: 20px;
 	opacity: 0;
 	overflow: hidden;
 	position: absolute;
 	text-align: left;
-	width: 400px;
 	z-index: 2;
+}
+
+.stat .modifiers.stat-modifiers {
+	background: rgba(0, 0, 0, 0.8);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	box-sizing: border-box;
+	left: 0;
+	padding: 8px 0;
+	top: calc(100% + 8px);
+	width: 300px;
+	z-index: 3;
 }
 
 .masteries .modifiers {
@@ -223,9 +233,48 @@
 	bottom: 154px;
 }
 
+.masteries .stat .modifiers.stat-modifiers {
+	bottom: calc(100% + 8px);
+	top: auto;
+}
+
+.stats .stat:nth-child(n + 4):nth-child(-n + 6) .modifiers.stat-modifiers,
+.masteries .stat:nth-child(n + 4):nth-child(-n + 6) .modifiers.stat-modifiers {
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.stats .stat:nth-child(n + 7) .modifiers.stat-modifiers,
+.masteries .stat:nth-child(n + 7) .modifiers.stat-modifiers {
+	left: auto;
+	right: 0;
+}
+
 .modifiers div {
 	margin: 10px 20px;
 	text-align: center;
+}
+
+.stat .modifiers.stat-modifiers div {
+	margin: 6px 20px;
+	text-align: left;
+}
+
+.stat .modifiers.stat-modifiers .stat-modifier-title {
+	color: #ffd700;
+	font-size: 14px;
+	letter-spacing: 0.08em;
+	text-align: center;
+	text-transform: uppercase;
+}
+
+.stat .modifiers.stat-modifiers .stat-modifier-summary {
+	color: #ddd;
+	font-size: 13px;
+}
+
+.stat .modifiers.stat-modifiers .stat-modifier-source {
+	font-size: 13px;
 }
 
 .animateStats(@statList) {

@@ -292,42 +292,66 @@
 
 #toppanel {
 	position: fixed;
-	top: 0;
-	width: 100%;
+	inset: 0;
 	z-index: 3;
+	pointer-events: none;
 }
 
 #bottompanel {
 	position: fixed;
-	bottom: 0;
-	height: 0;
-	width: 100%;
-	z-index: 1;
+	inset: 0;
+	z-index: 3;
+	pointer-events: none;
 }
 
 #rightpanel {
-	position: absolute;
-	right: 0px;
-	top: 0px;
+	position: fixed;
+	right: 0;
+	bottom: 0;
 	z-index: 3;
+	display: grid;
+	grid-template-columns: 100px 20px;
+	grid-template-areas:
+		'audio bar'
+		'skip bar'
+		'delay bar'
+		'fullscreen bar'
+		'score score';
+	gap: 0;
+	pointer-events: none;
 }
 
 #leftpanel {
-	position: absolute;
+	position: fixed;
 	left: 0;
+	bottom: 100px;
 	z-index: 3;
+	pointer-events: none;
+}
+
+#queue .vignette,
+#leftpanel .ability-slot,
+#leftpanel .progressbar,
+#rightpanel .panel-control,
+#rightpanel .progressbar,
+#bottompanel > * {
+	pointer-events: auto;
 }
 
 .button:not(.togglescore) {
+	position: relative;
 	background-size: 100% 100%;
 	cursor: pointer;
 	height: 80px;
 	width: 80px;
+	overflow: hidden;
 
 	&:before {
 		content: '';
 		display: block;
 		position: absolute;
+		top: 0;
+		left: 0;
 		height: 80px;
 		width: 80px;
 		background-size: 100% 100%;
@@ -407,7 +431,7 @@
 	width: 80px;
 	height: 80px;
 	opacity: 0.8;
-	background-color: inherit;
+	background-color: transparent;
 	z-index: inherit;
 
 	div {
@@ -480,7 +504,7 @@
 	font-weight: bold;
 	height: 100px;
 	width: 90px;
-	margin: 1px 0px;
+	margin: 0;
 	padding: 0 5px;
 	text-align: right;
 	text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
@@ -531,24 +555,46 @@
 #leftpanel .button {
 	background-color: rgba(0, 0, 0, 0.55);
 	transition: transform 0.5s;
-	transform: translateX(-50%);
+	transform: translateX(0);
+
 	&:hover {
-		transform: translateX(0%);
+		transform: translateX(0);
 	}
+
 	&.slideIn {
 		transform: translateX(0);
+	}
+
+	&.disabled,
+	&.noclick {
+		transform: translateX(-50%);
+
+		&:hover {
+			transform: translateX(0);
+		}
 	}
 }
 
 #rightpanel .button:not(.togglescore) {
 	background-color: rgba(0, 0, 0, 0.55);
 	transition: transform 0.5s;
-	transform: translateX(50%);
+	transform: translateX(0);
+
 	&:hover {
-		transform: translateX(0%);
+		transform: translateX(0);
 	}
+
 	&.slideIn {
 		transform: translateX(0);
+	}
+
+	&.disabled,
+	&.noclick {
+		transform: translateX(50%);
+
+		&:hover {
+			transform: translateX(0);
+		}
 	}
 }
 
@@ -913,9 +959,10 @@ div.section.info {
 	width: 820px;
 	height: 100px;
 	position: absolute;
-	left: 0;
-	top: 0;
+	bottom: 0;
 	z-index: 3;
+	pointer-events: none;
+	transform-origin: left bottom;
 }
 
 .vignette {
@@ -943,7 +990,16 @@ div.section.info {
 	left: 0;
 	height: 100%;
 	width: 100%;
-	transition: opacity 300ms;
+	transition: opacity 300ms, filter 300ms;
+}
+
+.vignette .frame {
+	filter: brightness(0.82);
+}
+
+.vignette .overlay_frame {
+	background-image: url('~assets/interface/frame_white.png');
+	opacity: 0;
 }
 
 .vignette .stats {
@@ -993,11 +1049,44 @@ div.section.info {
 }
 
 .vignette.xray .overlay_frame {
-	opacity: 0.5;
+	opacity: 0.18;
+}
+
+#queue .vignette:hover .overlay_frame {
+	opacity: 0.18;
+}
+
+.vignette.xray .frame,
+#queue .vignette:hover .frame {
+	filter: brightness(0.96);
 }
 
 #abilities {
-	transform: translate(0px, -420px);
+	position: relative;
+	display: flex;
+	flex-direction: column-reverse;
+	gap: 0;
+	padding-left: 20px;
+	transform: translate(0px, 0px);
+}
+
+#abilities .ability-slot {
+	pointer-events: auto;
+}
+
+#leftpanel .passive-slot .ability.nextIcon {
+	transform: translateX(0);
+}
+
+#leftpanel .passive-slot .ability.nextIcon:hover,
+#leftpanel .passive-slot .ability.nextIcon.slideIn {
+	transform: translateX(0);
+}
+
+#abilities .progressbar {
+	left: 0;
+	top: 0;
+	z-index: 2;
 }
 
 #abilities.p0 .ability.active::before,
@@ -1080,18 +1169,20 @@ div.section.info {
 	height: 30px;
 	background-color: rgba(0, 0, 0, 0.8);
 	cursor: n-resize;
-	position: relative;
-	margin: 0 auto;
-	bottom: 40px;
+	position: fixed;
+	right: 100px;
+	bottom: 0;
+	margin: 0;
 	padding: 5px;
 	border-radius: 10px 10px 0 0;
 	overflow: hidden;
 	transition: all 500ms;
+	z-index: 4;
 }
 
 #chat.expanded {
 	height: 130px !important;
-	bottom: 125px !important;
+	bottom: 0 !important;
 }
 
 .chat-expanded-content {
@@ -1103,7 +1194,7 @@ div.section.info {
 	display: none;
 	opacity: 0;
 	color: white;
-	padding: 10px;
+	padding: 6px 8px 2px;
 }
 
 #chat.expanded .chat-expanded-content {
@@ -1122,7 +1213,7 @@ div.section.info {
 .stats-masteries-container {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
+	gap: 2px;
 }
 
 .stats-row,
@@ -1169,13 +1260,13 @@ div.section.info {
 
 #chat.focus {
 	height: 300px;
-	bottom: 310px;
+	bottom: 0;
 	cursor: s-resize;
 }
 
 #chat.peek {
 	height: 100px;
-	bottom: 110px;
+	bottom: 0;
 }
 
 #chat.focus #chatbox,
@@ -1278,8 +1369,9 @@ div.section.info {
 /*---------------Active Unit--------------*/
 #activebox {
 	position: relative;
-	left: 20px;
-	top: 100px;
+	left: 0;
+	top: auto;
+	bottom: 0;
 }
 
 #activebox .ability {
@@ -1380,6 +1472,41 @@ div.section.info {
 	width: 250px;
 	left: -259px;
 	text-align: right;
+}
+
+#rightpanel .panel-control,
+#leftpanel .ability-slot {
+	position: relative;
+}
+
+#rightpanel .audio-control {
+	grid-area: audio;
+	justify-self: end;
+}
+
+#rightpanel .skip-control {
+	grid-area: skip;
+	justify-self: end;
+}
+
+#rightpanel .delay-control {
+	grid-area: delay;
+	justify-self: end;
+}
+
+#rightpanel .fullscreen-control {
+	grid-area: fullscreen;
+	justify-self: end;
+}
+
+#rightpanel .progressbar {
+	grid-area: bar;
+	align-self: end;
+}
+
+#rightpanel .score-control {
+	grid-area: score;
+	justify-self: end;
 }
 
 /*-----------------Costs and Damages-------------------*/
@@ -1885,36 +2012,6 @@ span.pure {
 	z-index: 1;
 }
 
-/*--------------------Traps--------------------*/
-.trap {
-	width: 90px;
-	height: 52px;
-	margin: -36px -10px;
-	padding: 36px 10px;
-	display: block;
-	position: absolute;
-	top: 0;
-	left: 0;
-	transform: scaleY(0.75);
-	transform-origin: 0 30%;
-}
-
-.trap.mud-bath {
-	background: url('~assets/autoload/phaser/units/sprites/trap_mud-bath.png');
-}
-
-.trap.royal-seal {
-	background: url('~assets/autoload/phaser/units/sprites/trap_poisonous-vine.png');
-}
-
-.trap.scorched-ground {
-	background: url('~assets/autoload/phaser/units/sprites/trap_scorched-ground.png');
-}
-
-.trap.firewall {
-	background: url('~assets/autoload/phaser/units/sprites/trap_scorched-ground.png');
-}
-
 /*------------------Progress Bars-------------------*/
 .progressbar {
 	display: block;
@@ -1928,12 +2025,14 @@ span.pure {
 }
 
 #leftpanel .progressbar {
-	left: -20px;
+	z-index: 2;
 }
 
 #rightpanel .progressbar {
-	right: 0px;
-	top: 100px;
+	position: relative;
+	right: 0;
+	top: auto;
+	bottom: auto;
 }
 
 .progressbar .bar {
@@ -2100,19 +2199,25 @@ input {
 }
 
 /*------------------Interface-------------------*/
-@media screen and (min-height: 200px) and (max-height: 479px) and (orientation: landscape) {
-	#queue {
-		transform: scale(0.55) translate(-335px, -40px);
-	}
-	#bottompanel {
-		transform: scale(0.55);
-	}
-	#leftpanel {
-		transform: scale(0.55) translate(-32px, -130px);
-	}
-	#rightpanel {
-		transform: scale(0.55) translate(40px, -170px);
-	}
+	@media screen and (min-height: 200px) and (max-height: 479px) and (orientation: landscape) {
+		#queue {
+			left: 0;
+			bottom: 0;
+			transform: scale(0.55);
+			transform-origin: left bottom;
+		}
+		#leftpanel {
+			left: 0;
+			bottom: 55px;
+			transform: scale(0.55);
+			transform-origin: left bottom;
+		}
+		#rightpanel {
+			right: 0;
+			bottom: 0;
+			transform: scale(0.55);
+			transform-origin: right bottom;
+		}
 
 	#scoreboardTitle {
 		font-size: medium;
@@ -2143,19 +2248,25 @@ input {
 	}
 }
 
-@media screen and (min-height: 320px) and (max-height: 479px) and (orientation: landscape) {
-	#queue {
-		transform: scale(0.7) translate(-174px, -20px);
-	}
-	#leftpanel {
-		transform: scale(0.7) translate(-16px, -68px);
-	}
-	#rightpanel {
-		transform: scale(0.7) translate(22px, -89px);
-	}
-	#bottompanel {
-		transform: scale(0.7);
-	}
+	@media screen and (min-height: 320px) and (max-height: 479px) and (orientation: landscape) {
+		#queue {
+			left: 0;
+			bottom: 0;
+			transform: scale(0.7);
+			transform-origin: left bottom;
+		}
+		#leftpanel {
+			left: 0;
+			bottom: 70px;
+			transform: scale(0.7);
+			transform-origin: left bottom;
+		}
+		#rightpanel {
+			right: 0;
+			bottom: 0;
+			transform: scale(0.7);
+			transform-origin: right bottom;
+		}
 
 	#scoreboardTitle {
 		font-size: medium;
@@ -2299,11 +2410,11 @@ input {
 
 @media (max-width: 600px) {
 	#chat {
-		bottom: 20px;
+		bottom: 0;
 	}
 
 	#chat.expanded {
 		height: 120px;
-		bottom: 150px;
+		bottom: 0;
 	}
 }

@@ -220,8 +220,13 @@ export class Hex {
 					return;
 				}
 
+				const confirmSelectedHex = () => {
+					const confirmedHex = grid.selectedHex ?? this;
+					confirmedHex.onConfirmFn(confirmedHex);
+				};
+
 				if (shouldUseDirectTouchInput()) {
-					this.onConfirmFn(this);
+					confirmSelectedHex();
 					return;
 				}
 
@@ -235,7 +240,7 @@ export class Hex {
 						break;
 					default:
 						// Default to primary click so non-mouse pointers still confirm cleanly
-						this.onConfirmFn(this);
+						confirmSelectedHex();
 						break;
 				}
 			}, this);

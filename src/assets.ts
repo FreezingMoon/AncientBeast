@@ -236,7 +236,7 @@ export function getDirectory(path: string): AssetEntry[] {
 const urls: { [key: string]: string } = (() => {
 	/**
 	 * Receives the "local path" and returns the "key".
-	 * E.g., getKey('./units/sprites/Gumble - Royal Seal.png') === 'units/sprites/Gumble - Royal Seal;
+	 * E.g., getKey('./assets/autoload/phaser/units/sprites/trap_firewall.png') === 'assets/autoload/phaser/units/sprites/trap_firewall.png';
 	 */
 	const getKey = (path: string): string => {
 		const parts = path.split('/');
