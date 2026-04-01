@@ -166,7 +166,27 @@ $j(() => {
 	if (G.multiplayer) {
 		// TODO Remove after implementation 2 vs 2 in multiplayer mode
 		forceTwoPlayerMode();
+		updateStartPrompt();
 	}
+
+	function updateStartPrompt() {
+		const playerMode = parseInt($j('input[name="playerMode"]:checked').val() as string, 10) || 2;
+		const bot1Checked = $j('#botPlayer1').is(':checked');
+		const bot2Checked = $j('#botPlayer2').is(':checked');
+		const bot3Checked = $j('#botPlayer3').is(':checked');
+		const bot4Checked = $j('#botPlayer4').is(':checked');
+		const demoMode = playerMode === 2
+			? bot1Checked && bot2Checked
+			: playerMode === 4 && bot1Checked && bot2Checked && bot3Checked && bot4Checked;
+
+		$j('#start-btn span.blink:first').text(demoMode ? 'START' : 'PRESS');
+		$j('#start-btn span.blink:last').text(demoMode ? 'MODE' : 'BUTTON');
+		$j('#startButton').val(demoMode ? 'DEMO' : 'START');
+	};
+
+	$j('input[name="playerMode"]').on('change input click', updateStartPrompt);
+	$j('input[name="botPlayers"]').on('change input click', updateStartPrompt);
+	updateStartPrompt();
 
 	// Allow button game options to slide in prematch screen
 	buttonSlide();
