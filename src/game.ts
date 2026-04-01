@@ -354,6 +354,7 @@ export default class Game {
 			'sounds/upgrade',
 			'sounds/mudbath',
 			'sounds/AncientBeast',
+			'sounds/pickup',
 		];
 
 		this.soundsys = new SoundSys({ paths });

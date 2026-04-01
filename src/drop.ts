@@ -99,6 +99,7 @@ export class Drop {
 
 		game.log('%CreatureName' + creature.id + '% picks up ' + this.name + ':');
 		creature.hint(this.name, 'msg_effects');
+		game.soundsys.playSFX('sounds/pickup');
 
 		creature.dropCollection.push(this);
 
