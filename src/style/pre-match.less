@@ -510,6 +510,7 @@ body {
 	font-size: 1.5em;
 	text-shadow: 2px 2px black;
 	margin: 20px auto;
+	text-align: center;
 
 	.blink {
 		padding: 0;
@@ -546,6 +547,34 @@ body {
 			filter: grayscale(100%);
 		}
 	}
+}
+
+#start-btn {
+	width: 100%;
+	position: relative;
+	min-height: 100px;
+}
+
+#start-btn input {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+#start-btn span.blink {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	white-space: nowrap;
+}
+
+#start-btn span.blink:first-child {
+	right: calc(50% + 110px);
+}
+
+#start-btn span.blink:last-child {
+	left: calc(50% + 110px);
 }
 
 #singleplayer,
