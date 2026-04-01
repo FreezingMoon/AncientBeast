@@ -484,6 +484,25 @@ class CreatureVignette extends Vignette {
 
 	animateUpdate(queuePosition: number, x: number) {
 		const scale = this.isActiveCreature ? 1.25 : 1.0;
+		// When the creature is delayed, it should leap/jump into its new queue position
+		// rather than just sliding, making the position change more intuitive
+		if (this.creature.isDelayed && this.turnNumberIsCurrentTurn) {
+			const JUMP_HEIGHT = 60;
+			const BOUNCE_MS = 500;
+			const restingKeyframe = { transform: `translateX(${x}px) translateY(0px) scale(${scale})` };
+			const keyframes = [
+				restingKeyframe,
+				{ transform: `translateX(${x}px) translateY(${-JUMP_HEIGHT}px) scale(${scale})` },
+				restingKeyframe,
+			];
+			const animation = this.el.animate(keyframes, {
+				duration: BOUNCE_MS,
+				easing: 'ease-out',
+				fill: 'forwards',
+			});
+			animation.commitStyles();
+			return animation;
+		}
 		const keyframes = [{ transform: `translateX(${x}px) translateY(0px) scale(${scale})` }];
 		const animation = this.el.animate(keyframes, {
 			duration: CONST.animDurationMS,
