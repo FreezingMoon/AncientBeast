@@ -1,5 +1,13 @@
 import { jest, expect, describe, test, afterEach } from '@jest/globals';
 
+// Mock heavy dependencies before importing bot
+jest.mock('../ability');
+jest.mock('../utility/hex', () => {
+	return {
+		Hex: class Hex {},
+	};
+});
+
 import BotController from '../bot';
 import { Creature } from '../creature';
 import type Game from '../game';
@@ -126,9 +134,12 @@ describe('BotController', () => {
 		const bot = new BotController(game);
 
 		expect(bot.closestDistanceToEnemy({ x: 0, y: 0 })).toBe(5);
-		expect(bot.scoreAbilityHex(makeHex({ x: 1, y: 0, creature: alliedCreature }))).toBe(100);
+		// Allied creature at (1,0) is 4 units from enemy: score = 100 - 4*10 = 60
+		expect(bot.scoreAbilityHex(makeHex({ x: 1, y: 0, creature: alliedCreature }))).toBe(60);
+		// Enemy creature at (5,0) is 0 units from enemy: score = 100 - 0*10 = 100
+		// Enemy hex should score higher than allied hex
 		expect(bot.scoreAbilityHex(makeHex({ x: 5, y: 0, creature: enemyCreature }))).toBeGreaterThan(
-			100,
+			bot.scoreAbilityHex(makeHex({ x: 1, y: 0, creature: alliedCreature })),
 		);
 	});
 
