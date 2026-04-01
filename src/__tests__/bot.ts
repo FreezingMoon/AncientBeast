@@ -1,12 +1,11 @@
 import { jest, expect, describe, test, afterEach } from '@jest/globals';
 
-jest.mock('../creature', () => ({
-	Creature: class Creature {},
-}));
-
 import BotController from '../bot';
 import { Creature } from '../creature';
+import type Game from '../game';
+import { Hex } from '../utility/hex';
 
+// Minimal mock creature for testing
 const makeCreature = ({
 	id,
 	team,
@@ -23,23 +22,8 @@ const makeCreature = ({
 	controller?: 'human' | 'bot';
 	health?: number;
 	size?: number;
-}) => {
-	const creature = new Creature() as Creature & {
-		id: number;
-		team: number;
-		x: number;
-		y: number;
-		health: number;
-		size: number;
-		dead: boolean;
-		temp: boolean;
-		hexagons: { x: number; y: number }[];
-		player: {
-			id: number;
-			controller: 'human' | 'bot';
-		};
-	};
-	Object.assign(creature, {
+}) =>
+	({
 		id,
 		team,
 		x,
@@ -53,10 +37,31 @@ const makeCreature = ({
 			id: team,
 			controller,
 		},
+		abilities: [],
+		remainingMove: 0,
+		isDarkPriest: () => false,
+		queryMove: jest.fn(),
+	} as unknown as Creature & {
+		id: number;
+		team: number;
+		x: number;
+		y: number;
+		health: number;
+		size: number;
+		dead: boolean;
+		temp: boolean;
+		hexagons: { x: number; y: number }[];
+		player: {
+			id: number;
+			controller: 'human' | 'bot';
+		};
+		abilities: any[];
+		remainingMove: number;
+		isDarkPriest: () => boolean;
+		queryMove: jest.Mock;
 	});
-	return creature;
-};
 
+// Minimal mock game for testing
 const makeGame = (activeCreature: ReturnType<typeof makeCreature>, otherCreatures = []) =>
 	({
 		activeCreature,
@@ -71,7 +76,25 @@ const makeGame = (activeCreature: ReturnType<typeof makeCreature>, otherCreature
 			},
 		},
 		skipTurn: jest.fn(),
-	} as const);
+		retrieveCreatureStats: () => ({ size: 1 }),
+	} as unknown as Game);
+
+// Helper to create minimal Hex mock for testing
+const makeHex = ({
+	x,
+	y,
+	creature,
+}: {
+	x: number;
+	y: number;
+	creature?: ReturnType<typeof makeCreature>;
+}) =>
+	({
+		x,
+		y,
+		creature,
+		adjacentHex: (radius: number) => [] as Hex[],
+	} as unknown as Hex);
 
 describe('BotController', () => {
 	afterEach(() => {
@@ -103,8 +126,10 @@ describe('BotController', () => {
 		const bot = new BotController(game);
 
 		expect(bot.closestDistanceToEnemy({ x: 0, y: 0 })).toBe(5);
-		expect(bot.scoreAbilityHex({ creature: alliedCreature })).toBe(100);
-		expect(bot.scoreAbilityHex({ creature: enemyCreature })).toBeGreaterThan(100);
+		expect(bot.scoreAbilityHex(makeHex({ x: 1, y: 0, creature: alliedCreature }))).toBe(100);
+		expect(bot.scoreAbilityHex(makeHex({ x: 5, y: 0, creature: enemyCreature }))).toBeGreaterThan(
+			100,
+		);
 	});
 
 	test('query resolution schedules a fallback decision after confirm', () => {
@@ -134,7 +159,7 @@ describe('BotController', () => {
 		const queueDecisionSpy = jest.spyOn(bot, 'queueDecision').mockImplementation(() => undefined);
 
 		bot.resolveQuery(
-			{ hexes: [{ x: 1, y: 0, creature: enemyCreature }] },
+			{ hexes: [makeHex({ x: 1, y: 0, creature: enemyCreature })] },
 			{
 				onSelect,
 				onConfirm,
