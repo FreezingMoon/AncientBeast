@@ -96,6 +96,35 @@ $j(() => {
 	const fullscreen = new Fullscreen(document.getElementById('fullscreen'));
 	$j('#fullscreen').on('click', () => fullscreen.toggle());
 
+	const isTyping = (event) => {
+		const target = event.target as HTMLElement;
+		if (!target) {
+			return false;
+		}
+
+		if (target.tagName === 'TEXTAREA' || target.isContentEditable) {
+			return true;
+		}
+
+		if (target.tagName !== 'INPUT') {
+			return false;
+		}
+
+		const input = target as HTMLInputElement;
+		return ['text', 'search', 'url', 'tel', 'email', 'password', 'number', 'date', 'month', 'week', 'time', 'datetime-local'].includes(
+			input.type,
+		);
+	};
+
+	const toggleBotPlayer = (index: number) => {
+		const $bot = $j(`#botPlayer${index}`);
+		if ($bot.length === 0) {
+			return;
+		}
+
+		$bot.prop('checked', !$bot.prop('checked')).trigger('change');
+	};
+
 	const startScreenHotkeys = {
 		Space: {
 			keyDownTest() {
@@ -143,11 +172,75 @@ $j(() => {
 					});
 			},
 		},
+		Digit1: {
+			keyDownTest(event) {
+				return !isTyping(event);
+			},
+			keyDownAction() {
+				toggleBotPlayer(1);
+			},
+		},
+		Digit2: {
+			keyDownTest(event) {
+				return !isTyping(event);
+			},
+			keyDownAction() {
+				toggleBotPlayer(2);
+			},
+		},
+		Digit3: {
+			keyDownTest(event) {
+				return !isTyping(event);
+			},
+			keyDownAction() {
+				toggleBotPlayer(3);
+			},
+		},
+		Digit4: {
+			keyDownTest(event) {
+				return !isTyping(event);
+			},
+			keyDownAction() {
+				toggleBotPlayer(4);
+			},
+		},
+		Numpad1: {
+			keyDownTest(event) {
+				return !isTyping(event);
+			},
+			keyDownAction() {
+				toggleBotPlayer(1);
+			},
+		},
+		Numpad2: {
+			keyDownTest(event) {
+				return !isTyping(event);
+			},
+			keyDownAction() {
+				toggleBotPlayer(2);
+			},
+		},
+		Numpad3: {
+			keyDownTest(event) {
+				return !isTyping(event);
+			},
+			keyDownAction() {
+				toggleBotPlayer(3);
+			},
+		},
+		Numpad4: {
+			keyDownTest(event) {
+				return !isTyping(event);
+			},
+			keyDownAction() {
+				toggleBotPlayer(4);
+			},
+		},
 	};
 
 	// Binding Hotkeys
 	if (!DEBUG_DISABLE_HOTKEYS) {
-		$j(document).on('keydown', (event) => {
+		const handleStartScreenKeydown = (event) => {
 			const hotkey = startScreenHotkeys[event.code];
 
 			if (hotkey === undefined) {
@@ -160,7 +253,9 @@ $j(() => {
 				event.preventDefault();
 				keyDownAction.call(this, event);
 			}
-		});
+		};
+
+		window.addEventListener('keydown', handleStartScreenKeydown);
 	}
 
 	if (G.multiplayer) {
@@ -241,8 +336,17 @@ $j(() => {
 		$j('#orientation-message').hide();
 	});
 
+	const focusGameWindow = () => {
+		const body = document.body as HTMLElement;
+		if (body && typeof body.focus === 'function') {
+			body.setAttribute('tabindex', '-1');
+			body.focus();
+		}
+	};
+
 	// Focus the form to enable "press enter to start the game" functionality
 	$j('#startButton').trigger('focus');
+	focusGameWindow();
 
 	const startGame = () => {
 		G.loadGame(getGameConfig());
