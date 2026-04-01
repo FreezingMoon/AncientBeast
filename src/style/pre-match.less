@@ -165,11 +165,15 @@ body {
 
 #botPlayerList {
 	display: flex;
+	justify-content: center;
+	align-items: center;
 	flex-wrap: nowrap;
 	gap: 0;
-	border: 1px solid #333333;
+	border: none;
 	border-radius: 4px;
-	background: #333333;
+	background: transparent;
+	width: 100%;
+	margin: 0;
 	overflow: hidden;
 }
 
@@ -178,9 +182,10 @@ body {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	flex: 0 1 60px;
-	min-width: 52px;
+	flex: 1 1 0;
+	min-width: 60px;
 	border: 0;
+	box-sizing: border-box;
 	background: transparent;
 	color: #ffffff;
 	font-weight: bold;
@@ -203,13 +208,17 @@ body {
 
 	span {
 		display: inline-block;
+		box-sizing: border-box;
 		width: 100%;
 		text-align: center;
 		padding: 0 8px;
 		pointer-events: none;
+		background: #333333;
+		border: 1px solid transparent;
+		transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 	}
 
-	&:hover {
+	&:hover span {
 		background: #a32d00;
 	}
 
@@ -217,16 +226,19 @@ body {
 		background: #292929;
 		color: #f55;
 		font-weight: bold;
-		box-shadow: inset 0 0 0 1px #c80909;
+		border-color: #c80909;
+		border-right: 1px solid #c80909;
+		position: relative;
+		z-index: 2;
+	}
+
+	&:hover {
+		z-index: 2;
 	}
 }
 
-.botPlayerToggle + .botPlayerToggle {
-	border-left: 1px solid #292929;
-}
-
-.botPlayerToggle:first-child {
-	border-left: 0;
+.botPlayerToggle:not(:first-child) {
+	margin-left: -1px;
 }
 
 .botPlayerToggle:first-child span {
