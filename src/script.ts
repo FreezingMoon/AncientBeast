@@ -179,7 +179,7 @@ $j(() => {
 			? bot1Checked && bot2Checked
 			: playerMode === 4 && bot1Checked && bot2Checked && bot3Checked && bot4Checked;
 
-		$j('#start-btn span.blink:first').text(demoMode ? 'START' : 'PRESS');
+		$j('#start-btn span.blink:first').text(demoMode ? 'VIEW' : 'PRESS');
 		$j('#start-btn span.blink:last').text(demoMode ? 'MODE' : 'BUTTON');
 		$j('#startButton').val(demoMode ? 'DEMO' : 'START');
 	};
