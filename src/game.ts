@@ -343,6 +343,7 @@ export default class Game {
 
 		// Sounds
 		const paths = [
+			'sounds/shatter',
 			'sounds/step',
 			'sounds/swing',
 			'sounds/swing2',
