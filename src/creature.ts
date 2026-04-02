@@ -736,18 +736,21 @@ export class Creature {
 		const select = o.noPath || this.movementType() === 'flying' ? selectFlying : selectNormal;
 
 		if (this.noActionPossible) {
-			const buttonElement = game.UI.btnSkipTurn.$button;
+			// Bots handle their own skip turn — don't show the human-facing hint/UI
+			if (this.player.controller !== 'bot') {
+				const buttonElement = game.UI.btnSkipTurn.$button;
 
-			buttonElement.addClass('bounce');
-			// In unit tests or headless environments, grid query APIs may be absent.
-			if (typeof (game.grid as any)?.querySelf === 'function') {
-				game.grid.querySelf({
-					fnOnConfirm: function () {
-						game.UI.btnSkipTurn.click();
-					},
-					fnOnCancel: function () {},
-					confirmText: 'Skip turn',
-				});
+				buttonElement.addClass('bounce');
+				// In unit tests or headless environments, grid query APIs may be absent
+				if (typeof (game.grid as any)?.querySelf === 'function') {
+					game.grid.querySelf({
+						fnOnConfirm: function () {
+							game.UI.btnSkipTurn.click();
+						},
+						fnOnCancel: function () {},
+						confirmText: 'Skip turn',
+					});
+				}
 			}
 		} else {
 			// In unit tests or headless environments, guard against missing queryHexes()
