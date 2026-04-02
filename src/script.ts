@@ -59,7 +59,7 @@ $j(() => {
 		scrim.remove();
 	});
 	scrim.removeClass('loading');
-	renderPlayerModeType(G.multiplayer);
+	renderGameModeType(G.multiplayer);
 
 	// For the location rendering. The logic is in src/ui/locations.ts
 	const locations: Locations = new Locations();
@@ -95,6 +95,35 @@ $j(() => {
 	// Add listener for Fullscreen API
 	const fullscreen = new Fullscreen(document.getElementById('fullscreen'));
 	$j('#fullscreen').on('click', () => fullscreen.toggle());
+
+	const isTyping = (event) => {
+		const target = event.target as HTMLElement;
+		if (!target) {
+			return false;
+		}
+
+		if (target.tagName === 'TEXTAREA' || target.isContentEditable) {
+			return true;
+		}
+
+		if (target.tagName !== 'INPUT') {
+			return false;
+		}
+
+		const input = target as HTMLInputElement;
+		return ['text', 'search', 'url', 'tel', 'email', 'password', 'number', 'date', 'month', 'week', 'time', 'datetime-local'].includes(
+			input.type,
+		);
+	};
+
+	const togglePlayer = (index: number) => {
+		const $player = $j(`#player${index}`);
+		if ($player.length === 0) {
+			return;
+		}
+
+		$player.prop('checked', !$player.prop('checked')).trigger('change');
+	};
 
 	const startScreenHotkeys = {
 		Space: {
@@ -143,11 +172,88 @@ $j(() => {
 					});
 			},
 		},
+		Digit1: {
+			keyDownTest(event) {
+				return !isTyping(event);
+			},
+			keyDownAction() {
+				togglePlayer(1);
+			},
+		},
+		Digit2: {
+			keyDownTest(event) {
+				return !isTyping(event);
+			},
+			keyDownAction() {
+				togglePlayer(2);
+			},
+		},
+		Digit3: {
+			keyDownTest(event) {
+				return !isTyping(event);
+			},
+			keyDownAction() {
+				togglePlayer(3);
+			},
+		},
+		Digit4: {
+			keyDownTest(event) {
+				return !isTyping(event);
+			},
+			keyDownAction() {
+				togglePlayer(4);
+			},
+		},
+		Numpad1: {
+			keyDownTest(event) {
+				return !isTyping(event);
+			},
+			keyDownAction() {
+				togglePlayer(1);
+			},
+		},
+		Numpad2: {
+			keyDownTest(event) {
+				return !isTyping(event);
+			},
+			keyDownAction() {
+				togglePlayer(2);
+			},
+		},
+		Numpad3: {
+			keyDownTest(event) {
+				return !isTyping(event);
+			},
+			keyDownAction() {
+				togglePlayer(3);
+			},
+		},
+		Numpad4: {
+			keyDownTest(event) {
+				return !isTyping(event);
+			},
+			keyDownAction() {
+				togglePlayer(4);
+			},
+		},
+		Backquote: {
+			keyDownTest(event) {
+				return !isTyping(event) && !$j('#p4').prop('disabled');
+			},
+			keyDownAction() {
+				const currentMode = $j('input[name="gameMode"]:checked').val();
+				if (currentMode === '2') {
+					$j('#p4').trigger('click');
+				} else {
+					$j('#p2').trigger('click');
+				}
+			},
+		},
 	};
 
 	// Binding Hotkeys
 	if (!DEBUG_DISABLE_HOTKEYS) {
-		$j(document).on('keydown', (event) => {
+		const handleStartScreenKeydown = (event) => {
 			const hotkey = startScreenHotkeys[event.code];
 
 			if (hotkey === undefined) {
@@ -160,13 +266,34 @@ $j(() => {
 				event.preventDefault();
 				keyDownAction.call(this, event);
 			}
-		});
+		};
+
+		window.addEventListener('keydown', handleStartScreenKeydown);
 	}
 
 	if (G.multiplayer) {
 		// TODO Remove after implementation 2 vs 2 in multiplayer mode
 		forceTwoPlayerMode();
+		updateStartPrompt();
 	}
+
+	function updateStartPrompt() {
+		const gameMode = parseInt($j('input[name="gameMode"]:checked').val() as string, 10) || 2;
+		const player1Checked = $j('#player1').is(':checked');
+		const player2Checked = $j('#player2').is(':checked');
+		const player3Checked = $j('#player3').is(':checked');
+		const player4Checked = $j('#player4').is(':checked');
+		const demoMode = gameMode === 2
+			? !player1Checked && !player2Checked
+			: gameMode === 4 && !player1Checked && !player2Checked && !player3Checked && !player4Checked;
+
+		$j('#start-btn span.blink:first').text(demoMode ? 'VIEW' : 'PRESS');
+		$j('#start-btn span.blink:last').text(demoMode ? 'MODE' : 'BUTTON');
+		$j('#startButton').val(demoMode ? 'DEMO' : 'START');
+	};
+
+	$j('input[name="gameMode"]').on('change input click', updateStartPrompt);
+    $j('input[name="players"]').on('change input click', updateStartPrompt);
 
 	// Allow button game options to slide in prematch screen
 	buttonSlide();
@@ -184,7 +311,7 @@ $j(() => {
 	$j('#createMatchButton').on('click', () => {
 		$j('.match-frame').hide();
 		$j('#gameSetup').show();
-		renderPlayerModeType(G.multiplayer);
+		renderGameModeType(G.multiplayer);
 		$j('#startMatchButton').show();
 		$j('#startButton').hide();
 
@@ -221,8 +348,17 @@ $j(() => {
 		$j('#orientation-message').hide();
 	});
 
+	const focusGameWindow = () => {
+		const body = document.body as HTMLElement;
+		if (body && typeof body.focus === 'function') {
+			body.setAttribute('tabindex', '-1');
+			body.focus();
+		}
+	};
+
 	// Focus the form to enable "press enter to start the game" functionality
 	$j('#startButton').trigger('focus');
+	focusGameWindow();
 
 	const startGame = () => {
 		G.loadGame(getGameConfig());
@@ -433,13 +569,13 @@ function getLogin() {
 }
 
 /**
- * Render the player mode text inside game form
+ * Render the game mode text inside game form
  * @param {Boolean} isMultiPlayer Is playing in online multiplayer mode or hotSeat mode
  * @returns {Object} JQuery<HTMLElement>
  */
-function renderPlayerModeType(isMultiPlayer) {
-	const playerModeType = $j('#playerModeType');
-	return isMultiPlayer ? playerModeType.text('[ Online ]') : playerModeType.text('[ Hotseat ]');
+function renderGameModeType(isMultiPlayer) {
+	const gameModeType = $j('#gameModeType');
+	return isMultiPlayer ? gameModeType.text('[ Online ]') : gameModeType.text('[ Hotseat ]');
 }
 
 /**
@@ -448,7 +584,10 @@ function renderPlayerModeType(isMultiPlayer) {
  */
 export function getGameConfig() {
 	const defaultConfig = {
-		playerMode: parseInt($j('input[name="playerMode"]:checked').val() as string, 10),
+		gameMode: parseInt($j('input[name="gameMode"]:checked').val() as string, 10),
+		players: $j('input[name="players"]:checked')
+			.map((_, element) => parseInt($j(element).val() as string, 10))
+			.get(),
 		creaLimitNbr: parseInt($j('input[name="activeUnits"]:checked').val() as string, 10), // DP counts as One
 		unitDrops: parseInt($j('input[name="unitDrops"]:checked').val() as string, 10),
 		abilityUpgrades: parseInt($j('input[name="abilityUpgrades"]:checked').val() as string, 10),
