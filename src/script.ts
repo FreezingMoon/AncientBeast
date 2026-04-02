@@ -111,9 +111,20 @@ $j(() => {
 		}
 
 		const input = target as HTMLInputElement;
-		return ['text', 'search', 'url', 'tel', 'email', 'password', 'number', 'date', 'month', 'week', 'time', 'datetime-local'].includes(
-			input.type,
-		);
+		return [
+			'text',
+			'search',
+			'url',
+			'tel',
+			'email',
+			'password',
+			'number',
+			'date',
+			'month',
+			'week',
+			'time',
+			'datetime-local',
+		].includes(input.type);
 	};
 
 	const togglePlayer = (index: number) => {
@@ -283,17 +294,22 @@ $j(() => {
 		const player2Checked = $j('#player2').is(':checked');
 		const player3Checked = $j('#player3').is(':checked');
 		const player4Checked = $j('#player4').is(':checked');
-		const demoMode = gameMode === 2
-			? !player1Checked && !player2Checked
-			: gameMode === 4 && !player1Checked && !player2Checked && !player3Checked && !player4Checked;
+		const demoMode =
+			gameMode === 2
+				? !player1Checked && !player2Checked
+				: gameMode === 4 &&
+				  !player1Checked &&
+				  !player2Checked &&
+				  !player3Checked &&
+				  !player4Checked;
 
 		$j('#start-btn span.blink:first').text(demoMode ? 'VIEW' : 'PRESS');
 		$j('#start-btn span.blink:last').text(demoMode ? 'MODE' : 'BUTTON');
 		$j('#startButton').val(demoMode ? 'DEMO' : 'START');
-	};
+	}
 
 	$j('input[name="gameMode"]').on('change input click', updateStartPrompt);
-    $j('input[name="players"]').on('change input click', updateStartPrompt);
+	$j('input[name="players"]').on('change input click', updateStartPrompt);
 
 	// Allow button game options to slide in prematch screen
 	buttonSlide();
