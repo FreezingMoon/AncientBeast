@@ -285,7 +285,6 @@ $j(() => {
 	if (G.multiplayer) {
 		// TODO Remove after implementation 2 vs 2 in multiplayer mode
 		forceTwoPlayerMode();
-		updateStartPrompt();
 	}
 
 	function updateStartPrompt() {
@@ -310,6 +309,7 @@ $j(() => {
 
 	$j('input[name="gameMode"]').on('change input click', updateStartPrompt);
 	$j('input[name="players"]').on('change input click', updateStartPrompt);
+	updateStartPrompt();
 
 	// Allow button game options to slide in prematch screen
 	buttonSlide();
