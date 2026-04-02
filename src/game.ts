@@ -72,7 +72,7 @@ export default class Game {
 	 * turn :               Integer :   Current's turn number
 	 *
 	 * // Normal attributes
-	 * playerMode :     Integer :   Number of players in the game
+	 * gameMode :     Integer :   Number of players in the game
 	 * activeCreature : Creature :  Current active creature object reference
 	 * creatureData :       Array :     Array containing all data for the creatures
 	 *
@@ -127,7 +127,7 @@ export default class Game {
 	fullscreenMode?: boolean;
 	background_image?: string;
 
-	playerMode?: number;
+	gameMode?: number;
 
 	UI?: any;
 
@@ -339,7 +339,9 @@ export default class Game {
 		this.gameState = 'loading';
 		if (setupOpt) {
 			this.configData = setupOpt;
-			$j.extend(this, setupOpt);
+			const setupData = { ...setupOpt };
+			delete setupData.players;
+			$j.extend(this, setupData);
 		}
 		// console.log(this);
 		this.startLoading();
@@ -425,7 +427,7 @@ export default class Game {
 
 				// Do not call setup if we are not active.
 				if (!this.preventSetup) {
-					this.setup(this.playerMode);
+					this.setup(this.gameMode);
 				}
 			}, 100);
 		}
@@ -467,14 +469,14 @@ export default class Game {
 
 		$j('#loader').addClass('hide');
 		$j('body').css('cursor', 'default');
-		this.setup(this.playerMode);
+		this.setup(this.gameMode);
 	}
 
 	/**
-	 * @param {number} playerMode - Ideally 2 or 4, number of players to configure
+	 * @param {number} gameMode - Ideally 2 or 4, number of players to configure
 	 * Launch the game with the given number of player.
 	 */
-	setup(playerMode: number) {
+	setup(gameMode: number) {
 		// Phaser
 		this.Phaser.scale.parentIsWindow = true;
 		this.Phaser.scale.pageAlignHorizontally = true;
@@ -548,15 +550,15 @@ export default class Game {
 		// Remove loading screen
 		$j('#matchMaking').hide();
 
-		for (let i = 0; i < playerMode; i++) {
+		this.players = [];
+		for (let i = 0; i < gameMode; i++) {
 			const player = new Player(i as PlayerID, this);
-			player.controller = this.configData.botPlayers?.includes(player.id) ? 'bot' : 'human';
 			this.players.push(player);
-
+			player.controller = this.configData.players?.includes(player.id) ? 'human' : 'bot';
 			// Initialize players' starting positions
 			let pos: Point;
 
-			if (playerMode > 2) {
+			if (gameMode > 2) {
 				// If 4 players
 				switch (player.id) {
 					case 0:
@@ -605,7 +607,9 @@ export default class Game {
 			player.summon('--', pos); // Summon Dark Priest
 		}
 
-		this.activeCreature = this.players[0].creatures[0]; // Prevent errors
+		if (this.players.length && this.players[0].creatures.length) {
+			this.activeCreature = this.players[0].creatures[0]; // Prevent errors
+		}
 
 		this.UI = new UI(
 			{
@@ -619,7 +623,7 @@ export default class Game {
 		this.gameState = 'playing';
 
 		this.log(`Welcome to Ancient Beast ${version}`);
-		this.log('Setting up a ' + playerMode + ' player match');
+		this.log('Setting up a ' + gameMode + ' player match');
 
 		this.timeInterval = setInterval(() => {
 			this.checkTime();
@@ -716,7 +720,7 @@ export default class Game {
 				abilityUpgrades: v.numeric_properties.abilityUpgrades,
 				creaLimitNbr: v.numeric_properties.creaLimitNbr,
 				plasma_amount: v.numeric_properties.plasma_amount,
-				playerMode: v.numeric_properties.playerMode,
+				gameMode: v.numeric_properties.gameMode,
 				timePool: v.numeric_properties.timePool,
 				turnTimePool: v.numeric_properties.turnTimePool,
 				unitDrops: v.numeric_properties.unitDrops,
@@ -729,7 +733,7 @@ export default class Game {
 			const _matchBtn =
 				$j(`<a class="user-match"><div class="avatar"></div><div class="user-match__col">
         Host: ${v.presence.username}<br />
-        Player Mode: ${v.numeric_properties.playerMode}<br />
+        Game Mode: ${v.numeric_properties.gameMode}<br />
         Active Units: ${v.numeric_properties.creaLimitNbr}<br />
         Ability Upgrades: ${v.numeric_properties.abilityUpgrades}<br />
         </div><div class="user-match__col">
@@ -1022,7 +1026,7 @@ export default class Game {
 		const date = new Date().valueOf() - this.pauseTime,
 			p = this.activeCreature.player,
 			alertTime = 5, // In seconds
-			totalPlayers = this.playerMode;
+			totalPlayers = this.gameMode;
 
 		let msgStyle: CreatureHintType = 'msg_effects';
 
@@ -1471,7 +1475,7 @@ export default class Game {
 		this.gameState = 'ended';
 
 		//-------End bonuses--------//
-		for (let i = 0; i < this.playerMode; i++) {
+		for (let i = 0; i < this.gameMode; i++) {
 			// No fleeing
 			if (!this.players[i].hasFled) {
 				this.players[i].score.push({

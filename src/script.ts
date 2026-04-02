@@ -59,7 +59,7 @@ $j(() => {
 		scrim.remove();
 	});
 	scrim.removeClass('loading');
-	renderPlayerModeType(G.multiplayer);
+	renderGameModeType(G.multiplayer);
 
 	// For the location rendering. The logic is in src/ui/locations.ts
 	const locations: Locations = new Locations();
@@ -116,13 +116,13 @@ $j(() => {
 		);
 	};
 
-	const toggleBotPlayer = (index: number) => {
-		const $bot = $j(`#botPlayer${index}`);
-		if ($bot.length === 0) {
+	const togglePlayer = (index: number) => {
+		const $player = $j(`#player${index}`);
+		if ($player.length === 0) {
 			return;
 		}
 
-		$bot.prop('checked', !$bot.prop('checked')).trigger('change');
+		$player.prop('checked', !$player.prop('checked')).trigger('change');
 	};
 
 	const startScreenHotkeys = {
@@ -177,7 +177,7 @@ $j(() => {
 				return !isTyping(event);
 			},
 			keyDownAction() {
-				toggleBotPlayer(1);
+				togglePlayer(1);
 			},
 		},
 		Digit2: {
@@ -185,7 +185,7 @@ $j(() => {
 				return !isTyping(event);
 			},
 			keyDownAction() {
-				toggleBotPlayer(2);
+				togglePlayer(2);
 			},
 		},
 		Digit3: {
@@ -193,7 +193,7 @@ $j(() => {
 				return !isTyping(event);
 			},
 			keyDownAction() {
-				toggleBotPlayer(3);
+				togglePlayer(3);
 			},
 		},
 		Digit4: {
@@ -201,7 +201,7 @@ $j(() => {
 				return !isTyping(event);
 			},
 			keyDownAction() {
-				toggleBotPlayer(4);
+				togglePlayer(4);
 			},
 		},
 		Numpad1: {
@@ -209,7 +209,7 @@ $j(() => {
 				return !isTyping(event);
 			},
 			keyDownAction() {
-				toggleBotPlayer(1);
+				togglePlayer(1);
 			},
 		},
 		Numpad2: {
@@ -217,7 +217,7 @@ $j(() => {
 				return !isTyping(event);
 			},
 			keyDownAction() {
-				toggleBotPlayer(2);
+				togglePlayer(2);
 			},
 		},
 		Numpad3: {
@@ -225,7 +225,7 @@ $j(() => {
 				return !isTyping(event);
 			},
 			keyDownAction() {
-				toggleBotPlayer(3);
+				togglePlayer(3);
 			},
 		},
 		Numpad4: {
@@ -233,7 +233,7 @@ $j(() => {
 				return !isTyping(event);
 			},
 			keyDownAction() {
-				toggleBotPlayer(4);
+				togglePlayer(4);
 			},
 		},
 	};
@@ -265,23 +265,22 @@ $j(() => {
 	}
 
 	function updateStartPrompt() {
-		const playerMode = parseInt($j('input[name="playerMode"]:checked').val() as string, 10) || 2;
-		const bot1Checked = $j('#botPlayer1').is(':checked');
-		const bot2Checked = $j('#botPlayer2').is(':checked');
-		const bot3Checked = $j('#botPlayer3').is(':checked');
-		const bot4Checked = $j('#botPlayer4').is(':checked');
-		const demoMode = playerMode === 2
-			? bot1Checked && bot2Checked
-			: playerMode === 4 && bot1Checked && bot2Checked && bot3Checked && bot4Checked;
+		const gameMode = parseInt($j('input[name="gameMode"]:checked').val() as string, 10) || 2;
+		const player1Checked = $j('#player1').is(':checked');
+		const player2Checked = $j('#player2').is(':checked');
+		const player3Checked = $j('#player3').is(':checked');
+		const player4Checked = $j('#player4').is(':checked');
+		const demoMode = gameMode === 2
+			? !player1Checked && !player2Checked
+			: gameMode === 4 && !player1Checked && !player2Checked && !player3Checked && !player4Checked;
 
 		$j('#start-btn span.blink:first').text(demoMode ? 'VIEW' : 'PRESS');
 		$j('#start-btn span.blink:last').text(demoMode ? 'MODE' : 'BUTTON');
 		$j('#startButton').val(demoMode ? 'DEMO' : 'START');
 	};
 
-	$j('input[name="playerMode"]').on('change input click', updateStartPrompt);
-	$j('input[name="botPlayers"]').on('change input click', updateStartPrompt);
-	updateStartPrompt();
+	$j('input[name="gameMode"]').on('change input click', updateStartPrompt);
+    $j('input[name="players"]').on('change input click', updateStartPrompt);
 
 	// Allow button game options to slide in prematch screen
 	buttonSlide();
@@ -299,7 +298,7 @@ $j(() => {
 	$j('#createMatchButton').on('click', () => {
 		$j('.match-frame').hide();
 		$j('#gameSetup').show();
-		renderPlayerModeType(G.multiplayer);
+		renderGameModeType(G.multiplayer);
 		$j('#startMatchButton').show();
 		$j('#startButton').hide();
 
@@ -557,13 +556,13 @@ function getLogin() {
 }
 
 /**
- * Render the player mode text inside game form
+ * Render the game mode text inside game form
  * @param {Boolean} isMultiPlayer Is playing in online multiplayer mode or hotSeat mode
  * @returns {Object} JQuery<HTMLElement>
  */
-function renderPlayerModeType(isMultiPlayer) {
-	const playerModeType = $j('#playerModeType');
-	return isMultiPlayer ? playerModeType.text('[ Online ]') : playerModeType.text('[ Hotseat ]');
+function renderGameModeType(isMultiPlayer) {
+	const gameModeType = $j('#gameModeType');
+	return isMultiPlayer ? gameModeType.text('[ Online ]') : gameModeType.text('[ Hotseat ]');
 }
 
 /**
@@ -572,8 +571,8 @@ function renderPlayerModeType(isMultiPlayer) {
  */
 export function getGameConfig() {
 	const defaultConfig = {
-		playerMode: parseInt($j('input[name="playerMode"]:checked').val() as string, 10),
-		botPlayers: $j('input[name="botPlayers"]:checked')
+		gameMode: parseInt($j('input[name="gameMode"]:checked').val() as string, 10),
+		players: $j('input[name="players"]:checked')
 			.map((_, element) => parseInt($j(element).val() as string, 10))
 			.get(),
 		creaLimitNbr: parseInt($j('input[name="activeUnits"]:checked').val() as string, 10), // DP counts as One

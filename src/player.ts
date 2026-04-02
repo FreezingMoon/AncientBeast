@@ -266,7 +266,7 @@ export class Player {
 	isLeader(): boolean {
 		const game = this.game;
 
-		for (let i = 0; i < game.playerMode; i++) {
+		for (let i = 0; i < game.gameMode; i++) {
 			// Each player
 			// If someone has a higher score
 			if (game.players[i].getScore().total > this.getScore().total) {
@@ -304,7 +304,7 @@ export class Player {
 		game.updateQueueDisplay();
 
 		// Test if allie Dark Priest is dead
-		if (game.playerMode > 2) {
+		if (game.gameMode > 2) {
 			// 2 vs 2
 			if (game.players[(this.id + 2) % 4].hasLost) {
 				game.endGame();
