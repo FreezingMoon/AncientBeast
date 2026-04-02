@@ -236,6 +236,19 @@ $j(() => {
 				togglePlayer(4);
 			},
 		},
+		Backquote: {
+			keyDownTest(event) {
+				return !isTyping(event) && !$j('#p4').prop('disabled');
+			},
+			keyDownAction() {
+				const currentMode = $j('input[name="gameMode"]:checked').val();
+				if (currentMode === '2') {
+					$j('#p4').trigger('click');
+				} else {
+					$j('#p2').trigger('click');
+				}
+			},
+		},
 	};
 
 	// Binding Hotkeys
