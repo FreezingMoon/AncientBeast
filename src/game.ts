@@ -1595,6 +1595,17 @@ export default class Game {
 		this.gamelog.reset();
 	}
 
+	rematch() {
+		const savedConfig = this.configData;
+		this.resetGame();
+		this.configData = savedConfig;
+		if (this.configData && Object.keys(this.configData).length > 0) {
+			this.loadGame(this.configData, undefined, undefined, () => {});
+		} else {
+			this.UI.showGameSetup();
+		}
+	}
+
 	/**
 	 * Setup signal channels based on a list of channel names.
 	 *

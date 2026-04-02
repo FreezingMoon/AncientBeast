@@ -455,6 +455,10 @@
 	background-image: url('~assets/icons/exit.svg');
 }
 
+.button#rematch {
+	background-image: url('~assets/icons/rematch.svg');
+}
+
 .p0.player-text.bright {
 	color: #f55;
 }
@@ -1133,6 +1137,22 @@ div.section.info {
 .vignette.delaymarker .frame {
 	background-image: url('~assets/interface/frame.png'), url('~assets/icons/delay.svg');
 	background-color: rgba(0, 0, 0, 0.85);
+}
+
+// Delay preview - semi-transparent avatar shown in queue on hover
+.vignette.delay-preview {
+	pointer-events: none;
+	z-index: 2;
+	animation: delayPreviewPulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes delayPreviewPulse {
+	from {
+		opacity: 0.35;
+	}
+	to {
+		opacity: 0.6;
+	}
 }
 
 .vignette.hex .frame {
@@ -1834,6 +1854,7 @@ span.pure {
 			margin-top: 20px;
 			margin-bottom: 50px;
 			#flee,
+			#rematch,
 			#exit {
 				margin-left: auto;
 				margin-right: auto;
