@@ -792,11 +792,6 @@ export default class Game {
 					}
 				}
 
-				if (this.activeCreature.player.hasLost) {
-					this.nextCreature();
-					return;
-				}
-
 				// Play heartbeat sound on other player's turn
 				if (differentPlayer) {
 					this.soundsys.playHeartBeat('sounds/heartbeat');
