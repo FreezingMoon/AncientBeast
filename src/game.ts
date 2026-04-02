@@ -5,7 +5,7 @@ import { GameLog } from './utility/gamelog';
 import { SoundSys } from './sound/soundsys';
 import { Hex } from './utility/hex';
 import { HexGrid } from './utility/hexgrid';
-import { getUrl, use as assetsUse } from './assets';
+import { getUrl, use as assetsUse, soundPaths } from './assets';
 import { Player, PlayerColor, PlayerID } from './player';
 import { UI } from './ui/interface';
 import { Creature, CreatureHintType } from './creature';
@@ -346,22 +346,7 @@ export default class Game {
 		// console.log(this);
 		this.startLoading();
 
-		// Sounds
-		const paths = [
-			'sounds/shatter',
-			'sounds/step',
-			'sounds/swing',
-			'sounds/swing2',
-			'sounds/swing3',
-			'sounds/heartbeat',
-			'sounds/tick',
-			'sounds/drums',
-			'sounds/upgrade',
-			'sounds/mudbath',
-			'sounds/AncientBeast',
-		];
-
-		this.soundsys = new SoundSys({ paths });
+		this.soundsys = new SoundSys({ paths: soundPaths });
 		this.musicPlayer = this.soundsys.musicPlayer;
 
 		this.Phaser.load.onFileComplete.add(this.loadFinish, this);

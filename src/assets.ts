@@ -1,5 +1,7 @@
 import { DEBUG } from './debug';
-import { phaserAutoloadAssetPaths, assetPaths } from '../assets/index';
+import { phaserAutoloadAssetPaths, assetPaths, soundPaths as generatedSoundPaths } from '../assets/index';
+
+export { generatedSoundPaths as soundPaths };
 
 /**
  * Load all assets in phaserAutoloadAssetsPaths into Phaser Game instance, using URL basename as Phaser key.

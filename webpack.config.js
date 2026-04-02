@@ -27,6 +27,11 @@ const Dotenv = require('dotenv-webpack');
 	const globOptions = { ignore: ['**/*.js', '**/*.ts', '**/*.md'], posix: true };
 	const phaserAutoloadAssets = toObjString(glob.sync('assets/autoload/phaser/**/*.*', globOptions));
 	const allAssets = toObjString(glob.sync('assets/**/*.*', globOptions));
+	const soundPaths = JSON.stringify(
+		glob
+			.sync('assets/sounds/**/*.*', globOptions)
+			.map((p) => p.replace(/^assets\//, '').replace(/\.[^.]+$/, '')),
+	);
 
 	fs.writeFileSync(
 		'assets/index.js',
@@ -42,6 +47,8 @@ const Dotenv = require('dotenv-webpack');
 export const phaserAutoloadAssetPaths=${phaserAutoloadAssets}
 
 export const assetPaths=${allAssets}
+
+export const soundPaths=${soundPaths}
 
 `,
 	);
