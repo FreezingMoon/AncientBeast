@@ -176,13 +176,21 @@ export class MetaPowers {
 	 * If the toggled Meta Powers were persisted to a cookie, restore them
 	 */
 	_restorePowers() {
-		const powers = JSON.parse(Cookies.get(COOKIE_KEY)).toggles;
+		try {
+			const cookieValue = Cookies.get(COOKIE_KEY);
+			if (!cookieValue) return;
+			const parsed = JSON.parse(cookieValue);
+			if (!parsed || !parsed.toggles) return;
+			const powers = parsed.toggles;
 
-		Object.keys(powers).forEach((key) => {
-			if (powers[key].enabled) {
-				this._togglePower(key, this[`btn${capitalize(key)}`]);
-			}
-		});
+			Object.keys(powers).forEach((key) => {
+				if (powers[key]?.enabled) {
+					this._togglePower(key, this[`btn${capitalize(key)}`]);
+				}
+			});
+		} catch (error) {
+			console.error('Failed to restore meta powers from cookie:', error);
+		}
 	}
 
 	/**
