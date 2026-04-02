@@ -576,6 +576,9 @@ export class Hex {
 
 		// Display Hex
 		let targetAlpha = this.reachable || Boolean(this.displayClasses.match(/creature/g));
+		// Track non-creature dashed hexes for 25% opacity
+		const isNonCreatureDashed =
+			Boolean(this.displayClasses.match(/dashed/g)) && !(this.creature instanceof Creature);
 
 		targetAlpha = !this.displayClasses.match(/hidden/g) && targetAlpha;
 		targetAlpha = Boolean(this.displayClasses.match(/showGrid/g)) || targetAlpha;
@@ -607,6 +610,10 @@ export class Hex {
 		}
 
 		this.display.alpha = targetAlpha ? 1 : 0;
+		// Dashed hexes at 25% opacity for non-unit occupied places
+		if (isNonCreatureDashed) {
+			this.display.alpha = 0.25;
+		}
 
 		if (this.displayClasses.match(/shrunken/)) {
 			this.display.scale.setTo(shrinkScale);
@@ -638,7 +645,7 @@ export class Hex {
 					this.coordText.strokeThickness = 5;
 				}
 				this.coordText.anchor.setTo(0.5);
-				this.grid.overlayHexesGroup.add(this.coordText);
+				this.grid.coordGroup.add(this.coordText);
 			}
 		} else if (this.coordText && this.coordText.exists) {
 			this.coordText.destroy();
@@ -671,16 +678,27 @@ export class Hex {
 			} else if (this.overlayClasses.match(/dashed/)) {
 				this.overlay.loadTexture(`hex_dashed_p${player}`);
 				this.grid.overlayHexesGroup.bringToTop(this.overlay);
+			} else if (this.overlayClasses.match(/reachable/)) {
+				// Reachable hexes in targeting mode (non-creature, no player class)
+				this.overlay.loadTexture('hex_path');
+				this.grid.overlayHexesGroup.bringToTop(this.overlay);
 			} else {
 				this.overlay.loadTexture(`hex_p${player}`);
 				// Colored overlays for creatures/selected should be on top
 				this.grid.overlayHexesGroup.bringToTop(this.overlay);
 			}
 		} else {
-			this.overlay.loadTexture('cancel');
-			this.overlay.anchor.set(0.5, 0.5);
-			if (!this.isSpinning) {
-				this.startSpinning();
+			if (this.overlayClasses.match(/reachable/)) {
+				// Non-player hex targeted by ability: non-spinning hex_path cursor
+				this.overlay.loadTexture('hex_path');
+				this.overlay.anchor.set(0.5, 0.5);
+				// No spinning - use static cursor
+			} else {
+				this.overlay.loadTexture('cancel');
+				this.overlay.anchor.set(0.5, 0.5);
+				if (!this.isSpinning) {
+					this.startSpinning();
+				}
 			}
 		}
 
