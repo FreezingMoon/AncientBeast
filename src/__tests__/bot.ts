@@ -7,13 +7,21 @@ jest.mock('../utility/hex', () => {
 		Hex: class Hex {},
 	};
 });
+// Provide a minimal Creature class so that `instanceof Creature` works in
+// BotController.scoreAbilityHex without pulling in the full creature module
+// (which transitively requires jQuery and other DOM dependencies).
+jest.mock('../creature', () => ({
+	Creature: class Creature {},
+}));
 
 import BotController from '../bot';
 import { Creature } from '../creature';
 import type Game from '../game';
 import { Hex } from '../utility/hex';
 
-// Minimal mock creature for testing
+// Minimal mock creature for testing.
+// Object.create(Creature.prototype) ensures `instanceof Creature` is true in
+// BotController.scoreAbilityHex so the creature-scoring branches actually run.
 const makeCreature = ({
 	id,
 	team,
@@ -30,8 +38,9 @@ const makeCreature = ({
 	controller?: 'human' | 'bot';
 	health?: number;
 	size?: number;
-}) =>
-	({
+}) => {
+	const creature = Object.create(Creature.prototype);
+	Object.assign(creature, {
 		id,
 		team,
 		x,
@@ -49,7 +58,8 @@ const makeCreature = ({
 		remainingMove: 0,
 		isDarkPriest: () => false,
 		queryMove: jest.fn(),
-	} as unknown as Creature & {
+	});
+	return creature as Creature & {
 		id: number;
 		team: number;
 		x: number;
@@ -67,7 +77,8 @@ const makeCreature = ({
 		remainingMove: number;
 		isDarkPriest: () => boolean;
 		queryMove: jest.Mock;
-	});
+	};
+};
 
 // Minimal mock game for testing
 const makeGame = (activeCreature: ReturnType<typeof makeCreature>, otherCreatures = []) =>
@@ -134,9 +145,9 @@ describe('BotController', () => {
 		const bot = new BotController(game);
 
 		expect(bot.closestDistanceToEnemy({ x: 0, y: 0 })).toBe(5);
-		// Allied creature at (1,0) is 4 units from enemy: score = 100 - 4*10 = 60
-		expect(bot.scoreAbilityHex(makeHex({ x: 1, y: 0, creature: alliedCreature }))).toBe(60);
-		// Enemy creature at (5,0) is 0 units from enemy: score = 100 - 0*10 = 100
+		// Allied creature at (1,0): team 2, same parity as active team 0 → ally branch → score = 100
+		expect(bot.scoreAbilityHex(makeHex({ x: 1, y: 0, creature: alliedCreature }))).toBe(100);
+		// Enemy creature at (5,0): team 1, different parity → enemy branch → score = 1000 - 40 + 1*10 = 970
 		// Enemy hex should score higher than allied hex
 		expect(bot.scoreAbilityHex(makeHex({ x: 5, y: 0, creature: enemyCreature }))).toBeGreaterThan(
 			bot.scoreAbilityHex(makeHex({ x: 1, y: 0, creature: alliedCreature })),
