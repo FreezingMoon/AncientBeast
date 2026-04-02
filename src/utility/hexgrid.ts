@@ -1496,6 +1496,9 @@ export class HexGrid {
 	}
 
 	showCurrentCreatureMovementInOverlay(creature) {
+		if (!creature) {
+			return;
+		}
 		//lastQueryOpt is same thing as used in redoQuery
 		this.lastQueryOpt?.hexes?.forEach((hex) => {
 			hex.overlayVisualState('reachable h_player' + creature.team);
