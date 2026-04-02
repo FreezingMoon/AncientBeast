@@ -73,7 +73,7 @@ export class Drop {
 		this.game.drops.push(this);
 
 		this.display = game.grid.dropGroup.create(
-			this.hex.displayPos.x + 54,
+			this.hex.displayPos.x + 45,
 			this.hex.displayPos.y + 15,
 			'drop_' + this.name,
 		);
