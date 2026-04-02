@@ -55,6 +55,10 @@ export default class BotController {
 		this.failedAbilityIds.clear();
 
 		if (this.isBotTurn()) {
+			if (creature?.player.hasLost) {
+				// Dazzled unit — the creature's activate() will handle the skip
+				return;
+			}
 			this.queueDecision(1350);
 		}
 	}

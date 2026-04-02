@@ -484,6 +484,20 @@ export class Creature {
 			return;
 		}
 
+		// Dazzled effect — ronin units whose Dark Priest has been killed in 2vs2
+		if (this.player.hasLost) {
+			varReset();
+			const interval = setInterval(() => {
+				if (!game.turnThrottle) {
+					clearInterval(interval);
+					game.skipTurn({
+						tooltip: 'Dazzled',
+					});
+				}
+			}, 50);
+			return;
+		}
+
 		if (!this.hasWait) {
 			varReset();
 
@@ -1758,7 +1772,9 @@ export class Creature {
 
 	get fatigueText(): string {
 		let result = '';
-		if (this.isFrozen()) {
+		if (this.player.hasLost) {
+			result = 'Dazzled';
+		} else if (this.isFrozen()) {
 			result = this.isInCryostasis() ? 'Cryostasis' : 'Frozen';
 		} else if (this.isDizzy()) {
 			result = 'Dizzy';
