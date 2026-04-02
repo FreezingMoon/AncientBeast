@@ -265,6 +265,11 @@ $j(() => {
 	// Binding Hotkeys
 	if (!DEBUG_DISABLE_HOTKEYS) {
 		const handleStartScreenKeydown = (event) => {
+			// Only process start-screen hotkeys when the prematch UI is active
+			if (G.gameState !== 'initialized') {
+				return;
+			}
+
 			const hotkey = startScreenHotkeys[event.code];
 
 			if (hotkey === undefined) {
