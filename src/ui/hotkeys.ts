@@ -153,6 +153,16 @@ export class Hotkeys {
 		!this.ui.dashopen && this.ui.game.grid.confirmHex();
 	}
 
+	pressCtrlZ() {
+		// Undo the last action (Ctrl+Z)
+		if (this.ui.dashopen) return;
+		const game = this.ui.game;
+		if (game.undoSnapshot !== null && !game.undoUsedThisRound) {
+			this.ui.btnDelay.$button.css('background-image', "url('assets/icons/undo.svg')");
+			game.undoMove();
+		}
+	}
+
 	pressF11(event) {
 		event.preventDefault();
 		const fullscreen = new Fullscreen(document.getElementById('fullscreen'));
@@ -287,6 +297,14 @@ export function getHotKeys(hk) {
 		Space: {
 			onkeydown() {
 				hk.pressSpace();
+			},
+		},
+		KeyZ: {
+			onkeydown(event) {
+				if (event.ctrlKey || event.metaKey) {
+					event.preventDefault();
+					hk.pressCtrlZ();
+				}
 			},
 		},
 		F11: {

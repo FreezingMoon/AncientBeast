@@ -481,6 +481,10 @@ export class Ability {
 			}
 		}
 
+		// Save undo state for abilities and switch button to undo mode
+		game.saveUndoState();
+		$j('#delay.button').css('background-image', "url('assets/icons/undo.svg')");
+
 		return this.animation2({
 			arg: args,
 		});

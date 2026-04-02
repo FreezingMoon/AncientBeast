@@ -10,6 +10,7 @@ import { Effect } from './effect';
 import { Player, PlayerID } from './player';
 import { Damage, DamageResult } from './damage';
 import { AugmentedMatrix } from './utility/matrices';
+import * as matrices from './utility/matrices';
 import { HEX_WIDTH_PX, hashOffsetCoords, offsetCoordsToPx, offsetNeighbors } from './utility/const';
 import { CreatureType, Level, Realm, Unit, UnitName } from './data/types';
 import { UnitDisplayInfo, UnitSize } from './data/units';
@@ -40,7 +41,7 @@ export type CreatureMasteries = {
 	mental: number;
 };
 
-export type Movement = 'normal' | 'flying' | 'hover';
+export type Movement = 'normal' | 'flying' | 'hover' | 'leap';
 
 type CreatureStats = CreatureVitals &
 	CreatureMasteries & {
@@ -695,6 +696,9 @@ export class Creature {
 							},
 						});
 					}
+					// Save undo state and switch button to undo mode
+					game.saveUndoState();
+					$j('#delay.button').css('background-image', "url('assets/icons/undo.svg')");
 					game.UI.btnDelay.changeState('disabled');
 					args.creature.moveTo(hex, {
 						animation: args.creature.movementType() === 'flying' ? 'fly' : 'walk',
@@ -735,6 +739,14 @@ export class Creature {
 			o.range = game.grid.getFlyingRange(this.x, this.y, remainingMove, this.size, this.id);
 		}
 
+		// For Gumble with upgraded Goey Body, add leap hexes (hexes beyond creatures in straight lines)
+		if (this.movementType() === 'leap') {
+			const leapHexes = this.getLeapHexes(remainingMove);
+			if (leapHexes.length > 0) {
+				o.range = arrayUtils.extendToLeft(o.range.concat(leapHexes), this.size, game.grid);
+			}
+		}
+
 		const selectNormal = function (hex, args) {
 			args.creature.tracePath(hex);
 		};
@@ -748,7 +760,7 @@ export class Creature {
 				overlayClass: 'creature moveto selected player' + args.creature.team,
 			});
 		};
-		const select = o.noPath || this.movementType() === 'flying' ? selectFlying : selectNormal;
+		const select = o.noPath || this.movementType() === 'flying' || this.movementType() === 'leap' ? selectFlying : selectNormal;
 
 		if (this.noActionPossible) {
 			// Bots handle their own skip turn — don't show the human-facing hint/UI
@@ -1720,6 +1732,76 @@ export class Creature {
 		}
 
 		return this._movementType;
+	}
+
+	/**
+	 * Get hexes that can be reached by leaping over creatures.
+	 * For Gumble with upgraded Goey Body: when walking at least 2 hexagons in a straight line,
+	 * can leap over a creature blocking the path.
+	 * @param {number} remainingMove - Maximum movement distance
+	 * @returns {Hex[]} Array of hexes reachable by leaping
+	 */
+	getLeapHexes(remainingMove: number): Hex[] {
+		const G = this.game;
+		const leapHexSet = new Set<string>();
+
+		// Get hexes in straight lines in both directions (forward and backward)
+		const directions = [
+			{ flipped: false, matrix: matrices.straitrow },
+			{ flipped: true, matrix: matrices.straitrow },
+		];
+
+		for (const dir of directions) {
+			const hexes = G.grid.getHexMap(this.x, this.y, 0, dir.flipped, dir.matrix);
+			// Filter to only include hexes up to remainingMove distance
+			const filteredHexes = hexes.filter((hex) => {
+				// Calculate Manhattan-like distance (hex distance)
+				const dist = Math.abs(hex.x - this.x) + Math.abs(hex.y - this.y);
+				return dist > 0 && dist <= remainingMove;
+			});
+
+			// Check each hex for leap potential
+			for (let i = 0; i < filteredHexes.length; i++) {
+				const hex = filteredHexes[i];
+				// Skip if no creature on this hex
+				if (!hex.creature || hex.creature.id === this.id) {
+					continue;
+				}
+
+				// Found a creature blocking the path
+				// Check if we can leap over it: need at least 2 hexes of movement
+				// The hex beyond the creature should be reachable
+				if (i + 1 < filteredHexes.length) {
+					const hexBeyond = filteredHexes[i + 1];
+					// Check if the hex beyond the creature is walkable (not blocked by other creatures or boundaries)
+					if (hexBeyond.isWalkable(this.size, this.id, true)) {
+						// This hex is reachable by leaping over the creature
+						// Add all hexes from this point onward that are within movement range
+						for (let j = i + 1; j < filteredHexes.length; j++) {
+							const leapHex = filteredHexes[j];
+							if (leapHex.isWalkable(this.size, this.id, true)) {
+								const key = `${leapHex.x},${leapHex.y}`;
+								if (!leapHexSet.has(key)) {
+									leapHexSet.add(key);
+								}
+							} else {
+								// Further hexes are blocked, stop here
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// Convert set back to hex array
+		const leapHexes: Hex[] = [];
+		leapHexSet.forEach((key) => {
+			const [x, y] = key.split(',').map(Number);
+			leapHexes.push(G.grid.hexes[y][x]);
+		});
+
+		return leapHexes;
 	}
 
 	/**
