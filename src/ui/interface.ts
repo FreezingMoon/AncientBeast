@@ -1677,7 +1677,11 @@ export class UI {
 			this.dashAnimSpeed,
 			'linear',
 			() => {
-				this.$dash.hide();
+				// Guard against hiding the dash if it was re-opened before this animation completed
+				// (e.g. double-clicking Godlet Printer during location picking)
+				if (!this.dashopen) {
+					this.$dash.hide();
+				}
 			},
 		);
 
