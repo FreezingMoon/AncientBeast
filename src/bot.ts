@@ -241,10 +241,14 @@ export default class BotController {
 				const cost = level + Number(stats?.size ?? 0);
 				return { type, cost };
 			})
-			.filter(({ cost }) => cost <= activeCreature.player.plasma)
-			.sort((left, right) => right.cost - left.cost);
+			.filter(({ cost }) => cost <= activeCreature.player.plasma);
 
-		return affordableCreatures[0]?.type;
+		if (affordableCreatures.length === 0) {
+			return undefined;
+		}
+
+		const randomIndex = Math.floor(Math.random() * affordableCreatures.length);
+		return affordableCreatures[randomIndex]?.type;
 	}
 
 	shouldAutoResolveQuery() {
