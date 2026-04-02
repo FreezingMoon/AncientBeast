@@ -324,7 +324,7 @@ export default (G: Game) => {
 						// Special case when hitting left: the next hex is still the same
 						// creature, so continue in this direction until we reach the next
 						// creature
-						if (nextHex.creature === _target && args.direction === 4) {
+						if (nextHex !== null && nextHex.creature === _target && args.direction === 4) {
 							let nextHexes = G.grid.getHexLine(_target.x, _target.y, args.direction, false);
 							nextHexes = nextHexes.splice(_target.size);
 							if (nextHexes.length > 0 && nextHexes[0].creature !== _target) {
