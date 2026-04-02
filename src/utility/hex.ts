@@ -599,6 +599,10 @@ export class Hex {
 				this.grid.displayHexesGroup.bringToTop(this.display);
 			} else {
 				this.display.loadTexture('hex_dashed');
+				// When showGrid is active on empty hexes, show dashed at 25% opacity
+				if (this.displayClasses.match(/showGrid/g)) {
+					this.display.alpha = 0.25;
+				}
 			}
 		} else if (this.displayClasses.match(/deadzone/)) {
 			this.display.loadTexture('hex_deadzone');
