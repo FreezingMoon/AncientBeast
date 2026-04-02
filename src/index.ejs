@@ -71,14 +71,35 @@
 						<form id="gameSetup">
 							<div class="game-options border-frame">
 								<div class="gameOption">
-									<h2>Player Mode&nbsp;<span id="playerModeType"></span></h2>
-									<div id="playerMode" class="typeRadio">
-										<input type="radio" id="p2" name="playerMode" value="2" checked>
-										<label for="p2" class="dragIt">1 versus 1</label>
-										<input type="radio" id="p4" name="playerMode" value="4">
-										<label for="p4" class="dragIt">2 versus 2</label>
+									<h2>Game Mode&nbsp;<span id="gameModeType"></span></h2>
+									<div id="gameMode" class="typeRadio">
+										<input type="radio" id="p2" name="gameMode" value="2" checked>
+										<label for="p2" class="dragIt">1 vs 1</label>
+										<input type="radio" id="p4" name="gameMode" value="4">
+										<label for="p4" class="dragIt">2 vs 2</label>
 									</div>
 								</div>
+									<div class="gameOption">
+										<h2>Match Lobby [ players ]</h2>
+										<div id="playerList">
+											<label class="playerToggle" data-player-index="0">
+												<input type="checkbox" id="player1" name="players" value="0" checked>
+												<span>P1</span>
+											</label>
+											<label class="playerToggle" data-player-index="1">
+												<input type="checkbox" id="player2" name="players" value="1">
+												<span>P2</span>
+											</label>
+											<label class="playerToggle" data-player-index="2">
+												<input type="checkbox" id="player3" name="players" value="2">
+												<span>P3</span>
+											</label>
+											<label class="playerToggle" data-player-index="3">
+												<input type="checkbox" id="player4" name="players" value="3">
+												<span>P4</span>
+											</label>
+										</div>
+									</div>
 								<div class="gameOption">
 									<h2>Active Units [ Psyhelm limit ]</h2>
 									<div id="activeUnits" class="typeRadio">
@@ -99,31 +120,28 @@
 									</div>
 								</div>
 								<div class="gameOption">
-									<h2>Ability Upgrades [ number of rounds or uses ]</h2>
+									<h2>Ability Upgrades [ uses ]</h2>
 									<div id="abilityUpgrades" class="typeRadio">
-										<input type="radio" id="abilityUpgrade1" name="abilityUpgrades" value="-1"><label for="abilityUpgrade1" class="dragIt">Disabled</label>
+										<input type="radio" id="abilityUpgrade1" name="abilityUpgrades" value="-1"><label for="abilityUpgrade1" class="dragIt">Off</label>
 										<input type="radio" id="abilityUpgrade2" name="abilityUpgrades" value="5"><label for="abilityUpgrade2" class="dragIt">5</label>
 										<input type="radio" id="abilityUpgrade3" name="abilityUpgrades" value="4"><label for="abilityUpgrade3" class="dragIt">4</label>
 										<input type="radio" id="abilityUpgrade4" name="abilityUpgrades" value="3" checked><label for="abilityUpgrade4" class="dragIt">3</label>
 										<input type="radio" id="abilityUpgrade5" name="abilityUpgrades" value="2"><label for="abilityUpgrade5" class="dragIt">2</label>
 										<input type="radio" id="abilityUpgrade6" name="abilityUpgrades" value="1"><label for="abilityUpgrade6" class="dragIt">1</label>
-										<input type="radio" id="abilityUpgrade7" name="abilityUpgrades" value="0"><label for="abilityUpgrade7" class="dragIt">Enabled</label>
+										<input type="radio" id="abilityUpgrade7" name="abilityUpgrades" value="0"><label for="abilityUpgrade7" class="dragIt">On</label>
 									</div>
 								</div>
 								<div class="gameOption">
-									<h2>Plasma Points [ used for unit materialization or shielding ]</h2>
+									<h2>Plasma Points [ materialization ]</h2>
 									<div id="plasmaPoints" class="typeRadio">
-										<input type="radio" id="plasmaPointsOpt1" name="plasmaPoints" value="10"><label for="plasmaPointsOpt1" class="dragIt">10</label>
-										<input type="radio" id="plasmaPointsOpt2" name="plasmaPoints" value="20"><label for="plasmaPointsOpt2" class="dragIt">20</label>
-										<input type="radio" id="plasmaPointsOpt3" name="plasmaPoints" value="30" checked><label for="plasmaPointsOpt3" class="dragIt">30</label>
-										<input type="radio" id="plasmaPointsOpt4" name="plasmaPoints" value="40"><label for="plasmaPointsOpt4" class="dragIt">40</label>
-										<input type="radio" id="plasmaPointsOpt5" name="plasmaPoints" value="50"><label for="plasmaPointsOpt5" class="dragIt">50</label>
-										<input type="radio" id="plasmaPointsOpt6" name="plasmaPoints" value="60"><label for="plasmaPointsOpt6" class="dragIt">60</label>
-										<input type="radio" id="plasmaPointsOpt7" name="plasmaPoints" value="70"><label for="plasmaPointsOpt7" class="dragIt">70</label>
-										<input type="radio" id="plasmaPointsOpt8" name="plasmaPoints" value="80"><label for="plasmaPointsOpt8" class="dragIt">80</label>
-										<input type="radio" id="plasmaPointsOpt9" name="plasmaPoints" value="90"><label for="plasmaPointsOpt9" class="dragIt">90</label>
-										<input type="radio" id="plasmaPointsOpt10" name="plasmaPoints" value="100"><label for="plasmaPointsOpt10" class="dragIt">100</label>
-										<input type="radio" id="plasmaPointsOpt11" name="plasmaPoints" value="110"><label for="plasmaPointsOpt11" class="dragIt">110</label>
+										<input type="radio" id="plasmaPointsOpt1" name="plasmaPoints" value="30" checked><label for="plasmaPointsOpt1" class="dragIt">30</label>
+										<input type="radio" id="plasmaPointsOpt2" name="plasmaPoints" value="40"><label for="plasmaPointsOpt2" class="dragIt">40</label>
+										<input type="radio" id="plasmaPointsOpt3" name="plasmaPoints" value="50"><label for="plasmaPointsOpt3" class="dragIt">50</label>
+										<input type="radio" id="plasmaPointsOpt4" name="plasmaPoints" value="60"><label for="plasmaPointsOpt4" class="dragIt">60</label>
+										<input type="radio" id="plasmaPointsOpt5" name="plasmaPoints" value="70"><label for="plasmaPointsOpt5" class="dragIt">70</label>
+										<input type="radio" id="plasmaPointsOpt6" name="plasmaPoints" value="80"><label for="plasmaPointsOpt6" class="dragIt">80</label>
+										<input type="radio" id="plasmaPointsOpt7" name="plasmaPoints" value="90"><label for="plasmaPointsOpt7" class="dragIt">90</label>
+										<input type="radio" id="plasmaPointsOpt8" name="plasmaPoints" value="100"><label for="plasmaPointsOpt8" class="dragIt">100</label>
 									</div>
 								</div>
 								<div class="gameOption">

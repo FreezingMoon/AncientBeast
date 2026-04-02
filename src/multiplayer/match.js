@@ -47,7 +47,7 @@ export default class MatchI {
 						data: { users: this.users, host: this.host, matchdata: this.matchData },
 					});
 
-					if (this.game.configData.playerMode === this.users.length) {
+					if (this.game.configData.gameMode === this.users.length) {
 						this.game.freezedInput = false;
 						this.game.UI.banner(this.users[this.activePlayer].playername + ' turn');
 					}
@@ -221,7 +221,7 @@ export default class MatchI {
 				abilityUpgrades: gc.abilityUpgrades,
 				creaLimitNbr: gc.creaLimitNbr,
 				plasma_amount: gc.plasma_amount,
-				playerMode: gc.playerMode,
+				gameMode: gc.gameMode,
 				timePool: gc.timePool,
 				turnTimePool: gc.turnTimePool,
 				unitDrops: gc.unitDrops,

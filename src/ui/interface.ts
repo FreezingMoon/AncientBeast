@@ -659,7 +659,7 @@ export class UI {
 			$j(which).removeClass('shown');
 		});
 
-		this.$dash.children('#playertabswrapper').addClass('numplayer' + game.playerMode);
+		this.$dash.children('#playertabswrapper').addClass('numplayer' + game.gameMode);
 
 		this.selectedCreature = '';
 		this.selectedPlayer = 0;
@@ -1548,13 +1548,13 @@ export class UI {
 			</td>`);
 
 			// Add cells for each player
-			for (let i = 0; i < game.playerMode; i++) {
+			for (let i = 0; i < game.gameMode; i++) {
 				$table.find(`tr.${row.cls}`).append('<td>--</td>');
 			}
 		});
 
 		// Fill the board
-		for (let i = 0; i < game.playerMode; i++) {
+		for (let i = 0; i < game.gameMode; i++) {
 			// Each player
 			// TimeBonus
 			if (game.timePool > 0) {
@@ -1562,7 +1562,7 @@ export class UI {
 			}
 
 			//----------Display-----------//
-			const colId = game.playerMode > 2 ? i + 2 + ((i % 2) * 2 - 1) * Math.min(1, i % 3) : i + 2;
+			const colId = game.gameMode > 2 ? i + 2 + ((i % 2) * 2 - 1) * Math.min(1, i % 3) : i + 2;
 
 			// Change Name
 			$table
@@ -1588,7 +1588,7 @@ export class UI {
 			this.$scoreboard.find('.framed-modal__return').hide();
 
 			// Declare winner
-			if (game.playerMode > 2) {
+			if (game.gameMode > 2) {
 				// 2 vs 2
 				const score1 = game.players[0].getScore().total + game.players[2].getScore().total,
 					score2 = game.players[1].getScore().total + game.players[3].getScore().total;

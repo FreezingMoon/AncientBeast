@@ -163,6 +163,94 @@ body {
 	display: none;
 }
 
+#playerList {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-wrap: nowrap;
+	gap: 0;
+	border: none;
+	border-radius: 4px;
+	background: transparent;
+	width: 100%;
+	margin: 0;
+	overflow: hidden;
+}
+
+.playerToggle {
+	white-space: nowrap;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: 1 1 0;
+	min-width: 60px;
+	border: 0;
+	box-sizing: border-box;
+	background: transparent;
+	color: #ffffff;
+	font-weight: bold;
+	cursor: pointer;
+	padding: 0;
+	line-height: 26px;
+	position: relative;
+	transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+
+	input[type='checkbox'] {
+		border: 0;
+		clip: rect(0 0 0 0);
+		height: 1px;
+		margin: -1px;
+		overflow: hidden;
+		padding: 0;
+		position: absolute;
+		width: 1px;
+	}
+
+	span {
+		display: inline-block;
+		box-sizing: border-box;
+		width: 100%;
+		text-align: center;
+		padding: 0 8px;
+		pointer-events: none;
+		background: #333333;
+		border: 1px solid transparent;
+		transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+	}
+
+	&:hover span {
+		background: #a32d00;
+	}
+
+	input[type='checkbox']:checked + span {
+		background: #292929;
+		color: #f55;
+		font-weight: bold;
+		border-color: #c80909;
+		border-right: 1px solid #c80909;
+		position: relative;
+		z-index: 2;
+	}
+
+	&:hover {
+		z-index: 2;
+	}
+}
+
+.playerToggle:not(:first-child) {
+	margin-left: -1px;
+}
+
+.playerToggle:first-child span {
+	border-top-left-radius: 4px;
+	border-bottom-left-radius: 4px;
+}
+
+.playerToggle:last-child span {
+	border-top-right-radius: 4px;
+	border-bottom-right-radius: 4px;
+}
+
 /* Hide caret in Firefox near START area */
 #start-btn,
 #start,
@@ -299,10 +387,10 @@ body {
 
 	.dice-button {
 	color: white;
-  background: none;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+	background: none;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
 	font-size: 1.1em;
 	margin-right: 8px;
 	}
@@ -422,6 +510,7 @@ body {
 	font-size: 1.5em;
 	text-shadow: 2px 2px black;
 	margin: 20px auto;
+	text-align: center;
 
 	.blink {
 		padding: 0;
@@ -458,6 +547,34 @@ body {
 			filter: grayscale(100%);
 		}
 	}
+}
+
+#start-btn {
+	width: 100%;
+	position: relative;
+	min-height: 100px;
+}
+
+#start-btn input {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+#start-btn span.blink {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	white-space: nowrap;
+}
+
+#start-btn span.blink:first-child {
+	right: calc(50% + 110px);
+}
+
+#start-btn span.blink:last-child {
+	left: calc(50% + 110px);
 }
 
 #singleplayer,
