@@ -225,7 +225,14 @@ export default class BotController {
 			return undefined;
 		}
 
-		const unavailable = new Set(activeCreature.player.creatures.map((creature) => creature.type));
+		// Exclude types already placed (real creatures) or currently pending as temp
+		// creatures from a previous materialize that hasn't been confirmed yet.
+		const unavailable = new Set([
+			...activeCreature.player.creatures.map((creature) => creature.type),
+			...this.game.creatures
+				.filter((c) => c?.temp && c.team === activeCreature.team)
+				.map((c) => c.type),
+		]);
 		const affordableCreatures = activeCreature.player.availableCreatures
 			.filter((type) => !unavailable.has(type))
 			.map((type) => {

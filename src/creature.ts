@@ -627,10 +627,11 @@ export class Creature {
 			}
 		});
 
-		// Clean up temporary creature if a summon was cancelled.
-		if (game.creatures[game.creatures.length - 1].temp) {
-			game.creatures.pop();
-		}
+		// Clean up any abandoned temporary creatures left over from cancelled summons.
+		// Only removing the last element was insufficient when other creatures were
+		// added to game.creatures after an orphaned temp, leaving it stranded.
+		const tempCreatures = game.creatures.filter((c) => c?.temp);
+		tempCreatures.forEach((c) => c.destroy());
 
 		let remainingMove = this.remainingMove;
 		// No movement range if unmoveable

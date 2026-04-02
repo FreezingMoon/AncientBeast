@@ -1,5 +1,9 @@
 import { DEBUG } from './debug';
-import { phaserAutoloadAssetPaths, assetPaths, soundPaths as generatedSoundPaths } from '../assets/index';
+import {
+	phaserAutoloadAssetPaths,
+	assetPaths,
+	soundPaths as generatedSoundPaths,
+} from '../assets/index';
 
 export { generatedSoundPaths as soundPaths };
 
