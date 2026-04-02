@@ -334,17 +334,33 @@ export default class BotController {
 			.sort((left, right) => right.score - left.score)[0]?.hex;
 	}
 
+	/**
+	 * Returns the preferred x-coordinate for a creature using a linear gradient:
+	 * - Dark Priest (treated as level 0): deepest home side (~10% in)
+	 * - Level 1–7: linearly from home (~10%) to enemy side (~90%)
+	 * Accounts for which side the player started on via `player.flipped`.
+	 */
+	getPreferredX(creature: Creature): number {
+		const gridRow = this.game.grid.hexes[0];
+		const boardWidth = gridRow ? gridRow.length - 1 : 15;
+		const flipped = creature.player.flipped;
+
+		// Dark Priest treated as level 0 for positioning
+		const level = creature.isDarkPriest() ? 0 : (creature.level as number);
+		const t = level / 7; // 0 = full home, 1 = full enemy side
+
+		const homeX = flipped ? boardWidth * 0.9 : boardWidth * 0.1;
+		const enemyX = flipped ? boardWidth * 0.1 : boardWidth * 0.9;
+
+		return homeX + t * (enemyX - homeX);
+	}
+
 	scoreMoveHex(hex: Hex) {
 		const activeCreature = this.game.activeCreature;
 		if (!activeCreature) {
 			return Number.NEGATIVE_INFINITY;
 		}
 
-		const currentDistance = this.closestDistanceToEnemy({
-			x: activeCreature.x,
-			y: activeCreature.y,
-		});
-		const nextDistance = this.closestDistanceToEnemy(hex);
 		const adjacentEnemy = hex
 			.adjacentHex(1)
 			.some(
@@ -353,14 +369,17 @@ export default class BotController {
 			);
 
 		let score = 0;
-		score += (currentDistance - nextDistance) * 25;
-		score -= nextDistance * 10;
 		score += adjacentEnemy ? 120 : 0;
 		score -= activeCreature.hexagons.some(
 			(creatureHex) => creatureHex.pos.x === hex.x && creatureHex.pos.y === hex.y,
 		)
 			? 1000
 			: 0;
+
+		// All units use gradient zone preference; higher level = enemy-side preference
+		const preferredX = this.getPreferredX(activeCreature);
+		score -= Math.abs(hex.x - preferredX) * 10;
+
 		return score;
 	}
 
