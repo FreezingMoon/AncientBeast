@@ -559,22 +559,23 @@
 #leftpanel .button {
 	background-color: rgba(0, 0, 0, 0.55);
 	transition: transform 0.5s;
-	transform: translateX(0);
+	transform: perspective(900px) rotateY(0deg);
+	transform-origin: left center;
 
 	&:hover {
-		transform: translateX(0);
+		transform: perspective(900px) rotateY(0deg);
 	}
 
 	&.slideIn {
-		transform: translateX(0);
+		transform: perspective(900px) rotateY(0deg);
 	}
 
 	&.disabled,
 	&.noclick {
-		transform: translateX(-50%);
+		transform: perspective(900px) rotateY(40deg);
 
 		&:hover {
-			transform: translateX(0);
+			transform: perspective(900px) rotateY(0deg);
 		}
 	}
 }
@@ -582,22 +583,23 @@
 #rightpanel .button:not(.togglescore) {
 	background-color: rgba(0, 0, 0, 0.55);
 	transition: transform 0.5s;
-	transform: translateX(0);
+	transform: perspective(900px) rotateY(0deg);
+	transform-origin: right center;
 
 	&:hover {
-		transform: translateX(0);
+		transform: perspective(900px) rotateY(0deg);
 	}
 
 	&.slideIn {
-		transform: translateX(0);
+		transform: perspective(900px) rotateY(0deg);
 	}
 
 	&.disabled,
 	&.noclick {
-		transform: translateX(50%);
+		transform: perspective(900px) rotateY(-40deg);
 
 		&:hover {
-			transform: translateX(0);
+			transform: perspective(900px) rotateY(0deg);
 		}
 	}
 }
@@ -1107,12 +1109,12 @@ div.section.info {
 }
 
 #leftpanel .passive-slot .ability.nextIcon {
-	transform: translateX(0);
+	transform: perspective(900px) rotateY(0deg);
 }
 
 #leftpanel .passive-slot .ability.nextIcon:hover,
 #leftpanel .passive-slot .ability.nextIcon.slideIn {
-	transform: translateX(0);
+	transform: perspective(900px) rotateY(0deg);
 }
 
 #abilities .progressbar {
