@@ -1208,9 +1208,35 @@ export class HexGrid {
 			} else if (!hex.reachable) {
 				if (this.materialize_overlay) {
 					this.materialize_overlay.alpha = 0;
+					// Clean the last preview position's hex overlays and reset tracking so
+					// that re-entering the spawn range doesn't leave a ghost outline behind.
+					if (this.materialize_overlay._previewPos !== undefined) {
+						for (let i = 0; i < this.materialize_overlay._previewSize; i++) {
+							const prevHex =
+								this.hexes[this.materialize_overlay._previewPos.y]?.[
+									this.materialize_overlay._previewPos.x - i
+								];
+							if (prevHex) {
+								this.cleanHex(prevHex);
+							}
+						}
+						this.materialize_overlay._previewPos = undefined;
+					}
 				}
 				if (this.secondary_overlay) {
 					this.secondary_overlay.alpha = 0;
+					if (this.secondary_overlay._previewPos !== undefined) {
+						for (let i = 0; i < this.secondary_overlay._previewSize; i++) {
+							const prevHex =
+								this.hexes[this.secondary_overlay._previewPos.y]?.[
+									this.secondary_overlay._previewPos.x - i
+								];
+							if (prevHex) {
+								this.cleanHex(prevHex);
+							}
+						}
+						this.secondary_overlay._previewPos = undefined;
+					}
 				}
 				hex.overlayVisualState('hover');
 
@@ -1617,7 +1643,7 @@ export class HexGrid {
 
 		for (let y = 0, leny = this.hexes.length; y < leny; y++) {
 			for (let i = 0, len = creatures.length; i < len; i++) {
-				if (creatures[i].y == y) {
+				if (creatures[i] && creatures[i].y == y) {
 					this.creatureGroup.remove(creatures[i].grp);
 					this.creatureGroup.addAt(creatures[i].grp, index++);
 				}
@@ -1766,11 +1792,26 @@ export class HexGrid {
 			this._flickerTweenSecondary = flickering;
 		}
 
+		// Clean overlay from the previous preview position before painting the new one.
+		// Without this, every hex the cursor passes over accumulates the creature-selected
+		// overlay, making it look like multiple creatures have been materialized at once.
+		if (preview._previewPos !== undefined) {
+			for (let i = 0, prevSize = preview._previewSize; i < prevSize; i++) {
+				const prevHex = this.hexes[preview._previewPos.y]?.[preview._previewPos.x - i];
+				if (prevHex) {
+					this.cleanHex(prevHex);
+				}
+			}
+		}
+
 		for (let i = 0, size = creatureData.size; i < size; i++) {
 			const hexInstance = this.hexes[pos.y][pos.x - i];
 			this.cleanHex(hexInstance);
 			hexInstance.overlayVisualState('creature selected player' + game.activeCreature.team);
 		}
+
+		preview._previewPos = { x: pos.x, y: pos.y };
+		preview._previewSize = creatureData.size;
 	}
 
 	/**

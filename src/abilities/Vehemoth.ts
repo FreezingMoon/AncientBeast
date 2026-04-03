@@ -29,7 +29,7 @@ export default (G: Game) => {
 				// Stop activation if the other creature is not a sloth type
 				let buff = 0;
 				G.creatures.forEach((crea) => {
-					if (crea.realm == 'S' && !crea.dead && !crea.temp) {
+					if (crea && crea.realm == 'S' && !crea.dead && !crea.temp) {
 						buff += 2;
 					}
 				});

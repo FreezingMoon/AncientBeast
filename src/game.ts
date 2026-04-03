@@ -506,7 +506,7 @@ export default class Game {
 
 		this.grid = new HexGrid({}, this); // Create Hexgrid
 		configurePointFacade({
-			getCreatures: () => this.creatures,
+			getCreatures: () => this.creatures.filter(Boolean),
 			getCreaturePassablePoints: (creature) => [],
 			getCreatureBlockedPoints: (creature) => {
 				if (creature.dead || creature.temp) {
@@ -886,7 +886,7 @@ export default class Game {
 	 */
 	skipTurn(o?) {
 		// NOTE: If skipping a turn and there is a temp creature, destroy it.
-		this.creatures.filter((c) => c.temp).forEach((c) => c.destroy());
+		this.creatures.filter((c) => c?.temp).forEach((c) => c.destroy());
 
 		// Send skip turn to server
 
@@ -1136,7 +1136,7 @@ export default class Game {
 
 		// For other creatures
 		this.creatures.forEach((creature) => {
-			if (triggeredCreature === creature || creature.dead === true) {
+			if (!creature || triggeredCreature === creature || creature.dead === true) {
 				return;
 			}
 

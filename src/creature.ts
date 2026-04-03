@@ -328,7 +328,7 @@ export class Creature {
 		if (!this.temp) {
 			let tempCreature: Creature | undefined = undefined;
 			for (const other of game.creatures) {
-				if (other.type === this.type && other.team === this.team && other.temp) {
+				if (other && other.type === this.type && other.team === this.team && other.temp) {
 					/**
 					 *  NOTE:
 					 * `this` is the summoned version of `other`
@@ -1811,8 +1811,10 @@ export class Creature {
 		this.creatureSprite.destroy();
 		// NOTE: If this was a temp creature remove it from game.creatures.
 		// Dead creatures are supposed to stay in game.creatures.
+		// We null out the slot rather than filtering (which would shift indices and
+		// break the game.creatures[id] lookup used throughout the codebase).
 		if (this.temp) {
-			this.game.creatures = this.game.creatures.filter((c) => c !== this);
+			this.game.creatures[this.id] = undefined;
 		}
 	}
 }
