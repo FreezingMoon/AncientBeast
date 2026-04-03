@@ -64,8 +64,8 @@ export class Chat {
 		this.currentExpandedCreature = null;
 		this.messagesToSuppress = [];
 
-		this.$expandedContent = $j('#chatexpanded');
-		$j('#combatwrapper, #toppanel, #dash, #endscreen').on('click', () => {
+		this.$expandedContent = $j('#unit-hover-panel');
+		$j('#combatwrapper, #bottompanel, #dash, #endscreen').on('click', () => {
 			this.hide();
 		});
 
@@ -141,33 +141,22 @@ export class Chat {
 		const masteriesContent = this._createMasteriesContent(creature);
 
 		const expandedHTML = `
-				<div class="stats-masteries-container">
-					<div class="stats-row">
-						${statsContent}
-					</div>
-					<div class="masteries-row">
-						${masteriesContent}
-					</div>
+				<div class="hover-panel-rows">
+					<div class="hover-panel-row">${statsContent}</div>
+					<div class="hover-panel-row">${masteriesContent}</div>
 				</div>
 			`;
 
 		if (this.$expandedContent.children().length > 0) {
-			const statValues = this.$expandedContent
-				.children()
-				.children()
-				.children()
-				.children('.stat-value');
+			const statValues = this.$expandedContent.find('.stat-value');
 			statValues.stop().animate({ opacity: 0 }, 200, () => {
 				this.$expandedContent.html(expandedHTML);
-				statValues.animate({ opacity: 1 }, 200);
+				this.$expandedContent.find('.stat-value').animate({ opacity: 1 }, 200);
 			});
 			this.$expandedContent.stop().animate({ opacity: 1 }, 200);
 		} else {
 			this.$expandedContent.html(expandedHTML);
-			this.$chat.addClass('expanded');
-
-			this.$content.stop().animate({ opacity: 0 }, 500);
-			this.$expandedContent.css({ opacity: 0 }).animate({ opacity: 1 }, 500);
+			this.$expandedContent.css({ opacity: 0 }).animate({ opacity: 1 }, 300);
 		}
 	}
 
@@ -181,8 +170,6 @@ export class Chat {
 			this.currentExpandedCreature = null;
 			this.$expandedContent.stop().animate({ opacity: 0 }, 200, () => {
 				this.$expandedContent.empty();
-				this.$chat.removeClass('expanded');
-				this.$content.animate({ opacity: 1 }, 200);
 			});
 		}, 20);
 	}

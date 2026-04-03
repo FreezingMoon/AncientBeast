@@ -290,7 +290,7 @@
 	height: 0;
 }
 
-#toppanel {
+#bottompanel {
 	position: fixed;
 	inset: 0;
 	z-index: 3;
@@ -1190,6 +1190,31 @@ div.section.info {
 	background-color: rgba(0, 0, 0, 0.8);
 }
 
+/*---------------Unit Hover Panel--------------*/
+#unit-hover-panel {
+	position: fixed;
+	left: 50%;
+	transform: translateX(-50%);
+	top: 8px;
+	background-color: rgba(0, 0, 0, 0.85);
+	border-radius: 10px;
+	padding: 6px 12px;
+	z-index: 5;
+	pointer-events: none;
+}
+
+.hover-panel-rows {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: flex-start;
+	gap: 6px;
+}
+
+.hover-panel-row {
+	display: contents;
+}
+
 /*---------------Text Box--------------*/
 #chat {
 	width: 450px;
@@ -1198,11 +1223,12 @@ div.section.info {
 	background-color: rgba(0, 0, 0, 0.8);
 	cursor: n-resize;
 	position: fixed;
-	right: 100px;
-	bottom: 0;
+	left: 50%;
+	transform: translateX(-50%);
+	bottom: 103px;
 	margin: 0;
 	padding: 5px;
-	border-radius: 10px 10px 0 0;
+	border-radius: 10px;
 	overflow: hidden;
 	transition: all 500ms;
 	z-index: 4;
@@ -1210,7 +1236,7 @@ div.section.info {
 
 #chat.expanded {
 	height: 130px !important;
-	bottom: 0 !important;
+	bottom: 103px !important;
 }
 
 .chat-expanded-content {
@@ -1222,7 +1248,7 @@ div.section.info {
 	display: none;
 	opacity: 0;
 	color: white;
-	padding: 6px 8px 2px;
+	padding: 2px 4px;
 }
 
 #chat.expanded .chat-expanded-content {
@@ -1249,23 +1275,29 @@ div.section.info {
 	display: flex;
 	justify-content: space-around;
 	align-items: center;
-	flex-wrap: wrap;
+	flex-wrap: nowrap;
+	height: 100%;
 }
 
 .stat-item {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	min-width: 45px;
+	gap: 1px;
 }
 
 .stat-icon {
-	width: 20px;
-	height: 20px;
+	width: 16px;
+	height: 16px;
 	background-size: contain;
 	background-repeat: no-repeat;
 	background-position: center;
-	margin-bottom: 2px;
+}
+
+.stat-item .icon {
+	width: 32px;
+	height: 32px;
+	background-size: contain;
 }
 
 .stat-value {
@@ -1274,6 +1306,7 @@ div.section.info {
 	color: white;
 	text-align: center;
 	text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8);
+	white-space: nowrap;
 }
 
 #chatbox::-webkit-scrollbar {
@@ -1288,13 +1321,13 @@ div.section.info {
 
 #chat.focus {
 	height: 300px;
-	bottom: 0;
+	bottom: 103px;
 	cursor: s-resize;
 }
 
 #chat.peek {
 	height: 100px;
-	bottom: 0;
+	bottom: 103px;
 }
 
 #chat.focus #chatbox,
@@ -2246,6 +2279,9 @@ input {
 			transform: scale(0.55);
 			transform-origin: right bottom;
 		}
+		#chat {
+			display: none !important;
+		}
 
 	#scoreboardTitle {
 		font-size: medium;
@@ -2295,6 +2331,9 @@ input {
 			transform: scale(0.7);
 			transform-origin: right bottom;
 		}
+		#chat {
+			display: none !important;
+		}
 
 	#scoreboardTitle {
 		font-size: medium;
@@ -2312,7 +2351,6 @@ input {
 			td {
 				display: block;
 				padding: 6px !important;
-
 				.tooltiptext {
 					right: -20px !important;
 					bottom: 25px !important;

@@ -617,7 +617,7 @@ export class UI {
 			}
 		});
 
-		$j('#combatwrapper, #dash, #toppanel').on('wheel', (e) => {
+		$j('#combatwrapper, #dash, #bottompanel').on('wheel', (e) => {
 			if (game.freezedInput) {
 				return;
 			}
