@@ -22,6 +22,7 @@ export default class BotController {
 	decisionCount = 0;
 	moveAttempted = false;
 	failedAbilityIds = new Set<number>();
+	isResolvingQuery = false;
 
 	constructor(game: Game) {
 		this.game = game;
@@ -49,6 +50,7 @@ export default class BotController {
 	startTurn(creature?: Creature) {
 		this.clearDecisionTimeout();
 		this.pendingAction = null;
+		this.isResolvingQuery = false;
 		this.activeCreatureId = creature?.id ?? null;
 		this.decisionCount = 0;
 		this.moveAttempted = false;
@@ -260,7 +262,7 @@ export default class BotController {
 	}
 
 	resolveQuery(queryOptions: { hexes: Hex[] }, handlers: QueryHandlers) {
-		if (!this.shouldAutoResolveQuery()) {
+		if (!this.shouldAutoResolveQuery() || this.isResolvingQuery) {
 			return;
 		}
 
@@ -275,6 +277,8 @@ export default class BotController {
 			return;
 		}
 
+		this.isResolvingQuery = true;
+
 		setTimeout(() => {
 			if (!this.isBotTurn()) {
 				return;
@@ -287,6 +291,7 @@ export default class BotController {
 				return;
 			}
 			this.pendingAction = null;
+			this.isResolvingQuery = false;
 			handlers.onConfirm(chosenHex);
 			this.queueDecision(1200);
 		}, 140);
