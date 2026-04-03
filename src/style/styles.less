@@ -327,7 +327,6 @@
 	bottom: 100px;
 	z-index: 3;
 	pointer-events: none;
-	transition: transform 0.5s ease-out;
 
 	&.offscreen {
 		transform: translateY(100vh);
@@ -1119,7 +1118,72 @@ div.section.info {
 #abilities .progressbar {
 	left: 0;
 	top: 0;
-	z-index: 2;
+	z-index: 3;
+	clip-path: inset(0px 0 0 0);
+	transition: clip-path 0.75s ease-out;
+}
+
+#abilities .ability-slot {
+	z-index: 1;
+}
+
+// === Panel fold/unfold accordion animation ===
+// Each ability slot has its own transition speed (unfold: stacked → normal)
+#abilities .ability-slot:nth-child(1) {
+	transition: transform 0.15s ease-out;
+}
+#abilities .ability-slot:nth-child(2) {
+	transition: transform 0.35s ease-out;
+}
+#abilities .ability-slot:nth-child(3) {
+	transition: transform 0.55s ease-out;
+}
+#abilities .ability-slot:nth-child(4) {
+	transition: transform 0.75s ease-out;
+}
+
+// panel-stacked: instantly place all elements in the overlapping stacked position
+// (used before the unfold so transitions start from the right position)
+#abilities.panel-stacked .ability-slot,
+#abilities.panel-stacked .progressbar {
+	transition: none !important;
+}
+#abilities.panel-stacked .ability-slot:nth-child(1) {
+	transform: translateY(0);
+}
+#abilities.panel-stacked .ability-slot:nth-child(2) {
+	transform: translateY(80px);
+}
+#abilities.panel-stacked .ability-slot:nth-child(3) {
+	transform: translateY(160px);
+}
+#abilities.panel-stacked .ability-slot:nth-child(4) {
+	transform: translateY(240px);
+}
+#abilities.panel-stacked .progressbar {
+	clip-path: inset(240px 0 0 0);
+}
+
+// panel-folding: animated collapse of all elements back to the stacked position
+#abilities.panel-folding .ability-slot:nth-child(1) {
+	transform: translateY(0);
+	transition: transform 0.1s ease-in;
+}
+#abilities.panel-folding .ability-slot:nth-child(2) {
+	transform: translateY(80px);
+	transition: transform 0.3s ease-in;
+}
+#abilities.panel-folding .ability-slot:nth-child(3) {
+	transform: translateY(160px);
+	transition: transform 0.4s ease-in;
+}
+#abilities.panel-folding .ability-slot:nth-child(4) {
+	transform: translateY(240px);
+	transition: transform 0.5s ease-in;
+}
+#abilities.panel-folding .progressbar {
+	clip-path: inset(240px 0 0 0);
+	transition: clip-path 0.5s ease-in;
 }
 
 #abilities.p0 .ability.active::before,
@@ -2093,7 +2157,7 @@ span.pure {
 }
 
 #leftpanel .progressbar {
-	z-index: 2;
+	z-index: 3;
 }
 
 #rightpanel .progressbar {

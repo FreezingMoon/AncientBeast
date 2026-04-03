@@ -1940,51 +1940,63 @@ export class UI {
 			$abilitiesButtons = $j('#abilities .ability');
 
 		$abilitiesButtons.off('click');
-		this.$activebox
-			.find('#abilities')
+
+		const $abilities = this.$activebox.find('#abilities');
+		const $panel = $j('#leftpanel');
+
+		// Reset any in-progress animation state
+		$abilities
 			.clearQueue()
-			.transition(
-				{
-					y: '420px',
-				},
-				500,
-				'easeInQuart',
-				() => {
-					// Hide panel
-					$j('#abilities')
-						.removeClass('p0 p1 p2 p3')
-						.addClass('p' + creature.player.id);
+			.css({ transform: '', '-webkit-transform': '' })
+			.removeClass('panel-folding panel-stacked');
 
-					this.energyBar.setSize(creature.oldEnergy / creature.stats.energy);
-					this.healthBar.setSize(creature.oldHealth / creature.stats.health);
+		// Helper: update panel data then play the unfold animation
+		const applyDataAndUnfold = () => {
+			$abilities.removeClass('p0 p1 p2 p3').addClass('p' + creature.player.id);
 
-					this.btnAudio.changeState(ButtonStateEnum.normal);
-					this.btnSkipTurn.changeState(ButtonStateEnum.normal);
-					this.btnFullscreen.changeState(ButtonStateEnum.normal);
-					// Change ability buttons
-					this.changeAbilityButtons();
-					// Update upgrade info
-					this.updateAbilityUpgrades();
-					// Callback after final transition
-					$j('#leftpanel').removeClass('offscreen');
-					this.$activebox.children('#abilities').transition(
-						{
-							y: '0px',
-						},
-						500,
-						'easeOutQuart',
-						() => {
-							this.btnAudio.changeState(ButtonStateEnum.slideIn);
-							this.btnSkipTurn.changeState(ButtonStateEnum.slideIn);
-							this.btnFullscreen.changeState(ButtonStateEnum.slideIn);
-							if (creature.canWait && game.queue.getCurrentQueueLength() > 1) {
-								this.btnDelay.changeState(ButtonStateEnum.slideIn);
-							}
-							this.checkAbilities();
-						},
-					); // Show panel
-				},
-			);
+			this.energyBar.setSize(creature.oldEnergy / creature.stats.energy);
+			this.healthBar.setSize(creature.oldHealth / creature.stats.health);
+
+			this.btnAudio.changeState(ButtonStateEnum.normal);
+			this.btnSkipTurn.changeState(ButtonStateEnum.normal);
+			this.btnFullscreen.changeState(ButtonStateEnum.normal);
+			// Change ability buttons
+			this.changeAbilityButtons();
+			// Update upgrade info
+			this.updateAbilityUpgrades();
+
+			// Snap all elements to the overlapping stacked position (no transition)
+			$abilities.addClass('panel-stacked');
+			// Make panel visible (no panel-level transition — individual slots animate)
+			$panel.removeClass('offscreen');
+			// Force reflow to commit the stacked transforms before enabling transitions
+			void $abilities[0].offsetHeight;
+			// Remove stacked class: per-slot CSS transitions animate each element to its place
+			$abilities.removeClass('panel-stacked');
+
+			// After the slowest slot transition completes, trigger slideIn states
+			setTimeout(() => {
+				this.btnAudio.changeState(ButtonStateEnum.slideIn);
+				this.btnSkipTurn.changeState(ButtonStateEnum.slideIn);
+				this.btnFullscreen.changeState(ButtonStateEnum.slideIn);
+				if (creature.canWait && game.queue.getCurrentQueueLength() > 1) {
+					this.btnDelay.changeState(ButtonStateEnum.slideIn);
+				}
+				this.checkAbilities();
+			}, 800);
+		};
+
+		if ($panel.hasClass('offscreen')) {
+			// First show: no fold needed, go straight to unfold
+			applyDataAndUnfold();
+		} else {
+			// Turn transition: fold slots down to a stack, then swap data and unfold
+			$abilities.addClass('panel-folding');
+			setTimeout(() => {
+				$abilities.removeClass('panel-folding');
+				applyDataAndUnfold();
+			}, 520); // slightly past the longest fold transition (500ms)
+		}
 
 		if (game.multiplayer) {
 			if (!this.active) {
