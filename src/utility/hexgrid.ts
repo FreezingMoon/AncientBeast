@@ -1149,7 +1149,9 @@ export class HexGrid {
 			$j('canvas').css('cursor', 'pointer');
 
 			if (hex.creature instanceof Creature) {
-				game.UI.chat.showExpanded(hex.creature);
+				if (!game.botController?.isBotTurn()) {
+					game.UI.chat.showExpanded(hex.creature);
+				}
 				// Keep reference
 				onCreatureHover(hex.creature, game.UI.xrayQueue.bind(game.UI), hex);
 
