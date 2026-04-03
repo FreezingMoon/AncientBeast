@@ -184,7 +184,13 @@ export class Hex {
 
 			// Binding Events
 			this.hitBox.events.onInputOver.add(() => {
-				if (game.freezedInput || game.UI.dashopen || shouldUseDirectTouchInput() || game.botController?.isBotTurn()) return;
+				if (
+					game.freezedInput ||
+					game.UI.dashopen ||
+					shouldUseDirectTouchInput() ||
+					game.botController?.isBotTurn()
+				)
+					return;
 
 				//  Show dashed overlay on current hexes of active creature
 				if (this.reachable && game.activeCreature) {
