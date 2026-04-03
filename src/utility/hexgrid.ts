@@ -807,10 +807,12 @@ export class HexGrid {
 		this.queryHexes({
 			fnOnConfirm: (hex, args) => {
 				const { creature } = hex;
+				if (!creature) return;
 				args.opt.fnOnConfirm(creature, args.opt.args, { queryOptions: o });
 			},
 			fnOnSelect: (hex, args) => {
 				const { creature } = hex;
+				if (!creature) return;
 				args.opt.fnOnSelect(creature, args.opt.args);
 			},
 			fnOnCancel: o.fnOnCancel,
