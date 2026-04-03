@@ -766,6 +766,12 @@ export class Creature {
 						confirmText: 'Skip turn',
 					});
 				}
+			} else {
+				// getMovementRange above calls cleanReachable() which marks all hexes
+				// reachable (showing them as outline hexagons). Clean that up since bots
+				// don't go through querySelf/queryHexes in this path.
+				game.grid.updateDisplay();
+				game.grid.forEachHex((hex) => hex.unsetReachable());
 			}
 		} else {
 			// In unit tests or headless environments, guard against missing queryHexes()
