@@ -327,6 +327,11 @@
 	bottom: 100px;
 	z-index: 3;
 	pointer-events: none;
+	transition: transform 0.5s ease-out;
+
+	&.offscreen {
+		transform: translateY(100vh);
+	}
 }
 
 #queue .vignette,

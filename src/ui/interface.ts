@@ -1966,6 +1966,7 @@ export class UI {
 					// Update upgrade info
 					this.updateAbilityUpgrades();
 					// Callback after final transition
+					$j('#leftpanel').removeClass('offscreen');
 					this.$activebox.children('#abilities').transition(
 						{
 							y: '0px',
