@@ -204,7 +204,7 @@ export class UI {
 				hasShortcut: true,
 				click: () => {
 					if (!this.dashopen) {
-						if (game.turnThrottle) {
+						if (game.turnThrottle || game.botController.isBotTurn()) {
 							return;
 						}
 
@@ -235,7 +235,12 @@ export class UI {
 				hasShortcut: true,
 				click: () => {
 					if (!this.dashopen) {
-						if (game.turnThrottle || !game.activeCreature?.canWait || game.queue.isCurrentEmpty()) {
+						if (
+							game.turnThrottle ||
+							game.botController.isBotTurn() ||
+							!game.activeCreature?.canWait ||
+							game.queue.isCurrentEmpty()
+						) {
 							return;
 						}
 
