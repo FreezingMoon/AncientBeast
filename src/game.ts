@@ -906,7 +906,6 @@ export default class Game {
 		this.turnThrottle = true;
 		this.UI.btnSkipTurn.changeState('disabled');
 		this.UI.btnDelay.changeState('disabled');
-		this.UI.btnAudio.changeState('disabled');
 
 		setTimeout(() => {
 			this.turnThrottle = false;

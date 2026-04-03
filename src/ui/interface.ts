@@ -1957,7 +1957,6 @@ export class UI {
 			this.energyBar.setSize(creature.oldEnergy / creature.stats.energy);
 			this.healthBar.setSize(creature.oldHealth / creature.stats.health);
 
-			this.btnAudio.changeState(ButtonStateEnum.normal);
 			this.btnSkipTurn.changeState(ButtonStateEnum.normal);
 			this.btnFullscreen.changeState(ButtonStateEnum.normal);
 			// Change ability buttons
@@ -1976,7 +1975,6 @@ export class UI {
 
 			// After the slowest slot transition completes, trigger slideIn states
 			setTimeout(() => {
-				this.btnAudio.changeState(ButtonStateEnum.slideIn);
 				this.btnSkipTurn.changeState(ButtonStateEnum.slideIn);
 				this.btnFullscreen.changeState(ButtonStateEnum.slideIn);
 				if (creature.canWait && game.queue.getCurrentQueueLength() > 1) {
