@@ -159,6 +159,7 @@ export default (G: Game) => {
 				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				const target = arrayUtils.last(path).creature;
+				if (!target) return;
 				const damage = new Damage(
 					ability.creature, // Attacker
 					ability.damages, // Damage Type
@@ -330,6 +331,7 @@ export default (G: Game) => {
 				G.Phaser.camera.shake(0.01, 60, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				const target = arrayUtils.last(path).creature;
+				if (!target) return;
 
 				// If upgraded, hits will debuff target with -1 meditation
 				if (this.isUpgraded()) {
