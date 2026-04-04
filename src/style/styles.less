@@ -445,10 +445,28 @@
 }
 .button#skip {
 	background-image: url('~assets/autoload/phaser/interface/skip.svg');
+
+	&.disabled {
+		transform: perspective(900px) rotateY(0deg) !important;
+		opacity: 0.35;
+
+		&:hover {
+			opacity: 0.35;
+		}
+	}
 }
 
 .button#delay {
 	background-image: url('~assets/icons/delay.svg');
+
+	&.disabled {
+		transform: perspective(900px) rotateY(0deg) !important;
+		opacity: 0.35;
+
+		&:hover {
+			opacity: 0.35;
+		}
+	}
 }
 
 .button#flee {
