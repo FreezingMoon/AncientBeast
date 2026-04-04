@@ -143,6 +143,11 @@ export default class BotController {
 		}
 		this.decisionCount += 1;
 
+		// Low health / energy creatures flee first
+		if (!this.moveAttempted && this.isRetreating(activeCreature) && this.tryMove()) {
+			return;
+		}
+
 		if (this.tryUseOffensiveAbility()) {
 			return;
 		}
@@ -394,6 +399,10 @@ export default class BotController {
 			return Number.NEGATIVE_INFINITY;
 		}
 
+		if (this.isRetreating(activeCreature)) {
+			return this.scoreRetreatHex(hex);
+		}
+
 		const adjacentEnemy = hex
 			.adjacentHex(1)
 			.some(
@@ -458,6 +467,64 @@ export default class BotController {
 		}
 
 		return 100 - this.closestDistanceToEnemy(hex) * 10;
+	}
+
+	/**
+	 * Returns true when the creature is in a low-health (< 30 %) or
+	 * low-energy (< 25 %) state and should try to retreat.
+	 */
+	isRetreating(creature: Creature): boolean {
+		const healthRatio = creature.health / creature.stats.health;
+		const energyRatio = creature.energy / creature.stats.energy;
+		return healthRatio < 0.3 || energyRatio < 0.25;
+	}
+
+	/**
+	 * Scores a hex for a retreating creature.
+	 * Prefers hexes far from enemies, sheltered behind allied units,
+	 * and close to uncollected drops.
+	 */
+	scoreRetreatHex(hex: Hex): number {
+		const activeCreature = this.game.activeCreature;
+		if (!activeCreature) {
+			return Number.NEGATIVE_INFINITY;
+		}
+
+		let score = 0;
+
+		// Strongly prefer distance from enemies
+		score += this.closestDistanceToEnemy(hex) * 30;
+
+		// Reward being adjacent to allied units (they provide cover)
+		const adjacentAllyCount = hex
+			.adjacentHex(1)
+			.filter(
+				(adj) =>
+					adj.creature &&
+					adj.creature !== activeCreature &&
+					isTeam(activeCreature, adj.creature, Team.Ally),
+			).length;
+		score += adjacentAllyCount * 50;
+
+		// Reward proximity to uncollected drops
+		const nearestDrop = this.closestDistanceToDrop(hex);
+		if (nearestDrop < Number.POSITIVE_INFINITY) {
+			score += Math.max(0, 10 - nearestDrop) * 20;
+		}
+
+		return score;
+	}
+
+	closestDistanceToDrop(position: { x: number; y: number }): number {
+		let shortest = Number.POSITIVE_INFINITY;
+		this.game.drops.forEach((drop) => {
+			if (!drop || drop.pickedUp) {
+				return;
+			}
+			const dist = Math.abs(position.x - drop.x) + Math.abs(position.y - drop.y);
+			shortest = Math.min(shortest, dist);
+		});
+		return shortest;
 	}
 
 	closestDistanceToEnemy(position: { x: number; y: number }) {
