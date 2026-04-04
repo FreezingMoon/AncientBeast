@@ -5,6 +5,7 @@ import * as arrayUtils from '../utility/arrayUtils';
 import { Direction, Hex } from '../utility/hex';
 import { QueryOptions } from '../utility/hexgrid';
 import { Effect } from '../effect';
+import { getPointFacade } from '../utility/pointfacade';
 import Game from '../game';
 
 /** Creates the abilities
@@ -344,7 +345,11 @@ export default (G: Game) => {
 			activate: function (path, args) {
 				const ability = this;
 				const vehemoth = this.creature;
-				const target = arrayUtils.last(path).creature;
+				const hexWithTarget = path.find((hex: Hex) => {
+					const creature = getPointFacade().getCreaturesAt({ x: hex.x, y: hex.y })[0];
+					return creature && creature !== vehemoth;
+				});
+				const target = getPointFacade().getCreaturesAt(hexWithTarget.x, hexWithTarget.y)[0];
 
 				ability.end();
 				G.Phaser.camera.shake(0.01, 50, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
