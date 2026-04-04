@@ -1990,8 +1990,10 @@ export class UI {
 				if (creature.canWait && game.queue.getCurrentQueueLength() > 1) {
 					this.btnDelay.changeState(ButtonStateEnum.slideIn);
 				}
-				// Show skip/delay as visually disabled during bot turns
-				$j('#rightpanel').toggleClass('bot-turn', game.botController.isBotTurn());
+				// Show skip/delay/abilities as not-allowed during bot turns
+				const isBotTurn = game.botController.isBotTurn();
+				$j('#rightpanel').toggleClass('bot-turn', isBotTurn);
+				$j('#abilities').toggleClass('bot-turn', isBotTurn);
 			}, 800);
 		};
 

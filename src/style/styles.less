@@ -469,6 +469,16 @@
 	}
 }
 
+// During bot turns, show not-allowed cursor on skip/delay buttons and ability icons
+#rightpanel.bot-turn .button#skip:hover,
+#rightpanel.bot-turn .button#delay:hover {
+	cursor: not-allowed !important;
+}
+
+#abilities.bot-turn .ability-slot .button:hover {
+	cursor: not-allowed !important;
+}
+
 .button#flee {
 	background-image: url('~assets/icons/flee.svg');
 }
