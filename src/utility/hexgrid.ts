@@ -842,6 +842,10 @@ export class HexGrid {
 	 */
 	queryHexes(o) {
 		const game = this.game;
+		// Detect whether this is a fresh query or a redo of the last query.
+		// redoLastQuery() passes the same lastQueryOpt reference, so reference
+		// equality distinguishes the two cases.
+		const isFreshQuery = o !== this.lastQueryOpt;
 		const defaultOpt = {
 			fnOnConfirm: () => {
 				game.activeCreature?.queryMove();
@@ -877,6 +881,23 @@ export class HexGrid {
 
 		// Save the last Query
 		this.lastQueryOpt = { ...o };
+
+		// Reset keyboard cursor to the active creature's front hexagon so that
+		// arrow-key navigation always starts from a consistent, tactically useful
+		// position rather than wherever the cursor happened to be last.
+		// Only do this for fresh queries; redoLastQuery() must not move the cursor
+		// mid-flight (it is called from clearHexViewAlterations inside selectHex*).
+		if (isFreshQuery) {
+			const activeCreature = game.activeCreature;
+			if (activeCreature?.hexagons?.length) {
+				const frontHex = activeCreature.player.flipped
+					? activeCreature.hexagons[activeCreature.size - 1]
+					: activeCreature.hexagons[0];
+				if (frontHex) {
+					this.selectedHex = frontHex;
+				}
+			}
+		}
 
 		this.updateDisplay();
 		// Block all hexes
