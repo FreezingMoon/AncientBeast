@@ -1124,6 +1124,32 @@ div.section.info {
 	pointer-events: auto;
 }
 
+// Used ability icons: no rotation, invert only the icon.
+// filter:invert(1) on the button inverts everything; we compensate:
+//   - background-color pre-inverted so it reads as dark after the filter
+//   - ::before (frame) counter-inverted via double application = original colors
+#abilities .button.disabled {
+	transform: perspective(900px) rotateY(0deg) !important;
+	filter: invert(1);
+	background-color: rgba(255, 255, 255, 0.55); // pre-inverted → appears as rgba(0,0,0,0.55) after filter
+	opacity: 0.5;
+
+	&::before {
+		filter: invert(1); // double-invert: child + parent = original frame colors
+	}
+
+	&:hover {
+		transform: perspective(900px) rotateY(0deg) !important;
+		filter: none;
+		background-color: rgba(0, 0, 0, 0.55);
+		opacity: 1;
+
+		&::before {
+			filter: none;
+		}
+	}
+}
+
 #leftpanel .passive-slot .ability.nextIcon {
 	transform: perspective(900px) rotateY(0deg);
 }
