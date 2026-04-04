@@ -1982,7 +1982,7 @@ export class UI {
 			// Remove stacked class: per-slot CSS transitions animate each element to its place
 			$abilities.removeClass('panel-stacked');
 
-			// After the slowest slot transition completes, trigger side-panel button slide-ins
+			// After the slowest slot transition completes (250ms unfold), trigger side-panel button slide-ins
 			setTimeout(() => {
 				this._abilityPanelAnimating = false;
 				this.btnSkipTurn.changeState(ButtonStateEnum.slideIn);
@@ -1994,7 +1994,7 @@ export class UI {
 				const isBotTurn = game.botController.isBotTurn();
 				$j('#rightpanel').toggleClass('bot-turn', isBotTurn);
 				$j('#abilities').toggleClass('bot-turn', isBotTurn);
-			}, 800);
+			}, 300);
 		};
 
 		if ($panel.hasClass('offscreen')) {

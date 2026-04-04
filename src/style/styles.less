@@ -1174,7 +1174,7 @@ div.section.info {
 	top: 0;
 	z-index: 3;
 	clip-path: inset(0px 0 0 0);
-	transition: clip-path 0.75s ease-out;
+	transition: clip-path 0.25s ease-out;
 }
 
 #abilities .ability-slot {
@@ -1183,17 +1183,18 @@ div.section.info {
 
 // === Panel fold/unfold accordion animation ===
 // Each ability slot has its own transition speed (unfold: stacked → normal)
+// Staggered 100–250ms so the unfold finishes while the unit queue is still animating
 #abilities .ability-slot:nth-child(1) {
-	transition: transform 0.15s ease-out;
+	transition: transform 0.1s ease-out;
 }
 #abilities .ability-slot:nth-child(2) {
-	transition: transform 0.35s ease-out;
+	transition: transform 0.15s ease-out;
 }
 #abilities .ability-slot:nth-child(3) {
-	transition: transform 0.55s ease-out;
+	transition: transform 0.2s ease-out;
 }
 #abilities .ability-slot:nth-child(4) {
-	transition: transform 0.75s ease-out;
+	transition: transform 0.25s ease-out;
 }
 
 // panel-stacked: instantly place all elements in the overlapping stacked position
