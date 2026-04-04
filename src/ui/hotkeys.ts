@@ -150,7 +150,7 @@ export class Hotkeys {
 	}
 
 	pressSpace() {
-		!this.ui.dashopen && this.ui.game.grid.confirmHex();
+		this.ui.dashopen ? this.ui.materializeButton.triggerClick() : this.ui.game.grid.confirmHex();
 	}
 
 	pressF11(event) {
