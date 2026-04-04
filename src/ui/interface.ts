@@ -98,6 +98,7 @@ export class UI {
 	lastTurnWarningPlayerId: number | null;
 	selectedCreatureObj: Creature | undefined;
 	activeAbility: boolean;
+	_abilityPanelAnimating: boolean;
 	ignoreNextConfirmUnload: boolean;
 	/**
 	 * Create attributes and default buttons
@@ -1347,7 +1348,9 @@ export class UI {
 	}
 
 	selectAbility(i: number) {
-		this.checkAbilities();
+		if (!this._abilityPanelAnimating) {
+			this.checkAbilities();
+		}
 		this.selectedAbility = i;
 
 		if (i > -1) {
@@ -1950,7 +1953,9 @@ export class UI {
 			.css({ transform: '', '-webkit-transform': '' })
 			.removeClass('panel-folding panel-stacked');
 
-		// Helper: update panel data then play the unfold animation
+		// Helper: update panel data then play the unfold animation.
+		// Must be called with panel-stacked already active so all data/state changes
+		// happen while slot transitions are disabled — no visual flash before the unfold.
 		const applyDataAndUnfold = () => {
 			$abilities.removeClass('p0 p1 p2 p3').addClass('p' + creature.player.id);
 
@@ -1959,28 +1964,32 @@ export class UI {
 
 			this.btnSkipTurn.changeState(ButtonStateEnum.normal);
 			this.btnFullscreen.changeState(ButtonStateEnum.normal);
-			// Change ability buttons
-			this.changeAbilityButtons();
-			// Update upgrade info
-			this.updateAbilityUpgrades();
 
-			// Snap all elements to the overlapping stacked position (no transition)
+			// Snap all elements to the overlapping stacked position (disables slot transitions).
+			// Must happen before data updates so no transitioned property can fire mid-change.
 			$abilities.addClass('panel-stacked');
 			// Make panel visible (no panel-level transition — individual slots animate)
 			$panel.removeClass('offscreen');
-			// Force reflow to commit the stacked transforms before enabling transitions
+
+			// Update ability button images and states while transitions are disabled,
+			// so the correct styling is already in place before the unfold animation starts.
+			this.changeAbilityButtons();
+			this.updateAbilityUpgrades();
+			this.checkAbilities();
+
+			// Force reflow to commit stacked positions + all state changes as the animation start point
 			void $abilities[0].offsetHeight;
 			// Remove stacked class: per-slot CSS transitions animate each element to its place
 			$abilities.removeClass('panel-stacked');
 
-			// After the slowest slot transition completes, trigger slideIn states
+			// After the slowest slot transition completes, trigger side-panel button slide-ins
 			setTimeout(() => {
+				this._abilityPanelAnimating = false;
 				this.btnSkipTurn.changeState(ButtonStateEnum.slideIn);
 				this.btnFullscreen.changeState(ButtonStateEnum.slideIn);
 				if (creature.canWait && game.queue.getCurrentQueueLength() > 1) {
 					this.btnDelay.changeState(ButtonStateEnum.slideIn);
 				}
-				this.checkAbilities();
 				// Show skip/delay as visually disabled during bot turns
 				$j('#rightpanel').toggleClass('bot-turn', game.botController.isBotTurn());
 			}, 800);
@@ -1990,10 +1999,12 @@ export class UI {
 			// First show: no fold needed, go straight to unfold
 			applyDataAndUnfold();
 		} else {
-			// Turn transition: fold slots down to a stack, then swap data and unfold
+			// Turn transition: fold slots down to a stack, then swap data and unfold.
+			// Atomically switch panel-folding → panel-stacked so there is never a gap
+			// where active transitions would spring slots back to their default positions.
 			$abilities.addClass('panel-folding');
 			setTimeout(() => {
-				$abilities.removeClass('panel-folding');
+				$abilities.removeClass('panel-folding').addClass('panel-stacked');
 				applyDataAndUnfold();
 			}, 520); // slightly past the longest fold transition (500ms)
 		}

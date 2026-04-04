@@ -798,6 +798,9 @@ export default class Game {
 				}
 
 				this.log('Active Creature : %CreatureName' + this.activeCreature.id + '%');
+				// Block ability icon state changes during the turn transition (fold + unfold).
+				// activate() resets abilities via setUsed() which would otherwise flash icons.
+				this.UI._abilityPanelAnimating = true;
 				this.activeCreature.activate();
 				// console.log(this.activeCreature);
 
@@ -925,6 +928,9 @@ export default class Game {
 			const p = this.activeCreature.player;
 			p.totalTimePool = p.totalTimePool - (skipTurn.valueOf() - p.startTime.valueOf());
 			this.pauseTime = 0;
+			// Block icon state changes for the entire fold+unfold cycle.
+			// Must be set before deactivate() which calls queryMove(null) → selectAbility(-1) → checkAbilities.
+			this.UI._abilityPanelAnimating = true;
 			this.activeCreature.deactivate('turn-end');
 			const activeCreature = this.activeCreature;
 			this.nextCreature();

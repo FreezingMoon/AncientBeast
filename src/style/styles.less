@@ -1188,7 +1188,11 @@ div.section.info {
 
 // panel-stacked: instantly place all elements in the overlapping stacked position
 // (used before the unfold so transitions start from the right position)
-#abilities.panel-stacked .ability-slot,
+// Ability slots are hidden during this phase so data/state changes are invisible.
+#abilities.panel-stacked .ability-slot {
+	transition: none !important;
+	opacity: 0;
+}
 #abilities.panel-stacked .progressbar {
 	transition: none !important;
 }

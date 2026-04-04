@@ -341,12 +341,12 @@ export class Ability {
 		if (val) {
 			this.used = true;
 			// Avoid dimmed passive for current creature
-			if (this.creature.id == game.activeCreature.id) {
+			if (this.creature.id == game.activeCreature.id && !game.UI._abilityPanelAnimating) {
 				game.UI.abilitiesButtons[this.id].changeState('disabled');
 			}
 		} else {
 			this.used = false;
-			if (this.creature.id == game.activeCreature.id) {
+			if (this.creature.id == game.activeCreature.id && !game.UI._abilityPanelAnimating) {
 				// Passive
 				game.UI.abilitiesButtons[this.id].changeState('normal');
 			}
