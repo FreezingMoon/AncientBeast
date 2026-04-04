@@ -482,7 +482,8 @@ export default (G: Game) => {
 				);
 				const tween = projectileInstance[0];
 				const sprite = projectileInstance[1];
-				const dist = projectileInstance[2];
+				// Count empty hexes only (excludes creature hexes); 0 at melee range
+				const emptyHexDist = arrayUtils.filterCreature(path.slice(0), false, false).length;
 
 				sprite.alpha = 0.4;
 				const fadeTween = G.Phaser.add
@@ -494,10 +495,15 @@ export default (G: Game) => {
 					this.destroy();
 
 					// Play hit sound when projectile reaches target
-						G.soundsys.playSFX('units/sfx/Snow Bunny 3');
+					G.soundsys.playSFX('units/sfx/Snow Bunny 3');
+					// Frost is flat; crush is a bonus that scales with empty hexes travelled (0 at melee)
+					const scaledDamages = {
+						frost: ability.damages.frost,
+						crush: ability.damages.crush * emptyHexDist,
+					};
 					const damage = new Damage(
 						ability.creature, // Attacker
-						dmg, // Damage Type
+						scaledDamages, // Damage Type
 						1, // Area
 						[],
 						G,

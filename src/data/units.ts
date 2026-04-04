@@ -1237,9 +1237,9 @@ export const unitData: UnitDataStructure = [
 				info: '10 frost + 3 crush damage / hexagon.',
 				upgrade: 'Freezes foe at melee range.',
 				damages: {
-					crush: 0,
+					crush: 3,
 					frost: 10,
-				},
+				}, // frost is flat; crush scales with empty-hex distance (0 at melee)
 				costs: {
 					energy: 25,
 				},
