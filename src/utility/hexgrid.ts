@@ -1818,11 +1818,16 @@ export class HexGrid {
 		// Clean overlay from the previous preview position before painting the new one.
 		// Without this, every hex the cursor passes over accumulates the creature-selected
 		// overlay, making it look like multiple creatures have been materialized at once.
+		// After cleaning, restore the reachable visual state so the hex stays filled like
+		// the rest of the spawn-range hexes (redoLastQuery may have already restored it).
 		if (preview._previewPos !== undefined) {
 			for (let i = 0, prevSize = preview._previewSize; i < prevSize; i++) {
 				const prevHex = this.hexes[preview._previewPos.y]?.[preview._previewPos.x - i];
 				if (prevHex) {
 					this.cleanHex(prevHex);
+					if (prevHex.reachable) {
+						prevHex.overlayVisualState('reachable h_player' + game.activeCreature.team);
+					}
 				}
 			}
 		}
