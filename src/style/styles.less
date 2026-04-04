@@ -363,13 +363,13 @@
 	}
 
 	&.disabled {
-		opacity: 0.5;
+		opacity: 1;
 	}
 
 	&.hidden {
 		display: none;
 	}
-	&.noclick:hover {
+	&.noclick {
 		opacity: 0.5;
 	}
 
@@ -570,8 +570,7 @@
 		transform: perspective(900px) rotateY(0deg);
 	}
 
-	&.disabled,
-	&.noclick {
+	&.disabled {
 		transform: perspective(900px) rotateY(40deg);
 
 		&:hover {
@@ -594,8 +593,7 @@
 		transform: perspective(900px) rotateY(0deg);
 	}
 
-	&.disabled,
-	&.noclick {
+	&.disabled {
 		transform: perspective(900px) rotateY(-40deg);
 
 		&:hover {
