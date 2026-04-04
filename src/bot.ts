@@ -23,6 +23,8 @@ export default class BotController {
 	moveAttempted = false;
 	failedAbilityIds = new Set<number>();
 	isResolvingQuery = false;
+	/** The game round during which damage was last dealt to any creature. */
+	lastDamageRound = 0;
 
 	constructor(game: Game) {
 		this.game = game;
@@ -70,6 +72,28 @@ export default class BotController {
 			clearTimeout(this.decisionTimeout);
 			this.decisionTimeout = null;
 		}
+	}
+
+	/**
+	 * Called whenever any creature takes damage. Resets the stagnation clock.
+	 */
+	notifyDamage() {
+		this.lastDamageRound = this.game.turn;
+	}
+
+	/**
+	 * Returns a 0–10 aggression multiplier that grows as a creature ages
+	 * (turns it has personally taken) and when no damage has been dealt
+	 * globally for a while, breaking stagnant stand-offs.
+	 *
+	 * - Age pressure: rises after the creature has taken 4 turns (+0.5 per turn).
+	 * - Stagnation pressure: rises after 3 global damage-free rounds (+1.5 per round).
+	 */
+	getAggressionFactor(creature: Creature): number {
+		const ageFactor = Math.max(0, creature.turnsActive - 4) * 0.5;
+		const stagnantRounds = this.game.turn - this.lastDamageRound;
+		const stagnationFactor = Math.max(0, stagnantRounds - 3) * 1.5;
+		return Math.min(10, ageFactor + stagnationFactor);
 	}
 
 	isBotTurn() {
@@ -377,17 +401,21 @@ export default class BotController {
 					adjacentHex.creature && isTeam(activeCreature, adjacentHex.creature, Team.Enemy),
 			);
 
+		const aggression = this.getAggressionFactor(activeCreature);
+
 		let score = 0;
-		score += adjacentEnemy ? 120 : 0;
+		// Adjacent-enemy bonus grows with aggression, pushing units to seek contact.
+		score += adjacentEnemy ? 120 + aggression * 25 : 0;
 		score -= activeCreature.hexagons.some(
 			(creatureHex) => creatureHex.pos.x === hex.x && creatureHex.pos.y === hex.y,
 		)
 			? 1000
 			: 0;
 
-		// All units use gradient zone preference; higher level = enemy-side preference
+		// Zone preference weakens with aggression so units stop hugging safe ground.
 		const preferredX = this.getPreferredX(activeCreature);
-		score -= Math.abs(hex.x - preferredX) * 10;
+		const zoneWeight = Math.max(1, 10 - aggression);
+		score -= Math.abs(hex.x - preferredX) * zoneWeight;
 
 		return score;
 	}

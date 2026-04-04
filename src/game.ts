@@ -1355,6 +1355,7 @@ export default class Game {
 	onDamage(/* creature, damage */) {
 		this.triggerAbility('onDamage', arguments);
 		this.triggerEffect('onDamage', arguments);
+		this.botController.notifyDamage();
 	}
 
 	// Removed individual args from definition because we are using the arguments variable.
