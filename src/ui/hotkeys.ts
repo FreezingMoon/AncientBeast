@@ -75,11 +75,15 @@ export class Hotkeys {
 		}
 	}
 	pressTab(event) {
+		event.preventDefault();
 		if (this.ui.dashopen) {
 			if (event.shiftKey) this.ui.gridSelectPrevious();
 			else this.ui.gridSelectNext();
 		} else if (event.shiftKey) {
 			this.ui.brandlogo.alpha = 0;
+			this.ui.selectPreviousAbility();
+		} else {
+			this.ui.selectNextAbility();
 		}
 	}
 
