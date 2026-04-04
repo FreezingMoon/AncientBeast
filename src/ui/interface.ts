@@ -2191,6 +2191,12 @@ export class UI {
 			//game.skipTurn( { tooltip: "Finished" } ); // Autoskip
 			game.activeCreature.noActionPossible = true;
 			this.btnSkipTurn.changeState(ButtonStateEnum.slideIn);
+		} else {
+			// Actions are available; clear any stale noActionPossible state that may
+			// have been set by a premature checkAbilities() call before an ability's
+			// movement animation had completed (e.g. Molten Hurl moving Infernal into
+			// range of a target that Pulverizing Hit can now reach).
+			game.activeCreature.noActionPossible = false;
 		}
 	}
 
