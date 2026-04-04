@@ -467,7 +467,7 @@ export default (G: Game) => {
 					),
 				];
 				new Trap(hex.x, hex.y, 'mud-bath', effects, ability.creature.player, {}, G);
-				G.soundsys.playSFX('sounds/mudbath');
+				G.soundsys.playSFX('units/sfx/Swine Thug 3');
 				// Trigger trap immediately if on self
 				if (isSelf) {
 					// onCreatureMove is Spa Goggles' trigger event

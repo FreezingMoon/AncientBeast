@@ -494,12 +494,7 @@ export default (G: Game) => {
 					this.destroy();
 
 					// Play hit sound when projectile reaches target
-					G.soundsys.playSFX('sounds/shatter');
-
-					// Copy to not alter ability strength
-					const dmg = $j.extend({}, ability.damages);
-					dmg.crush += 3 * dist; // Add distance to crush damage
-
+						G.soundsys.playSFX('units/sfx/Snow Bunny 3');
 					const damage = new Damage(
 						ability.creature, // Attacker
 						dmg, // Damage Type

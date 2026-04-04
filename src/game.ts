@@ -361,9 +361,6 @@ export default class Game {
 			// safely process each asset here
 		});
 
-		// Ability SFX
-		this.Phaser.load.audio('MagmaSpawn0', getUrl('units/sfx/Infernal 0'));
-
 		// Background
 		this.Phaser.load.image('background', getUrl('locations/' + this.background_image + '/bg'));
 

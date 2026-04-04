@@ -5,7 +5,6 @@ import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
 import { getPointFacade } from '../utility/pointfacade';
-import { getAudioMode } from '../sound/soundsys';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -29,11 +28,7 @@ export default (G) => {
 				this._addTrap(this.creature.hexagons[1]);
 				this._addTrap(this.creature.hexagons[this.creature.player.flipped ? 0 : 2]);
 
-				// SFX - Only play if audio is not muted
-				if (getAudioMode() !== 'muted') {
-					const music = G.Phaser.add.audio('MagmaSpawn0');
-					music.play();
-				}
+				G.soundsys.playSFX('units/sfx/Infernal 0');
 			},
 
 			_addTrap: function (hex) {
