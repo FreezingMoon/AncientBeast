@@ -1981,6 +1981,8 @@ export class UI {
 					this.btnDelay.changeState(ButtonStateEnum.slideIn);
 				}
 				this.checkAbilities();
+				// Show skip/delay as visually disabled during bot turns
+				$j('#rightpanel').toggleClass('bot-turn', game.botController.isBotTurn());
 			}, 800);
 		};
 
