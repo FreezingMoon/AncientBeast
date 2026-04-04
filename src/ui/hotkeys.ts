@@ -103,8 +103,12 @@ export class Hotkeys {
 		this.ui.dashopen ? this.ui.gridSelectRight() : this.ui.game.grid.selectHexRight();
 	}
 
+	pressBacktick() {
+		this.ui.chat.toggle();
+	}
+
 	pressEnter() {
-		this.ui.dashopen ? this.ui.materializeButton.triggerClick() : this.ui.chat.toggle();
+		this.ui.dashopen ? this.ui.materializeButton.triggerClick() : this.ui.game.grid.confirmHex();
 	}
 
 	pressEscape() {
@@ -244,6 +248,11 @@ export function getHotKeys(hk) {
 		ArrowRight: {
 			onkeydown() {
 				hk.pressArrowRight();
+			},
+		},
+		Backquote: {
+			onkeydown() {
+				hk.pressBacktick();
 			},
 		},
 		Enter: {
