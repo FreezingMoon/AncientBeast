@@ -77,16 +77,23 @@ export default (G: Game) => {
 					}
 				}
 
-				const abilityCanTrigger =
-					triggerHexes.length &&
-					this.timesUsedThisTurn < this._getUsesPerTurn() &&
-					// Bunny cannot use this ability if affected by these statuses.
-					!this.creature.materializationSickness &&
-					!this.creature.isFrozen() &&
-					// Bunny needs a valid hex to retreat into.
-					this._getHopHex();
+				if (!triggerHexes.length) {
+					return false;
+				}
+				if (!(this.timesUsedThisTurn < this._getUsesPerTurn())) {
+					return false;
+				}
+				if (this.creature.materializationSickness) {
+					return false;
+				}
+				if (this.creature.isFrozen()) {
+					return false;
+				}
+				if (!this._getHopHex()) {
+					return false;
+				}
 
-				return !!abilityCanTrigger;
+				return true;
 			},
 
 			//	activate() :
@@ -163,6 +170,24 @@ export default (G: Game) => {
 				// If we can't hop away, try hopping backwards.
 				if (hex === undefined || !hex.isWalkable(this.creature.size, this.creature.id, true)) {
 					hex = this.creature.getHexMap(matrices.inlineback1hex, false)[0];
+				}
+
+				// If still blocked (e.g., creature is at the board edge), try hopping to
+				// the opposite front diagonal — away from the threatening direction.
+				if (hex === undefined || !hex.isWalkable(this.creature.size, this.creature.id, true)) {
+					if (
+						triggerHexes.find((h) => h.direction === HopTriggerDirections.Below) &&
+						!triggerHexes.find((h) => h.direction === HopTriggerDirections.Above)
+					) {
+						// Attacked from below only — escape upward (front-top).
+						hex = this.creature.getHexMap(matrices.backtop1hex, true)[0];
+					} else if (
+						triggerHexes.find((h) => h.direction === HopTriggerDirections.Above) &&
+						!triggerHexes.find((h) => h.direction === HopTriggerDirections.Below)
+					) {
+						// Attacked from above only — escape downward (front-bottom).
+						hex = this.creature.getHexMap(matrices.backbottom1hex, true)[0];
+					}
 				}
 
 				// Finally, give up if we still can't move.
