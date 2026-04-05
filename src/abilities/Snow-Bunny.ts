@@ -469,7 +469,6 @@ export default (G: Game) => {
 			activate: function (path, args) {
 				const ability = this;
 				ability.end();
-				G.Phaser.camera.shake(0.01, 90, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				const hexWithTarget = path.find((hex: Hex) => {
 					const creature = getPointFacade().getCreaturesAt({ x: hex.x, y: hex.y })[0];
@@ -501,6 +500,8 @@ export default (G: Game) => {
 				tween.onComplete.add(function () {
 					// @ts-expect-error 'this' refers to the animation object, _not_ the ability
 					this.destroy();
+
+					G.Phaser.camera.shake(0.01, 90, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 					// Play hit sound when projectile reaches target
 					G.soundsys.playSFX('units/sfx/Snow Bunny 3');
