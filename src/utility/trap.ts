@@ -33,6 +33,11 @@ export class Trap {
 	typeOver = false;
 	destroyAnimation: DestroyAnimationType = 'none';
 
+	/** Optional callback invoked when this trap is destroyed.
+	 *  Receives the creature whose trap placement caused the destruction, if known.
+	 */
+	onDestroyFn?: (destroyer?: Creature) => void;
+
 	//
 	display: Phaser.Sprite;
 	displayOver: Phaser.Sprite;
@@ -66,10 +71,11 @@ export class Trap {
 
 		this.id = game.trapId++;
 
-		// NOTE: Destroy any traps here.
+		// NOTE: Destroy any existing traps here, attributing the destruction to
+		// the owner of the new (this) trap so onDestroyFn callbacks know the killer.
 		getPointFacade()
 			.getTrapsAt(this)
-			.forEach((trap) => trap.destroy());
+			.forEach((trap) => trap.destroy(this.ownerCreature));
 		game.traps.push(this);
 
 		for (let i = this.effects.length - 1; i >= 0; i--) {
@@ -112,7 +118,7 @@ export class Trap {
 		}
 	}
 
-	destroy() {
+	destroy(destroyer?: Creature) {
 		const game = this.game;
 		const phaser: Phaser.Game = game.Phaser;
 		const tweenDuration = 500;
@@ -138,13 +144,20 @@ export class Trap {
 		}
 
 		game.traps = game.traps.filter((trap) => trap !== this);
+		this.onDestroyFn?.(destroyer);
 	}
 
 	hide(duration = 0) {
-		this.game.Phaser.add.tween(this.display).to({ alpha: 0 }, duration, Phaser.Easing.Linear.None);
+		this.game.Phaser.add
+			.tween(this.display)
+			.to({ alpha: 0 }, duration, Phaser.Easing.Linear.None)
+			.start();
 	}
 
 	show(duration = 0) {
-		this.game.Phaser.add.tween(this.display).to({ alpha: 1 }, duration, Phaser.Easing.Linear.None);
+		this.game.Phaser.add
+			.tween(this.display)
+			.to({ alpha: 1 }, duration, Phaser.Easing.Linear.None)
+			.start();
 	}
 }

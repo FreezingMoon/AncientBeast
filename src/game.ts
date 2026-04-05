@@ -506,7 +506,7 @@ export default class Game {
 			getCreatures: () => this.creatures.filter(Boolean),
 			getCreaturePassablePoints: (creature) => [],
 			getCreatureBlockedPoints: (creature) => {
-				if (creature.dead || creature.temp) {
+				if (creature.dead || creature.temp || creature._brbState !== null) {
 					return [];
 				} else {
 					const ps = [];

@@ -118,6 +118,15 @@ export default (G: Game) => {
 
 				// Create goo trap at Gumble's death location
 				const createGooTrap = () => {
+					// Skip on the re-entrant real death (BRB trap was just destroyed,
+					// triggering this death). The trap that displaced the original
+					// gooey-body is already at this hex; we must not create a second
+					// gooey-body on top of it, otherwise it looks like the original
+					// was never destroyed.
+					if (ability.isUpgraded() && ability.creature._brbSpent) {
+						return;
+					}
+
 					console.log("Creating goo trap at Gumble's death location");
 
 					const effect = new Effect(
@@ -126,24 +135,15 @@ export default (G: Game) => {
 						deathHex,
 						'onStepIn',
 						{
-							// Check if creature should be affected by the goo
-							requireFn: function () {
-								const creatureOnGoo = this.trap.hex.creature;
-								if (!creatureOnGoo) {
-									return false;
-								}
-
-								// If upgraded, don't affect allied units
-								if (ability.isUpgraded()) {
-									return creatureOnGoo.player !== ability.creature.player;
-								}
-
-								// Otherwise affect all units
-								return true;
-							},
-							effectFn: function (_, creature: Creature) {
-								// Pin the creature in place for the current round
-								creature.remainingMove = 0;
+						requireFn: function () {
+							return !!this.trap.hex.creature;
+						},
+						effectFn: function (_effect, creature: Creature) {
+							// Pin the creature: it cannot move further this turn.
+							// Flying units only reach this point when stopping ON the
+							// trap (mid-flight hexes use ignoreTraps=true), so this
+							// correctly pins both walkers and landing flyers.
+							creature.remainingMove = 0;
 							},
 							alterations: {},
 							deleteTrigger: '',
@@ -153,7 +153,19 @@ export default (G: Game) => {
 						G,
 					);
 
-					new Trap(
+					// If upgraded, set up BRB state so die() will intercept the death.
+					// _brbSpent is true while a BRB is already in flight (between the
+					// initial death and either revival or real death via trap destruction),
+					// preventing a re-entrant second BRB on the follow-up die() call.
+					if (ability.isUpgraded() && !ability.creature._brbSpent) {
+						ability.creature._brbActive = true;
+						ability.creature._brbState = {
+							killer: null, // filled in by die() after this trigger returns
+							gooTrap: null, // filled in below after trap is constructed
+						};
+					}
+
+					const gooTrap = new Trap(
 						deathHex.x,
 						deathHex.y,
 						'gooey-body',
@@ -167,6 +179,10 @@ export default (G: Game) => {
 						},
 						G,
 					);
+
+					if (ability.isUpgraded() && !ability.creature._brbSpent) {
+						ability.creature._brbState.gooTrap = gooTrap;
+					}
 
 					G.log('%CreatureName' + deadCreature.id + '% melts into a gooey puddle');
 				};

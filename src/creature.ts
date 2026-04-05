@@ -10,6 +10,7 @@ import { Effect } from './effect';
 import { Player, PlayerID } from './player';
 import { Damage, DamageResult } from './damage';
 import { AugmentedMatrix } from './utility/matrices';
+import { Trap } from './utility/trap';
 import { HEX_WIDTH_PX, hashOffsetCoords, offsetCoordsToPx, offsetNeighbors } from './utility/const';
 import { CreatureType, Level, Realm, Unit, UnitName } from './data/types';
 import { UnitDisplayInfo, UnitSize } from './data/units';
@@ -162,6 +163,12 @@ export class Creature {
 	abilities: Ability[];
 	accumulatedTeleportRange = 0; // Used for Abolished's third ability
 
+	// BRB state — used by Gumble's upgraded Gooey Body to defer death
+	_brbActive: boolean;
+	_brbState: { killer: Creature | { player: Player }; gooTrap: Trap } | null;
+	/** True after BRB has fired once; prevents Gooey Body re-triggering on the follow-up death. */
+	_brbSpent: boolean;
+
 	creatureSprite: CreatureSprite;
 
 	/**
@@ -223,6 +230,9 @@ export class Creature {
 		this.dropCollection = [];
 		this.protectedFromFatigue = this.isDarkPriest() ? true : false;
 		this.turnsActive = 0;
+		this._brbActive = false;
+		this._brbState = null;
+		this._brbSpent = false;
 
 		// Statistics
 		this.baseStats = {
@@ -493,6 +503,58 @@ export class Creature {
 					game.skipTurn({
 						tooltip: 'Dazzled',
 					});
+				}
+			}, 50);
+			return;
+		}
+
+		// BRB state — Gumble's upgraded Gooey Body deferred revival
+		if (this._brbState) {
+			varReset();
+			const brbState = this._brbState;
+			const brbInterval = setInterval(() => {
+				if (!game.turnThrottle) {
+					clearInterval(brbInterval);
+
+					// Trap hex is occupied — skip this turn and try again next
+					if (brbState.gooTrap.hex.creature) {
+						game.skipTurn({ tooltip: 'BRB' });
+						return;
+					}
+
+					// Hex is free — revive!
+					this._brbSpent = false; // reset so ability can fire again if Gumble dies later
+					this._brbState = null;
+					this.x = brbState.gooTrap.x;
+					this.y = brbState.gooTrap.y;
+					this.pos = { x: this.x, y: this.y };
+					this.health = this.stats.health;
+					this.energy = this.stats.energy;
+					this.endurance = this.stats.endurance;
+					this.updateHex();
+					this.facePlayerDefault();
+
+					// Reset angle + position left by the death animation, then fade back in
+					const reviveFadeMs = 1000;
+					this.creatureSprite.setAngle(0, 0);
+					this.creatureSprite.setHex(brbState.gooTrap.hex, 0);
+
+					// Fade trap out while Gumble fades back in
+					brbState.gooTrap.hide(reviveFadeMs);
+					setTimeout(() => brbState.gooTrap.destroy(), reviveFadeMs);
+					this.creatureSprite.setAlpha(1, reviveFadeMs);
+					this.healthShow();
+					this.updateHealth();
+
+					game.log('%CreatureName' + this.id + '% rises from the goo!');
+					this.hint('Back!', 'msg_effects');
+					game.updateQueueDisplay();
+					game.grid.updateDisplay();
+
+					setTimeout(() => {
+						game.startTimer();
+						this.queryMove(null);
+					}, reviveFadeMs);
 				}
 			}, 50);
 			return;
@@ -1545,14 +1607,59 @@ export class Creature {
 	die(killerCreature: Creature | { player: Player }) {
 		const game = this.game;
 
-		game.log('%CreatureName' + this.id + '% is dead');
-
 		this.dead = true;
 
 		// Triggers
 		// @ts-expect-error 2554
 		game.onCreatureDeath(this);
 
+		// BRB state: Gumble's upgraded Gooey Body intercepts death
+		if (this._brbActive && this._brbState) {
+			this._brbActive = false;
+			this._brbSpent = true; // prevent Gooey Body re-triggering on follow-up death
+			this.dead = false;
+			this._brbState.killer = killerCreature;
+
+			// If the goo trap is destroyed while Gumble is in BRB state (e.g. another
+			// trap overwrites it), Gumble dies immediately with full score/queue update.
+			// The destroyer (the creature whose trap caused the overwrite) becomes the killer.
+			const brbSelf = this;
+			this._brbState.gooTrap.onDestroyFn = function (destroyer?: Creature) {
+				if (!brbSelf._brbState) return; // already resolved (revived or died)
+				const savedState = brbSelf._brbState;
+				brbSelf._brbState = null;
+				brbSelf.die(destroyer ?? savedState.killer);
+			};
+
+			// Clear the hex first so the trap spot is immediately walkable
+			// and pathfinding/queue-display sees the correct state.
+			this.cleanHex();
+
+			// Play full death animation — Gumble appears to die but the trap will
+			// resurrect him. No score, no 'is dead' log. Queue avatar shows BRB.
+			const brbAnimOpts = {
+				callback: () => {
+					game.updateQueueDisplay();
+					game.grid.updateDisplay();
+				},
+				flipped:
+					killerCreature instanceof Creature
+						? this.pos.x - killerCreature.pos.x < 0
+						: false,
+			};
+			game.animations.death(this, brbAnimOpts);
+			game.log('%CreatureName' + this.id + '% will be right back...');
+			game.updateQueueDisplay();
+			game.grid.updateDisplay();
+			if (game.activeCreature === this) {
+				game.nextCreature();
+				return;
+			}
+			game.activeCreature.queryMove();
+			return;
+		}
+
+		game.log('%CreatureName' + this.id + '% is dead');
 		this.killer = killerCreature.player;
 		const isDeny = this.killer.flipped == this.player.flipped;
 
@@ -1561,6 +1668,16 @@ export class Creature {
 			const offsetX = this.player.flipped ? this.x - this.size + 1 : this.x;
 			const { name, ...alterations } = this.drop;
 			new Drop(name, alterations, offsetX, this.y, game);
+			// If a creature is already standing on the drop hex (e.g. in the BRB scenario
+			// where the goo trap was overwritten and Gumble dies under them), give them
+			// the drop immediately rather than waiting for movement.
+			const dropHex = game.hexAt(offsetX, this.y);
+			if (dropHex) {
+				const occupant = dropHex.creature;
+				if (occupant && occupant !== this && !occupant.dead) {
+					occupant.pickupDrop();
+				}
+			}
 		}
 
 		if (!game.firstKill && !isDeny) {
@@ -1778,7 +1895,12 @@ export class Creature {
 
 	get fatigueText(): string {
 		let result = '';
-		if (this.player.hasLost) {
+		if (this._brbState) {
+			const occupant = this._brbState.gooTrap?.hex?.creature;
+			const text = (occupant && occupant !== this) ? 'AFK' : 'BRB';
+			this.#fatigueText = text;
+			return text;
+		} else if (this.player.hasLost) {
 			result = 'Dazzled';
 		} else if (this.isFrozen()) {
 			result = this.isInCryostasis() ? 'Cryostasis' : 'Frozen';

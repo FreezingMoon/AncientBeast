@@ -1367,7 +1367,7 @@ export const unitData: UnitDataStructure = [
 				title: 'Gooey Body',
 				desc: 'When killed, it melts into a puddle that traps any unit that walks on top of it.',
 				info: "Can't move current round while on goo.",
-				upgrade: 'Does not affect allied units.',
+				upgrade: 'Can revive if nothing on top.',
 			},
 			{
 				title: 'Gummy Mallet',
