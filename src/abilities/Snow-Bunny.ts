@@ -377,39 +377,46 @@ export default (G: Game) => {
 						break;
 				}
 
-				let hex = target.hexagons[0];
-
-				target.moveTo(hex, {
-					ignoreMovementPoint: true,
-					ignorePath: true,
-					callback: function () {
-						G.activeCreature.queryMove();
-					},
-					animation: 'push',
-				});
-
-				G.Phaser.camera.shake(0.01, 400, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
-
+				// Pre-compute the push destination so the gust sprite lands then pushes
 				dir = dir.slice(0, dist + 1);
-
+				let pushHex = target.hexagons[0];
 				for (let j = 0; j < dir.length; j++) {
 					if (dir[j].isWalkable(target.size, target.id, true)) {
-						hex = dir[j];
+						pushHex = dir[j];
 					} else {
 						break;
 					}
 				}
 
-				target.moveTo(hex, {
-					ignoreMovementPoint: true,
-					ignorePath: true,
-					callback: function () {
-						G.activeCreature.queryMove();
-					},
-					animation: 'push',
-				});
+				// Animate a wind gust projectile travelling from Snow Bunny to the target
+				const projectileInstance = G.animations.projectile(
+					// @ts-expect-error `this.creature` exists once this file is extended into `ability.ts`
+					this,
+					target,
+					'effects_blowing-wind',
+					path,
+					args,
+					52,
+					-20,
+				);
+				const tween = projectileInstance[0];
+				const sprite = projectileInstance[1];
 
-				G.Phaser.camera.shake(0.01, 400, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				tween.onComplete.add(function () {
+					// @ts-expect-error 'this' refers to the animation object, _not_ the ability
+					this.destroy();
+
+					G.Phaser.camera.shake(0.01, 400, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+
+					target.moveTo(pushHex, {
+						ignoreMovementPoint: true,
+						ignorePath: true,
+						callback: function () {
+							G.activeCreature.queryMove();
+						},
+						animation: 'push',
+					});
+				}, sprite);
 			},
 		},
 
