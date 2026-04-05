@@ -207,10 +207,16 @@ export class Hex {
 					game.freezedInput ||
 					game.UI.dashopen ||
 					shouldUseDirectTouchInput() ||
-					!pointer.withinGame ||
 					game.botController?.isBotTurn()
 				)
 					return;
+
+				// When cursor leaves the game canvas entirely, still reset hover state
+				// (e.g. stop the health indicator bounce animation) but skip overlay/signal work.
+				if (!pointer.withinGame) {
+					this.onHoverOffFn(this);
+					return;
+				}
 
 				// Clear dashed overlay when leaving a reachable hex
 				if (this.reachable && game.activeCreature) {

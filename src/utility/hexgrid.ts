@@ -242,11 +242,9 @@ export class HexGrid {
 	}
 
 	handleUIEvent(message, payload) {
-		if (message === 'onOpenDash') {
-			// NOTE: This is a rather hacky bugfix.
-			// If a "query" is going on, and the dash is opened,
-			// creatures can remain in a "hovered" state.
-			// This hack undoes the "hovered" state.
+		if (message === 'onOpenDash' || message === 'onCloseDash') {
+			// When the dash opens or closes, creatures can remain in a "hovered" state
+			// (e.g. bounce animation stuck). Reset all bounces to ensure a clean state.
 			this.forEachHex((hex) => {
 				const creature = hex.creature;
 				if (creature instanceof Creature) {

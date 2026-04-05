@@ -1676,6 +1676,8 @@ export class UI {
 	closeDash() {
 		const game = this.game;
 
+		game.signals.ui.dispatch('onCloseDash');
+
 		this.$dash.removeClass('active');
 		this.$dash.transition(
 			{
