@@ -1642,10 +1642,7 @@ export class Creature {
 					game.updateQueueDisplay();
 					game.grid.updateDisplay();
 				},
-				flipped:
-					killerCreature instanceof Creature
-						? this.pos.x - killerCreature.pos.x < 0
-						: false,
+				flipped: killerCreature instanceof Creature ? this.pos.x - killerCreature.pos.x < 0 : false,
 			};
 			game.animations.death(this, brbAnimOpts);
 			game.log('%CreatureName' + this.id + '% will be right back...');
@@ -1897,7 +1894,7 @@ export class Creature {
 		let result = '';
 		if (this._brbState) {
 			const occupant = this._brbState.gooTrap?.hex?.creature;
-			const text = (occupant && occupant !== this) ? 'AFK' : 'BRB';
+			const text = occupant && occupant !== this ? 'AFK' : 'BRB';
 			this.#fatigueText = text;
 			return text;
 		} else if (this.player.hasLost) {

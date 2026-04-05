@@ -135,15 +135,15 @@ export default (G: Game) => {
 						deathHex,
 						'onStepIn',
 						{
-						requireFn: function () {
-							return !!this.trap.hex.creature;
-						},
-						effectFn: function (_effect, creature: Creature) {
-							// Pin the creature: it cannot move further this turn.
-							// Flying units only reach this point when stopping ON the
-							// trap (mid-flight hexes use ignoreTraps=true), so this
-							// correctly pins both walkers and landing flyers.
-							creature.remainingMove = 0;
+							requireFn: function () {
+								return !!this.trap.hex.creature;
+							},
+							effectFn: function (_effect, creature: Creature) {
+								// Pin the creature: it cannot move further this turn.
+								// Flying units only reach this point when stopping ON the
+								// trap (mid-flight hexes use ignoreTraps=true), so this
+								// correctly pins both walkers and landing flyers.
+								creature.remainingMove = 0;
 							},
 							alterations: {},
 							deleteTrigger: '',
