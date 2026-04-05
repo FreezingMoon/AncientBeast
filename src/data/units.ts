@@ -1220,11 +1220,11 @@ export const unitData: UnitDataStructure = [
 			{
 				title: 'Blowing Wind',
 				desc: 'Pushes away any unit for several hexagons, depending on its size.',
-				info: 'Range = 5 hexagons - creature size.',
+				info: 'Range = 6 hexagons - creature size.',
 				upgrade: 'No penalty vs frozen foes.',
 				effects: [
 					{
-						special: 'Range = 5 hexagons - creature size.',
+						special: 'Size based unit push.',
 					},
 				],
 				costs: {
