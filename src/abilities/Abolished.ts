@@ -269,10 +269,10 @@ export default (G: Game) => {
 				const crea = this.creature;
 				crea.hexagons.forEach(function (h) {
 					h.createTrap(
-						'firewall',
+						'bonfire-spring',
 						[
 							new Effect(
-								'Firewall',
+								'Bonfire Spring',
 								crea,
 								h,
 								'onStepIn',
@@ -289,6 +289,7 @@ export default (G: Game) => {
 							turnLifetime: 1,
 							ownerCreature: crea,
 							fullTurnLifetime: true,
+							destroyAnimation: 'shrinkDown',
 						},
 					);
 				});
