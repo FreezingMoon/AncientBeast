@@ -176,6 +176,15 @@ export class Ability {
 
 	_getDamage: (path: Hex[]) => any;
 
+	/**
+	 * Hexes that were checked when this ability last returned noTarget.
+	 * Used by the UI to visualise the ability's range on hover.
+	 */
+	_abilityRangeHexes: Hex[];
+	/** Internal flag: prevents atLeastOneTarget from overwriting _abilityRangeHexes
+	 * while testDirections is aggregating per-direction hex lists. */
+	_inDirectionTest: boolean;
+
 	resetTimesUsed(): void {
 		this.timesUsedThisTurn = 0;
 	}
@@ -772,6 +781,11 @@ export class Ability {
 		}
 
 		this.message = this.game.msg.abilities.noTarget;
+		// Store tested hexes so the UI can show the ability range on hover,
+		// but only when called directly (testDirections aggregates its own list).
+		if (!this._inDirectionTest) {
+			this._abilityRangeHexes = hexes;
+		}
 		return false;
 	}
 
@@ -940,6 +954,10 @@ export class Ability {
 		const outDirections = [];
 		let deadzone = [];
 
+		// Collect all reachable direction hexes so the UI can visualise the range.
+		const allDirHexes: Hex[] = [];
+		this._inDirectionTest = true;
+
 		for (let i = 0, len = o.directions.length; i < len; i++) {
 			if (!o.directions[i]) {
 				outDirections.push(0);
@@ -974,6 +992,7 @@ export class Ability {
 			}
 
 			dir = arrayUtils.filterCreature(dir, o.includeCreature, o.stopOnCreature, o.id);
+			allDirHexes.push(...dir);
 
 			/* If the ability has a minimum distance and units should block LOS, this
 			direction cannot be used if there is a unit in the deadzone. */
@@ -983,6 +1002,10 @@ export class Ability {
 			const isValidDirection = targetInDirection && !blockingUnitInDeadzone;
 			outDirections.push(isValidDirection ? 1 : 0);
 		}
+
+		this._inDirectionTest = false;
+		// Store the union of all direction hexes for UI range preview.
+		this._abilityRangeHexes = allDirHexes;
 
 		return outDirections;
 	}

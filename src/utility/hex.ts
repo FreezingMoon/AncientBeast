@@ -593,13 +593,16 @@ export class Hex {
 		targetAlpha = Boolean(this.displayClasses.match(/showGrid/g)) || targetAlpha;
 		targetAlpha = Boolean(this.displayClasses.match(/dashed/g)) || targetAlpha;
 		targetAlpha = Boolean(this.displayClasses.match(/deadzone/g)) || targetAlpha;
+		targetAlpha = Boolean(this.displayClasses.match(/\babilityRange\b/g)) || targetAlpha;
 
 		if (this.displayClasses.match(/0|1|2|3/)) {
 			const player = this.displayClasses.match(/0|1|2|3/);
 			this.display.loadTexture(`hex_p${player}`);
 			this.grid.displayHexesGroup.bringToTop(this.display);
-		} else if (this.displayClasses.match(/adj/)) {
-			this.display.loadTexture('hex_path');
+		} else if (this.displayClasses.match(/\babilityRange\b/)) {
+			this.display.loadTexture('ability_range');
+			this.display.anchor.setTo(0.5, 0.5);
+			this.grid.displayHexesGroup.bringToTop(this.display);
 		} else if (this.displayClasses.match(/dashed/)) {
 			// Check if this is a dashed hex with a creature (blocked target)
 			if (this.creature instanceof Creature) {
@@ -614,13 +617,19 @@ export class Hex {
 			}
 		} else if (this.displayClasses.match(/deadzone/)) {
 			this.display.loadTexture('hex_deadzone');
+			this.display.anchor.setTo(0, 0);
 		} else {
 			this.display.loadTexture('hex');
+			this.display.anchor.setTo(0, 0);
 		}
 
 		this.display.alpha = targetAlpha ? 1 : 0;
 
-		if (this.displayClasses.match(/shrunken/)) {
+		if (this.displayClasses.match(/\babilityRange\b/)) {
+			// Scale is managed externally by tweens; only ensure positioning.
+			this.display.alignIn(this.hitBox, Phaser.CENTER);
+			this.overlay.alignIn(this.hitBox, Phaser.CENTER);
+		} else if (this.displayClasses.match(/shrunken/)) {
 			this.display.scale.setTo(shrinkScale);
 			this.overlay.scale.setTo(shrinkScale);
 			this.display.alignIn(this.hitBox, Phaser.CENTER);

@@ -1,4 +1,5 @@
 import * as $j from 'jquery';
+import Phaser from 'phaser-ce';
 import * as time from '../utility/time';
 import * as emoji from 'node-emoji';
 import { Hotkeys, getHotKeys } from './hotkeys';
@@ -98,6 +99,7 @@ export class UI {
 	lastTurnWarningPlayerId: number | null;
 	selectedCreatureObj: Creature | undefined;
 	activeAbility: boolean;
+	hoveredAbilityIndex: number;
 	_abilityPanelAnimating: boolean;
 	ignoreNextConfirmUnload: boolean;
 	/**
@@ -340,6 +342,61 @@ export class UI {
 						this.clickedAbility = i;
 
 						const game = this.game;
+
+						// Animate ability range circles when clicking a no-target ability
+						if (i !== 0) {
+							const creature = game.activeCreature;
+							if (creature) {
+								const ab = creature.abilities[i];
+								if (ab.message === game.msg.abilities.noTarget && ab._abilityRangeHexes?.length) {
+									const cx = creature.x;
+									const cy = creature.y;
+									const sorted = ab._abilityRangeHexes.slice().sort((a, b) => {
+										const da = Math.hypot(a.x - cx, a.y - cy);
+										const db = Math.hypot(b.x - cx, b.y - cy);
+										return da - db;
+									});
+									sorted.forEach((hex, idx) => {
+										// isHovered: whether *this* ability is currently hovered (determines final scale).
+										// Check displayClasses separately to decide if we need to (re-)apply the class,
+										// since a concurrent animation (e.g. hotkey B) may have cleaned it already.
+										const isHovered = this.hoveredAbilityIndex === i;
+										if (!hex.displayClasses.includes('abilityRange')) {
+											hex.displayVisualState('abilityRange');
+										}
+										// Kill any in-flight tweens so spamming doesn't stack animations.
+										game.Phaser.tweens.removeFrom(hex.display.scale);
+										// Hover path: return to 0.5 so circles remain as they were.
+										// Hotkey path: end at 0 and clean up since no hover is active.
+										const finalScale = isHovered ? 0.5 : 0;
+										hex.display.scale.setTo(0.5);
+										hex.display.anchor.setTo(0.5, 0.5);
+										game.Phaser.add
+											.tween(hex.display.scale)
+											.to({ x: 1.0, y: 1.0 }, 180, Phaser.Easing.Quadratic.Out, true, idx * 20)
+											.onComplete.addOnce(() => {
+												game.Phaser.add
+													.tween(hex.display.scale)
+													.to(
+														{ x: finalScale, y: finalScale },
+														180,
+														Phaser.Easing.Quadratic.In,
+														true,
+													)
+													.onComplete.addOnce(() => {
+														if (!isHovered) {
+															hex.display.anchor.setTo(0, 0);
+															// Only clean this hex individually so circles from a
+															// concurrently hovered ability remain unaffected.
+															hex.cleanDisplayVisualState('abilityRange');
+														}
+													});
+											});
+									});
+								}
+							}
+						}
+
 						if (this.selectedAbility != i) {
 							if (this.dashopen) {
 								return false;
@@ -387,8 +444,26 @@ export class UI {
 						}
 					},
 					mouseover: () => {
+						this.hoveredAbilityIndex = i;
 						if (this.selectedAbility == -1) {
 							this.showAbilityCosts(i);
+						}
+
+						// Show hex_path markers over the ability's target range when hovering
+						// a non-passive ability that currently has no targets in sight
+						if (i !== 0 && this.selectedAbility === -1) {
+							const game = this.game;
+							const creature = game.activeCreature;
+							if (creature) {
+								const ab = creature.abilities[i];
+								if (ab.message === game.msg.abilities.noTarget && ab._abilityRangeHexes?.length) {
+									ab._abilityRangeHexes.forEach((hex) => {
+										hex.displayVisualState('abilityRange');
+										hex.display.scale.setTo(0.5);
+										hex.display.anchor.setTo(0.5, 0.5);
+									});
+								}
+							}
 						}
 
 						(function () {
@@ -405,8 +480,27 @@ export class UI {
 						})();
 					},
 					mouseleave: () => {
+						if (this.hoveredAbilityIndex === i) {
+							this.hoveredAbilityIndex = -1;
+						}
 						if (this.selectedAbility == -1) {
 							this.hideAbilityCosts();
+						}
+						// Stop any in-flight scale tweens and clean up ability range circles
+						if (i !== 0) {
+							const creature = this.game.activeCreature;
+							if (creature) {
+								const ab = creature.abilities[i];
+								if (ab._abilityRangeHexes?.length) {
+									ab._abilityRangeHexes.forEach((hex) => {
+										// Kill any running tween (including ones that would restore to 0.5).
+										this.game.Phaser.tweens.removeFrom(hex.display.scale);
+										hex.display.scale.setTo(0);
+										hex.display.anchor.setTo(0, 0);
+										hex.cleanDisplayVisualState('abilityRange');
+									});
+								}
+							}
 						}
 						(function () {
 							const $desc = $j('.desc[ability="' + i + '"]');
@@ -671,6 +765,7 @@ export class UI {
 		this.selectedPlayer = 0;
 		this.selectedAbility = -1;
 		this.clickedAbility = -1;
+		this.hoveredAbilityIndex = -1;
 		this.queueAnimSpeed = 500; // ms
 		this.dashAnimSpeed = 250; // ms
 
