@@ -234,8 +234,7 @@ export class Hex {
 				}
 
 				const confirmSelectedHex = () => {
-					const confirmedHex = grid.selectedHex ?? this;
-					confirmedHex.onConfirmFn(confirmedHex);
+					this.onConfirmFn(this);
 				};
 
 				if (shouldUseDirectTouchInput()) {
