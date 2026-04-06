@@ -689,7 +689,7 @@ export class Hex {
 				this.grid.overlayHexesGroup.bringToTop(this.overlay);
 			}
 		} else {
-			this.overlay.loadTexture('cancel');
+			this.overlay.loadTexture('input');
 			this.overlay.anchor.set(0.5, 0.5);
 			if (!this.isSpinning) {
 				this.startSpinning();
