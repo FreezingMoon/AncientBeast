@@ -88,9 +88,7 @@ function getHexMap(
 	const array = (mapDef as any).slice(0).map((row: number[]) => [...row]);
 	const size = 1; // Snow Bunny is size 1
 
-	const x = (flipped ? !invertFlipped : invertFlipped)
-		? creatureX + 1 - size
-		: creatureX;
+	const x = (flipped ? !invertFlipped : invertFlipped) ? creatureX + 1 - size : creatureX;
 
 	let originx = x;
 	const originy = creatureY - mapDef.origin[1];
@@ -209,28 +207,22 @@ function buildAbility(bunny: any, activeCreature: any) {
 		},
 		_detectFrontHexesWithEnemy() {
 			const hexesInFront = this.creature.getHexMap(matrices.front1hex, false);
-			return hexesInFront.reduce(
-				(acc: any[], curr: any, idx: number) => {
-					const creatureOnHex = getPointFacade().getCreaturesAt({ x: curr.x, y: curr.y })[0];
-					const hexHasEnemy =
-						creatureOnHex &&
-						creatureOnHex.team % 2 !== this.creature.team % 2; // isTeam Enemy
-					if (hexHasEnemy) {
-						acc.push({
-							direction: idx,
-							hex: curr,
-							enemyPos: creatureOnHex.pos,
-						});
-					}
-					return acc;
-				},
-				[],
-			);
+			return hexesInFront.reduce((acc: any[], curr: any, idx: number) => {
+				const creatureOnHex = getPointFacade().getCreaturesAt({ x: curr.x, y: curr.y })[0];
+				const hexHasEnemy = creatureOnHex && creatureOnHex.team % 2 !== this.creature.team % 2; // isTeam Enemy
+				if (hexHasEnemy) {
+					acc.push({
+						direction: idx,
+						hex: curr,
+						enemyPos: creatureOnHex.pos,
+					});
+				}
+				return acc;
+			}, []);
 		},
 		_findEnemyHexInFront(hexWithEnemy: any) {
 			const enemyInFrontHex = this._detectFrontHexesWithEnemy().find(
-				({ enemyPos }: any) =>
-					enemyPos.x === hexWithEnemy.x && enemyPos.y === hexWithEnemy.y,
+				({ enemyPos }: any) => enemyPos.x === hexWithEnemy.x && enemyPos.y === hexWithEnemy.y,
 			);
 			return enemyInFrontHex ? hexWithEnemy : undefined;
 		},
@@ -251,10 +243,7 @@ function buildAbility(bunny: any, activeCreature: any) {
 			}
 
 			// If we can't hop away, try hopping backwards.
-			if (
-				hex === undefined ||
-				!hex.isWalkable(this.creature.size, this.creature.id, true)
-			) {
+			if (hex === undefined || !hex.isWalkable(this.creature.size, this.creature.id, true)) {
 				hex = this.creature.getHexMap(matrices.inlineback1hex, false)[0];
 			}
 

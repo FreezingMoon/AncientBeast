@@ -376,7 +376,8 @@ export default (G: Game) => {
 				const target = getPointFacade().getCreaturesAt(hexWithTarget.x, hexWithTarget.y)[0];
 
 				// No blow size penalty if upgraded and target is frozen
-				const dist = this._maxPushDistance - (this.isUpgraded() && target.isFrozen() ? 0 : target.size);
+				const dist =
+					this._maxPushDistance - (this.isUpgraded() && target.isFrozen() ? 0 : target.size);
 				let dir = [];
 				switch (args.direction) {
 					case 0: // Upright

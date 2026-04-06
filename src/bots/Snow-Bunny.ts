@@ -116,18 +116,13 @@ function pathHasTrap(
 // Per-ability scorers
 // ---------------------------------------------------------------------------
 
-function scoreFreezingSpit(
-	hex: Hex,
-	activeCreature: Creature,
-	controller: BotController,
-): number {
+function scoreFreezingSpit(hex: Hex, activeCreature: Creature, controller: BotController): number {
 	const target = hex.creature;
 	if (!(target instanceof Creature) || !isTeam(activeCreature, target, Team.Enemy)) {
 		return Number.NEGATIVE_INFINITY;
 	}
 
-	const distToTarget =
-		Math.abs(hex.x - activeCreature.x) + Math.abs(hex.y - activeCreature.y);
+	const distToTarget = Math.abs(hex.x - activeCreature.x) + Math.abs(hex.y - activeCreature.y);
 	const isMelee = distToTarget <= 1;
 	// Rough emptyHexDist – exact value is computed from the path in the ability itself
 	const emptyHexDist = Math.max(0, distToTarget - 1);
@@ -173,11 +168,7 @@ function scoreFreezingSpit(
 	return score;
 }
 
-function scoreBlowingWind(
-	hex: Hex,
-	activeCreature: Creature,
-	controller: BotController,
-): number {
+function scoreBlowingWind(hex: Hex, activeCreature: Creature, controller: BotController): number {
 	const target = hex.creature;
 	if (!(target instanceof Creature) || target === activeCreature) {
 		return Number.NEGATIVE_INFINITY;
@@ -198,8 +189,7 @@ function scoreBlowingWind(
 		// Penalise if the enemy would land adjacent to a low-health ally
 		controller.game.creatures.forEach((c) => {
 			if (!c || c.dead || c.temp || !isTeam(activeCreature, c, Team.Ally)) return;
-			const distToLanding =
-				Math.abs(landingPos.x - c.x) + Math.abs(landingPos.y - c.y);
+			const distToLanding = Math.abs(landingPos.x - c.x) + Math.abs(landingPos.y - c.y);
 			if (distToLanding <= 1) {
 				const healthRatio = c.health / c.stats.health;
 				// The weaker the ally, the worse it is to have an enemy pushed next to them
@@ -241,11 +231,7 @@ function scoreBlowingWind(
 	return score;
 }
 
-function scoreBigPliers(
-	hex: Hex,
-	activeCreature: Creature,
-	controller: BotController,
-): number {
+function scoreBigPliers(hex: Hex, activeCreature: Creature, controller: BotController): number {
 	const target = hex.creature;
 	if (!(target instanceof Creature) || !isTeam(activeCreature, target, Team.Enemy)) {
 		return Number.NEGATIVE_INFINITY;
@@ -270,7 +256,9 @@ function scoreBigPliers(
 	// Ask the target's own strategy if attacking it carries retaliation or
 	// debuff risk (e.g. Plasma Field, Battle Cry, Toxic Spores …).
 	const targetStrategy = unitStrategies[target.type as string];
-	score += targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.BIG_PLIERS, controller) ?? 0;
+	score +=
+		targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.BIG_PLIERS, controller) ??
+		0;
 
 	return score;
 }
@@ -317,9 +305,7 @@ const SnowBunnyStrategy: UnitBotStrategy = {
 		// Heavy penalty for landing adjacent to an enemy
 		const adjacentEnemyCount = hex
 			.adjacentHex(1)
-			.filter(
-				(adj) => adj.creature && isTeam(activeCreature, adj.creature, Team.Enemy),
-			).length;
+			.filter((adj) => adj.creature && isTeam(activeCreature, adj.creature, Team.Enemy)).length;
 		score -= adjacentEnemyCount * 200;
 
 		// Reward being adjacent to allies – they shield the bunny
@@ -397,12 +383,14 @@ const SnowBunnyStrategy: UnitBotStrategy = {
 	},
 
 	getAbilityPriority(creature, _controller) {
-		const hasFrozenAdjacent = creature.adjacentHexes(1).some(
-			(hex: Hex) =>
-				hex.creature instanceof Creature &&
-				isTeam(creature, hex.creature, Team.Enemy) &&
-				hex.creature.isFrozen(),
-		);
+		const hasFrozenAdjacent = creature
+			.adjacentHexes(1)
+			.some(
+				(hex: Hex) =>
+					hex.creature instanceof Creature &&
+					isTeam(creature, hex.creature, Team.Enemy) &&
+					hex.creature.isFrozen(),
+			);
 
 		if (hasFrozenAdjacent) {
 			return [ABILITY.BIG_PLIERS, ABILITY.FREEZING_SPIT, ABILITY.BLOWING_WIND];

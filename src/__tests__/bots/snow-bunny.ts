@@ -9,13 +9,11 @@ jest.mock('../../creature', () => ({
 }));
 jest.mock('../../utility/team', () => ({
 	Team: { Enemy: 'Enemy', Ally: 'Ally', Both: 'Both' },
-	isTeam: jest.fn(
-		(reference: { team: number }, other: { team: number }, relation: string) => {
-			if (relation === 'Enemy') return other.team !== reference.team;
-			if (relation === 'Ally') return other.team === reference.team;
-			return true;
-		},
-	),
+	isTeam: jest.fn((reference: { team: number }, other: { team: number }, relation: string) => {
+		if (relation === 'Enemy') return other.team !== reference.team;
+		if (relation === 'Ally') return other.team === reference.team;
+		return true;
+	}),
 }));
 
 import SnowBunnyStrategy from '../../bots/Snow-Bunny';
@@ -82,15 +80,14 @@ const makeHex = ({
 	x = 0,
 	y = 0,
 	creature = undefined as (Creature & { team: number }) | undefined,
-	adjacentHex = (_: number) =>
-		[] as (Hex & { creature?: Creature & { team: number } })[],
+	adjacentHex = (_: number) => [] as (Hex & { creature?: Creature & { team: number } })[],
 } = {}) =>
 	({
 		x,
 		y,
 		creature,
 		adjacentHex,
-	}) as unknown as Hex;
+	} as unknown as Hex);
 
 /** Create a minimal BotController mock used when calling strategy methods. */
 const makeController = ({
@@ -285,9 +282,9 @@ describe('SnowBunnyStrategy.scoreAbilityHex – Freezing Spit (index 3)', () => 
 		const ally = makeCreature({ team: 0, id: 2, x: 3 });
 		const hex = makeHex({ x: 3, y: 3, creature: ally });
 		const controller = makeController({ activeCreature: bunny });
-		expect(
-			SnowBunnyStrategy.scoreAbilityHex!(hex, 3, controller as any),
-		).toBe(Number.NEGATIVE_INFINITY);
+		expect(SnowBunnyStrategy.scoreAbilityHex!(hex, 3, controller as any)).toBe(
+			Number.NEGATIVE_INFINITY,
+		);
 	});
 
 	test('prefers more distant enemies (higher crush damage scaling)', () => {
@@ -305,8 +302,22 @@ describe('SnowBunnyStrategy.scoreAbilityHex – Freezing Spit (index 3)', () => 
 
 	test('prefers unfrozen target over a healthy frozen one (re-freeze bonus wasted)', () => {
 		const bunny = makeCreature({ team: 0, x: 5, y: 3 });
-		const frozenEnemy = makeCreature({ team: 1, x: 8, y: 3, health: 40, maxHealth: 55, frozen: true });
-		const normalEnemy = makeCreature({ team: 1, x: 8, y: 3, health: 40, maxHealth: 55, frozen: false });
+		const frozenEnemy = makeCreature({
+			team: 1,
+			x: 8,
+			y: 3,
+			health: 40,
+			maxHealth: 55,
+			frozen: true,
+		});
+		const normalEnemy = makeCreature({
+			team: 1,
+			x: 8,
+			y: 3,
+			health: 40,
+			maxHealth: 55,
+			frozen: false,
+		});
 		const frozenHex = makeHex({ x: 8, y: 3, creature: frozenEnemy });
 		const normalHex = makeHex({ x: 8, y: 3, creature: normalEnemy });
 		const controller = makeController({ activeCreature: bunny });
@@ -326,17 +337,27 @@ describe('SnowBunnyStrategy.scoreAbilityHex – Freezing Spit (index 3)', () => 
 
 	test('prioritises finishing a low-health frozen target', () => {
 		const bunny = makeCreature({ team: 0, x: 5, y: 3 });
-		const dyingFrozenEnemy = makeCreature({ team: 1, x: 8, y: 3, health: 5, maxHealth: 55, frozen: true });
-		const healthyEnemy = makeCreature({ team: 1, x: 8, y: 3, health: 40, maxHealth: 55, frozen: false });
+		const dyingFrozenEnemy = makeCreature({
+			team: 1,
+			x: 8,
+			y: 3,
+			health: 5,
+			maxHealth: 55,
+			frozen: true,
+		});
+		const healthyEnemy = makeCreature({
+			team: 1,
+			x: 8,
+			y: 3,
+			health: 40,
+			maxHealth: 55,
+			frozen: false,
+		});
 		const dyingHex = makeHex({ x: 8, y: 3, creature: dyingFrozenEnemy });
 		const healthyHex = makeHex({ x: 8, y: 3, creature: healthyEnemy });
 		const controller = makeController({ activeCreature: bunny });
 
-		const dyingScore = SnowBunnyStrategy.scoreAbilityHex!(
-			dyingHex,
-			3,
-			controller as any,
-		) as number;
+		const dyingScore = SnowBunnyStrategy.scoreAbilityHex!(dyingHex, 3, controller as any) as number;
 		const healthyScore = SnowBunnyStrategy.scoreAbilityHex!(
 			healthyHex,
 			3,
