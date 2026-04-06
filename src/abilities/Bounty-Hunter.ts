@@ -200,9 +200,12 @@ export default (G: Game) => {
 				}
 				// At least one target
 				const cre = this.creature;
+				const allDirHexes = [];
 				for (let i = 0; i < 6; i++) {
+					const dirHexes = G.grid.getHexLine(cre.x, cre.y, i, false).slice(1, 1 + 6);
+					allDirHexes.push(...dirHexes);
 					if (
-						this.atLeastOneTarget(G.grid.getHexLine(cre.x, cre.y, i, false).slice(1, 1 + 6), {
+						this.atLeastOneTarget(dirHexes, {
 							team: this._targetTeam,
 							pierceThroughBehavior: 'targetOnly',
 						})
@@ -211,6 +214,7 @@ export default (G: Game) => {
 						return this.timesUsedThisTurn < this._getUsesPerTurn();
 					}
 				}
+				this._abilityRangeHexes = allDirHexes;
 				return false;
 			},
 
@@ -292,9 +296,12 @@ export default (G: Game) => {
 				}
 				// At least one target
 				const cre = this.creature;
+				const allDirHexes = [];
 				for (let i = 0; i < 6; i++) {
+					const dirHexes = G.grid.getHexLine(cre.x, cre.y, i, false).slice(1, 1 + 12);
+					allDirHexes.push(...dirHexes);
 					if (
-						this.atLeastOneTarget(G.grid.getHexLine(cre.x, cre.y, i, false).slice(1, 1 + 12), {
+						this.atLeastOneTarget(dirHexes, {
 							team: this._targetTeam,
 							pierceThroughBehavior: 'targetOnly',
 						})
@@ -303,6 +310,7 @@ export default (G: Game) => {
 						return true;
 					}
 				}
+				this._abilityRangeHexes = allDirHexes;
 				return false;
 			},
 
