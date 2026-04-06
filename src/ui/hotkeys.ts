@@ -39,7 +39,12 @@ export class Hotkeys {
 	}
 
 	pressW() {
-		if (!this.ui.dashopen) { this.ui.flashAbilityBtn(1); this.ui.abilitiesButtons[1].triggerClick(); } else { this.ui.gridSelectUp(); }
+		if (!this.ui.dashopen) {
+			this.ui.flashAbilityBtn(1);
+			this.ui.abilitiesButtons[1].triggerClick();
+		} else {
+			this.ui.gridSelectUp();
+		}
 	}
 
 	pressE() {
@@ -53,7 +58,12 @@ export class Hotkeys {
 	}
 
 	pressR() {
-		if (!this.ui.dashopen) { this.ui.flashAbilityBtn(3); this.ui.abilitiesButtons[3].triggerClick(); } else { this.ui.closeDash(); }
+		if (!this.ui.dashopen) {
+			this.ui.flashAbilityBtn(3);
+			this.ui.abilitiesButtons[3].triggerClick();
+		} else {
+			this.ui.closeDash();
+		}
 	}
 
 	pressA(event) {

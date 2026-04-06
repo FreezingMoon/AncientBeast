@@ -2016,11 +2016,15 @@ export class UI {
 	}
 	flashAbilityBtn(i: number) {
 		const ab = this.game.activeCreature?.abilities[i];
-		if (!ab || !(
-			ab.message === this.game.msg.abilities.noTarget ||
-			ab.used ||
-			ab.message === this.game.msg.abilities.passiveUnavailable
-		)) return;
+		if (
+			!ab ||
+			!(
+				ab.message === this.game.msg.abilities.noTarget ||
+				ab.used ||
+				ab.message === this.game.msg.abilities.passiveUnavailable
+			)
+		)
+			return;
 		const $btn = this.abilitiesButtons[i].$button;
 		$btn.removeClass('iconInvertFlash');
 		void $btn[0].offsetWidth;
