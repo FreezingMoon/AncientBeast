@@ -3,6 +3,58 @@ import { Creature } from './creature';
 import { CreatureType } from './data/types';
 import { Hex } from './utility/hex';
 import { Team, isTeam } from './utility/team';
+import SnowBunnyStrategy from './bots/Snow-Bunny';
+
+/**
+ * Optional per-unit behaviour overrides for BotController.
+ * Each method receives the controller instance so it can call any
+ * generic helper (closestDistanceToEnemy, getPreferredX, …) as needed.
+ * Return `undefined` from any hook to fall back to the generic logic.
+ */
+export interface UnitBotStrategy {
+	/** Override move-hex scoring for a non-retreating creature. */
+	scoreMoveHex?(hex: Hex, controller: BotController): number | undefined;
+	/**
+	 * Override ability-hex scoring for a specific ability slot.
+	 * @param abilityIndex The index of the ability currently being queried (0–3).
+	 */
+	scoreAbilityHex?(hex: Hex, abilityIndex: number, controller: BotController): number | undefined;
+	/** Override the retreat health/energy threshold check. */
+	isRetreating?(creature: Creature, controller: BotController): boolean | undefined;
+	/** Override the preferred board-x position for zone scoring. */
+	getPreferredX?(creature: Creature, controller: BotController): number | undefined;
+	/**
+	 * Return ability slot indices in the desired try-order for this turn.
+	 * Slots not listed are never tried; the generic guards (used, failed,
+	 * require) still apply per slot.
+	 */
+	getAbilityPriority?(creature: Creature, controller: BotController): number[];
+	/**
+	 * Declares how dangerous it is for an attacker to use a given ability
+	 * against this unit. Implemented by the TARGET unit's strategy file so
+	 * that any attacker can query retaliation/debuff risk without knowing the
+	 * specifics of other units.
+	 *
+	 * Return a negative score modifier (e.g. -300 for lethal retaliation) or
+	 * 0 if there is no special danger. The caller adds this to its base score.
+	 *
+	 * @param attacker  The creature about to attack.
+	 * @param target    This unit (the one being attacked).
+	 * @param abilityIndex  The attacker's ability slot being used.
+	 * @param controller  The shared BotController instance.
+	 */
+	getTargetingPenalty?(
+		attacker: Creature,
+		target: Creature,
+		abilityIndex: number,
+		controller: BotController,
+	): number;
+}
+
+/** Registry of unit-specific strategies, keyed by creature.type (e.g. 'S1'). */
+export const unitStrategies: Partial<Record<string, UnitBotStrategy>> = {
+	S1: SnowBunnyStrategy,
+};
 
 type BotPendingAction =
 	| { type: 'ability'; abilityIndex: number }
@@ -29,6 +81,11 @@ export default class BotController {
 	constructor(game: Game) {
 		this.game = game;
 		this.game.signals.creature.add(this.handleCreatureSignal, this);
+	}
+
+	/** Returns the unit-specific strategy for the given creature, if one exists. */
+	getStrategyFor(creature: Creature): UnitBotStrategy | undefined {
+		return unitStrategies[creature.type as string];
 	}
 
 	handleCreatureSignal(message: string, payload?: { creature?: Creature }) {
@@ -173,7 +230,12 @@ export default class BotController {
 			return false;
 		}
 
-		for (let i = 0; i < activeCreature.abilities.length; i++) {
+		const strategy = this.getStrategyFor(activeCreature);
+		const abilityOrder =
+			strategy?.getAbilityPriority?.(activeCreature, this) ??
+			activeCreature.abilities.map((_, i) => i);
+
+		for (const i of abilityOrder) {
 			const ability = activeCreature.abilities[i];
 			if (!ability || this.failedAbilityIds.has(i)) {
 				continue;
@@ -377,8 +439,15 @@ export default class BotController {
 	 * - Dark Priest (treated as level 0): deepest home side (~10% in)
 	 * - Level 1–7: linearly from home (~10%) to enemy side (~90%)
 	 * Accounts for which side the player started on via `player.flipped`.
+	 * Unit strategies may override this via `UnitBotStrategy.getPreferredX`.
 	 */
 	getPreferredX(creature: Creature): number {
+		const strategy = this.getStrategyFor(creature);
+		if (strategy?.getPreferredX) {
+			const override = strategy.getPreferredX(creature, this);
+			if (override !== undefined) return override;
+		}
+
 		const gridRow = this.game.grid.hexes[0];
 		const boardWidth = gridRow ? gridRow.length - 1 : 15;
 		const flipped = creature.player.flipped;
@@ -401,6 +470,12 @@ export default class BotController {
 
 		if (this.isRetreating(activeCreature)) {
 			return this.scoreRetreatHex(hex);
+		}
+
+		const strategy = this.getStrategyFor(activeCreature);
+		if (strategy?.scoreMoveHex) {
+			const score = strategy.scoreMoveHex(hex, this);
+			if (score !== undefined) return score;
 		}
 
 		const adjacentEnemy = hex
@@ -454,9 +529,38 @@ export default class BotController {
 			return Number.NEGATIVE_INFINITY;
 		}
 
+		const abilityIndex =
+			this.pendingAction?.type === 'ability' ? this.pendingAction.abilityIndex : -1;
+		const strategy = this.getStrategyFor(activeCreature);
+		if (strategy?.scoreAbilityHex) {
+			const score = strategy.scoreAbilityHex(hex, abilityIndex, this);
+			if (score !== undefined) return score;
+		}
+
 		if (hex.creature instanceof Creature) {
 			if (isTeam(activeCreature, hex.creature, Team.Enemy)) {
-				return 1000 - hex.creature.health + hex.creature.size * 10;
+				const target = hex.creature;
+				const healthPercent = target.health / target.stats.health;
+
+				// Base: lower health enemies are higher priority
+				let score = 1000 - target.health + target.size * 10;
+
+				// Death blow bonus: heavily prefer targets close to elimination
+				if (healthPercent < 0.25) {
+					score += 400;
+				} else if (healthPercent < 0.5) {
+					score += 150;
+				}
+
+				// Prefer targets that can still be fatigued and/or have more energy to drain
+				if (!target.protectedFromFatigue && !target.isFatigued()) {
+					score += 50;
+					if (target.stats.energy > 0) {
+						score += Math.round((target.energy / target.stats.energy) * 100);
+					}
+				}
+
+				return score;
 			}
 
 			if (hex.creature === activeCreature) {
@@ -472,8 +576,15 @@ export default class BotController {
 	/**
 	 * Returns true when the creature is in a low-health (< 30 %) or
 	 * low-energy (< 25 %) state and should try to retreat.
+	 * Unit strategies may override this via `UnitBotStrategy.isRetreating`.
 	 */
 	isRetreating(creature: Creature): boolean {
+		const strategy = this.getStrategyFor(creature);
+		if (strategy?.isRetreating) {
+			const override = strategy.isRetreating(creature, this);
+			if (override !== undefined) return override;
+		}
+
 		const healthRatio = creature.health / creature.stats.health;
 		const energyRatio = creature.energy / creature.stats.energy;
 		return healthRatio < 0.3 || energyRatio < 0.25;
