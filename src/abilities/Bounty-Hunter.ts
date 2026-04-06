@@ -250,6 +250,7 @@ export default (G: Game) => {
 
 				// 1) Screen shake + deal damage
 				G.Phaser.camera.shake(0.01, 150, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				G.soundsys.playSFX('units/sfx/Bounty Hunter 2');
 				tgt.takeDamage(new Damage(this.creature, this.damages, 1, [], G));
 
 				// 2) Decide if this is the final shot
