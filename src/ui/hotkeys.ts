@@ -8,7 +8,12 @@ export class Hotkeys {
 	}
 
 	pressQ() {
-		this.ui.dashopen ? this.ui.closeDash() : this.ui.selectNextAbility();
+		if (this.ui.dashopen) {
+			this.ui.closeDash();
+		} else {
+			const prev = this.ui.selectedAbility;
+			this.ui.selectNextAbility();
+		}
 	}
 
 	pressS(event) {
@@ -34,11 +39,11 @@ export class Hotkeys {
 	}
 
 	pressW() {
-		this.ui.dashopen ? this.ui.gridSelectUp() : this.ui.abilitiesButtons[1].triggerClick();
+		if (!this.ui.dashopen) { this.ui.flashAbilityBtn(1); this.ui.abilitiesButtons[1].triggerClick(); } else { this.ui.gridSelectUp(); }
 	}
 
 	pressE() {
-		!this.ui.dashopen && this.ui.abilitiesButtons[2].triggerClick();
+		!this.ui.dashopen && (this.ui.flashAbilityBtn(2), this.ui.abilitiesButtons[2].triggerClick());
 	}
 
 	pressP(event) {
@@ -48,7 +53,7 @@ export class Hotkeys {
 	}
 
 	pressR() {
-		this.ui.dashopen ? this.ui.closeDash() : this.ui.abilitiesButtons[3].triggerClick();
+		if (!this.ui.dashopen) { this.ui.flashAbilityBtn(3); this.ui.abilitiesButtons[3].triggerClick(); } else { this.ui.closeDash(); }
 	}
 
 	pressA(event) {

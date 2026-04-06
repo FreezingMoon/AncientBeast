@@ -397,6 +397,8 @@ export class UI {
 							}
 						}
 
+						this.flashAbilityBtn(i);
+
 						if (this.selectedAbility != i) {
 							if (this.dashopen) {
 								return false;
@@ -405,9 +407,14 @@ export class UI {
 							const ability = game.activeCreature.abilities[i];
 							// Passive ability icon can cycle between usable abilities
 							if (i == 0) {
+								this.checkAbilities(); // Ensure state is up to date
+								const ab = game.activeCreature.abilities[0];
+								if (ab.message === game.msg.abilities.passiveUnavailable) {
+									this.flashAbilityBtn(0);
+									return;
+								}
 								// Joywin
 								const selectedAbility = this.selectNextAbility();
-
 								if (selectedAbility > 0) {
 									this.abilitiesButtons.forEach((btn, index) => {
 										if (index === 0) {
@@ -417,6 +424,7 @@ export class UI {
 										}
 									});
 									b.cssTransition('nextIcon', 1000);
+									this.flashAbilityBtn(0);
 								} else if (selectedAbility === -1) {
 									this.abilitiesButtons.forEach((btn, index) => {
 										if (index === 0) {
@@ -426,8 +434,8 @@ export class UI {
 										}
 									});
 									b.cssTransition('cancelIcon', 1000);
+									this.flashAbilityBtn(0);
 								}
-
 								return;
 							}
 							// Colored frame around selected ability
@@ -531,6 +539,8 @@ export class UI {
 				},
 				{ isAcceptingInput: this.configuration.isAcceptingInput },
 			);
+			// Native listener fires even when Button state is disabled (jQuery unbind doesn't remove it).
+			b.$button[0].addEventListener('click', () => this.flashAbilityBtn(i));
 			this.buttons.push(b);
 			this.abilitiesButtons.push(b);
 		}
@@ -2004,6 +2014,22 @@ export class UI {
 
 		this.gridSelectPrevious();
 	}
+	flashAbilityBtn(i: number) {
+		const ab = this.game.activeCreature?.abilities[i];
+		if (!ab || !(
+			ab.message === this.game.msg.abilities.noTarget ||
+			ab.used ||
+			ab.message === this.game.msg.abilities.passiveUnavailable
+		)) return;
+		const $btn = this.abilitiesButtons[i].$button;
+		$btn.removeClass('iconInvertFlash');
+		void $btn[0].offsetWidth;
+		$btn.addClass('iconInvertFlash');
+		$btn[0].addEventListener('animationend', () => $btn.removeClass('iconInvertFlash'), {
+			once: true,
+		});
+	}
+
 	/**
 	 * Change ability buttons and bind events
 	 */
@@ -2012,11 +2038,9 @@ export class UI {
 			creature = game.activeCreature;
 		this.abilitiesButtons.forEach((btn) => {
 			const ab = creature.abilities[btn.abilityId];
-			btn.css.normal = {
-				'background-image': `url('${getUrl(
-					'units/abilities/' + creature.name + ' ' + btn.abilityId,
-				)}')`,
-			};
+			const iconUrl = `url('${getUrl('units/abilities/' + creature.name + ' ' + btn.abilityId)}')`;
+			btn.css.normal = { 'background-image': iconUrl };
+			(btn.$button[0] as HTMLElement).style.setProperty('--icon-url', iconUrl);
 			const $desc = btn.$button.next('.desc');
 			$desc.find('span.title').text(ab.title);
 			$desc.find('p.description').html(ab.desc);

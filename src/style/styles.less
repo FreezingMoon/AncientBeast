@@ -1158,15 +1158,21 @@ div.section.info {
 
 	&:hover {
 		transform: perspective(900px) rotateY(0deg) !important;
-		filter: none;
-		background-color: rgba(0, 0, 0, 0.55);
-		opacity: 1;
-
-		&::before {
-			filter: none;
-		}
+		opacity: 0.75;
 	}
 }
+
+// No-target feedback: ::after isolates the icon so filter:invert skips bg-color and frame.
+#abilities .button.iconInvertFlash {
+	background-image: none !important;
+	&::before { z-index: 2; }
+	&::after {
+		content: ''; position: absolute; inset: 0; z-index: 1;
+		background-image: var(--icon-url); background-size: 100% 100%;
+		animation: iconInvertFlash 400ms ease-in-out;
+	}
+}
+@keyframes iconInvertFlash { 50% { filter: invert(1); } }
 
 #leftpanel .passive-slot .ability.nextIcon {
 	transform: perspective(900px) rotateY(0deg);
