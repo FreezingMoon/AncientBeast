@@ -540,6 +540,10 @@ export default class BotController {
 		if (hex.creature instanceof Creature) {
 			if (isTeam(activeCreature, hex.creature, Team.Enemy)) {
 				const target = hex.creature;
+				if (!target.stats || typeof target.stats.health !== 'number' || target.stats.health === 0) {
+					// Skip scoring if stats or health is missing/invalid
+					return undefined;
+				}
 				const healthPercent = target.health / target.stats.health;
 
 				// Base: lower health enemies are higher priority
@@ -555,7 +559,7 @@ export default class BotController {
 				// Prefer targets that can still be fatigued and/or have more energy to drain
 				if (!target.protectedFromFatigue && !target.isFatigued()) {
 					score += 50;
-					if (target.stats.energy > 0) {
+					if (typeof target.stats.energy === 'number' && target.stats.energy > 0) {
 						score += Math.round((target.energy / target.stats.energy) * 100);
 					}
 				}

@@ -58,6 +58,13 @@ const makeCreature = ({
 		remainingMove: 0,
 		isDarkPriest: () => false,
 		queryMove: jest.fn(),
+		stats: {
+			health,
+			energy: 100,
+		},
+		energy: 100,
+		protectedFromFatigue: false,
+		isFatigued: () => false,
 	});
 	return creature as Creature & {
 		id: number;
@@ -77,6 +84,10 @@ const makeCreature = ({
 		remainingMove: number;
 		isDarkPriest: () => boolean;
 		queryMove: jest.Mock;
+		stats: { health: number; energy: number };
+		energy: number;
+		protectedFromFatigue: boolean;
+		isFatigued: () => boolean;
 	};
 };
 
