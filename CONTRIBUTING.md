@@ -20,7 +20,12 @@ You can create a clone of the project by using git from the CLI or with the use 
 git clone https://github.com/FreezingMoon/AncientBeast.git
 ```
 
-In [VSC](https://code.visualstudio.com/download) you can press `Ctrl + Shift + P`, search for `Git: Clone` and then input [just the link](https://github.com/FreezingMoon/AncientBeast.git) in the given field.
+#### VS Code
+In [VSC](https://code.visualstudio.com/download) you can press `Ctrl + Shift + P`, search for `Git: Clone` and then input just the link in the given field:
+
+```sh
+https://github.com/FreezingMoon/AncientBeast.git
+```
 
 ---
 
