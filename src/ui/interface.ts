@@ -81,6 +81,7 @@ export class UI {
 	btnDelay: Button;
 	btnFlee: Button;
 	btnExit: Button;
+	btnReplay: Button;
 	materializeButton: Button;
 	clickedAbility: number;
 	selectedAbility: number;
@@ -309,6 +310,22 @@ export class UI {
 			{ isAcceptingInput: this.configuration.isAcceptingInput },
 		);
 		this.buttons.push(this.btnExit);
+
+		this.btnReplay = new Button(
+			{
+				$button: $j('#replay.button'),
+				hasShortcut: false,
+				click: () => {
+					if (this.dashopen) {
+						return;
+					}
+					game.gamelog.save();
+				},
+				state: ButtonStateEnum.normal,
+			},
+			{ isAcceptingInput: this.configuration.isAcceptingInput },
+		);
+		this.buttons.push(this.btnReplay);
 
 		this.materializeButton = new Button(
 			{
@@ -829,6 +846,7 @@ export class UI {
 		$j('#tabwrapper a').removeAttr('href'); // Empty links
 
 		this.btnExit.changeState(ButtonStateEnum.hidden);
+		this.btnReplay.changeState(ButtonStateEnum.hidden);
 		// Show UI
 		this.$display.show();
 		this.$dash.hide();
@@ -1752,6 +1770,11 @@ export class UI {
 			this.$scoreboard.find('.framed-modal__return').show();
 		}
 
+		// Hide replay button unless it's game over (replay only makes sense after match ends)
+		if (!gameOver) {
+			this.btnReplay.changeState(ButtonStateEnum.hidden);
+		}
+
 		// Finally, show the scoreboard
 		this.$scoreboard.removeClass('hide');
 	}
@@ -2474,6 +2497,7 @@ export class UI {
 		this.toggleScoreboard(true);
 		this.btnFlee.changeState(ButtonStateEnum.hidden);
 		this.btnExit.changeState(ButtonStateEnum.normal);
+		this.btnReplay.changeState(ButtonStateEnum.normal);
 	}
 
 	showGameSetup() {
