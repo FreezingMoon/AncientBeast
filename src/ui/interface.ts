@@ -447,8 +447,11 @@ export class UI {
 								return;
 							}
 							// Colored frame around selected ability
-							if (ability.require() == true && i != 0) {
+							if (ability.require() == true && i != 0 && !ability.used) {
 								this.selectAbility(i);
+							} else if (i != 0) {
+								// Show cancel icon for unusable or already used abilities
+								b.cssTransition('cancelIcon', 1000);
 							}
 							// Activate Ability
 							game.activeCreature.abilities[i].use();
