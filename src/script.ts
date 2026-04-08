@@ -382,6 +382,13 @@ $j(() => {
 	focusGameWindow();
 
 	const startGame = () => {
+		// Attempt to lock orientation to landscape when game starts
+		// This works in fullscreen mode or PWA context on supporting browsers
+		if (screen.orientation?.lock) {
+			screen.orientation.lock('landscape').catch(() => {
+				// Lock may fail if not in fullscreen or not supported
+			});
+		}
 		G.loadGame(getGameConfig());
 	};
 
