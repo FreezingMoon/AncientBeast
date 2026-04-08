@@ -4,6 +4,7 @@ import { CreatureType } from './data/types';
 import { Hex } from './utility/hex';
 import { Team, isTeam } from './utility/team';
 import SnowBunnyStrategy from './bots/Snow-Bunny';
+import DarkPriestStrategy from './bots/Dark-Priest';
 
 /**
  * Optional per-unit behaviour overrides for BotController.
@@ -53,6 +54,7 @@ export interface UnitBotStrategy {
 
 /** Registry of unit-specific strategies, keyed by creature.type (e.g. 'S1'). */
 export const unitStrategies: Partial<Record<string, UnitBotStrategy>> = {
+	'--': DarkPriestStrategy,
 	S1: SnowBunnyStrategy,
 };
 
