@@ -410,6 +410,9 @@ export class UI {
 								this.checkAbilities(); // Ensure state is up to date
 								const ab = game.activeCreature.abilities[0];
 								if (ab.message === game.msg.abilities.passiveUnavailable) {
+									if (!game.freezedInput) {
+										this.animateNoTargetAbilityRanges();
+									}
 									this.flashAbilityBtn(0);
 									return;
 								}
