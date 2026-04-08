@@ -551,14 +551,28 @@ function getReg() {
  * read log from file
  * @returns {Promise<string>}
  */
+let isLoadingLogFile = false;
+
 function readLogFromFile() {
+	// Guard: prevent multiple file pickers from being opened
+	if (isLoadingLogFile) {
+		return Promise.resolve();
+	}
 	// TODO: This would probably be better off in ./src/utility/gamelog.ts
 	return new Promise((resolve, reject) => {
+		isLoadingLogFile = true;
+		// Fallback: reset flag after 5 seconds to prevent stuck state
+		const timeout = setTimeout(() => {
+			isLoadingLogFile = false;
+		}, 5000);
+
 		const fileInput = document.createElement('input') as HTMLInputElement;
 		fileInput.accept = '.ab';
 		fileInput.type = 'file';
 
 		fileInput.onchange = (event) => {
+			isLoadingLogFile = false;
+			clearTimeout(timeout);
 			const file = (event.target as HTMLInputElement).files[0];
 			const reader = new FileReader();
 
