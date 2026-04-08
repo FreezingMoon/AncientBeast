@@ -8,11 +8,24 @@ export class Hotkeys {
 	}
 
 	pressQ() {
+		if (this.ui.game.botController?.isBotTurn()) {
+			return;
+		}
 		if (this.ui.dashopen) {
 			this.ui.closeDash();
 		} else {
-			const prev = this.ui.selectedAbility;
-			this.ui.selectNextAbility();
+			const result = this.ui.selectNextAbility();
+			// If no usable ability was found, pulse the target-range circles — but
+			// only when ALL active abilities have no valid targets (passiveUnavailable).
+			// If there is still a usable ability (Q just deselected/wrapped), skip it.
+			if (result === -1 || result === undefined) {
+				this.ui.checkAbilities();
+				const passiveAb = this.ui.game.activeCreature?.abilities[0];
+				if (passiveAb?.message === this.ui.game.msg.abilities.passiveUnavailable) {
+					this.ui.animateNoTargetAbilityRanges();
+					this.ui.flashAbilityBtn(0);
+				}
+			}
 		}
 	}
 
@@ -39,6 +52,9 @@ export class Hotkeys {
 	}
 
 	pressW() {
+		if (this.ui.game.botController?.isBotTurn()) {
+			return;
+		}
 		if (!this.ui.dashopen) {
 			this.ui.flashAbilityBtn(1);
 			this.ui.abilitiesButtons[1].triggerClick();
@@ -48,6 +64,9 @@ export class Hotkeys {
 	}
 
 	pressE() {
+		if (this.ui.game.botController?.isBotTurn()) {
+			return;
+		}
 		!this.ui.dashopen && (this.ui.flashAbilityBtn(2), this.ui.abilitiesButtons[2].triggerClick());
 	}
 
@@ -58,6 +77,9 @@ export class Hotkeys {
 	}
 
 	pressR() {
+		if (this.ui.game.botController?.isBotTurn()) {
+			return;
+		}
 		if (!this.ui.dashopen) {
 			this.ui.flashAbilityBtn(3);
 			this.ui.abilitiesButtons[3].triggerClick();
