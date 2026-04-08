@@ -122,6 +122,8 @@ export default class BotController {
 				// Dazzled unit — the creature's activate() will handle the skip
 				return;
 			}
+			// Minimize the combat log so it doesn't obstruct bot actions
+			this.game.UI?.chat?.hide();
 			this.queueDecision(1350);
 		}
 	}

@@ -44,10 +44,10 @@ export class Chat {
 
 		// Auto show and close chat when game starts #1107
 		setTimeout(() => {
-			this.toggle();
+			this.show();
 		}, 2000);
 		setTimeout(() => {
-			this.toggle();
+			this.hide();
 		}, 5000);
 
 		this.$chat.on('mouseenter', () => {
