@@ -1,6 +1,7 @@
 // Import jQuery related stuff
 import * as $j from 'jquery';
 import 'jquery.transit';
+import { throttle } from 'underscore';
 import { unitData } from './data/units';
 import Game from './game';
 import { PreMatchAudioPlayer } from './sound/pre-match-audio';
@@ -41,6 +42,9 @@ AB.restoreGame = (str) => AB.currentGame.gamelog.load(str);
 window.AB = AB;
 const connect = new Connect(G);
 G.connect = connect;
+
+// Guard flag to prevent multiple file pickers from opening when Ctrl+Meta+L is held down
+let filePickerOpen = false;
 
 // Load the abilities
 unitData.forEach(async (creature) => {
@@ -172,10 +176,10 @@ $j(() => {
 		},
 		KeyL: {
 			keyDownTest(event) {
-				return event.metaKey && event.ctrlKey;
+				return event.metaKey && event.ctrlKey && !filePickerOpen;
 			},
 			keyDownAction() {
-				readLogFromFile()
+				throttledReadLogFromFile()
 					.then((log) => G.gamelog.load(log as string))
 					.catch((err) => {
 						alert('An error occurred while loading the log file');
@@ -552,6 +556,7 @@ function getReg() {
  * @returns {Promise<string>}
  */
 function readLogFromFile() {
+	filePickerOpen = true;
 	// TODO: This would probably be better off in ./src/utility/gamelog.ts
 	return new Promise((resolve, reject) => {
 		const fileInput = document.createElement('input') as HTMLInputElement;
@@ -559,7 +564,14 @@ function readLogFromFile() {
 		fileInput.type = 'file';
 
 		fileInput.onchange = (event) => {
+			filePickerOpen = false;
 			const file = (event.target as HTMLInputElement).files[0];
+
+			if (!file) {
+				resolve('');
+				return;
+			}
+
 			const reader = new FileReader();
 
 			reader.readAsText(file);
@@ -576,6 +588,9 @@ function readLogFromFile() {
 		fileInput.click();
 	});
 }
+
+/** Throttled version of readLogFromFile to block multiple file pickers - matches gamelog.ts pattern */
+const throttledReadLogFromFile = throttle(() => readLogFromFile(), 1000);
 
 /**
  * get Login.
