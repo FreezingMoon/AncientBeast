@@ -2,6 +2,21 @@ import * as version from './version';
 import { throttle } from 'underscore';
 
 const SEPARATOR = '||';
+let pendingLogFileRead: Promise<string> | null = null;
+
+export class ConcurrentLogFilePickerError extends Error {
+	constructor() {
+		super('A log file picker is already open.');
+		this.name = 'ConcurrentLogFilePickerError';
+	}
+}
+
+export class LogFileSelectionCancelledError extends Error {
+	constructor() {
+		super('No log file selected.');
+		this.name = 'LogFileSelectionCancelledError';
+	}
+}
 
 export class SerializableLog {
 	actions: any[];
@@ -117,6 +132,66 @@ const saveFile = (data: any, fileName: string) => {
 		window.URL.revokeObjectURL(url);
 	}, 1000);
 };
+
+export function readLogFromFile() {
+	if (pendingLogFileRead !== null) {
+		return Promise.reject(new ConcurrentLogFilePickerError());
+	}
+
+	pendingLogFileRead = new Promise((resolve, reject) => {
+		const fileInput = document.createElement('input') as HTMLInputElement;
+		let settled = false;
+
+		const finish = (callback: () => void) => {
+			if (settled) {
+				return;
+			}
+
+			settled = true;
+			window.removeEventListener('focus', onWindowFocus, true);
+			pendingLogFileRead = null;
+			callback();
+		};
+
+		const onWindowFocus = () => {
+			window.setTimeout(() => {
+				if (settled || fileInput.files?.length) {
+					return;
+				}
+
+				finish(() => reject(new LogFileSelectionCancelledError()));
+			}, 0);
+		};
+
+		fileInput.accept = '.ab';
+		fileInput.type = 'file';
+
+		fileInput.onchange = (event) => {
+			const file = (event.target as HTMLInputElement).files?.[0];
+
+			if (!file) {
+				finish(() => reject(new LogFileSelectionCancelledError()));
+				return;
+			}
+
+			const reader = new FileReader();
+			reader.onload = () => {
+				finish(() => resolve(reader.result as string));
+			};
+
+			reader.onerror = () => {
+				finish(() => reject(reader.error ?? new Error('Could not read log file.')));
+			};
+
+			reader.readAsText(file);
+		};
+
+		window.addEventListener('focus', onWindowFocus, true);
+		fileInput.click();
+	});
+
+	return pendingLogFileRead;
+}
 
 function getYearMonthDayStr() {
 	return new Date().toISOString().slice(0, 10);

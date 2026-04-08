@@ -13,6 +13,11 @@ import Authenticate from './multiplayer/authenticate';
 import SessionI from './multiplayer/session';
 import { installAvatarStyles } from './style/avatar-styles';
 import {
+	ConcurrentLogFilePickerError,
+	LogFileSelectionCancelledError,
+	readLogFromFile,
+} from './utility/gamelog';
+import {
 	DEBUG_AUTO_START_GAME,
 	DEBUG_DISABLE_HOTKEYS,
 	DEBUG_GAME_LOG,
@@ -178,6 +183,13 @@ $j(() => {
 				readLogFromFile()
 					.then((log) => G.gamelog.load(log as string))
 					.catch((err) => {
+						if (
+							err instanceof ConcurrentLogFilePickerError ||
+							err instanceof LogFileSelectionCancelledError
+						) {
+							return;
+						}
+
 						alert('An error occurred while loading the log file');
 						console.log(err);
 					});
@@ -545,36 +557,6 @@ function getReg() {
 	};
 
 	return reg;
-}
-
-/**
- * read log from file
- * @returns {Promise<string>}
- */
-function readLogFromFile() {
-	// TODO: This would probably be better off in ./src/utility/gamelog.ts
-	return new Promise((resolve, reject) => {
-		const fileInput = document.createElement('input') as HTMLInputElement;
-		fileInput.accept = '.ab';
-		fileInput.type = 'file';
-
-		fileInput.onchange = (event) => {
-			const file = (event.target as HTMLInputElement).files[0];
-			const reader = new FileReader();
-
-			reader.readAsText(file);
-
-			reader.onload = () => {
-				resolve(reader.result);
-			};
-
-			reader.onerror = () => {
-				reject(reader.error);
-			};
-		};
-
-		fileInput.click();
-	});
 }
 
 /**

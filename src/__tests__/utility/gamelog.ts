@@ -1,6 +1,11 @@
 import { jest, expect, describe, test } from '@jest/globals';
 import { full } from '../../utility/version';
-import { GameLog } from '../../utility/gamelog';
+import {
+	ConcurrentLogFilePickerError,
+	GameLog,
+	LogFileSelectionCancelledError,
+	readLogFromFile,
+} from '../../utility/gamelog';
 
 describe('GameLog', () => {
 	describe('new GameLog(onSave, onLoad)', () => {
@@ -70,6 +75,91 @@ describe('GameLog', () => {
 			const log = gl.load(str);
 			const diffSeconds = Math.abs(date.getTime() / 1000 - log.date.getTime() / 1000);
 			expect(diffSeconds).toBeLessThan(10);
+		});
+	});
+
+	describe('readLogFromFile()', () => {
+		test('blocks concurrent file pickers and resolves the selected log once', async () => {
+			const originalCreateElement = document.createElement.bind(document);
+			const fileInput = originalCreateElement('input') as HTMLInputElement;
+			const clickSpy = jest.spyOn(fileInput, 'click').mockImplementation(() => undefined);
+			const createElementSpy = jest
+				.spyOn(document, 'createElement')
+				.mockImplementation(((tagName: string) =>
+					tagName === 'input'
+						? fileInput
+						: originalCreateElement(tagName)) as typeof document.createElement);
+
+			class MockFileReader {
+				result: string | ArrayBuffer | null = 'serialized-log';
+				error: DOMException | null = null;
+				onload: ((event: ProgressEvent<FileReader>) => void) | null = null;
+				onerror: ((event: ProgressEvent<FileReader>) => void) | null = null;
+
+				readAsText() {
+					this.onload?.({} as ProgressEvent<FileReader>);
+				}
+			}
+
+			const originalFileReader = window.FileReader;
+			window.FileReader = MockFileReader as unknown as typeof FileReader;
+
+			try {
+				const firstRead = readLogFromFile();
+				await expect(readLogFromFile()).rejects.toBeInstanceOf(ConcurrentLogFilePickerError);
+				expect(clickSpy).toHaveBeenCalledTimes(1);
+
+				Object.defineProperty(fileInput, 'files', {
+					configurable: true,
+					value: [{}],
+				});
+				fileInput.onchange?.({ target: fileInput } as unknown as Event);
+
+				await expect(firstRead).resolves.toBe('serialized-log');
+			} finally {
+				window.FileReader = originalFileReader;
+				createElementSpy.mockRestore();
+				clickSpy.mockRestore();
+			}
+		});
+
+		test('cancelling the picker clears the guard so the next attempt can open', async () => {
+			jest.useFakeTimers();
+
+			const originalCreateElement = document.createElement.bind(document);
+			const firstInput = originalCreateElement('input') as HTMLInputElement;
+			const secondInput = originalCreateElement('input') as HTMLInputElement;
+			const firstClickSpy = jest.spyOn(firstInput, 'click').mockImplementation(() => undefined);
+			const secondClickSpy = jest.spyOn(secondInput, 'click').mockImplementation(() => undefined);
+			const inputs = [firstInput, secondInput];
+			const createElementSpy = jest
+				.spyOn(document, 'createElement')
+				.mockImplementation(((tagName: string) =>
+					tagName === 'input'
+						? inputs.shift() ?? originalCreateElement(tagName)
+						: originalCreateElement(tagName)) as typeof document.createElement);
+
+			try {
+				const firstRead = readLogFromFile();
+				window.dispatchEvent(new Event('focus'));
+				jest.runAllTimers();
+
+				await expect(firstRead).rejects.toBeInstanceOf(LogFileSelectionCancelledError);
+				expect(firstClickSpy).toHaveBeenCalledTimes(1);
+
+				const secondRead = readLogFromFile();
+				expect(secondClickSpy).toHaveBeenCalledTimes(1);
+
+				window.dispatchEvent(new Event('focus'));
+				jest.runAllTimers();
+
+				await expect(secondRead).rejects.toBeInstanceOf(LogFileSelectionCancelledError);
+			} finally {
+				createElementSpy.mockRestore();
+				firstClickSpy.mockRestore();
+				secondClickSpy.mockRestore();
+				jest.useRealTimers();
+			}
 		});
 	});
 });
