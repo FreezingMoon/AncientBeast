@@ -551,8 +551,17 @@ function getReg() {
  * read log from file
  * @returns {Promise<string>}
  */
+let isLoadingLog = false;
+
 function readLogFromFile() {
 	// TODO: This would probably be better off in ./src/utility/gamelog.ts
+	// Set a trap to block consecutive calls (prevent multiple file pickers)
+	if (isLoadingLog) {
+		return Promise.reject(new Error('Already loading a log file'));
+	}
+
+	isLoadingLog = true;
+
 	return new Promise((resolve, reject) => {
 		const fileInput = document.createElement('input') as HTMLInputElement;
 		fileInput.accept = '.ab';
@@ -565,12 +574,19 @@ function readLogFromFile() {
 			reader.readAsText(file);
 
 			reader.onload = () => {
+				isLoadingLog = false;
 				resolve(reader.result);
 			};
 
 			reader.onerror = () => {
+				isLoadingLog = false;
 				reject(reader.error);
 			};
+		};
+
+		// Reset flag if dialog is cancelled
+		fileInput.oncancel = () => {
+			isLoadingLog = false;
 		};
 
 		fileInput.click();
