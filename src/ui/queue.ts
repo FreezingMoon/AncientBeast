@@ -494,6 +494,9 @@ class CreatureVignette extends Vignette {
 	}
 
 	animateDelete(queuePosition: number, x: number) {
+		if (this.creature.dead) {
+			return this.animateKill(x);
+		}
 		this.el.style.zIndex = '-1';
 		const [x_, y, scale] = this.isActiveCreature ? [-this.getWidth(), 0, 1.25] : [x, -100, 1];
 		const keyframes = [{ transform: `translateX(${x_}px) translateY(${y}px) scale(${scale})` }];
@@ -506,6 +509,9 @@ class CreatureVignette extends Vignette {
 	}
 
 	animateDeleteFromFront(queuePosition: number, x: number, emptySpaceAtFrontOfQueue: number) {
+		if (this.creature.dead) {
+			return this.animateKill(x);
+		}
 		const scale = this.isActiveCreature ? 1.25 : 1;
 		const keyframes = [
 			{
@@ -514,6 +520,32 @@ class CreatureVignette extends Vignette {
 		];
 		const animation = this.el.animate(keyframes, {
 			duration: CONST.animDurationMS,
+			fill: 'forwards',
+		});
+		animation.commitStyles();
+		return animation;
+	}
+
+	private animateKill(x: number) {
+		const scale = this.isActiveCreature ? 1.25 : 1;
+		const keyframes = [
+			{
+				transform: `translateX(${x}px) translateY(0px) scale(${scale})`,
+				easing: 'ease-out',
+				offset: 0,
+			},
+			{
+				transform: `translateX(${x}px) translateY(-80px) scale(${scale})`,
+				easing: 'ease-in',
+				offset: 0.35,
+			},
+			{
+				transform: `translateX(${x}px) translateY(400px) scale(${scale})`,
+				offset: 1,
+			},
+		];
+		const animation = this.el.animate(keyframes, {
+			duration: 700,
 			fill: 'forwards',
 		});
 		animation.commitStyles();
