@@ -339,9 +339,14 @@ export class UI {
 					$button: $j('.ability[ability="' + i + '"]'),
 					hasShortcut: true,
 					click: () => {
-						this.clickedAbility = i;
-
 						const game = this.game;
+
+						// Don't show ability range circles during bot's turn
+						if (game.botController.isBotTurn()) {
+							return;
+						}
+
+						this.clickedAbility = i;
 
 						// Animate ability range circles when clicking a no-target ability
 						if (i !== 0) {
@@ -462,7 +467,7 @@ export class UI {
 
 						// Show hex_path markers over the ability's target range when hovering
 						// a non-passive ability that currently has no targets in sight
-						if (i !== 0 && this.selectedAbility === -1) {
+						if (i !== 0 && this.selectedAbility === -1 && !this.game.botController.isBotTurn()) {
 							const game = this.game;
 							const creature = game.activeCreature;
 							if (creature) {
