@@ -42,6 +42,9 @@ window.AB = AB;
 const connect = new Connect(G);
 G.connect = connect;
 
+// Guard flag to prevent multiple file pickers from opening when Ctrl+Meta+L is held down
+let filePickerOpen = false;
+
 // Load the abilities
 unitData.forEach(async (creature) => {
 	if (!creature.playable) {
@@ -172,7 +175,7 @@ $j(() => {
 		},
 		KeyL: {
 			keyDownTest(event) {
-				return event.metaKey && event.ctrlKey;
+				return event.metaKey && event.ctrlKey && !filePickerOpen;
 			},
 			keyDownAction() {
 				readLogFromFile()
@@ -552,6 +555,7 @@ function getReg() {
  * @returns {Promise<string>}
  */
 function readLogFromFile() {
+	filePickerOpen = true;
 	// TODO: This would probably be better off in ./src/utility/gamelog.ts
 	return new Promise((resolve, reject) => {
 		const fileInput = document.createElement('input') as HTMLInputElement;
@@ -559,7 +563,14 @@ function readLogFromFile() {
 		fileInput.type = 'file';
 
 		fileInput.onchange = (event) => {
+			filePickerOpen = false;
 			const file = (event.target as HTMLInputElement).files[0];
+
+			if (!file) {
+				resolve('');
+				return;
+			}
+
 			const reader = new FileReader();
 
 			reader.readAsText(file);
