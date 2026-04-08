@@ -2014,6 +2014,42 @@ export class UI {
 
 		this.gridSelectPrevious();
 	}
+	animateNoTargetAbilityRanges() {
+		const creature = this.game.activeCreature;
+		if (!creature) return;
+		creature.abilities.forEach((ab) => {
+			if (ab.message === this.game.msg.abilities.noTarget && ab._abilityRangeHexes?.length) {
+				const cx = creature.x;
+				const cy = creature.y;
+				const sorted = ab._abilityRangeHexes.slice().sort((a, b) => {
+					const da = Math.hypot(a.x - cx, a.y - cy);
+					const db = Math.hypot(b.x - cx, b.y - cy);
+					return da - db;
+				});
+				sorted.forEach((hex, idx) => {
+					if (!hex.displayClasses.includes('abilityRange')) {
+						hex.displayVisualState('abilityRange');
+					}
+					this.game.Phaser.tweens.removeFrom(hex.display.scale);
+					hex.display.scale.setTo(0.5);
+					hex.display.anchor.setTo(0.5, 0.5);
+					this.game.Phaser.add
+						.tween(hex.display.scale)
+						.to({ x: 1.0, y: 1.0 }, 180, Phaser.Easing.Quadratic.Out, true, idx * 20)
+						.onComplete.addOnce(() => {
+							this.game.Phaser.add
+								.tween(hex.display.scale)
+								.to({ x: 0, y: 0 }, 180, Phaser.Easing.Quadratic.In, true)
+								.onComplete.addOnce(() => {
+									hex.display.anchor.setTo(0, 0);
+									hex.cleanDisplayVisualState('abilityRange');
+								});
+						});
+				});
+			}
+		});
+	}
+
 	flashAbilityBtn(i: number) {
 		const ab = this.game.activeCreature?.abilities[i];
 		if (
