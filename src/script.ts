@@ -547,11 +547,19 @@ function getReg() {
 	return reg;
 }
 
-/**
- * read log from file
- * @returns {Promise<string>}
- */
+// Trap to block consecutive file picker calls within one second (prevents multiple pickers when holding Ctrl+Meta+L)
+let filePickerBlocked = false;
+
 function readLogFromFile() {
+	// Set a trap to block consecutive calls within one second
+	if (filePickerBlocked) {
+		return;
+	}
+	filePickerBlocked = true;
+	setTimeout(() => {
+		filePickerBlocked = false;
+	}, 1000);
+
 	// TODO: This would probably be better off in ./src/utility/gamelog.ts
 	return new Promise((resolve, reject) => {
 		const fileInput = document.createElement('input') as HTMLInputElement;
