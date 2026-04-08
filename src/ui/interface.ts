@@ -446,8 +446,13 @@ export class UI {
 								}
 								return;
 							}
+							// If ability is not usable, show cancel icon and return
+							if (!ability.require() || ability.used) {
+								b.cssTransition('cancelIcon', 1000);
+								return;
+							}
 							// Colored frame around selected ability
-							if (ability.require() == true && i != 0) {
+							if (ability.require() == true) {
 								this.selectAbility(i);
 							}
 							// Activate Ability
