@@ -547,18 +547,36 @@ function getReg() {
 	return reg;
 }
 
+let isFilePickerOpen = false;
+let filePickerTimeout: ReturnType<typeof setTimeout>;
+
 /**
  * read log from file
  * @returns {Promise<string>}
  */
 function readLogFromFile() {
 	// TODO: This would probably be better off in ./src/utility/gamelog.ts
+	if (isFilePickerOpen) {
+		return Promise.reject(new Error('File picker already open'));
+	}
+	isFilePickerOpen = true;
+	// Fallback: reset flag after 30s in case picker is cancelled without triggering onchange
+	if (filePickerTimeout) {
+		clearTimeout(filePickerTimeout);
+	}
+	filePickerTimeout = setTimeout(() => {
+		isFilePickerOpen = false;
+	}, 30000);
 	return new Promise((resolve, reject) => {
 		const fileInput = document.createElement('input') as HTMLInputElement;
 		fileInput.accept = '.ab';
 		fileInput.type = 'file';
 
 		fileInput.onchange = (event) => {
+			isFilePickerOpen = false;
+			if (filePickerTimeout) {
+				clearTimeout(filePickerTimeout);
+			}
 			const file = (event.target as HTMLInputElement).files[0];
 			const reader = new FileReader();
 
