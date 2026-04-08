@@ -1427,8 +1427,9 @@ export class UI {
 		// Figure out what the active player can summon
 		const activePlayer = game.players[this.game.activeCreature.player.id];
 		const deadOrSummonedTypes = activePlayer.creatures.map((creature) => creature.type);
+		// Exclude last materialized type to avoid "copy catting" scenarios
 		const availableTypes = activePlayer.availableCreatures.filter(
-			(el) => !deadOrSummonedTypes.includes(el),
+			(el) => !deadOrSummonedTypes.includes(el) && el !== game.lastMaterializedType,
 		);
 
 		// Randomize array to grab a random creature
