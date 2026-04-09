@@ -5,6 +5,7 @@ import { Hex } from './utility/hex';
 import { Team, isTeam } from './utility/team';
 import SnowBunnyStrategy from './bots/Snow-Bunny';
 import DarkPriestStrategy from './bots/Dark-Priest';
+import AbolishedStrategy from './bots/Abolished';
 
 /**
  * Optional per-unit behaviour overrides for BotController.
@@ -56,6 +57,7 @@ export interface UnitBotStrategy {
 export const unitStrategies: Partial<Record<string, UnitBotStrategy>> = {
 	'--': DarkPriestStrategy,
 	S1: SnowBunnyStrategy,
+	P7: AbolishedStrategy,
 };
 
 type BotPendingAction =
