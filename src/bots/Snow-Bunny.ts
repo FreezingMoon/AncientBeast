@@ -227,7 +227,20 @@ function scoreBlowingWind(hex: Hex, activeCreature: Creature, controller: BotCon
 			score -= 500;
 		}
 	}
-
+	// Pushing a unit that is already on the top board row (y=0) from a diagonal
+	// axis (Snow Bunny not on the same row) is wasteful – the target hits the wall
+	// almost immediately and barely moves.  Apply a soft penalty so the bot
+	// prefers inline or off-edge targets instead.
+	// Waive the penalty when Snow Bunny has surplus energy (≥ 80 %) – burning
+	// the ability still earns practice XP toward upgrading it and drains the
+	// excess, which is worthwhile when no better target is available.
+	const targetOnTopRow = target.y === 0;
+	if (targetOnTopRow && target.y !== activeCreature.y) {
+		const energyRatio = activeCreature.energy / activeCreature.stats.energy;
+		if (energyRatio < 0.8) {
+			score -= 250;
+		}
+	}
 	return score;
 }
 
