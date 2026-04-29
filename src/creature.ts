@@ -417,7 +417,9 @@ export class Creature {
 			if (game.grid.lastXrayHex) {
 				game.grid.xray(game.grid.lastXrayHex);
 			} else {
-				game.creatures.forEach((c) => { if (c instanceof Creature) c.xray(false); });
+				game.creatures.forEach((c) => {
+					if (c instanceof Creature) c.xray(false);
+				});
 			}
 		}, fadeMs + 600);
 
@@ -1985,7 +1987,7 @@ class CreatureSprite {
 	private _healthIndicatorTween: Phaser.Tween | null;
 	private _healthBounceOffset = 0; // y-offset driven by the bounce tween
 	private _healthUiGroup: Phaser.Group; // elevated layer for active/hovered indicators
-	private _healthInUiGroup = false;    // whether the indicator is currently elevated
+	private _healthInUiGroup = false; // whether the indicator is currently elevated
 
 	private _phaser: Phaser.Game;
 	private _frameInfo: { originX: number; originY: number };
@@ -1993,14 +1995,14 @@ class CreatureSprite {
 	private _creatureTeam: PlayerID;
 
 	private _isXray = false;
-	private _xrayAlpha = 0;        // current effect intensity (0 = off, 1 = full)
+	private _xrayAlpha = 0; // current effect intensity (0 = off, 1 = full)
 	private _xrayTargetAlpha = 0; // target intensity for fade animation
 	private _xrayBmd: Phaser.BitmapData | null = null;
 	private _originalTextureKey: string;
 	private _xrayOriginalSrc: CanvasImageSource | null = null;
 	private _xrayRefCreatures: Creature[] = []; // all ref creatures whose shape we cut out
-	private _xrayScratch: HTMLCanvasElement | null = null;  // Part B scratch
-	private _xrayMask: HTMLCanvasElement | null = null;     // union of all ref shapes
+	private _xrayScratch: HTMLCanvasElement | null = null; // Part B scratch
+	private _xrayMask: HTMLCanvasElement | null = null; // union of all ref shapes
 
 	constructor(creature: Creature) {
 		const { game, player, type, team, display, size, id, health } = creature;
@@ -2240,15 +2242,7 @@ class CreatureSprite {
 			const bmd = this._xrayBmd;
 			const ctx = bmd.context;
 			ctx.clearRect(0, 0, bmd.width, bmd.height);
-			this._drawSpriteFrame(
-				ctx,
-				this._sprite,
-				this._xrayOriginalSrc,
-				0,
-				0,
-				bmd.width,
-				bmd.height,
-			);
+			this._drawSpriteFrame(ctx, this._sprite, this._xrayOriginalSrc, 0, 0, bmd.width, bmd.height);
 			bmd.dirty = true;
 			bmd.update();
 

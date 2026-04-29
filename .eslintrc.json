@@ -24,6 +24,7 @@
 	},
 	"globals": {
 		"Phaser": true,
-		"__WebpackModuleApi": true
+		"__WebpackModuleApi": true,
+		"CanvasImageSource": true
 	}
 }
