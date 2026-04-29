@@ -212,6 +212,11 @@ export class Animations {
 		}
 
 		game.grid.orderCreatureZ();
+
+		// Refresh xray so obstructors are correctly ghosted as the unit moves rows
+		if (game.activeCreature === creature) {
+			game.grid.refreshActiveCreatureXray();
+		}
 	}
 
 	leaveHex(creature: Creature, hex: Hex, opts: AnimationOptions) {

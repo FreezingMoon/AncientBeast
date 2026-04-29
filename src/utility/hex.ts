@@ -364,50 +364,87 @@ export class Hex {
 
 	/**
 	 * Add ghosted class to creature on hexes behind this hex
+	 * @param {Creature} [referenceCreature] - The creature being seen through to (active or hovered).
 	 */
-	ghostOverlap() {
+	ghostOverlap(referenceCreature?: Creature) {
 		const grid = this.grid || this.game.grid;
-		let ghostedCreature;
+		const seen = new Set<number>();
 
-		for (let i = 1; i <= 3; i++) {
-			if (this.y % 2 == 0) {
-				if (i == 1) {
-					for (let j = 0; j <= 1; j++) {
-						if (grid.hexExists({ y: this.y + i, x: this.x + j })) {
-							if (grid.hexes[this.y + i][this.x + j].creature instanceof Creature) {
-								ghostedCreature = grid.hexes[this.y + i][this.x + j].creature;
-							}
-						}
-					}
-				} else {
-					if (grid.hexExists({ y: this.y + i, x: this.x })) {
-						if (grid.hexes[this.y + i][this.x].creature instanceof Creature) {
-							ghostedCreature = grid.hexes[this.y + i][this.x].creature;
-						}
-					}
-				}
-			} else {
-				if (i == 1) {
-					for (let j = 0; j <= 1; j++) {
-						if (grid.hexExists({ y: this.y + i, x: this.x - j })) {
-							if (grid.hexes[this.y + i][this.x - j].creature instanceof Creature) {
-								ghostedCreature = grid.hexes[this.y + i][this.x - j].creature;
-							}
-						}
-					}
-				} else {
-					if (grid.hexExists({ y: this.y + i, x: this.x })) {
-						if (grid.hexes[this.y + i][this.x].creature instanceof Creature) {
-							ghostedCreature = grid.hexes[this.y + i][this.x].creature;
-						}
+		if (!referenceCreature) {
+			// Legacy: no reference, so scan standard pattern
+			for (let dy = 1; dy <= 3; dy++) {
+				const xBand = 6;
+				for (let dx = -xBand; dx <= xBand; dx++) {
+					const nx = this.x + dx;
+					const ny = this.y + dy;
+					if (!grid.hexExists({ y: ny, x: nx })) continue;
+					const c = grid.hexes[ny][nx].creature;
+					if (c instanceof Creature) {
+						c.xray(true, referenceCreature);
 					}
 				}
 			}
 
-			if (ghostedCreature instanceof Creature) {
-				ghostedCreature.xray(true);
+			for (let dx = -4; dx <= 4; dx++) {
+				if (dx === 0) continue;
+				if (!grid.hexExists({ y: this.y, x: this.x + dx })) continue;
+				const c = grid.hexes[this.y][this.x + dx].creature;
+				if (c instanceof Creature) {
+					c.xray(true, referenceCreature);
+				}
 			}
+			return;
 		}
+
+		// Reference creature provided: scan ALL creatures for visual sprite overlap
+		const refSprite = referenceCreature.sprite;
+		const refBounds = refSprite.getBounds();
+		const refLeft = refBounds.x;
+		const refTop = refBounds.y;
+		const refRight = refBounds.x + refBounds.width;
+		const refBottom = refBounds.y + refBounds.height;
+		const creatureGroup = grid.creatureGroup;
+		let refZ = -1;
+		try {
+			refZ = creatureGroup.getChildIndex(referenceCreature.grp);
+		} catch {
+			// Reference creature not in group yet, treat as always in front
+			refZ = Infinity;
+		}
+
+		grid.game.creatures.forEach((candidate) => {
+			if (!(candidate instanceof Creature)) return;
+			if (candidate === referenceCreature) return;
+			if (seen.has(candidate.id)) return;
+
+			let candZ = -1;
+			try {
+				candZ = creatureGroup.getChildIndex(candidate.grp);
+			} catch {
+				// Candidate not in group, skip it
+				return;
+			}
+			if (candZ <= refZ) return;
+
+			const candBounds = candidate.sprite.getBounds();
+			const candLeft = candBounds.x;
+			const candTop = candBounds.y;
+			const candRight = candBounds.x + candBounds.width;
+			const candBottom = candBounds.y + candBounds.height;
+
+			// Check AABB overlap
+			const overlaps = !(
+				candRight <= refLeft ||
+				candLeft >= refRight ||
+				candBottom <= refTop ||
+				candTop >= refBottom
+			);
+
+			if (overlaps) {
+				seen.add(candidate.id);
+				candidate.xray(true, referenceCreature);
+			}
+		});
 	}
 
 	/**

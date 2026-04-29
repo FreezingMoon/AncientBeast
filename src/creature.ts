@@ -410,6 +410,17 @@ export class Creature {
 		const fadeMs = 1000 * this.size;
 		this.creatureSprite.setAlpha(1, fadeMs);
 
+		// Ghost creatures in front so the materializing unit is spotlighted
+		this.hexagons.forEach((hex) => hex.ghostOverlap(this));
+		setTimeout(() => {
+			if (!game.grid) return;
+			if (game.grid.lastXrayHex) {
+				game.grid.xray(game.grid.lastXrayHex);
+			} else {
+				game.creatures.forEach((c) => { if (c instanceof Creature) c.xray(false); });
+			}
+		}, fadeMs + 600);
+
 		// Reveal and position health indicator
 		this.updateHealth();
 		this.healthShow();
@@ -581,6 +592,14 @@ export class Creature {
 			this.queryMove(null);
 			// }
 		}, 1000);
+
+		// Apply active-unit xray immediately; queryMove() starts after a delay and
+		// can otherwise leave one-hex units visually hidden during turn handoff.
+		game.grid.refreshActiveCreatureXray();
+		this.xray(false);
+
+		// Elevate health indicator above all creatures while this unit is active
+		this.startBounce();
 	}
 
 	/**
@@ -590,6 +609,8 @@ export class Creature {
 	 */
 	deactivate(reason: 'wait' | 'turn-end') {
 		const game = this.game;
+		// De-elevate health indicator when this unit is no longer active
+		this.resetBounce();
 		this.status.frozen = false;
 		this.status.cryostasis = false;
 		this.status.dizzy = false;
@@ -793,6 +814,13 @@ export class Creature {
 		this.facePlayerDefault();
 		this.updateHealth();
 
+		// Ghost creatures that visually obstruct the active creature.
+		// nextCreature() already called clearAllXray() which only fades out without
+		// re-triggering ghostOverlap for the old unit, so it is safe to start the
+		// new fade-in immediately.
+		game.grid.refreshActiveCreatureXray();
+		this.xray(false); // active creature itself must never be xrayed
+
 		if (this.movementType() === 'flying') {
 			o.range = game.grid.getFlyingRange(this.x, this.y, remainingMove, this.size, this.id);
 		}
@@ -879,11 +907,13 @@ export class Creature {
 	}
 
 	startBounce() {
+		this.creatureSprite.elevateHealth(true);
 		this.creatureSprite.setHealthBounce(true);
 	}
 
 	resetBounce() {
 		this.creatureSprite.setHealthBounce(false);
+		this.creatureSprite.elevateHealth(false);
 	}
 
 	/**
@@ -1810,8 +1840,8 @@ export class Creature {
 	}
 
 	// Make units transparent
-	xray(enable: boolean) {
-		this.creatureSprite.xray(enable);
+	xray(enable: boolean, referenceCreature?: Creature) {
+		this.creatureSprite.xray(enable, referenceCreature);
 	}
 
 	pickupDrop() {
@@ -1953,6 +1983,9 @@ class CreatureSprite {
 	private _healthIndicatorSprite: Phaser.Sprite;
 	private _healthIndicatorText: Phaser.Text;
 	private _healthIndicatorTween: Phaser.Tween | null;
+	private _healthBounceOffset = 0; // y-offset driven by the bounce tween
+	private _healthUiGroup: Phaser.Group; // elevated layer for active/hovered indicators
+	private _healthInUiGroup = false;    // whether the indicator is currently elevated
 
 	private _phaser: Phaser.Game;
 	private _frameInfo: { originX: number; originY: number };
@@ -1960,6 +1993,14 @@ class CreatureSprite {
 	private _creatureTeam: PlayerID;
 
 	private _isXray = false;
+	private _xrayAlpha = 0;        // current effect intensity (0 = off, 1 = full)
+	private _xrayTargetAlpha = 0; // target intensity for fade animation
+	private _xrayBmd: Phaser.BitmapData | null = null;
+	private _originalTextureKey: string;
+	private _xrayOriginalSrc: CanvasImageSource | null = null;
+	private _xrayRefCreatures: Creature[] = []; // all ref creatures whose shape we cut out
+	private _xrayScratch: HTMLCanvasElement | null = null;  // Part B scratch
+	private _xrayMask: HTMLCanvasElement | null = null;     // union of all ref shapes
 
 	constructor(creature: Creature) {
 		const { game, player, type, team, display, size, id, health } = creature;
@@ -1978,7 +2019,8 @@ class CreatureSprite {
 		const darkPriestColorOrEmpty = isDarkPriest ? creature.player.color : '';
 
 		// Adding sprite
-		const sprite = group.create(0, 0, creature.name + darkPriestColorOrEmpty + '_cardboard');
+		const spriteKey = creature.name + darkPriestColorOrEmpty + '_cardboard';
+		const sprite = group.create(0, 0, spriteKey);
 		sprite.anchor.setTo(0.5, 1);
 		// Placing sprite
 		sprite.x =
@@ -2026,6 +2068,44 @@ class CreatureSprite {
 		this._healthIndicatorSprite = healthIndicatorSprite;
 		this._healthIndicatorText = healthIndicatorText;
 		this._healthIndicatorTween = undefined;
+		this._healthUiGroup = game.grid.healthIndicatorUiGroup;
+
+		this._originalTextureKey = spriteKey;
+
+		// Install a per-frame update hook on the group. Phaser calls group.update()
+		// every step AFTER tweens have run, which is exactly when we need to redraw
+		// the xray BitmapData so the cutout tracks movement smoothly.
+		const _groupUpdate = this._group.update.bind(this._group);
+		const self = this;
+		const XRAY_FADE_RATE = 0.08; // ~160 ms fade at 60 fps
+		this._group.update = function () {
+			_groupUpdate();
+			// Animate xray alpha toward target
+			if (self._xrayAlpha < self._xrayTargetAlpha) {
+				self._xrayAlpha = Math.min(self._xrayTargetAlpha, self._xrayAlpha + XRAY_FADE_RATE);
+			} else if (self._xrayAlpha > self._xrayTargetAlpha) {
+				self._xrayAlpha = Math.max(self._xrayTargetAlpha, self._xrayAlpha - XRAY_FADE_RATE);
+			}
+			// Sync health indicator world position when it lives in the elevated UI group
+			if (self._healthInUiGroup) {
+				self._healthIndicatorGroup.x = self._group.x;
+				self._healthIndicatorGroup.y = self._group.y + self._healthBounceOffset;
+			}
+			// Fade health indicator group in sync with the xray sprite effect.
+			// The health group is a separate Phaser object rendered on top of the
+			// sprite, so sprite BitmapData tricks can't hide it — we must set its
+			// alpha directly so the reference creature's badge shows through.
+			const hiAlpha = 1.0 - (1.0 - 0.2) * self._xrayAlpha;
+			self._healthIndicatorGroup.alpha = hiAlpha;
+			if (self._xrayBmd && self._xrayRefCreatures.length > 0) {
+				if (self._xrayAlpha <= 0 && self._xrayTargetAlpha === 0) {
+					// Fade-out complete — restore original texture
+					self._finalizeXrayOff();
+				} else {
+					self._drawXrayBmd(self._xrayRefCreatures, self._xrayBmd);
+				}
+			}
+		};
 
 		this.setHex(creature.hexagons[size - 1]);
 		this.setDir(dir);
@@ -2113,17 +2193,210 @@ class CreatureSprite {
 			dir === -1 ? HEX_WIDTH_PX * 0.5 : HEX_WIDTH_PX * (this._creatureSize - 0.5);
 	}
 
-	xray(enable: boolean) {
-		if (this._isXray === enable) return;
-		this._isXray = enable;
-		this._phaser.add
-			.tween(this._sprite)
-			.to({ alpha: enable ? 0.5 : 1.0 }, 250, Phaser.Easing.Linear.None)
-			.start();
-		this._phaser.add
-			.tween(this._healthIndicatorGroup)
-			.to({ alpha: enable ? 0.5 : 1.0 }, 250, Phaser.Easing.Linear.None)
-			.start();
+	xray(enable: boolean, referenceCreature?: Creature) {
+		if (!enable && !this._isXray && this._xrayTargetAlpha === 0) return;
+		if (enable && referenceCreature) {
+			this._isXray = true;
+			this._xrayTargetAlpha = 1;
+			// Accumulate refs — only rebuild if this creature isn't already included
+			if (!this._xrayRefCreatures.includes(referenceCreature)) {
+				const newRefs = [...this._xrayRefCreatures, referenceCreature];
+				// Rebuild BitmapData with updated ref list, preserving fade progress/state
+				const alpha = this._xrayAlpha;
+				const targetAlpha = this._xrayTargetAlpha;
+				this._xrayScratch = null;
+				this._xrayMask = null;
+				this._xrayAlpha = alpha;
+				this._xrayTargetAlpha = targetAlpha;
+				this._isXray = true;
+				this._buildXrayTexture(newRefs);
+			}
+		} else if (enable) {
+			// Ignore legacy calls that try to enable xray without a reference target.
+			// The pixel-mask implementation needs a reference creature silhouette;
+			// treating this as "off" would clear valid active/hover xray states.
+			return;
+		} else {
+			this._isXray = false;
+			this._xrayTargetAlpha = 0;
+			// Update hook fades out then calls _finalizeXrayOff automatically
+		}
+	}
+
+	/** Immediately snaps xray alpha to 0 and frees all resources. */
+	private _clearXrayTexture() {
+		this._xrayAlpha = 0;
+		this._xrayTargetAlpha = 0;
+		this._finalizeXrayOff();
+	}
+
+	/** Restores the original texture and frees all xray canvas resources. */
+	private _finalizeXrayOff() {
+		this._healthIndicatorGroup.alpha = 1;
+		this._xrayRefCreatures = [];
+		this._xrayScratch = null;
+		this._xrayMask = null;
+		if (this._xrayBmd && this._xrayOriginalSrc) {
+			const bmd = this._xrayBmd;
+			const ctx = bmd.context;
+			ctx.clearRect(0, 0, bmd.width, bmd.height);
+			this._drawSpriteFrame(
+				ctx,
+				this._sprite,
+				this._xrayOriginalSrc,
+				0,
+				0,
+				bmd.width,
+				bmd.height,
+			);
+			bmd.dirty = true;
+			bmd.update();
+
+			if (this._sprite.texture.baseTexture.source !== (bmd.canvas as CanvasImageSource)) {
+				this._sprite.loadTexture(bmd);
+			}
+		}
+	}
+
+	private _buildXrayTexture(refCreatures: Creature[]) {
+		const otw = this._sprite.texture.width;
+		const oth = this._sprite.texture.height;
+
+		// Capture the original image source BEFORE swapping the texture to the BitmapData.
+		// After loadTexture(bmd), sprite.texture.baseTexture.source would be the BitmapData
+		// canvas itself, causing a circular self-draw on subsequent frames.
+		if (!this._xrayOriginalSrc) {
+			this._xrayOriginalSrc = this._sprite.texture.baseTexture.source as CanvasImageSource;
+		}
+		this._xrayRefCreatures = refCreatures.slice(); // copy to avoid external mutation
+
+		const scratch = document.createElement('canvas');
+		scratch.width = otw;
+		scratch.height = oth;
+		this._xrayScratch = scratch;
+
+		const mask = document.createElement('canvas');
+		mask.width = otw;
+		mask.height = oth;
+		this._xrayMask = mask;
+
+		let bmd = this._xrayBmd;
+		if (!bmd || bmd.width !== otw || bmd.height !== oth) {
+			if (bmd) {
+				bmd.destroy();
+			}
+			bmd = this._phaser.add.bitmapData(otw, oth);
+		}
+		this._xrayBmd = bmd;
+
+		this._drawXrayBmd(this._xrayRefCreatures, bmd);
+		if (this._sprite.texture.baseTexture.source !== (bmd.canvas as CanvasImageSource)) {
+			this._sprite.loadTexture(bmd);
+		}
+	}
+
+	/**
+	 * Draw the sprite's current texture frame from its base image source.
+	 * Handles atlases/cropped textures by using frame coordinates.
+	 */
+	private _drawSpriteFrame(
+		ctx: CanvasRenderingContext2D,
+		sprite: Phaser.Sprite,
+		src: CanvasImageSource,
+		dx: number,
+		dy: number,
+		dw: number,
+		dh: number,
+	) {
+		const texture: any = sprite.texture as any;
+		const frame: any = texture.crop || texture.frame || { x: 0, y: 0, width: dw, height: dh };
+		const sx = typeof frame.x === 'number' ? frame.x : 0;
+		const sy = typeof frame.y === 'number' ? frame.y : 0;
+		const sw = typeof frame.width === 'number' ? frame.width : dw;
+		const sh = typeof frame.height === 'number' ? frame.height : dh;
+
+		ctx.drawImage(src, sx, sy, sw, sh, dx, dy, dw, dh);
+	}
+
+	/**
+	 * Redraws the xray BitmapData in-place using the current creature positions.
+	 * Called once on initial build and then every frame so the cutout tracks movement.
+	 *
+	 * The mask is the UNION of all refCreatures shapes:
+	 *   - Pixels covered by any ref creature : XRAY_OVERLAP_OPACITY alpha (see-through)
+	 *   - All other pixels                   : 1.0 alpha (fully opaque)
+	 */
+	private _drawXrayBmd(refCreatures: Creature[], bmd: Phaser.BitmapData) {
+		const oSprite = this._sprite;
+		const oGroup = this._group;
+		const otw = bmd.width;
+		const oth = bmd.height;
+		const oFlipped = oSprite.scale.x < 0;
+		const oLeft = oGroup.x + oSprite.x - otw / 2;
+		const oTop = oGroup.y + oSprite.y - oth;
+
+		const oSrc = this._xrayOriginalSrc!;
+		const ctx = bmd.context;
+		const scratch = this._xrayScratch!;
+		const sctx = scratch.getContext('2d')!;
+
+		// Build a union mask on scratch2: all ref creature shapes OR'd together
+		// We keep a second scratch for the union mask (reuse _xrayScratch2).
+		const mask = this._xrayMask!;
+		const mctx = mask.getContext('2d')!;
+		mctx.clearRect(0, 0, otw, oth);
+
+		for (const refCreature of refCreatures) {
+			const refSprite = refCreature.sprite;
+			const refGroup = refCreature.grp;
+			const rtw = refSprite.texture.width;
+			const rth = refSprite.texture.height;
+			const rLeft = refGroup.x + refSprite.x - rtw / 2;
+			const rTop = refGroup.y + refSprite.y - refSprite.texture.height;
+			const relX = Math.round(rLeft - oLeft);
+			const relY = Math.round(rTop - oTop);
+			const drawX = oFlipped ? Math.round(otw - relX - rtw) : relX;
+			const rFlipped = refSprite.scale.x < 0;
+			const flipRef = oFlipped !== rFlipped;
+			const rSrc = refSprite.texture.baseTexture.source as CanvasImageSource;
+
+			// source-over accumulates all ref shapes into the mask (union)
+			mctx.globalCompositeOperation = 'source-over';
+			if (!flipRef) {
+				this._drawSpriteFrame(mctx, refSprite, rSrc, drawX, relY, rtw, rth);
+			} else {
+				mctx.save();
+				mctx.translate(drawX + rtw, relY);
+				mctx.scale(-1, 1);
+				this._drawSpriteFrame(mctx, refSprite, rSrc, 0, 0, rtw, rth);
+				mctx.restore();
+			}
+		}
+
+		const XRAY_OVERLAP_OPACITY = 0.2;
+
+		// --- Part A: overlap region — obstructor at reduced alpha, clipped to union mask ---
+		ctx.clearRect(0, 0, otw, oth);
+		ctx.save();
+		ctx.globalAlpha = 1.0 - (1.0 - XRAY_OVERLAP_OPACITY) * this._xrayAlpha;
+		this._drawSpriteFrame(ctx, oSprite, oSrc, 0, 0, otw, oth);
+		ctx.globalAlpha = 1.0;
+		ctx.globalCompositeOperation = 'destination-in';
+		ctx.drawImage(mask, 0, 0);
+		ctx.restore();
+
+		// --- Part B: non-overlap at full alpha — obstructor minus union mask ---
+		sctx.clearRect(0, 0, otw, oth);
+		sctx.globalCompositeOperation = 'source-over';
+		this._drawSpriteFrame(sctx, oSprite, oSrc, 0, 0, otw, oth);
+		sctx.globalCompositeOperation = 'destination-out';
+		sctx.drawImage(mask, 0, 0);
+
+		// Composite Part B on top of Part A
+		ctx.drawImage(scratch, 0, 0);
+
+		bmd.dirty = true;
+		bmd.update();
 	}
 
 	setHealth(number: number, type: HealthBubbleType) {
@@ -2144,31 +2417,58 @@ class CreatureSprite {
 		this._healthIndicatorGroup.visible = enable;
 	}
 
+	/**
+	 * Reparent the health indicator into (or out of) the top-most UI group so it
+	 * renders above all creature sprites. Call with true when the creature becomes
+	 * active or hovered; false when it returns to normal.
+	 */
+	elevateHealth(enable: boolean) {
+		if (enable && !this._healthInUiGroup) {
+			this._healthUiGroup.add(this._healthIndicatorGroup);
+			this._healthIndicatorGroup.x = this._group.x;
+			this._healthIndicatorGroup.y = this._group.y + this._healthBounceOffset;
+			this._healthInUiGroup = true;
+		} else if (!enable && this._healthInUiGroup) {
+			this._group.add(this._healthIndicatorGroup);
+			this._healthIndicatorGroup.x = 0;
+			this._healthIndicatorGroup.y = 0;
+			this._healthInUiGroup = false;
+		}
+	}
+
 	setHealthBounce(enable: boolean) {
 		if (enable) {
 			const bounceHeight = 10;
 			const durationMS = 350;
 
 			if (!this._healthIndicatorTween || !this._healthIndicatorTween.isRunning) {
-				const originalY = this._healthIndicatorGroup.y;
-				const targetY = originalY - bounceHeight;
+				const bounceTgt = { offset: -bounceHeight };
+				const bounceSrc = { offset: 0 };
+				this._healthBounceOffset = 0;
 
 				this._healthIndicatorTween = this._phaser.add
-					.tween(this._healthIndicatorGroup)
-					.to({ y: targetY }, durationMS, Phaser.Easing.Quadratic.InOut, true)
+					.tween(bounceSrc)
+					.to(bounceTgt, durationMS, Phaser.Easing.Quadratic.InOut, true)
 					.yoyo(true)
 					.repeat(-1);
+				this._healthIndicatorTween.onUpdateCallback(() => {
+					this._healthBounceOffset = bounceSrc.offset;
+				});
 			} else {
 				this._healthIndicatorTween.stop();
 				this._healthIndicatorTween = null;
+				const src = { offset: this._healthBounceOffset };
 				this._phaser.add
-					.tween(this._healthIndicatorGroup)
-					.to({ y: 0 }, durationMS, Phaser.Easing.Quadratic.InOut, true);
+					.tween(src)
+					.to({ offset: 0 }, durationMS, Phaser.Easing.Quadratic.InOut, true)
+					.onUpdateCallback(() => {
+						this._healthBounceOffset = src.offset;
+					});
 			}
 		} else {
 			if (this._healthIndicatorTween && this._healthIndicatorTween.isRunning) {
 				this._healthIndicatorTween.stop();
-				this._healthIndicatorGroup.y = 0;
+				this._healthBounceOffset = 0;
 			}
 		}
 	}

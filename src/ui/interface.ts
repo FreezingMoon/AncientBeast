@@ -2711,7 +2711,7 @@ export class UI {
 			const otherCreatures = creatures.filter((c) => c.id !== placeholderCreature.id);
 
 			otherCreatures.forEach((c) => {
-				c.xray(true);
+				c.xray(true, creature);
 				c.hexagons.forEach((hex) => {
 					hex.cleanOverlayVisualState();
 				});

@@ -441,6 +441,10 @@ export default class Game {
 				this.maybeSetup();
 			}, 100);
 		}
+		// Reapply xray so obstructing units are ghosted without needing cursor movement
+		if (this.grid?.lastXrayHex) {
+			this.grid.xray(this.grid.lastXrayHex);
+		}
 	}
 
 	// If no red flags, remove the loading bar and begin rendering the game.
@@ -756,7 +760,7 @@ export default class Game {
 	nextCreature() {
 		this.UI.closeDash();
 		this.UI.btnToggleDash.changeState('normal');
-		this.grid.xray(new Hex(-1, -1, null, this)); // Clear Xray
+		this.grid.clearAllXray(); // Clear Xray without re-triggering ghostOverlap
 
 		if (this.gameState == 'ended') {
 			return;

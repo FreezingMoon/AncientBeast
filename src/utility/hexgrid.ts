@@ -126,6 +126,11 @@ export class HexGrid {
 	 */
 	hoveredCreature: Creature | null = null;
 
+	/**
+	 * Last hex passed to xray(). Used to reapply the effect on tab focus.
+	 */
+	lastXrayHex: Hex | null = null;
+
 	display: Phaser.Group;
 	gridGroup: Phaser.Group;
 	trapGroup: Phaser.Group;
@@ -135,6 +140,8 @@ export class HexGrid {
 	inputHexesGroup: Phaser.Group;
 	dropGroup: Phaser.Group;
 	creatureGroup: Phaser.Group;
+	// Health indicators rendered above all creature sprites so they are never occluded
+	healthIndicatorUiGroup: Phaser.Group;
 	trapOverGroup: Phaser.Group;
 	selectedHex: Hex;
 	_executionMode: boolean;
@@ -193,6 +200,8 @@ export class HexGrid {
 		this.overlayHexesGroup = game.Phaser.add.group(this.gridGroup, 'overlayHexesGroup');
 		this.dropGroup = game.Phaser.add.group(this.display, 'dropGrp');
 		this.creatureGroup = game.Phaser.add.group(this.display, 'creaturesGrp');
+		// Health indicators sit above all creature sprites so they're never occluded
+		this.healthIndicatorUiGroup = game.Phaser.add.group(this.display, 'healthIndicatorUiGrp');
 		// Parts of traps displayed over creatures
 		this.trapOverGroup = game.Phaser.add.group(this.display, 'trapOverGrp');
 		this.trapOverGroup.scale.set(1, 0.75);
@@ -802,6 +811,25 @@ export class HexGrid {
 
 		o.hexes = extended;
 
+		// Xray: make obstructors of all valid ability targets semi-transparent so
+		// the player can see every targetable unit clearly before hovering.
+		const abilityActiveCreature = this.game.activeCreature;
+		const seenTargets = new Set<Creature>();
+		o.hexes.forEach((hex) => {
+			const c = hex.creature;
+			if (c instanceof Creature && c !== abilityActiveCreature && !seenTargets.has(c)) {
+				seenTargets.add(c);
+				c.hexagons.forEach((h) => h.ghostOverlap(c));
+				c.xray(false); // target itself must remain fully opaque
+			}
+		});
+
+		// Active creature (attacker) must never be xrayed — ghostOverlap for a
+		// target's hexes can pick it up as a same-row or adjacent-row candidate.
+		if (abilityActiveCreature instanceof Creature) {
+			abilityActiveCreature.xray(false);
+		}
+
 		this.queryHexes({
 			fnOnConfirm: (hex, args) => {
 				const { creature } = hex;
@@ -1312,6 +1340,7 @@ export class HexGrid {
 	 * If hex contain creature call ghostOverlap for each creature hexes
 	 */
 	xray(hex: Hex) {
+		this.lastXrayHex = hex;
 		// Clear previous ghost
 		this.game.creatures.forEach((creature) => {
 			if (creature instanceof Creature) {
@@ -1319,12 +1348,35 @@ export class HexGrid {
 			}
 		});
 
-		if (hex.creature instanceof Creature) {
-			hex.creature.hexagons.forEach((item) => {
-				item.ghostOverlap();
+		// Always ghost creatures that obstruct the active creature's view
+		const { activeCreature } = this.game;
+		if (activeCreature instanceof Creature) {
+			activeCreature.hexagons.forEach((item) => {
+				item.ghostOverlap(activeCreature);
 			});
+		}
+
+		// Also ghost creatures that obstruct the hovered hex/creature
+		if (hex.creature instanceof Creature) {
+			if (hex.creature !== activeCreature) {
+				hex.creature.hexagons.forEach((item) => {
+					item.ghostOverlap(hex.creature as Creature);
+				});
+			}
 		} else {
 			hex.ghostOverlap();
+		}
+
+		// Hovered creatures should never appear x-rayed — restore them fully opaque.
+		if (hex.creature instanceof Creature) {
+			hex.creature.xray(false);
+		}
+
+		// Active creature should never appear x-rayed either — ghostOverlap called
+		// for the hovered creature's hexes can pick up the active creature as a
+		// same-row or adjacent-row candidate.
+		if (activeCreature instanceof Creature) {
+			activeCreature.xray(false);
 		}
 	}
 
@@ -1675,6 +1727,32 @@ export class HexGrid {
 				this.creatureGroup.addAt(this.materialize_overlay, index++);
 			}
 		}
+	}
+
+	/**
+	 * Immediately removes all xray effects without re-applying ghostOverlap for
+	 * any creature. Use this at turn boundaries so the old active creature's
+	 * obstructors fade to zero cleanly before the next unit's ghostOverlap runs.
+	 */
+	clearAllXray() {
+		this.lastXrayHex = null;
+		this.game.creatures.forEach((c) => {
+			if (c instanceof Creature) c.xray(false);
+		});
+	}
+
+	/**
+	 * Re-evaluate which creatures visually obstruct the active creature and
+	 * update their xray state accordingly. Called after every hex step during
+	 * movement so the effect stays correct as the unit changes rows.
+	 */
+	refreshActiveCreatureXray() {
+		const { activeCreature } = this.game;
+		if (!(activeCreature instanceof Creature)) return;
+		this.game.creatures.forEach((c) => {
+			if (c instanceof Creature) c.xray(false);
+		});
+		activeCreature.hexagons.forEach((h) => h.ghostOverlap(activeCreature));
 	}
 
 	//******************//
