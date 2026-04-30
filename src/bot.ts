@@ -507,6 +507,13 @@ export default class BotController {
 		const zoneWeight = Math.max(1, 10 - aggression);
 		score -= Math.abs(hex.x - preferredX) * zoneWeight;
 
+		// Trap avoidance: penalty scales with how injured the unit is.
+		// At full health: light deterrent (-80). Near death: heavy deterrent (-350).
+		if (hex.trap) {
+			const healthRatio = activeCreature.health / activeCreature.stats.health;
+			score -= Math.round(80 + (1 - healthRatio) * 270);
+		}
+
 		return score;
 	}
 
@@ -631,6 +638,11 @@ export default class BotController {
 		const nearestDrop = this.closestDistanceToDrop(hex);
 		if (nearestDrop < Number.POSITIVE_INFINITY) {
 			score += Math.max(0, 10 - nearestDrop) * 20;
+		}
+
+		// Retreating units are already injured — strongly avoid traps.
+		if (hex.trap) {
+			score -= 350;
 		}
 
 		return score;
