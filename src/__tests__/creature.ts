@@ -265,6 +265,8 @@ const getGameMock = () => {
 			orderCreatureZ: jest.fn(),
 			hexes: getHexesMock(),
 			getMovementRange: jest.fn(() => []),
+			refreshActiveCreatureXray: jest.fn(),
+			healthIndicatorUiGroup: { add: jest.fn(), remove: jest.fn() },
 		},
 		Phaser: getPhaserMock(),
 		retrieveCreatureStats: (type: number) => {
@@ -313,6 +315,10 @@ const getPhaserMock = () => {
 	self.text = () => self;
 	self.to = () => self;
 	self.tween = () => self;
+	self.yoyo = () => self;
+	self.repeat = () => self;
+	self.onUpdateCallback = () => self;
+	self.update = jest.fn();
 	self.anchor = self;
 	self.data = {};
 	self.onComplete = self;
@@ -332,7 +338,7 @@ const getPhaserMock = () => {
 beforeAll(() => {
 	Object.defineProperty(window, 'Phaser', {
 		get() {
-			return { Easing: { Linear: { None: 1 } } };
+			return { Easing: { Linear: { None: 1 }, Quadratic: { InOut: jest.fn((t) => t) } } };
 		},
 	});
 
