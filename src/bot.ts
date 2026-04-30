@@ -207,8 +207,14 @@ export default class BotController {
 		this.decisionCount += 1;
 
 		// Low health / energy creatures flee first
-		if (!this.moveAttempted && this.isRetreating(activeCreature) && this.tryMove()) {
-			return;
+		if (!this.moveAttempted && this.isRetreating(activeCreature)) {
+			// Prefer a movement ability to avoid traps when retreating
+			if (this.bestMovePathCrossesOrLandsOnTrap() && this.tryMovementAbility()) {
+				return;
+			}
+			if (this.tryMove()) {
+				return;
+			}
 		}
 
 		if (this.tryUseOffensiveAbility()) {
@@ -219,8 +225,15 @@ export default class BotController {
 			return;
 		}
 
-		if (!this.moveAttempted && this.tryMove()) {
-			return;
+		if (!this.moveAttempted) {
+			// If the best walking path would cross or land on a trap, use a movement
+			// ability (teleport / flying) to bypass it if one is available.
+			if (this.bestMovePathCrossesOrLandsOnTrap() && this.tryMovementAbility()) {
+				return;
+			}
+			if (this.tryMove()) {
+				return;
+			}
 		}
 
 		if (this.tryUseOffensiveAbility()) {
@@ -684,5 +697,71 @@ export default class BotController {
 		});
 
 		return shortestDistance;
+	}
+
+	/**
+	 * Returns true when the best move the creature could make via normal walking
+	 * either lands on a trap hex or requires crossing a trap along the path.
+	 * Used as the trigger condition for `tryMovementAbility`.
+	 */
+	bestMovePathCrossesOrLandsOnTrap(): boolean {
+		const creature = this.game.activeCreature;
+		if (!creature) return false;
+
+		const hexes = this.game.grid.findCreatureMovementHexes(creature);
+		const candidates = hexes.filter((h) => !(h.x === creature.x && h.y === creature.y));
+		if (candidates.length === 0) return false;
+
+		const best = this.pickBestHex(candidates, (hex) => this.scoreMoveHex(hex));
+		if (!best) return false;
+
+		// Landing on a trap is bad regardless of movement type
+		if (best.trap) return true;
+
+		// Check intermediate hexes along the walk path
+		try {
+			const path = creature.calculatePath({ x: best.x, y: best.y });
+			return path.some((h) => h.trap);
+		} catch {
+			return false;
+		}
+	}
+
+	/**
+	 * Try to use an ability flagged as `isMovementAbility` (teleport, flying dash, etc.)
+	 * to reposition the creature while bypassing trap hexes.
+	 * Returns true if an ability was triggered.
+	 */
+	tryMovementAbility(): boolean {
+		const creature = this.game.activeCreature;
+		if (!creature) return false;
+
+		const strategy = this.getStrategyFor(creature);
+		const abilityOrder =
+			strategy?.getAbilityPriority?.(creature, this) ?? creature.abilities.map((_, i) => i);
+
+		for (const i of abilityOrder) {
+			const ability = creature.abilities[i];
+			if (
+				!ability ||
+				!ability.isMovementAbility ||
+				this.failedAbilityIds.has(i) ||
+				ability.getTrigger() !== 'onQuery' ||
+				ability.used ||
+				typeof ability.require !== 'function'
+			) {
+				continue;
+			}
+			try {
+				if (!ability.require()) continue;
+			} catch {
+				continue;
+			}
+			this.pendingAction = { type: 'ability', abilityIndex: i };
+			ability.use();
+			return true;
+		}
+
+		return false;
 	}
 }

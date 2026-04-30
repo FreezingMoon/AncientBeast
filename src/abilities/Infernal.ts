@@ -243,6 +243,8 @@ export default (G) => {
 			//	Type : Can be "onQuery","onStartPhase","onDamage"
 			trigger: 'onQuery',
 
+			isMovementAbility: true,
+
 			directions: [0, 1, 0, 0, 1, 0],
 			_targetTeam: Team.Enemy,
 

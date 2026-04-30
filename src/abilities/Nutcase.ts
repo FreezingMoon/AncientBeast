@@ -282,6 +282,8 @@ export default (G: Game) => {
 		{
 			trigger: 'onQuery',
 
+			isMovementAbility: true,
+
 			// Inline forwards/backwards.
 			_directions: [0, 1, 0, 0, 1, 0],
 			_targetTeam: Team.Enemy,
@@ -538,6 +540,8 @@ export default (G: Game) => {
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
+
+			isMovementAbility: true,
 
 			_targetTeam: Team.Enemy,
 

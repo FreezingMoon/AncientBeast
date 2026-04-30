@@ -181,6 +181,8 @@ export default (G: Game) => {
 			// Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 
+			isMovementAbility: true,
+
 			require: function () {
 				// Must be able to move
 				if (!this.creature.stats.moveable) {

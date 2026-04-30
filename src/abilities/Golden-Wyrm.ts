@@ -202,6 +202,8 @@ export default (G: Game) => {
 		{
 			trigger: 'onQuery',
 
+			isMovementAbility: true,
+
 			require: function () {
 				if (!this.testRequirements()) {
 					return false;
