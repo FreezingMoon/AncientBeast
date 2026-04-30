@@ -2,7 +2,6 @@ import * as $j from 'jquery';
 import * as str from '../utility/string';
 import { PRIMARY_STATS, MASTERY_STATS } from '../utility/const';
 import { Creature } from '../creature';
-import { throttle } from 'underscore';
 import Game from '../game';
 
 type Message = {
@@ -79,7 +78,7 @@ export class Chat {
 	 * @param {string} message Event name.
 	 * @param {object} payload Event payload.
 	 */
-	_handleUiEvent(message: string, payload) {
+	_handleUiEvent(message: string, _payload) {
 		if (
 			message === 'toggleDash' ||
 			message === 'toggleScore' ||

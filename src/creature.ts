@@ -11,7 +11,7 @@ import { Player, PlayerID } from './player';
 import { Damage, DamageResult } from './damage';
 import { AugmentedMatrix } from './utility/matrices';
 import { Trap } from './utility/trap';
-import { HEX_WIDTH_PX, hashOffsetCoords, offsetCoordsToPx, offsetNeighbors } from './utility/const';
+import { HEX_WIDTH_PX, hashOffsetCoords, offsetNeighbors } from './utility/const';
 import { CreatureType, Level, Realm, Unit, UnitName } from './data/types';
 import { UnitDisplayInfo, UnitSize } from './data/units';
 
@@ -64,7 +64,9 @@ type QueryMoveOptions = Partial<{
 	isAbility: boolean;
 	ownCreatureHexShade: boolean;
 	range: Hex[];
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	callback: (hex: Hex, args: any) => void;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	args: any;
 }>;
 
@@ -140,7 +142,7 @@ export class Creature {
 	killer: Player;
 	hasWait: boolean;
 	travelDist: number;
-	effects: Array<any>;
+	effects: Array<Effect>;
 	dropCollection: Drop[];
 	protectedFromFatigue: boolean;
 	turnsActive: number;
@@ -392,10 +394,6 @@ export class Creature {
 	 */
 	summon(disableMaterializationSickness = false) {
 		const game = this.game;
-
-		/* Without Sickness the creature should act in the current turn, except the dark
-		priest who must always be in the next queue to properly start the game. */
-		const alsoAddToCurrentQueue = disableMaterializationSickness && !this.isDarkPriest();
 
 		if (disableMaterializationSickness) {
 			this.materializationSickness = false;
@@ -791,8 +789,10 @@ export class Creature {
 			},
 			// Overwrite any fields of `defaultOptions` that were provided in `options`
 			o =
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				typeof ($j as any)?.extend === 'function'
-					? ($j as any).extend(defaultOptions, options)
+					? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+					  ($j as any).extend(defaultOptions, options)
 					: { ...defaultOptions, ...(options || {}) };
 
 		if (!o.isAbility) {
@@ -801,8 +801,10 @@ export class Creature {
 			}
 
 			// In test environments jQuery might not be initialized; guard DOM ops
-			if (typeof ($j as any) === 'function') {
-				($j as any)('#abilities .ability').removeClass('active');
+			if (typeof ($j as unknown as { [key: string]: unknown }) === 'function') {
+				($j as unknown as (selector: string) => { removeClass: (cls: string) => void })(
+					'#abilities .ability',
+				).removeClass('active');
 			}
 			if (game.UI?.selectAbility) {
 				game.UI.selectAbility(-1);
@@ -849,11 +851,12 @@ export class Creature {
 
 				buttonElement.addClass('bounce');
 				// In unit tests or headless environments, grid query APIs may be absent
-				if (typeof (game.grid as any)?.querySelf === 'function') {
+				if (typeof (game.grid as unknown as { querySelf?: unknown })?.querySelf === 'function') {
 					game.grid.querySelf({
 						fnOnConfirm: function () {
 							game.UI.btnSkipTurn.click();
 						},
+						// eslint-disable-next-line @typescript-eslint/no-empty-function
 						fnOnCancel: function () {},
 						confirmText: 'Skip turn',
 					});
@@ -867,6 +870,7 @@ export class Creature {
 			}
 		} else {
 			// In unit tests or headless environments, guard against missing queryHexes()
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			if (typeof (game.grid as any)?.queryHexes === 'function') {
 				game.grid.queryHexes({
 					fnOnSelect: select,
@@ -1094,7 +1098,7 @@ export class Creature {
 			return; // Break if empty path
 		}
 
-		path.forEach((item: { x: any; y: any }) => {
+		path.forEach((item: { x: number; y: number }) => {
 			this.tracePosition({
 				x: item.x,
 				y: item.y,
@@ -1104,7 +1108,7 @@ export class Creature {
 		}); // Trace path
 
 		// Highlight final position
-		const last: any = arrayUtils.last(path);
+		const last = arrayUtils.last(path) as { x: number; y: number };
 
 		const creature = this.game.retrieveCreatureStats(this.game.activeCreature.type);
 		this.game.grid.previewCreature(last, creature, this.game.activePlayer);
@@ -1614,7 +1618,8 @@ export class Creature {
 
 				// Boolean Buff/Debuff
 				if (typeof value == 'boolean') {
-					this.stats[key] = value;
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					(this.stats as any)[key] = value;
 				}
 			});
 		});
@@ -1655,12 +1660,11 @@ export class Creature {
 			// If the goo trap is destroyed while Gumble is in BRB state (e.g. another
 			// trap overwrites it), Gumble dies immediately with full score/queue update.
 			// The destroyer (the creature whose trap caused the overwrite) becomes the killer.
-			const brbSelf = this;
-			this._brbState.gooTrap.onDestroyFn = function (destroyer?: Creature) {
-				if (!brbSelf._brbState) return; // already resolved (revived or died)
-				const savedState = brbSelf._brbState;
-				brbSelf._brbState = null;
-				brbSelf.die(destroyer ?? savedState.killer);
+			this._brbState.gooTrap.onDestroyFn = (destroyer?: Creature) => {
+				if (!this._brbState) return; // already resolved (revived or died)
+				const savedState = this._brbState;
+				this._brbState = null;
+				this.die(destroyer ?? savedState.killer);
 			};
 
 			// Clear the hex first so the trap spot is immediately walkable
@@ -2078,33 +2082,32 @@ class CreatureSprite {
 		// every step AFTER tweens have run, which is exactly when we need to redraw
 		// the xray BitmapData so the cutout tracks movement smoothly.
 		const _groupUpdate = this._group.update.bind(this._group);
-		const self = this;
 		const XRAY_FADE_RATE = 0.08; // ~160 ms fade at 60 fps
-		this._group.update = function () {
+		this._group.update = () => {
 			_groupUpdate();
 			// Animate xray alpha toward target
-			if (self._xrayAlpha < self._xrayTargetAlpha) {
-				self._xrayAlpha = Math.min(self._xrayTargetAlpha, self._xrayAlpha + XRAY_FADE_RATE);
-			} else if (self._xrayAlpha > self._xrayTargetAlpha) {
-				self._xrayAlpha = Math.max(self._xrayTargetAlpha, self._xrayAlpha - XRAY_FADE_RATE);
+			if (this._xrayAlpha < this._xrayTargetAlpha) {
+				this._xrayAlpha = Math.min(this._xrayTargetAlpha, this._xrayAlpha + XRAY_FADE_RATE);
+			} else if (this._xrayAlpha > this._xrayTargetAlpha) {
+				this._xrayAlpha = Math.max(this._xrayTargetAlpha, this._xrayAlpha - XRAY_FADE_RATE);
 			}
 			// Sync health indicator world position when it lives in the elevated UI group
-			if (self._healthInUiGroup) {
-				self._healthIndicatorGroup.x = self._group.x;
-				self._healthIndicatorGroup.y = self._group.y + self._healthBounceOffset;
+			if (this._healthInUiGroup) {
+				this._healthIndicatorGroup.x = this._group.x;
+				this._healthIndicatorGroup.y = this._group.y + this._healthBounceOffset;
 			}
 			// Fade health indicator group in sync with the xray sprite effect.
 			// The health group is a separate Phaser object rendered on top of the
 			// sprite, so sprite BitmapData tricks can't hide it — we must set its
 			// alpha directly so the reference creature's badge shows through.
-			const hiAlpha = 1.0 - (1.0 - 0.2) * self._xrayAlpha;
-			self._healthIndicatorGroup.alpha = hiAlpha;
-			if (self._xrayBmd && self._xrayRefCreatures.length > 0) {
-				if (self._xrayAlpha <= 0 && self._xrayTargetAlpha === 0) {
+			const hiAlpha = 1.0 - (1.0 - 0.2) * this._xrayAlpha;
+			this._healthIndicatorGroup.alpha = hiAlpha;
+			if (this._xrayBmd && this._xrayRefCreatures.length > 0) {
+				if (this._xrayAlpha <= 0 && this._xrayTargetAlpha === 0) {
 					// Fade-out complete — restore original texture
-					self._finalizeXrayOff();
+					this._finalizeXrayOff();
 				} else {
-					self._drawXrayBmd(self._xrayRefCreatures, self._xrayBmd);
+					this._drawXrayBmd(this._xrayRefCreatures, this._xrayBmd);
 				}
 			}
 		};
@@ -2131,8 +2134,8 @@ class CreatureSprite {
 	}
 
 	private _promisifyTween(
-		target: any,
-		tweenProperties: any,
+		target: object,
+		tweenProperties: Record<string, number>,
 		durationMS = 1000,
 		easing = Phaser.Easing.Linear.None,
 	): Promise<CreatureSprite> {
@@ -2302,7 +2305,9 @@ class CreatureSprite {
 		dw: number,
 		dh: number,
 	) {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const texture: any = sprite.texture as any;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const frame: any = texture.crop || texture.frame || { x: 0, y: 0, width: dw, height: dh };
 		const sx = typeof frame.x === 'number' ? frame.x : 0;
 		const sy = typeof frame.y === 'number' ? frame.y : 0;
@@ -2329,15 +2334,15 @@ class CreatureSprite {
 		const oLeft = oGroup.x + oSprite.x - otw / 2;
 		const oTop = oGroup.y + oSprite.y - oth;
 
-		const oSrc = this._xrayOriginalSrc!;
+		const oSrc = this._xrayOriginalSrc as CanvasImageSource;
 		const ctx = bmd.context;
-		const scratch = this._xrayScratch!;
-		const sctx = scratch.getContext('2d')!;
+		const scratch = this._xrayScratch as HTMLCanvasElement;
+		const sctx = scratch.getContext('2d') as CanvasRenderingContext2D;
 
 		// Build a union mask on scratch2: all ref creature shapes OR'd together
 		// We keep a second scratch for the union mask (reuse _xrayScratch2).
-		const mask = this._xrayMask!;
-		const mctx = mask.getContext('2d')!;
+		const mask = this._xrayMask as HTMLCanvasElement;
+		const mctx = mask.getContext('2d') as CanvasRenderingContext2D;
 		mctx.clearRect(0, 0, otw, oth);
 
 		for (const refCreature of refCreatures) {
@@ -2395,12 +2400,14 @@ class CreatureSprite {
 
 	setHealth(number: number, type: HealthBubbleType) {
 		// Support both Phaser Text API and test doubles without setText()
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const textObj: any = (this as any)._healthIndicatorText;
 		if (textObj && typeof textObj.setText === 'function') {
 			textObj.setText(number + '');
 		} else if (textObj) {
 			textObj.text = number + '';
 		}
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const spriteObj: any = (this as any)._healthIndicatorSprite;
 		if (spriteObj && typeof spriteObj.loadTexture === 'function') {
 			spriteObj.loadTexture(`p${this._creatureTeam}_${type}`);

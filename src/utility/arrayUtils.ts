@@ -214,6 +214,6 @@ export function extendToRight(hexes: Hex[], size: number, grid: HexGrid) {
  * @param arr
  * @returns Last element of the array.
  */
-export function last<T extends any[]>(arr: T): T[number] {
+export function last<T extends unknown[]>(arr: T): T[number] {
 	return arr[arr.length - 1];
 }

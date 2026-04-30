@@ -40,8 +40,8 @@ export class SoundSys {
 		this.musicPlayer = new MusicPlayer();
 
 		if (this.envHasSound) {
-			this.context = new (AudioContext || (window as any).webkitAudioContext)();
-
+			this.context = new (AudioContext ||
+				(window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
 			this.musicGainNode = this.context.createGain();
 			this.musicGainNode.connect(this.context.destination);
 			if ('musicVolume' in config) {
@@ -200,7 +200,7 @@ export function isNullAudioBufferSourcNode(o: any) {
 	return o instanceof NullAudioBufferSourceNode;
 }
 
-type SoundSysAudioBufferSourceNode = AudioBufferSourceNode | NullAudioBufferSourceNode;
+export type SoundSysAudioBufferSourceNode = AudioBufferSourceNode | NullAudioBufferSourceNode;
 
 export function setAudioMode(mode, soundSysInstance, uiInstance) {
 	currentAudioMode = mode;
@@ -228,7 +228,10 @@ export function setAudioMode(mode, soundSysInstance, uiInstance) {
 		uiInstance.updateAudioIcon(mode);
 	}
 }
-export function cycleAudioMode(soundSysInstance: SoundSys, uiInstance?: any): AudioMode {
+export function cycleAudioMode(
+	soundSysInstance: SoundSys,
+	uiInstance?: { updateAudioIcon: (mode: AudioMode) => void },
+): AudioMode {
 	let newMode: AudioMode;
 
 	if (currentAudioMode === 'full') {

@@ -116,7 +116,7 @@ function pathHasTrap(
 // Per-ability scorers
 // ---------------------------------------------------------------------------
 
-function scoreFreezingSpit(hex: Hex, activeCreature: Creature, controller: BotController): number {
+function scoreFreezingSpit(hex: Hex, activeCreature: Creature, _controller: BotController): number {
 	const target = hex.creature;
 	if (!(target instanceof Creature) || !isTeam(activeCreature, target, Team.Enemy)) {
 		return Number.NEGATIVE_INFINITY;

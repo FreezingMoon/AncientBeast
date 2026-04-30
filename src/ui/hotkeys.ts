@@ -170,7 +170,7 @@ export class Hotkeys {
 		this.ui.game.signals.ui.dispatch('closeInterfaceScreens');
 	}
 
-	pressShiftKeyDown(event) {
+	pressShiftKeyDown(_event) {
 		if (!this.ui.dashopen) {
 			this.ui.brandlogo.alpha = 1;
 			this.ui.game.grid.showGrid(true);

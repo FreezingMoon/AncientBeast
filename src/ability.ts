@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as $j from 'jquery';
 import { Damage, DamageResult } from './damage';
 import { Direction, Hex } from './utility/hex';
@@ -133,9 +134,9 @@ export class Ability {
 	_confirmTarget: (c: Creature) => boolean;
 	_damaged: boolean;
 	_executeHealthThreshold: number;
-	_highlightDestination: (...args: any) => void;
+	_highlightDestination: (...args: any[]) => void;
 	_getDirections: () => number[];
-	_activateOnAttacker: (...arg: any) => boolean;
+	_activateOnAttacker: (...arg: any[]) => boolean;
 	_activateOnTarget: (t: Creature) => void;
 	_pushMove: (destination: Hex, target: Creature, targetDestination: Hex) => void;
 	_maxPushDistance: number;

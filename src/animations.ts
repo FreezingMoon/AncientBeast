@@ -58,8 +58,6 @@ export class Animations {
 			speed = DEBUG_WALK_SPEED_MS;
 		}
 
-		const that = this;
-
 		const anim = () => {
 			const hex = path[hexId];
 
@@ -221,14 +219,9 @@ export class Animations {
 
 	leaveHex(creature: Creature, hex: Hex, opts: AnimationOptions) {
 		const game = this.game;
-		let ignoringFaceUpdate;
 
-		if (opts.ignoreFacing) {
-			ignoringFaceUpdate = true;
-		} else {
-			if (!opts.pushed) {
-				creature.faceHex(hex, creature.hexagons[0], false, false); // Determine facing
-			}
+		if (!opts.ignoreFacing && !opts.pushed) {
+			creature.faceHex(hex, creature.hexagons[0], false, false); // Determine facing
 		}
 		// @ts-expect-error 2554
 		game.onStepOut(creature, creature.hexagons[0]); // Trigger
@@ -250,7 +243,7 @@ export class Animations {
 		// TODO: Reveal health indicator
 		creature.healthShow();
 
-		creature.hexagons.forEach((h) => {
+		creature.hexagons.forEach(() => {
 			creature.pickupDrop();
 		});
 

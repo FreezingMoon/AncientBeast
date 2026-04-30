@@ -43,11 +43,3 @@ export class Fullscreen {
 		}
 	}
 }
-
-function isAppInNativeFullscreenMode(): boolean {
-	return !!(
-		document.fullscreenElement ||
-		(document as Document & { webkitFullscreenElement?: Element }).webkitFullscreenElement ||
-		(document as Document & { mozFullScreenElement?: Element }).mozFullScreenElement
-	);
-}

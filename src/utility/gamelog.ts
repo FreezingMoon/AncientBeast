@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as version from './version';
 import { throttle } from 'underscore';
 
@@ -7,7 +8,7 @@ export class SerializableLog {
 	actions: any[];
 	version: string;
 	date: Date;
-	custom: any;
+	custom: Record<string, any>;
 
 	constructor(actions) {
 		this.actions = actions;
@@ -48,7 +49,8 @@ export class GameLog {
 	onLoad: (log: SerializableLog) => void;
 	actions: any[];
 
-	constructor(onSave = (log: SerializableLog) => {}, onLoad = (log: SerializableLog) => {}) {
+	// eslint-disable-next-line @typescript-eslint/no-empty-function
+	constructor(onSave = (_log: SerializableLog) => {}, onLoad = (_log: SerializableLog) => {}) {
 		this.onSave = onSave;
 		this.onLoad = onLoad;
 		this.actions = [];
@@ -101,9 +103,12 @@ export class GameLog {
 	}
 }
 
-const throttledSaveFile = throttle((data: any, filename: string) => saveFile(data, filename), 1000);
+const throttledSaveFile = throttle(
+	(data: string, filename: string) => saveFile(data, filename),
+	1000,
+);
 
-const saveFile = (data: any, fileName: string) => {
+const saveFile = (data: string, fileName: string) => {
 	// Set a trap to block consecutive calls within one second
 	const a = document.createElement('a');
 	const file = new Blob([data]);

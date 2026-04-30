@@ -1,6 +1,5 @@
 import { Creature } from './creature';
 import Game from './game';
-import { HEX_HEIGHT_PX, HEX_WIDTH_PX, offsetCoordsToPx } from './utility/const';
 import { Point, getPointFacade } from './utility/pointfacade';
 
 /**

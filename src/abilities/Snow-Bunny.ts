@@ -1,4 +1,3 @@
-import * as $j from 'jquery';
 import { Damage } from '../damage';
 import { Team, isTeam } from '../utility/team';
 import * as matrices from '../utility/matrices';
@@ -519,7 +518,7 @@ export default (G: Game) => {
 				const emptyHexDist = arrayUtils.filterCreature(path.slice(0), false, false).length;
 
 				sprite.alpha = 0.4;
-				const fadeTween = G.Phaser.add
+				G.Phaser.add
 					.tween(sprite)
 					.to({ alpha: 1 }, tween.duration, Phaser.Easing.Linear.None, true);
 

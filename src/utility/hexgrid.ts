@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as $j from 'jquery';
 import { Direction, Hex } from './hex';
 import { Creature } from '../creature';
@@ -148,8 +149,8 @@ export class HexGrid {
 	materialize_overlay: any;
 	secondary_overlay: any;
 	lastQueryOpt: any;
-	_flickerTween: any;
-	_flickerTweenSecondary: any;
+	_flickerTween: Phaser.Tween | undefined;
+	_flickerTweenSecondary: Phaser.Tween | undefined;
 
 	get allhexes(): Hex[] {
 		return this.hexes.flat(1);
@@ -250,7 +251,7 @@ export class HexGrid {
 		}
 	}
 
-	handleUIEvent(message, payload) {
+	handleUIEvent(message, _payload) {
 		if (message === 'onOpenDash' || message === 'onCloseDash') {
 			// When the dash opens or closes, creatures can remain in a "hovered" state
 			// (e.g. bounce animation stuck). Reset all bounces to ensure a clean state.

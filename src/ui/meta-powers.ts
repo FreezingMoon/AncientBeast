@@ -62,7 +62,7 @@ export class MetaPowers {
 	 * @param {string} message Event name
 	 * @param {object} payload Event payload
 	 */
-	_handleUiEvent(message: string, payload: object) {
+	_handleUiEvent(message: string, _payload: object) {
 		if (message === 'toggleMetaPowers') {
 			this._toggleModal();
 		}

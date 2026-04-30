@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as $j from 'jquery';
 
 type ProgressBarOptions = {
 	height: number;
 	width: number;
 	color: string;
-	$bar: any;
+	$bar: ReturnType<typeof $j> | undefined;
 };
 
 export class ProgressBar {

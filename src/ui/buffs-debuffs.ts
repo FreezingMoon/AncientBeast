@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import * as $j from 'jquery';
 import { Drop } from '../drop';
 
 type ModifierKind = 'buff' | 'debuff' | 'neutral';
@@ -5,6 +7,13 @@ type ModifierKind = 'buff' | 'debuff' | 'neutral';
 type ModifierSource = {
 	kind: ModifierKind;
 	text: string;
+};
+
+type CreatureLike = {
+	baseStats?: any;
+	effects: { name?: string; alterations?: any }[];
+	dropCollection: { name?: string; alterations?: any }[];
+	stats?: any;
 };
 
 function escapeHtml(text: string): string {
@@ -16,13 +25,20 @@ function escapeHtml(text: string): string {
 		.replaceAll("'", '&#39;');
 }
 
-function getBaseValue(creature: any, statKey: string, fallbackBaseValue: number): number {
+function getBaseValue(
+	creature: CreatureLike | null,
+	statKey: string,
+	fallbackBaseValue: number,
+): number {
 	const baseValue = creature?.baseStats?.[statKey];
 
 	return typeof baseValue === 'number' ? baseValue : fallbackBaseValue;
 }
 
-export function getBuffDebuffSources(creature: any, statKey: string): ModifierSource[] {
+export function getBuffDebuffSources(
+	creature: CreatureLike | null,
+	statKey: string,
+): ModifierSource[] {
 	if (!creature) {
 		return [];
 	}
@@ -63,7 +79,7 @@ export function getBuffDebuffSources(creature: any, statKey: string): ModifierSo
 }
 
 export function getStatWithBuffs(
-	creature: any,
+	creature: CreatureLike | null,
 	statKey: string,
 	fallbackBaseValue: number,
 ): {
@@ -99,7 +115,7 @@ export function getStatWithBuffs(
 }
 
 export function generateStatTooltip(
-	creature: any,
+	creature: CreatureLike | null,
 	statKey: string,
 	fallbackBaseValue: number,
 ): string {
@@ -129,8 +145,8 @@ export function generateStatTooltip(
 }
 
 export function applyBuffDebuffStyle(
-	$stat: any,
-	creature: any,
+	$stat: ReturnType<typeof $j>,
+	creature: CreatureLike | null,
 	statKey: string,
 	fallbackBaseValue: number,
 	isBrowsing = false,

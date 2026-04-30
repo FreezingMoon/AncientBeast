@@ -296,7 +296,6 @@ export class Player {
 	 * Remove all player's creature from the queue
 	 */
 	deactivate(): void {
-		let creature: Creature;
 		const game = this.game;
 
 		this.hasLost = true;

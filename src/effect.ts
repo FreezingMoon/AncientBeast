@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Creature } from './creature';
 import Game from './game';
 import { Hex } from './utility/hex';
@@ -26,8 +27,9 @@ export class Effect {
 	creationTurn: number;
 
 	// NOTE: These "optional arguments" generally set via "optArgs" in the constructor.
+	// eslint-disable-next-line @typescript-eslint/no-empty-function
 	effectFn: (effect?: Effect, creatureHexOrDamage?: EffectFnArg) => void = () => {};
-	requireFn: (arg?: any) => boolean = (arg?: any) => true;
+	requireFn: (_arg?: any) => boolean = (_arg?: any) => true;
 	alterations: { [key: string]: any } = {};
 	turnLifetime = 0;
 	deleteTrigger = 'onStartOfRound';

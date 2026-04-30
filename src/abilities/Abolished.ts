@@ -4,7 +4,6 @@ import { Creature } from '../creature';
 import { Effect } from '../effect';
 import * as arrayUtils from '../utility/arrayUtils';
 import { getPointFacade } from '../utility/pointfacade';
-import { isUndefined } from 'underscore';
 import Game from '../game';
 
 /** Creates the abilities
@@ -17,7 +16,7 @@ export default (G: Game) => {
 		{
 			trigger: 'onOtherDamage',
 
-			require(damage) {
+			require(_damage) {
 				if (!this.testRequirements()) {
 					return false;
 				}

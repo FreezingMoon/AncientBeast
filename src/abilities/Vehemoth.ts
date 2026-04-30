@@ -43,7 +43,6 @@ export default (G: Game) => {
 
 			//  activate() :
 			activate: function () {
-				const ability = this;
 				// Force Vehemoth to stay facing the right way
 				this.creature.facePlayerDefault();
 
@@ -447,8 +446,6 @@ export default (G: Game) => {
 			_targetTeam: Team.Enemy,
 
 			require: function () {
-				const vehemoth = this.creature;
-
 				if (!this.testRequirements()) {
 					return false;
 				}

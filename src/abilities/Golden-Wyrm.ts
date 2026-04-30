@@ -60,7 +60,7 @@ export default (G: Game) => {
 					hits.add(target.creature);
 				});
 				this.end(false, true);
-				hits.forEach((hit, _, set) => {
+				hits.forEach((hit) => {
 					hit.takeDamage(damage);
 				});
 				this.end(true, false);
@@ -267,7 +267,6 @@ export default (G: Game) => {
 			},
 
 			_addOffenseBuff() {
-				const wyrm = this.creature;
 				const ability = this;
 				const offenseBuffEffect = new Effect(
 					'Momentum',

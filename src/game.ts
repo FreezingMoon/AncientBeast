@@ -2,7 +2,7 @@ import * as $j from 'jquery';
 import { Animations } from './animations';
 import { CreatureQueue } from './creature_queue';
 import { GameLog } from './utility/gamelog';
-import { SoundSys } from './sound/soundsys';
+import { SoundSys, SoundSysAudioBufferSourceNode } from './sound/soundsys';
 import { Hex } from './utility/hex';
 import { HexGrid } from './utility/hexgrid';
 import { getUrl, use as assetsUse, soundPaths } from './assets';
@@ -115,21 +115,22 @@ export default class Game {
 	turnThrottle: boolean;
 	turn: number;
 	Phaser: Phaser;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	msg: any; // type this properly
 	triggers: Record<string, RegExp>;
-	signals: any;
+	signals: Record<string, Signal>;
 	botController: BotController;
 
 	// The optionals below are created by the various methods of `Game`, mainly by `setup` and `loadGame`
 
-	musicPlayer?: any;
-	soundsys?: any;
+	musicPlayer?: { audio: { pause: () => void } };
+	soundsys?: SoundSys;
 	fullscreenMode?: boolean;
 	background_image?: string;
 
 	gameMode?: number;
 
-	UI?: any;
+	UI?: UI;
 
 	trapId?: number;
 	effectId?: number;
@@ -147,7 +148,7 @@ export default class Game {
 	timePool?: number;
 	turnTimePool?: number;
 
-	endGameSound?: any;
+	endGameSound?: SoundSysAudioBufferSourceNode;
 	isAcceptingInput: () => boolean;
 	constructor() {
 		this.abilities = [];
@@ -323,6 +324,7 @@ export default class Game {
 		setupOpt: Partial<GameConfig>,
 		matchInitialized?: boolean,
 		matchid?: number,
+		// eslint-disable-next-line @typescript-eslint/no-empty-function
 		onLoadCompleteFn = () => {},
 	) {
 		// Need to remove keydown listener before new game start
@@ -357,7 +359,7 @@ export default class Game {
 
 		console.log('[DEBUG] Safe assets list:', assets);
 
-		assets.forEach((asset) => {
+		assets.forEach((_asset) => {
 			// safely process each asset here
 		});
 
@@ -508,7 +510,7 @@ export default class Game {
 		this.grid = new HexGrid({}, this); // Create Hexgrid
 		configurePointFacade({
 			getCreatures: () => this.creatures.filter(Boolean),
-			getCreaturePassablePoints: (creature) => [],
+			getCreaturePassablePoints: (_creature) => [],
 			getCreatureBlockedPoints: (creature) => {
 				if (creature.dead || creature.temp || creature._brbState !== null) {
 					return [];
@@ -522,10 +524,10 @@ export default class Game {
 			},
 			getTraps: () => this.traps,
 			getTrapPassablePoints: (trap: Trap) => [trap],
-			getTrapBlockedPoints: (trap) => [],
+			getTrapBlockedPoints: (_trap) => [],
 			getDrops: () => this.drops,
 			getDropPassablePoints: (drop) => [drop],
-			getDropBlockedPoints: (drop) => [],
+			getDropBlockedPoints: (_drop) => [],
 		});
 
 		this.startMatchTime = new Date();
@@ -900,6 +902,7 @@ export default class Game {
 
 		o = $j.extend(
 			{
+				// eslint-disable-next-line @typescript-eslint/no-empty-function
 				callback: function () {},
 				noTooltip: false,
 				tooltip: 'Skipped',
@@ -965,6 +968,7 @@ export default class Game {
 
 		o = $j.extend(
 			{
+				// eslint-disable-next-line @typescript-eslint/no-empty-function
 				callback: function () {},
 			},
 			o,
@@ -1503,6 +1507,7 @@ export default class Game {
 
 	action(o, opt) {
 		const defaultOpt = {
+			// eslint-disable-next-line @typescript-eslint/no-empty-function
 			callback: function () {},
 		};
 
@@ -1536,7 +1541,7 @@ export default class Game {
 
 				if (o.target.type == 'hex') {
 					args.unshift(this.grid.hexes[o.target.y][o.target.x]);
-					this.activeCreature.abilities[o.id].animation2({
+					ability.animation2({
 						callback: opt.callback,
 						arg: args,
 					});
@@ -1544,7 +1549,7 @@ export default class Game {
 
 				if (o.target.type == 'creature') {
 					args.unshift(this.creatures[o.target.crea]);
-					this.activeCreature.abilities[o.id].animation2({
+					ability.animation2({
 						callback: opt.callback,
 						arg: args,
 					});
@@ -1554,7 +1559,7 @@ export default class Game {
 					const array = o.target.array.map((item) => this.grid.hexes[item.y][item.x]);
 
 					args.unshift(array);
-					this.activeCreature.abilities[o.id].animation2({
+					ability.animation2({
 						callback: opt.callback,
 						arg: args,
 					});
@@ -1637,9 +1642,8 @@ export default class Game {
 
 		const actions = [...log.actions];
 		const numTotalActions = actions.length;
-		const game = this;
 		const configData = log.custom.configData;
-		game.configData = log.custom.configData ?? game.configData;
+		this.configData = log.custom.configData ?? this.configData;
 
 		const nextAction = () => {
 			if (actions.length === 0) {
@@ -1652,17 +1656,17 @@ export default class Game {
 			}
 
 			const interval = setInterval(() => {
-				if (!game.freezedInput && !game.turnThrottle) {
+				if (!this.freezedInput && !this.turnThrottle) {
 					clearInterval(interval);
-					game.activeCreature.queryMove();
-					game.action(actions.shift(), {
+					this.activeCreature.queryMove();
+					this.action(actions.shift(), {
 						callback: nextAction,
 					});
 				}
 			}, 100);
 		};
 
-		game.loadGame(configData, undefined, undefined, () => {
+		this.loadGame(configData, undefined, undefined, () => {
 			setTimeout(() => nextAction(), 3000);
 		});
 	}

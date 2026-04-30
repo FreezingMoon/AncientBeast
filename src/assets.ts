@@ -1,4 +1,3 @@
-import { DEBUG } from './debug';
 import {
 	phaserAutoloadAssetPaths,
 	assetPaths,
@@ -51,38 +50,6 @@ function getBasename(path: string): string {
 		i--;
 	}
 	return base.substring(0, i + 1);
-}
-
-function throwDuplicateBasenamesError() {
-	const entries = Object.entries(assetPaths ?? {})
-		.filter(([path]) => path.includes('/autoload/phaser/'))
-		.map(([path, asset]) => path);
-
-	const basenameToPaths: { [basename: string]: string[] } = {};
-
-	for (const fullPath of entries) {
-		const base = getBasename(fullPath);
-		if (!basenameToPaths[base]) {
-			basenameToPaths[base] = [fullPath];
-		} else {
-			basenameToPaths[base].push(fullPath);
-		}
-	}
-
-	const duplicates = Object.entries(basenameToPaths).filter(([_, list]) => list.length > 1);
-
-	if (duplicates.length > 0) {
-		console.error('⚠️ DUPLICATE BASENAMES FOUND:');
-		duplicates.forEach(([basename, paths]) => {
-			console.error(`→ ${basename}`);
-			paths.forEach((p) => console.error(`   ${p}`));
-		});
-
-		throw new Error(`[Ancient Beast]
-Some files under assets/autoload/phaser/ have the same basename.
-Basenames are used as keys by Phaser and must be unique.
-Please make each basename unique.`);
-	}
 }
 
 /**

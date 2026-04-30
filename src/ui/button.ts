@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as $j from 'jquery';
 
 export const ButtonStateEnum = {
@@ -54,18 +55,19 @@ type ButtonState = ValueOf<typeof ButtonStateEnum>;
 export class Button {
 	private isGameAcceptingInput: () => boolean;
 	state: ButtonState;
-	cssTransitionMeta: { transitionClass: any };
+	cssTransitionMeta: { transitionClass: string | null };
 	resolveCssTransition: null;
 	$button: any;
-	overridefreeze: any;
-	clickable: any;
-	hasShortcut: any;
-	touchX: any;
-	touchY: any;
-	css: any;
+	overridefreeze: boolean;
+	clickable: boolean;
+	hasShortcut: boolean;
+	touchX: number;
+	touchY: number;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	css: Record<string, Record<string, any>>;
 	resolveTransitionTask: null;
-	stateTransitionMeta: { transitionClass: any };
-	resolveCssTransitionTask: any;
+	stateTransitionMeta: { transitionClass: string | null };
+	resolveCssTransitionTask: ReturnType<typeof setTimeout> | null;
 	abilityId?: number;
 	click() {
 		throw new Error('Method not implemented.');
@@ -80,10 +82,15 @@ export class Button {
 		this.isGameAcceptingInput = configuration.isAcceptingInput;
 
 		const defaultOpts = {
+			// eslint-disable-next-line @typescript-eslint/no-empty-function
 			click: function () {},
+			// eslint-disable-next-line @typescript-eslint/no-empty-function
 			mouseover: function () {},
+			// eslint-disable-next-line @typescript-eslint/no-empty-function
 			mouseleave: function () {},
+			// eslint-disable-next-line @typescript-eslint/no-empty-function
 			touchstart: function () {},
+			// eslint-disable-next-line @typescript-eslint/no-empty-function
 			touchend: function () {},
 			touchX: 0,
 			touchY: 0,

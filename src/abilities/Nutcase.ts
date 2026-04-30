@@ -225,8 +225,6 @@ export default (G: Game) => {
 			},
 
 			_activateOnTarget: function (target) {
-				const ability = this;
-
 				// Target takes pierce damage if it ever moves
 				const effect = new Effect(
 					'Hammered', // Name

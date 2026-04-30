@@ -62,6 +62,7 @@ export default (G: Game) => {
 			},
 
 			//	activate() :
+			// eslint-disable-next-line @typescript-eslint/no-empty-function
 			activate: function () {},
 		},
 

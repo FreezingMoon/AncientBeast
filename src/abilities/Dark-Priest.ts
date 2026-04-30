@@ -4,7 +4,7 @@ import { Team } from '../utility/team';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Hex } from '../utility/hex';
 import { Creature } from '../creature';
-import { CreatureType, Unit } from '../data/types';
+import { CreatureType } from '../data/types';
 import Game from '../game';
 
 /** Creates the abilities

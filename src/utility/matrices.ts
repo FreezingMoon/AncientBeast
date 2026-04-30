@@ -3,7 +3,7 @@ type Matrix = number[][];
 export type AugmentedMatrix = number[][] & { origin: MatrixOrigin };
 
 const asAugmentedMatrix = (m: Matrix, origin: [number, number]) => {
-	(m as any).origin = origin;
+	(m as AugmentedMatrix).origin = origin;
 	return m as AugmentedMatrix;
 };
 

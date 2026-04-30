@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { jest, expect, describe, test } from '@jest/globals';
 
 // Mock heavy dependencies
@@ -19,6 +20,15 @@ jest.mock('../../utility/team', () => ({
 import DarkPriestStrategy from '../../bots/Dark-Priest';
 import { Creature } from '../../creature';
 import { Hex } from '../../utility/hex';
+
+const {
+	isRetreating,
+	getPreferredX,
+	scoreMoveHex,
+	scoreAbilityHex,
+	getAbilityPriority,
+	getTargetingPenalty,
+} = DarkPriestStrategy as Required<typeof DarkPriestStrategy>;
 
 // ---------------------------------------------------------------------------
 // Shared mock builders
@@ -93,12 +103,12 @@ const makeHex = ({
 const makeController = ({
 	activeCreature,
 	creatures = [] as (Creature & { team: number })[],
-	flipped = false,
+	_flipped = false,
 	isRetreatingFn = (_c: Creature) => false,
 }: {
 	activeCreature: Creature & { team: number };
 	creatures?: (Creature & { team: number })[];
-	flipped?: boolean;
+	_flipped?: boolean;
 	isRetreatingFn?: (c: Creature) => boolean;
 }) => ({
 	game: {
@@ -125,19 +135,19 @@ describe('DarkPriestStrategy.isRetreating', () => {
 	test('returns true at 24% health (below 25% threshold)', () => {
 		const priest = makeCreature({ health: 14, maxHealth: 60 }); // ~23.3%
 		const controller = makeController({ activeCreature: priest });
-		expect(DarkPriestStrategy.isRetreating!(priest, controller as any)).toBe(true);
+		expect(isRetreating(priest, controller as any)).toBe(true);
 	});
 
 	test('returns false at 26% health (above 25% threshold)', () => {
 		const priest = makeCreature({ health: 16, maxHealth: 60 }); // ~26.7%
 		const controller = makeController({ activeCreature: priest });
-		expect(DarkPriestStrategy.isRetreating!(priest, controller as any)).toBe(false);
+		expect(isRetreating(priest, controller as any)).toBe(false);
 	});
 
 	test('returns false at full health', () => {
 		const priest = makeCreature({ health: 60, maxHealth: 60 });
 		const controller = makeController({ activeCreature: priest });
-		expect(DarkPriestStrategy.isRetreating!(priest, controller as any)).toBe(false);
+		expect(isRetreating(priest, controller as any)).toBe(false);
 	});
 });
 
@@ -149,13 +159,13 @@ describe('DarkPriestStrategy.getPreferredX', () => {
 	test('returns ~5% from left edge for non-flipped player', () => {
 		const priest = makeCreature({ flipped: false });
 		const controller = makeController({ activeCreature: priest });
-		expect(DarkPriestStrategy.getPreferredX!(priest, controller as any)).toBeCloseTo(0.75); // 15 * 0.05
+		expect(getPreferredX(priest, controller as any)).toBeCloseTo(0.75); // 15 * 0.05
 	});
 
 	test('returns ~95% from left edge for flipped player', () => {
 		const priest = makeCreature({ flipped: true });
 		const controller = makeController({ activeCreature: priest });
-		expect(DarkPriestStrategy.getPreferredX!(priest, controller as any)).toBeCloseTo(14.25); // 15 * 0.95
+		expect(getPreferredX(priest, controller as any)).toBeCloseTo(14.25); // 15 * 0.95
 	});
 });
 
@@ -171,7 +181,7 @@ describe('DarkPriestStrategy.scoreMoveHex', () => {
 			isRetreatingFn: () => true,
 		});
 		const hex = makeHex({ x: 5, y: 3 });
-		expect(DarkPriestStrategy.scoreMoveHex!(hex, controller as any)).toBeUndefined();
+		expect(scoreMoveHex(hex, controller as any)).toBeUndefined();
 	});
 
 	test('heavily penalises hexes adjacent to enemies', () => {
@@ -185,8 +195,8 @@ describe('DarkPriestStrategy.scoreMoveHex', () => {
 		});
 		const controller = makeController({ activeCreature: priest });
 
-		const safeScore = DarkPriestStrategy.scoreMoveHex!(safeHex, controller as any) as number;
-		const dangerScore = DarkPriestStrategy.scoreMoveHex!(dangerHex, controller as any) as number;
+		const safeScore = scoreMoveHex(safeHex, controller as any) as number;
+		const dangerScore = scoreMoveHex(dangerHex, controller as any) as number;
 		// Net penalty is -300 (adjacent enemy) + corner-defence bonus (mock returns one hex so
 		// openCount=0, bonus=(6-0)*30=+180) = -120 effective drop.
 		expect(dangerScore).toBeLessThan(safeScore - 100);
@@ -203,8 +213,8 @@ describe('DarkPriestStrategy.scoreMoveHex', () => {
 		});
 		const controller = makeController({ activeCreature: priest, creatures: [ally] });
 
-		const openScore = DarkPriestStrategy.scoreMoveHex!(openHex, controller as any) as number;
-		const coveredScore = DarkPriestStrategy.scoreMoveHex!(coveredHex, controller as any) as number;
+		const openScore = scoreMoveHex(openHex, controller as any) as number;
+		const coveredScore = scoreMoveHex(coveredHex, controller as any) as number;
 		expect(coveredScore).toBeGreaterThan(openScore);
 	});
 
@@ -215,8 +225,8 @@ describe('DarkPriestStrategy.scoreMoveHex', () => {
 		const offLineHex = makeHex({ x: 3, y: 5, adjacentHex: () => [] });
 		const controller = makeController({ activeCreature: priest, creatures: [enemy] });
 
-		const inLineScore = DarkPriestStrategy.scoreMoveHex!(inLineHex, controller as any) as number;
-		const offLineScore = DarkPriestStrategy.scoreMoveHex!(offLineHex, controller as any) as number;
+		const inLineScore = scoreMoveHex(inLineHex, controller as any) as number;
+		const offLineScore = scoreMoveHex(offLineHex, controller as any) as number;
 		expect(inLineScore).toBeLessThan(offLineScore);
 	});
 
@@ -229,8 +239,8 @@ describe('DarkPriestStrategy.scoreMoveHex', () => {
 		const safeHex = makeHex({ x: 4, y: 5, adjacentHex: () => [] });
 		const controller = makeController({ activeCreature: priest, creatures: [enemy] });
 
-		const diagScore = DarkPriestStrategy.scoreMoveHex!(diagHex, controller as any) as number;
-		const safeScore = DarkPriestStrategy.scoreMoveHex!(safeHex, controller as any) as number;
+		const diagScore = scoreMoveHex(diagHex, controller as any) as number;
+		const safeScore = scoreMoveHex(safeHex, controller as any) as number;
 		expect(diagScore).toBeLessThan(safeScore);
 	});
 
@@ -240,8 +250,8 @@ describe('DarkPriestStrategy.scoreMoveHex', () => {
 
 		const homeHex = makeHex({ x: 1, y: 3, adjacentHex: () => [] });
 		const midHex = makeHex({ x: 8, y: 3, adjacentHex: () => [] });
-		const homeScore = DarkPriestStrategy.scoreMoveHex!(homeHex, controller as any) as number;
-		const midScore = DarkPriestStrategy.scoreMoveHex!(midHex, controller as any) as number;
+		const homeScore = scoreMoveHex(homeHex, controller as any) as number;
+		const midScore = scoreMoveHex(midHex, controller as any) as number;
 		expect(homeScore).toBeGreaterThan(midScore);
 	});
 
@@ -282,8 +292,8 @@ describe('DarkPriestStrategy.scoreMoveHex', () => {
 
 		const controller = makeController({ activeCreature: priest, creatures: [enemy] });
 
-		const openScore = DarkPriestStrategy.scoreMoveHex!(openHex, controller as any) as number;
-		const cornerScore = DarkPriestStrategy.scoreMoveHex!(cornerHex, controller as any) as number;
+		const openScore = scoreMoveHex(openHex, controller as any) as number;
+		const cornerScore = scoreMoveHex(cornerHex, controller as any) as number;
 		expect(cornerScore).toBeGreaterThan(openScore);
 	});
 });
@@ -298,9 +308,7 @@ describe('DarkPriestStrategy.scoreAbilityHex – Electro Shocker (index 1)', () 
 		const ally = makeCreature({ team: 0, id: 2 });
 		const hex = makeHex({ creature: ally });
 		const controller = makeController({ activeCreature: priest });
-		expect(DarkPriestStrategy.scoreAbilityHex!(hex, 1, controller as any)).toBe(
-			Number.NEGATIVE_INFINITY,
-		);
+		expect(scoreAbilityHex(hex, 1, controller as any)).toBe(Number.NEGATIVE_INFINITY);
 	});
 
 	test('scores larger targets higher (more shock damage)', () => {
@@ -311,16 +319,8 @@ describe('DarkPriestStrategy.scoreAbilityHex – Electro Shocker (index 1)', () 
 		const largeHex = makeHex({ creature: largeEnemy });
 		const controller = makeController({ activeCreature: priest });
 
-		const smallScore = DarkPriestStrategy.scoreAbilityHex!(
-			smallHex,
-			1,
-			controller as any,
-		) as number;
-		const largeScore = DarkPriestStrategy.scoreAbilityHex!(
-			largeHex,
-			1,
-			controller as any,
-		) as number;
+		const smallScore = scoreAbilityHex(smallHex, 1, controller as any) as number;
+		const largeScore = scoreAbilityHex(largeHex, 1, controller as any) as number;
 		expect(largeScore).toBeGreaterThan(smallScore);
 	});
 
@@ -334,16 +334,8 @@ describe('DarkPriestStrategy.scoreAbilityHex – Electro Shocker (index 1)', () 
 		const healthyHex = makeHex({ creature: healthyEnemy });
 		const controller = makeController({ activeCreature: priest });
 
-		const dyingScore = DarkPriestStrategy.scoreAbilityHex!(
-			dyingHex,
-			1,
-			controller as any,
-		) as number;
-		const healthyScore = DarkPriestStrategy.scoreAbilityHex!(
-			healthyHex,
-			1,
-			controller as any,
-		) as number;
+		const dyingScore = scoreAbilityHex(dyingHex, 1, controller as any) as number;
+		const healthyScore = scoreAbilityHex(healthyHex, 1, controller as any) as number;
 		expect(dyingScore).toBeGreaterThan(healthyScore);
 	});
 
@@ -361,12 +353,8 @@ describe('DarkPriestStrategy.scoreAbilityHex – Electro Shocker (index 1)', () 
 		const largeHex = makeHex({ creature: largeComboEnemy });
 		const controller = makeController({ activeCreature: priest });
 
-		const killScore = DarkPriestStrategy.scoreAbilityHex!(tinyHex, 1, controller as any) as number;
-		const comboScore = DarkPriestStrategy.scoreAbilityHex!(
-			largeHex,
-			1,
-			controller as any,
-		) as number;
+		const killScore = scoreAbilityHex(tinyHex, 1, controller as any) as number;
+		const comboScore = scoreAbilityHex(largeHex, 1, controller as any) as number;
 		expect(killScore).toBeGreaterThan(comboScore);
 	});
 
@@ -382,8 +370,8 @@ describe('DarkPriestStrategy.scoreAbilityHex – Electro Shocker (index 1)', () 
 		const richController = makeController({ activeCreature: richPriest });
 		const poorController = makeController({ activeCreature: poorPriest });
 
-		const richScore = DarkPriestStrategy.scoreAbilityHex!(hex, 1, richController as any) as number;
-		const poorScore = DarkPriestStrategy.scoreAbilityHex!(hex, 1, poorController as any) as number;
+		const richScore = scoreAbilityHex(hex, 1, richController as any) as number;
+		const poorScore = scoreAbilityHex(hex, 1, poorController as any) as number;
 		expect(richScore).toBeGreaterThan(poorScore);
 	});
 });
@@ -398,9 +386,7 @@ describe('DarkPriestStrategy.scoreAbilityHex – Disruptor Beam (index 2)', () =
 		const ally = makeCreature({ team: 0, id: 2 });
 		const hex = makeHex({ creature: ally });
 		const controller = makeController({ activeCreature: priest });
-		expect(DarkPriestStrategy.scoreAbilityHex!(hex, 2, controller as any)).toBe(
-			Number.NEGATIVE_INFINITY,
-		);
+		expect(scoreAbilityHex(hex, 2, controller as any)).toBe(Number.NEGATIVE_INFINITY);
 	});
 
 	test('returns NEGATIVE_INFINITY when spending would drop plasma below reserve', () => {
@@ -409,9 +395,7 @@ describe('DarkPriestStrategy.scoreAbilityHex – Disruptor Beam (index 2)', () =
 		const enemy = makeCreature({ team: 1, id: 2, size: 2, health: 20, maxHealth: 60 });
 		const hex = makeHex({ creature: enemy });
 		const controller = makeController({ activeCreature: priest });
-		expect(DarkPriestStrategy.scoreAbilityHex!(hex, 2, controller as any)).toBe(
-			Number.NEGATIVE_INFINITY,
-		);
+		expect(scoreAbilityHex(hex, 2, controller as any)).toBe(Number.NEGATIVE_INFINITY);
 	});
 
 	test('allows firing when plasma minus cost still meets reserve', () => {
@@ -420,7 +404,7 @@ describe('DarkPriestStrategy.scoreAbilityHex – Disruptor Beam (index 2)', () =
 		const enemy = makeCreature({ team: 1, id: 2, size: 2, health: 20, maxHealth: 60 });
 		const hex = makeHex({ creature: enemy });
 		const controller = makeController({ activeCreature: priest });
-		const score = DarkPriestStrategy.scoreAbilityHex!(hex, 2, controller as any);
+		const score = scoreAbilityHex(hex, 2, controller as any);
 		expect(score).not.toBe(Number.NEGATIVE_INFINITY);
 	});
 
@@ -434,16 +418,8 @@ describe('DarkPriestStrategy.scoreAbilityHex – Disruptor Beam (index 2)', () =
 		const healthyHex = makeHex({ creature: healthyEnemy });
 		const controller = makeController({ activeCreature: priest });
 
-		const dyingScore = DarkPriestStrategy.scoreAbilityHex!(
-			dyingHex,
-			2,
-			controller as any,
-		) as number;
-		const healthyScore = DarkPriestStrategy.scoreAbilityHex!(
-			healthyHex,
-			2,
-			controller as any,
-		) as number;
+		const dyingScore = scoreAbilityHex(dyingHex, 2, controller as any) as number;
+		const healthyScore = scoreAbilityHex(healthyHex, 2, controller as any) as number;
 		expect(dyingScore).toBeGreaterThan(healthyScore);
 	});
 
@@ -456,16 +432,8 @@ describe('DarkPriestStrategy.scoreAbilityHex – Disruptor Beam (index 2)', () =
 		const largeHex = makeHex({ creature: largeEnemy });
 		const controller = makeController({ activeCreature: priest });
 
-		const smallScore = DarkPriestStrategy.scoreAbilityHex!(
-			smallHex,
-			2,
-			controller as any,
-		) as number;
-		const largeScore = DarkPriestStrategy.scoreAbilityHex!(
-			largeHex,
-			2,
-			controller as any,
-		) as number;
+		const smallScore = scoreAbilityHex(smallHex, 2, controller as any) as number;
+		const largeScore = scoreAbilityHex(largeHex, 2, controller as any) as number;
 		expect(smallScore).toBeGreaterThan(largeScore);
 	});
 
@@ -484,12 +452,8 @@ describe('DarkPriestStrategy.scoreAbilityHex – Disruptor Beam (index 2)', () =
 		const woundedHex = makeHex({ creature: woundedEnemy });
 		const controller = makeController({ activeCreature: priest });
 
-		const fullScore = DarkPriestStrategy.scoreAbilityHex!(fullHex, 2, controller as any) as number;
-		const woundedScore = DarkPriestStrategy.scoreAbilityHex!(
-			woundedHex,
-			2,
-			controller as any,
-		) as number;
+		const fullScore = scoreAbilityHex(fullHex, 2, controller as any) as number;
+		const woundedScore = scoreAbilityHex(woundedHex, 2, controller as any) as number;
 		expect(woundedScore).toBeGreaterThan(fullScore);
 	});
 
@@ -505,7 +469,7 @@ describe('DarkPriestStrategy.scoreAbilityHex – Disruptor Beam (index 2)', () =
 		const hex = makeHex({ creature: fullHealthEnemy });
 		const controller = makeController({ activeCreature: priest });
 
-		const score = DarkPriestStrategy.scoreAbilityHex!(hex, 2, controller as any) as number;
+		const score = scoreAbilityHex(hex, 2, controller as any) as number;
 		expect(score).toBeGreaterThan(0);
 	});
 });
@@ -518,7 +482,7 @@ describe('DarkPriestStrategy.getAbilityPriority', () => {
 	test('includes both Electro Shocker and Disruptor Beam when plasma is ample', () => {
 		const priest = makeCreature({ plasma: 8 }); // > PLASMA_SURVIVAL_RESERVE(3)
 		const controller = makeController({ activeCreature: priest });
-		const priority = DarkPriestStrategy.getAbilityPriority!(priest, controller as any);
+		const priority = getAbilityPriority(priest, controller as any);
 		expect(priority).toContain(1); // ELECTRO_SHOCKER
 		expect(priority).toContain(2); // DISRUPTOR_BEAM
 	});
@@ -526,14 +490,14 @@ describe('DarkPriestStrategy.getAbilityPriority', () => {
 	test('Electro Shocker comes before Disruptor Beam when plasma is ample', () => {
 		const priest = makeCreature({ plasma: 8 });
 		const controller = makeController({ activeCreature: priest });
-		const priority = DarkPriestStrategy.getAbilityPriority!(priest, controller as any);
+		const priority = getAbilityPriority(priest, controller as any);
 		expect(priority.indexOf(1)).toBeLessThan(priority.indexOf(2));
 	});
 
 	test('omits Disruptor Beam when plasma is at or below survival reserve', () => {
 		const priest = makeCreature({ plasma: 3 }); // === PLASMA_SURVIVAL_RESERVE
 		const controller = makeController({ activeCreature: priest });
-		const priority = DarkPriestStrategy.getAbilityPriority!(priest, controller as any);
+		const priority = getAbilityPriority(priest, controller as any);
 		expect(priority).toContain(1); // ELECTRO_SHOCKER still available
 		expect(priority).not.toContain(2); // DISRUPTOR_BEAM excluded
 	});
@@ -542,7 +506,7 @@ describe('DarkPriestStrategy.getAbilityPriority', () => {
 		for (const plasma of [1, 5, 10]) {
 			const priest = makeCreature({ plasma });
 			const controller = makeController({ activeCreature: priest });
-			const priority = DarkPriestStrategy.getAbilityPriority!(priest, controller as any);
+			const priority = getAbilityPriority(priest, controller as any);
 			expect(priority).not.toContain(3);
 		}
 	});
@@ -557,14 +521,14 @@ describe('DarkPriestStrategy.getTargetingPenalty', () => {
 		const attacker = makeCreature({ team: 1 });
 		const priest = makeCreature({ team: 0, plasma: 0 });
 		const controller = makeController({ activeCreature: attacker });
-		expect(DarkPriestStrategy.getTargetingPenalty!(attacker, priest, 1, controller as any)).toBe(0);
+		expect(getTargetingPenalty(attacker, priest, 1, controller as any)).toBe(0);
 	});
 
 	test('returns a negative penalty when Dark Priest has plasma (attack will be absorbed)', () => {
 		const attacker = makeCreature({ team: 1 });
 		const priest = makeCreature({ team: 0, plasma: 5 });
 		const controller = makeController({ activeCreature: attacker });
-		const penalty = DarkPriestStrategy.getTargetingPenalty!(attacker, priest, 1, controller as any);
+		const penalty = getTargetingPenalty(attacker, priest, 1, controller as any);
 		expect(penalty).toBeLessThan(0);
 	});
 
@@ -586,18 +550,8 @@ describe('DarkPriestStrategy.getTargetingPenalty', () => {
 
 		const controller = makeController({ activeCreature: attacker });
 
-		const upgradedPenalty = DarkPriestStrategy.getTargetingPenalty!(
-			attacker,
-			upgradedPriest,
-			1,
-			controller as any,
-		);
-		const basicPenalty = DarkPriestStrategy.getTargetingPenalty!(
-			attacker,
-			basicPriest,
-			1,
-			controller as any,
-		);
+		const upgradedPenalty = getTargetingPenalty(attacker, upgradedPriest, 1, controller as any);
+		const basicPenalty = getTargetingPenalty(attacker, basicPriest, 1, controller as any);
 		expect(upgradedPenalty).toBeLessThan(basicPenalty);
 	});
 });

@@ -56,7 +56,7 @@ export class UI {
 	game: Game;
 	fullscreen: Fullscreen;
 	$display: JQuery<HTMLElement>; //eslint-disable-line no-undef
-	$dash: any; //eslint-disable-line no-undef
+	$dash: JQuery<HTMLElement>; //eslint-disable-line no-undef
 	$grid: JQuery<HTMLElement>; //eslint-disable-line no-undef
 	$activebox: JQuery<HTMLElement>; //eslint-disable-line no-undef
 	$scoreboard: JQuery<HTMLElement>; //eslint-disable-line no-undef
@@ -581,7 +581,10 @@ export class UI {
 
 		// Sound Effects slider
 		const slider = document.getElementById('sfx') as HTMLInputElement;
-		slider.addEventListener('input', () => (game.soundsys.allEffectsMultiplier = slider.value));
+		slider.addEventListener(
+			'input',
+			() => (game.soundsys.allEffectsMultiplier = parseFloat(slider.value)),
+		);
 
 		// Prevents default touch behaviour on slider when first touched (prevents scrolling the screen).
 		slider.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
@@ -843,7 +846,7 @@ export class UI {
 	 * @param {string} message Event name.
 	 * @param {object} payload Event payload.
 	 */
-	_handleUiEvent(message: string, payload: object) {
+	_handleUiEvent(message: string, _payload: object) {
 		if (message === 'toggleDash') {
 			this.toggleDash(false);
 			this.closeMusicPlayer();
@@ -1792,7 +1795,8 @@ export class UI {
 		game.signals.ui.dispatch('onCloseDash');
 
 		this.$dash.removeClass('active');
-		this.$dash.transition(
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		(this.$dash as any).transition(
 			{
 				opacity: 0,
 				queue: false,
@@ -2452,7 +2456,8 @@ export class UI {
 	/**
 	 * Delete and add element to the Queue container based on the game's queues
 	 */
-	updateQueueDisplay() {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	updateQueueDisplay(_excludeActiveCreature?: any) {
 		const game = this.game;
 		this.queue.setQueue(game.queue, game.turn);
 	}

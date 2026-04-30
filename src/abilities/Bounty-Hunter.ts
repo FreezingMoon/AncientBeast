@@ -1,12 +1,8 @@
 import { Damage } from '../damage';
 import { Team, isTeam } from '../utility/team';
-import * as matrices from '../utility/matrices';
-import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
 import Game from '../game';
 import { Creature } from '../creature';
-import { Hex } from '../utility/hex';
-import { Trap } from '../utility/trap';
 
 /*
  *TODO
@@ -244,7 +240,7 @@ export default (G: Game) => {
 			},
 
 			//	activate() :
-			activate: function (hexes, args) {
+			activate: function (hexes, _args) {
 				// In direction queries, the confirmed callback does not include args.hex.
 				// Resolve the target from the provided hex path by selecting the first hex
 				// in the chosen direction that contains a creature.
@@ -319,6 +315,7 @@ export default (G: Game) => {
 				const cre = ability.creature;
 
 				G.grid.queryDirection({
+					// eslint-disable-next-line @typescript-eslint/no-empty-function
 					fnOnSelect: () => {},
 					fnOnConfirm: (...args) => ability.animation(...args),
 					fnOnCancel: () => G.activeCreature.queryMove(),
@@ -353,7 +350,6 @@ export default (G: Game) => {
 
 				const full = ability.damages.pierce; // 40
 				const half = Math.floor(full / 2); // 20
-				const double = full + half; // 60
 
 				// Maybe turn this into a special function for pierce damage?
 				const line = G.grid.getHexLine(cre.x, cre.y, dir, false).slice(1, 1 + 12);

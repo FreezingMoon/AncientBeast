@@ -9,7 +9,8 @@
 		"allowJs": true,
 		"noImplicitThis": true,
 		"resolveJsonModule": true,
-		"allowSyntheticDefaultImports": true
+		"allowSyntheticDefaultImports": true,
+		"skipLibCheck": true
 	},
 	"include": ["src", "types"]
 }

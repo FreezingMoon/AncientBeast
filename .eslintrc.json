@@ -9,8 +9,8 @@
 		"no-multi-assign": "error",
 		// Allow some linting issues that are prevalent in the codebase, but please refactor and fix!
 		"@typescript-eslint/no-empty-function": "warn",
-		"@typescript-eslint/no-unused-vars": "warn",
-		"@typescript-eslint/no-this-alias": "warn",
+		"@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+		"@typescript-eslint/no-this-alias": ["warn", { "allowedNames": ["ability", "ab"] }],
 		"prefer-const": "warn"
 	},
 	"parserOptions": {

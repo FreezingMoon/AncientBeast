@@ -80,7 +80,7 @@ const makeCreature = ({
 			id: number;
 			controller: 'human' | 'bot';
 		};
-		abilities: any[];
+		abilities: unknown[];
 		remainingMove: number;
 		isDarkPriest: () => boolean;
 		queryMove: jest.Mock;
@@ -123,7 +123,7 @@ const makeHex = ({
 		x,
 		y,
 		creature,
-		adjacentHex: (radius: number) => [] as Hex[],
+		adjacentHex: (_radius: number) => [] as Hex[],
 	} as unknown as Hex);
 
 describe('BotController', () => {

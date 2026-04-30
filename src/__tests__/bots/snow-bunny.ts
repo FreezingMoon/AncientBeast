@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { jest, expect, describe, test } from '@jest/globals';
 
 // Mock heavy dependencies
@@ -19,6 +20,9 @@ jest.mock('../../utility/team', () => ({
 import SnowBunnyStrategy from '../../bots/Snow-Bunny';
 import { Creature } from '../../creature';
 import { Hex } from '../../utility/hex';
+
+const { isRetreating, getPreferredX, scoreMoveHex, scoreAbilityHex, getAbilityPriority } =
+	SnowBunnyStrategy as Required<typeof SnowBunnyStrategy>;
 
 // ---------------------------------------------------------------------------
 // Shared mock builders
@@ -94,7 +98,7 @@ const makeController = ({
 	activeCreature,
 	creatures = [] as (Creature & { team: number })[],
 	drops = [] as any[],
-	flipped = false,
+	_flipped = false,
 	hexAt = (_x: number, _y: number) => undefined as Hex | undefined,
 	closestDistanceToEnemyFn = (_pos: { x: number; y: number }) => 10,
 	isRetreatingFn = (_c: Creature) => false,
@@ -102,7 +106,7 @@ const makeController = ({
 	activeCreature: Creature & { team: number };
 	creatures?: (Creature & { team: number })[];
 	drops?: any[];
-	flipped?: boolean;
+	_flipped?: boolean;
 	hexAt?: (x: number, y: number) => Hex | undefined;
 	closestDistanceToEnemyFn?: (pos: { x: number; y: number }) => number;
 	isRetreatingFn?: (c: Creature) => boolean;
@@ -133,19 +137,19 @@ describe('SnowBunnyStrategy.isRetreating', () => {
 	test('returns true at 44% health (above generic 30% threshold)', () => {
 		const creature = makeCreature({ health: 24, maxHealth: 55 }); // ~43.6%
 		const controller = makeController({ activeCreature: creature });
-		expect(SnowBunnyStrategy.isRetreating!(creature, controller as any)).toBe(true);
+		expect(isRetreating(creature, controller as any)).toBe(true);
 	});
 
 	test('returns false at 50% health (safe range for Snow Bunny)', () => {
 		const creature = makeCreature({ health: 28, maxHealth: 55 }); // ~50.9%
 		const controller = makeController({ activeCreature: creature });
-		expect(SnowBunnyStrategy.isRetreating!(creature, controller as any)).toBe(false);
+		expect(isRetreating(creature, controller as any)).toBe(false);
 	});
 
 	test('returns true when energy is below 25%', () => {
 		const creature = makeCreature({ health: 55, maxHealth: 55, energy: 18, maxEnergy: 75 }); // 24%
 		const controller = makeController({ activeCreature: creature });
-		expect(SnowBunnyStrategy.isRetreating!(creature, controller as any)).toBe(true);
+		expect(isRetreating(creature, controller as any)).toBe(true);
 	});
 });
 
@@ -153,13 +157,13 @@ describe('SnowBunnyStrategy.getPreferredX', () => {
 	test('returns ~5% from left edge for non-flipped player', () => {
 		const creature = makeCreature({ flipped: false });
 		const controller = makeController({ activeCreature: creature });
-		expect(SnowBunnyStrategy.getPreferredX!(creature, controller as any)).toBeCloseTo(0.75); // 15 * 0.05
+		expect(getPreferredX(creature, controller as any)).toBeCloseTo(0.75); // 15 * 0.05
 	});
 
 	test('returns ~95% from left edge for flipped player', () => {
 		const creature = makeCreature({ flipped: true });
 		const controller = makeController({ activeCreature: creature });
-		expect(SnowBunnyStrategy.getPreferredX!(creature, controller as any)).toBeCloseTo(14.25); // 15 * 0.95
+		expect(getPreferredX(creature, controller as any)).toBeCloseTo(14.25); // 15 * 0.95
 	});
 });
 
@@ -171,7 +175,7 @@ describe('SnowBunnyStrategy.scoreMoveHex', () => {
 			isRetreatingFn: () => true,
 		});
 		const hex = makeHex({ x: 5, y: 3 });
-		expect(SnowBunnyStrategy.scoreMoveHex!(hex, controller as any)).toBeUndefined();
+		expect(scoreMoveHex(hex, controller as any)).toBeUndefined();
 	});
 
 	test('penalises hexes adjacent to enemies', () => {
@@ -185,8 +189,8 @@ describe('SnowBunnyStrategy.scoreMoveHex', () => {
 		});
 		const controller = makeController({ activeCreature: bunny });
 
-		const safeScore = SnowBunnyStrategy.scoreMoveHex!(safeHex, controller as any) as number;
-		const dangerScore = SnowBunnyStrategy.scoreMoveHex!(dangerHex, controller as any) as number;
+		const safeScore = scoreMoveHex(safeHex, controller as any) as number;
+		const dangerScore = scoreMoveHex(dangerHex, controller as any) as number;
 		expect(dangerScore).toBeLessThan(safeScore);
 	});
 
@@ -201,8 +205,8 @@ describe('SnowBunnyStrategy.scoreMoveHex', () => {
 		});
 		const controller = makeController({ activeCreature: bunny, creatures: [ally] });
 
-		const openScore = SnowBunnyStrategy.scoreMoveHex!(openHex, controller as any) as number;
-		const coveredScore = SnowBunnyStrategy.scoreMoveHex!(coveredHex, controller as any) as number;
+		const openScore = scoreMoveHex(openHex, controller as any) as number;
+		const coveredScore = scoreMoveHex(coveredHex, controller as any) as number;
 		expect(coveredScore).toBeGreaterThan(openScore);
 	});
 
@@ -212,8 +216,8 @@ describe('SnowBunnyStrategy.scoreMoveHex', () => {
 
 		const homeHex = makeHex({ x: 1, y: 3, adjacentHex: () => [] });
 		const midHex = makeHex({ x: 8, y: 3, adjacentHex: () => [] });
-		const homeScore = SnowBunnyStrategy.scoreMoveHex!(homeHex, controller as any) as number;
-		const midScore = SnowBunnyStrategy.scoreMoveHex!(midHex, controller as any) as number;
+		const homeScore = scoreMoveHex(homeHex, controller as any) as number;
+		const midScore = scoreMoveHex(midHex, controller as any) as number;
 		expect(homeScore).toBeGreaterThan(midScore);
 	});
 
@@ -231,8 +235,8 @@ describe('SnowBunnyStrategy.scoreMoveHex', () => {
 		const offLineHex = makeHex({ x: 3, y: 4, adjacentHex: () => [] });
 		const controller = makeController({ activeCreature: bunny, creatures: [enemy] });
 
-		const inLineScore = SnowBunnyStrategy.scoreMoveHex!(inLineHex, controller as any) as number;
-		const offLineScore = SnowBunnyStrategy.scoreMoveHex!(offLineHex, controller as any) as number;
+		const inLineScore = scoreMoveHex(inLineHex, controller as any) as number;
+		const offLineScore = scoreMoveHex(offLineHex, controller as any) as number;
 		expect(inLineScore).toBeLessThan(offLineScore);
 	});
 
@@ -253,8 +257,8 @@ describe('SnowBunnyStrategy.scoreMoveHex', () => {
 		const safeHex = makeHex({ x: 4, y: 5, adjacentHex: () => [] }); // dy=1, dx=0 → not diagonal
 		const controller = makeController({ activeCreature: bunny, creatures: [enemy] });
 
-		const diagScore = SnowBunnyStrategy.scoreMoveHex!(diagHex, controller as any) as number;
-		const safeScore = SnowBunnyStrategy.scoreMoveHex!(safeHex, controller as any) as number;
+		const diagScore = scoreMoveHex(diagHex, controller as any) as number;
+		const safeScore = scoreMoveHex(safeHex, controller as any) as number;
 		expect(diagScore).toBeLessThan(safeScore);
 	});
 
@@ -270,7 +274,7 @@ describe('SnowBunnyStrategy.scoreMoveHex', () => {
 		const controller = makeController({ activeCreature: bunny, creatures: [enemy] });
 
 		// Score should not have the penalty — just check it is not massively negative
-		const score = SnowBunnyStrategy.scoreMoveHex!(inLineHex, controller as any) as number;
+		const score = scoreMoveHex(inLineHex, controller as any) as number;
 		// Without the penalty the score is only zone-preference based; should be > -50
 		expect(score).toBeGreaterThan(-50);
 	});
@@ -282,9 +286,7 @@ describe('SnowBunnyStrategy.scoreAbilityHex – Freezing Spit (index 3)', () => 
 		const ally = makeCreature({ team: 0, id: 2, x: 3 });
 		const hex = makeHex({ x: 3, y: 3, creature: ally });
 		const controller = makeController({ activeCreature: bunny });
-		expect(SnowBunnyStrategy.scoreAbilityHex!(hex, 3, controller as any)).toBe(
-			Number.NEGATIVE_INFINITY,
-		);
+		expect(scoreAbilityHex(hex, 3, controller as any)).toBe(Number.NEGATIVE_INFINITY);
 	});
 
 	test('prefers more distant enemies (higher crush damage scaling)', () => {
@@ -295,8 +297,8 @@ describe('SnowBunnyStrategy.scoreAbilityHex – Freezing Spit (index 3)', () => 
 		const farHex = makeHex({ x: 9, y: 3, creature: farEnemy });
 		const controller = makeController({ activeCreature: bunny, creatures: [nearEnemy, farEnemy] });
 
-		const nearScore = SnowBunnyStrategy.scoreAbilityHex!(nearHex, 3, controller as any) as number;
-		const farScore = SnowBunnyStrategy.scoreAbilityHex!(farHex, 3, controller as any) as number;
+		const nearScore = scoreAbilityHex(nearHex, 3, controller as any) as number;
+		const farScore = scoreAbilityHex(farHex, 3, controller as any) as number;
 		expect(farScore).toBeGreaterThan(nearScore);
 	});
 
@@ -322,16 +324,8 @@ describe('SnowBunnyStrategy.scoreAbilityHex – Freezing Spit (index 3)', () => 
 		const normalHex = makeHex({ x: 8, y: 3, creature: normalEnemy });
 		const controller = makeController({ activeCreature: bunny });
 
-		const frozenScore = SnowBunnyStrategy.scoreAbilityHex!(
-			frozenHex,
-			3,
-			controller as any,
-		) as number;
-		const normalScore = SnowBunnyStrategy.scoreAbilityHex!(
-			normalHex,
-			3,
-			controller as any,
-		) as number;
+		const frozenScore = scoreAbilityHex(frozenHex, 3, controller as any) as number;
+		const normalScore = scoreAbilityHex(normalHex, 3, controller as any) as number;
 		expect(frozenScore).toBeLessThan(normalScore);
 	});
 
@@ -357,12 +351,8 @@ describe('SnowBunnyStrategy.scoreAbilityHex – Freezing Spit (index 3)', () => 
 		const healthyHex = makeHex({ x: 8, y: 3, creature: healthyEnemy });
 		const controller = makeController({ activeCreature: bunny });
 
-		const dyingScore = SnowBunnyStrategy.scoreAbilityHex!(dyingHex, 3, controller as any) as number;
-		const healthyScore = SnowBunnyStrategy.scoreAbilityHex!(
-			healthyHex,
-			3,
-			controller as any,
-		) as number;
+		const dyingScore = scoreAbilityHex(dyingHex, 3, controller as any) as number;
+		const healthyScore = scoreAbilityHex(healthyHex, 3, controller as any) as number;
 		expect(dyingScore).toBeGreaterThan(healthyScore);
 	});
 });
@@ -381,16 +371,8 @@ describe('SnowBunnyStrategy.scoreAbilityHex – Big Pliers (index 1)', () => {
 		const normalHex = makeHex({ x: 6, y: 3, creature: normalEnemy });
 		const controller = makeController({ activeCreature: bunny });
 
-		const frozenScore = SnowBunnyStrategy.scoreAbilityHex!(
-			frozenHex,
-			1,
-			controller as any,
-		) as number;
-		const normalScore = SnowBunnyStrategy.scoreAbilityHex!(
-			normalHex,
-			1,
-			controller as any,
-		) as number;
+		const frozenScore = scoreAbilityHex(frozenHex, 1, controller as any) as number;
+		const normalScore = scoreAbilityHex(normalHex, 1, controller as any) as number;
 		expect(frozenScore).toBeGreaterThan(normalScore);
 	});
 
@@ -407,10 +389,10 @@ describe('SnowBunnyStrategy.scoreAbilityHex – Big Pliers (index 1)', () => {
 		const restore = unitStrategies['X9'];
 		unitStrategies['X9'] = { getTargetingPenalty: () => -300 };
 
-		const penalisedScore = SnowBunnyStrategy.scoreAbilityHex!(hex, 1, controller as any) as number;
+		const penalisedScore = scoreAbilityHex(hex, 1, controller as any) as number;
 		unitStrategies['X9'] = restore; // clean up
 
-		const noPenaltyScore = SnowBunnyStrategy.scoreAbilityHex!(
+		const noPenaltyScore = scoreAbilityHex(
 			makeHex({ x: 6, y: 3, creature: makeCreature({ team: 1, x: 6, health: 30 }) }),
 			1,
 			controller as any,
@@ -447,16 +429,8 @@ describe('SnowBunnyStrategy.scoreAbilityHex – Blowing Wind (index 2)', () => {
 			creatures: [safeEnemy],
 		});
 
-		const dangerScore = SnowBunnyStrategy.scoreAbilityHex!(
-			endangeringHex,
-			2,
-			dangerController as any,
-		) as number;
-		const safeScore = SnowBunnyStrategy.scoreAbilityHex!(
-			safeHex,
-			2,
-			safeController as any,
-		) as number;
+		const dangerScore = scoreAbilityHex(endangeringHex, 2, dangerController as any) as number;
+		const safeScore = scoreAbilityHex(safeHex, 2, safeController as any) as number;
 		expect(dangerScore).toBeLessThan(safeScore);
 	});
 
@@ -482,16 +456,8 @@ describe('SnowBunnyStrategy.scoreAbilityHex – Blowing Wind (index 2)', () => {
 			closestDistanceToEnemyFn: (pos) => (pos.x <= 7 ? 1 : 5),
 		});
 
-		const trapScore = SnowBunnyStrategy.scoreAbilityHex!(
-			allyHex,
-			2,
-			trapController as any,
-		) as number;
-		const safeScore = SnowBunnyStrategy.scoreAbilityHex!(
-			safeAllyHex,
-			2,
-			safeController as any,
-		) as number;
+		const trapScore = scoreAbilityHex(allyHex, 2, trapController as any) as number;
+		const safeScore = scoreAbilityHex(safeAllyHex, 2, safeController as any) as number;
 		expect(trapScore).toBeLessThan(safeScore);
 	});
 });
@@ -500,7 +466,7 @@ describe('SnowBunnyStrategy.getAbilityPriority', () => {
 	test('default order is Freezing Spit → Blowing Wind → Big Pliers', () => {
 		const bunny = makeCreature({ adjacentHexes: () => [] });
 		const controller = makeController({ activeCreature: bunny });
-		expect(SnowBunnyStrategy.getAbilityPriority!(bunny, controller as any)).toEqual([3, 2, 1]);
+		expect(getAbilityPriority(bunny, controller as any)).toEqual([3, 2, 1]);
 	});
 
 	test('Big Pliers goes first when a frozen enemy is adjacent', () => {
@@ -510,12 +476,12 @@ describe('SnowBunnyStrategy.getAbilityPriority', () => {
 			adjacentHexes: () => [adjacentHexWithFrozenEnemy],
 		});
 		const controller = makeController({ activeCreature: bunny, creatures: [frozenEnemy] });
-		expect(SnowBunnyStrategy.getAbilityPriority!(bunny, controller as any)).toEqual([1, 3, 2]);
+		expect(getAbilityPriority(bunny, controller as any)).toEqual([1, 3, 2]);
 	});
 
 	test('default order when adjacent hex has no creature', () => {
 		const bunny = makeCreature({ adjacentHexes: () => [makeHex()] });
 		const controller = makeController({ activeCreature: bunny });
-		expect(SnowBunnyStrategy.getAbilityPriority!(bunny, controller as any)).toEqual([3, 2, 1]);
+		expect(getAbilityPriority(bunny, controller as any)).toEqual([3, 2, 1]);
 	});
 });

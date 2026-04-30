@@ -337,6 +337,7 @@ beforeAll(() => {
 	});
 
 	// Mock jQuery globally
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	(global as any).$j = jest.fn(() => ({
 		removeClass: jest.fn(),
 	}));
