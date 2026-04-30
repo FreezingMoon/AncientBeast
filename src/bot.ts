@@ -209,7 +209,10 @@ export default class BotController {
 		// Low health / energy creatures flee first
 		if (!this.moveAttempted && this.isRetreating(activeCreature)) {
 			// Prefer a movement ability to avoid traps when retreating
-			if (this.bestMovePathCrossesOrLandsOnTrap() && this.tryMovementAbility()) {
+			if (
+				this.bestMovePathCrossesOrLandsOnTrap() &&
+				this.tryMovementAbility({ requireTrapSafe: true })
+			) {
 				return;
 			}
 			if (this.tryMove()) {
@@ -228,7 +231,10 @@ export default class BotController {
 		if (!this.moveAttempted) {
 			// If the best walking path would cross or land on a trap, use a movement
 			// ability (teleport / flying) to bypass it if one is available.
-			if (this.bestMovePathCrossesOrLandsOnTrap() && this.tryMovementAbility()) {
+			if (
+				this.bestMovePathCrossesOrLandsOnTrap() &&
+				this.tryMovementAbility({ requireTrapSafe: true })
+			) {
 				return;
 			}
 			if (this.tryMove()) {
@@ -729,12 +735,13 @@ export default class BotController {
 
 	/**
 	 * Try to use an ability flagged as `isMovementAbility` (teleport, flying dash, etc.)
-	 * to reposition the creature while bypassing trap hexes.
+	 * to reposition the creature.
 	 * Returns true if an ability was triggered.
 	 */
-	tryMovementAbility(): boolean {
+	tryMovementAbility(opts: { requireTrapSafe?: boolean } = {}): boolean {
 		const creature = this.game.activeCreature;
 		if (!creature) return false;
+		const requireTrapSafe = opts.requireTrapSafe ?? false;
 
 		const strategy = this.getStrategyFor(creature);
 		const abilityOrder =
@@ -745,6 +752,7 @@ export default class BotController {
 			if (
 				!ability ||
 				!ability.isMovementAbility ||
+				(requireTrapSafe && ability.isMovementAbility !== 'safe') ||
 				this.failedAbilityIds.has(i) ||
 				ability.getTrigger() !== 'onQuery' ||
 				ability.used ||

@@ -165,6 +165,12 @@ export class UI {
 				click: () => {
 					this.game.signals.ui.dispatch('toggleScore');
 				},
+				mouseover: () => {
+					this._updatePlayerStatsBars();
+				},
+				mouseleave: () => {
+					$j('#player-stats-bars').empty();
+				},
 				overridefreeze: true,
 			},
 			{ isAcceptingInput: this.configuration.isAcceptingInput },

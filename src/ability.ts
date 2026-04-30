@@ -104,8 +104,12 @@ export class Ability {
 	effects?: AbilityEffect[];
 	message?: string;
 	movementType?: () => Movement; // Currently, this functon only exists in `Scavenger.ts`
-	/** Set to true on abilities that reposition the creature via teleport or flying (bypasses trap hexes). */
-	isMovementAbility?: boolean;
+	/**
+	 * Marks repositioning abilities (teleport, flying dash, leap, etc.).
+	 * - `true`: movement ability, but not guaranteed trap-safe along path.
+	 * - `'safe'`: movement ability that safely bypasses traps along path.
+	 */
+	isMovementAbility?: boolean | 'safe';
 	materialize?: (creature: string | CreatureType) => void; // This functon only exists in `Dark Priest.ts`
 	triggeredThisChain?: boolean;
 	range?: { minimum?: number; regular: number; upgraded?: number };

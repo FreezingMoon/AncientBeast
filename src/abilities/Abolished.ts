@@ -196,7 +196,7 @@ export default (G: Game) => {
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
 			//range: 3,
-			isMovementAbility: true,
+			isMovementAbility: 'safe',
 			require() {
 				return this.testRequirements();
 			},
