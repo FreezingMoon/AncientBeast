@@ -587,15 +587,15 @@
 #leftpanel .button {
 	background-color: rgba(0, 0, 0, 0.55);
 	transition: transform 0.5s;
-	transform: perspective(900px) rotateY(0deg);
+	transform: none;
 	transform-origin: left center;
 
 	&:hover {
-		transform: perspective(900px) rotateY(0deg);
+		transform: none;
 	}
 
 	&.slideIn {
-		transform: perspective(900px) rotateY(0deg);
+		transform: none;
 	}
 
 	&.disabled {
@@ -842,6 +842,8 @@ div.section.info {
 	left: 50%;
 	transform: translateX(-50%);
 	background-color: rgba(0, 0, 0, 0.9);
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
 	color: #fff;
 	font-weight: bold;
 	padding: 4px 8px;
@@ -1135,7 +1137,6 @@ div.section.info {
 	flex-direction: column-reverse;
 	gap: 0;
 	padding-left: 20px;
-	transform: translate(0px, 0px);
 }
 
 #abilities .ability-slot {
@@ -1147,7 +1148,7 @@ div.section.info {
 //   - background-color pre-inverted so it reads as dark after the filter
 //   - ::before (frame) counter-inverted via double application = original colors
 #abilities .button.disabled {
-	transform: perspective(900px) rotateY(0deg) !important;
+	transform: none !important;
 	filter: invert(1);
 	background-color: rgba(255, 255, 255, 0.55); // pre-inverted → appears as rgba(0,0,0,0.55) after filter
 	opacity: 0.5;
@@ -1157,7 +1158,7 @@ div.section.info {
 	}
 
 	&:hover {
-		transform: perspective(900px) rotateY(0deg) !important;
+		transform: none !important;
 		opacity: 0.75;
 	}
 }
@@ -1175,12 +1176,12 @@ div.section.info {
 @keyframes iconInvertFlash { 50% { filter: invert(1); } }
 
 #leftpanel .passive-slot .ability.nextIcon {
-	transform: perspective(900px) rotateY(0deg);
+	transform: none;
 }
 
 #leftpanel .passive-slot .ability.nextIcon:hover,
 #leftpanel .passive-slot .ability.nextIcon.slideIn {
-	transform: perspective(900px) rotateY(0deg);
+	transform: none;
 }
 
 #abilities .progressbar {
@@ -1595,19 +1596,23 @@ div.section.info {
 	position: absolute;
 	top: 1px;
 	display: block;
-	width: 0;
+	width: 270px;
 	left: 85px;
 	color: white;
-	background: rgba(0, 0, 0, 0.7);
-	overflow: hidden;
+	background: rgba(0, 0, 0, 0.6);
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
+	border: 2px black solid;
+	border-radius: 5px;
+	overflow: visible;
 	z-index: 1;
+	visibility: hidden;
+	pointer-events: none;
 }
 
 .button.hover + .desc {
-	width: 270px;
-	border: 2px black solid;
-	overflow: visible;
-	border-radius: 5px;
+	visibility: visible;
+	pointer-events: auto;
 }
 
 .button + .desc span {
@@ -1815,7 +1820,9 @@ div.section.info {
 	bottom: 38px;
 	left: 50%;
 	transform: translateX(-50%);
-	background-color: black;
+	background-color: rgba(0, 0, 0, 0.75);
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
 	color: #fff;
 	text-align: center;
 	border-radius: 2px;
@@ -2258,7 +2265,9 @@ span.pure {
 
 			.tooltiptext {
 				visibility: hidden;
-				background-color: black;
+				background-color: rgba(0, 0, 0, 0.75);
+				backdrop-filter: blur(8px);
+				-webkit-backdrop-filter: blur(8px);
 				color: #fff;
 				text-align: center;
 				border-radius: 2px;
