@@ -286,77 +286,80 @@
 		</div>
 		<div id="ui">
 			<div id="scoreboard" class="framed-modal__wrapper hide">
-				<div class="framed-modal">
+				<div class="framed-modal framed-modal--scoreboard">
 					<div class="framed-modal__return">
 						<div class="togglescore close-button"></div>
 					</div>
-					<h1 id="scoreboardTitle"></h1>
-					<p id="winnerMessage" style="text-align: center; font-size: 18px; font-weight: bold; margin: 10px 0; color: #fff;"></p>
-					<table id="score">
-						<tbody>
-							<tr class="player_name">
-								<td>Players</td>
-							</tr>
-							<tr class="firstKill">
-								<td>First blood</td>
-							</tr>
-							<tr class="kill">
-								<td>Kills</td>
-							</tr>
-							<tr class="combo">
-								<td>Combos</td>
-							</tr>
-							<tr class="humiliation">
-								<td>Humiliation</td>
-							</tr>
-							<tr class="annihilation">
-								<td>Annihilation</td>
-							</tr>
-							<tr class="deny">
-								<td>Denies</td>
-							</tr>
-							<tr class="pickupDrop">
-								<td>Drops picked</td>
-							</tr>
-							<tr class="timebonus">
-								<td>Time Bonus</td>
-							</tr>
-							<tr class="nofleeing">
-								<td>No Fleeing</td>
-							</tr>
-							<tr class="creaturebonus">
-								<td>Survivor Units</td>
-							</tr>
-							<tr class="immortal">
-								<td>Immortal</td>
-							</tr>
-							<tr class="upgrade">
-								<td>Ability Upgrades</td>
-							</tr>
-							<tr class="total">
-								<td>Total</td>
-							</tr>
-						</tbody>
-					</table>
-					<div class="scoreboardActions">
-						<div id="fleeWrapper">
-							<div id="flee" class="button">
-							</div>
-							<div class="desc">
-								<div class="arrow"></div>
-								<div class="shortcut">hotkey F</div>
-								<span>Flee Match</span>
-								<p>Give up but only after first 12 rounds.</p>
-							</div>
-						</div>
-						<div id="exitWrapper">
-							<div id="exit" class="button">
-							</div>
-							<div class="desc">
-								<div class="arrow"></div>
-								<div class="shortcut">hotkey X</div>
-								<span>Exit Match</span>
-								<p>Return to the main menu.</p>
+					<div class="scoreboard-inner scoreboard-inner--scores">
+						<h1 id="scoreboardTitle"></h1>
+						<p id="winnerMessage" style="text-align: center; font-size: 18px; font-weight: bold; margin: 10px 0; color: #fff;"></p>
+						<div id="scoreboard-overview"></div>
+						<div class="scoreboard-content">
+							<table id="score">
+								<tbody>
+									<tr class="player_name">
+										<td></td>
+									</tr>
+									<tr class="firstKill">
+										<td>First blood</td>
+									</tr>
+									<tr class="kill">
+										<td>Kills</td>
+									</tr>
+									<tr class="combo">
+										<td>Combos</td>
+									</tr>
+									<tr class="humiliation">
+										<td>Humiliation</td>
+									</tr>
+									<tr class="annihilation">
+										<td>Annihilation</td>
+									</tr>
+									<tr class="deny">
+										<td>Denies</td>
+									</tr>
+									<tr class="pickupDrop">
+										<td>Drops picked</td>
+									</tr>
+									<tr class="timebonus">
+										<td>Time Bonus</td>
+									</tr>
+									<tr class="nofleeing">
+										<td>No Fleeing</td>
+									</tr>
+									<tr class="creaturebonus">
+										<td>Survivor Units</td>
+									</tr>
+									<tr class="immortal">
+										<td>Immortal</td>
+									</tr>
+									<tr class="upgrade">
+										<td>Ability Upgrades</td>
+									</tr>
+									<tr class="total">
+										<td>Total</td>
+									</tr>
+								</tbody>
+							</table>
+							<div class="scoreboardActions">
+								<div id="fleeWrapper">
+									<div id="flee" class="button"></div>
+									<div class="desc">
+										<div class="arrow"></div>
+										<div class="shortcut">hotkey F</div>
+										<span>Flee Match</span>
+										<p>Give up after first 12 rounds.</p>
+									</div>
+								</div>
+								<div id="exitWrapper">
+									<div id="exit" class="button"></div>
+									<div class="desc">
+										<div class="arrow"></div>
+										<div class="shortcut">hotkey X</div>
+										<span>Exit Match</span>
+										<p>Return to the main menu.</p>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>

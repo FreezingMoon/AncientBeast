@@ -1719,6 +1719,248 @@ div.section.info {
 	justify-self: end;
 }
 
+/* Wider scoreboard modal to fit overview bars */
+.framed-modal--scoreboard {
+	width: 600px;
+	max-height: 820px;
+}
+
+/* Inner sections */
+.scoreboard-inner {
+	padding: 0 20px;
+}
+
+
+.scoreboard-inner--scores {
+	padding-bottom: 22px;
+	width: 100%;
+	text-align: center;
+}
+
+#scoreboard-overview {
+	width: fit-content;
+	max-width: calc(100% - 30px);
+	margin: 4px auto 12px;
+}
+
+#scoreboard-overview:empty {
+	display: none;
+}
+
+.score-legend {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-wrap: wrap;
+	border-top: 1px solid rgba(255, 255, 255, 0.25);
+	border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+	padding: 6px 8px;
+}
+
+.score-legend-item {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 0 10px;
+	font-size: 12px;
+	color: #ddd;
+	border-right: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.score-legend-item:last-child {
+	border-right: none;
+}
+
+.score-legend-swatch {
+	display: inline-block;
+	width: 9px;
+	height: 9px;
+	border-radius: 2px;
+	flex-shrink: 0;
+}
+
+.score-player-header {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+	min-width: 56px;
+}
+
+.score-player-bars {
+	display: flex;
+	align-items: flex-end;
+	gap: 2px;
+	height: 34px;
+}
+
+.score-header-bar-wrap {
+	width: 6px;
+	height: 100%;
+	display: flex;
+	align-items: flex-end;
+	position: relative;
+	background: rgba(255, 255, 255, 0.08);
+	border-radius: 2px;
+	overflow: visible;
+}
+
+.score-header-bar-fill {
+	width: 100%;
+}
+
+.score-header-tooltip {
+	visibility: hidden;
+	position: absolute;
+	bottom: 38px;
+	left: 50%;
+	transform: translateX(-50%);
+	background-color: black;
+	color: #fff;
+	text-align: center;
+	border-radius: 2px;
+	border-style: ridge;
+	padding: 4px 6px;
+	white-space: nowrap;
+	z-index: 5;
+	font-size: 11px;
+	pointer-events: none;
+}
+
+.score-header-bar-wrap:hover .score-header-tooltip {
+	visibility: visible;
+	animation: slideTooltip 750ms forwards;
+}
+
+.score-player-name {
+	font-size: 12px;
+	font-weight: bold;
+	text-shadow: 1px 1px 0 #000, -1px -1px 0 #000;
+}
+
+.scoreboard-inner--scores .scoreboard-content {
+	width: 100%;
+	max-width: calc(100% - 24px);
+	margin: 0 auto;
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	position: static;
+	left: auto;
+	transform: none;
+}
+
+#scoreboard .scoreboard-inner--scores #score {
+	transform: none !important;
+	left: auto !important;
+	float: none !important;
+	margin: 0 auto !important;
+	max-width: 100% !important;
+}
+
+/* Keep scoreboard table in canonical table layout even under mobile transpose rules */
+#scoreboard .scoreboard-inner--scores #score tr {
+	display: table-row !important;
+	float: none !important;
+}
+
+#scoreboard .scoreboard-inner--scores #score td {
+	display: table-cell !important;
+}
+
+.scoreboard-divider {
+	border: none;
+	border-top: 1px solid rgba(255, 255, 255, 0.25);
+	margin: 8px 20px;
+}
+
+/* Player stats Overview section inside the scoreboard */
+.psb-panel {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.psb-cols {
+	display: flex;
+	flex-direction: row;
+	align-items: flex-end;
+	gap: 12px;
+}
+
+.psb-col {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+	flex: 1;
+}
+
+.psb-label {
+	font-size: 11px;
+	font-weight: bold;
+	text-shadow: 1px 1px 0 #000, -1px -1px 0 #000;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 100%;
+}
+
+.psb-bars {
+	display: flex;
+	flex-direction: row;
+	align-items: flex-end;
+	gap: 3px;
+	height: 56px;
+	width: 100%;
+	justify-content: center;
+}
+
+.psb-bar-wrap {
+	flex: 1;
+	max-width: 18px;
+	height: 100%;
+	display: flex;
+	align-items: flex-end;
+	background: rgba(255, 255, 255, 0.08);
+	border-radius: 2px;
+	overflow: hidden;
+	cursor: default;
+}
+
+.psb-bar-fill {
+	width: 100%;
+	border-radius: 2px;
+	transition: height 0.3s ease;
+}
+
+.psb-legend {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	gap: 4px 12px;
+	justify-content: center;
+	border-top: 1px solid rgba(255, 255, 255, 0.15);
+	padding-top: 6px;
+}
+
+.psb-legend-item {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	font-size: 11px;
+	color: #bbb;
+}
+
+.psb-legend-swatch {
+	display: inline-block;
+	width: 10px;
+	height: 10px;
+	border-radius: 2px;
+	flex-shrink: 0;
+}
+
 /*-----------------Costs and Damages-------------------*/
 .abilityinfo_content > .info {
 	margin: 2px 10px;
@@ -2003,10 +2245,11 @@ span.pure {
 			color: white;
 			text-align: center;
 			margin: auto;
+			table-layout: auto;
 
 			td {
 				position: relative;
-				padding: 0px 20px;
+				padding: 0px 12px;
 
 				img {
 					color: #272727;
@@ -2038,38 +2281,66 @@ span.pure {
 		}
 
 		.scoreboardActions {
-			width: 100%;
+			width: fit-content;
 			display: flex;
 			justify-content: center;
-			margin-top: 20px;
-			margin-bottom: 50px;
+			align-items: center;
+			gap: 24px;
+			padding: 0;
+			box-sizing: border-box;
+			margin: 20px auto 0;
+			padding-bottom: 46px;
+			position: static;
+			left: auto;
+			transform: none;
+			#fleeWrapper,
+			#exitWrapper {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				position: relative;
+				width: 80px;
+				height: 80px;
+			}
 			#flee,
 			#exit {
-				margin-left: auto;
-				margin-right: auto;
+				margin: 0;
+				position: relative;
+				left: auto;
+				right: auto;
 			}
 			.button + .desc {
 				visibility: hidden;
-				position: relative;
-				top: 1px;
+				position: absolute;
+				/* center the tooltip above the 80px button */
+				width: 220px;
+				left: calc(50% - 110px);
+				bottom: calc(100% + 10px);
+				top: auto;
 				display: block;
-				width: 250px;
-				left: 85px;
 				color: white;
-				background: rgba(0, 0, 0, 0.7);
-				overflow: hidden;
+				background: rgba(0, 0, 0, 0.6);
+				backdrop-filter: blur(8px);
+				-webkit-backdrop-filter: blur(8px);
+				border: 2px solid black;
+				border-radius: 5px;
+				overflow: visible;
+				z-index: 2;
+				text-align: center;
+				/* downward triangle touching the button */
+				&::after {
+					content: '';
+					position: absolute;
+					top: 100%;
+					left: 50%;
+					transform: translateX(-50%);
+					border-left: 8px solid transparent;
+					border-right: 8px solid transparent;
+					border-top: 8px solid rgba(0, 0, 0, 0.75);
+				}
 			}
 			.button.hover + .desc {
 				visibility: visible;
-				left: -186px;
-				top: -80px;
-				text-align: right;
-			}
-			.button.hover + .desc {
-				width: 270px;
-				border: 2px black solid;
-				overflow: visible;
-				border-radius: 5px;
 			}
 
 			.button + .desc span {
@@ -2098,44 +2369,16 @@ span.pure {
 				border-top: 1px solid rgba(255, 255, 255, 0.2);
 			}
 
-			.button + .desc .shortcut {
-				font-size: 12px;
-				position: absolute;
-				right: 8px;
-				top: 8px;
-			}
-
 			.button + .desc .arrow {
-				height: 0;
-				left: -6px;
-				position: absolute;
-				top: 27px;
-				width: 0;
-			}
-
-			.button + .desc .arrow:before {
-				content: '';
-				border-right: 6px solid black;
-				border-top: 8px solid transparent;
-				border-bottom: 8px solid transparent;
-				display: inline-block;
-				height: 0;
-				position: absolute;
-				width: 0;
-			}
-			.button + .desc .arrow {
-				right: 0;
-				left: auto;
+				display: none;
 			}
 
 			.button + .desc .shortcut {
-				left: 8px;
-				right: auto;
-			}
-
-			.button + .desc .arrow:before {
-				border-right: 0 solid transparent;
-				border-left: 6px solid black;
+				display: block;
+				font-size: 11px;
+				opacity: 0.6;
+				padding: 0 7px 6px;
+				text-align: center;
 			}
 		}
 
@@ -2209,6 +2452,48 @@ span.pure {
 			}
 		}
 	}
+}
+
+#scoreboard .score-inline-legend {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	display: flex;
+	align-items: flex-end;
+	justify-content: flex-start;
+	gap: 2px;
+	white-space: nowrap;
+}
+
+#scoreboard .score-inline-legend-item {
+	display: inline-flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 4px;
+	padding: 0;
+	font-size: 10px;
+	font-weight: bold;
+	color: #ddd;
+	min-height: 64px;
+}
+
+#scoreboard .score-inline-legend-label {
+	writing-mode: vertical-rl;
+	text-orientation: mixed;
+	height: 42px;
+	line-height: 1;
+	opacity: 0.95;
+}
+
+#scoreboard .score-inline-legend-swatch {
+	display: inline-block;
+	width: 10px;
+	height: 10px;
+	border-radius: 2px;
+	flex-shrink: 0;
+	justify-content: center;
+	position: relative;
 }
 
 #meta-powers-list {
@@ -2513,6 +2798,96 @@ input {
 		width: 80px !important;
 	}
 }
+/* Final scoreboard overrides (placed after responsive interface rules) */
+/* scoreboard-inner--scores: plain block so margin:auto on children works.
+   box-sizing:border-box ensures the inherited padding:0 20px is included
+   inside width:100%, otherwise the 20px right-padding overflows and shifts
+   content to the right. */
+#scoreboard .scoreboard-inner--scores {
+	display: block;
+	width: 100%;
+	box-sizing: border-box;
+	text-align: center;
+}
+
+/* Title / winner message: full-width blocks, text centered */
+#scoreboard #scoreboardTitle,
+#scoreboard #winnerMessage {
+	display: block;
+	width: 100%;
+	text-align: center !important;
+}
+
+/* scoreboard-content shrinks to fit its widest child (the table),
+   then margin:auto centers that intrinsic-width box */
+#scoreboard .scoreboard-inner--scores .scoreboard-content {
+	display: block;
+	width: fit-content;
+	margin: 0 auto;
+	transform: none;
+}
+
+#scoreboard .scoreboard-inner--scores #score {
+	width: max-content !important;
+	max-width: 100% !important;
+	table-layout: auto;
+	display: table;
+	border-collapse: collapse;
+	transform: none !important;
+	left: auto !important;
+	position: static !important;
+	margin: 0 0 46px 0 !important;
+	float: none !important;
+}
+
+#scoreboard .scoreboard-inner--scores #score tr {
+	display: table-row !important;
+	float: none !important;
+}
+
+#scoreboard .scoreboard-inner--scores #score td {
+	display: table-cell !important;
+	padding-left: 8px !important;
+	padding-right: 8px !important;
+	word-break: break-word;
+}
+
+#scoreboard .scoreboard-inner--scores #score td:nth-child(n + 2) {
+	padding-left: 14px !important;
+	padding-right: 14px !important;
+}
+
+#scoreboard .scoreboard-inner--scores #score td:first-child {
+	width: 130px;
+}
+
+#scoreboard .scoreboardActions {
+	width: 100% !important;
+	display: flex !important;
+	justify-content: center !important;
+	gap: 24px;
+	padding-bottom: 64px !important;
+	margin-top: 8px !important;
+}
+
+#scoreboard .scoreboardActions #fleeWrapper,
+#scoreboard .scoreboardActions #exitWrapper {
+	justify-self: center;
+}
+
+#scoreboard .scoreboardActions #flee,
+#scoreboard .scoreboardActions #exit {
+	display: block;
+	margin: 0 auto !important;
+	background-position: center center;
+	background-repeat: no-repeat;
+	background-size: 72% 72%;
+}
+
+#scoreboard .scoreboardActions .button.hover + .desc {
+	text-align: center !important;
+}
+
 #banner {
 	font-size: 31px;
 	position: absolute;

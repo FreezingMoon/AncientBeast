@@ -165,12 +165,6 @@ export class UI {
 				click: () => {
 					this.game.signals.ui.dispatch('toggleScore');
 				},
-				mouseover: () => {
-					this._updatePlayerStatsBars();
-				},
-				mouseleave: () => {
-					$j('#player-stats-bars').empty();
-				},
 				overridefreeze: true,
 			},
 			{ isAcceptingInput: this.configuration.isAcceptingInput },
@@ -1583,13 +1577,84 @@ export class UI {
 		this.$scoreboard.on('click', this.easyScoreClose);
 
 		// Configure scoreboard data
-		this.$scoreboard.find('#scoreboardTitle').text('Current Score');
+		this.$scoreboard.find('#scoreboardTitle').text('Score');
 
 		// Calculate the time cost of the last turn
 		const skipTurn = new Date(),
 			p = game.activeCreature.player;
 
 		p.totalTimePool = p.totalTimePool - (skipTurn.valueOf() - p.startTime.valueOf());
+
+		const date = new Date().valueOf() - game.pauseTime;
+		const players = game.players;
+		const scores = players.map((pl) => pl.getScore().total);
+		const maxScore = Math.max(...scores, 1);
+		const playerColors = ['#f55', '#88f', '#fa5', '#5f5'];
+		const statColors = ['#f00', '#ff0', '#c5f', '#888', '#5c5', '#aaf'];
+		const statLabels = ['Health', 'Energy', 'Plasma', 'Time', 'Units', 'Score'];
+		const statTooltipMeta = [
+			{ label: 'Health', emoji: emoji.get('heartbeat') },
+			{ label: 'Energy', emoji: '💫' },
+			{ label: 'Plasma', emoji: '🌐' },
+			{ label: 'Time', emoji: emoji.get('alarm_clock') },
+			{ label: 'Units', emoji: emoji.get('bat') },
+			{ label: 'Score', emoji: emoji.get('100') },
+		];
+
+		const playerHeaderMeta = players.map((player) => {
+			const dp = player.creatures.find((c) => c.isDarkPriest && c.isDarkPriest());
+			const dpHealthRatio = dp ? Math.max(0, dp.health) / Math.max(1, dp.stats.health) : 0;
+			const dpEnergyRatio = dp ? Math.max(0, dp.energy) / Math.max(1, dp.stats.energy) : 0;
+
+			const plasmaRatio =
+				game.configData.plasma_amount > 0
+					? Math.min(1, player.plasma / game.configData.plasma_amount)
+					: 0;
+
+			let poolTimeRatio = 1;
+			if (game.timePool > 0) {
+				const remaining =
+					player.id === game.activeCreature?.player?.id
+						? player.totalTimePool - (date - player.startTime.valueOf())
+						: player.totalTimePool;
+				poolTimeRatio = Math.max(0, Math.min(1, remaining / (game.timePool * 1000)));
+			}
+
+			const unitsRatio =
+				game.configData.creaLimitNbr > 0
+					? Math.max(0, Math.min(1, player.getNbrOfCreatures() / game.configData.creaLimitNbr))
+					: 0;
+
+			const scoreRatio = Math.max(0, Math.min(1, player.getScore().total / maxScore));
+			const ratios = [
+				dpHealthRatio,
+				dpEnergyRatio,
+				plasmaRatio,
+				poolTimeRatio,
+				unitsRatio,
+				scoreRatio,
+			];
+
+			const barsHtml = ratios
+				.map(
+					(ratio, i) =>
+						`<div class="score-header-bar-wrap" title="${statLabels[i]}">` +
+						`<span class="score-header-tooltip">${statTooltipMeta[i].emoji} ${statTooltipMeta[i].label}</span>` +
+						`<div class="score-header-bar-fill" style="height:${Math.round(
+							ratio * 100,
+						)}%;background:${statColors[i]}"></div>` +
+						`</div>`,
+				)
+				.join('');
+
+			return {
+				playerLabel: `Player${player.id + 1}`,
+				color: playerColors[player.id] || '#fff',
+				barsHtml,
+			};
+		});
+
+		$j('#scoreboard-overview').html('');
 
 		const $table = $j('#scoreboard table tbody');
 
@@ -1599,7 +1664,7 @@ export class UI {
 		const tableMeta = [
 			{
 				cls: 'player_name',
-				title: 'Players',
+				title: '',
 			},
 			{
 				cls: 'firstKill',
@@ -1673,8 +1738,13 @@ export class UI {
 		];
 
 		tableMeta.forEach((row) => {
+			let firstCellContent = `${row.title}`;
+			if (row.emoji) {
+				firstCellContent = `<span class="tooltiptext">${row.title}</span>${row.emoji}`;
+			}
+
 			$table.find(`tr.${row.cls}`).empty().html(`<td>
-			${row.emoji ? `<span class="tooltiptext">${row.title}</span>${row.emoji}` : `${row.title}`}
+			${firstCellContent}
 			</td>`);
 
 			// Add cells for each player
@@ -1694,11 +1764,15 @@ export class UI {
 			//----------Display-----------//
 			const colId = game.gameMode > 2 ? i + 2 + ((i % 2) * 2 - 1) * Math.min(1, i % 3) : i + 2;
 
-			// Change Name
 			$table
 				.children('tr.player_name')
-				.children('td:nth-child(' + colId + ')') // Weird expression swaps 2nd and 3rd player
-				.text(game.players[i].name);
+				.children('td:nth-child(' + colId + ')')
+				.html(
+					`<div class="score-player-header">` +
+						`<div class="score-player-bars">${playerHeaderMeta[i].barsHtml}</div>` +
+						`<div class="score-player-name" style="color:${playerHeaderMeta[i].color}">${playerHeaderMeta[i].playerLabel}</div>` +
+						`</div>`,
+				);
 
 			// Change score
 			$j.each(game.players[i].getScore(), function (index, val) {
