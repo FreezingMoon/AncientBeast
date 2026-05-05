@@ -229,6 +229,22 @@ export default (G: Game) => {
 				choices.sort(function (choice1, choice2) {
 					return choice1.length - choice2.length;
 				});
+
+				// All hexes across every valid target area, used for outline display.
+				const allChoiceHexes: Hex[] = choices.reduce(
+					(acc: Hex[], choice: Hex[]) => acc.concat(choice),
+					[],
+				);
+
+				// Show dashed outlines on all 6 target areas (default / hover-off state).
+				const showAllOutlines = () => {
+					allChoiceHexes.forEach((hex: Hex) => {
+						hex.cleanOverlayVisualState();
+						hex.cleanDisplayVisualState('dashed');
+						hex.displayVisualState('dashed');
+					});
+				};
+
 				G.grid.queryChoice({
 					fnOnCancel: function () {
 						G.activeCreature.queryMove();
@@ -237,10 +253,32 @@ export default (G: Game) => {
 						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
+					fnOnSelect: function (choice: Hex[]) {
+						// Reset all areas to dashed outlines, then highlight the hovered one.
+						// Creature hexes get a filled colored hex; empty hexes get a
+						// semi-transparent overlay.
+						showAllOutlines();
+						choice.forEach((hex: Hex) => {
+							hex.cleanDisplayVisualState('dashed');
+							if (hex.creature instanceof Creature) {
+								hex.displayVisualState(
+									'creature selected player' + hex.creature.team,
+								);
+							} else {
+								hex.overlayVisualState(
+									'reachable h_player' + G.activeCreature.team,
+								);
+							}
+						});
+					},
 					team: Team.Both,
 					id: this.creature.id,
 					requireCreature: false,
 					choices: choices,
+					// Disable automatic per-hex colored overlay so outlines are shown instead.
+					targeting: false,
+					// Re-apply dashed outlines after every query reset (hover-off / redo).
+					callbackAfterQueryHexes: showAllOutlines,
 				});
 			},
 

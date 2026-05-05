@@ -711,6 +711,8 @@ export class HexGrid {
 			id: o.id,
 			fillHexOnHover: false,
 			fillOnlyHoveredCreature: o.fillOnlyHoveredCreature,
+			targeting: o.targeting !== undefined ? o.targeting : true,
+			callbackAfterQueryHexes: o.callbackAfterQueryHexes,
 		});
 	}
 
