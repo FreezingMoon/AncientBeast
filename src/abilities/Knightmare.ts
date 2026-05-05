@@ -33,7 +33,7 @@ export default (G: Game) => {
 					}
 				});
 
-				if (this.creature.remainingMove < this.creature.stats.movement) {
+				if (this.creature.travelDist > 0) {
 					this.message = 'The creature moved this round.';
 					return false;
 				}
@@ -55,6 +55,7 @@ export default (G: Game) => {
 								offense: this._getOffenseBuff(),
 							},
 							stackable: true,
+							turnLifetime: -1,
 						},
 						G,
 					),
@@ -130,6 +131,7 @@ export default (G: Game) => {
 									frost: -1,
 								},
 								stackable: true,
+								turnLifetime: -1,
 							},
 							G,
 						),
