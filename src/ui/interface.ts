@@ -2710,7 +2710,13 @@ export class UI {
 		);
 
 		const showCurrentPlayer = () => {
-			throttledSet(playerFormatter(ui.game.activePlayer));
+			const activePlayer = ui.game.activePlayer;
+			if (!activePlayer) {
+				showGameInfo();
+				return;
+			}
+
+			throttledSet(playerFormatter(activePlayer));
 		};
 
 		const showHex = (hex) => {
