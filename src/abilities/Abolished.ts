@@ -35,6 +35,7 @@ export default (G: Game) => {
 						target, // Target
 						'', // Trigger
 						{
+							turnLifetime: -1,
 							alterations: {
 								burn: -1,
 							},
@@ -42,7 +43,6 @@ export default (G: Game) => {
 						G,
 					),
 				);
-				target.stats.burn -= 1;
 				if (this.isUpgraded()) {
 					this.creature.addEffect(
 						new Effect(
@@ -51,6 +51,7 @@ export default (G: Game) => {
 							this.creature, // Target
 							'', // Trigger
 							{
+								turnLifetime: -1,
 								alterations: {
 									burn: 1,
 								},
