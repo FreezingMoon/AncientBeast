@@ -54,6 +54,7 @@ export default (G: Game) => {
 
 				// require() has identified a valid target, so we can safely assume it is there.
 				const target = this._getHexes()[0].creature;
+				const maxEnduranceBeforeInfest = target.stats.endurance;
 				if (this.isUpgraded()) {
 					// Upgraded ability causes fatigue - endurance set to 0.
 					target.addFatigue(target.endurance);
@@ -66,6 +67,7 @@ export default (G: Game) => {
 					// Effect never fades.
 					'',
 					{
+						turnLifetime: -1,
 						stackable: true,
 						alterations: {
 							endurance: -5,
@@ -73,15 +75,16 @@ export default (G: Game) => {
 					},
 					G,
 				);
-				if (target.isFragile()) {
+
+				const maxEnduranceLoss = Math.min(5, Math.max(0, maxEnduranceBeforeInfest - 1));
+				if (maxEnduranceLoss <= 0) {
 					G.log(`%CreatureName${target.id}% is already fragile`);
-				} else if (target.endurance < 5 && target.endurance > 0) {
+					target.addEffect(effect, undefined, undefined, true);
+				} else {
 					target.addEffect(
 						effect,
-						`%CreatureName${target.id}% loses -${target.endurance} endurance`,
+						`%CreatureName${target.id}% loses -${maxEnduranceLoss} maximum endurance`,
 					);
-				} else {
-					target.addEffect(effect, `%CreatureName${target.id}% loses -5 endurance`);
 				}
 				// Display potentially new "Fragile" status when losing maximum endurance.
 				// TODO: Creatures are responsible for telling the UI if they potentially
