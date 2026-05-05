@@ -261,13 +261,9 @@ export default (G: Game) => {
 						choice.forEach((hex: Hex) => {
 							hex.cleanDisplayVisualState('dashed');
 							if (hex.creature instanceof Creature) {
-								hex.displayVisualState(
-									'creature selected player' + hex.creature.team,
-								);
+								hex.displayVisualState('creature selected player' + hex.creature.team);
 							} else {
-								hex.overlayVisualState(
-									'reachable h_player' + G.activeCreature.team,
-								);
+								hex.overlayVisualState('reachable h_player' + G.activeCreature.team);
 							}
 						});
 					},

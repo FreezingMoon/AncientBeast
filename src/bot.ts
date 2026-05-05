@@ -556,8 +556,7 @@ export default class BotController {
 		});
 		adjacentEnemies.forEach((enemy) => {
 			const enemyStrategy = unitStrategies[enemy.type as string];
-			score +=
-				enemyStrategy?.getProximityPenalty?.(activeCreature, enemy, hex, this) ?? 0;
+			score += enemyStrategy?.getProximityPenalty?.(activeCreature, enemy, hex, this) ?? 0;
 		});
 
 		// Zone preference weakens with aggression so units stop hugging safe ground.
@@ -637,12 +636,7 @@ export default class BotController {
 
 				const targetStrategy = unitStrategies[target.type as string];
 				score +=
-					targetStrategy?.getTargetingPenalty?.(
-						activeCreature,
-						target,
-						abilityIndex,
-						this,
-					) ?? 0;
+					targetStrategy?.getTargetingPenalty?.(activeCreature, target, abilityIndex, this) ?? 0;
 				score +=
 					targetStrategy?.getCounterTargetingModifier?.(
 						activeCreature,
