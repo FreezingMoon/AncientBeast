@@ -6,6 +6,7 @@ import { Team, isTeam } from './utility/team';
 import SnowBunnyStrategy from './bots/Snow-Bunny';
 import DarkPriestStrategy from './bots/Dark-Priest';
 import AbolishedStrategy from './bots/Abolished';
+import GoldenWyrmStrategy from './bots/Golden-Wyrm';
 
 /**
  * Optional per-unit behaviour overrides for BotController.
@@ -51,6 +52,27 @@ export interface UnitBotStrategy {
 		abilityIndex: number,
 		controller: BotController,
 	): number;
+	/**
+	 * Optional target-owned score modifier for opponents attacking this unit.
+	 * Unlike `getTargetingPenalty`, this may return positive or negative values.
+	 */
+	getCounterTargetingModifier?(
+		attacker: Creature,
+		target: Creature,
+		abilityIndex: number,
+		controller: BotController,
+	): number;
+	/**
+	 * Optional score modifier for movement destinations adjacent to this unit.
+	 * Implemented by the ENEMY unit's strategy file to express zone-control
+	 * danger (e.g. retaliation auras, execution threat, anti-clumping pressure).
+	 */
+	getProximityPenalty?(
+		mover: Creature,
+		enemy: Creature,
+		destination: Hex,
+		controller: BotController,
+	): number;
 }
 
 /** Registry of unit-specific strategies, keyed by creature.type (e.g. 'S1'). */
@@ -58,6 +80,7 @@ export const unitStrategies: Partial<Record<string, UnitBotStrategy>> = {
 	'--': DarkPriestStrategy,
 	S1: SnowBunnyStrategy,
 	P7: AbolishedStrategy,
+	A7: GoldenWyrmStrategy,
 };
 
 type BotPendingAction =
@@ -521,6 +544,22 @@ export default class BotController {
 			? 1000
 			: 0;
 
+		// Apply enemy-owned proximity penalties for adjacent hostile units.
+		const adjacentEnemies = new Map<number, Creature>();
+		hex.adjacentHex(1).forEach((adjacentHex) => {
+			if (
+				adjacentHex.creature instanceof Creature &&
+				isTeam(activeCreature, adjacentHex.creature, Team.Enemy)
+			) {
+				adjacentEnemies.set(adjacentHex.creature.id, adjacentHex.creature);
+			}
+		});
+		adjacentEnemies.forEach((enemy) => {
+			const enemyStrategy = unitStrategies[enemy.type as string];
+			score +=
+				enemyStrategy?.getProximityPenalty?.(activeCreature, enemy, hex, this) ?? 0;
+		});
+
 		// Zone preference weakens with aggression so units stop hugging safe ground.
 		const preferredX = this.getPreferredX(activeCreature);
 		const zoneWeight = Math.max(1, 10 - aggression);
@@ -595,6 +634,22 @@ export default class BotController {
 						score += Math.round((target.energy / target.stats.energy) * 100);
 					}
 				}
+
+				const targetStrategy = unitStrategies[target.type as string];
+				score +=
+					targetStrategy?.getTargetingPenalty?.(
+						activeCreature,
+						target,
+						abilityIndex,
+						this,
+					) ?? 0;
+				score +=
+					targetStrategy?.getCounterTargetingModifier?.(
+						activeCreature,
+						target,
+						abilityIndex,
+						this,
+					) ?? 0;
 
 				return score;
 			}

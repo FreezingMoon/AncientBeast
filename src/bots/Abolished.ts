@@ -456,6 +456,32 @@ const AbolishedStrategy: UnitBotStrategy = {
 	getTargetingPenalty() {
 		return 0;
 	},
+
+	/**
+	 * Counter-focus recommendation vs Abolished:
+	 * - Prioritise it as a fragile high-impact ranged unit.
+	 * - Increase focus further when it is already injured.
+	 */
+	getCounterTargetingModifier(_attacker, target, _abilityIndex, _controller) {
+		let score = 120;
+		const healthRatio = target.health / target.stats.health;
+		if (healthRatio < 0.5) score += 160;
+		if (healthRatio < 0.3) score += 220;
+		return score;
+	},
+
+	/**
+	 * Counter-positioning recommendation vs Abolished:
+	 * - Adjacent pressure is valuable because Abolished is fragile and prefers range.
+	 * - Reward adjacency more when Abolished is low health so bots collapse to finish.
+	 */
+	getProximityPenalty(_mover, enemy, _destination, _controller) {
+		let score = 80;
+		const healthRatio = enemy.health / enemy.stats.health;
+		if (healthRatio < 0.5) score += 80;
+		if (healthRatio < 0.3) score += 140;
+		return score;
+	},
 };
 
 export default AbolishedStrategy;

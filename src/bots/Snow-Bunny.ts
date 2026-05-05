@@ -395,6 +395,32 @@ const SnowBunnyStrategy: UnitBotStrategy = {
 		return 0;
 	},
 
+	/**
+	 * Counter-focus recommendation vs Snow Bunny:
+	 * - Prioritise it as a fragile ranged control unit.
+	 * - Increase urgency further when already injured.
+	 */
+	getCounterTargetingModifier(_attacker, target, _abilityIndex, _controller) {
+		let score = 160;
+		const healthRatio = target.health / target.stats.health;
+		if (healthRatio < 0.5) score += 150;
+		if (healthRatio < 0.3) score += 180;
+		return score;
+	},
+
+	/**
+	 * Counter-positioning recommendation vs Snow Bunny:
+	 * - Being adjacent limits its preferred ranged game plan.
+	 * - Strongly reward collapse on low-health Snow Bunny to finish quickly.
+	 */
+	getProximityPenalty(_mover, enemy, _destination, _controller) {
+		let score = 120;
+		const healthRatio = enemy.health / enemy.stats.health;
+		if (healthRatio < 0.5) score += 100;
+		if (healthRatio < 0.3) score += 140;
+		return score;
+	},
+
 	getAbilityPriority(creature, _controller) {
 		const hasFrozenAdjacent = creature
 			.adjacentHexes(1)

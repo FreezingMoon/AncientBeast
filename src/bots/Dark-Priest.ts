@@ -331,6 +331,30 @@ const DarkPriestStrategy: UnitBotStrategy = {
 
 		return penalty;
 	},
+
+	/**
+	 * Counter-focus recommendation vs Dark Priest:
+	 * - While shielded (plasma > 0), lower focus since damage is often negated.
+	 * - When plasma is low or depleted, sharply increase focus to secure the kill.
+	 */
+	getCounterTargetingModifier(_attacker, target, _abilityIndex, _controller) {
+		const plasma = target.player.plasma;
+		if (plasma <= 0) return 420;
+		if (plasma <= PLASMA_SURVIVAL_RESERVE) return 170;
+		return -80;
+	},
+
+	/**
+	 * Counter-positioning recommendation vs Dark Priest:
+	 * - With plasma up, avoid overcommitting adjacent positions.
+	 * - Once plasma is gone, favour adjacency to keep pressure and deny escape lanes.
+	 */
+	getProximityPenalty(_mover, enemy, _destination, _controller) {
+		const plasma = enemy.player.plasma;
+		if (plasma <= 0) return 140;
+		if (plasma <= PLASMA_SURVIVAL_RESERVE) return 40;
+		return -70;
+	},
 };
 
 export default DarkPriestStrategy;
