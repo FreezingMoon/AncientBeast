@@ -1590,16 +1590,7 @@ export class UI {
 		const scores = players.map((pl) => pl.getScore().total);
 		const maxScore = Math.max(...scores, 1);
 		const playerColors = ['#f55', '#88f', '#fa5', '#5f5'];
-		const statColors = ['#f00', '#ff0', '#c5f', '#888', '#5c5', '#aaf'];
-		const statLabels = ['Health', 'Energy', 'Plasma', 'Time', 'Units', 'Score'];
-		const statTooltipMeta = [
-			{ label: 'Health', emoji: emoji.get('heartbeat') },
-			{ label: 'Energy', emoji: '💫' },
-			{ label: 'Plasma', emoji: '🌐' },
-			{ label: 'Time', emoji: emoji.get('alarm_clock') },
-			{ label: 'Units', emoji: emoji.get('bat') },
-			{ label: 'Score', emoji: emoji.get('100') },
-		];
+		const hasFiniteTimePool = game.timePool > 0;
 
 		const playerHeaderMeta = players.map((player) => {
 			const dp = player.creatures.find((c) => c.isDarkPriest && c.isDarkPriest());
@@ -1626,23 +1617,54 @@ export class UI {
 					: 0;
 
 			const scoreRatio = Math.max(0, Math.min(1, player.getScore().total / maxScore));
-			const ratios = [
-				dpHealthRatio,
-				dpEnergyRatio,
-				plasmaRatio,
-				poolTimeRatio,
-				unitsRatio,
-				scoreRatio,
-			];
+			const statData = [
+				{
+					label: 'Health',
+					emoji: emoji.get('heartbeat'),
+					color: '#f00',
+					ratio: dpHealthRatio,
+				},
+				{
+					label: 'Energy',
+					emoji: '💫',
+					color: '#ff0',
+					ratio: dpEnergyRatio,
+				},
+				{
+					label: 'Plasma',
+					emoji: '🌐',
+					color: '#c5f',
+					ratio: plasmaRatio,
+				},
+				{
+					label: 'Time',
+					emoji: emoji.get('alarm_clock'),
+					color: '#888',
+					ratio: poolTimeRatio,
+					enabled: hasFiniteTimePool,
+				},
+				{
+					label: 'Units',
+					emoji: emoji.get('bat'),
+					color: '#5c5',
+					ratio: unitsRatio,
+				},
+				{
+					label: 'Score',
+					emoji: emoji.get('100'),
+					color: '#aaf',
+					ratio: scoreRatio,
+				},
+			].filter((stat) => stat.enabled !== false);
 
-			const barsHtml = ratios
+			const barsHtml = statData
 				.map(
-					(ratio, i) =>
-						`<div class="score-header-bar-wrap" title="${statLabels[i]}">` +
-						`<span class="score-header-tooltip">${statTooltipMeta[i].emoji} ${statTooltipMeta[i].label}</span>` +
+					(stat) =>
+						`<div class="score-header-bar-wrap" title="${stat.label}">` +
+						`<span class="score-header-tooltip">${stat.emoji} ${stat.label}</span>` +
 						`<div class="score-header-bar-fill" style="height:${Math.round(
-							ratio * 100,
-						)}%;background:${statColors[i]}"></div>` +
+							stat.ratio * 100,
+						)}%;background:${stat.color}"></div>` +
 						`</div>`,
 				)
 				.join('');
