@@ -113,17 +113,18 @@ export default (G: Game) => {
 				ability.end();
 				G.Phaser.camera.shake(0.01, 70, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
-				// If upgraded, hits will debuff target with -1 offense
+				// If upgraded, hits will permanently debuff target with -1 offense (stackable)
 				if (this.isUpgraded()) {
 					const effect = new Effect(
 						'Slicing Pounce',
 						ability.creature,
 						target,
-						'onDamage',
+						'',
 						{
 							alterations: {
 								offense: -1,
 							},
+							turnLifetime: -1,
 						},
 						G,
 					);
