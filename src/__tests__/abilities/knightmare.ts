@@ -230,7 +230,11 @@ describe('Knightmare Icy Talons', () => {
 
 		expect(target.takeDamage).toHaveBeenCalledTimes(1);
 		const damageArg = target.takeDamage.mock.calls[0][0] as {
-			effects: Array<{ alterations: Record<string, number>; stackable: boolean; turnLifetime: number }>;
+			effects: Array<{
+				alterations: Record<string, number>;
+				stackable: boolean;
+				turnLifetime: number;
+			}>;
 		};
 		expect(damageArg.effects).toHaveLength(1);
 		expect(damageArg.effects[0].alterations.frost).toBe(-1);

@@ -103,14 +103,16 @@ function hasHealableAlly(creature: Creature): boolean {
 	if (creature.health <= SAFE_STIGMATA_HEALTH) {
 		return false;
 	}
-	return creature.adjacentHexes(1).some(
-		(hex: Hex) =>
-			hex.creature instanceof Creature &&
-			isTeam(creature, hex.creature, Team.Ally) &&
-			hex.creature !== creature &&
-			hex.creature.health / hex.creature.stats.health < LOW_ALLY_HEALTH_RATIO &&
-			hex.creature.health < hex.creature.stats.health,
-	);
+	return creature
+		.adjacentHexes(1)
+		.some(
+			(hex: Hex) =>
+				hex.creature instanceof Creature &&
+				isTeam(creature, hex.creature, Team.Ally) &&
+				hex.creature !== creature &&
+				hex.creature.health / hex.creature.stats.health < LOW_ALLY_HEALTH_RATIO &&
+				hex.creature.health < hex.creature.stats.health,
+		);
 }
 
 // ---------------------------------------------------------------------------
@@ -237,9 +239,7 @@ function scoreDragonFlight(hex: Hex, activeCreature: Creature, controller: BotCo
 	const adjacentAllies = [...adjacentAllyMap.values()];
 
 	const executableTargets = adjacentEnemies.filter((e) => e.health <= EXECUTE_THRESHOLD);
-	const darkPriestTarget = adjacentEnemies.find(
-		(e) => e.isDarkPriest() && e.player.plasma <= 0,
-	);
+	const darkPriestTarget = adjacentEnemies.find((e) => e.isDarkPriest() && e.player.plasma <= 0);
 
 	const dragonFlightAbility = activeCreature.abilities[ABILITY.DRAGON_FLIGHT];
 	const isDragonFlightUpgraded = dragonFlightAbility?.isUpgraded?.() ?? false;
