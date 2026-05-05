@@ -226,7 +226,11 @@ describe('Knightmare Icy Talons', () => {
 			end: jest.fn(),
 		};
 
-		(icyTalons as { activate: (targetArg: typeof target) => void }).activate(target);
+		(
+			icyTalons as unknown as {
+				activate: (targetArg: typeof target) => void;
+			}
+		).activate(target);
 
 		expect(target.takeDamage).toHaveBeenCalledTimes(1);
 		const damageArg = target.takeDamage.mock.calls[0][0] as {
