@@ -102,6 +102,7 @@ export class UI {
 	hoveredAbilityIndex: number;
 	_abilityPanelAnimating: boolean;
 	ignoreNextConfirmUnload: boolean;
+	scoreboardGameOver: boolean;
 	/**
 	 * Create attributes and default buttons
 	 * @constructor
@@ -1575,31 +1576,15 @@ export class UI {
 		// Check if the target of the click isn't the scoreboard nor a descendant of it
 		if (!score.is(e.target) && score.has(e.target).length === 0) {
 			scoreboard.off('click', this.easyScoreClose);
-			scoreboard.hide();
+			scoreboard.addClass('hide');
 		}
 	}
 
-	toggleScoreboard(gameOver) {
+	renderScoreboard(gameOver) {
 		const game = this.game;
-
-		// If the scoreboard is already displayed, hide it and return
-		if (!this.$scoreboard.hasClass('hide')) {
-			this.closeScoreboard();
-
-			return;
-		}
-
-		// Binding the click outside of the scoreboard to close the view
-		this.$scoreboard.on('click', this.easyScoreClose);
 
 		// Configure scoreboard data
 		this.$scoreboard.find('#scoreboardTitle').text('Score');
-
-		// Calculate the time cost of the last turn
-		const skipTurn = new Date(),
-			p = game.activeCreature.player;
-
-		p.totalTimePool = p.totalTimePool - (skipTurn.valueOf() - p.startTime.valueOf());
 
 		const date = new Date().valueOf() - game.pauseTime;
 		const players = game.players;
@@ -1796,7 +1781,11 @@ export class UI {
 			// Each player
 			// TimeBonus
 			if (game.timePool > 0) {
-				game.players[i].bonusTimePool = Math.round(game.players[i].totalTimePool / 1000);
+				const remainingMs =
+					game.players[i].id == game.activeCreature.player.id
+						? game.players[i].totalTimePool - (date - game.players[i].startTime.valueOf())
+						: game.players[i].totalTimePool;
+				game.players[i].bonusTimePool = Math.round(Math.max(remainingMs, 0) / 1000);
 			}
 
 			//----------Display-----------//
@@ -1872,12 +1861,116 @@ export class UI {
 			// Show close button for current score view
 			this.$scoreboard.find('.framed-modal__return').show();
 		}
+	}
+
+	toggleScoreboard(gameOver) {
+		// If the scoreboard is already displayed, hide it and return
+		if (!this.$scoreboard.hasClass('hide')) {
+			this.closeScoreboard();
+
+			return;
+		}
+
+		this.scoreboardGameOver = gameOver;
+
+		// Binding the click outside of the scoreboard to close the view
+		this.$scoreboard.on('click', this.easyScoreClose);
+
+		this.renderScoreboard(gameOver);
 
 		// Finally, show the scoreboard
 		this.$scoreboard.removeClass('hide');
 	}
 
+	refreshScoreboard() {
+		if (this.$scoreboard.hasClass('hide')) {
+			return;
+		}
+
+		const game = this.game;
+		const $table = $j('#scoreboard table tbody');
+
+		if ($table.children('tr.player_name').children('td').length <= 1) {
+			this.renderScoreboard(this.scoreboardGameOver);
+			return;
+		}
+
+		const date = new Date().valueOf() - game.pauseTime;
+		const scores = game.players.map((pl) => pl.getScore().total);
+		const maxScore = Math.max(...scores, 1);
+		const hasFiniteTimePool = game.timePool > 0;
+
+		for (let i = 0; i < game.gameMode; i++) {
+			if (game.timePool > 0) {
+				const remainingMs =
+					game.players[i].id == game.activeCreature.player.id
+						? game.players[i].totalTimePool - (date - game.players[i].startTime.valueOf())
+						: game.players[i].totalTimePool;
+				game.players[i].bonusTimePool = Math.round(Math.max(remainingMs, 0) / 1000);
+			}
+
+			const player = game.players[i];
+			const dp = player.creatures.find((c) => c.isDarkPriest && c.isDarkPriest());
+			const dpHealthRatio = dp ? Math.max(0, dp.health) / Math.max(1, dp.stats.health) : 0;
+			const dpEnergyRatio = dp ? Math.max(0, dp.energy) / Math.max(1, dp.stats.energy) : 0;
+
+			const plasmaRatio =
+				game.configData.plasma_amount > 0
+					? Math.min(1, player.plasma / game.configData.plasma_amount)
+					: 0;
+
+			let poolTimeRatio = 1;
+			if (game.timePool > 0) {
+				const remaining =
+					player.id === game.activeCreature?.player?.id
+						? player.totalTimePool - (date - player.startTime.valueOf())
+						: player.totalTimePool;
+				poolTimeRatio = Math.max(0, Math.min(1, remaining / (game.timePool * 1000)));
+			}
+
+			const unitsRatio =
+				game.configData.creaLimitNbr > 0
+					? Math.max(0, Math.min(1, player.getNbrOfCreatures() / game.configData.creaLimitNbr))
+					: 0;
+
+			const scoreRatio = Math.max(0, Math.min(1, player.getScore().total / maxScore));
+			const statRatios = [
+				dpHealthRatio,
+				dpEnergyRatio,
+				plasmaRatio,
+				poolTimeRatio,
+				unitsRatio,
+				scoreRatio,
+			].filter((_ratio, idx) => hasFiniteTimePool || idx !== 3);
+
+			const colId = game.gameMode > 2 ? i + 2 + ((i % 2) * 2 - 1) * Math.min(1, i % 3) : i + 2;
+			const $playerHeaderCell = $table
+				.children('tr.player_name')
+				.children('td:nth-child(' + colId + ')');
+			const $fills = $playerHeaderCell.find('.score-header-bar-fill');
+
+			if ($fills.length !== statRatios.length) {
+				this.renderScoreboard(this.scoreboardGameOver);
+				return;
+			}
+
+			statRatios.forEach((ratio, index) => {
+				$fills.eq(index).css('height', Math.round(ratio * 100) + '%');
+			});
+
+			$j.each(player.getScore(), function (index, val) {
+				const text = val === 0 && index !== 'total' ? '--' : val;
+				$table
+					.children('tr.' + index)
+					.children('td:nth-child(' + colId + ')')
+					.text(text);
+			});
+		}
+	}
+
 	closeScoreboard() {
+		this.$scoreboard.off('click', this.easyScoreClose);
+		this.scoreboardGameOver = false;
 		this.$scoreboard.addClass('hide');
 	}
 
@@ -2569,6 +2662,9 @@ export class UI {
 		} else {
 			$j('.timepool').text('∞');
 		}
+
+		// Keep scoreboard values and bars in sync while it is open.
+		this.refreshScoreboard();
 	}
 
 	/**
