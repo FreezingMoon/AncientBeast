@@ -1840,7 +1840,18 @@ div.section.info {
 
 .score-header-bar-wrap:hover .score-header-tooltip {
 	visibility: visible;
-	animation: slideTooltip 750ms forwards;
+	animation: slideTooltipCentered 750ms forwards;
+}
+
+@keyframes slideTooltipCentered {
+	0% {
+		opacity: 0.3;
+		transform: translate(calc(-50% - 10px), 0px);
+	}
+	100% {
+		opacity: 1;
+		transform: translate(-50%, 0px);
+	}
 }
 
 .score-player-name {
@@ -2130,11 +2141,11 @@ span.pure {
 @keyframes slideTooltip {
 	0% {
 		opacity: 0.3;
-		transform: translate(-10px, 0px);
+		transform: translate(-10px, -50%);
 	}
 	100% {
 		opacity: 1;
-		transform: translate(0px, 0px);
+		transform: translate(0px, -50%);
 	}
 }
 
@@ -2267,6 +2278,11 @@ span.pure {
 				}
 			}
 
+			.score-emoji-tooltip-wrap {
+				position: relative;
+				display: inline-block;
+			}
+
 			.tooltiptext {
 				visibility: hidden;
 				background-color: rgba(0, 0, 0, 0.75);
@@ -2278,12 +2294,15 @@ span.pure {
 				border-style: ridge;
 				padding: 5px 5px;
 				position: absolute;
+				top: 50%;
 				white-space: nowrap;
-				right: 65px;
+				right: calc(100% + 6px);
+				transform: translateY(-50%);
+				pointer-events: none;
 				z-index: 1;
 			}
 
-			td:hover .tooltiptext {
+			.score-emoji-tooltip-wrap:hover .tooltiptext {
 				visibility: visible;
 				animation: slideTooltip 750ms forwards;
 			}

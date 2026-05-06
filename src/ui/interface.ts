@@ -1778,7 +1778,7 @@ export class UI {
 		tableMeta.forEach((row) => {
 			let firstCellContent = `${row.title}`;
 			if (row.emoji) {
-				firstCellContent = `<span class="tooltiptext">${row.title}</span>${row.emoji}`;
+				firstCellContent = `<span class="score-emoji-tooltip-wrap">${row.emoji}<span class="tooltiptext">${row.title}</span></span>`;
 			}
 
 			$table.find(`tr.${row.cls}`).empty().html(`<td>
