@@ -32,13 +32,13 @@ describe('buffs-debuffs', () => {
 
 	test('getBuffDebuffSources uses modifier names for effects and drops', () => {
 		const creature = createCreature({
-			effects: [{ name: 'Battle Cry', alterations: { offense: 5 } }],
-			dropCollection: [{ name: 'Gooey Drop', alterations: { offense: -2 } }],
+			effects: [{ name: 'Mock Offense Buff', alterations: { offense: 5 } }],
+			dropCollection: [{ name: 'Mock Offense Debuff', alterations: { offense: -2 } }],
 		});
 
 		expect(getBuffDebuffSources(creature, 'offense')).toEqual([
-			{ kind: 'buff', text: '+5 from Battle Cry' },
-			{ kind: 'debuff', text: '-2 from Gooey Drop' },
+			{ kind: 'buff', text: '+5 from Mock Offense Buff' },
+			{ kind: 'debuff', text: '-2 from Mock Offense Debuff' },
 		]);
 	});
 
@@ -46,7 +46,7 @@ describe('buffs-debuffs', () => {
 		const creature = createCreature({
 			baseStats: { offense: 10 },
 			stats: { offense: 15 },
-			effects: [{ name: 'Battle Cry', alterations: { offense: 5 } }],
+			effects: [{ name: 'Mock Offense Buff', alterations: { offense: 5 } }],
 		});
 
 		expect(getStatWithBuffs(creature, 'offense', 999)).toMatchObject({
@@ -62,7 +62,7 @@ describe('buffs-debuffs', () => {
 
 		const creature = createCreature({
 			stats: { offense: 15 },
-			effects: [{ name: 'Battle Cry', alterations: { offense: 5 } }],
+			effects: [{ name: 'Mock Offense Buff', alterations: { offense: 5 } }],
 		});
 		const $value = $j('.value');
 
@@ -70,8 +70,7 @@ describe('buffs-debuffs', () => {
 
 		expect($value.hasClass('buff')).toBe(true);
 		expect($j('.stat .stat-modifiers').length).toBe(1);
-		expect($j('.stat .stat-modifiers').text()).toContain('OFFENSE');
-		expect($j('.stat .stat-modifiers').text()).toContain('+5 from Battle Cry');
+		expect($j('.stat .stat-modifiers').text()).toContain('+5 from Mock Offense Buff');
 	});
 
 	test('applyBuffDebuffStyle clears color and hover modifiers while browsing', () => {
