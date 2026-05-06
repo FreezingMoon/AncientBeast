@@ -43,9 +43,12 @@ export function getBuffDebuffSources(
 		return [];
 	}
 
-	return [...creature.effects, ...creature.dropCollection].flatMap((modifier) => {
+	const numericSources = new Map<string, { kind: ModifierKind; source: string; value: number }>();
+	const nonNumericSources: ModifierSource[] = [];
+
+	[...creature.effects, ...creature.dropCollection].forEach((modifier) => {
 		if (!modifier.alterations || !(statKey in modifier.alterations)) {
-			return [];
+			return;
 		}
 
 		const value = modifier.alterations[statKey];
@@ -53,29 +56,43 @@ export function getBuffDebuffSources(
 
 		if (typeof value === 'number') {
 			if (value === 0) {
-				return [];
+				return;
 			}
 
-			return [
-				{
-					kind: value > 0 ? 'buff' : 'debuff',
-					text: `${value > 0 ? '+' : ''}${value} from ${source}`,
-				},
-			];
+			const kind: ModifierKind = value > 0 ? 'buff' : 'debuff';
+			const key = `${kind}::${source}`;
+			const existing = numericSources.get(key);
+
+			if (existing) {
+				existing.value += value;
+				return;
+			}
+
+			numericSources.set(key, { kind, source, value });
+			return;
 		}
 
 		if (typeof value === 'string') {
 			const kind = value.includes('*') ? 'buff' : value.includes('/') ? 'debuff' : 'neutral';
 
-			return [{ kind, text: `${value} from ${source}` }];
+			nonNumericSources.push({ kind, text: `${value} from ${source}` });
+			return;
 		}
 
 		if (typeof value === 'boolean') {
-			return [{ kind: 'neutral', text: `${source}: ${value ? 'enabled' : 'disabled'}` }];
+			nonNumericSources.push({ kind: 'neutral', text: `${source}: ${value ? 'enabled' : 'disabled'}` });
+			return;
 		}
-
-		return [];
 	});
+
+	const stackedNumericSources = [...numericSources.values()]
+		.filter((entry) => entry.value !== 0)
+		.map((entry) => ({
+			kind: entry.kind,
+			text: `${entry.value > 0 ? '+' : ''}${entry.value} from ${entry.source}`,
+		}));
+
+	return [...stackedNumericSources, ...nonNumericSources];
 }
 
 export function getStatWithBuffs(
@@ -125,8 +142,9 @@ export function generateStatTooltip(
 		return '';
 	}
 
-	const changeText =
-		statData.change === 0 ? '' : ` (${statData.change > 0 ? '+' : ''}${statData.change})`;
+	const baseValue = statData.current - statData.change;
+	const changeSign = statData.change > 0 ? '+' : '';
+	const changeKind = statData.change > 0 ? 'buff' : 'debuff';
 	const sources = statData.sources
 		.map(
 			(source) =>
@@ -136,9 +154,14 @@ export function generateStatTooltip(
 
 	return `
 		<div class="modifiers stat-modifiers">
-			<div class="stat-modifier-title">${escapeHtml(statKey.toUpperCase())}</div>
-			<div class="stat-modifier-summary">Base: ${statData.current - statData.change}</div>
-			<div class="stat-modifier-summary">Current: ${statData.current}${changeText}</div>
+			<div class="stat-modifier-title">${escapeHtml(statKey.charAt(0).toUpperCase() + statKey.slice(1).toLowerCase())}</div>
+			<div class="stat-modifier-separator"></div>
+			<div class="stat-modifier-formula">
+				<span class="stat-modifier-base">${baseValue}</span>
+				<span class="stat-modifier-change ${changeKind}">${changeSign}${statData.change}</span>
+				<span class="stat-modifier-equals">= ${statData.current}</span>
+			</div>
+			<div class="stat-modifier-separator"></div>
 			${sources}
 		</div>
 	`;
@@ -154,9 +177,22 @@ export function applyBuffDebuffStyle(
 	$stat.removeClass('buff debuff').removeAttr('title');
 
 	const $statContainer = $stat.closest('.stat');
+	const defaultTitle = $statContainer.data('default-title') as string | undefined;
+	if (defaultTitle === undefined) {
+		const initialTitle = $statContainer.attr('title');
+		if (initialTitle !== undefined) {
+			$statContainer.data('default-title', initialTitle);
+		}
+	}
+
+	const restoreTitle = () => {
+		$statContainer.removeAttr('title');
+	};
+	$statContainer.removeAttr('title');
 	$statContainer.children('.stat-modifiers').remove();
 
 	if (isBrowsing || !creature) {
+		restoreTitle();
 		return;
 	}
 
@@ -170,6 +206,10 @@ export function applyBuffDebuffStyle(
 
 	const tooltipHtml = generateStatTooltip(creature, statKey, fallbackBaseValue);
 	if (tooltipHtml !== '') {
+		$statContainer.removeAttr('title');
 		$statContainer.append(tooltipHtml);
+		return;
 	}
+
+	restoreTitle();
 }

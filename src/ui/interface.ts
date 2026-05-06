@@ -768,16 +768,32 @@ export class UI {
 		});
 
 		this.$dash.find('.section.numbers .stat').on('mouseover', (event) => {
-			const $section = $j(event.target).closest('.section');
+			const $stat = $j(event.target).closest('.stat');
+			const $section = $stat.closest('.section');
 			const which = $section.hasClass('stats') ? '.stats_desc' : '.masteries_desc';
+			const hasAdvancedTooltip = $stat.children('.stat-modifiers').length > 0;
+
+			$j('.stats_desc, .masteries_desc').removeClass('shown');
+			$stat.toggleClass('suppress-regular-tooltip', hasAdvancedTooltip);
+
 			$j(which).addClass('shown');
+
+			if (!hasAdvancedTooltip && $stat.children('.tooltiptext').length === 0) {
+				const tooltipText =
+					($stat.data('default-title') as string | undefined) ||
+					$stat.attr('title') ||
+					String($stat.attr('stat') || '');
+
+				if (tooltipText !== '') {
+					$stat.append(`<span class="tooltiptext">${tooltipText}</span>`);
+				}
+			}
 		});
 
 		this.$dash.find('.section.numbers .stat').on('mouseleave', (event) => {
-			const $section = $j(event.target).closest('.section');
-			const which = $section.hasClass('stats') ? '.stats_desc' : '.masteries_desc';
-
-			$j(which).removeClass('shown');
+			const $stat = $j(event.target).closest('.stat');
+			$stat.removeClass('suppress-regular-tooltip');
+			$j('.stats_desc, .masteries_desc').removeClass('shown');
 		});
 
 		this.$dash.children('#playertabswrapper').addClass('numplayer' + game.gameMode);

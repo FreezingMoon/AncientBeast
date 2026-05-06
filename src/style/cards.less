@@ -181,14 +181,16 @@
 .card_info {
 	position: absolute;
 	display: none;
-	background: rgba(0, 0, 0, 0.8);
+	background: rgba(0, 0, 0, 0.75);
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
+	border-radius: 15px;
 	width: 400px;
 	color: white;
 	height: 520px;
 	opacity: 1;
 	font-size: 20px;
 	text-align: left;
-	border-radius: 15px;
 }
 
 .stats_desc {
@@ -201,6 +203,71 @@
 	font-size: x-large;
 	padding-top: 15px;
 	height: 505px !important;
+}
+
+#card .sideB .section.numbers .stat .tooltiptext {
+	visibility: hidden;
+	background-color: rgba(0, 0, 0, 0.65);
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
+	color: #fff;
+	text-align: center;
+	border-radius: 10px;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	padding: 5px 5px;
+	position: absolute;
+	white-space: nowrap;
+	left: 50%;
+	transform: translate(-50%, 0);
+	z-index: 4;
+	opacity: 0;
+	pointer-events: none;
+}
+
+#card .sideB .section.numbers.stats .stat .tooltiptext {
+	top: calc(100% + 8px);
+	bottom: auto;
+}
+
+#card .sideB .section.numbers.masteries .stat .tooltiptext {
+	bottom: calc(100% + 8px);
+	top: auto;
+}
+
+#card .sideB .section.numbers.stats .stat:hover .tooltiptext {
+	visibility: visible;
+	animation: cardTooltipRevealBelow 220ms ease-out forwards;
+}
+
+#card .sideB .section.numbers.masteries .stat:hover .tooltiptext {
+	visibility: visible;
+	animation: cardTooltipRevealAbove 220ms ease-out forwards;
+}
+
+#card .sideB .section.numbers .stat.suppress-regular-tooltip .tooltiptext {
+	display: none !important;
+}
+
+@keyframes cardTooltipRevealBelow {
+	0% {
+		opacity: 0;
+		transform: translate(-50%, -45%);
+	}
+	100% {
+		opacity: 1;
+		transform: translate(-50%, 0);
+	}
+}
+
+@keyframes cardTooltipRevealAbove {
+	0% {
+		opacity: 0;
+		transform: translate(-50%, 45%);
+	}
+	100% {
+		opacity: 1;
+		transform: translate(-50%, 0);
+	}
 }
 
 .modifiers {
@@ -218,13 +285,18 @@
 }
 
 .stat .modifiers.stat-modifiers {
-	background: rgba(0, 0, 0, 0.8);
+	background: rgba(0, 0, 0, 0.65);
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
 	border: 1px solid rgba(255, 255, 255, 0.2);
 	box-sizing: border-box;
-	left: 0;
-	padding: 8px 0;
-	top: calc(100% + 8px);
-	width: 300px;
+	left: 50%;
+	transform: translateX(-50%);
+	padding: 8px 12px;
+	top: calc(100% + 4px);
+	width: max-content;
+	min-width: 160px;
+	white-space: nowrap;
 	z-index: 3;
 }
 
@@ -234,20 +306,25 @@
 }
 
 .masteries .stat .modifiers.stat-modifiers {
-	bottom: calc(100% + 8px);
+	bottom: calc(100% + 4px);
 	top: auto;
 }
 
-.stats .stat:nth-child(n + 4):nth-child(-n + 6) .modifiers.stat-modifiers,
-.masteries .stat:nth-child(n + 4):nth-child(-n + 6) .modifiers.stat-modifiers {
-	left: 50%;
-	transform: translateX(-50%);
+.stats .stat:nth-child(1) .modifiers.stat-modifiers,
+.stats .stat:nth-child(2) .modifiers.stat-modifiers,
+.masteries .stat:nth-child(1) .modifiers.stat-modifiers,
+.masteries .stat:nth-child(2) .modifiers.stat-modifiers {
+	left: 0;
+	transform: none;
 }
 
-.stats .stat:nth-child(n + 7) .modifiers.stat-modifiers,
-.masteries .stat:nth-child(n + 7) .modifiers.stat-modifiers {
+.stats .stat:nth-child(8) .modifiers.stat-modifiers,
+.stats .stat:nth-child(9) .modifiers.stat-modifiers,
+.masteries .stat:nth-child(8) .modifiers.stat-modifiers,
+.masteries .stat:nth-child(9) .modifiers.stat-modifiers {
 	left: auto;
 	right: 0;
+	transform: none;
 }
 
 .modifiers div {
@@ -256,21 +333,35 @@
 }
 
 .stat .modifiers.stat-modifiers div {
-	margin: 6px 20px;
+	margin: 4px 0;
 	text-align: left;
 }
 
 .stat .modifiers.stat-modifiers .stat-modifier-title {
-	color: #ffd700;
+	color: white;
 	font-size: 14px;
-	letter-spacing: 0.08em;
+	font-weight: bold;
+	letter-spacing: 0.04em;
 	text-align: center;
-	text-transform: uppercase;
 }
 
-.stat .modifiers.stat-modifiers .stat-modifier-summary {
-	color: #ddd;
+.stat .modifiers.stat-modifiers .stat-modifier-formula {
+	text-align: center;
 	font-size: 13px;
+	margin: 4px 0;
+}
+
+.stat .modifiers.stat-modifiers .stat-modifier-base {
+	color: #ddd;
+}
+
+.stat .modifiers.stat-modifiers .stat-modifier-equals {
+	color: #ddd;
+}
+
+.stat .modifiers.stat-modifiers .stat-modifier-separator {
+	border-top: 1px solid rgba(255, 255, 255, 0.25);
+	margin: 4px 0;
 }
 
 .stat .modifiers.stat-modifiers .stat-modifier-source {
@@ -287,7 +378,7 @@
 @listOfStats: health, regrowth, energy, endurance, meditation, initiative, offense, defense,
 	movement, pierce, slash, crush, shock, burn, frost, poison, sonic, mental;
 .stat:hover {
-	background: black;
+	background: rgba(0, 0, 0, 0.65);
 	border-radius: 10px;
 	.animateStats(@listOfStats);
 }
@@ -322,6 +413,36 @@
 .stat:hover .modifiers {
 	height: auto;
 	opacity: 1;
+}
+
+.stats .stat:hover .modifiers.stat-modifiers {
+	animation: statModifierRevealBelow 220ms ease-out forwards;
+}
+
+.masteries .stat:hover .modifiers.stat-modifiers {
+	animation: statModifierRevealAbove 220ms ease-out forwards;
+}
+
+@keyframes statModifierRevealBelow {
+	0% {
+		opacity: 0;
+		margin-top: -10px;
+	}
+	100% {
+		opacity: 1;
+		margin-top: 0;
+	}
+}
+
+@keyframes statModifierRevealAbove {
+	0% {
+		opacity: 0;
+		margin-bottom: -10px;
+	}
+	100% {
+		opacity: 1;
+		margin-bottom: 0;
+	}
 }
 
 span {
