@@ -1818,6 +1818,9 @@ export class UI {
 			// Hide close button on game over screen
 			this.$scoreboard.find('.framed-modal__return').hide();
 
+			// Hide flee button since the match is already over
+			this.$scoreboard.find('#fleeWrapper').hide();
+
 			// Declare winner
 			if (game.gameMode > 2) {
 				// 2 vs 2
@@ -1860,6 +1863,9 @@ export class UI {
 
 			// Show close button for current score view
 			this.$scoreboard.find('.framed-modal__return').show();
+
+			// Show flee button for mid-game score view
+			this.$scoreboard.find('#fleeWrapper').show();
 		}
 	}
 
