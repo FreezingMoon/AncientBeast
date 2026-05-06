@@ -14,6 +14,12 @@ const ABILITY = {
 
 /** Max push hexes before size penalty is applied by the Blowing Wind ability. */
 const MAX_PUSH_DISTANCE = 6;
+/** Health ratio considered low enough to favor push-first finishing lines. */
+const VERY_LOW_HEALTH_RATIO = 0.25;
+const HIGH_HEALTH_RATIO = 0.7;
+const HIGH_ENERGY_RATIO = 0.7;
+const HIGH_LEVEL = 5;
+const PRESERVE_FREEZE_THREAT_SCORE = 2;
 
 /**
  * Returns true when hex B is on the same straight row or diagonal axis as
@@ -266,6 +272,15 @@ function scoreBigPliers(hex: Hex, activeCreature: Creature, controller: BotContr
 		score = 100 - target.health + target.size * 10;
 	}
 
+	if (target.isFrozen()) {
+		const freezeThreatScore = getFrozenThreatScore(target);
+		// Preserve control on dangerous frozen foes instead of cashing out damage.
+		score -= freezeThreatScore * 180;
+		if (freezeThreatScore >= PRESERVE_FREEZE_THREAT_SCORE) {
+			score -= 500;
+		}
+	}
+
 	// Ask the target's own strategy if attacking it carries retaliation or
 	// debuff risk (e.g. Plasma Field, Battle Cry, Toxic Spores …).
 	const targetStrategy = unitStrategies[target.type as string];
@@ -274,6 +289,87 @@ function scoreBigPliers(hex: Hex, activeCreature: Creature, controller: BotContr
 		0;
 
 	return score;
+}
+
+/**
+ * Returns true when there is at least one enemy that can be targeted by both
+ * directional abilities this turn. In this situation, using Blowing Wind first
+ * usually improves Freezing Spit's follow-up crush damage.
+ */
+function hasSharedDirectionalEnemyTarget(creature: Creature, controller: BotController): boolean {
+	return controller.game.creatures.some((other) => {
+		if (!other || other.dead || other.temp || !isTeam(creature, other, Team.Enemy)) {
+			return false;
+		}
+
+		return isOnSameAxis(creature.x, creature.y, other.x, other.y);
+	});
+}
+
+/**
+ * Prefer opening with upgraded melee Freezing Spit to apply freeze first,
+ * unless that adjacent enemy is already very low health (push-first finisher).
+ */
+function shouldOpenWithMeleeFreezingSpit(creature: Creature): boolean {
+	const freezingSpit = creature.abilities[ABILITY.FREEZING_SPIT];
+	if (!(freezingSpit?.isUpgraded?.() ?? false)) {
+		return false;
+	}
+
+	return creature.adjacentHexes(1).some((hex: Hex) => {
+		const target = hex.creature;
+		if (!(target instanceof Creature) || !isTeam(creature, target, Team.Enemy)) {
+			return false;
+		}
+
+		if (target.isFrozen()) {
+			return false;
+		}
+
+		const healthRatio = target.health / target.stats.health;
+		return healthRatio > VERY_LOW_HEALTH_RATIO;
+	});
+}
+
+/**
+ * Scores how dangerous it is to unfreeze a target by hitting it with Big Pliers.
+ * Higher scores indicate keeping freeze control is usually better.
+ */
+function getFrozenThreatScore(target: Creature): number {
+	let score = 0;
+
+	const healthRatio = target.health / target.stats.health;
+	if (healthRatio >= HIGH_HEALTH_RATIO) {
+		score += 1;
+	}
+
+	if (typeof target.stats.energy === 'number' && target.stats.energy > 0) {
+		const energyRatio = target.energy / target.stats.energy;
+		if (energyRatio >= HIGH_ENERGY_RATIO) {
+			score += 1;
+		}
+	}
+
+	if (typeof target.level === 'number' && target.level >= HIGH_LEVEL) {
+		score += 1;
+	}
+
+	return score;
+}
+
+function shouldPreserveFreezeOnTarget(target: Creature): boolean {
+	return target.isFrozen() && getFrozenThreatScore(target) >= PRESERVE_FREEZE_THREAT_SCORE;
+}
+
+function hasSafeFrozenBigPliersTarget(creature: Creature): boolean {
+	return creature.adjacentHexes(1).some((hex: Hex) => {
+		const target = hex.creature;
+		if (!(target instanceof Creature) || !isTeam(creature, target, Team.Enemy)) {
+			return false;
+		}
+
+		return target.isFrozen() && !shouldPreserveFreezeOnTarget(target);
+	});
 }
 
 // ---------------------------------------------------------------------------
@@ -382,8 +478,16 @@ const SnowBunnyStrategy: UnitBotStrategy = {
 
 	/**
 	 * Ability priority for Snow Bunny:
-	 * - Default: Freezing Spit (3) → Blowing Wind (2) → Big Pliers (1)
-	 *   Ranged attacks first; melee is a last resort for a glass-cannon sniper.
+	 * - Melee freeze setup: Freezing Spit (3) first when upgraded and there is an
+	 *   adjacent enemy that is not already frozen and not very low health.
+	 *   This applies freeze immediately to enable follow-up pressure.
+	 * - Frozen control: use Big Pliers first only against lower-threat frozen
+	 *   adjacent foes; keep dangerous frozen foes controlled via ranged actions.
+	 * - Default combo setup: Blowing Wind (2) → Freezing Spit (3) → Big Pliers (1)
+	 *   when both directional attacks can be used on the same enemy, so push comes
+	 *   first and Freezing Spit usually gains more crush distance.
+	 * - Otherwise: Freezing Spit (3) → Blowing Wind (2) → Big Pliers (1)
+	 *   to keep the previous ranged-first behaviour.
 	 * - Frozen adjacent enemy: Big Pliers (1) first to capitalise on the
 	 *   upgraded pure-damage combo; then the ranged options.
 	 */
@@ -421,7 +525,7 @@ const SnowBunnyStrategy: UnitBotStrategy = {
 		return score;
 	},
 
-	getAbilityPriority(creature, _controller) {
+	getAbilityPriority(creature, controller) {
 		const hasFrozenAdjacent = creature
 			.adjacentHexes(1)
 			.some(
@@ -431,8 +535,20 @@ const SnowBunnyStrategy: UnitBotStrategy = {
 					hex.creature.isFrozen(),
 			);
 
-		if (hasFrozenAdjacent) {
+		if (hasSafeFrozenBigPliersTarget(creature)) {
 			return [ABILITY.BIG_PLIERS, ABILITY.FREEZING_SPIT, ABILITY.BLOWING_WIND];
+		}
+
+		if (hasFrozenAdjacent) {
+			return [ABILITY.BLOWING_WIND, ABILITY.FREEZING_SPIT, ABILITY.BIG_PLIERS];
+		}
+
+		if (shouldOpenWithMeleeFreezingSpit(creature)) {
+			return [ABILITY.FREEZING_SPIT, ABILITY.BLOWING_WIND, ABILITY.BIG_PLIERS];
+		}
+
+		if (hasSharedDirectionalEnemyTarget(creature, controller)) {
+			return [ABILITY.BLOWING_WIND, ABILITY.FREEZING_SPIT, ABILITY.BIG_PLIERS];
 		}
 
 		return [ABILITY.FREEZING_SPIT, ABILITY.BLOWING_WIND, ABILITY.BIG_PLIERS];

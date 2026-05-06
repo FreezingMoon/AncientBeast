@@ -38,6 +38,7 @@ const makeCreature = ({
 	maxHealth = 55,
 	energy = 75,
 	maxEnergy = 75,
+	level = 1,
 	size = 1,
 	frozen = false,
 	flipped = false,
@@ -52,6 +53,7 @@ const makeCreature = ({
 	maxHealth: number;
 	energy: number;
 	maxEnergy: number;
+	level: number;
 	size: number;
 	frozen: boolean;
 	flipped: boolean;
@@ -67,6 +69,7 @@ const makeCreature = ({
 		health,
 		stats: { health: maxHealth, energy: maxEnergy },
 		energy,
+		level,
 		size,
 		dead: false,
 		temp: false,
@@ -376,6 +379,42 @@ describe('SnowBunnyStrategy.scoreAbilityHex – Big Pliers (index 1)', () => {
 		expect(frozenScore).toBeGreaterThan(normalScore);
 	});
 
+	test('penalises Big Pliers on high-threat frozen targets to preserve freeze control', () => {
+		const bigPliersAbility = { isUpgraded: () => true };
+		const bunny = makeCreature({
+			team: 0,
+			x: 5,
+			abilities: [null, bigPliersAbility, null, null],
+		});
+		const highThreatFrozen = makeCreature({
+			team: 1,
+			x: 6,
+			health: 50,
+			maxHealth: 55,
+			energy: 70,
+			maxEnergy: 75,
+			level: 6,
+			frozen: true,
+		});
+		const lowThreatFrozen = makeCreature({
+			team: 1,
+			x: 6,
+			health: 20,
+			maxHealth: 55,
+			energy: 15,
+			maxEnergy: 75,
+			level: 2,
+			frozen: true,
+		});
+		const highThreatHex = makeHex({ x: 6, y: 3, creature: highThreatFrozen });
+		const lowThreatHex = makeHex({ x: 6, y: 3, creature: lowThreatFrozen });
+		const controller = makeController({ activeCreature: bunny });
+
+		const highThreatScore = scoreAbilityHex(highThreatHex, 1, controller as any) as number;
+		const lowThreatScore = scoreAbilityHex(lowThreatHex, 1, controller as any) as number;
+		expect(highThreatScore).toBeLessThan(lowThreatScore);
+	});
+
 	test('applies getTargetingPenalty from the target unit strategy', () => {
 		const bunny = makeCreature({ team: 0, x: 5 });
 		const enemy = makeCreature({ team: 1, x: 6, health: 30, frozen: false });
@@ -463,14 +502,60 @@ describe('SnowBunnyStrategy.scoreAbilityHex – Blowing Wind (index 2)', () => {
 });
 
 describe('SnowBunnyStrategy.getAbilityPriority', () => {
-	test('default order is Freezing Spit → Blowing Wind → Big Pliers', () => {
-		const bunny = makeCreature({ adjacentHexes: () => [] });
-		const controller = makeController({ activeCreature: bunny });
+	test('prefers Blowing Wind before Freezing Spit when both can target an enemy', () => {
+		const bunny = makeCreature({ team: 0, x: 5, y: 3, adjacentHexes: () => [] });
+		const enemyInLine = makeCreature({ team: 1, x: 8, y: 3 });
+		const controller = makeController({ activeCreature: bunny, creatures: [enemyInLine] });
+		expect(getAbilityPriority(bunny, controller as any)).toEqual([2, 3, 1]);
+	});
+
+	test('prefers Freezing Spit first at melee when upgraded and target is not very low health', () => {
+		const meleeEnemy = makeCreature({ team: 1, id: 2, x: 6, y: 3, health: 40, maxHealth: 55 });
+		const bunny = makeCreature({
+			team: 0,
+			x: 5,
+			y: 3,
+			abilities: [null, null, { used: false }, { isUpgraded: () => true }],
+			adjacentHexes: () => [makeHex({ x: 6, y: 3, creature: meleeEnemy })],
+		});
+		const controller = makeController({ activeCreature: bunny, creatures: [meleeEnemy] });
 		expect(getAbilityPriority(bunny, controller as any)).toEqual([3, 2, 1]);
 	});
 
-	test('Big Pliers goes first when a frozen enemy is adjacent', () => {
-		const frozenEnemy = makeCreature({ team: 1, id: 2, frozen: true });
+	test('keeps Blowing Wind first when upgraded melee target is very low health', () => {
+		const lowHealthMeleeEnemy = makeCreature({
+			team: 1,
+			id: 2,
+			x: 6,
+			y: 3,
+			health: 10,
+			maxHealth: 55,
+		});
+		const bunny = makeCreature({
+			team: 0,
+			x: 5,
+			y: 3,
+			abilities: [null, null, { used: false }, { isUpgraded: () => true }],
+			adjacentHexes: () => [makeHex({ x: 6, y: 3, creature: lowHealthMeleeEnemy })],
+		});
+		const controller = makeController({
+			activeCreature: bunny,
+			creatures: [lowHealthMeleeEnemy],
+		});
+		expect(getAbilityPriority(bunny, controller as any)).toEqual([2, 3, 1]);
+	});
+
+	test('Big Pliers goes first when a low-threat frozen enemy is adjacent', () => {
+		const frozenEnemy = makeCreature({
+			team: 1,
+			id: 2,
+			health: 20,
+			maxHealth: 55,
+			energy: 15,
+			maxEnergy: 75,
+			level: 2,
+			frozen: true,
+		});
 		const adjacentHexWithFrozenEnemy = makeHex({ creature: frozenEnemy as any });
 		const bunny = makeCreature({
 			adjacentHexes: () => [adjacentHexWithFrozenEnemy],
@@ -479,9 +564,41 @@ describe('SnowBunnyStrategy.getAbilityPriority', () => {
 		expect(getAbilityPriority(bunny, controller as any)).toEqual([1, 3, 2]);
 	});
 
-	test('default order when adjacent hex has no creature', () => {
-		const bunny = makeCreature({ adjacentHexes: () => [makeHex()] });
-		const controller = makeController({ activeCreature: bunny });
+	test('does not open with Big Pliers against high-threat frozen adjacent enemy', () => {
+		const highThreatFrozenEnemy = makeCreature({
+			team: 1,
+			id: 2,
+			x: 6,
+			y: 3,
+			health: 50,
+			maxHealth: 55,
+			energy: 70,
+			maxEnergy: 75,
+			level: 6,
+			frozen: true,
+		});
+		const adjacentHexWithFrozenEnemy = makeHex({
+			x: 6,
+			y: 3,
+			creature: highThreatFrozenEnemy as any,
+		});
+		const bunny = makeCreature({
+			team: 0,
+			x: 5,
+			y: 3,
+			adjacentHexes: () => [adjacentHexWithFrozenEnemy],
+		});
+		const controller = makeController({
+			activeCreature: bunny,
+			creatures: [highThreatFrozenEnemy],
+		});
+		expect(getAbilityPriority(bunny, controller as any)).toEqual([2, 3, 1]);
+	});
+
+	test('falls back to Freezing Spit first when no shared directional enemy exists', () => {
+		const bunny = makeCreature({ team: 0, x: 5, y: 3, adjacentHexes: () => [makeHex()] });
+		const offAxisEnemy = makeCreature({ team: 1, x: 6, y: 4 });
+		const controller = makeController({ activeCreature: bunny, creatures: [offAxisEnemy] });
 		expect(getAbilityPriority(bunny, controller as any)).toEqual([3, 2, 1]);
 	});
 });
