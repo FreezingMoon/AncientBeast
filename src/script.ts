@@ -7,6 +7,7 @@ import { PreMatchAudioPlayer } from './sound/pre-match-audio';
 import { Fullscreen } from './ui/fullscreen';
 import { buttonSlide } from './ui/button';
 import { Locations } from './ui/locations';
+import { throttle } from 'underscore';
 
 import Connect from './multiplayer/connect';
 import { installAvatarStyles } from './style/avatar-styles';
@@ -173,7 +174,7 @@ $j(() => {
 				return event.metaKey && event.ctrlKey;
 			},
 			keyDownAction() {
-				readLogFromFile()
+				throttledReadLogFromFile()
 					.then((log) => G.gamelog.load(log as string))
 					.catch((err) => {
 						alert('An error occurred while loading the log file');
@@ -436,13 +437,16 @@ function readLogFromFile() {
 		fileInput.type = 'file';
 
 		fileInput.onchange = (event) => {
-			const file = (event.target as HTMLInputElement).files[0];
+			const file = (event.target as HTMLInputElement).files?.[0];
+			if (!file) {
+				return reject(new Error('No file selected'));
+			}
 			const reader = new FileReader();
 
 			reader.readAsText(file);
 
 			reader.onload = () => {
-				resolve(reader.result);
+				resolve(reader.result as string);
 			};
 
 			reader.onerror = () => {
@@ -453,6 +457,9 @@ function readLogFromFile() {
 		fileInput.click();
 	});
 }
+
+// Prevent multiple file pickers from opening when the hotkey is held down
+const throttledReadLogFromFile = throttle(readLogFromFile, 1000);
 
 /**
  * Render the game mode text inside game form
