@@ -11,6 +11,7 @@ export class QuickInfo {
 	constructor(quickInfoElement: HTMLElement) {
 		this.el = quickInfoElement;
 		this.el.innerHTML = '';
+		this.vignetteHash = '';
 
 		this.vignetteEl = document.createElement('div');
 		this.el.appendChild(this.vignetteEl);
@@ -36,9 +37,13 @@ export class QuickInfo {
 	private clear() {
 		if (this.vignetteHash !== '') {
 			this.vignetteHash = '';
+			const firstChild = this.vignetteEl.firstChild;
+			if (!firstChild) {
+				return;
+			}
 
 			const div = document.createElement('div');
-			div.append(this.vignetteEl.firstChild);
+			div.append(firstChild);
 			this.vignetteEl.innerHTML = '';
 
 			div.style.position = 'relative';
