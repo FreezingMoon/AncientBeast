@@ -80,7 +80,10 @@ export function getBuffDebuffSources(
 		}
 
 		if (typeof value === 'boolean') {
-			nonNumericSources.push({ kind: 'neutral', text: `${source}: ${value ? 'enabled' : 'disabled'}` });
+			nonNumericSources.push({
+				kind: 'neutral',
+				text: `${source}: ${value ? 'enabled' : 'disabled'}`,
+			});
 			return;
 		}
 	});
@@ -154,7 +157,9 @@ export function generateStatTooltip(
 
 	return `
 		<div class="modifiers stat-modifiers">
-			<div class="stat-modifier-title">${escapeHtml(statKey.charAt(0).toUpperCase() + statKey.slice(1).toLowerCase())}</div>
+			<div class="stat-modifier-title">${escapeHtml(
+				statKey.charAt(0).toUpperCase() + statKey.slice(1).toLowerCase(),
+			)}</div>
 			<div class="stat-modifier-separator"></div>
 			<div class="stat-modifier-formula">
 				<span class="stat-modifier-base">${baseValue}</span>
