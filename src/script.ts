@@ -9,8 +9,6 @@ import { buttonSlide } from './ui/button';
 import { Locations } from './ui/locations';
 
 import Connect from './multiplayer/connect';
-import Authenticate from './multiplayer/authenticate';
-import SessionI from './multiplayer/session';
 import { installAvatarStyles } from './style/avatar-styles';
 import {
 	DEBUG_AUTO_START_GAME,
@@ -347,15 +345,6 @@ $j(() => {
 		$j('#singleplayer').show();
 		$j('.setupFrame,.lobby').hide();
 		$j('.loginregFrame').show();
-		$j('#multiplayer').hide();
-		$j('#singleplayer').show();
-		const sess = new SessionI();
-		try {
-			await sess.restoreSession();
-		} catch (e) {
-			console.log('unable to restore session', e);
-			return;
-		}
 	});
 
 	$j('#singleplayer').on('click', async () => {
@@ -403,103 +392,6 @@ $j(() => {
 		return false;
 	});
 
-	// Register
-	async function register(e) {
-		e.preventDefault(); // Prevent submit
-		const reg = getReg();
-		// Check empty fields
-		if (
-			$j('#register .error-req').css('display') != 'none' ||
-			$j('#register .error-req').css('visibility') != 'hidden'
-		) {
-			// 'element' is hidden
-			$j('#register .error-req').hide();
-			$j('#register .error-req-message').hide();
-		}
-		if (reg.username == '' || reg.email == '' || reg.password == '' || reg.passwordmatch == '') {
-			$j('#register .error-req').show();
-			$j('#register .error-req-message').show();
-			return;
-		}
-		if (
-			$j('.error-pw-length').css('display') != 'none' ||
-			$j('.error-pw-length').css('visibility') != 'hidden'
-		) {
-			// 'element' is hidden
-			$j('.error-pw-length').hide();
-		}
-
-		// Password length
-		if (reg.password.split('').length < 8) {
-			$j('.error-pw-length').show();
-			return;
-		}
-		// Password match
-		if ($j('.error-pw').css('display') != 'none' || $j('.error-pw').css('visibility') != 'hidden') {
-			// 'element' is hidden
-			$j('.error-pw').hide();
-		}
-		if (reg.password != reg.passwordmatch) {
-			$j('.error-pw').show();
-			return;
-		}
-		const auth = new Authenticate(reg, connect.client);
-		const session = await auth.register();
-		const sess = new SessionI(session);
-		sess.storeSession();
-		G.session = session;
-		G.client = connect.client;
-		G.multiplayer = true;
-		$j('.setupFrame,.welcome').show();
-		$j('.match-frame').show();
-		$j('.loginregFrame,#gameSetup').hide();
-		$j('.user').text(session.username);
-		console.log('new user created.' + session);
-		return false; // Prevent submit
-	}
-	$j('form#register').on('submit', register);
-
-	async function login(e) {
-		e.preventDefault(); // Prevent submit
-		const login = getLogin();
-		let session;
-		$j('#login .login-error-req-message').hide();
-		if (login.email == '' || login.password == '') {
-			$j('#login .error-req').show();
-			$j('#login .error-req-message').show();
-			return;
-		}
-		// Check empty fields
-		if (
-			$j('#login .error-req').css('display') != 'none' ||
-			$j('#login .error-req').css('visibility') != 'hidden'
-		) {
-			// 'element' is hidden
-			$j('#login .error-req').hide();
-			$j('#login .error-req-message').hide();
-		}
-		const auth = new Authenticate(login, connect.client);
-		try {
-			session = await auth.authenticateEmail();
-		} catch (error) {
-			$j('#login .login-error-req-message').show();
-			return;
-		}
-
-		const sess = new SessionI(session);
-		sess.storeSession();
-		G.session = session;
-		G.client = connect.client;
-		G.multiplayer = true;
-
-		$j('.setupFrame,.welcome').show();
-		$j('.match-frame').show();
-		$j('.loginregFrame,#gameSetup').hide();
-		$j('.user').text(session.username);
-		return false; // Prevent submit
-	}
-	// Login form
-	$j('form#login').on('submit', login);
 	$j('#startMatchButton').on('click', () => {
 		G.loadGame(getGameConfig(), true);
 		return false;
@@ -533,21 +425,6 @@ function forceTwoPlayerMode() {
 }
 
 /**
- * get Registration.
- * @return {Object} login form.
- */
-function getReg() {
-	const reg = {
-		username: $j('.register input[name="username"]').val() as string,
-		email: $j('.register input[name="email"]').val() as string,
-		password: $j('.register input[name="password"]').val() as string,
-		passwordmatch: $j('.register input[name="passwordmatch"]').val() as string,
-	};
-
-	return reg;
-}
-
-/**
  * read log from file
  * @returns {Promise<string>}
  */
@@ -575,18 +452,6 @@ function readLogFromFile() {
 
 		fileInput.click();
 	});
-}
-
-/**
- * get Login.
- * @return {Object} login form.
- */
-function getLogin() {
-	const login = {
-		email: $j('.login input[name="email"]').val() as string,
-		password: $j('.login input[name="password"]').val() as string,
-	};
-	return login;
 }
 
 /**
