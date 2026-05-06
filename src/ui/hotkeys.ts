@@ -1,5 +1,6 @@
 import { UI } from './interface';
 import { Fullscreen } from './fullscreen';
+import { cycleAudioMode } from '../sound/soundsys';
 
 export class Hotkeys {
 	ui: UI;
@@ -90,9 +91,12 @@ export class Hotkeys {
 
 	pressA(event) {
 		if (event.shiftKey) {
-			this.ui.btnAudio.triggerClick();
+			// Shift+A cycles through audio modes (full -> sfx -> muted)
+			const newMode = cycleAudioMode(this.ui.game.soundsys, this.ui);
+			this.ui.updateAudioIcon(newMode);
 		} else {
-			this.ui.dashopen && this.ui.gridSelectLeft();
+			// A opens Audio view
+			this.ui.btnAudio.triggerClick();
 		}
 	}
 

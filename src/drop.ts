@@ -99,6 +99,9 @@ export class Drop {
 		game.log('%CreatureName' + creature.id + '% picks up ' + this.name + ':');
 		creature.hint(this.name, 'msg_effects');
 
+		// Play pickup sound effect
+		game.soundsys.playSFX('sounds/upgrade');
+
 		creature.dropCollection.push(this);
 
 		creature.updateAlteration();
