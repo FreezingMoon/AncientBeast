@@ -54,6 +54,7 @@ export default (G: Game) => {
 					alterations: this.effects[0],
 					creationTurn: G.turn - 1,
 					stackable: true,
+					turnLifetime: -1,
 				};
 
 				this.end();
