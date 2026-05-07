@@ -1816,8 +1816,8 @@ export class HexGrid {
 		const hex = this.hexes[pos.y][pos.x - (creatureData.size - 1)];
 		const cardboard =
 			creatureData.type == '--'
-				? creatureData.name + player.color + '_cardboard'
-				: creatureData.name + '_cardboard';
+				? creatureData.name + player.color
+				: creatureData.name;
 
 		if (!secondary) {
 			if (!this.materialize_overlay) {

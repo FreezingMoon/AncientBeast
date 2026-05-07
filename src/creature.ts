@@ -2025,7 +2025,7 @@ class CreatureSprite {
 		const darkPriestColorOrEmpty = isDarkPriest ? creature.player.color : '';
 
 		// Adding sprite
-		const spriteKey = creature.name + darkPriestColorOrEmpty + '_cardboard';
+		const spriteKey = creature.name + darkPriestColorOrEmpty;
 		const sprite = group.create(0, 0, spriteKey);
 		sprite.anchor.setTo(0.5, 1);
 		// Placing sprite
