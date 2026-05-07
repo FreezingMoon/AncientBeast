@@ -299,6 +299,16 @@ export default (G) => {
 				const ability = this;
 				const magmaSpawn = this.creature;
 
+				const finalizeHurl = () => {
+					const interval = setInterval(function () {
+						if (!G.freezedInput) {
+							clearInterval(interval);
+							G.UI.selectAbility(-1);
+							G.activeCreature.queryMove();
+						}
+					}, 100);
+				};
+
 				ability.end(false, true);
 
 				// Damage
@@ -322,9 +332,24 @@ export default (G) => {
 					const magmaHex = magmaSpawn.hexagons[args.direction === 4 ? magmaSpawn.size - 1 : 0];
 					arrayUtils.filterCreature(_path, false, false);
 					_path.unshift(magmaHex); // Prevent error on empty path
-					let destination = arrayUtils.last(_path);
-					const x = destination.x + (args.direction === 4 ? magmaSpawn.size - 1 : 0);
-					destination = G.grid.hexes[destination.y][x];
+
+					const offset = args.direction === 4 ? magmaSpawn.size - 1 : 0;
+					let destination;
+					for (let i = _path.length - 1; i >= 0; i--) {
+						const candidate = _path[i];
+						const x = candidate.x + offset;
+						const candidateHex = G.grid.hexes[candidate.y]?.[x];
+
+						if (candidateHex && candidateHex.isWalkable(magmaSpawn.size, magmaSpawn.id, true)) {
+							destination = candidateHex;
+							break;
+						}
+					}
+
+					if (!destination) {
+						finalizeHurl();
+						return;
+					}
 
 					magmaSpawn.moveTo(destination, {
 						ignoreMovementPoint: true,
@@ -359,13 +384,7 @@ export default (G) => {
 								}
 							}
 							if (!continueHurl) {
-								const interval = setInterval(function () {
-									if (!G.freezedInput) {
-										clearInterval(interval);
-										G.UI.selectAbility(-1);
-										G.activeCreature.queryMove();
-									}
-								}, 100);
+								finalizeHurl();
 							}
 						},
 					});
