@@ -1398,6 +1398,28 @@ export class Creature {
 
 			// If Health is empty
 			if (this.health <= 0) {
+				const deathIntercepted = this.abilities.some(
+					(ability) =>
+						typeof ability.interceptDeath === 'function' && ability.interceptDeath(damage.attacker),
+				);
+
+				if (deathIntercepted) {
+					this.updateHealth();
+					game.UI.updateFatigue();
+					game.UI.checkAbilities();
+
+					if (!o.ignoreRetaliation) {
+						// @ts-expect-error 2554
+						game.onDamage(this, damage);
+					}
+
+					return {
+						damages: dmg,
+						damageObj: damage,
+						kill: false,
+					};
+				}
+
 				this.die(damage.attacker);
 
 				return {

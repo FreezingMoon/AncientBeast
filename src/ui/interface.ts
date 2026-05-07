@@ -473,7 +473,12 @@ export class UI {
 							const creature = game.activeCreature;
 							if (creature) {
 								const ab = creature.abilities[i];
-								if (ab.message === game.msg.abilities.noTarget && ab._abilityRangeHexes?.length) {
+								// Refresh hover preview data/message to avoid stale no-target circles.
+								ab.require();
+								const showHoverRange =
+									ab._abilityRangeHexes?.length &&
+									(ab.message === game.msg.abilities.noTarget || ab.showHoverPreviewRange);
+								if (showHoverRange) {
 									ab._abilityRangeHexes.forEach((hex) => {
 										hex.displayVisualState('abilityRange');
 										hex.display.scale.setTo(0.5);
@@ -1518,10 +1523,17 @@ export class UI {
 
 		// Change creature status
 		game.players[id].availableCreatures.forEach((creature) => {
-			this.$grid.find(".vignette[creature='" + creature + "']").removeClass('locked');
+			const creatureStats = game.retrieveCreatureStats(creature);
+			if (!creatureStats) {
+				return;
+			}
+
+			if (creatureStats.playable === true) {
+				this.$grid.find(".vignette[creature='" + creature + "']").removeClass('locked');
+			}
 
 			const lvl = parseInt(creature.substring(1, 2)) - 0,
-				size = game.retrieveCreatureStats(creature).size - 0,
+				size = creatureStats.size - 0,
 				plasmaCost = lvl + size;
 
 			if (plasmaCost > game.players[id].plasma) {

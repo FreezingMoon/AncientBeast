@@ -7,7 +7,7 @@ import { CreatureType } from './data/types';
 import { isTeam, Team } from './utility/team';
 import * as arrayUtils from './utility/arrayUtils';
 import Game from './game';
-import { ScoreEvent } from './player';
+import { Player, ScoreEvent } from './player';
 import { Point } from './utility/pointfacade';
 
 /**
@@ -98,6 +98,8 @@ export class Ability {
 	require?: (req?: Damage | Hex) => boolean;
 	query?: () => unknown;
 	affectedByMatSickness?: boolean;
+	/** Show ability range preview on hover even if ability has no query UI (e.g., passive abilities). */
+	showHoverPreviewRange?: boolean;
 	activate?: (target?: any, hex?: any, path?: Hex[]) => unknown;
 	getAnimationData?: (...args: unknown[]) => unknown;
 	damages?: Partial<CreatureMasteries> & { pure?: number };
@@ -111,6 +113,7 @@ export class Ability {
 	 */
 	isMovementAbility?: boolean | 'safe';
 	materialize?: (creature: string | CreatureType) => void; // This functon only exists in `Dark Priest.ts`
+	interceptDeath?: (killer: Creature | { player: Player }) => boolean;
 	triggeredThisChain?: boolean;
 	range?: { minimum?: number; regular: number; upgraded?: number };
 
@@ -897,6 +900,12 @@ export class Ability {
 				}
 			}
 		});
+
+		// Meat Sickle can temporarily disable movement-tagged abilities.
+		if (this.isMovementAbility && this.creature.findEffect('Meat Sickle Restriction').length) {
+			this.message = 'Blocked by Meat Sickle: movement abilities are disabled this turn';
+			return false;
+		}
 
 		return true;
 	}
