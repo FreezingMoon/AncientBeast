@@ -29,10 +29,12 @@ type Stats = {
 	mental: number;
 };
 
+type UnitPlayable = boolean | 'secret';
+
 type UnitDataStructure = readonly {
 	id: number;
 	name: string;
-	playable: boolean;
+	playable: UnitPlayable;
 	level: number | string;
 	realm: string;
 	size: UnitSize;
@@ -845,7 +847,7 @@ export const unitData: UnitDataStructure = [
 	{
 		id: 8,
 		name: 'Horn Head',
-		playable: false,
+		playable: 'secret',
 		level: 5,
 		realm: 'W',
 		size: 2,
