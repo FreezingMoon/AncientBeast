@@ -1270,6 +1270,9 @@ export class HexGrid {
 								];
 							if (prevHex) {
 								this.cleanHex(prevHex);
+								if (prevHex.reachable && game.activeCreature) {
+									prevHex.overlayVisualState('reachable h_player' + game.activeCreature.team);
+								}
 							}
 						}
 						this.materialize_overlay._previewPos = undefined;
@@ -1285,6 +1288,9 @@ export class HexGrid {
 								];
 							if (prevHex) {
 								this.cleanHex(prevHex);
+								if (prevHex.reachable && game.activeCreature) {
+									prevHex.overlayVisualState('reachable h_player' + game.activeCreature.team);
+								}
 							}
 						}
 						this.secondary_overlay._previewPos = undefined;
