@@ -6,8 +6,7 @@ jest.mock('phaser-ce', () => ({
 }));
 
 jest.mock('../../damage', () => ({
-	Damage: class DamageMock {
-	},
+	Damage: class DamageMock {},
 }));
 
 jest.mock('../../utility/pointfacade', () => ({
