@@ -3,6 +3,7 @@ import { Creature } from './creature';
 import { CreatureType } from './data/types';
 import { Hex } from './utility/hex';
 import { Team, isTeam } from './utility/team';
+import { getSummonCandidates } from './utility/summon-candidates';
 import SnowBunnyStrategy from './bots/Snow-Bunny';
 import DarkPriestStrategy from './bots/Dark-Priest';
 import AbolishedStrategy from './bots/Abolished';
@@ -378,15 +379,20 @@ export default class BotController {
 				.filter((c) => c?.temp && c.team === activeCreature.team)
 				.map((c) => c.type),
 		]);
-		const affordableCreatures = activeCreature.player.availableCreatures
-			.filter((type) => !unavailable.has(type))
-			.map((type) => {
-				const stats = this.game.retrieveCreatureStats(type);
-				const level = Number.parseInt(type.substring(1, 2), 10);
-				const cost = level + Number(stats?.size ?? 0);
-				return { type, cost };
-			})
-			.filter(({ cost }) => cost <= activeCreature.player.plasma);
+		const affordableCreatures = getSummonCandidates(
+			this.game,
+			activeCreature.player.availableCreatures,
+			{
+				excludeTypes: unavailable,
+				requireAffordable: true,
+				plasma: activeCreature.player.plasma,
+			},
+		).map((type) => {
+			const stats = this.game.retrieveCreatureStats(type);
+			const level = Number.parseInt(type.substring(1, 2), 10);
+			const cost = level + Number(stats?.size ?? 0);
+			return { type, cost };
+		});
 
 		if (affordableCreatures.length === 0) {
 			return undefined;

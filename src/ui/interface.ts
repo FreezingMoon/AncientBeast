@@ -21,6 +21,7 @@ import Game from '../game';
 import { CreatureType } from '../data/types';
 import { getAvatarSet } from '../style/avatar-styles';
 import { applyBuffDebuffStyle } from './buffs-debuffs';
+import { getSummonCandidates } from '../utility/summon-candidates';
 
 type Config = {
 	isAcceptingInput: () => boolean;
@@ -473,12 +474,7 @@ export class UI {
 							const creature = game.activeCreature;
 							if (creature) {
 								const ab = creature.abilities[i];
-								// Refresh hover preview data/message to avoid stale no-target circles.
-								ab.require();
-								const showHoverRange =
-									ab._abilityRangeHexes?.length &&
-									(ab.message === game.msg.abilities.noTarget || ab.showHoverPreviewRange);
-								if (showHoverRange) {
+								if (ab.message === game.msg.abilities.noTarget && ab._abilityRangeHexes?.length) {
 									ab._abilityRangeHexes.forEach((hex) => {
 										hex.displayVisualState('abilityRange');
 										hex.display.scale.setTo(0.5);
@@ -1304,10 +1300,12 @@ export class UI {
 				if (creatureType == '--' && !activeCreature.abilities[3].used) {
 					// Figure out if the player has enough plasma to summon any available creatures
 					const activePlayer = game.players[game.activeCreature.player.id];
-					const deadOrSummonedTypes = activePlayer.creatures.map((creature) => creature.type);
-					const availableTypes = activePlayer.availableCreatures.filter(
-						(el) => !deadOrSummonedTypes.includes(el),
+					const deadOrSummonedTypes = new Set(
+						activePlayer.creatures.map((creature) => creature.type),
 					);
+					const availableTypes = getSummonCandidates(game, activePlayer.availableCreatures, {
+						excludeTypes: deadOrSummonedTypes,
+					});
 					// Assume we can't afford anything
 					// Check one available creature at a time until we see something we can afford
 					let can_afford_a_unit = false;
@@ -1451,10 +1449,10 @@ export class UI {
 		const game = this.game;
 		// Figure out what the active player can summon
 		const activePlayer = game.players[this.game.activeCreature.player.id];
-		const deadOrSummonedTypes = activePlayer.creatures.map((creature) => creature.type);
-		const availableTypes = activePlayer.availableCreatures.filter(
-			(el) => !deadOrSummonedTypes.includes(el),
-		);
+		const deadOrSummonedTypes = new Set(activePlayer.creatures.map((creature) => creature.type));
+		const availableTypes = getSummonCandidates(game, activePlayer.availableCreatures, {
+			excludeTypes: deadOrSummonedTypes,
+		});
 
 		// Randomize array to grab a random creature
 		for (let i = availableTypes.length - 1; i > 0; i--) {
@@ -2012,7 +2010,13 @@ export class UI {
 		} else if (!randomize) {
 			this.showCreature('--', game.activeCreature.team, '');
 		} else if (this.lastViewedCreature) {
-			this.showCreature(this.lastViewedCreature, game.activeCreature.team, '');
+			const lastViewedCreatureStats = game.retrieveCreatureStats(this.lastViewedCreature);
+			if (lastViewedCreatureStats?.playable === true) {
+				this.showCreature(this.lastViewedCreature, game.activeCreature.team, '');
+			} else {
+				this.lastViewedCreature = '';
+				this.showRandomCreature();
+			}
 		} else {
 			this.showCreature(game.activeCreature.type, game.activeCreature.team, '');
 		}
@@ -2117,6 +2121,11 @@ export class UI {
 		const game = this.game;
 		const isDarkPriest = this.selectedCreature === '--';
 		const creatureType = isDarkPriest ? 'A0' : this.selectedCreature;
+		const candidateTypes = new Set(
+			getSummonCandidates(game, game.players[this.selectedPlayer].availableCreatures, {
+				excludeTypes: game.players[this.selectedPlayer].creatures.map((creature) => creature.type),
+			}),
+		);
 		let valid: boolean;
 		let nextCreature: string;
 
@@ -2126,7 +2135,7 @@ export class UI {
 				const realm = game.realms[game.realms.indexOf(creatureType[0]) + 1];
 
 				// Test If Valid Creature
-				if ($j.inArray(realm + '1', game.players[this.selectedPlayer].availableCreatures) > 0) {
+				if (candidateTypes.has((realm + '1') as CreatureType)) {
 					valid = true;
 
 					for (let i = 0, len = game.players[this.selectedPlayer].creatures.length; i < len; i++) {
@@ -2152,10 +2161,7 @@ export class UI {
 		} else {
 			// Test If Valid Creature
 			if (
-				$j.inArray(
-					creatureType[0] + (parseInt(creatureType[1]) - 0 + 1),
-					game.players[this.selectedPlayer].availableCreatures,
-				) > 0
+				candidateTypes.has((creatureType[0] + (parseInt(creatureType[1]) - 0 + 1)) as CreatureType)
 			) {
 				valid = true;
 
@@ -2188,6 +2194,11 @@ export class UI {
 	gridSelectPrevious() {
 		const game = this.game;
 		const creatureType = this.selectedCreature == '--' ? 'W8' : this.selectedCreature;
+		const candidateTypes = new Set(
+			getSummonCandidates(game, game.players[this.selectedPlayer].availableCreatures, {
+				excludeTypes: game.players[this.selectedPlayer].creatures.map((creature) => creature.type),
+			}),
+		);
 		let valid: boolean;
 		let nextCreature: string;
 
@@ -2197,7 +2208,7 @@ export class UI {
 				const realm = game.realms[game.realms.indexOf(creatureType[0]) - 1];
 
 				// Test if valid creature
-				if ($j.inArray(realm + '7', game.players[this.selectedPlayer].availableCreatures) > 0) {
+				if (candidateTypes.has((realm + '7') as CreatureType)) {
 					valid = true;
 
 					for (let i = 0, len = game.players[this.selectedPlayer].creatures.length; i < len; i++) {
@@ -2222,12 +2233,7 @@ export class UI {
 			}
 		} else {
 			// Test if valid creature
-			if (
-				$j.inArray(
-					creatureType[0] + (parseInt(creatureType[1]) - 1),
-					game.players[this.selectedPlayer].availableCreatures,
-				) > 0
-			) {
+			if (candidateTypes.has((creatureType[0] + (parseInt(creatureType[1]) - 1)) as CreatureType)) {
 				valid = true;
 
 				for (let i = 0, len = game.players[this.selectedPlayer].creatures.length; i < len; i++) {
