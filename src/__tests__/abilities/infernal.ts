@@ -7,13 +7,6 @@ jest.mock('phaser-ce', () => ({
 
 jest.mock('../../damage', () => ({
 	Damage: class DamageMock {
-		constructor(
-			_attacker: unknown,
-			_damages: unknown,
-			_area: number,
-			_effects: unknown,
-			_game: unknown,
-		) {}
 	},
 }));
 
