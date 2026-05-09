@@ -182,7 +182,9 @@ export class Hotkeys {
 		if (!this.ui.dashopen) {
 			this.ui.brandlogo.alpha = 0;
 			this.ui.game.grid.showGrid(false);
-			this.ui.game.grid.cleanOverlay();
+			this.ui.game.grid.allhexes.forEach((hex) => {
+				hex.cleanOverlayVisualState();
+			});
 			this.ui.game.grid.redoLastQuery();
 		}
 	}

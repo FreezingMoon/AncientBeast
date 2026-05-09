@@ -1450,8 +1450,10 @@ export class HexGrid {
 	 * Update overlay hexes with creature positions
 	 */
 	updateDisplay() {
-		this.cleanDisplay();
-		this.cleanOverlay();
+		this.allhexes.forEach((hex) => {
+			hex.cleanDisplayVisualState();
+			hex.cleanOverlayVisualState();
+		});
 
 		this.hexes.forEach((hex) => {
 			hex.forEach((item) => {
@@ -1821,22 +1823,6 @@ export class HexGrid {
 	 */
 	cleanReachable() {
 		this.allhexes.forEach((hex) => hex.setReachable());
-	}
-
-	/**
-	 * Shortcut for $allDispHex.removeClass()
-	 * @param {string} cssClass - Class(es) name(s) to remove with jQuery removeClass function
-	 * @deprecated use this.allhexes.forEach(hex => hex.cleanDisplayVisualState(cssClass))
-	 */
-	cleanDisplay(cssClass = '') {
-		this.allhexes.forEach((hex) => hex.cleanDisplayVisualState(cssClass));
-	}
-
-	/**
-	 * @deprecated use this.allhexes.forEach(hex => hex.cleanOverlayVisualState(cssClass))
-	 */
-	cleanOverlay(cssClass = '') {
-		this.allhexes.forEach((hex) => hex.cleanOverlayVisualState(cssClass));
 	}
 
 	/**

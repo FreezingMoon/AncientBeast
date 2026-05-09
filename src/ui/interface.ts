@@ -3019,7 +3019,9 @@ export class UI {
 
 			ui.game.grid.redoLastQuery();
 			// Clear any dashed/shrunken movement visualization added on hover
-			ui.game.grid.cleanDisplay();
+			ui.game.grid.allhexes.forEach((hex) => {
+				hex.cleanDisplayVisualState();
+			});
 			creatures.forEach((creature) => {
 				creature.xray(false);
 			});
@@ -3041,7 +3043,9 @@ export class UI {
 		const onTurnEndMouseLeave = () => {
 			ui.brandlogo.alpha = 0;
 			ui.game.grid.showGrid(false);
-			ui.game.grid.cleanOverlay();
+			ui.game.grid.allhexes.forEach((hex) => {
+				hex.cleanOverlayVisualState();
+			});
 			ui.game.grid.redoLastQuery();
 		};
 

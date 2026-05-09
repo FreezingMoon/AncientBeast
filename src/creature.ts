@@ -899,7 +899,9 @@ export class Creature {
 	 */
 	previewPosition(hex: Hex) {
 		const game = this.game;
-		game.grid.cleanOverlay('hover h_player' + this.team);
+		game.grid.allhexes.forEach((gridHex) =>
+			gridHex.cleanOverlayVisualState('hover h_player' + this.team),
+		);
 		if (!game.grid.hexes[hex.y][hex.x].isWalkable(this.size, this.id)) {
 			return; // Break if not walkable
 		}
