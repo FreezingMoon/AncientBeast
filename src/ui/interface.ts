@@ -2820,9 +2820,7 @@ export class UI {
 
 		const getCreatureDisplayName = (creatureOrName: { name?: string } | string) => {
 			const rawName =
-				typeof creatureOrName === 'string'
-					? creatureOrName
-					: (creatureOrName?.name ?? '');
+				typeof creatureOrName === 'string' ? creatureOrName : creatureOrName?.name ?? '';
 			const withoutPrefix = rawName.replace(/^object[_-]/i, '');
 			const spaced = withoutPrefix.replace(/[_-]+/g, ' ').trim();
 			if (!spaced) {
@@ -2990,6 +2988,9 @@ export class UI {
 		const onCreatureMouseEnter = ifGameNotFrozen((placeholderCreature) => {
 			const creatures = ui.game.creatures.filter((c) => c instanceof Creature);
 			const creature = creatures.filter((c) => c.id === placeholderCreature.id)[0];
+			if (!creature || !Array.isArray(creature.hexagons) || creature.hexagons.length === 0) {
+				return;
+			}
 			const otherCreatures = creatures.filter((c) => c.id !== placeholderCreature.id);
 
 			otherCreatures.forEach((c) => {

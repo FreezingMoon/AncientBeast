@@ -164,7 +164,6 @@ export class Creature {
 	remainingMove: number;
 	abilities: Ability[];
 	accumulatedTeleportRange = 0; // Used for Abolished's third ability
-
 	// BRB state — used by Gumble's upgraded Gooey Body to defer death
 	_brbActive: boolean;
 	_brbState: { killer: Creature | { player: Player }; gooTrap: Trap } | null;
@@ -826,16 +825,17 @@ export class Creature {
 		// new fade-in immediately.
 		game.grid.refreshActiveCreatureXray();
 		this.xray(false); // active creature itself must never be xrayed
-
 		if (this.movementType() === 'flying') {
 			o.range = game.grid.getFlyingRange(this.x, this.y, remainingMove, this.size, this.id);
 		}
 
 		const selectNormal = function (hex, args) {
+			game.grid.redoLastQuery();
 			args.creature.tracePath(hex);
 		};
 
 		const selectFlying = function (hex, args) {
+			game.grid.redoLastQuery();
 			const creature = game.retrieveCreatureStats(game.activeCreature.type);
 			game.grid.previewCreature(hex, creature, game.activePlayer);
 			args.creature.tracePosition({
@@ -877,6 +877,7 @@ export class Creature {
 				game.grid.queryHexes({
 					fnOnSelect: select,
 					fnOnConfirm: o.callback,
+					fillHexOnHover: false,
 					args: {
 						creature: this,
 						args: o.args,
@@ -1102,6 +1103,13 @@ export class Creature {
 			return; // Break if empty path
 		}
 
+		// Clean the previous preview footprint before painting the new path.
+		// Otherwise previewCreature() can erase penultimate adj hexes that overlap
+		// the previous destination after the new path has already been drawn.
+		const last = arrayUtils.last(path) as { x: number; y: number };
+		const creature = this.game.retrieveCreatureStats(this.game.activeCreature.type);
+		this.game.grid.previewCreature(last, creature, this.game.activePlayer);
+
 		path.forEach((item: { x: number; y: number }) => {
 			this.tracePosition({
 				x: item.x,
@@ -1112,10 +1120,6 @@ export class Creature {
 		}); // Trace path
 
 		// Highlight final position
-		const last = arrayUtils.last(path) as { x: number; y: number };
-
-		const creature = this.game.retrieveCreatureStats(this.game.activeCreature.type);
-		this.game.grid.previewCreature(last, creature, this.game.activePlayer);
 		this.tracePosition({
 			x: last.x,
 			y: last.y,

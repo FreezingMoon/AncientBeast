@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 jest.mock('phaser-ce', () => ({
 	Point: class PointMock {},
 	Polygon: class PolygonMock {},
@@ -84,7 +86,7 @@ jest.mock('../../creature', () => {
 			this.size = init.size ?? 1;
 			this.player =
 				init.player ?? ({ id: this.team, flipped: false, creatures: [] } as CreatureMock['player']);
-			this.energy = init.energy ?? (this.stats.energy ?? 100);
+			this.energy = init.energy ?? this.stats.energy ?? 100;
 		}
 	}
 

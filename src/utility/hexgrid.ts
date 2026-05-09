@@ -1283,10 +1283,11 @@ export class HexGrid {
 									this.materialize_overlay._previewPos.x - i
 								];
 							if (prevHex) {
-								this.cleanHex(prevHex);
-								if (prevHex.reachable && game.activeCreature) {
-									prevHex.overlayVisualState('reachable h_player' + game.activeCreature.team);
+								if (prevHex.creature === game.activeCreature) {
+									continue;
 								}
+								this.cleanHex(prevHex);
+								this.restoreReachableHexVisual(prevHex);
 							}
 						}
 						this.materialize_overlay._previewPos = undefined;
@@ -1301,10 +1302,11 @@ export class HexGrid {
 									this.secondary_overlay._previewPos.x - i
 								];
 							if (prevHex) {
-								this.cleanHex(prevHex);
-								if (prevHex.reachable && game.activeCreature) {
-									prevHex.overlayVisualState('reachable h_player' + game.activeCreature.team);
+								if (prevHex.creature === game.activeCreature) {
+									continue;
 								}
+								this.cleanHex(prevHex);
+								this.restoreReachableHexVisual(prevHex);
 							}
 						}
 						this.secondary_overlay._previewPos = undefined;
@@ -1446,6 +1448,16 @@ export class HexGrid {
 		hex.cleanOverlayVisualState();
 	}
 
+	restoreReachableHexVisual(hex: Hex) {
+		if (!hex.reachable || !this.game.activeCreature) {
+			return;
+		}
+
+		if (this.lastQueryOpt?.targeting) {
+			hex.overlayVisualState('reachable h_player' + this.game.activeCreature.team);
+		}
+	}
+
 	/**
 	 * Update overlay hexes with creature positions
 	 */
@@ -1460,7 +1472,6 @@ export class HexGrid {
 				if (item.creature instanceof Creature) {
 					if (item.creature.id == this.game.activeCreature.id) {
 						item.overlayVisualState(`active creature player${item.creature.team}`);
-						item.displayVisualState(`creature player${item.creature.team}`);
 					}
 				}
 			});
@@ -1920,10 +1931,11 @@ export class HexGrid {
 			for (let i = 0, prevSize = preview._previewSize; i < prevSize; i++) {
 				const prevHex = this.hexes[preview._previewPos.y]?.[preview._previewPos.x - i];
 				if (prevHex) {
-					this.cleanHex(prevHex);
-					if (prevHex.reachable) {
-						prevHex.overlayVisualState('reachable h_player' + game.activeCreature.team);
+					if (prevHex.creature === game.activeCreature) {
+						continue;
 					}
+					this.cleanHex(prevHex);
+					this.restoreReachableHexVisual(prevHex);
 				}
 			}
 		}

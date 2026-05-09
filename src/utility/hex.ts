@@ -628,6 +628,7 @@ export class Hex {
 
 		targetAlpha = !this.displayClasses.match(/hidden/g) && targetAlpha;
 		targetAlpha = Boolean(this.displayClasses.match(/showGrid/g)) || targetAlpha;
+		targetAlpha = Boolean(this.displayClasses.match(/\badj\b/g)) || targetAlpha;
 		targetAlpha = Boolean(this.displayClasses.match(/dashed/g)) || targetAlpha;
 		targetAlpha = Boolean(this.displayClasses.match(/deadzone/g)) || targetAlpha;
 		targetAlpha = Boolean(this.displayClasses.match(/\babilityRange\b/g)) || targetAlpha;
@@ -640,6 +641,9 @@ export class Hex {
 			this.display.loadTexture('ability_range');
 			this.display.anchor.setTo(0.5, 0.5);
 			this.grid.displayHexesGroup.bringToTop(this.display);
+		} else if (this.displayClasses.match(/\badj\b/)) {
+			this.display.loadTexture('hex_path');
+			this.display.anchor.setTo(0, 0);
 		} else if (this.displayClasses.match(/dashed/)) {
 			// Check if this is a dashed hex with a creature (blocked target)
 			if (this.creature instanceof Creature) {

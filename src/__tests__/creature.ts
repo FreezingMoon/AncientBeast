@@ -196,6 +196,54 @@ describe('Creature', () => {
 			expect(creature.isDelayed).toBe(false);
 		});
 	});
+
+	describe('movement preview cleanup regressions', () => {
+		test('queryMove uses non-filling hover for movement previews', () => {
+			const game = getGameMock();
+			(game.grid as any).queryHexes = jest.fn();
+			(game.grid as any).forEachHex = jest.fn();
+			(game.grid as any).xray = jest.fn();
+			(game.grid as any).updateDisplay = jest.fn();
+			(game.grid as any).getFlyingRange = jest.fn(() => []);
+
+			const obj = getCreatureObjMock();
+			// @ts-ignore
+			const creature = new Creature(obj, game);
+			(game as any).activeCreature = creature;
+			creature.remainingMove = 3;
+
+			creature.queryMove();
+
+			expect((game.grid as any).queryHexes).toHaveBeenCalled();
+			const args = (game.grid as any).queryHexes.mock.calls[0][0];
+			expect(args.fillHexOnHover).toBe(false);
+		});
+
+		test('movement hover redraw resets the query before tracing the new path', () => {
+			const game = getGameMock();
+			(game.grid as any).queryHexes = jest.fn();
+			(game.grid as any).redoLastQuery = jest.fn();
+			(game.grid as any).forEachHex = jest.fn();
+			(game.grid as any).xray = jest.fn();
+			(game.grid as any).updateDisplay = jest.fn();
+			(game.grid as any).getFlyingRange = jest.fn(() => []);
+
+			const obj = getCreatureObjMock();
+			// @ts-ignore
+			const creature = new Creature(obj, game);
+			(game as any).activeCreature = creature;
+			creature.remainingMove = 3;
+			const tracePathSpy = jest.spyOn(creature, 'tracePath').mockImplementation(jest.fn());
+
+			creature.queryMove();
+
+			const queryArgs = (game.grid as any).queryHexes.mock.calls[0][0];
+			queryArgs.fnOnSelect({ x: creature.x + 1, y: creature.y }, { creature });
+
+			expect((game.grid as any).redoLastQuery).toHaveBeenCalledTimes(1);
+			expect(tracePathSpy).toHaveBeenCalledWith({ x: creature.x + 1, y: creature.y });
+		});
+	});
 });
 
 jest.mock('../ability');
@@ -247,6 +295,10 @@ const getHexesMock = () => {
 			row.push({
 				displayPos: { x, y },
 				creature: 0,
+				overlayVisualState: jest.fn(),
+				displayVisualState: jest.fn(),
+				cleanDisplayVisualState: jest.fn(),
+				cleanOverlayVisualState: jest.fn(),
 			});
 		}
 		arr.push(row);
@@ -264,6 +316,7 @@ const getGameMock = () => {
 		grid: {
 			orderCreatureZ: jest.fn(),
 			hexes: getHexesMock(),
+			allhexes: [] as any[],
 			getMovementRange: jest.fn(() => []),
 			refreshActiveCreatureXray: jest.fn(),
 			healthIndicatorUiGroup: { add: jest.fn(), remove: jest.fn() },
@@ -285,6 +338,8 @@ const getGameMock = () => {
 		},
 		UI: {
 			selectedAbility: -1,
+			healthBar: { animSize: jest.fn() },
+			energyBar: { animSize: jest.fn() },
 		},
 		triggers: {
 			oncePerDamageChain: {
@@ -298,6 +353,7 @@ const getGameMock = () => {
 		log: jest.fn(),
 		onHeal: jest.fn(),
 	};
+	self.grid.allhexes = self.grid.hexes.flat(1);
 	self.players = [getPlayerMock(), getPlayerMock()];
 	return self;
 };

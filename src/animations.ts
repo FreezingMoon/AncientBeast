@@ -392,10 +392,7 @@ export class Animations {
 			const bandWidth = Math.min(texW - seamX, 4 + Math.floor(Math.random() * 8));
 			const nextSeamY = Math.max(
 				minShardH,
-				Math.min(
-					texH - minShardH,
-					previousSeamY + (-9 + Math.floor(Math.random() * 19)),
-				),
+				Math.min(texH - minShardH, previousSeamY + (-9 + Math.floor(Math.random() * 19))),
 			);
 
 			for (let fillX = seamX; fillX < seamX + bandWidth; fillX++) {
@@ -418,7 +415,10 @@ export class Animations {
 					continue;
 				}
 
-				const sw = Math.min(minShardW + Math.floor(Math.random() * (maxShardW - minShardW + 1)), texW - sx);
+				const sw = Math.min(
+					minShardW + Math.floor(Math.random() * (maxShardW - minShardW + 1)),
+					texW - sx,
+				);
 				const localSeamY = seamProfile[Math.min(texW - 1, sx + Math.floor(sw / 2))];
 				const sh = Math.min(
 					minShardH + Math.floor(Math.random() * (maxShardH - minShardH + 1)),
@@ -446,26 +446,20 @@ export class Animations {
 				const driftX = -40 + Math.random() * 80;
 				const landingMinY = Math.max(y + 10, spriteTop + localSeamY + sh / 2 - 2);
 				const landingMaxY = Math.max(landingMinY, baseBottom - sh / 2);
-				const targetY =
-					landingMinY + Math.random() * Math.max(0, landingMaxY - landingMinY);
+				const targetY = landingMinY + Math.random() * Math.max(0, landingMaxY - landingMinY);
 				const shardDuration = Math.round(shardFadeMs * (0.9 + Math.random() * 0.35));
 				const shardFadeDuration = Math.max(90, Math.round(shardDuration * 0.22));
-				longestShardLifetime = Math.max(
-					longestShardLifetime,
-					shardDuration + shardFadeDuration,
+				longestShardLifetime = Math.max(longestShardLifetime, shardDuration + shardFadeDuration);
+				const travelTween = game.Phaser.add.tween(shard).to(
+					{
+						x: x + driftX,
+						y: targetY,
+						angle: shard.angle + (-90 + Math.random() * 180),
+					},
+					shardDuration,
+					Phaser.Easing.Cubic.In,
+					true,
 				);
-				const travelTween = game.Phaser.add
-					.tween(shard)
-					.to(
-						{
-							x: x + driftX,
-							y: targetY,
-							angle: shard.angle + (-90 + Math.random() * 180),
-						},
-						shardDuration,
-						Phaser.Easing.Cubic.In,
-						true,
-					);
 
 				travelTween.onComplete.add(() => {
 					game.Phaser.add
