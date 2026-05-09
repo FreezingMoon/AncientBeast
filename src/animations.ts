@@ -361,4 +361,185 @@ export class Animations {
 		// Launch the sprite
 		anim();
 	}
+
+	shatterDown(creature: Creature, opts: AnimationOptions) {
+		const speed = !opts.overrideSpeed ? 300 : opts.overrideSpeed;
+		const game = this.game;
+		const sprite = creature.sprite;
+		const texture: any = sprite.texture as any;
+		const frame: any = texture.crop || texture.frame || { x: 0, y: 0, width: 0, height: 0 };
+		const source = texture.baseTexture?.source as CanvasImageSource;
+		const texW = Math.round(texture.width || frame.width || 1);
+		const texH = Math.round(texture.height || frame.height || 1);
+		const isFlipped = sprite.scale.x < 0;
+
+		const shardFadeMs = Math.max(260, Math.round(speed * 1.2));
+
+		const spriteLeft = creature.grp.x + sprite.x - sprite.width / 2;
+		const spriteTop = creature.grp.y + sprite.y - sprite.height;
+
+		const minShardW = 4;
+		const maxShardW = 10;
+		const minShardH = 6;
+		const maxShardH = 15;
+		const baseHeight = Math.max(12, Math.floor(texH * 0.22));
+		const baseTopY = Math.max(minShardH, texH - baseHeight);
+		const baseBottom = spriteTop + texH;
+		const seamProfile = new Array<number>(texW);
+		let seamX = 0;
+		let previousSeamY = baseTopY;
+		while (seamX < texW) {
+			const bandWidth = Math.min(texW - seamX, 4 + Math.floor(Math.random() * 8));
+			const nextSeamY = Math.max(
+				minShardH,
+				Math.min(
+					texH - minShardH,
+					previousSeamY + (-9 + Math.floor(Math.random() * 19)),
+				),
+			);
+
+			for (let fillX = seamX; fillX < seamX + bandWidth; fillX++) {
+				seamProfile[fillX] = nextSeamY;
+			}
+
+			previousSeamY = nextSeamY;
+			seamX += bandWidth;
+		}
+
+		const lowestSeamY = seamProfile.reduce((maxY, seamY) => Math.max(maxY, seamY), minShardH);
+		const baseTop = spriteTop + lowestSeamY;
+		let longestShardLifetime = 0;
+
+		for (let sx = 0; sx < texW; ) {
+			const seamY = seamProfile[Math.min(sx, texW - 1)];
+			for (let sy = 0; sy < seamY; ) {
+				if (Math.random() < 0.08) {
+					sy += minShardH;
+					continue;
+				}
+
+				const sw = Math.min(minShardW + Math.floor(Math.random() * (maxShardW - minShardW + 1)), texW - sx);
+				const localSeamY = seamProfile[Math.min(texW - 1, sx + Math.floor(sw / 2))];
+				const sh = Math.min(
+					minShardH + Math.floor(Math.random() * (maxShardH - minShardH + 1)),
+					localSeamY - sy,
+				);
+				if (sw <= 0 || sh <= 0) {
+					sy += minShardH;
+					continue;
+				}
+
+				const bmd = game.Phaser.add.bitmapData(sw, sh);
+				const srcX = isFlipped ? frame.x + frame.width - sx - sw : frame.x + sx;
+				const srcY = frame.y + sy;
+				bmd.ctx.clearRect(0, 0, sw, sh);
+				bmd.ctx.drawImage(source, srcX, srcY, sw, sh, 0, 0, sw, sh);
+				bmd.dirty = true;
+
+				const shardScreenX = isFlipped ? texW - sx - sw : sx;
+				const x = spriteLeft + shardScreenX + sw / 2;
+				const y = spriteTop + sy + sh / 2;
+				const shard = game.grid.creatureGroup.create(x, y, bmd);
+				shard.anchor.setTo(0.5, 0.5);
+				shard.angle = -18 + Math.random() * 36;
+
+				const driftX = -40 + Math.random() * 80;
+				const landingMinY = Math.max(y + 10, spriteTop + localSeamY + sh / 2 - 2);
+				const landingMaxY = Math.max(landingMinY, baseBottom - sh / 2);
+				const targetY =
+					landingMinY + Math.random() * Math.max(0, landingMaxY - landingMinY);
+				const shardDuration = Math.round(shardFadeMs * (0.9 + Math.random() * 0.35));
+				const shardFadeDuration = Math.max(90, Math.round(shardDuration * 0.22));
+				longestShardLifetime = Math.max(
+					longestShardLifetime,
+					shardDuration + shardFadeDuration,
+				);
+				const travelTween = game.Phaser.add
+					.tween(shard)
+					.to(
+						{
+							x: x + driftX,
+							y: targetY,
+							angle: shard.angle + (-90 + Math.random() * 180),
+						},
+						shardDuration,
+						Phaser.Easing.Cubic.In,
+						true,
+					);
+
+				travelTween.onComplete.add(() => {
+					game.Phaser.add
+						.tween(shard)
+						.to(
+							{
+								alpha: 0,
+							},
+							shardFadeDuration,
+							Phaser.Easing.Linear.None,
+							true,
+						)
+						.onComplete.add(() => {
+							shard.destroy();
+							bmd.destroy();
+						});
+				});
+
+				sy += Math.max(minShardH - 1, sh - Math.floor(Math.random() * 3));
+			}
+
+			sx += Math.max(minShardW - 1, 3 + Math.floor(Math.random() * 5));
+		}
+
+		creature.healthHide();
+
+		const baseSh = Math.max(0, texH);
+		if (baseSh > 0) {
+			const baseBmd = game.Phaser.add.bitmapData(texW, baseSh);
+			baseBmd.ctx.clearRect(0, 0, texW, baseSh);
+			for (let copyX = 0; copyX < texW; copyX++) {
+				const seamY = seamProfile[Math.min(copyX, texW - 1)];
+				const copyHeight = Math.max(0, texH - seamY);
+				if (copyHeight <= 0) {
+					continue;
+				}
+
+				const sourceX = isFlipped ? frame.x + frame.width - copyX - 1 : frame.x + copyX;
+				const sourceY = frame.y + seamY;
+				baseBmd.ctx.drawImage(source, sourceX, sourceY, 1, copyHeight, copyX, seamY, 1, copyHeight);
+			}
+			baseBmd.dirty = true;
+
+			const baseX = spriteLeft + texW / 2;
+			const baseY = spriteTop + texH / 2;
+			const baseSprite = game.grid.creatureGroup.create(baseX, baseY, baseBmd);
+			baseSprite.anchor.setTo(0.5, 0.5);
+			if (isFlipped) {
+				baseSprite.scale.x = -1;
+			}
+
+			creature.creatureSprite.setAlpha(0, 0);
+			const baseFadeDelay = Math.max(0, longestShardLifetime - speed);
+			game.Phaser.add
+				.tween(baseSprite)
+				.to(
+					{
+						alpha: 0,
+					},
+					speed,
+					Phaser.Easing.Linear.None,
+					true,
+					baseFadeDelay,
+				)
+				.onComplete.add(() => {
+					baseSprite.destroy();
+					baseBmd.destroy();
+					opts.callback?.();
+				});
+			return;
+		}
+
+		creature.creatureSprite.setAlpha(0, speed).then(() => {
+			opts.callback?.();
+		});
+	}
 }

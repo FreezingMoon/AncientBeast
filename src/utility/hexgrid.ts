@@ -83,6 +83,7 @@ export interface QueryOptions {
 	arg: any;
 
 	optTest: (arg: Creature) => boolean;
+	ignoreCreatureTest?: (arg: Creature) => boolean;
 
 	/**
 	 * Function applied when clicking on one of the available hexes.
@@ -375,6 +376,7 @@ export class HexGrid {
 			sourceCreature: undefined,
 			choices: [],
 			optTest: () => true,
+			ignoreCreatureTest: undefined,
 			fillOnlyHoveredCreature: false,
 		};
 
@@ -459,6 +461,7 @@ export class HexGrid {
 				options.pierceNumber,
 				options.pierceThroughBehavior as PierceThroughBehavior,
 				options.team,
+				options.ignoreCreatureTest,
 			);
 
 			if (dir.length === 0) {
@@ -886,6 +889,7 @@ export class HexGrid {
 			fnOnCancel: () => {
 				game.activeCreature?.queryMove();
 			},
+			fnOnHoverOutside: undefined as (() => void) | undefined,
 			callbackAfterQueryHexes: () => {
 				// empty function to be overridden with custom logic to execute after queryHexes
 			},
@@ -1299,6 +1303,10 @@ export class HexGrid {
 				hex.overlayVisualState('hover');
 
 				$j('canvas').css('cursor', 'not-allowed');
+
+				if (o.fnOnHoverOutside) {
+					o.fnOnHoverOutside();
+				}
 
 				// If creature and inactive
 				if (hex.creature instanceof Creature && hex.creature !== game.activeCreature) {
@@ -1734,6 +1742,11 @@ export class HexGrid {
 			if (this.materialize_overlay && this.materialize_overlay.posy == y) {
 				this.creatureGroup.remove(this.materialize_overlay);
 				this.creatureGroup.addAt(this.materialize_overlay, index++);
+			}
+
+			if (this.secondary_overlay && this.secondary_overlay.posy == y) {
+				this.creatureGroup.remove(this.secondary_overlay);
+				this.creatureGroup.addAt(this.secondary_overlay, index++);
 			}
 		}
 	}

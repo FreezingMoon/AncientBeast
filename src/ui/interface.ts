@@ -1032,6 +1032,20 @@ export class UI {
 		clickMethod?: 'emptyHex' | 'portrait' | 'grid' | '',
 	) {
 		const game = this.game;
+		const getUrlWithFallback = (key: string, fallbackKey: string) => {
+			try {
+				return getUrl(key);
+			} catch {
+				return getUrl(fallbackKey);
+			}
+		};
+		const getCardArtworkUrl = (name: string) => {
+			if (name.startsWith('object_')) {
+				return getUrlWithFallback('units/sprites/' + name, 'units/artwork/Dark Priest');
+			}
+
+			return getUrlWithFallback('units/artwork/' + name, 'units/artwork/Dark Priest');
+		};
 
 		if (!this.dashopen) {
 			this.$dash.show().css('opacity', 0);
@@ -1143,8 +1157,9 @@ export class UI {
 
 			// Card A
 			$j('#card .sideA').css({
-				'background-image': `url('${getUrl('cards/margin')}'), url('${getUrl(
+				'background-image': `url('${getUrl('cards/margin')}'), url('${getUrlWithFallback(
 					'units/artwork/' + stats.name,
+					'units/artwork/Dark Priest',
 				)}')`,
 			});
 			$j('#card .sideA .section.info')
@@ -1355,8 +1370,8 @@ export class UI {
 		} else {
 			// Card A
 			$j('#card .sideA').css({
-				'background-image': `url('${getUrl('cards/margin')}'), url('${getUrl(
-					'units/artwork/' + stats.name,
+				'background-image': `url('${getUrl('cards/margin')}'), url('${getCardArtworkUrl(
+					stats.name,
 				)}')`,
 			});
 			$j('#card .sideA .section.info')
@@ -2542,6 +2557,9 @@ export class UI {
 			const ab = game.activeCreature.abilities[i];
 			ab.message = '';
 			const req = ab.require();
+			const noAffordableApertureTargetInRange = Boolean(
+				(ab as any)._noAffordableApertureTargetInRange,
+			);
 			ab.message = ab.used ? game.msg.abilities.alreadyUsed : ab.message;
 
 			// Tooltip for passive ability to display if there is any usable abilities or not
@@ -2564,6 +2582,7 @@ export class UI {
 				this.abilitiesButtons[i].changeState(ButtonStateEnum.slideIn);
 				oneUsableAbility = true;
 			} else if (
+				noAffordableApertureTargetInRange ||
 				ab.message == game.msg.abilities.noTarget ||
 				(ab.trigger != 'onQuery' && req && !ab.used)
 			) {

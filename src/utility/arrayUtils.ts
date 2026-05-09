@@ -63,11 +63,18 @@ export function filterCreature(
 	pierceNumber = 1,
 	pierceThroughBehavior: PierceThroughBehavior = 'stop',
 	targetTeam = Team.Enemy,
+	ignoreCreatureTest?: (creature: Creature) => boolean,
 ) {
 	let piercedCreatures = 0;
 	let creatureHexes = [];
 	for (let i = 0; i < hexes.length; i++) {
 		if (hexes[i].creature instanceof Creature) {
+			if (ignoreCreatureTest && ignoreCreatureTest(hexes[i].creature)) {
+				hexes.splice(i, 1);
+				i--;
+				continue;
+			}
+
 			if (!includeCreature || hexes[i].creature.id == id) {
 				if (hexes[i].creature.id == id) {
 					hexes.splice(i, 1);

@@ -432,7 +432,9 @@ export class Creature {
 
 		// Pickup drop
 		this.pickupDrop();
-		this.hint(this.name, 'creature_name');
+		if (!(this as any).hideFromQueue) {
+			this.hint(this.name, 'creature_name');
+		}
 	}
 
 	healthHide() {
@@ -1816,7 +1818,12 @@ export class Creature {
 			}
 		}
 
-		game.animations.death(this, opts);
+		const customDeathAnimation = (this as any).deathAnimationType;
+		if (customDeathAnimation === 'shatterDown') {
+			game.animations.shatterDown(this, opts);
+		} else {
+			game.animations.death(this, opts);
+		}
 		this.cleanHex();
 
 		game.updateQueueDisplay();
@@ -2420,14 +2427,14 @@ class CreatureSprite {
 		bmd.update();
 	}
 
-	setHealth(number: number, type: HealthBubbleType) {
+	setHealth(number: number | string, type: HealthBubbleType) {
 		// Support both Phaser Text API and test doubles without setText()
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const textObj: any = (this as any)._healthIndicatorText;
 		if (textObj && typeof textObj.setText === 'function') {
-			textObj.setText(number + '');
+			textObj.setText(String(number));
 		} else if (textObj) {
-			textObj.text = number + '';
+			textObj.text = String(number);
 		}
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const spriteObj: any = (this as any)._healthIndicatorSprite;

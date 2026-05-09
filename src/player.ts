@@ -134,7 +134,7 @@ export class Player {
 		for (let i = 0; i < count; i++) {
 			creature = creatures[i];
 
-			if (!creature.dead && !creature.undead) {
+			if (!creature.dead && !creature.undead && !(creature as any).hideFromCreatureCount) {
 				nbr++;
 			}
 		}

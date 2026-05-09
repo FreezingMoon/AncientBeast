@@ -129,6 +129,10 @@ export class Chat {
 	}
 
 	showExpanded(creature: Creature) {
+		if ((creature as any)?.hideUnitStatsOnHover) {
+			return;
+		}
+
 		if (!creature || creature === this.currentExpandedCreature) {
 			return;
 		}

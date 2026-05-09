@@ -8,7 +8,9 @@ export class CreatureQueue {
 	}
 
 	get queue() {
-		const creatures = this._getCreatures().filter((c) => c?.isInCurrentQueue);
+		const creatures = this._getCreatures().filter(
+			(c) => c?.isInCurrentQueue && !(c as any)?.hideFromQueue,
+		);
 		const undelayed = creatures
 			.filter((c) => c && !c.isDelayed)
 			.sort((a, b) => b.getInitiative() - a.getInitiative());
@@ -19,7 +21,9 @@ export class CreatureQueue {
 	}
 
 	get nextQueue() {
-		const creatures = this._getCreatures().filter((c) => c?.isInNextQueue);
+		const creatures = this._getCreatures().filter(
+			(c) => c?.isInNextQueue && !(c as any)?.hideFromQueue,
+		);
 		const undelayed = creatures
 			.filter((c) => c && !c.isDelayedInNextQueue)
 			.sort((a, b) => b.getInitiative() - a.getInitiative());
@@ -34,6 +38,7 @@ export class CreatureQueue {
 	}
 
 	getCurrentQueueLength() {
-		return this._getCreatures().filter((c) => c?.isInCurrentQueue).length;
+		return this._getCreatures().filter((c) => c?.isInCurrentQueue && !(c as any)?.hideFromQueue)
+			.length;
 	}
 }

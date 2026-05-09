@@ -757,12 +757,19 @@ export class Ability {
 				return true;
 			},
 			pierceThroughBehavior: 'pierce',
+			ignoreCreatureTest: function () {
+				return false;
+			},
 		};
 
 		const options = { ...defaultOpt, ...o };
 
 		for (let i = 0, len = hexes.length; i < len; i++) {
 			const creature = hexes[i].creature;
+
+			if (creature && options.ignoreCreatureTest(creature)) {
+				continue;
+			}
 
 			if (
 				!creature ||
@@ -956,12 +963,15 @@ export class Ability {
 			directions: [1, 1, 1, 1, 1, 1],
 			includeCreature: true,
 			stopOnCreature: true,
-			PierceThroughBehavior: 'stop',
+			pierceThroughBehavior: 'stop',
 			distance: 0,
 			minDistance: 0,
 			sourceCreature: undefined,
 			optTest: function () {
 				return true;
+			},
+			ignoreCreatureTest: function () {
+				return false;
 			},
 		};
 
@@ -999,7 +1009,17 @@ export class Ability {
 			if (o.minDistance > 0) {
 				// The untargetable area between the unit and the minimum distance.
 				deadzone = dir.slice(0, o.minDistance);
-				deadzone = arrayUtils.filterCreature(deadzone, o.includeCreature, o.stopOnCreature, o.id);
+				deadzone = arrayUtils.filterCreature(
+					deadzone,
+					o.includeCreature,
+					o.stopOnCreature,
+					o.id,
+					o.sourceCreature,
+					o.pierceNumber,
+					o.pierceThroughBehavior as PierceThroughBehavior,
+					o.team,
+					o.ignoreCreatureTest,
+				);
 
 				dir = dir.slice(
 					// 1 greater than expected to exclude current (source creature) hex.
@@ -1007,7 +1027,17 @@ export class Ability {
 				);
 			}
 
-			dir = arrayUtils.filterCreature(dir, o.includeCreature, o.stopOnCreature, o.id);
+			dir = arrayUtils.filterCreature(
+				dir,
+				o.includeCreature,
+				o.stopOnCreature,
+				o.id,
+				o.sourceCreature,
+				o.pierceNumber,
+				o.pierceThroughBehavior as PierceThroughBehavior,
+				o.team,
+				o.ignoreCreatureTest,
+			);
 			allDirHexes.push(...dir);
 
 			/* If the ability has a minimum distance and units should block LOS, this
