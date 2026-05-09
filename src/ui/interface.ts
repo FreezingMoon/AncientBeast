@@ -2847,15 +2847,21 @@ export class UI {
 			`;
 		};
 
-		const playerFormatter = (player) =>
-			`<div class="vignette active p${player.id}">
+		const playerFormatter = (player) => {
+			const playerTimeStatus =
+				ui.game.turnTimePool < 0 && ui.game.timePool < 0
+					? '<p>Ancient Beast</p>'
+					: '<p><span class="activePlayer turntime">&#8734;</span> / <span class="timepool">&#8734;</span></p>';
+
+			return `<div class="vignette active p${player.id}">
 				<div class="playerinfo frame p${player.id}">
 				<p class="name">${player.name}</p>
 				<p class="points"><span>${player.getScore().total}</span> Points</p>
 				<p class="plasma"><span>${player.plasma}</span> Plasma</p>
 				<p class="units"><span>${player.getNbrOfCreatures() + ' / ' + ui.game.creaLimitNbr}</span> Units</p>
-				<p><span class="activePlayer turntime">&#8734;</span> / <span class="timepool">&#8734;</span></p>
+				${playerTimeStatus}
 			</div></div>`;
+		};
 
 		const hexFormatter = (hex) => {
 			const name = hex.creature
