@@ -2818,8 +2818,22 @@ export class UI {
 	static #getQuickInfo(ui, quickInfoDomElement) {
 		const quickInfo = new QuickInfo(quickInfoDomElement);
 
+		const getCreatureDisplayName = (creatureOrName: { name?: string } | string) => {
+			const rawName =
+				typeof creatureOrName === 'string'
+					? creatureOrName
+					: (creatureOrName?.name ?? '');
+			const withoutPrefix = rawName.replace(/^object[_-]/i, '');
+			const spaced = withoutPrefix.replace(/[_-]+/g, ' ').trim();
+			if (!spaced) {
+				return '';
+			}
+
+			return spaced.charAt(0).toUpperCase() + spaced.slice(1);
+		};
+
 		const creatureFormatter = (creature) => {
-			const name = capitalize(creature.name);
+			const name = getCreatureDisplayName(creature);
 			const trapOrLocation = capitalize(
 				creature?.hexagons[0]?.trap ? creature?.hexagons[0]?.trap?.name : ui.game.combatLocation,
 			);
@@ -2846,9 +2860,9 @@ export class UI {
 			</div></div>`;
 
 		const hexFormatter = (hex) => {
-			const name = capitalize(
-				hex.creature ? hex.creature.name : hex.drop ? hex.drop.name : hex.coord,
-			);
+			const name = hex.creature
+				? getCreatureDisplayName(hex.creature)
+				: capitalize(hex.drop ? hex.drop.name : hex.coord);
 			const trapOrLocation = capitalize(hex.trap ? hex.trap.name : ui.game.combatLocation);
 			const nameColorClasses =
 				hex.creature && hex.creature.player ? `p${hex.creature.player.id} player-text bright` : '';

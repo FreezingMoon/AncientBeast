@@ -874,6 +874,15 @@ export class HexGrid {
 	 */
 	queryHexes(o) {
 		const game = this.game;
+		const getCreatureDisplayName = (creature: Creature) => {
+			const withoutPrefix = creature.name.replace(/^object[_-]/i, '');
+			const spacedName = withoutPrefix.replace(/[_-]+/g, ' ').trim();
+			if (!spacedName) {
+				return creature.name;
+			}
+
+			return spacedName.charAt(0).toUpperCase() + spacedName.slice(1);
+		};
 		// Detect whether this is a fresh query or a redo of the last query.
 		// redoLastQuery() passes the same lastQueryOpt reference, so reference
 		// equality distinguishes the two cases.
@@ -1115,9 +1124,10 @@ export class HexGrid {
 					// Shout unit's name, show tooltip with unit's name and start a cooldown.
 					if (!this.onShoutCooldown) {
 						this.onShoutCooldown = true;
-						const unitOnClickedHexName = hex.creature.name;
-						game.soundsys.playShout(unitOnClickedHexName);
-						hex.creature.hint(unitOnClickedHexName, 'creature_name');
+						const shoutName = hex.creature.name;
+						const displayName = getCreatureDisplayName(hex.creature);
+						game.soundsys.playShout(shoutName);
+						hex.creature.hint(displayName, 'creature_name');
 
 						setTimeout(() => {
 							this.onShoutCooldown = false;
@@ -1318,7 +1328,11 @@ export class HexGrid {
 		// ONRIGHTCLICK
 		const onRightClickFn = (hex: Hex) => {
 			if (hex.creature instanceof Creature) {
-				game.UI.showCreature(hex.creature.type, hex.creature.player.id, 'grid');
+				if (hex.creature.name.startsWith('object_')) {
+					game.UI.showCreature(game.activeCreature.type, game.activeCreature.player.id, 'emptyHex');
+				} else {
+					game.UI.showCreature(hex.creature.type, hex.creature.player.id, 'grid');
+				}
 			} else {
 				if (game.activeCreature.isDarkPriest()) {
 					if (game.UI.selectedCreatureObj) {
