@@ -98,7 +98,7 @@ export default (G: Game) => {
 					team: this._targetTeam,
 					distance: range_,
 					sourceCreature: this.creature,
-					PierceThroughBehavior: 'stop',
+					pierceThroughBehavior: 'stop',
 				});
 			},
 
