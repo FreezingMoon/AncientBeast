@@ -4,6 +4,7 @@ import { Hex } from '../utility/hex';
 import { Team, isTeam } from '../utility/team';
 import * as arrayUtils from '../utility/arrayUtils';
 import Game from '../game';
+import type { UnitData } from '../data/types';
 
 const CYCLOPER_UNIT_ID = 15;
 const ACRYLIC_WALL_UNIT_ID = 999;
@@ -11,10 +12,21 @@ const ACRYLIC_WALL_TYPE = 'O0';
 const ALL_DIRECTIONS: [1, 1, 1, 1, 1, 1] = [1, 1, 1, 1, 1, 1];
 const APERTURE_NO_ENERGY_MESSAGE = 'Not enough energy for targets in range.';
 
+type DirectionArgs = { direction?: number };
+type CreatureDataEntry = UnitData[number];
+type CycloperAbilityState = {
+	_noAffordableApertureTargetInRange?: boolean;
+};
+type AcrylicWallRuntimeFlags = {
+	hideFromQueue?: boolean;
+	hideUnitStatsOnHover?: boolean;
+	deathAnimationType?: string;
+	hideFromCreatureCount?: boolean;
+	_nextGameTurnActive?: number;
+};
+
 function getCycloperOrigin(cycloper: Creature) {
-	return cycloper.player.flipped
-		? cycloper.hexagons[cycloper.size - 1]
-		: cycloper.hexagons[0];
+	return cycloper.player.flipped ? cycloper.hexagons[cycloper.size - 1] : cycloper.hexagons[0];
 }
 
 function getApertureEnergyCost(target: Creature, useCurrentHealth: boolean) {
@@ -37,14 +49,14 @@ function isShieldedDarkPriest(target: Creature | null | undefined, attacker: Cre
 
 function isRiotShieldUpgraded(cycloper: Creature) {
 	const riotShield = cycloper.abilities?.[2];
-	return Boolean(riotShield && typeof riotShield.isUpgraded === 'function' && riotShield.isUpgraded());
+	return Boolean(
+		riotShield && typeof riotShield.isUpgraded === 'function' && riotShield.isUpgraded(),
+	);
 }
 
 function isCycloperRelayWall(creature: Creature | null | undefined, cycloper: Creature) {
 	return (
-		creature instanceof Creature &&
-		isAcrylicWall(creature) &&
-		isTeam(cycloper, creature, Team.Ally)
+		creature instanceof Creature && isAcrylicWall(creature) && isTeam(cycloper, creature, Team.Ally)
 	);
 }
 
@@ -92,16 +104,11 @@ function shouldIgnoreOpticBurstTarget(cycloper: Creature, upgraded: boolean, tar
 function getOpticBurstEffectiveDistance(
 	cycloper: Creature,
 	target: Creature,
-	path: any[],
+	path: Hex[],
 	args: { direction?: number } | undefined,
 	G: Game,
 ) {
-	const directionalDistance = getTargetDistanceInDirection(
-		cycloper,
-		target,
-		args?.direction,
-		G,
-	);
+	const directionalDistance = getTargetDistanceInDirection(cycloper, target, args?.direction, G);
 
 	if (Number.isFinite(directionalDistance)) {
 		const relayBonus = isRiotShieldUpgraded(cycloper)
@@ -252,9 +259,7 @@ function getRiotShieldPlacementRange(cycloper: Creature, G: Game) {
 
 			const creature = hex.creature;
 			const isAlliedWallHex =
-				creature instanceof Creature &&
-				isAcrylicWall(creature) &&
-				creature.team === cycloper.team;
+				creature instanceof Creature && isAcrylicWall(creature) && creature.team === cycloper.team;
 			const isDamagedWallHex = isDamagedAlliedAcrylicWall(creature, cycloper);
 			const isRelayWallHex = canRelayThroughWalls && isAlliedWallHex;
 
@@ -291,7 +296,8 @@ function makeDisabledAbility() {
 }
 
 function ensureAcrylicWallData(G: Game) {
-	const existing = (G.creatureData as any[]).find((unit) => unit.type === ACRYLIC_WALL_TYPE);
+	const creatureData = G.creatureData as CreatureDataEntry[];
+	const existing = creatureData.find((unit) => unit.type === ACRYLIC_WALL_TYPE);
 	if (existing) {
 		return existing;
 	}
@@ -358,7 +364,7 @@ function ensureAcrylicWallData(G: Game) {
 		],
 	};
 
-	(G.creatureData as any[]).push(wallData);
+	creatureData.push(wallData);
 	return wallData;
 }
 
@@ -377,9 +383,7 @@ export default (G: Game) => {
 				return true;
 			},
 			activate: function (damage) {
-				const damageValues = Object.values(
-					(damage.damages || {}) as Record<string, number>,
-				);
+				const damageValues = Object.values((damage.damages || {}) as Record<string, number>);
 				const convertedTotal: number = damageValues.reduce(
 					(sum, value) => sum + (typeof value === 'number' ? value : 0),
 					0,
@@ -468,8 +472,7 @@ export default (G: Game) => {
 					pierceNumber: upgraded ? 2 : 1,
 					ignoreCreatureTest: (target: Creature) =>
 						shouldIgnoreOpticBurstTarget(this.creature, upgraded, target),
-					optTest: (target: Creature) =>
-						isValidOpticBurstTarget(this.creature, target, upgraded),
+					optTest: (target: Creature) => isValidOpticBurstTarget(this.creature, target, upgraded),
 				});
 			},
 
@@ -496,8 +499,7 @@ export default (G: Game) => {
 					pierceNumber: upgraded ? 2 : 1,
 					ignoreCreatureTest: (target: Creature) =>
 						shouldIgnoreOpticBurstTarget(cycloper, upgraded, target),
-					optTest: (target: Creature) =>
-						isValidOpticBurstTarget(cycloper, target, upgraded),
+					optTest: (target: Creature) => isValidOpticBurstTarget(cycloper, target, upgraded),
 				});
 			},
 
@@ -549,10 +551,7 @@ export default (G: Game) => {
 					return;
 				}
 
-				if (
-					isTeam(this.creature, target, Team.Ally) &&
-					target.health >= target.stats.health
-				) {
+				if (isTeam(this.creature, target, Team.Ally) && target.health >= target.stats.health) {
 					this.end();
 					return;
 				}
@@ -622,9 +621,7 @@ export default (G: Game) => {
 					fnOnConfirm: (...args) => ability.animation(...args),
 					fnOnSelect: (selectedHex) => {
 						cycloper.faceHex(selectedHex);
-						selectedHex.overlayVisualState(
-							'creature selected player' + cycloper.team,
-						);
+						selectedHex.overlayVisualState('creature selected player' + cycloper.team);
 						G.grid.previewCreature(selectedHex.pos, wallPreviewData, cycloper.player);
 					},
 					id: cycloper.id,
@@ -672,14 +669,15 @@ export default (G: Game) => {
 					materializationSickness: true,
 				};
 
-				const wall = new Creature(wallData as any, G);
+				const wall = new Creature(wallData, G);
+				const wallFlags = wall as unknown as AcrylicWallRuntimeFlags;
 				this.creature.player.creatures.push(wall);
-				(wall as any).hideFromQueue = true;
-				(wall as any).hideUnitStatsOnHover = true;
-				(wall as any).deathAnimationType = 'shatterDown';
-				(wall as any).hideFromCreatureCount = true;
+				wallFlags.hideFromQueue = true;
+				wallFlags.hideUnitStatsOnHover = true;
+				wallFlags.deathAnimationType = 'shatterDown';
+				wallFlags.hideFromCreatureCount = true;
 				wall.summon();
-				(wall as any)._nextGameTurnActive = Number.MAX_SAFE_INTEGER;
+				wallFlags._nextGameTurnActive = Number.MAX_SAFE_INTEGER;
 				wall.remainingMove = 0;
 				wall.noActionPossible = true;
 				this._lastBonus = wall.id;
@@ -702,7 +700,7 @@ export default (G: Game) => {
 				if (!this.testRequirements()) {
 					return false;
 				}
-				(this as any)._noAffordableApertureTargetInRange = false;
+				(this as CycloperAbilityState)._noAffordableApertureTargetInRange = false;
 
 				const baseRange = this.range.regular;
 				const useCurrentHealthCost = this.isUpgraded();
@@ -754,10 +752,7 @@ export default (G: Game) => {
 					}
 
 					hasTargetInRange = true;
-					const targetCost = getApertureEnergyCost(
-						targetInRangeHex.creature,
-						useCurrentHealthCost,
-					);
+					const targetCost = getApertureEnergyCost(targetInRangeHex.creature, useCurrentHealthCost);
 					if (targetCost <= this.creature.energy) {
 						hasAffordableTargetInRange = true;
 					}
@@ -766,7 +761,7 @@ export default (G: Game) => {
 				});
 
 				if (!hasUsableTarget && hasTargetInRange && !hasAffordableTargetInRange) {
-					(this as any)._noAffordableApertureTargetInRange = true;
+					(this as CycloperAbilityState)._noAffordableApertureTargetInRange = true;
 					this.message = APERTURE_NO_ENERGY_MESSAGE;
 				}
 
@@ -814,13 +809,7 @@ export default (G: Game) => {
 					}
 					ability._energySelfUpgraded = cost;
 
-					const relayRangeBonus = hasRelayExtensionOnPath(
-						cycloper,
-						target,
-						direction,
-						baseRange,
-						G,
-					)
+					const relayRangeBonus = hasRelayExtensionOnPath(cycloper, target, direction, baseRange, G)
 						? 1
 						: 0;
 					const destinationRange = baseRange + relayRangeBonus;
@@ -850,11 +839,7 @@ export default (G: Game) => {
 								!hex.creature &&
 								G.grid.hexes[hex.y][hex.x].isWalkable(target.size, target.id, true),
 						);
-					const extendedDestinations = arrayUtils.extendToLeft(
-						destinations,
-						target.size,
-						G.grid,
-					);
+					const extendedDestinations = arrayUtils.extendToLeft(destinations, target.size, G.grid);
 					const extendedDashed = arrayUtils.extendToLeft(
 						directionalDestinations.hexesDashed,
 						target.size,
@@ -1001,9 +986,9 @@ export default (G: Game) => {
 				};
 
 				G.grid.queryDirection({
-					fnOnConfirm: function () {
-						const path = arguments[0] as any[];
-						const args = arguments[1] as { direction?: number };
+					fnOnConfirm: function (...callbackArgs: unknown[]) {
+						const path = (callbackArgs[0] as Hex[]) || [];
+						const args = (callbackArgs[1] as DirectionArgs) || undefined;
 						const direction = args?.direction;
 						const targetHex = path.find(
 							(hex) =>
@@ -1016,23 +1001,15 @@ export default (G: Game) => {
 						if (!targetHex || !(targetHex.creature instanceof Creature)) {
 							return;
 						}
-						if (
-							!isApertureTargetInRange(
-								cycloper,
-								targetHex.creature,
-								direction,
-								baseRange,
-								G,
-							)
-						) {
+						if (!isApertureTargetInRange(cycloper, targetHex.creature, direction, baseRange, G)) {
 							return;
 						}
 
 						beginDestinationQuery(targetHex.creature, direction);
 					},
-					fnOnSelect: function () {
-						const path = arguments[0] as any[];
-						const args = arguments[1] as { direction?: number };
+					fnOnSelect: function (...callbackArgs: unknown[]) {
+						const path = (callbackArgs[0] as Hex[]) || [];
+						const args = (callbackArgs[1] as DirectionArgs) || undefined;
 						const direction = args?.direction;
 						const targetHex = path.find(
 							(hex) =>
@@ -1046,15 +1023,7 @@ export default (G: Game) => {
 							resetEnergyPreview();
 							return;
 						}
-						if (
-							!isApertureTargetInRange(
-								cycloper,
-								targetHex.creature,
-								direction,
-								baseRange,
-								G,
-							)
-						) {
+						if (!isApertureTargetInRange(cycloper, targetHex.creature, direction, baseRange, G)) {
 							resetEnergyPreview();
 							return;
 						}
@@ -1131,7 +1100,7 @@ export default (G: Game) => {
 					target.sprite.alpha = 0;
 				}
 
-				(G.onStepOut as any)(target, originHex);
+				(G.onStepOut as (...args: unknown[]) => void)(target, originHex);
 				target.cleanHex();
 				target.x = destination.x;
 				target.y = destination.y;
@@ -1142,7 +1111,7 @@ export default (G: Game) => {
 					G.onStepIn(target, destination, {});
 					target.pickupDrop();
 					G.grid.orderCreatureZ();
-					(G.onCreatureMove as any)(target, destination);
+					(G.onCreatureMove as (...args: unknown[]) => void)(target, destination);
 
 					// Keep an old-position ghost during the same interval as the new-position fade-in.
 					if (
@@ -1165,14 +1134,8 @@ export default (G: Game) => {
 							ghostGroup,
 						);
 
-						ghostSprite.anchor.setTo(
-							oldVisual.spriteAnchorX ?? 0.5,
-							oldVisual.spriteAnchorY ?? 1,
-						);
-						ghostSprite.scale.setTo(
-							oldVisual.spriteScaleX ?? 1,
-							oldVisual.spriteScaleY ?? 1,
-						);
+						ghostSprite.anchor.setTo(oldVisual.spriteAnchorX ?? 0.5, oldVisual.spriteAnchorY ?? 1);
+						ghostSprite.scale.setTo(oldVisual.spriteScaleX ?? 1, oldVisual.spriteScaleY ?? 1);
 						ghostSprite.angle = oldVisual.spriteAngle;
 
 						G.Phaser.add
