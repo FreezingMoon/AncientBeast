@@ -549,6 +549,9 @@ export default (G: Game) => {
 				let target: Creature | null = null;
 				let wallFallback: Creature | null = null;
 				const upgraded = this.isUpgraded();
+				const projectileDirection = { direction: args?.direction ?? 0 };
+				const eyeStartX = this.creature.sprite.scale.x > 0 ? 58 : 32;
+				const eyeStartY = -116;
 				const selectedHex = args?.hex;
 				const selectedCreature =
 					selectedHex?.creature instanceof Creature ? selectedHex.creature : null;
@@ -619,7 +622,58 @@ export default (G: Game) => {
 					}
 
 					// Heal is intentionally a fixed amount (pure-equivalent), unaffected by masteries.
+					const startingHealth = target.health;
+					const missingHealth = Math.max(0, Math.ceil(target.stats.health - target.health));
+					const appliedHealAmount = Math.min(pureHealAmount, missingHealth);
+					const pulseCount = Math.min(30, Math.max(1, appliedHealAmount));
+					const pulseIntervalMs = 25;
+					let completedPulseCount = 0;
+					let displayedHealth = startingHealth;
+					const healthBubbleType =
+						typeof target.isFrozen === 'function' && target.isFrozen() ? 'frozen' : 'health';
+
 					target.heal(pureHealAmount);
+					target.clearHints?.(['healing']);
+					if (typeof target.creatureSprite?.setHealth === 'function') {
+						target.creatureSprite.setHealth(displayedHealth, healthBubbleType);
+					}
+
+					for (let pulseIndex = 0; pulseIndex < pulseCount; pulseIndex++) {
+						setTimeout(() => {
+							const [healTween, healSprite] = G.animations.projectile(
+								this as Ability,
+								target,
+								'effects_optic-burst',
+								path,
+								projectileDirection,
+								eyeStartX,
+								eyeStartY,
+							);
+							healSprite.tint = 0x66ff8a;
+							healSprite.alpha = pulseIndex === 0 ? 0.95 : 0.6;
+							healTween.onComplete.add(function () {
+								// @ts-expect-error 'this' defaults to type 'any'
+								this.destroy();
+
+								if (displayedHealth < startingHealth + appliedHealAmount) {
+									displayedHealth++;
+									if (typeof target.creatureSprite?.setHealth === 'function') {
+										target.creatureSprite.setHealth(displayedHealth, healthBubbleType);
+									}
+								}
+
+								completedPulseCount++;
+								if (
+									completedPulseCount === pulseCount &&
+									appliedHealAmount > 0 &&
+									typeof target.hint === 'function'
+								) {
+									target.hint('+' + appliedHealAmount, 'healing');
+								}
+							}, healSprite);
+						}, pulseIndex * pulseIntervalMs);
+					}
+
 					this.end();
 				} else {
 					const damage = new Damage(
@@ -631,16 +685,15 @@ export default (G: Game) => {
 						[],
 						G,
 					);
-					// Launch from Cycloper's green eye (mapped from cardboard art proportions).
-					const startX = this.creature.sprite.scale.x > 0 ? 58 : 32;
+					// Launch from Cycloper's eye (mapped from cardboard art proportions).
 					const [tween, sprite] = G.animations.projectile(
 						this as Ability,
 						target,
 						'effects_optic-burst',
 						path,
-						{ direction: args?.direction ?? 0 },
-						startX,
-						-116,
+						projectileDirection,
+						eyeStartX,
+						eyeStartY,
 					);
 					this.end();
 					tween.onComplete.add(function () {
