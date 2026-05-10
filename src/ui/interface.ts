@@ -27,6 +27,10 @@ type Config = {
 	isAcceptingInput: () => boolean;
 };
 
+type ApertureAbilityState = {
+	_noAffordableApertureTargetInRange?: boolean;
+};
+
 /**
  * Class UI
  *
@@ -2558,7 +2562,7 @@ export class UI {
 			ab.message = '';
 			const req = ab.require();
 			const noAffordableApertureTargetInRange = Boolean(
-				(ab as any)._noAffordableApertureTargetInRange,
+				(ab as ApertureAbilityState)._noAffordableApertureTargetInRange,
 			);
 			ab.message = ab.used ? game.msg.abilities.alreadyUsed : ab.message;
 

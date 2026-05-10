@@ -1,5 +1,7 @@
 import { Creature } from './creature';
 
+type QueueCreature = Creature & { hideFromQueue?: boolean };
+
 export class CreatureQueue {
 	private _getCreatures: () => Creature[];
 
@@ -9,7 +11,7 @@ export class CreatureQueue {
 
 	get queue() {
 		const creatures = this._getCreatures().filter(
-			(c) => c?.isInCurrentQueue && !(c as any)?.hideFromQueue,
+			(c) => c?.isInCurrentQueue && !(c as QueueCreature)?.hideFromQueue,
 		);
 		const undelayed = creatures
 			.filter((c) => c && !c.isDelayed)
@@ -22,7 +24,7 @@ export class CreatureQueue {
 
 	get nextQueue() {
 		const creatures = this._getCreatures().filter(
-			(c) => c?.isInNextQueue && !(c as any)?.hideFromQueue,
+			(c) => c?.isInNextQueue && !(c as QueueCreature)?.hideFromQueue,
 		);
 		const undelayed = creatures
 			.filter((c) => c && !c.isDelayedInNextQueue)
@@ -38,7 +40,8 @@ export class CreatureQueue {
 	}
 
 	getCurrentQueueLength() {
-		return this._getCreatures().filter((c) => c?.isInCurrentQueue && !(c as any)?.hideFromQueue)
-			.length;
+		return this._getCreatures().filter(
+			(c) => c?.isInCurrentQueue && !(c as QueueCreature)?.hideFromQueue,
+		).length;
 	}
 }

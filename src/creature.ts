@@ -76,6 +76,12 @@ type Status = {
 	dizzy: boolean;
 };
 
+type CreatureRuntimeFlags = {
+	hideFromQueue?: boolean;
+	hideFromCreatureCount?: boolean;
+	deathAnimationType?: string;
+};
+
 /**
  * Creature Class
  *
@@ -431,7 +437,7 @@ export class Creature {
 
 		// Pickup drop
 		this.pickupDrop();
-		if (!(this as any).hideFromQueue) {
+		if (!(this as CreatureRuntimeFlags).hideFromQueue) {
 			this.hint(this.name, 'creature_name');
 		}
 	}
@@ -1824,7 +1830,7 @@ export class Creature {
 			}
 		}
 
-		const customDeathAnimation = (this as any).deathAnimationType;
+		const customDeathAnimation = (this as CreatureRuntimeFlags).deathAnimationType;
 		if (customDeathAnimation === 'shatterDown') {
 			game.animations.shatterDown(this, opts);
 		} else {

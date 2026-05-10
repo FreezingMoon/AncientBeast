@@ -200,47 +200,49 @@ describe('Creature', () => {
 	describe('movement preview cleanup regressions', () => {
 		test('queryMove uses non-filling hover for movement previews', () => {
 			const game = getGameMock();
-			(game.grid as any).queryHexes = jest.fn();
-			(game.grid as any).forEachHex = jest.fn();
-			(game.grid as any).xray = jest.fn();
-			(game.grid as any).updateDisplay = jest.fn();
-			(game.grid as any).getFlyingRange = jest.fn(() => []);
+			const grid = game.grid as MockGrid;
+			grid.queryHexes = jest.fn();
+			grid.forEachHex = jest.fn();
+			grid.xray = jest.fn();
+			grid.updateDisplay = jest.fn();
+			grid.getFlyingRange = jest.fn(() => []);
 
 			const obj = getCreatureObjMock();
 			// @ts-ignore
 			const creature = new Creature(obj, game);
-			(game as any).activeCreature = creature;
+			(game as MockGame).activeCreature = creature;
 			creature.remainingMove = 3;
 
 			creature.queryMove();
 
-			expect((game.grid as any).queryHexes).toHaveBeenCalled();
-			const args = (game.grid as any).queryHexes.mock.calls[0][0];
+			expect(grid.queryHexes).toHaveBeenCalled();
+			const args = grid.queryHexes.mock.calls[0][0];
 			expect(args.fillHexOnHover).toBe(false);
 		});
 
 		test('movement hover redraw resets the query before tracing the new path', () => {
 			const game = getGameMock();
-			(game.grid as any).queryHexes = jest.fn();
-			(game.grid as any).redoLastQuery = jest.fn();
-			(game.grid as any).forEachHex = jest.fn();
-			(game.grid as any).xray = jest.fn();
-			(game.grid as any).updateDisplay = jest.fn();
-			(game.grid as any).getFlyingRange = jest.fn(() => []);
+			const grid = game.grid as MockGrid;
+			grid.queryHexes = jest.fn();
+			grid.redoLastQuery = jest.fn();
+			grid.forEachHex = jest.fn();
+			grid.xray = jest.fn();
+			grid.updateDisplay = jest.fn();
+			grid.getFlyingRange = jest.fn(() => []);
 
 			const obj = getCreatureObjMock();
 			// @ts-ignore
 			const creature = new Creature(obj, game);
-			(game as any).activeCreature = creature;
+			(game as MockGame).activeCreature = creature;
 			creature.remainingMove = 3;
 			const tracePathSpy = jest.spyOn(creature, 'tracePath').mockImplementation(jest.fn());
 
 			creature.queryMove();
 
-			const queryArgs = (game.grid as any).queryHexes.mock.calls[0][0];
+			const queryArgs = grid.queryHexes.mock.calls[0][0];
 			queryArgs.fnOnSelect({ x: creature.x + 1, y: creature.y }, { creature });
 
-			expect((game.grid as any).redoLastQuery).toHaveBeenCalledTimes(1);
+			expect(grid.redoLastQuery).toHaveBeenCalledTimes(1);
 			expect(tracePathSpy).toHaveBeenCalledWith({ x: creature.x + 1, y: creature.y });
 		});
 	});
@@ -257,6 +259,50 @@ jest.mock('../utility/hex', () => {
 
 import { unitData } from '../data/units';
 import Game from '../game';
+
+type MockGrid = {
+	queryHexes: jest.Mock;
+	redoLastQuery: jest.Mock;
+	forEachHex: jest.Mock;
+	xray: jest.Mock;
+	updateDisplay: jest.Mock;
+	getFlyingRange: jest.Mock;
+	orderCreatureZ: jest.Mock;
+	hexes: ReturnType<typeof getHexesMock>;
+	allhexes: unknown[];
+	refreshActiveCreatureXray: jest.Mock;
+	healthIndicatorUiGroup: { add: jest.Mock; remove: jest.Mock };
+};
+
+type MockGame = Game & {
+	grid: MockGrid;
+	activeCreature?: Creature;
+};
+
+type MockPhaser = {
+	position: { set: jest.Mock };
+	add: () => MockPhaser;
+	create: () => MockPhaser;
+	forEach: () => MockPhaser;
+	group: () => MockPhaser;
+	removeChild: () => MockPhaser;
+	setTo: () => MockPhaser;
+	start: () => MockPhaser;
+	text: () => MockPhaser;
+	to: () => MockPhaser;
+	tween: () => MockPhaser;
+	yoyo: () => MockPhaser;
+	repeat: () => MockPhaser;
+	onUpdateCallback: () => MockPhaser;
+	update: jest.Mock;
+	anchor: MockPhaser;
+	data: Record<string, unknown>;
+	onComplete: MockPhaser;
+	parent: MockPhaser;
+	sprite: MockPhaser;
+	scale: MockPhaser;
+	texture: { width: number; height: number };
+};
 
 const getPlayerMock = () => {
 	return {};
@@ -316,7 +362,7 @@ const getGameMock = () => {
 		grid: {
 			orderCreatureZ: jest.fn(),
 			hexes: getHexesMock(),
-			allhexes: [] as any[],
+			allhexes: [] as unknown[],
 			getMovementRange: jest.fn(() => []),
 			refreshActiveCreatureXray: jest.fn(),
 			healthIndicatorUiGroup: { add: jest.fn(), remove: jest.fn() },
@@ -359,8 +405,7 @@ const getGameMock = () => {
 };
 
 const getPhaserMock = () => {
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const self: Record<string, any> = { position: { set: jest.fn() } };
+	const self = { position: { set: jest.fn() } } as MockPhaser;
 	self.add = () => self;
 	self.create = () => self;
 	self.forEach = () => self;
@@ -399,8 +444,7 @@ beforeAll(() => {
 	});
 
 	// Mock jQuery globally
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	(global as any).$j = jest.fn(() => ({
+	(global as { $j: unknown }).$j = jest.fn(() => ({
 		removeClass: jest.fn(),
 	}));
 

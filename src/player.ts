@@ -130,11 +130,16 @@ export class Player {
 		let creature: Creature;
 		const creatures = this.creatures;
 		const count = creatures.length;
+		type CreatureCountFlag = Creature & { hideFromCreatureCount?: boolean };
 
 		for (let i = 0; i < count; i++) {
 			creature = creatures[i];
 
-			if (!creature.dead && !creature.undead && !(creature as any).hideFromCreatureCount) {
+			if (
+				!creature.dead &&
+				!creature.undead &&
+				!(creature as CreatureCountFlag).hideFromCreatureCount
+			) {
 				nbr++;
 			}
 		}

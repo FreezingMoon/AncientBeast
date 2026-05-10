@@ -21,6 +21,14 @@ type AnimationOptions = {
 	flipped?: boolean;
 };
 
+type ShatterTexture = {
+	crop?: { x: number; y: number; width: number; height: number };
+	frame?: { x: number; y: number; width: number; height: number };
+	baseTexture?: { source?: CanvasImageSource };
+	width?: number;
+	height?: number;
+};
+
 export class Animations {
 	game: Game;
 	movementPoints: number;
@@ -366,8 +374,8 @@ export class Animations {
 		const speed = !opts.overrideSpeed ? 300 : opts.overrideSpeed;
 		const game = this.game;
 		const sprite = creature.sprite;
-		const texture: any = sprite.texture as any;
-		const frame: any = texture.crop || texture.frame || { x: 0, y: 0, width: 0, height: 0 };
+		const texture = sprite.texture as ShatterTexture;
+		const frame = texture.crop || texture.frame || { x: 0, y: 0, width: 0, height: 0 };
 		const source = texture.baseTexture?.source as CanvasImageSource;
 		const texW = Math.round(texture.width || frame.width || 1);
 		const texH = Math.round(texture.height || frame.height || 1);
@@ -403,8 +411,6 @@ export class Animations {
 			seamX += bandWidth;
 		}
 
-		const lowestSeamY = seamProfile.reduce((maxY, seamY) => Math.max(maxY, seamY), minShardH);
-		const baseTop = spriteTop + lowestSeamY;
 		let longestShardLifetime = 0;
 
 		for (let sx = 0; sx < texW; ) {

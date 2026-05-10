@@ -17,6 +17,8 @@ type MessageToSupress = {
 	times: number;
 };
 
+type HoverableCreature = Creature & { hideUnitStatsOnHover?: boolean };
+
 export class Chat {
 	game: Game;
 	$chat: JQuery<HTMLElement>; //eslint-disable-line no-undef
@@ -129,7 +131,7 @@ export class Chat {
 	}
 
 	showExpanded(creature: Creature) {
-		if ((creature as any)?.hideUnitStatsOnHover) {
+		if ((creature as HoverableCreature)?.hideUnitStatsOnHover) {
 			return;
 		}
 
