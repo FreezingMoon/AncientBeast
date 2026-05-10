@@ -1516,8 +1516,8 @@ export const unitData: UnitDataStructure = [
 			},
 			{
 				title: 'Riot Shield',
-				desc: 'Prints an acrylic wall that will block the path and any ranged attacks as well',
-				info: '30 hit points, blocks ranged attacks.',
+				desc: 'Prints a crystal wall that blocks the path and any enemy attacks as well.',
+				info: '30 hit points, blocks enemy attacks.',
 				upgrade: 'prolongues laser targeting.',
 				costs: {
 					energy: 30,
@@ -1526,7 +1526,7 @@ export const unitData: UnitDataStructure = [
 			{
 				title: 'Power Aperture',
 				desc: 'Fully moves a unit around, causing it to vanish and appear at a new target spot.',
-				info: 'Energy cost = maximum health of target.',
+				info: 'Energy cost = maximum target health.',
 				upgrade: 'cost = current target health.',
 				costs: {
 					energy: 1,
