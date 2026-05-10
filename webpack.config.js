@@ -152,8 +152,17 @@ module.exports = (env, argv) => {
 				fs: false,
 			},
 		},
+		watchOptions: {
+			ignored: /node_modules/,
+			poll: 1000,
+		},
 		devServer: {
-			static: process.env.PUBLIC_PATH ? process.env.PUBLIC_PATH : './',
+			static: {
+				directory: process.env.PUBLIC_PATH
+					? path.resolve(__dirname, process.env.PUBLIC_PATH)
+					: path.resolve(__dirname, 'static'),
+				watch: false,
+			},
 			port: 8080,
 			proxy: [
 				{
