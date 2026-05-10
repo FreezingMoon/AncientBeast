@@ -418,7 +418,7 @@ function ensureAcrylicWallData(G: Game) {
 
 	const wallData = {
 		id: ACRYLIC_WALL_UNIT_ID,
-		name: 'object_acrylic-wall',
+		name: 'object_crystal-wall',
 		playable: false as const,
 		level: 0,
 		realm: 'O',
@@ -456,7 +456,7 @@ function ensureAcrylicWallData(G: Game) {
 		},
 		ability_info: [
 			{
-				title: 'Acrylic Hull',
+				title: 'Crystal Hull',
 				desc: 'Converts all incoming damage to pure.',
 				info: 'Passive.',
 			},
