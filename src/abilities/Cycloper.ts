@@ -311,6 +311,104 @@ function makeDisabledAbility() {
 	};
 }
 
+function createAcrylicWall3DPrintEffect(
+	cycloper: Creature,
+	wall: Creature,
+	G: Game,
+	onComplete?: () => void,
+) {
+	// Green laser from cycloper's eye to horizontal flash that reveals wall bottom-to-top
+	const laserColor = 0x00ff00;
+	const laserDuration = 1200;
+
+	// Get Cycloper's eye emission point
+	// Cycloper runtime cardboard is 90x181; eye center is around (50, 32) in that texture.
+	const eyeStartX = cycloper.sprite.scale.x > 0 ? 50 : 40;
+	const eyeStartY = -113;
+	const eyePosX = cycloper.legacyProjectileEmissionPoint.x + eyeStartX;
+	const eyePosY = cycloper.legacyProjectileEmissionPoint.y + eyeStartY;
+
+	// Get wall sprite world position and size
+	const wallDisplayPos = wall.creatureSprite.getPos();
+	const wallSprite = wall.sprite;
+	const wallCenterX = wallDisplayPos.x + wallSprite.x;
+	const wallBottomY = wallDisplayPos.y + wallSprite.y;
+	const wallHeight = Math.abs(wallSprite.height);
+	const wallWidth = Math.abs(wallSprite.width);
+
+	if (typeof G.Phaser === 'undefined' || !G.Phaser.add) {
+		return;
+	}
+
+	// Use an invisible graphics mask to reveal the wall bottom-to-top without stretching.
+	const maskGraphics = G.Phaser.make.graphics(0, 0);
+	maskGraphics.alpha = 0;
+	G.grid.creatureGroup.addChild(maskGraphics);
+	wallSprite.mask = maskGraphics;
+	wall.creatureSprite.setAlpha(1, 0);
+
+	// Create beam graphics for laser line
+	const beamGraphics = G.Phaser.make.graphics(0, 0);
+	G.grid.creatureGroup.addChild(beamGraphics);
+
+	// Create horizontal green flash
+	const flashSprite = G.grid.creatureGroup.create(wallCenterX, wallBottomY, 'effects_optic-burst');
+	flashSprite.anchor.setTo(0.5, 0.5);
+	flashSprite.tint = laserColor;
+	flashSprite.alpha = 0.96;
+	flashSprite.scale.setTo(4.5, 0.7);
+
+	let startTime: number;
+	const animate = () => {
+		if (startTime === undefined) {
+			startTime = Date.now();
+		}
+
+		const elapsed = Date.now() - startTime;
+		const progress = Math.min(1, elapsed / laserDuration);
+
+		// Reveal wall from bottom to top with an invisible mask.
+		const revealHeight = wallHeight * progress;
+		const currentFlashY = wallBottomY - revealHeight;
+		maskGraphics.clear();
+		maskGraphics.beginFill(0xffffff, 1);
+		maskGraphics.drawRect(
+			wallCenterX - wallWidth / 2,
+			wallBottomY - revealHeight,
+			wallWidth,
+			revealHeight,
+		);
+		maskGraphics.endFill();
+
+		// Move flash upward along the wall
+		flashSprite.y = currentFlashY;
+
+		// Keep Cycloper facing the print direction for the full effect duration.
+		cycloper.faceHex(wall);
+
+		// Draw laser beam from eye to flash
+		beamGraphics.clear();
+		beamGraphics.lineStyle(5, laserColor, 0.95);
+		beamGraphics.moveTo(eyePosX, eyePosY);
+		beamGraphics.lineTo(wallCenterX, currentFlashY);
+
+		if (progress < 1) {
+			setTimeout(animate, 16);
+		} else {
+			// Animation complete - remove mask and clean up effects
+			wallSprite.mask = null;
+			maskGraphics.destroy();
+			beamGraphics.destroy();
+			flashSprite.destroy();
+			if (onComplete) {
+				onComplete();
+			}
+		}
+	};
+
+	animate();
+}
+
 function ensureAcrylicWallData(G: Game) {
 	const creatureData = G.creatureData as CreatureDataEntry[];
 	const existing = creatureData.find((unit) => unit.type === ACRYLIC_WALL_TYPE);
@@ -550,8 +648,8 @@ export default (G: Game) => {
 				let wallFallback: Creature | null = null;
 				const upgraded = this.isUpgraded();
 				const projectileDirection = { direction: args?.direction ?? 0 };
-				const eyeStartX = this.creature.sprite.scale.x > 0 ? 58 : 32;
-				const eyeStartY = -116;
+				const eyeStartX = this.creature.sprite.scale.x > 0 ? 60 : 30;
+				const eyeStartY = -120;
 				const selectedHex = args?.hex;
 				const selectedCreature =
 					selectedHex?.creature instanceof Creature ? selectedHex.creature : null;
@@ -726,10 +824,30 @@ export default (G: Game) => {
 				const cycloper = this.creature;
 				const wallPreviewData = ensureAcrylicWallData(G);
 				const range = getRiotShieldPlacementRange(cycloper, G);
+				let wallPlacementConfirmed = false;
+				const hideWallPreviewInstantly = () => {
+					const gridAny = G.grid as any;
+					if (gridAny._flickerTween) {
+						gridAny._flickerTween.stop(true);
+					}
+					if (gridAny.materialize_overlay) {
+						gridAny.materialize_overlay.alpha = 0;
+					}
+				};
 
 				G.grid.queryHexes({
-					fnOnConfirm: (...args) => ability.animation(...args),
+					fnOnConfirm: (hex) => {
+						wallPlacementConfirmed = true;
+						hideWallPreviewInstantly();
+						// Bypass default ability animation to avoid facePlayerDefault() snap.
+						ability.activate(hex);
+						ability.postActivate();
+					},
 					fnOnSelect: (selectedHex) => {
+						if (wallPlacementConfirmed) {
+							hideWallPreviewInstantly();
+							return;
+						}
 						cycloper.faceHex(selectedHex);
 						selectedHex.overlayVisualState('creature selected player' + cycloper.team);
 						G.grid.previewCreature(selectedHex.pos, wallPreviewData, cycloper.player);
@@ -786,14 +904,43 @@ export default (G: Game) => {
 				wallFlags.hideUnitStatsOnHover = true;
 				wallFlags.deathAnimationType = 'shatterDown';
 				wallFlags.hideFromCreatureCount = true;
-				wall.summon();
+
+				const gridAny = G.grid as any;
+				const previewOverlay = gridAny.materialize_overlay;
+				if (gridAny._flickerTween) {
+					gridAny._flickerTween.stop(true);
+				}
+				if (previewOverlay) {
+					previewOverlay.alpha = 0;
+				}
+				// Prevent Creature.summon() from tween-fading the preview overlay back in.
+				gridAny.materialize_overlay = null;
+
+				wall.creatureSprite.setAlpha(0, 0);
+				wall.summon(true); // Disable materialization sickness fade-in
+				wall.creatureSprite.setAlpha(0, 0);
+
+				gridAny.materialize_overlay = previewOverlay;
+				if (previewOverlay) {
+					previewOverlay.alpha = 0;
+				}
+				
 				wallFlags._nextGameTurnActive = Number.MAX_SAFE_INTEGER;
 				wall.remainingMove = 0;
 				wall.noActionPossible = true;
 				this._lastBonus = wall.id;
+				this.creature.faceHex(hex);
+
+				// Create 3D print laser effect from Cycloper's eye
+				createAcrylicWall3DPrintEffect(this.creature, wall, G, () => {
+					if (this.creature.dead) {
+						return;
+					}
+					this.creature.queryMove();
+				});
 
 				G.updateQueueDisplay();
-				this.end();
+				this.end(false, true);
 			},
 		},
 
