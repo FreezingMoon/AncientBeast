@@ -216,7 +216,7 @@ describe('Creature', () => {
 			creature.queryMove();
 
 			expect(grid.queryHexes).toHaveBeenCalled();
-			const args = grid.queryHexes.mock.calls[0][0];
+			const args = grid.queryHexes.mock.calls[0][0] as { fillHexOnHover: boolean };
 			expect(args.fillHexOnHover).toBe(false);
 		});
 
@@ -239,7 +239,9 @@ describe('Creature', () => {
 
 			creature.queryMove();
 
-			const queryArgs = grid.queryHexes.mock.calls[0][0];
+			const queryArgs = grid.queryHexes.mock.calls[0][0] as {
+				fnOnSelect: (hex: { x: number; y: number }, payload: { creature: Creature }) => void;
+			};
 			queryArgs.fnOnSelect({ x: creature.x + 1, y: creature.y }, { creature });
 
 			expect(grid.redoLastQuery).toHaveBeenCalledTimes(1);
@@ -274,7 +276,7 @@ type MockGrid = {
 	healthIndicatorUiGroup: { add: jest.Mock; remove: jest.Mock };
 };
 
-type MockGame = Game & {
+type MockGame = {
 	grid: MockGrid;
 	activeCreature?: Creature;
 };
@@ -360,6 +362,12 @@ const getGameMock = () => {
 		queue: { update: jest.fn() },
 		updateQueueDisplay: jest.fn(),
 		grid: {
+			queryHexes: jest.fn(),
+			redoLastQuery: jest.fn(),
+			forEachHex: jest.fn(),
+			xray: jest.fn(),
+			updateDisplay: jest.fn(),
+			getFlyingRange: jest.fn(() => []),
 			orderCreatureZ: jest.fn(),
 			hexes: getHexesMock(),
 			allhexes: [] as unknown[],
@@ -444,7 +452,7 @@ beforeAll(() => {
 	});
 
 	// Mock jQuery globally
-	(global as { $j: unknown }).$j = jest.fn(() => ({
+	(global as unknown as { $j: unknown }).$j = jest.fn(() => ({
 		removeClass: jest.fn(),
 	}));
 
