@@ -104,11 +104,25 @@ describe('Cycloper abilities', () => {
 			abilities: [],
 			creatureData: [],
 			activeCreature: null,
+			animations: {
+				projectile: jest.fn(() => {
+					const sprite = { destroy: jest.fn() };
+					const tween = {
+						onComplete: {
+							add: (fn: () => void, context?: unknown) => {
+								fn.call(context);
+							},
+						},
+					};
+					return [tween, sprite];
+				}),
+			},
 			grid: {
 				getHexLine: jest.fn(),
 				getDirectionChoices: jest.fn(),
 				hexes: [],
 				queryDirection: jest.fn(),
+				queryChoice: jest.fn(),
 				queryHexes: jest.fn(),
 				previewCreature: jest.fn(),
 				orderCreatureZ: jest.fn(),
@@ -320,6 +334,163 @@ describe('Cycloper abilities', () => {
 		});
 
 		expect(wall.heal).toHaveBeenCalledWith(30);
+	});
+
+	test('Optic Burst upgraded heals selected wounded allied creature', () => {
+		const cycloper = new (Creature as any)({
+			id: 15,
+			team: 0,
+			type: 'W0',
+			x: 3,
+			y: 3,
+			hexagons: [{ x: 3, y: 3 }],
+			player: { id: 0, flipped: false, creatures: [] },
+			health: 60,
+			stats: { health: 60, energy: 100 },
+		});
+
+		const ally = new (Creature as any)({
+			id: 101,
+			team: 0,
+			type: 'B0',
+			health: 20,
+			stats: { health: 50 },
+			hexagons: [{ x: 4, y: 3 }],
+		});
+
+		game.grid.getHexLine.mockReturnValue([
+			{ x: 3, y: 3, creature: cycloper },
+			{ x: 4, y: 3, creature: ally },
+		]);
+
+		const abilityDef = game.abilities[15][1];
+		const opticBurst = {
+			...abilityDef,
+			creature: cycloper,
+			damages: { burn: 30 },
+			isUpgraded: () => true,
+			end: jest.fn(),
+		};
+
+		opticBurst.activate([{ x: 4, y: 3, creature: ally }], {
+			direction: 1,
+			hex: { x: 4, y: 3, creature: ally },
+		});
+
+		expect(ally.heal).toHaveBeenCalledWith(30);
+	});
+
+	test('Optic Burst upgraded heals nearest wounded ally when ally and enemy are inline', () => {
+		const cycloper = new (Creature as any)({
+			id: 15,
+			team: 0,
+			type: 'W0',
+			x: 3,
+			y: 3,
+			hexagons: [{ x: 3, y: 3 }],
+			player: { id: 0, flipped: false, creatures: [] },
+			health: 60,
+			stats: { health: 60, energy: 100 },
+		});
+
+		const ally = new (Creature as any)({
+			id: 104,
+			team: 0,
+			type: 'B0',
+			health: 25,
+			stats: { health: 50 },
+			hexagons: [{ x: 4, y: 3 }],
+		});
+
+		const enemy = new (Creature as any)({
+			id: 204,
+			team: 1,
+			type: 'A1',
+			health: 80,
+			stats: { health: 80 },
+			hexagons: [{ x: 5, y: 3 }],
+		});
+
+		game.grid.getHexLine.mockReturnValue([
+			{ x: 3, y: 3, creature: cycloper },
+			{ x: 4, y: 3, creature: ally },
+			{ x: 5, y: 3, creature: enemy },
+		]);
+
+		const abilityDef = game.abilities[15][1];
+		const opticBurst = {
+			...abilityDef,
+			creature: cycloper,
+			damages: { burn: 30 },
+			isUpgraded: () => true,
+			end: jest.fn(),
+		};
+
+		opticBurst.activate(
+			[
+				{ x: 4, y: 3, creature: ally },
+				{ x: 5, y: 3, creature: enemy },
+			],
+			{ direction: 1 },
+		);
+
+		expect(ally.heal).toHaveBeenCalledWith(30);
+		expect(enemy.takeDamage).not.toHaveBeenCalled();
+	});
+
+	test('Optic Burst upgraded query dashes path beyond wounded ally blocker', () => {
+		const cycloper = new (Creature as any)({
+			id: 15,
+			team: 0,
+			type: 'W0',
+			x: 3,
+			y: 3,
+			hexagons: [{ x: 3, y: 3 }],
+			player: { id: 0, flipped: false, creatures: [] },
+			health: 60,
+			stats: { health: 60, energy: 100 },
+		});
+
+		const ally = new (Creature as any)({
+			id: 105,
+			team: 0,
+			type: 'B0',
+			health: 20,
+			stats: { health: 50 },
+			hexagons: [{ x: 4, y: 3 }],
+		});
+
+		const enemy = new (Creature as any)({
+			id: 205,
+			team: 1,
+			type: 'A1',
+			health: 80,
+			stats: { health: 80 },
+			hexagons: [{ x: 5, y: 3 }],
+		});
+
+		const allyHex = { x: 4, y: 3, creature: ally } as any;
+		const enemyHex = { x: 5, y: 3, creature: enemy } as any;
+
+		game.grid.getDirectionChoices.mockReturnValue({
+			choices: [[allyHex, enemyHex]],
+			hexesDashed: [],
+		});
+
+		const abilityDef = game.abilities[15][1];
+		const opticBurst = {
+			...abilityDef,
+			creature: cycloper,
+			isUpgraded: () => true,
+			animation: jest.fn(),
+		};
+
+		opticBurst.query();
+
+		expect(game.grid.queryChoice).toHaveBeenCalledTimes(1);
+		const queryArg = game.grid.queryChoice.mock.calls[0][0];
+		expect(queryArg.choices[0]).toEqual([allyHex]);
+		expect(queryArg.hexesDashed).toContain(enemyHex);
 	});
 
 	test('Power Aperture require sets no-energy-in-range message/flag when targets are in range but unaffordable', () => {

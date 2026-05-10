@@ -70,6 +70,17 @@ function isDamagedAlliedAcrylicWall(creature: Creature | null | undefined, cyclo
 	);
 }
 
+function isDamagedAlliedOpticBurstTarget(
+	creature: Creature | null | undefined,
+	cycloper: Creature,
+) {
+	return (
+		creature instanceof Creature &&
+		isTeam(cycloper, creature, Team.Ally) &&
+		creature.health < creature.stats.health
+	);
+}
+
 function isValidOpticBurstTarget(cycloper: Creature, target: Creature, upgraded: boolean) {
 	if (!upgraded) {
 		return !isAcrylicWall(target) && isTeam(cycloper, target, Team.Enemy);
@@ -79,14 +90,18 @@ function isValidOpticBurstTarget(cycloper: Creature, target: Creature, upgraded:
 		return !isAcrylicWall(target);
 	}
 
-	// Allies: only damaged acrylic walls are valid targets when upgraded
-	return isAcrylicWall(target) && isDamagedAlliedAcrylicWall(target, cycloper);
+	// Upgraded: wounded allies are valid heal targets.
+	return isDamagedAlliedOpticBurstTarget(target, cycloper);
 }
 
 function shouldIgnoreOpticBurstTarget(cycloper: Creature, upgraded: boolean, target: Creature) {
-	// Always pierce through allied non-wall creatures (e.g. Bounty Hunter)
 	if (!isAcrylicWall(target) && isTeam(cycloper, target, Team.Ally)) {
-		return true;
+		if (!upgraded) {
+			return true;
+		}
+
+		// Upgraded: stop on wounded allies so they can be selected/healed.
+		return !isDamagedAlliedOpticBurstTarget(target, cycloper);
 	}
 
 	if (!isAcrylicWall(target)) {
@@ -483,7 +498,7 @@ export default (G: Game) => {
 				const upgraded = this.isUpgraded();
 				const targetTeam = upgraded ? Team.Both : this._targetTeam;
 
-				G.grid.queryDirection({
+				const directionalOptions = G.grid.getDirectionChoices({
 					fnOnConfirm: (...args) => ability.animation(...args),
 					team: targetTeam,
 					id: cycloper.id,
@@ -502,6 +517,32 @@ export default (G: Game) => {
 						shouldIgnoreOpticBurstTarget(cycloper, upgraded, target),
 					optTest: (target: Creature) => isValidOpticBurstTarget(cycloper, target, upgraded),
 				});
+
+				if (upgraded) {
+					directionalOptions.choices.forEach((choice) => {
+						const blockerIndex = choice.findIndex(
+							(hex) =>
+								hex.creature instanceof Creature &&
+								!isAcrylicWall(hex.creature) &&
+								isDamagedAlliedOpticBurstTarget(hex.creature, cycloper),
+						);
+
+						if (blockerIndex < 0) {
+							return;
+						}
+
+						const blockedPath = choice.slice(blockerIndex + 1);
+						choice.splice(blockerIndex + 1);
+
+						blockedPath.forEach((hex) => {
+							if (!directionalOptions.hexesDashed.includes(hex)) {
+								directionalOptions.hexesDashed.push(hex);
+							}
+						});
+					});
+				}
+
+				G.grid.queryChoice(directionalOptions);
 			},
 
 			activate: function (path, args) {
