@@ -4,6 +4,7 @@ import { Hex } from '../utility/hex';
 import { Team, isTeam } from '../utility/team';
 import * as arrayUtils from '../utility/arrayUtils';
 import Game from '../game';
+import type { Ability } from '../ability';
 import type { UnitData } from '../data/types';
 
 const CYCLOPER_UNIT_ID = 15;
@@ -578,21 +579,36 @@ export default (G: Game) => {
 
 					// Heal is intentionally a fixed amount (pure-equivalent), unaffected by masteries.
 					target.heal(pureHealAmount);
+					this.end();
 				} else {
-					target.takeDamage(
-						new Damage(
-							this.creature,
-							{
-								burn: burnAmount,
-							},
-							1,
-							[],
-							G,
-						),
+					const damage = new Damage(
+						this.creature,
+						{
+							burn: burnAmount,
+						},
+						1,
+						[],
+						G,
 					);
+					// Launch from Cycloper's green eye (mapped from cardboard art proportions).
+					const startX = this.creature.sprite.scale.x > 0 ? 58 : 32;
+					const [tween, sprite] = G.animations.projectile(
+						this as Ability,
+						target,
+						'effects_optic-burst',
+						path,
+						{ direction: args?.direction ?? 0 },
+						startX,
+						-116,
+					);
+					this.end();
+					tween.onComplete.add(function () {
+						// `this` is the sprite (context arg below)
+						// @ts-expect-error 'this' defaults to type 'any'
+						this.destroy();
+						target.takeDamage(damage);
+					}, sprite);
 				}
-
-				this.end();
 			},
 		},
 
