@@ -826,12 +826,11 @@ export default (G: Game) => {
 				const range = getRiotShieldPlacementRange(cycloper, G);
 				let wallPlacementConfirmed = false;
 				const hideWallPreviewInstantly = () => {
-					const gridAny = G.grid as any;
-					if (gridAny._flickerTween) {
-						gridAny._flickerTween.stop(true);
+					if (G.grid._flickerTween) {
+						G.grid._flickerTween.stop(true);
 					}
-					if (gridAny.materialize_overlay) {
-						gridAny.materialize_overlay.alpha = 0;
+					if (G.grid.materialize_overlay) {
+						G.grid.materialize_overlay.alpha = 0;
 					}
 				};
 
@@ -905,26 +904,25 @@ export default (G: Game) => {
 				wallFlags.deathAnimationType = 'shatterDown';
 				wallFlags.hideFromCreatureCount = true;
 
-				const gridAny = G.grid as any;
-				const previewOverlay = gridAny.materialize_overlay;
-				if (gridAny._flickerTween) {
-					gridAny._flickerTween.stop(true);
+				const previewOverlay = G.grid.materialize_overlay;
+				if (G.grid._flickerTween) {
+					G.grid._flickerTween.stop(true);
 				}
 				if (previewOverlay) {
 					previewOverlay.alpha = 0;
 				}
 				// Prevent Creature.summon() from tween-fading the preview overlay back in.
-				gridAny.materialize_overlay = null;
+				G.grid.materialize_overlay = null;
 
 				wall.creatureSprite.setAlpha(0, 0);
 				wall.summon(true); // Disable materialization sickness fade-in
 				wall.creatureSprite.setAlpha(0, 0);
 
-				gridAny.materialize_overlay = previewOverlay;
+				G.grid.materialize_overlay = previewOverlay;
 				if (previewOverlay) {
 					previewOverlay.alpha = 0;
 				}
-				
+
 				wallFlags._nextGameTurnActive = Number.MAX_SAFE_INTEGER;
 				wall.remainingMove = 0;
 				wall.noActionPossible = true;
