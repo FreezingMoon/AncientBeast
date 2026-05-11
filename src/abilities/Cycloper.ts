@@ -25,9 +25,776 @@ type AcrylicWallRuntimeFlags = {
 	hideFromCreatureCount?: boolean;
 	_nextGameTurnActive?: number;
 };
+type ShatterTexture = {
+	crop?: { x: number; y: number; width: number; height: number };
+	frame?: { x: number; y: number; width: number; height: number };
+	width?: number;
+	height?: number;
+	baseTexture?: { source?: CanvasImageSource };
+};
+type PowerApertureTile = {
+	sprite: Phaser.Sprite;
+	bitmapData: Phaser.BitmapData;
+	angle: number;
+	dissolveSeed: number;
+	spinDirection: 1 | -1;
+	sourceX: number;
+	sourceY: number;
+	destinationX: number;
+	destinationY: number;
+	renderScaleX: number;
+	renderScaleY: number;
+	phase1StartProgress: number;
+	phase1Scatter: number;
+};
+
+function enforcePowerApertureFacing(target: Creature, facing: 1 | -1, ticks = 5) {
+	const keepFacing = (remainingTicks: number) => {
+		if (!target || target.dead || !target.sprite) {
+			return;
+		}
+
+		target.creatureSprite.setDir(facing);
+
+		if (remainingTicks <= 1) {
+			return;
+		}
+
+		setTimeout(() => {
+			keepFacing(remainingTicks - 1);
+		}, 16);
+	};
+
+	keepFacing(ticks);
+}
 
 function getCycloperOrigin(cycloper: Creature) {
 	return cycloper.player.flipped ? cycloper.hexagons[cycloper.size - 1] : cycloper.hexagons[0];
+}
+
+function getCycloperEyeOffsets(cycloper: Creature) {
+	return {
+		x: cycloper.sprite?.scale?.x > 0 ? 50 : 40,
+		y: -113,
+	};
+}
+
+function getCycloperEyeEmissionPoint(cycloper: Creature) {
+	const eyeOffsets = getCycloperEyeOffsets(cycloper);
+	const fallbackOrigin = getCycloperOrigin(cycloper);
+	const fallbackPoint = {
+		x: fallbackOrigin?.displayPos?.x ?? cycloper.x * 90,
+		y: fallbackOrigin?.displayPos?.y ?? cycloper.y * 78,
+	};
+	const basePoint = cycloper.legacyProjectileEmissionPoint ?? fallbackPoint;
+
+	return {
+		x: basePoint.x + eyeOffsets.x,
+		y: basePoint.y + eyeOffsets.y,
+		offsetX: eyeOffsets.x,
+		offsetY: eyeOffsets.y,
+	};
+}
+
+function getPowerApertureCapPoint(centerX: number, spriteTop: number, displayHeight: number) {
+	return {
+		x: centerX,
+		y: spriteTop + displayHeight * 0.38,
+	};
+}
+
+function getStaggeredProgress(baseProgress: number, seed: number, maxDelay = 0.55) {
+	const delay = seed * maxDelay;
+	if (baseProgress <= delay) {
+		return 0;
+	}
+
+	return Math.min(1, (baseProgress - delay) / Math.max(0.001, 1 - delay));
+}
+
+function blendTint(fromColor: number, toColor: number, progress: number) {
+	const t = Math.max(0, Math.min(1, progress));
+	const fromR = (fromColor >> 16) & 0xff;
+	const fromG = (fromColor >> 8) & 0xff;
+	const fromB = fromColor & 0xff;
+	const toR = (toColor >> 16) & 0xff;
+	const toG = (toColor >> 8) & 0xff;
+	const toB = toColor & 0xff;
+	const red = Math.round(fromR + (toR - fromR) * t);
+	const green = Math.round(fromG + (toG - fromG) * t);
+	const blue = Math.round(fromB + (toB - fromB) * t);
+
+	return (red << 16) | (green << 8) | blue;
+}
+
+function drawCycloperBeamLayered(
+	beamGraphics: Phaser.Graphics,
+	startX: number,
+	startY: number,
+	baseAngle: number,
+	length: number,
+	sweepRadians = 0,
+) {
+	const beamAngle = baseAngle + sweepRadians;
+	const endX = startX + Math.cos(beamAngle) * length;
+	const endY = startY + Math.sin(beamAngle) * length;
+	const normalX = -Math.sin(beamAngle);
+	const normalY = Math.cos(beamAngle);
+	const beamLayers = [
+		{ offset: -4, width: 2, color: 0x007f2a, alpha: 0.3 },
+		{ offset: -2, width: 3, color: 0x22c95b, alpha: 0.65 },
+		{ offset: 0, width: 4, color: 0x88ffb0, alpha: 0.98 },
+		{ offset: 2, width: 3, color: 0x22c95b, alpha: 0.65 },
+		{ offset: 4, width: 2, color: 0x007f2a, alpha: 0.3 },
+	];
+
+	beamLayers.forEach((layer) => {
+		const layerStartX = startX + normalX * layer.offset;
+		const layerStartY = startY + normalY * layer.offset;
+		const layerEndX = endX + normalX * layer.offset;
+		const layerEndY = endY + normalY * layer.offset;
+		beamGraphics.lineStyle(layer.width, layer.color, layer.alpha);
+		beamGraphics.moveTo(layerStartX, layerStartY);
+		beamGraphics.lineTo(layerEndX, layerEndY);
+
+		// Rounded cap at the beam tip to avoid hard pixel edge.
+		const tipRadius = layer.width * 1.1;
+		beamGraphics.lineStyle(0, 0, 0);
+		beamGraphics.beginFill(layer.color, layer.alpha);
+		beamGraphics.drawCircle(layerEndX, layerEndY, tipRadius * 2);
+		beamGraphics.endFill();
+	});
+
+	return {
+		x: endX,
+		y: endY,
+		angle: beamAngle,
+	};
+}
+
+function createOpticBurstLaserEffect(
+	ability: Ability,
+	target: Creature,
+	path: Hex[],
+	G: Game,
+	onComplete?: () => void,
+) {
+	if (typeof G.Phaser === 'undefined' || !G.Phaser.add) {
+		if (onComplete) {
+			onComplete();
+		}
+		return;
+	}
+
+	if (!G.Phaser.make?.graphics || typeof G.grid?.creatureGroup?.create !== 'function') {
+		if (onComplete) {
+			onComplete();
+		}
+		return;
+	}
+
+	const eyeEmissionPoint = getCycloperEyeEmissionPoint(ability.creature);
+	const emissionPointX = eyeEmissionPoint.x;
+	const emissionPointY = eyeEmissionPoint.y;
+
+	let distanceFromEye = Number.MAX_SAFE_INTEGER;
+	let targetX = path[0]?.displayPos?.x ?? target.x;
+	for (const hex of path) {
+		if (hex.creature?.id !== target.id) {
+			continue;
+		}
+
+		const candidateDistance = Math.abs(emissionPointX - (hex.displayPos?.x ?? targetX));
+		if (candidateDistance < distanceFromEye) {
+			distanceFromEye = candidateDistance;
+			targetX = hex.displayPos?.x ?? targetX;
+		}
+	}
+
+	const baseDist = arrayUtils.filterCreature(path.slice(0), false, false).length;
+	const targetHex = path[Math.min(baseDist, Math.max(0, path.length - 1))];
+	const targetPointX = targetX + 45;
+	const targetPointY = (targetHex?.displayPos?.y ?? target.y) - 65;
+
+	const impactSprite = G.grid.creatureGroup.create(
+		targetPointX,
+		targetPointY,
+		'effects_optic-burst',
+	);
+	impactSprite.anchor.setTo(0.5);
+	impactSprite.tint = 0x55ff77;
+	impactSprite.alpha = 0;
+	impactSprite.scale.setTo(1.4, 1.4);
+
+	const beamGraphics = G.Phaser.make.graphics(0, 0);
+	G.grid.creatureGroup.addChild(beamGraphics);
+
+	const travelSteps = baseDist <= 0 ? 1 : baseDist;
+	const straightTravelDurationMs = Math.max(60, Math.min(110, travelSteps * 20));
+	const sweepDurationMs = Math.max(320, travelSteps * 95);
+	const beamDurationMs = straightTravelDurationMs + sweepDurationMs;
+	const totalDx = targetPointX - emissionPointX;
+	const totalDy = targetPointY - emissionPointY;
+	const baseAngle = Math.atan2(totalDy, totalDx);
+	const totalLength = Math.sqrt(totalDx * totalDx + totalDy * totalDy);
+	const totalSweepRadians = (2.5 * Math.PI) / 180;
+
+	let startTime: number;
+	const animate = () => {
+		if (startTime === undefined) {
+			startTime = Date.now();
+		}
+
+		const elapsed = Date.now() - startTime;
+		const progress = Math.min(1, elapsed / beamDurationMs);
+		const isStraightTravelPhase = elapsed < straightTravelDurationMs;
+		const straightProgress = Math.min(1, elapsed / straightTravelDurationMs);
+		const sweepProgress = Math.min(
+			1,
+			Math.max(0, elapsed - straightTravelDurationMs) / sweepDurationMs,
+		);
+		const currentLength = isStraightTravelPhase ? totalLength * straightProgress : totalLength;
+		const sweepRadians = isStraightTravelPhase ? 0 : totalSweepRadians * sweepProgress;
+
+		ability.creature.faceHex(target);
+		const currentEyeEmissionPoint = getCycloperEyeEmissionPoint(ability.creature);
+		beamGraphics.clear();
+		const beamTip = drawCycloperBeamLayered(
+			beamGraphics,
+			currentEyeEmissionPoint.x,
+			currentEyeEmissionPoint.y,
+			baseAngle,
+			currentLength,
+			sweepRadians,
+		);
+
+		if (isStraightTravelPhase) {
+			impactSprite.alpha = 0;
+		} else {
+			impactSprite.x = beamTip.x;
+			impactSprite.y = beamTip.y;
+			const glowPulse = 0.5 + 0.5 * Math.sin(sweepProgress * Math.PI * 6);
+			impactSprite.alpha = Math.min(0.9, 0.65 + glowPulse * 0.2);
+			impactSprite.scale.setTo(1.4 + glowPulse * 0.35, 1.4 + glowPulse * 0.35);
+		}
+
+		if (progress < 1) {
+			setTimeout(animate, 16);
+			return;
+		}
+
+		beamGraphics.destroy();
+
+		G.Phaser.add
+			.tween(impactSprite.scale)
+			.to(
+				{
+					x: 2.5,
+					y: 2.5,
+				},
+				220,
+				Phaser.Easing.Cubic.Out,
+			)
+			.start();
+
+		G.Phaser.add
+			.tween(impactSprite)
+			.to(
+				{
+					alpha: 0,
+				},
+				220,
+				Phaser.Easing.Cubic.Out,
+				true,
+			)
+			.onComplete.add(function () {
+				// @ts-expect-error 'this' defaults to type 'any'
+				this.destroy();
+				if (onComplete) {
+					onComplete();
+				}
+			}, impactSprite);
+	};
+
+	animate();
+}
+
+function createPowerApertureTiles(
+	G: Game,
+	targetSprite: Phaser.Sprite,
+	spriteLeft: number,
+	spriteTop: number,
+	displayWidth: number,
+	displayHeight: number,
+	forcedFlipped?: boolean,
+) {
+	const targetTexture = targetSprite.texture as ShatterTexture;
+	const targetFrame = targetTexture.crop ||
+		targetTexture.frame || { x: 0, y: 0, width: 0, height: 0 };
+	const targetSource = targetTexture.baseTexture?.source;
+	const targetTexW = Math.round(targetTexture.width || targetFrame.width || 1);
+	const targetTexH = Math.round(targetTexture.height || targetFrame.height || 1);
+	const targetIsFlipped =
+		typeof forcedFlipped === 'boolean' ? forcedFlipped : targetSprite.scale.x < 0;
+	const scaleX = displayWidth / targetTexW;
+	const scaleY = displayHeight / targetTexH;
+	const overlapScale = 1;
+	const renderScaleX = Math.abs(scaleX) * overlapScale;
+	const renderScaleY = Math.abs(scaleY) * overlapScale;
+	const tileSize = Math.max(2, Math.floor(Math.min(targetTexW, targetTexH) / 16));
+	const tiles: PowerApertureTile[] = [];
+
+	if (!targetSource) {
+		return tiles;
+	}
+
+	const orientedBitmapData = G.Phaser.add.bitmapData(targetTexW, targetTexH);
+	orientedBitmapData.ctx.clearRect(0, 0, targetTexW, targetTexH);
+
+	if (targetIsFlipped) {
+		orientedBitmapData.ctx.save();
+		orientedBitmapData.ctx.translate(targetTexW, 0);
+		orientedBitmapData.ctx.scale(-1, 1);
+		orientedBitmapData.ctx.drawImage(
+			targetSource,
+			targetFrame.x,
+			targetFrame.y,
+			targetTexW,
+			targetTexH,
+			0,
+			0,
+			targetTexW,
+			targetTexH,
+		);
+		orientedBitmapData.ctx.restore();
+	} else {
+		orientedBitmapData.ctx.drawImage(
+			targetSource,
+			targetFrame.x,
+			targetFrame.y,
+			targetTexW,
+			targetTexH,
+			0,
+			0,
+			targetTexW,
+			targetTexH,
+		);
+	}
+	orientedBitmapData.dirty = true;
+
+	for (let sy = 0; sy < targetTexH; sy += tileSize) {
+		for (let sx = 0; sx < targetTexW; sx += tileSize) {
+			const sw = Math.min(tileSize, targetTexW - sx);
+			const sh = Math.min(tileSize, targetTexH - sy);
+			const bitmapData = G.Phaser.add.bitmapData(sw, sh);
+			bitmapData.ctx.clearRect(0, 0, sw, sh);
+			bitmapData.ctx.drawImage(orientedBitmapData.canvas, sx, sy, sw, sh, 0, 0, sw, sh);
+			bitmapData.dirty = true;
+			const tileCenterX = sx + sw / 2;
+			const tileCenterY = sy + sh / 2;
+			const screenTileX = tileCenterX;
+			const destinationX = spriteLeft + screenTileX * scaleX;
+			const destinationY = spriteTop + tileCenterY * scaleY;
+
+			tiles.push({
+				sprite: null as unknown as Phaser.Sprite,
+				bitmapData,
+				angle: -18 + Math.random() * 36,
+				dissolveSeed: Math.random(),
+				spinDirection: Math.random() > 0.5 ? 1 : -1,
+				sourceX: destinationX,
+				sourceY: destinationY,
+				destinationX,
+				destinationY,
+				renderScaleX,
+				renderScaleY,
+				phase1StartProgress: 0.22 + Math.random() * 0.24,
+				phase1Scatter: (Math.random() - 0.5) * 44,
+			});
+		}
+	}
+
+	orientedBitmapData.destroy();
+
+	return tiles;
+}
+
+function createPowerAperturePhase1Effect(
+	cycloper: Creature,
+	target: Creature,
+	originalScaleX: number,
+	G: Game,
+	onComplete?: () => void,
+) {
+	if (typeof G.Phaser === 'undefined' || !G.Phaser.add) {
+		if (onComplete) {
+			onComplete();
+		}
+		return;
+	}
+
+	const laserColor = 0x00ff00;
+	const laserDurationMs = 1200;
+	const targetSprite = target.sprite;
+	if (!targetSprite) {
+		if (onComplete) {
+			onComplete();
+		}
+		return;
+	}
+
+	const targetDisplayPos = target.creatureSprite.getPos();
+	const targetBaseX = targetDisplayPos.x + targetSprite.x;
+	const targetBaseY = targetDisplayPos.y + targetSprite.y;
+	const targetCenterX = targetBaseX;
+	const targetDisplayWidth = Math.abs(targetSprite.width);
+	const targetDisplayHeight = Math.abs(targetSprite.height);
+	const targetLeft = targetCenterX - targetDisplayWidth / 2;
+	const targetTop = targetBaseY - targetDisplayHeight * targetSprite.anchor.y;
+	const targetCapPoint = getPowerApertureCapPoint(targetCenterX, targetTop, targetDisplayHeight);
+	const preservedSign = originalScaleX < 0 ? -1 : 1;
+	target.creatureSprite.setDir(preservedSign);
+	cycloper.faceHex(target);
+	const lockedEyeEmissionPoint = getCycloperEyeEmissionPoint(cycloper);
+	const tiles = createPowerApertureTiles(
+		G,
+		targetSprite,
+		targetLeft,
+		targetTop,
+		targetDisplayWidth,
+		targetDisplayHeight,
+		preservedSign < 0,
+	);
+
+	// Keep the creature sprite hidden throughout phase 1 – tiles represent it visually.
+	target.grp.alpha = 0;
+	target.grp.visible = false;
+	target.grp.renderable = false;
+	if (typeof target.creatureSprite?.setAlpha === 'function') {
+		target.creatureSprite.setAlpha(0, 0);
+	}
+
+	const impactSprite = G.grid.creatureGroup.create(
+		targetCapPoint.x,
+		targetCapPoint.y,
+		'effects_optic-burst',
+	);
+	impactSprite.anchor.setTo(0.5, 0.5);
+	impactSprite.tint = laserColor;
+	impactSprite.alpha = 0.8;
+	impactSprite.scale.setTo(2, 1.5);
+
+	if (!tiles.length) {
+		impactSprite.destroy();
+		if (onComplete) {
+			onComplete();
+		}
+		return;
+	}
+
+	tiles.forEach((tile) => {
+		const lineDeltaX = targetCapPoint.x - tile.sourceX;
+		const lineDeltaY = targetCapPoint.y - tile.sourceY;
+		const lineLength = Math.max(1, Math.hypot(lineDeltaX, lineDeltaY));
+		const normalX = -lineDeltaY / lineLength;
+		const normalY = lineDeltaX / lineLength;
+		const spawnProgress = tile.phase1StartProgress;
+		const spawnScatterX = normalX * tile.phase1Scatter;
+		const spawnScatterY = normalY * tile.phase1Scatter;
+		tile.sprite = G.grid.creatureGroup.create(
+			tile.sourceX + lineDeltaX * spawnProgress + spawnScatterX,
+			tile.sourceY + lineDeltaY * spawnProgress + spawnScatterY,
+			tile.bitmapData,
+		);
+		tile.sprite.anchor.setTo(0.5, 0.5);
+		tile.sprite.alpha = 0.45 + tile.dissolveSeed * 0.35;
+		tile.sprite.tint = laserColor;
+		tile.sprite.scale.setTo(tile.renderScaleX, tile.renderScaleY);
+		tile.sprite.angle = 0;
+	});
+
+	const beamGraphics = G.Phaser.make.graphics(0, 0);
+	G.grid.creatureGroup.addChild(beamGraphics);
+
+	let startTime: number;
+	const animateLaser = () => {
+		if (startTime === undefined) {
+			startTime = Date.now();
+		}
+
+		const elapsed = Date.now() - startTime;
+		const progress = Math.min(1, elapsed / laserDurationMs);
+		const suctionProgress = progress;
+
+		beamGraphics.clear();
+		const beamTip = drawCycloperBeamLayered(
+			beamGraphics,
+			lockedEyeEmissionPoint.x,
+			lockedEyeEmissionPoint.y,
+			Math.atan2(
+				targetCapPoint.y - lockedEyeEmissionPoint.y,
+				targetCapPoint.x - lockedEyeEmissionPoint.x,
+			),
+			Math.hypot(
+				targetCapPoint.x - lockedEyeEmissionPoint.x,
+				targetCapPoint.y - lockedEyeEmissionPoint.y,
+			),
+			0,
+		);
+
+		impactSprite.x = beamTip.x;
+		impactSprite.y = beamTip.y;
+		impactSprite.alpha = 0.55 + 0.35 * Math.sin(progress * Math.PI * 4) * 0.5;
+		impactSprite.scale.setTo(2 + suctionProgress * 0.4, 1.5 + suctionProgress * 0.25);
+
+		tiles.forEach((tile) => {
+			const lineDeltaX = targetCapPoint.x - tile.sourceX;
+			const lineDeltaY = targetCapPoint.y - tile.sourceY;
+			const lineLength = Math.max(1, Math.hypot(lineDeltaX, lineDeltaY));
+			const normalX = -lineDeltaY / lineLength;
+			const normalY = lineDeltaX / lineLength;
+			const speedFactor = 0.7 + tile.dissolveSeed * 0.9;
+			const adjustedProgress = Math.min(1, suctionProgress * speedFactor);
+			const motionProgress =
+				tile.phase1StartProgress + (1 - tile.phase1StartProgress) * adjustedProgress;
+			const scatterFalloff = 1 - adjustedProgress;
+			tile.sprite.x =
+				tile.sourceX + lineDeltaX * motionProgress + normalX * tile.phase1Scatter * scatterFalloff;
+			tile.sprite.y =
+				tile.sourceY + lineDeltaY * motionProgress + normalY * tile.phase1Scatter * scatterFalloff;
+			tile.sprite.alpha = Math.max(0, 1 - motionProgress * (0.85 + tile.dissolveSeed * 0.1));
+			tile.sprite.scale.setTo(tile.renderScaleX, tile.renderScaleY);
+		});
+		if (progress < 1) {
+			setTimeout(animateLaser, 16);
+			return;
+		}
+
+		tiles.forEach((tile) => {
+			tile.sprite.destroy();
+			tile.bitmapData.destroy();
+		});
+		beamGraphics.destroy();
+		impactSprite.destroy();
+		if (onComplete) {
+			onComplete();
+		}
+	};
+
+	animateLaser();
+}
+
+function createPowerAperturePhase2Effect(
+	cycloper: Creature,
+	target: Creature,
+	destinationHex: Hex,
+	originalScaleX: number,
+	G: Game,
+	onComplete?: () => void,
+) {
+	if (typeof G.Phaser === 'undefined' || !G.Phaser.add) {
+		if (onComplete) {
+			onComplete();
+		}
+		return;
+	}
+
+	const laserColor = 0x00ff00;
+	const laserDurationMs = 1200;
+	const reformDurationMs = 520;
+	const targetSprite = target.sprite;
+
+	if (!targetSprite) {
+		if (onComplete) {
+			onComplete();
+		}
+		return;
+	}
+	const preservedSign = originalScaleX < 0 ? -1 : 1;
+	target.creatureSprite.setDir(preservedSign);
+	const lockedEyeEmissionPoint = getCycloperEyeEmissionPoint(cycloper);
+
+	const applyTargetReformState = (alpha: number, tintProgress: number) => {
+		// Use only group alpha to avoid double-alpha (group × sprite = alpha²).
+		// Ensure sprite's own alpha is 1 so group alpha is the sole control.
+		const clampedAlpha = Math.max(0, Math.min(1, alpha));
+		const clampedTint = Math.max(0, Math.min(1, tintProgress));
+		targetSprite.alpha = 1;
+		targetSprite.visible = true;
+		targetSprite.renderable = true;
+		targetSprite.tint = blendTint(laserColor, 0xffffff, clampedTint);
+		target.grp.alpha = clampedAlpha;
+		target.grp.visible = clampedAlpha > 0.01;
+		target.grp.renderable = clampedAlpha > 0.01;
+		target.creatureSprite.setDir(preservedSign);
+		if (typeof target.creatureSprite?.setAlpha === 'function') {
+			target.creatureSprite.setAlpha(clampedAlpha, 0);
+		}
+	};
+
+	const targetOriginalState = {
+		angle: targetSprite.angle,
+		scaleX: preservedSign,
+		scaleY: targetSprite.scale.y,
+	};
+	const destinationDisplayPos = target.creatureSprite.getPos();
+	const destinationCenterX = destinationDisplayPos.x + targetSprite.x;
+	const destinationCenterY = destinationDisplayPos.y + targetSprite.y;
+	const destinationDisplayWidth = Math.abs(targetSprite.width);
+	const destinationDisplayHeight = Math.abs(targetSprite.height);
+	const destinationLeft = destinationCenterX - destinationDisplayWidth / 2;
+	const destinationTop = destinationCenterY - destinationDisplayHeight * targetSprite.anchor.y;
+	const destinationCapPoint = getPowerApertureCapPoint(
+		destinationCenterX,
+		destinationTop,
+		destinationDisplayHeight,
+	);
+	const tiles = createPowerApertureTiles(
+		G,
+		targetSprite,
+		destinationLeft,
+		destinationTop,
+		destinationDisplayWidth,
+		destinationDisplayHeight,
+		preservedSign < 0,
+	);
+
+	cycloper.facePlayerDefault?.();
+	// Ensure sprite's own alpha is neutral so group alpha is the sole control.
+	targetSprite.alpha = 1;
+	targetSprite.visible = true;
+	targetSprite.renderable = true;
+	targetSprite.tint = laserColor;
+	target.grp.alpha = 0;
+	target.grp.visible = false;
+	target.grp.renderable = false;
+	if (typeof target.creatureSprite?.setAlpha === 'function') {
+		target.creatureSprite.setAlpha(0, 0);
+	}
+
+	const impactSprite = G.grid.creatureGroup.create(
+		destinationCapPoint.x,
+		destinationCapPoint.y,
+		'effects_optic-burst',
+	);
+	impactSprite.anchor.setTo(0.5, 0.5);
+	impactSprite.tint = laserColor;
+	impactSprite.alpha = 0.8;
+	impactSprite.scale.setTo(2.5, 1.8);
+
+	if (!tiles.length) {
+		impactSprite.destroy();
+		if (onComplete) {
+			onComplete();
+		}
+		return;
+	}
+
+	tiles.forEach((tile) => {
+		tile.sprite = G.grid.creatureGroup.create(
+			destinationCapPoint.x,
+			destinationCapPoint.y,
+			tile.bitmapData,
+		);
+		tile.sprite.anchor.setTo(0.5, 0.5);
+		tile.sprite.alpha = 0;
+		tile.sprite.tint = laserColor;
+		tile.sprite.scale.setTo(tile.renderScaleX, tile.renderScaleY);
+		tile.sprite.angle = 0;
+	});
+
+	const beamGraphics = G.Phaser.make.graphics(0, 0);
+	G.grid.creatureGroup.addChild(beamGraphics);
+
+	let startTime: number;
+	const animateLaser = () => {
+		if (startTime === undefined) {
+			startTime = Date.now();
+		}
+
+		const elapsed = Date.now() - startTime;
+		const progress = Math.min(1, elapsed / laserDurationMs);
+
+		beamGraphics.clear();
+		const beamTip = drawCycloperBeamLayered(
+			beamGraphics,
+			lockedEyeEmissionPoint.x,
+			lockedEyeEmissionPoint.y,
+			Math.atan2(
+				destinationCapPoint.y - lockedEyeEmissionPoint.y,
+				destinationCapPoint.x - lockedEyeEmissionPoint.x,
+			),
+			Math.hypot(
+				destinationCapPoint.x - lockedEyeEmissionPoint.x,
+				destinationCapPoint.y - lockedEyeEmissionPoint.y,
+			),
+			0,
+		);
+		const reassembleProgress = Math.min(1, elapsed / reformDurationMs);
+		const pulseIntensity = 0.5 + 0.5 * Math.sin(progress * Math.PI * 4);
+		// Fade creature in only in the last 400ms so tiles finish assembling first.
+		const revealStartMs = laserDurationMs - 400;
+		const revealProgress = Math.min(1, Math.max(0, elapsed - revealStartMs) / 400);
+		applyTargetReformState(revealProgress, revealProgress);
+		impactSprite.x = beamTip.x;
+		impactSprite.y = beamTip.y;
+		impactSprite.alpha = 0.6 + pulseIntensity * 0.3;
+		impactSprite.scale.setTo(2.5 + pulseIntensity * 0.6, 1.8 + pulseIntensity * 0.4);
+
+		tiles.forEach((tile) => {
+			const phaseSeed = Math.abs(Math.sin(tile.dissolveSeed * 97.13));
+			const staggeredProgress = getStaggeredProgress(reassembleProgress, phaseSeed, 0.92);
+			if (staggeredProgress <= 0) {
+				tile.sprite.x = destinationCapPoint.x;
+				tile.sprite.y = destinationCapPoint.y;
+				tile.sprite.alpha = 0;
+				tile.sprite.scale.setTo(tile.renderScaleX, tile.renderScaleY);
+				return;
+			}
+
+			const adjustedProgress = staggeredProgress;
+			tile.sprite.x =
+				destinationCapPoint.x + (tile.destinationX - destinationCapPoint.x) * adjustedProgress;
+			tile.sprite.y =
+				destinationCapPoint.y + (tile.destinationY - destinationCapPoint.y) * adjustedProgress;
+			tile.sprite.alpha = Math.min(1, 0.82 + adjustedProgress * 0.18);
+			tile.sprite.scale.setTo(tile.renderScaleX, tile.renderScaleY);
+		});
+
+		if (progress < 1) {
+			setTimeout(animateLaser, 16);
+			return;
+		}
+
+		beamGraphics.destroy();
+		impactSprite.destroy();
+
+		tiles.forEach((tile) => {
+			tile.sprite.destroy();
+			tile.bitmapData.destroy();
+		});
+
+		target.grp.alpha = 1;
+		target.grp.visible = true;
+		target.grp.renderable = true;
+		targetSprite.alpha = 1;
+		targetSprite.visible = true;
+		targetSprite.renderable = true;
+		targetSprite.tint = 0xffffff;
+		targetSprite.angle = targetOriginalState.angle;
+		target.creatureSprite.setDir(preservedSign);
+		targetSprite.scale.y = targetOriginalState.scaleY;
+		enforcePowerApertureFacing(target, preservedSign);
+		if (typeof target.creatureSprite?.setAlpha === 'function') {
+			target.creatureSprite.setAlpha(1, 0);
+		}
+		cycloper.facePlayerDefault?.();
+		if (onComplete) {
+			onComplete();
+		}
+	};
+
+	animateLaser();
 }
 
 function getApertureEnergyCost(target: Creature, useCurrentHealth: boolean) {
@@ -322,12 +1089,6 @@ function createAcrylicWall3DPrintEffect(
 	const laserDuration = 1200;
 
 	// Get Cycloper's eye emission point
-	// Cycloper runtime cardboard is 90x181; eye center is around (50, 32) in that texture.
-	const eyeStartX = cycloper.sprite.scale.x > 0 ? 50 : 40;
-	const eyeStartY = -113;
-	const eyePosX = cycloper.legacyProjectileEmissionPoint.x + eyeStartX;
-	const eyePosY = cycloper.legacyProjectileEmissionPoint.y + eyeStartY;
-
 	// Get wall sprite world position and size
 	const wallDisplayPos = wall.creatureSprite.getPos();
 	const wallSprite = wall.sprite;
@@ -385,11 +1146,12 @@ function createAcrylicWall3DPrintEffect(
 
 		// Keep Cycloper facing the print direction for the full effect duration.
 		cycloper.faceHex(wall);
+		const currentEyeEmissionPoint = getCycloperEyeEmissionPoint(cycloper);
 
 		// Draw laser beam from eye to flash
 		beamGraphics.clear();
 		beamGraphics.lineStyle(5, laserColor, 0.95);
-		beamGraphics.moveTo(eyePosX, eyePosY);
+		beamGraphics.moveTo(currentEyeEmissionPoint.x, currentEyeEmissionPoint.y);
 		beamGraphics.lineTo(wallCenterX, currentFlashY);
 
 		if (progress < 1) {
@@ -418,7 +1180,7 @@ function ensureAcrylicWallData(G: Game) {
 
 	const wallData = {
 		id: ACRYLIC_WALL_UNIT_ID,
-		name: 'object_crystal-wall',
+		name: 'object_acrylic-wall',
 		playable: false as const,
 		level: 0,
 		realm: 'O',
@@ -456,7 +1218,7 @@ function ensureAcrylicWallData(G: Game) {
 		},
 		ability_info: [
 			{
-				title: 'Crystal Hull',
+				title: 'Acrylic Hull',
 				desc: 'Converts all incoming damage to pure.',
 				info: 'Passive.',
 			},
@@ -648,8 +1410,9 @@ export default (G: Game) => {
 				let wallFallback: Creature | null = null;
 				const upgraded = this.isUpgraded();
 				const projectileDirection = { direction: args?.direction ?? 0 };
-				const eyeStartX = this.creature.sprite.scale.x > 0 ? 60 : 30;
-				const eyeStartY = -120;
+				const eyeEmissionPoint = getCycloperEyeEmissionPoint(this.creature);
+				const eyeStartX = eyeEmissionPoint.offsetX;
+				const eyeStartY = eyeEmissionPoint.offsetY;
 				const selectedHex = args?.hex;
 				const selectedCreature =
 					selectedHex?.creature instanceof Creature ? selectedHex.creature : null;
@@ -695,7 +1458,7 @@ export default (G: Game) => {
 				}
 
 				if (isTeam(this.creature, target, Team.Ally) && target.health >= target.stats.health) {
-					this.end();
+					this.end(false, true);
 					return;
 				}
 
@@ -727,6 +1490,7 @@ export default (G: Game) => {
 					const pulseIntervalMs = 25;
 					let completedPulseCount = 0;
 					let displayedHealth = startingHealth;
+					const activeCycloper = this.creature;
 					const healthBubbleType =
 						typeof target.isFrozen === 'function' && target.isFrozen() ? 'frozen' : 'health';
 
@@ -761,18 +1525,17 @@ export default (G: Game) => {
 								}
 
 								completedPulseCount++;
-								if (
-									completedPulseCount === pulseCount &&
-									appliedHealAmount > 0 &&
-									typeof target.hint === 'function'
-								) {
-									target.hint('+' + appliedHealAmount, 'healing');
+								if (completedPulseCount === pulseCount && appliedHealAmount > 0) {
+									if (typeof target.hint === 'function') {
+										target.hint('+' + appliedHealAmount, 'healing');
+									}
+									activeCycloper.queryMove();
 								}
 							}, healSprite);
 						}, pulseIndex * pulseIntervalMs);
 					}
 
-					this.end();
+					this.end(false, true);
 				} else {
 					const damage = new Damage(
 						this.creature,
@@ -783,23 +1546,10 @@ export default (G: Game) => {
 						[],
 						G,
 					);
-					// Launch from Cycloper's eye (mapped from cardboard art proportions).
-					const [tween, sprite] = G.animations.projectile(
-						this as Ability,
-						target,
-						'effects_optic-burst',
-						path,
-						projectileDirection,
-						eyeStartX,
-						eyeStartY,
-					);
 					this.end();
-					tween.onComplete.add(function () {
-						// `this` is the sprite (context arg below)
-						// @ts-expect-error 'this' defaults to type 'any'
-						this.destroy();
-						target.takeDamage(damage);
-					}, sprite);
+					createOpticBurstLaserEffect(this as Ability, target, path, G, () =>
+						target.takeDamage(damage),
+					);
 				}
 			},
 		},
@@ -826,11 +1576,15 @@ export default (G: Game) => {
 				const range = getRiotShieldPlacementRange(cycloper, G);
 				let wallPlacementConfirmed = false;
 				const hideWallPreviewInstantly = () => {
-					if (G.grid._flickerTween) {
-						G.grid._flickerTween.stop(true);
+					const gridAny = G.grid as unknown as {
+						_flickerTween?: Phaser.Tween;
+						materialize_overlay?: { alpha: number } | null;
+					};
+					if (gridAny._flickerTween) {
+						gridAny._flickerTween.stop(true);
 					}
-					if (G.grid.materialize_overlay) {
-						G.grid.materialize_overlay.alpha = 0;
+					if (gridAny.materialize_overlay) {
+						gridAny.materialize_overlay.alpha = 0;
 					}
 				};
 
@@ -904,21 +1658,27 @@ export default (G: Game) => {
 				wallFlags.deathAnimationType = 'shatterDown';
 				wallFlags.hideFromCreatureCount = true;
 
-				const previewOverlay = G.grid.materialize_overlay;
-				if (G.grid._flickerTween) {
-					G.grid._flickerTween.stop(true);
+				const gridAny = G.grid as unknown as {
+					_flickerTween?: Phaser.Tween;
+					materialize_overlay?: { alpha: number } | null;
+					secondary_overlay?: { alpha: number } | null;
+					_flickerTweenSecondary?: Phaser.Tween;
+				};
+				const previewOverlay = gridAny.materialize_overlay;
+				if (gridAny._flickerTween) {
+					gridAny._flickerTween.stop(true);
 				}
 				if (previewOverlay) {
 					previewOverlay.alpha = 0;
 				}
 				// Prevent Creature.summon() from tween-fading the preview overlay back in.
-				G.grid.materialize_overlay = null;
+				gridAny.materialize_overlay = null;
 
 				wall.creatureSprite.setAlpha(0, 0);
 				wall.summon(true); // Disable materialization sickness fade-in
 				wall.creatureSprite.setAlpha(0, 0);
 
-				G.grid.materialize_overlay = previewOverlay;
+				gridAny.materialize_overlay = previewOverlay;
 				if (previewOverlay) {
 					previewOverlay.alpha = 0;
 				}
@@ -1052,6 +1812,21 @@ export default (G: Game) => {
 						G.UI.energyBar.setUnavailableStyle();
 					}
 				};
+				const clearAllTargetingVisuals = () => {
+					G.grid.forEachHex((gridHex: Hex) => {
+						gridHex.cleanOverlayVisualState(
+							'creature reachable weakDmg active moveto selected hover h_player0 h_player1 h_player2 h_player3 player0 player1 player2 player3 ownCreatureHexShade',
+						);
+						gridHex.cleanDisplayVisualState(
+							'adj hover creature player0 player1 player2 player3 dashed shrunken deadzone hidden showGrid abilityRange',
+						);
+						gridHex.unsetReachable();
+						gridHex.unsetNotTarget();
+					});
+					if (typeof G.grid.updateDisplay === 'function') {
+						G.grid.updateDisplay();
+					}
+				};
 				const beginDestinationQuery = (target: Creature, direction?: number) => {
 					if (!(target instanceof Creature)) {
 						return;
@@ -1109,19 +1884,10 @@ export default (G: Game) => {
 					if (target.sprite) {
 						target.sprite.alpha = 0;
 					}
-					const traceTargetSelection = () => {
-						target.tracePosition({
-							x: target.x,
-							y: target.y,
-							overlayClass: 'creature moveto selected player' + target.team,
-							drawOverCreatureTiles: true,
-						});
-					};
 					const showTargetSprite = () => {
 						if (target.sprite) {
 							target.sprite.alpha = 1;
 						}
-						traceTargetSelection();
 					};
 
 					const targetStats = G.retrieveCreatureStats(target.type);
@@ -1155,89 +1921,127 @@ export default (G: Game) => {
 						}
 					};
 
-					G.grid.queryHexes({
-						fnOnConfirm: function (hex) {
-							const preview = G.grid.materialize_overlay;
-							const oldPreview = G.grid.secondary_overlay;
+					const clearTargetPathPreview = () => {
+						clearAllTargetingVisuals();
+					};
 
-							if (G.grid._flickerTween && G.grid._flickerTween.isRunning) {
-								G.grid._flickerTween.stop(true);
-							}
-							if (G.grid._flickerTweenSecondary && G.grid._flickerTweenSecondary.isRunning) {
-								G.grid._flickerTweenSecondary.stop(true);
-							}
-							cleanupTweens();
+					// Clear all hex visuals before starting destination query
+					G.grid.forEachHex((gridHex: Hex) => {
+						gridHex.cleanOverlayVisualState();
+						gridHex.cleanDisplayVisualState(); // Use default removal of adj, dashed, etc
+						gridHex.unsetReachable();
+						gridHex.unsetNotTarget();
+					});
+					if (typeof G.grid.updateDisplay === 'function') {
+						G.grid.updateDisplay();
+					}
 
-							if (preview) {
-								preview.alpha = 1;
-							}
-							if (oldPreview) {
-								oldPreview.alpha = 0;
-							}
+					// Defer queryHexes to next frame to ensure queryDirection/queryChoice handlers are fully removed
+					setTimeout(() => {
+						G.grid.queryHexes({
+							fnOnConfirm: function (hex) {
+								const preview = G.grid.materialize_overlay;
+								const oldPreview = G.grid.secondary_overlay;
 
-							ability.activate(target, hex);
-							ability.postActivate();
-						},
-						fnOnCancel: function () {
-							restoreState();
-							resetEnergyPreview();
-							ability.query();
-						},
-						fnOnHoverOutside: showTargetSprite,
-						fnOnSelect: function (hex) {
-							if (!targetStats) {
-								return;
-							}
-
-							if (target.sprite) {
-								target.sprite.alpha = 0;
-							}
-							cleanupTweens();
-							G.grid.previewCreature(hex.pos, targetStats, target.player);
-
-							if (G.grid._flickerTween && G.grid._flickerTween.isRunning) {
-								G.grid._flickerTween.stop(true);
-							}
-
-							if (!G.grid.materialize_overlay) {
-								return;
-							}
-
-							G.grid.materialize_overlay.alpha = 0.5;
-							traceTargetSelection();
-							target.tracePosition({
-								x: hex.x,
-								y: hex.y,
-								overlayClass: 'creature moveto selected player' + target.team,
-								drawOverCreatureTiles: true,
-							});
-						},
-						hexes: extendedDestinations,
-						hexesDashed: extendedDashed,
-						size: target.size,
-						id: [cycloper.id, target.id],
-						flipped: target.player.flipped,
-						hideNonTarget: true,
-						callbackAfterQueryHexes: function () {
-							if (targetStats) {
-								G.grid.previewCreature(
-									{ x: target.x, y: target.y },
-									targetStats,
-									target.player,
-									true,
-								);
+								if (G.grid._flickerTween && G.grid._flickerTween.isRunning) {
+									G.grid._flickerTween.stop(true);
+								}
 								if (G.grid._flickerTweenSecondary && G.grid._flickerTweenSecondary.isRunning) {
 									G.grid._flickerTweenSecondary.stop(true);
 								}
-								if (G.grid.secondary_overlay) {
-									G.grid.secondary_overlay.alpha = 0.5;
-								}
-							}
+								cleanupTweens();
+								// Immediately remove all grid path visualizations
+								G.grid.forEachHex((gridHex: Hex) => {
+									gridHex.cleanOverlayVisualState();
+									gridHex.cleanDisplayVisualState();
+									gridHex.unsetReachable();
+									gridHex.unsetNotTarget();
+								});
 
-							traceTargetSelection();
-						},
-						ownCreatureHexShade: true,
-					});
+								// Prevent onInputOut → clearHexViewAlterations → redoLastQuery from
+								// re-creating query highlights and ghost preview after the click.
+								G.grid.lastQueryOpt = null;
+								G.grid.selectedHex = undefined;
+
+								if (preview) {
+									preview.alpha = 0;
+									preview.destroy();
+									G.grid.materialize_overlay = null;
+								}
+								if (oldPreview) {
+									oldPreview.alpha = 0;
+									oldPreview.destroy();
+									G.grid.secondary_overlay = null;
+								}
+
+								target.grp.alpha = 0;
+								target.grp.visible = false;
+								target.grp.renderable = false;
+								if (target.sprite) {
+									target.sprite.alpha = 0;
+									target.sprite.visible = false;
+									target.sprite.renderable = false;
+								}
+								if (typeof target.creatureSprite?.setAlpha === 'function') {
+									target.creatureSprite.setAlpha(0, 0);
+								}
+
+								ability.activate(target, hex);
+								ability.postActivate();
+							},
+							fnOnCancel: function () {
+								clearTargetPathPreview();
+								restoreState();
+								resetEnergyPreview();
+								ability.query();
+							},
+							fnOnHoverOutside: showTargetSprite,
+							fnOnSelect: function (hex) {
+								if (!targetStats) {
+									return;
+								}
+
+								if (target.sprite) {
+									target.sprite.alpha = 0;
+								}
+								cleanupTweens();
+								G.grid.previewCreature(hex.pos, targetStats, target.player);
+
+								if (G.grid._flickerTween && G.grid._flickerTween.isRunning) {
+									G.grid._flickerTween.stop(true);
+								}
+
+								if (!G.grid.materialize_overlay) {
+									return;
+								}
+
+								G.grid.materialize_overlay.alpha = 0.5;
+							},
+							hexes: extendedDestinations,
+							hexesDashed: extendedDashed,
+							size: target.size,
+							id: [cycloper.id, target.id],
+							flipped: target.player.flipped,
+							hideNonTarget: true,
+							callbackAfterQueryHexes: function () {
+								if (targetStats) {
+									G.grid.previewCreature(
+										{ x: target.x, y: target.y },
+										targetStats,
+										target.player,
+										true,
+									);
+									if (G.grid._flickerTweenSecondary && G.grid._flickerTweenSecondary.isRunning) {
+										G.grid._flickerTweenSecondary.stop(true);
+									}
+									if (G.grid.secondary_overlay) {
+										G.grid.secondary_overlay.alpha = 0.5;
+									}
+								}
+							},
+							ownCreatureHexShade: true,
+						});
+					}, 0); // End setTimeout
 				};
 
 				G.grid.queryDirection({
@@ -1260,6 +2064,7 @@ export default (G: Game) => {
 							return;
 						}
 
+						clearAllTargetingVisuals();
 						beginDestinationQuery(targetHex.creature, direction);
 					},
 					fnOnSelect: function (...callbackArgs: unknown[]) {
@@ -1330,100 +2135,116 @@ export default (G: Game) => {
 						}
 					}
 
+					G.grid.forEachHex((gridHex: Hex) => {
+						gridHex.cleanOverlayVisualState();
+						gridHex.cleanDisplayVisualState();
+						gridHex.unsetReachable();
+					});
+					if (typeof G.grid.updateDisplay === 'function') {
+						G.grid.updateDisplay();
+					}
+
 					this.end();
 				};
 
-				const originHex = target.hexagons[0];
-				const destinationSpriteHex = G.grid.hexes[destination.y][destination.x - target.size + 1];
-				const fadeInMs = 500 * target.size;
-				const oldVisual = {
-					groupX: target.grp.x,
-					groupY: target.grp.y,
-					spriteX: target.sprite?.x,
-					spriteY: target.sprite?.y,
-					spriteAnchorX: target.sprite?.anchor?.x,
-					spriteAnchorY: target.sprite?.anchor?.y,
-					spriteScaleX: target.sprite?.scale?.x,
-					spriteScaleY: target.sprite?.scale?.y,
-					spriteAngle: target.sprite?.angle ?? 0,
-					spriteKey: target.sprite?.key,
-					spriteFrame: target.sprite?.frame,
-				};
-
-				target.healthHide();
-				if (target.sprite) {
-					target.sprite.alpha = 0;
+				if (G.grid._flickerTween && G.grid._flickerTween.isRunning) {
+					G.grid._flickerTween.stop(true);
+				}
+				if (G.grid._flickerTweenSecondary && G.grid._flickerTweenSecondary.isRunning) {
+					G.grid._flickerTweenSecondary.stop(true);
+				}
+				if (G.grid.materialize_overlay) {
+					G.grid.materialize_overlay.destroy();
+					G.grid.materialize_overlay = null;
+				}
+				if (G.grid.secondary_overlay) {
+					G.grid.secondary_overlay.destroy();
+					G.grid.secondary_overlay = null;
 				}
 
-				(G.onStepOut as (...args: unknown[]) => void)(target, originHex);
-				target.cleanHex();
-				target.x = destination.x;
-				target.y = destination.y;
-				target.pos = destination.pos;
-				target.updateHex();
+				target.healthHide();
+				target.grp.alpha = 0;
+				target.grp.visible = false;
+				target.grp.renderable = false;
+				if (target.sprite) {
+					target.sprite.alpha = 0;
+					target.sprite.visible = false;
+					target.sprite.renderable = false;
+				}
+				if (typeof target.creatureSprite?.setAlpha === 'function') {
+					target.creatureSprite.setAlpha(0, 0);
+				}
 
-				target.creatureSprite.setHex(destinationSpriteHex, 0).then(() => {
-					G.onStepIn(target, destination, {});
-					target.pickupDrop();
-					G.grid.orderCreatureZ();
-					(G.onCreatureMove as (...args: unknown[]) => void)(target, destination);
+				const originHex = target.hexagons[0];
+				const destinationSpriteHex = G.grid.hexes[destination.y][destination.x - target.size + 1];
+				const phase1ScaleX = target.sprite?.scale?.x ?? 1;
+				const preservedFacing: 1 | -1 = phase1ScaleX < 0 ? -1 : 1;
 
-					// Keep an old-position ghost during the same interval as the new-position fade-in.
-					if (
-						typeof oldVisual.groupX === 'number' &&
-						typeof oldVisual.groupY === 'number' &&
-						typeof oldVisual.spriteX === 'number' &&
-						typeof oldVisual.spriteY === 'number' &&
-						oldVisual.spriteKey
-					) {
-						const ghostGroup = G.Phaser.add.group(G.grid.creatureGroup, 'powerApertureGhost');
-						ghostGroup.x = oldVisual.groupX;
-						ghostGroup.y = oldVisual.groupY;
-						ghostGroup.alpha = 0.5;
+				createPowerAperturePhase1Effect(this.creature, target, phase1ScaleX, G, () => {
+					(G.onStepOut as (...args: unknown[]) => void)(target, originHex);
+					target.cleanHex();
+					target.x = destination.x;
+					target.y = destination.y;
+					target.pos = destination.pos;
+					target.updateHex();
 
-						const ghostSprite = G.Phaser.add.sprite(
-							oldVisual.spriteX,
-							oldVisual.spriteY,
-							oldVisual.spriteKey,
-							oldVisual.spriteFrame,
-							ghostGroup,
+					target.creatureSprite.setHex(destinationSpriteHex, 0).then(() => {
+						target.creatureSprite.setDir(preservedFacing);
+						if (target.sprite) {
+							target.sprite.alpha = 0;
+							target.sprite.visible = false;
+							target.sprite.renderable = false;
+						}
+						target.grp.alpha = 0;
+						target.grp.visible = false;
+						target.grp.renderable = false;
+						if (typeof target.creatureSprite?.setAlpha === 'function') {
+							target.creatureSprite.setAlpha(0, 0);
+						}
+
+						G.onStepIn(target, destination, {});
+						if (target.sprite) {
+							target.sprite.alpha = 0;
+							target.sprite.visible = false;
+							target.sprite.renderable = false;
+						}
+						target.grp.alpha = 0;
+						target.grp.visible = false;
+						target.grp.renderable = false;
+						if (typeof target.creatureSprite?.setAlpha === 'function') {
+							target.creatureSprite.setAlpha(0, 0);
+						}
+						target.pickupDrop();
+						G.grid.orderCreatureZ();
+						(G.onCreatureMove as (...args: unknown[]) => void)(target, destination);
+						enforcePowerApertureFacing(target, preservedFacing);
+
+						createPowerAperturePhase2Effect(
+							this.creature,
+							target,
+							destination,
+							phase1ScaleX,
+							G,
+							() => {
+								target.healthShow();
+
+								if (G.grid.materialize_overlay) {
+									G.grid.materialize_overlay.alpha = 0;
+								}
+								if (G.grid.secondary_overlay) {
+									G.grid.secondary_overlay.alpha = 0;
+								}
+								if (G.grid._flickerTween && G.grid._flickerTween.isRunning) {
+									G.grid._flickerTween.stop(true);
+								}
+								if (G.grid._flickerTweenSecondary && G.grid._flickerTweenSecondary.isRunning) {
+									G.grid._flickerTweenSecondary.stop(true);
+								}
+
+								finalizeAbility();
+							},
 						);
-
-						ghostSprite.anchor.setTo(oldVisual.spriteAnchorX ?? 0.5, oldVisual.spriteAnchorY ?? 1);
-						ghostSprite.scale.setTo(oldVisual.spriteScaleX ?? 1, oldVisual.spriteScaleY ?? 1);
-						ghostSprite.angle = oldVisual.spriteAngle;
-
-						G.Phaser.add
-							.tween(ghostGroup)
-							.to({ alpha: 0 }, fadeInMs, Phaser.Easing.Linear.None, true)
-							.onComplete.addOnce(() => {
-								ghostGroup.destroy(true);
-							});
-					}
-
-					if (target.sprite) {
-						G.Phaser.tweens.removeFrom(target.sprite);
-						target.sprite.alpha = 0.5;
-						G.Phaser.add
-							.tween(target.sprite)
-							.to({ alpha: 1 }, fadeInMs, Phaser.Easing.Linear.None, true);
-					}
-					target.healthShow();
-
-					if (G.grid.materialize_overlay) {
-						G.grid.materialize_overlay.alpha = 0;
-					}
-					if (G.grid.secondary_overlay) {
-						G.grid.secondary_overlay.alpha = 0;
-					}
-					if (G.grid._flickerTween && G.grid._flickerTween.isRunning) {
-						G.grid._flickerTween.stop(true);
-					}
-					if (G.grid._flickerTweenSecondary && G.grid._flickerTweenSecondary.isRunning) {
-						G.grid._flickerTweenSecondary.stop(true);
-					}
-
-					finalizeAbility();
+					});
 				});
 			},
 		},
