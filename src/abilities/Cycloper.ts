@@ -2226,6 +2226,12 @@ export default (G: Game) => {
 							phase1ScaleX,
 							G,
 							() => {
+								target.materializationSickness = true;
+								(
+									target as unknown as {
+										_nextGameTurnActive?: number;
+									}
+								)._nextGameTurnActive = G.turn + 1;
 								target.healthShow();
 
 								if (G.grid.materialize_overlay) {
@@ -2240,6 +2246,7 @@ export default (G: Game) => {
 								if (G.grid._flickerTweenSecondary && G.grid._flickerTweenSecondary.isRunning) {
 									G.grid._flickerTweenSecondary.stop(true);
 								}
+								G.updateQueueDisplay();
 
 								finalizeAbility();
 							},

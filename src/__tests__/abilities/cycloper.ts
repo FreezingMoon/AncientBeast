@@ -50,6 +50,7 @@ jest.mock('../../creature', () => {
 		});
 		updateHealth = jest.fn();
 		healthShow = jest.fn();
+		healthHide = jest.fn();
 		summon = jest.fn();
 		destroy = jest.fn();
 		pickupDrop = jest.fn();
@@ -58,7 +59,10 @@ jest.mock('../../creature', () => {
 		tracePosition = jest.fn();
 		faceHex = jest.fn();
 		creatureSprite = {
+			setDir: jest.fn(),
+			setAlpha: jest.fn(),
 			setHex: jest.fn(() => Promise.resolve()),
+			getPos: jest.fn(() => ({ x: 0, y: 0 })),
 		};
 		sprite = {
 			alpha: 1,
@@ -120,14 +124,16 @@ describe('Cycloper abilities', () => {
 			grid: {
 				getHexLine: jest.fn(),
 				getDirectionChoices: jest.fn(),
+				forEachHex: jest.fn(),
+				updateDisplay: jest.fn(),
 				hexes: [],
 				queryDirection: jest.fn(),
 				queryChoice: jest.fn(),
 				queryHexes: jest.fn(),
 				previewCreature: jest.fn(),
 				orderCreatureZ: jest.fn(),
-				materialize_overlay: { alpha: 0 },
-				secondary_overlay: { alpha: 0 },
+				materialize_overlay: { alpha: 0, destroy: jest.fn() },
+				secondary_overlay: { alpha: 0, destroy: jest.fn() },
 				_flickerTween: null,
 				_flickerTweenSecondary: null,
 				creatureGroup: { add: jest.fn(), addAt: jest.fn(), remove: jest.fn() },
@@ -164,6 +170,7 @@ describe('Cycloper abilities', () => {
 			onStepIn: jest.fn(),
 			onCreatureMove: jest.fn(),
 			updateQueueDisplay: jest.fn(),
+			turn: 4,
 			retrieveCreatureStats: jest.fn(),
 			msg: {
 				abilities: {
@@ -596,5 +603,71 @@ describe('Cycloper abilities', () => {
 
 		expect(upgradedPowerAperture.require()).toBe(true);
 		expect((upgradedPowerAperture as any)._noAffordableApertureTargetInRange).toBe(false);
+	});
+
+	test('Power Aperture applies materialization sickness to target after teleport', async () => {
+		const cycloper = new (Creature as any)({
+			id: 15,
+			team: 0,
+			type: 'W0',
+			x: 3,
+			y: 3,
+			hexagons: [{ x: 3, y: 3 }],
+			player: { id: 0, flipped: false, creatures: [] },
+			health: 60,
+			energy: 100,
+			stats: { health: 60, energy: 100 },
+		});
+		game.activeCreature = cycloper;
+
+		const target = new (Creature as any)({
+			id: 202,
+			team: 1,
+			type: 'A1',
+			x: 5,
+			y: 3,
+			hexagons: [{ x: 5, y: 3 }],
+			player: { id: 1, flipped: true, creatures: [] },
+			health: 20,
+			stats: { health: 20, energy: 50 },
+		});
+
+		target.materializationSickness = false;
+		target._nextGameTurnActive = 4;
+		target.pos = { x: 5, y: 3 };
+		target.hexagons = [{ x: 5, y: 3 }];
+
+		game.Phaser = undefined;
+		game.grid.hexes = [
+			[],
+			[],
+			[],
+			[
+				{ x: 0, y: 3 },
+				{ x: 1, y: 3 },
+				{ x: 2, y: 3 },
+				{ x: 3, y: 3 },
+				{ x: 4, y: 3 },
+				{ x: 5, y: 3 },
+			],
+		];
+
+		const abilityDef = game.abilities[15][3];
+		const powerAperture = {
+			...abilityDef,
+			creature: cycloper,
+			_energySelfUpgraded: 5,
+			costs: { energy: 0 },
+			end: jest.fn(),
+		};
+
+		powerAperture.activate(target, { x: 5, y: 3, pos: { x: 5, y: 3 } });
+		await Promise.resolve();
+		await Promise.resolve();
+
+		expect(target.materializationSickness).toBe(true);
+		expect(target._nextGameTurnActive).toBe(5);
+		expect(game.updateQueueDisplay).toHaveBeenCalled();
+		expect(powerAperture.end).toHaveBeenCalled();
 	});
 });
