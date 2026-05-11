@@ -2,6 +2,7 @@
 // Use .env configuration in webpack.config.js
 require('dotenv-defaults').config({
 	default: './.env.example',
+	silent: true,
 });
 
 const path = require('path');
@@ -184,7 +185,11 @@ module.exports = (env, argv) => {
 			}),
 			new Dotenv({
 				defaults: './.env.example',
+				silent: true,
 			}),
 		],
+		performance: {
+			hints: false,
+		},
 	};
 };

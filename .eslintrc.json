@@ -15,7 +15,8 @@
 	},
 	"parserOptions": {
 		"ecmaVersion": 2020,
-		"sourceType": "module"
+		"sourceType": "module",
+		"warnOnUnsupportedTypeScriptVersion": false
 	},
 	"env": {
 		"browser": true,
