@@ -1279,6 +1279,34 @@ div.section.info {
 	background-image: url('~assets/interface/frame_green.png');
 }
 
+// Upgraded frame tint: keep selected upgraded buttons free of dark backing/filter
+// so the colored PNG frames render at authored brightness in-game.
+#abilities .ability.upgraded.active {
+	background-color: rgba(0, 0, 0, 0.55);
+}
+
+#abilities .ability.upgraded.active::before {
+	filter: none !important;
+	opacity: 1;
+}
+
+// Upgraded frame tinted to player color when selected.
+#abilities.p0 .ability.upgraded.active::before {
+	background-image: url('~assets/interface/frame_upgrade_red.png');
+}
+
+#abilities.p1 .ability.upgraded.active::before {
+	background-image: url('~assets/interface/frame_upgrade_blue.png');
+}
+
+#abilities.p2 .ability.upgraded.active::before {
+	background-image: url('~assets/interface/frame_upgrade_orange.png');
+}
+
+#abilities.p3 .ability.upgraded.active::before {
+	background-image: url('~assets/interface/frame_upgrade_green.png');
+}
+
 .vignette.type--.p0 {
 	background-image: url('~assets/units/avatars/Dark Priest red.jpg');
 }
