@@ -1381,9 +1381,10 @@ div.section.info {
 	width: 450px;
 	max-width: 450px; /*Keeps #chat.expanded from flickering*/
 	height: 30px;
-	background-color: rgba(0, 0, 0, 0.55);
-	backdrop-filter: blur(3px);
-	-webkit-backdrop-filter: blur(3px);
+	/* Nearly transparent when minimized so Phaser health/plasma indicators below are visible */
+	background-color: rgba(0, 0, 0, 0.15);
+	backdrop-filter: none;
+	-webkit-backdrop-filter: none;
 	cursor: n-resize;
 	position: fixed;
 	left: 50%;
@@ -1493,6 +1494,15 @@ div.section.info {
 	bottom: 103px;
 }
 
+/* Restore full background when chat is active (hovered or expanded) so it renders on top of indicators */
+#chat.focus,
+#chat.peek,
+#chat.expanded {
+	background-color: rgba(0, 0, 0, 0.55);
+	backdrop-filter: blur(3px);
+	-webkit-backdrop-filter: blur(3px);
+}
+
 #chat.focus #chatbox,
 #chat.peek #chatbox {
 	overflow: hidden;
@@ -1530,7 +1540,7 @@ div.section.info {
 	padding: 10px 10px 0;
 	font-size: 1.1em;
 	color: white;
-	text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
+	text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 2px 5px rgba(0, 0, 0, 0.95);
 	position: absolute;
 	bottom: 0;
 }
@@ -1578,18 +1588,27 @@ div.section.info {
 	color: #fa5;
 }
 
-#chat #chatbox #chatcontent .blue,
-#chat #chatbox #chatcontent .green,
-#chat #chatbox #chatcontent .orange,
 #chat #chatbox #chatcontent .red {
-	text-shadow: black 1px 1px 5px;
+	text-shadow: 1px 1px 0 #600, -1px -1px 0 #600, 1px -1px 0 #600, -1px 1px 0 #600, 0 2px 6px rgba(0, 0, 0, 0.95);
+}
+
+#chat #chatbox #chatcontent .blue {
+	text-shadow: 1px 1px 0 #226, -1px -1px 0 #226, 1px -1px 0 #226, -1px 1px 0 #226, 0 2px 6px rgba(0, 0, 0, 0.95);
+}
+
+#chat #chatbox #chatcontent .green {
+	text-shadow: 1px 1px 0 #060, -1px -1px 0 #060, 1px -1px 0 #060, -1px 1px 0 #060, 0 2px 6px rgba(0, 0, 0, 0.95);
+}
+
+#chat #chatbox #chatcontent .orange {
+	text-shadow: 1px 1px 0 #730, -1px -1px 0 #730, 1px -1px 0 #730, -1px 1px 0 #730, 0 2px 6px rgba(0, 0, 0, 0.95);
 }
 
 #chat #chatbox #chatcontent i {
 	font-size: 80%;
-	color: #aaa;
+	color: #ddd;
 	margin: 0 5px;
-	text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
+	text-shadow: 1px 1px 0 #444, -1px -1px 0 #444, 1px -1px 0 #444, -1px 1px 0 #444, 0 2px 5px rgba(0, 0, 0, 0.95);
 }
 
 /*---------------Active Unit--------------*/
