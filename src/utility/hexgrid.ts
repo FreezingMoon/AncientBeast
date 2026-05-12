@@ -1185,6 +1185,9 @@ export class HexGrid {
 			if (creature instanceof Creature) {
 				this.hoveredCreature = null;
 				creature.resetBounce();
+				if (creature === game.activeCreature) {
+					creature.startBounce();
+				}
 				// toggle hover off event
 				if (creature.isDarkPriest()) {
 					// the plasma would have been displayed so now display the health again

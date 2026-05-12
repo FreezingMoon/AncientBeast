@@ -2493,6 +2493,10 @@ class CreatureSprite {
 			const bounceHeight = 10;
 			const durationMS = 350;
 
+			if (this._healthIndicatorTween && this._healthIndicatorTween.isRunning) {
+				return;
+			}
+
 			if (!this._healthIndicatorTween || !this._healthIndicatorTween.isRunning) {
 				const bounceTgt = { offset: -bounceHeight };
 				const bounceSrc = { offset: 0 };
@@ -2506,16 +2510,6 @@ class CreatureSprite {
 				this._healthIndicatorTween.onUpdateCallback(() => {
 					this._healthBounceOffset = bounceSrc.offset;
 				});
-			} else {
-				this._healthIndicatorTween.stop();
-				this._healthIndicatorTween = null;
-				const src = { offset: this._healthBounceOffset };
-				this._phaser.add
-					.tween(src)
-					.to({ offset: 0 }, durationMS, Phaser.Easing.Quadratic.InOut, true)
-					.onUpdateCallback(() => {
-						this._healthBounceOffset = src.offset;
-					});
 			}
 		} else {
 			if (this._healthIndicatorTween && this._healthIndicatorTween.isRunning) {

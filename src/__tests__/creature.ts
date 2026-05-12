@@ -248,6 +248,58 @@ describe('Creature', () => {
 			expect(tracePathSpy).toHaveBeenCalledWith({ x: creature.x + 1, y: creature.y });
 		});
 	});
+
+	describe('Dark Priest indicator bounce regressions', () => {
+		test('hover-in on active creature keeps indicator bounce running', () => {
+			const game = getGameMock();
+			const obj = getCreatureObjMock();
+			obj.type = '--';
+			// @ts-ignore
+			const creature = new Creature(obj, game);
+
+			creature.startBounce();
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const sprite: any = (creature as any).creatureSprite;
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const runningTween: any = sprite._healthIndicatorTween;
+			expect(runningTween).toBeDefined();
+			expect(runningTween.isRunning).toBe(true);
+
+			// Hover-in currently calls startBounce() again for the hovered creature.
+			// This must not stop the already-running bounce tween.
+			creature.startBounce();
+
+			expect(runningTween.stop).not.toHaveBeenCalled();
+			expect(runningTween.isRunning).toBe(true);
+			expect(sprite._healthIndicatorTween).toBe(runningTween);
+		});
+
+		test('hover-out reset then restart keeps bounce running for active creature', () => {
+			const game = getGameMock();
+			const obj = getCreatureObjMock();
+			obj.type = '--';
+			// @ts-ignore
+			const creature = new Creature(obj, game);
+
+			creature.startBounce();
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const sprite: any = (creature as any).creatureSprite;
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const firstTween: any = sprite._healthIndicatorTween;
+
+			// Hover-out path: reset then restart for active creature.
+			creature.resetBounce();
+			expect(firstTween.stop).toHaveBeenCalledTimes(1);
+			expect(firstTween.isRunning).toBe(false);
+
+			creature.startBounce();
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const secondTween: any = sprite._healthIndicatorTween;
+			expect(secondTween).toBeDefined();
+			expect(secondTween).not.toBe(firstTween);
+			expect(secondTween.isRunning).toBe(true);
+		});
+	});
 });
 
 jest.mock('../ability');
@@ -283,6 +335,7 @@ type MockGame = {
 
 type MockPhaser = {
 	position: { set: jest.Mock };
+	isRunning?: boolean;
 	add: () => MockPhaser;
 	create: () => MockPhaser;
 	forEach: () => MockPhaser;
@@ -296,6 +349,7 @@ type MockPhaser = {
 	yoyo: () => MockPhaser;
 	repeat: () => MockPhaser;
 	onUpdateCallback: () => MockPhaser;
+	stop?: jest.Mock;
 	update: jest.Mock;
 	anchor: MockPhaser;
 	data: Record<string, unknown>;
@@ -414,6 +468,27 @@ const getGameMock = () => {
 
 const getPhaserMock = () => {
 	const self = { position: { set: jest.fn() } } as MockPhaser;
+
+	const makeTween = () => {
+		const tween = {
+			isRunning: true,
+			to: jest.fn().mockReturnThis(),
+			yoyo: jest.fn().mockReturnThis(),
+			repeat: jest.fn().mockReturnThis(),
+			onUpdateCallback: jest.fn().mockReturnThis(),
+			stop: jest.fn(function (this: { isRunning: boolean }) {
+				this.isRunning = false;
+				return this;
+			}),
+			onComplete: {
+				add: jest.fn(),
+			},
+			start: jest.fn().mockReturnThis(),
+		};
+
+		return tween as unknown as MockPhaser;
+	};
+
 	self.add = () => self;
 	self.create = () => self;
 	self.forEach = () => self;
@@ -423,7 +498,7 @@ const getPhaserMock = () => {
 	self.start = () => self;
 	self.text = () => self;
 	self.to = () => self;
-	self.tween = () => self;
+	self.tween = () => makeTween();
 	self.yoyo = () => self;
 	self.repeat = () => self;
 	self.onUpdateCallback = () => self;
