@@ -1925,7 +1925,7 @@ export class UI {
 		this.scoreboardGameOver = gameOver;
 
 		// Binding the click outside of the scoreboard to close the view
-		this.$scoreboard.on('click', this.easyScoreClose);
+		this.$scoreboard.off('click', this.easyScoreClose).on('click', this.easyScoreClose);
 
 		this.renderScoreboard(gameOver);
 
