@@ -959,6 +959,42 @@ export class HexGrid {
 		// Save the last Query
 		this.lastQueryOpt = { ...o };
 
+		const clearPreviewOverlay = (preview, secondary = false) => {
+			if (!preview) {
+				return;
+			}
+
+			if (secondary) {
+				if (this._flickerTweenSecondary) {
+					this._flickerTweenSecondary.stop(true);
+					this._flickerTweenSecondary = undefined;
+				}
+			} else {
+				if (this._flickerTween) {
+					this._flickerTween.stop(true);
+					this._flickerTween = undefined;
+				}
+			}
+
+			preview.alpha = 0;
+
+			if (preview._previewPos === undefined) {
+				return;
+			}
+
+			for (let i = 0; i < preview._previewSize; i++) {
+				const prevHex = this.hexes[preview._previewPos.y]?.[preview._previewPos.x - i];
+				if (!prevHex || prevHex.creature === game.activeCreature) {
+					continue;
+				}
+
+				this.cleanHex(prevHex);
+				this.restoreReachableHexVisual(prevHex);
+			}
+
+			preview._previewPos = undefined;
+		};
+
 		// Reset keyboard cursor to the active creature's front hexagon so that
 		// arrow-key navigation always starts from a consistent, tactically useful
 		// position rather than wherever the cursor happened to be last.
@@ -1007,12 +1043,8 @@ export class HexGrid {
 		});
 
 		// Cleanup
-		if (this.materialize_overlay) {
-			this.materialize_overlay.alpha = 0;
-		}
-		if (this.secondary_overlay) {
-			this.secondary_overlay.alpha = 0;
-		}
+		clearPreviewOverlay(this.materialize_overlay);
+		clearPreviewOverlay(this.secondary_overlay, true);
 
 		if (this._flickerTween) {
 			this._flickerTween.stop(true);
@@ -1128,8 +1160,16 @@ export class HexGrid {
 			queueEffect(creature.id);
 		};
 
+		// Once a reachable hex is confirmed, ignore any late hover callbacks tied to
+		// this query instance until queryHexes() installs a fresh set of handlers.
+		let isQueryLockedAfterConfirm = false;
+
 		// ONCLICK
 		const onConfirmFn = (hex: Hex) => {
+			if (isQueryLockedAfterConfirm) {
+				return;
+			}
+
 			// Debugger
 			const y = hex.y;
 			let x = hex.x;
@@ -1210,11 +1250,22 @@ export class HexGrid {
 					this.lastClickedHex = hex;
 				}
 
+				isQueryLockedAfterConfirm = true;
+				this.lastMouseHex = undefined;
+
+				// Keep primary materialize preview alive for summon handoff:
+				// Creature.summon() uses fadeOutTempCreature() for a smooth transition.
+				clearPreviewOverlay(this.secondary_overlay, true);
+
 				o.fnOnConfirm(hex, o.args, { queryOptions: o });
 			}
 		};
 
 		const onHoverOffFn = (hex: Hex) => {
+			if (isQueryLockedAfterConfirm) {
+				return;
+			}
+
 			const { creature } = hex;
 
 			if (creature instanceof Creature) {
@@ -1240,6 +1291,10 @@ export class HexGrid {
 
 		// ONMOUSEOVER
 		const onSelectFn = (hex: Hex) => {
+			if (isQueryLockedAfterConfirm) {
+				return;
+			}
+
 			let { x } = hex;
 			const { y } = hex;
 
@@ -1310,46 +1365,10 @@ export class HexGrid {
 				hex = this.hexes[y][x]; // New coords
 				o.fnOnSelect(hex, o.args);
 			} else if (!hex.reachable) {
-				if (this.materialize_overlay) {
-					this.materialize_overlay.alpha = 0;
-					// Clean the last preview position's hex overlays and reset tracking so
-					// that re-entering the spawn range doesn't leave a ghost outline behind.
-					if (this.materialize_overlay._previewPos !== undefined) {
-						for (let i = 0; i < this.materialize_overlay._previewSize; i++) {
-							const prevHex =
-								this.hexes[this.materialize_overlay._previewPos.y]?.[
-									this.materialize_overlay._previewPos.x - i
-								];
-							if (prevHex) {
-								if (prevHex.creature === game.activeCreature) {
-									continue;
-								}
-								this.cleanHex(prevHex);
-								this.restoreReachableHexVisual(prevHex);
-							}
-						}
-						this.materialize_overlay._previewPos = undefined;
-					}
-				}
-				if (this.secondary_overlay) {
-					this.secondary_overlay.alpha = 0;
-					if (this.secondary_overlay._previewPos !== undefined) {
-						for (let i = 0; i < this.secondary_overlay._previewSize; i++) {
-							const prevHex =
-								this.hexes[this.secondary_overlay._previewPos.y]?.[
-									this.secondary_overlay._previewPos.x - i
-								];
-							if (prevHex) {
-								if (prevHex.creature === game.activeCreature) {
-									continue;
-								}
-								this.cleanHex(prevHex);
-								this.restoreReachableHexVisual(prevHex);
-							}
-						}
-						this.secondary_overlay._previewPos = undefined;
-					}
-				}
+				// Clean the last preview position's hex overlays and reset tracking so
+				// that re-entering the spawn range doesn't leave a ghost outline behind.
+				clearPreviewOverlay(this.materialize_overlay);
+				clearPreviewOverlay(this.secondary_overlay, true);
 				hex.overlayVisualState('hover');
 
 				$j('canvas').css('cursor', 'not-allowed');
@@ -1367,6 +1386,10 @@ export class HexGrid {
 
 		// ONRIGHTCLICK
 		const onRightClickFn = (hex: Hex) => {
+			if (isQueryLockedAfterConfirm) {
+				return;
+			}
+
 			if (hex.creature instanceof Creature) {
 				if (hex.creature.name.startsWith('object_')) {
 					game.UI.showCreature(game.activeCreature.type, game.activeCreature.player.id, 'emptyHex');
