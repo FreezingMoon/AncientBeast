@@ -220,6 +220,8 @@ describe('Cycloper abilities', () => {
 			{ x: 5, y: 3, creature: enemy },
 		]);
 
+		cycloper.queryMove = jest.fn();
+
 		const abilityDef = game.abilities[15][1];
 		const opticBurst = {
 			...abilityDef,
