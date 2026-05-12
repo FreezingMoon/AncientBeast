@@ -1016,6 +1016,10 @@ export default class Game {
 	}
 
 	checkTime() {
+		if (this.gameState === 'ended') {
+			return;
+		}
+
 		const date = new Date().valueOf() - this.pauseTime,
 			p = this.activeCreature.player,
 			alertTime = 5, // In seconds
@@ -1462,6 +1466,10 @@ export default class Game {
 	 * End the game and print stats
 	 */
 	endGame() {
+		if (this.gameState === 'ended') {
+			return;
+		}
+
 		this.soundsys.stopMusic();
 		this.endGameSound = this.soundsys.playSFX('sounds/drums');
 
