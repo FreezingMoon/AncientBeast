@@ -52,6 +52,92 @@ export class Queue {
 		Queue.throttledBounce(this.vignettes, creatureId, bounceHeight);
 	}
 
+	/**
+	 * Show a semi-transparent preview of the active creature's position
+	 * if it were to be delayed. Called on delay button hover.
+	 */
+	showDelayHoverPreview(activeCreature: Creature) {
+		this.hideDelayHoverPreview(); // Remove any existing preview
+
+		// Calculate where the creature would appear if delayed:
+		// After all undelayed creatures + delay marker + existing delayed creatures
+		const creatures = this.vignettes.filter((v): v is CreatureVignette => CreatureVignette.is(v));
+		const undelayedCount = creatures.filter(
+			(v) => !v.creature.isDelayed && v.creature.isInCurrentQueue,
+		).length;
+		const delayedCount = creatures.filter(
+			(v) => v.creature.isDelayed && v.creature.isInCurrentQueue,
+		).length;
+
+		// Position: after all undelayed + delay marker (80px) + existing delayed creatures
+		const delayMarkerWidth = 80;
+		const x = undelayedCount * 80 + delayMarkerWidth + delayedCount * 80;
+
+		// Create the preview element styled like a vignette but semi-transparent
+		const set = getAvatarSet(activeCreature.type);
+		const classes = ['vignette', 'creature', 'type' + activeCreature.type, 'p' + activeCreature.team, 'delay-preview'].join(' ');
+
+		const preview = document.createElement('div');
+		preview.className = classes;
+		preview.setAttribute('creatureid', String(activeCreature.id));
+		preview.setAttribute('data-set', set);
+		preview.style.cssText = `
+			position: absolute;
+			transform: translateX(${x}px) translateY(0px) scale(1);
+			opacity: 0.5;
+			pointer-events: none;
+			z-index: 1;
+			height: 80px;
+			width: 80px;
+			background-size: 100% 100%;
+		`;
+
+		// Add frame div
+		const frame = document.createElement('div');
+		frame.className = 'frame';
+		frame.style.cssText = 'position: absolute; top: 0; left: 0; height: 100%; width: 100%;';
+		preview.appendChild(frame);
+
+		// Add overlay_frame div
+		const overlayFrame = document.createElement('div');
+		overlayFrame.className = 'overlay_frame';
+		overlayFrame.style.cssText = 'position: absolute; top: 0; left: 0; height: 100%; width: 100%;';
+		preview.appendChild(overlayFrame);
+
+		// Add delay_frame div
+		const delayFrame = document.createElement('div');
+		delayFrame.className = 'delay_frame';
+		delayFrame.style.cssText = 'position: absolute; top: 0; left: 0; height: 100%; width: 100%;';
+		preview.appendChild(delayFrame);
+
+		// Add stats div showing "Delayed"
+		const stats = document.createElement('div');
+		stats.className = 'stats delayed';
+		stats.style.cssText = 'position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); color: #fff; font-size: 10px; text-align: center; padding: 2px;';
+		stats.textContent = 'Delayed';
+		preview.appendChild(stats);
+
+		// Add materialize class based on creature state
+		if (!activeCreature.temp) {
+			preview.classList.add('materialized');
+		} else {
+			preview.classList.add('unmaterialized');
+		}
+
+		this.element.appendChild(preview);
+	}
+
+	/**
+	 * Hide the delay hover preview.
+	 */
+	hideDelayHoverPreview() {
+		const existing = this.element.querySelector('.delay-preview');
+		if (existing) {
+			existing.remove();
+		}
+	}
+
+
 	private setVignettes(nextVignettes: Vignette[]) {
 		const prevVs = this.vignettes;
 		this.vignettes = Queue.reuseOldDomElements(prevVs, nextVignettes);
