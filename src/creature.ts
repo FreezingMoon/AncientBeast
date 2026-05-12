@@ -994,6 +994,11 @@ export class Creature {
 			facefrom = this.player.flipped ? this.hexagons[this.size - 1] : this.hexagons[0];
 		}
 
+		if (!facefrom) {
+			this.facePlayerDefault();
+			return;
+		}
+
 		if (
 			ignoreCreaHex &&
 			faceto instanceof Hex &&
