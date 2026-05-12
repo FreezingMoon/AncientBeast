@@ -812,7 +812,7 @@ export default class Game {
 
 				// Show mini tutorial in the first round for each player
 				if (this.turn == 1) {
-					this.log('The active unit has a flashing hexagon');
+					this.log('The active unit has a bouncing indicator');
 					this.log('It uses a plasma field to protect itself');
 					this.log('Its portrait is displayed in the lower left');
 					this.log("Above the portrait are the unit's abilities");
