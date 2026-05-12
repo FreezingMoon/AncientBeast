@@ -129,6 +129,10 @@ export default (G: Game) => {
 					return creature && creature != this.creature;
 				});
 
+				if (!hexWithTarget) {
+					return;
+				}
+
 				const target = getPointFacade().getCreaturesAt(hexWithTarget.x, hexWithTarget.y)[0];
 
 				ability.end();
