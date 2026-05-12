@@ -158,6 +158,14 @@ module.exports = (env, argv) => {
 			poll: 1000,
 		},
 		devServer: {
+			client: {
+				overlay: {
+					// Avoid duplicate uncaught runtime error popups in dev (console still shows details).
+					errors: true,
+					warnings: false,
+					runtimeErrors: false,
+				},
+			},
 			static: {
 				directory: process.env.PUBLIC_PATH
 					? path.resolve(__dirname, process.env.PUBLIC_PATH)
