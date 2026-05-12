@@ -974,14 +974,20 @@ export class Creature {
 	}
 
 	highlightCurrentHexesAsDashed() {
+		const dashedTexture = `hex_dashed_p${this.player.id}`;
 		this.hexagons.forEach((hex) => {
-			hex.display.loadTexture(`hex_dashed_p${this.player.id}`);
+			if (hex.display.key !== dashedTexture) {
+				hex.display.loadTexture(dashedTexture);
+			}
 		});
 	}
 
 	clearDashedOverlayOnHexes() {
+		const playerTexture = `hex_p${this.player.id}`;
 		this.hexagons.forEach((hex) => {
-			hex.display.loadTexture(`hex_p${this.player.id}`);
+			if (hex.display.key !== playerTexture) {
+				hex.display.loadTexture(playerTexture);
+			}
 		});
 	}
 

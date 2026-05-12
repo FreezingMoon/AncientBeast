@@ -107,7 +107,6 @@ export class Hex {
 	/**
 	 *
 	 * @param x Hex coordinates
-	 * @param y Hex coordinates
 	 * @param grid
 	 * @param game
 	 */
@@ -184,6 +183,22 @@ export class Hex {
 
 			// Binding Events
 			this.hitBox.events.onInputOver.add(() => {
+				grid.cancelDeferredActiveHexDashedClear();
+				const previousMouseHex = grid.lastMouseHex;
+				if (previousMouseHex && previousMouseHex !== this) {
+					const previousCreature =
+						previousMouseHex.creature instanceof Creature ? previousMouseHex.creature : undefined;
+					const isSameCreatureHover =
+						previousCreature &&
+						this.creature instanceof Creature &&
+						previousCreature.id === this.creature.id;
+
+					if (previousCreature && !isSameCreatureHover) {
+						grid.clearTransientCreatureHoverVisual(previousCreature);
+					} else {
+						grid.clearTransientHexHoverVisual(previousMouseHex);
+					}
+				}
 				// Always track pointer position so refreshHoverState() knows which hex
 				// to re-evaluate once freezedInput is cleared after an ability animation.
 				grid.lastMouseHex = this;
@@ -206,8 +221,6 @@ export class Hex {
 			}, this);
 
 			this.hitBox.events.onInputOut.add((_, pointer) => {
-				// Clear pointer tracking so refreshHoverState() won't fire on a stale hex.
-				grid.lastMouseHex = undefined;
 				if (
 					game.freezedInput ||
 					game.UI.dashopen ||
@@ -219,17 +232,28 @@ export class Hex {
 				// When cursor leaves the game canvas entirely, still reset hover state
 				// (e.g. stop the health indicator bounce animation) but skip overlay/signal work.
 				if (!pointer.withinGame) {
+					// Clear pointer tracking so refreshHoverState() won't fire on a stale hex.
+					grid.lastMouseHex = undefined;
+					if (this.creature instanceof Creature) {
+						grid.clearTransientCreatureHoverVisual(this.creature);
+					} else {
+						grid.clearTransientHexHoverVisual(this);
+					}
 					this.onHoverOffFn(this);
 					return;
 				}
 
 				// Clear dashed overlay when leaving a reachable hex
 				if (this.reachable && game.activeCreature) {
-					game.activeCreature.clearDashedOverlayOnHexes();
+					grid.scheduleDeferredActiveHexDashedClear();
 				}
 
 				game.signals.hex.dispatch('out', { hex: this });
-				grid.clearHexViewAlterations();
+				if (this.creature instanceof Creature) {
+					grid.clearTransientCreatureHoverVisual(this.creature);
+				} else {
+					grid.clearTransientHexHoverVisual(this);
+				}
 				this.onHoverOffFn(this);
 			}, this);
 
@@ -623,6 +647,12 @@ export class Hex {
 	}
 
 	updateStyle() {
+		const loadTextureIfChanged = (sprite: Phaser.Sprite, key: string) => {
+			if (sprite.key !== key) {
+				sprite.loadTexture(key);
+			}
+		};
+
 		// Reset spinning state
 		if (this.isSpinning) {
 			this.stopSpinning();
@@ -640,32 +670,32 @@ export class Hex {
 
 		if (this.displayClasses.match(/0|1|2|3/)) {
 			const player = this.displayClasses.match(/0|1|2|3/);
-			this.display.loadTexture(`hex_p${player}`);
+			loadTextureIfChanged(this.display, `hex_p${player}`);
 			this.grid.displayHexesGroup.bringToTop(this.display);
 		} else if (this.displayClasses.match(/\babilityRange\b/)) {
-			this.display.loadTexture('ability_range');
+			loadTextureIfChanged(this.display, 'ability_range');
 			this.display.anchor.setTo(0.5, 0.5);
 			this.grid.displayHexesGroup.bringToTop(this.display);
 		} else if (this.displayClasses.match(/\badj\b/)) {
-			this.display.loadTexture('hex_path');
+			loadTextureIfChanged(this.display, 'hex_path');
 			this.display.anchor.setTo(0, 0);
 		} else if (this.displayClasses.match(/dashed/)) {
 			// Check if this is a dashed hex with a creature (blocked target)
 			if (this.creature instanceof Creature) {
 				// Use colored dashed texture for the creature's team
-				this.display.loadTexture(`hex_dashed_p${this.creature.team}`);
+				loadTextureIfChanged(this.display, `hex_dashed_p${this.creature.team}`);
 				// Ensure dashed hexagons are visible
 				this.display.alpha = 1;
 				// Bring dashed hexes with creatures to the top of the display group for better visibility
 				this.grid.displayHexesGroup.bringToTop(this.display);
 			} else {
-				this.display.loadTexture('hex_dashed');
+				loadTextureIfChanged(this.display, 'hex_dashed');
 			}
 		} else if (this.displayClasses.match(/deadzone/)) {
-			this.display.loadTexture('hex_deadzone');
+			loadTextureIfChanged(this.display, 'hex_deadzone');
 			this.display.anchor.setTo(0, 0);
 		} else {
-			this.display.loadTexture('hex');
+			loadTextureIfChanged(this.display, 'hex');
 			this.display.anchor.setTo(0, 0);
 		}
 
@@ -719,7 +749,7 @@ export class Hex {
 
 			if (this.overlayClasses.match(/reachable/)) {
 				targetAlpha = true;
-				this.overlay.loadTexture('hex_path');
+				loadTextureIfChanged(this.overlay, 'hex_path');
 				// No partially overlapped hexagons #2734
 				if (this.grid.overlayHexesGroup.sendToBack) {
 					this.grid.overlayHexesGroup.sendToBack(this.overlay);
@@ -728,30 +758,36 @@ export class Hex {
 				this.overlayClasses.match(/hover/) &&
 				this.displayClasses.indexOf(`creature player${player}`) === -1
 			) {
-				this.display.loadTexture('hex_path');
+				loadTextureIfChanged(this.display, 'hex_path');
 				this.display.alpha = 1;
-				this.overlay.loadTexture(`hex_hover_p${player}`);
+				loadTextureIfChanged(this.overlay, `hex_hover_p${player}`);
 				this.grid.overlayHexesGroup.bringToTop(this.overlay);
 			} else if (this.overlayClasses.match(/hover/)) {
-				this.display.loadTexture('hex_path');
+				loadTextureIfChanged(this.display, 'hex_path');
 				this.grid.overlayHexesGroup.bringToTop(this.overlay);
 			} else if (this.overlayClasses.match(/dashed/)) {
-				this.overlay.loadTexture(`hex_dashed_p${player}`);
+				loadTextureIfChanged(this.overlay, `hex_dashed_p${player}`);
 				this.grid.overlayHexesGroup.bringToTop(this.overlay);
 			} else {
-				this.overlay.loadTexture(`hex_p${player}`);
+				loadTextureIfChanged(this.overlay, `hex_p${player}`);
 				// Colored overlays for creatures/selected should be on top
 				this.grid.overlayHexesGroup.bringToTop(this.overlay);
 			}
 		} else {
-			this.overlay.loadTexture('input');
+			loadTextureIfChanged(this.overlay, 'input');
 			this.overlay.anchor.set(0.5, 0.5);
 			if (!this.isSpinning) {
 				this.startSpinning();
 			}
 		}
 
-		this.overlay.alpha = targetAlpha ? 1 : 0;
+		// Do not override overlay.alpha for active/selected hexes: the glowInterval
+		// in interface.ts drives their alpha via a sine wave. If we hard-set to 1
+		// here it restarts the visible phase every time overlayClasses is touched.
+		const isGlowControlled = Boolean(this.overlayClasses.match(/\bactive\b|\bselected\b/));
+		if (!isGlowControlled) {
+			this.overlay.alpha = targetAlpha ? 1 : 0;
+		}
 	}
 
 	/**

@@ -3029,9 +3029,15 @@ export class UI {
 			if (!creature || !Array.isArray(creature.hexagons) || creature.hexagons.length === 0) {
 				return;
 			}
+			ui.game.grid.clearAllXray();
 			const otherCreatures = creatures.filter((c) => c.id !== placeholderCreature.id);
 
 			otherCreatures.forEach((c) => {
+				if (c === ui.game.activeCreature) {
+					c.xray(false);
+					return;
+				}
+
 				c.xray(true, creature);
 				c.hexagons.forEach((hex) => {
 					hex.cleanOverlayVisualState();
@@ -3050,17 +3056,30 @@ export class UI {
 			// The mouse over adds a coloured hex to the creature, so when we mouse leave we have to remove them
 			const creatures = ui.game.creatures.filter((c) => c instanceof Creature);
 			creatures.forEach((creature) => {
+				if (creature === ui.game.activeCreature) {
+					return;
+				}
 				creature.hexagons.forEach((hex) => {
 					hex.cleanOverlayVisualState();
 				});
 			});
 			ui.chat.hideExpanded();
 
-			ui.game.grid.redoLastQuery();
-			// Clear any dashed/shrunken movement visualization added on hover
+			// Clear any dashed/shrunken movement visualization added on hover.
+			// Do this BEFORE restoring query state so we don't wipe freshly restored
+			// visuals (which can leave stale outlines on startup).
 			ui.game.grid.allhexes.forEach((hex) => {
-				hex.cleanDisplayVisualState();
+				hex.unsetReachable();
+				hex.cleanDisplayVisualState('dashed shrunken');
 			});
+
+			if (ui.game.grid.lastQueryOpt) {
+				ui.game.grid.redoLastQuery();
+			} else {
+				ui.game.grid.updateDisplay();
+			}
+
+			ui.game.grid.clearAllXray();
 			creatures.forEach((creature) => {
 				creature.xray(false);
 			});

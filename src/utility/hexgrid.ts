@@ -146,6 +146,12 @@ export class HexGrid {
 	 */
 	isRefreshingHoverState = false;
 
+	/**
+	 * Deferred clear for active-creature dashed hex visuals. This avoids
+	 * toggling dashed->normal->dashed while the cursor crosses adjacent hexes.
+	 */
+	activeHexDashedClearTimeout: ReturnType<typeof setTimeout> | null = null;
+
 	display: Phaser.Group;
 	gridGroup: Phaser.Group;
 	trapGroup: Phaser.Group;
@@ -885,6 +891,7 @@ export class HexGrid {
 	refreshHoverState() {
 		const hex = this.lastMouseHex;
 		if (!hex || this.game.freezedInput || this.isRefreshingHoverState) return;
+		this.cancelDeferredActiveHexDashedClear();
 		// Replicate what onInputOver does so cursor, unit preview and xray all update.
 		if (hex.reachable && this.game.activeCreature) {
 			this.game.activeCreature.highlightCurrentHexesAsDashed();
@@ -897,6 +904,21 @@ export class HexGrid {
 		} finally {
 			this.isRefreshingHoverState = false;
 		}
+	}
+
+	cancelDeferredActiveHexDashedClear() {
+		if (this.activeHexDashedClearTimeout) {
+			clearTimeout(this.activeHexDashedClearTimeout);
+			this.activeHexDashedClearTimeout = null;
+		}
+	}
+
+	scheduleDeferredActiveHexDashedClear() {
+		this.cancelDeferredActiveHexDashedClear();
+		this.activeHexDashedClearTimeout = setTimeout(() => {
+			this.activeHexDashedClearTimeout = null;
+			this.game.activeCreature?.clearDashedOverlayOnHexes();
+		}, 0);
 	}
 
 	/**
@@ -1128,6 +1150,7 @@ export class HexGrid {
 		}
 
 		const onCreatureHover = (creature: Creature, queueEffect, hex: Hex) => {
+			this.hoveredCreature = creature;
 			if (creature.isDarkPriest()) {
 				if (creature === game.activeCreature) {
 					if (creature.hasCreaturePlayerGotPlasma()) {
@@ -1512,6 +1535,20 @@ export class HexGrid {
 	}
 
 	cleanHex(hex: Hex) {
+		const activeCreature = this.game.activeCreature;
+		const isActiveCreatureHex =
+			activeCreature && hex.creature instanceof Creature && hex.creature.id === activeCreature.id;
+
+		if (isActiveCreatureHex) {
+			// Preserve the active creature's persistent display/overlay classes so any
+			// hover preview or path cleanup cannot restart the glow state.
+			hex.cleanDisplayVisualState('adj hover dashed shrunken deadzone hidden');
+			hex.cleanOverlayVisualState(
+				'reachable weakDmg moveto selected hover ownCreatureHexShade h_player0 h_player1 h_player2 h_player3',
+			);
+			return;
+		}
+
 		hex.cleanDisplayVisualState();
 		hex.cleanOverlayVisualState();
 	}
@@ -1527,19 +1564,71 @@ export class HexGrid {
 	}
 
 	/**
+	 * Clear transient hover visuals for a single hex without rebuilding the whole
+	 * query state. This is used during mouse transitions between adjacent hexes.
+	 */
+	clearTransientHexHoverVisual(hex: Hex) {
+		if (!this.lastQueryOpt) {
+			return;
+		}
+
+		const activeCreature = this.game.activeCreature;
+		const isActiveCreatureHex =
+			activeCreature && hex.creature instanceof Creature && hex.creature.id === activeCreature.id;
+
+		if (isActiveCreatureHex) {
+			// Clean only transient display state so the creature's persistent `creature`
+			// and `playerN` classes stay intact. That avoids reintroducing outline hexes
+			// while still removing hover-added dashed/path state.
+			hex.cleanDisplayVisualState('adj hover dashed shrunken deadzone hidden');
+			hex.cleanOverlayVisualState('hover h_player0 h_player1 h_player2 h_player3');
+			return;
+		}
+
+		this.cleanHex(hex);
+		this.restoreReachableHexVisual(hex);
+	}
+
+	clearTransientCreatureHoverVisual(creature: Creature) {
+		if (!this.lastQueryOpt) {
+			return;
+		}
+
+		creature.hexagons.forEach((hex) => {
+			this.clearTransientHexHoverVisual(hex);
+		});
+	}
+
+	/**
 	 * Update overlay hexes with creature positions
 	 */
 	updateDisplay() {
+		const activeCreature = this.game.activeCreature;
 		this.allhexes.forEach((hex) => {
-			hex.cleanDisplayVisualState();
-			hex.cleanOverlayVisualState();
+			const isActiveHex =
+				activeCreature && hex.creature instanceof Creature && hex.creature.id === activeCreature.id;
+			if (isActiveHex) {
+				// Preserve 'active creature playerN' to keep the glowInterval phase
+				// stable; only strip transient hover/query classes.
+				hex.cleanDisplayVisualState('adj hover dashed shrunken deadzone hidden');
+				hex.cleanOverlayVisualState(
+					'hover selected reachable weakDmg moveto ownCreatureHexShade h_player0 h_player1 h_player2 h_player3',
+				);
+			} else {
+				hex.cleanDisplayVisualState();
+				hex.cleanOverlayVisualState();
+			}
 		});
 
 		this.hexes.forEach((hex) => {
 			hex.forEach((item) => {
 				if (item.creature instanceof Creature) {
-					if (item.creature.id == this.game.activeCreature.id) {
-						item.overlayVisualState(`active creature player${item.creature.team}`);
+					if (item.creature.id == activeCreature.id) {
+						// Only add if not already present to avoid stacking duplicates
+						// and to avoid resetting overlay.alpha via updateStyle().
+						if (!item.overlayClasses.includes('active')) {
+							item.overlayVisualState(`active creature player${item.creature.team}`);
+						}
 					}
 				}
 			});
@@ -1811,6 +1900,8 @@ export class HexGrid {
 	 * Note: I'm not entirely sure what this code is doing.
 	 */
 	clearHexViewAlterations() {
+		this.cancelDeferredActiveHexDashedClear();
+
 		if (!this.selectedHex) {
 			return;
 		}
