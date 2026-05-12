@@ -686,6 +686,7 @@ export class UI {
 					break;
 				case 2:
 					// Middle mouse button pressed
+					e.stopPropagation();
 					if (this.dashopen) {
 						this.materializeButton.triggerClick();
 					}
@@ -710,6 +711,7 @@ export class UI {
 					break;
 				case 2:
 					// Middle mouse button pressed
+					e.stopPropagation();
 					break;
 				case 3:
 					// Right mouse button pressed
@@ -729,6 +731,7 @@ export class UI {
 					break;
 				case 2:
 					// Middle mouse button pressed
+					e.stopPropagation();
 					break;
 				case 3:
 					// Right mouse button pressed
@@ -748,6 +751,7 @@ export class UI {
 					break;
 				case 2:
 					// Middle mouse button pressed
+					e.stopPropagation();
 					break;
 				case 3:
 					// Right mouse button pressed
