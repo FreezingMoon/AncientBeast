@@ -662,6 +662,18 @@ export class UI {
 			});
 		}
 
+		// Mouse Shortcut - Middle click to skip turn (global, when dash is not open)
+		$j(document).on('mousedown', (e) => {
+			if (game.freezedInput) {
+				return;
+			}
+
+			if (e.which === 2 && !this.dashopen) {
+				e.preventDefault();
+				this.btnSkipTurn.triggerClick();
+			}
+		});
+
 		// Mouse Shortcut
 		$j('#dash').on('mousedown', (e) => {
 			if (game.freezedInput) {
