@@ -407,10 +407,10 @@ export class Creature {
 		game.updateQueueDisplay();
 
 		game.grid.orderCreatureZ();
-		game.grid.fadeOutTempCreature();
 
 		// Materialization fade-in: 1 second per occupied hex
 		const fadeMs = 1000 * this.size;
+		game.grid.fadeOutTempCreature(undefined, fadeMs);
 		this.creatureSprite.setAlpha(1, fadeMs);
 
 		// Ghost creatures in front so the materializing unit is spotlighted

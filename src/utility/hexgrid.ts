@@ -2030,7 +2030,7 @@ export class HexGrid {
 		}
 	}
 
-	fadeOutTempCreature(target = this.materialize_overlay) {
+	fadeOutTempCreature(target = this.materialize_overlay, durationMs = 500) {
 		// TODO: factor out this function. Use either Creature.creatureSprite
 		// or the existing temp creature created by /src/abilities/Dark-Priest.js
 		if (target) {
@@ -2041,7 +2041,7 @@ export class HexGrid {
 					{
 						alpha: 0,
 					},
-					500,
+					durationMs,
 					Phaser.Easing.Linear.None,
 				)
 				.start();
