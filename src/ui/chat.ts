@@ -95,6 +95,7 @@ export class Chat {
 	show() {
 		this.$chat.addClass('focus');
 		this.isOpen = true;
+		this.$content.parent().scrollTop(this.$content.height());
 	}
 
 	hide() {
