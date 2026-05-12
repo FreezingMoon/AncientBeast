@@ -114,6 +114,8 @@ export default class Game {
 	freezedInput: boolean;
 	turnThrottle: boolean;
 	turn: number;
+	/** Counts abilities that called end(false,true) but haven't yet invoked queryMove(). */
+	_deferredQueryMovePending: number;
 	Phaser: Phaser;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	msg: any; // type this properly
@@ -172,6 +174,7 @@ export default class Game {
 		this.availableCreatures = [];
 		this.animationQueue = [];
 		this.checkTimeFrequency = 1000;
+		this._deferredQueryMovePending = 0;
 		this.gamelog = new GameLog(
 			(log) => this.onLogSave(log),
 			(log) => this.onLogLoad(log),

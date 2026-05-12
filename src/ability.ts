@@ -347,6 +347,10 @@ export class Ability {
 
 		if (this.getTrigger() === 'onQuery' && !deferredEnding) {
 			game.activeCreature.queryMove();
+		} else if (this.getTrigger() === 'onQuery' && deferredEnding) {
+			// Keep input frozen until the ability's animation calls queryMove().
+			game.freezedInput = true;
+			game._deferredQueryMovePending++;
 		}
 	}
 
@@ -588,9 +592,12 @@ export class Ability {
 				const queue = game.animationQueue.filter((item) => item != animId);
 
 				if (queue.length === 0) {
-					game.freezedInput = false;
-					if (game.multiplayer) {
-						game.freezedInput = game.UI.active ? false : true;
+					// Only release if no deferred animation is still running.
+					if (!game._deferredQueryMovePending) {
+						game.freezedInput = false;
+						if (game.multiplayer) {
+							game.freezedInput = game.UI.active ? false : true;
+						}
 					}
 				}
 

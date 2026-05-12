@@ -719,6 +719,14 @@ export class Creature {
 			return;
 		}
 
+		// Release any animation freeze that was held by a deferred ability end.
+		if (game._deferredQueryMovePending > 0) {
+			game._deferredQueryMovePending--;
+		}
+		if (game._deferredQueryMovePending === 0) {
+			game.freezedInput = false;
+		}
+
 		// Once Per Damage Abilities recover
 		game.creatures.forEach((creature) => {
 			//For all Creature

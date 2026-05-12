@@ -1180,7 +1180,7 @@ function ensureAcrylicWallData(G: Game) {
 
 	const wallData = {
 		id: ACRYLIC_WALL_UNIT_ID,
-		name: 'object_acrylic-wall',
+		name: 'object_crystal-wall',
 		playable: false as const,
 		level: 0,
 		realm: 'O',
@@ -1525,8 +1525,8 @@ export default (G: Game) => {
 								}
 
 								completedPulseCount++;
-								if (completedPulseCount === pulseCount && appliedHealAmount > 0) {
-									if (typeof target.hint === 'function') {
+								if (completedPulseCount === pulseCount) {
+									if (appliedHealAmount > 0 && typeof target.hint === 'function') {
 										target.hint('+' + appliedHealAmount, 'healing');
 									}
 									activeCycloper.queryMove();
@@ -1546,10 +1546,12 @@ export default (G: Game) => {
 						[],
 						G,
 					);
-					this.end();
-					createOpticBurstLaserEffect(this as Ability, target, path, G, () =>
-						target.takeDamage(damage),
-					);
+					const activeCycloper = this.creature;
+					this.end(false, true);
+					createOpticBurstLaserEffect(this as Ability, target, path, G, () => {
+						target.takeDamage(damage);
+						activeCycloper.queryMove();
+					});
 				}
 			},
 		},
@@ -1689,11 +1691,10 @@ export default (G: Game) => {
 				this._lastBonus = wall.id;
 				this.creature.faceHex(hex);
 
-				// Create 3D print laser effect from Cycloper's eye
+				// Create 3D print laser effect from Cycloper's eye.
+				// end(false,true) below increments _deferredQueryMovePending and
+				// keeps input frozen for all players until queryMove() fires.
 				createAcrylicWall3DPrintEffect(this.creature, wall, G, () => {
-					if (this.creature.dead) {
-						return;
-					}
 					this.creature.queryMove();
 				});
 
