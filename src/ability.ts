@@ -598,6 +598,7 @@ export class Ability {
 						if (game.multiplayer) {
 							game.freezedInput = game.UI.active ? false : true;
 						}
+						game.grid?.refreshHoverState();
 					}
 				}
 
@@ -607,6 +608,7 @@ export class Ability {
 			activateAbility();
 			if (game.animationQueue.length === 0) {
 				game.freezedInput = false;
+				game.grid?.refreshHoverState();
 			}
 		}
 

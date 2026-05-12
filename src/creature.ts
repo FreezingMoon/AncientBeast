@@ -597,6 +597,7 @@ export class Creature {
 
 			game.startTimer();
 			this.queryMove(null);
+			game.grid?.refreshHoverState();
 			// }
 		}, 1000);
 
@@ -725,6 +726,7 @@ export class Creature {
 		}
 		if (game._deferredQueryMovePending === 0) {
 			game.freezedInput = false;
+			// refreshHoverState() fires at the end of queryHexes() below, after the new movement query handlers are in place.
 		}
 
 		// Once Per Damage Abilities recover
@@ -844,12 +846,16 @@ export class Creature {
 		}
 
 		const selectNormal = function (hex, args) {
-			game.grid.redoLastQuery();
+			if (!game.grid.isRefreshingHoverState) {
+				game.grid.redoLastQuery();
+			}
 			args.creature.tracePath(hex);
 		};
 
 		const selectFlying = function (hex, args) {
-			game.grid.redoLastQuery();
+			if (!game.grid.isRefreshingHoverState) {
+				game.grid.redoLastQuery();
+			}
 			const creature = game.retrieveCreatureStats(game.activeCreature.type);
 			game.grid.previewCreature(hex, creature, game.activePlayer);
 			args.creature.tracePosition({

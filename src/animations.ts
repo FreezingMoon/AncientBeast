@@ -264,6 +264,7 @@ export class Animations {
 			if (game.multiplayer) {
 				game.freezedInput = game.UI.active ? false : true;
 			}
+			game.grid?.refreshHoverState();
 		}
 
 		game.animationQueue = queue;

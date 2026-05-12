@@ -184,6 +184,9 @@ export class Hex {
 
 			// Binding Events
 			this.hitBox.events.onInputOver.add(() => {
+				// Always track pointer position so refreshHoverState() knows which hex
+				// to re-evaluate once freezedInput is cleared after an ability animation.
+				grid.lastMouseHex = this;
 				if (
 					game.freezedInput ||
 					game.UI.dashopen ||
@@ -203,6 +206,8 @@ export class Hex {
 			}, this);
 
 			this.hitBox.events.onInputOut.add((_, pointer) => {
+				// Clear pointer tracking so refreshHoverState() won't fire on a stale hex.
+				grid.lastMouseHex = undefined;
 				if (
 					game.freezedInput ||
 					game.UI.dashopen ||

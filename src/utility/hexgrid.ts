@@ -133,6 +133,19 @@ export class HexGrid {
 	 */
 	lastXrayHex: Hex | null = null;
 
+	/**
+	 * The hex the physical mouse pointer is currently over, updated before any
+	 * freezedInput guard so it remains accurate during ability animations.
+	 * Distinct from selectedHex which the keyboard cursor and queryHexes() reset.
+	 */
+	lastMouseHex: Hex | undefined = undefined;
+
+	/**
+	 * True while refreshHoverState() is replaying hover behavior programmatically.
+	 * Used to avoid recursive query rebuilds caused by movement hover callbacks.
+	 */
+	isRefreshingHoverState = false;
+
 	display: Phaser.Group;
 	gridGroup: Phaser.Group;
 	trapGroup: Phaser.Group;
@@ -865,6 +878,28 @@ export class HexGrid {
 	}
 
 	/**
+	 * Re-evaluate hover state for the hex currently under the pointer.
+	 * Call this whenever freezedInput transitions to false so the cursor and
+	 * visual highlights update without requiring mouse movement.
+	 */
+	refreshHoverState() {
+		const hex = this.lastMouseHex;
+		if (!hex || this.game.freezedInput || this.isRefreshingHoverState) return;
+		// Replicate what onInputOver does so cursor, unit preview and xray all update.
+		if (hex.reachable && this.game.activeCreature) {
+			this.game.activeCreature.highlightCurrentHexesAsDashed();
+		}
+		this.game.signals.hex.dispatch('over', { hex });
+		this.selectedHex = hex;
+		this.isRefreshingHoverState = true;
+		try {
+			hex.onSelectFn(hex);
+		} finally {
+			this.isRefreshingHoverState = false;
+		}
+	}
+
+	/**
 	 * fnOnSelect : 	Function : 	Function applied when clicking on one of the available hexes.
 	 * fnOnConfirm : 	Function : 	Function applied when clicking again on the same hex.
 	 * fnOnCancel : 	Function : 	Function applied when clicking a non reachable hex
@@ -1361,6 +1396,13 @@ export class HexGrid {
 			hex.onConfirmFn = onConfirmFn;
 			hex.onRightClickFn = onRightClickFn;
 		});
+
+		// All hex handlers are now up to date; refresh only for fresh queries.
+		// redoLastQuery() is called from hover preview flows and must not retrigger
+		// onSelectFn here, or it can recurse into queryHexes and freeze the game.
+		if (isFreshQuery) {
+			this.refreshHoverState();
+		}
 
 		if (this.game.botController?.shouldAutoResolveQuery()) {
 			this.game.botController.resolveQuery(o, {

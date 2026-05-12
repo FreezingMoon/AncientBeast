@@ -973,6 +973,7 @@ export class UI {
 		}
 
 		game.activeCreature.queryMove();
+		this.selectAbility(-1);
 	}
 
 	/**
@@ -1010,6 +1011,12 @@ export class UI {
 				return -1;
 			}
 		}
+
+		// All remaining abilities are available (require()=true) but already used.
+		// Fall back to movement mode.
+		game.activeCreature.queryMove();
+		this.selectAbility(-1);
+		return -1;
 	}
 
 	resizeDash() {
@@ -1532,6 +1539,11 @@ export class UI {
 			this.hideAbilityCosts();
 			this.activeAbility = false;
 		}
+
+		// Changing the selected ability sets up a new queryHexes which changes
+		// reachability and targeting. Refresh hover state so cursor and unit preview
+		// update immediately without requiring mouse movement.
+		this.game.grid?.refreshHoverState();
 	}
 
 	/**
