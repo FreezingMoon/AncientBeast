@@ -1268,10 +1268,12 @@ export class Creature {
 	 * Restore energy up to the max limit
 	 */
 	recharge(amount: number, log = true) {
+		const before = this.energy;
 		this.energy = Math.min(this.stats.energy, this.energy + amount);
+		const delta = this.energy - before;
 
-		if (log) {
-			this.game.log('%CreatureName' + this.id + '% recovers +' + amount + ' energy');
+		if (log && delta > 0) {
+			this.game.log('%CreatureName' + this.id + '% recovers +' + delta + ' energy');
 		}
 	}
 
