@@ -102,6 +102,8 @@ export class UI {
 	glowInterval: ReturnType<typeof setInterval>;
 	lastTurnWarningSecond: number | null;
 	lastTurnWarningPlayerId: number | null;
+	infiniteTurnBarInitialized: boolean;
+	infinitePoolBarInitialized: boolean;
 	selectedCreatureObj: Creature | undefined;
 	activeAbility: boolean;
 	hoveredAbilityIndex: number;
@@ -831,6 +833,8 @@ export class UI {
 		this.materializeToggled = false;
 		this.lastTurnWarningSecond = null;
 		this.lastTurnWarningPlayerId = null;
+		this.infiniteTurnBarInitialized = false;
+		this.infinitePoolBarInitialized = false;
 		this.dashopen = false;
 
 		this.glowInterval = setInterval(() => {
@@ -857,12 +861,36 @@ export class UI {
 			});
 		}, 10);
 
-		if (game.turnTimePool) {
+		if (game.turnTimePool >= 0) {
 			$j('.turntime').text(time.getTimer(game.turnTimePool));
+			this.infiniteTurnBarInitialized = false;
+		} else {
+			$j('.turntime').text('∞');
+			const initialPlasmaRatio =
+				game.activeCreature && game.configData.plasma_amount > 0
+					? Math.min(1, game.activeCreature.player.plasma / game.configData.plasma_amount)
+					: 0;
+			this.timeBar.setColor('#c5f');
+			this.timeBar.setSize(initialPlasmaRatio);
+			this.infiniteTurnBarInitialized = true;
 		}
 
-		if (game.timePool) {
+		if (game.timePool >= 0) {
 			$j('.timepool').text(time.getTimer(game.timePool));
+			this.infinitePoolBarInitialized = false;
+		} else {
+			$j('.timepool').text('∞');
+			const initialScoreRatio =
+				game.activeCreature && game.players.length > 0
+					? (() => {
+							const scores = game.players.map((pl) => pl.getScore().total);
+							const maxScore = Math.max(...scores, 1);
+							return Math.max(0, Math.min(1, game.activeCreature.player.getScore().total / maxScore));
+					  })()
+					: 0;
+			this.poolBar.setColor('#aaf');
+			this.poolBar.setSize(initialScoreRatio);
+			this.infinitePoolBarInitialized = true;
 		}
 
 		this.confirmWindowUnload();
@@ -2667,6 +2695,8 @@ export class UI {
 		const playerStartTime = game.activeCreature.player.startTime.valueOf();
 		// TurnTimePool
 		if (game.turnTimePool >= 0) {
+			this.timeBar.$bar.removeClass('plasma-mode').addClass('turntime-mode');
+			this.infiniteTurnBarInitialized = false;
 			let remainingTime = game.turnTimePool - Math.round((date - playerStartTime) / 1000);
 
 			if (game.timePool > 0) {
@@ -2708,9 +2738,10 @@ export class UI {
 
 			// Time Bar
 			const timeRatio = (date - playerStartTime) / 1000 / game.turnTimePool;
-			this.timeBar.setSize(1 - timeRatio);
+			this.timeBar.animSize(1 - timeRatio);
 			this.timeBar.setColor('white');
 		} else {
+			this.timeBar.$bar.removeClass('turntime-mode').addClass('plasma-mode');
 			$j('.turntime').text('∞');
 			$j('.turntime').removeClass('alert turntime-warning');
 			this.btnSkipTurn.$button.removeClass('bounce');
@@ -2723,11 +2754,17 @@ export class UI {
 					? Math.min(1, game.activeCreature.player.plasma / game.configData.plasma_amount)
 					: 0;
 			this.timeBar.setColor('#c5f');
-			this.timeBar.setSize(plasmaRatio);
+			if (!this.infiniteTurnBarInitialized || plasmaRatio <= 0) {
+				this.timeBar.setSize(plasmaRatio);
+			} else {
+				this.timeBar.animSize(plasmaRatio);
+			}
+			this.infiniteTurnBarInitialized = true;
 		}
 
 		// TotalTimePool
 		if (game.timePool >= 0) {
+			this.infinitePoolBarInitialized = false;
 			game.players.forEach((player) => {
 				let remainingTime =
 					player.id == game.activeCreature.player.id
@@ -2742,7 +2779,7 @@ export class UI {
 				(game.activeCreature.player.totalTimePool - (date - playerStartTime)) /
 				1000 /
 				game.timePool;
-			this.poolBar.setSize(poolRatio);
+			this.poolBar.animSize(poolRatio);
 			this.poolBar.setColor('grey');
 		} else {
 			$j('.timepool').text('∞');
@@ -2752,7 +2789,12 @@ export class UI {
 			const maxScore = Math.max(...scores, 1);
 			const scoreRatio = Math.max(0, Math.min(1, game.activeCreature.player.getScore().total / maxScore));
 			this.poolBar.setColor('#aaf');
-			this.poolBar.setSize(scoreRatio);
+			if (!this.infinitePoolBarInitialized) {
+				this.poolBar.setSize(scoreRatio);
+			} else {
+				this.poolBar.animSize(scoreRatio);
+			}
+			this.infinitePoolBarInitialized = true;
 		}
 
 		// Keep scoreboard values and bars in sync while it is open.

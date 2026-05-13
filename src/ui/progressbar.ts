@@ -16,6 +16,29 @@ export class ProgressBar {
 	height: number;
 	color: string;
 
+	private normalizePercentage(percentage: number): number {
+		if (!Number.isFinite(percentage)) {
+			return 0;
+		}
+
+		const normalized = Math.max(0, Math.min(1, percentage));
+		// Avoid subpixel remnants: if the rendered height would be under 1px, treat it as zero.
+		if (normalized * this.height < 1) {
+			return 0;
+		}
+
+		return normalized;
+	}
+
+	private syncGlowState(percentage: number) {
+		if (percentage < 0.005) {
+			this.$current.addClass('no-glow');
+			return;
+		}
+
+		this.$current.removeClass('no-glow');
+	}
+
 	constructor(opts: Partial<ProgressBarOptions>) {
 		const defaultOpts: ProgressBarOptions = {
 			height: 316,
@@ -40,18 +63,22 @@ export class ProgressBar {
 	 * @param{number} percentage - Size between 0 and 1
 	 */
 	setSize(percentage: number) {
+		const normalizedPercentage = this.normalizePercentage(percentage);
+		this.syncGlowState(normalizedPercentage);
+
 		this.$bar.css({
 			width: this.width,
-			height: this.height * percentage,
+			height: this.height * normalizedPercentage,
 			border: 'solid 1px',
 			'border-color': 'transparent',
 		});
 
 		this.$current.css({
 			width: this.width,
-			height: this.height * percentage,
+			height: this.height * normalizedPercentage,
 			'background-color': this.color,
 			'background-image': 'none',
+			color: this.color,
 		});
 	}
 
@@ -59,11 +86,14 @@ export class ProgressBar {
 	 * @param{number} percentage - size between 0 and 1
 	 */
 	animSize(percentage: number) {
+		const normalizedPercentage = this.normalizePercentage(percentage);
+		this.syncGlowState(normalizedPercentage);
+
 		this.$bar.transition(
 			{
 				queue: false,
 				width: this.width,
-				height: this.height * percentage,
+				height: this.height * normalizedPercentage,
 			},
 			500,
 			'linear',
@@ -73,9 +103,10 @@ export class ProgressBar {
 			{
 				queue: false,
 				width: this.width,
-				height: this.height * percentage,
+				height: this.height * normalizedPercentage,
 				'background-color': this.color,
 				'background-image': 'none',
+				color: this.color,
 			},
 			500,
 			'linear',
@@ -86,10 +117,12 @@ export class ProgressBar {
 	 * @param{number} percentage - size between 0 and 1
 	 */
 	previewSize(percentage: number) {
+		const normalizedPercentage = this.normalizePercentage(percentage);
+
 		this.$preview.css(
 			{
 				width: this.width,
-				height: this.height * percentage,
+				height: this.height * normalizedPercentage,
 				'background-image': 'none',
 			},
 			500,
@@ -97,27 +130,35 @@ export class ProgressBar {
 		);
 	}
 
-	// Sets element's background-image with horizontal 2px stripe pattern
-	setStripePattern(element) {
+	// Sets element's background-image with diagonal stripe pattern
+	setStripePattern(element, animated = false) {
 		element.css({
+			'background-color': this.color,
 			'background-image':
-				'linear-gradient(0deg, #000000 25%,' +
-				this.color +
-				' 25%,' +
-				this.color +
-				' 50%, #000000 50%, #000000 75%,' +
-				this.color +
-				' 75%,' +
-				this.color +
-				' 100%)',
-
-			'background-size': '8.00px 8.00px',
+				'repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.9) 0 2px, rgba(0, 0, 0, 0) 2px 8px)',
+			'background-size': '12px 12px',
+			animation: animated ? 'progressStripeShift 900ms linear infinite' : 'none',
+			color: this.color,
 		});
 	}
 
 	// When enough progress is available to use
 	setAvailableStyle() {
-		this.setStripePattern(this.$preview);
+		this.$bar.css({
+			'border-color': 'transparent',
+		});
+
+		this.$current.css({
+			'background-color': this.color,
+			'background-image': 'none',
+			color: this.color,
+		});
+
+		this.$preview.removeClass('glow-active');
+		this.$preview.css({
+			'background-color': 'transparent',
+		});
+		this.setStripePattern(this.$preview, true);
 	}
 
 	// When not enough progress is available to use
@@ -127,12 +168,14 @@ export class ProgressBar {
 			'border-color': this.color,
 		});
 
+		this.$preview.removeClass('glow-active');
 		this.$preview.css({
 			'background-image': 'none',
 			'background-color': 'black',
+			animation: 'none',
 		});
 
-		this.setStripePattern(this.$current);
+		this.setStripePattern(this.$current, false);
 	}
 
 	/**
@@ -143,10 +186,23 @@ export class ProgressBar {
 		this.color = newColor;
 		this.$current.css({
 			'background-color': this.color,
+			'background-image': 'none',
+			animation: 'none',
+			color: this.color,
 		});
-		// Update border color for unavailable style if it was set
+		this.$preview.css({
+			color: this.color,
+		});
+		// Keep the fill container border transparent in normal mode to avoid
+		// 1px artifacts when the fill height is zero.
+		const existingBorderColor = this.$bar.css('border-color');
+		const isTransparentBorder =
+			existingBorderColor === 'transparent' ||
+			existingBorderColor === 'rgba(0, 0, 0, 0)' ||
+			existingBorderColor === 'rgba(0,0,0,0)';
+
 		this.$bar.css({
-			'border-color': this.color,
+			'border-color': isTransparentBorder ? 'transparent' : this.color,
 		});
 	}
 }

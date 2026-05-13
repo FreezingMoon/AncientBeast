@@ -2074,6 +2074,80 @@ span.pure {
 	}
 }
 
+@keyframes progressStripeShift {
+	0% {
+		background-position: 0 0;
+	}
+	100% {
+		background-position: 0 12px;
+	}
+}
+
+@keyframes barFillPulse {
+	0%,
+	100% {
+		opacity: 1;
+	}
+}
+
+@keyframes barTextureDrift {
+	0% {
+		background-position: 0 24px, 6px 34px, 2px 28px;
+	}
+	100% {
+		background-position: 0 -10px, 6px -8px, 2px -20px;
+	}
+}
+
+@keyframes barTextureDriftEnergyWave {
+	0% {
+		background-position: -3px 24px, 4px 34px, 1px 28px;
+	}
+	16% {
+		background-position: 2px 17px, -2px 25px, -3px 20px;
+	}
+	33% {
+		background-position: 5px 10px, 3px 15px, 2px 11px;
+	}
+	50% {
+		background-position: -1px 3px, 5px 8px, -2px 4px;
+	}
+	66% {
+		background-position: 3px 9px, -3px 14px, 4px 10px;
+	}
+	83% {
+		background-position: -2px 16px, 1px 22px, -1px 18px;
+	}
+	100% {
+		background-position: -3px -10px, 4px -8px, 1px -20px;
+	}
+}
+
+@keyframes barSheenSweep {
+	0% {
+		background-position: 0 18px;
+		opacity: 0.2;
+	}
+	50% {
+		opacity: 0.34;
+	}
+	100% {
+		background-position: 0 -14px;
+		opacity: 0.22;
+	}
+}
+
+@keyframes intenseSparkle {
+	0%   { background-position: 0% 0%; opacity: 0.8; }
+	50%  { background-position: 20% 50%; opacity: 1; }
+	100% { background-position: 0% 100%; opacity: 0.8; }
+}
+
+@keyframes boldGradient {
+	0%   { background-position: 0% -50%; }
+	100% { background-position: 0% 150%; }
+}
+
 @keyframes button-bounce-left {
 	0% {
 		transform: translateX(0);
@@ -2433,6 +2507,8 @@ span.pure {
 	border: 1px #777 solid;
 	background: rgba(0, 0, 0, 0.55);
 	top: 0;
+	border-radius: 3px;
+	overflow: hidden;
 }
 
 #leftpanel .progressbar {
@@ -2447,30 +2523,210 @@ span.pure {
 }
 
 .progressbar .bar {
+	--progress-fill-width: 7px;
 	display: block;
 	position: absolute;
 	width: 18px;
 	height: 0;
 	bottom: 0;
 	background: none;
+	border-radius: 2px;
 }
 
 .bar .previewbar {
 	display: block;
 	position: absolute;
-	width: 7px;
+	left: 0;
+	width: var(--progress-fill-width);
 	height: 0;
 	background: rgba(0, 0, 0, 0.75);
 	z-index: 1;
+	border-radius: 2px;
+	transition: background-color 180ms linear, box-shadow 180ms linear;
+	will-change: background-color, background-image, box-shadow;
+
+	&.glow-active {
+		filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.4)) drop-shadow(0 0 2px currentColor);
+	}
 }
 
 .bar .currentbar {
 	display: block;
 	position: absolute;
-	width: 7px;
+	left: 0;
+	width: var(--progress-fill-width);
 	height: 0;
 	bottom: 0;
+	border-radius: 2px;
 	background: rgba(0, 0, 0, 0.75);
+	overflow: hidden;
+	opacity: 1;
+	animation: none;
+	will-change: height, background-color, background-image;
+
+	&::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background-image: linear-gradient(
+			180deg,
+			rgba(255, 255, 255, 0.24) 0%,
+			rgba(255, 255, 255, 0.06) 30%,
+			rgba(255, 255, 255, 0.02) 56%,
+			rgba(0, 0, 0, 0.14) 100%
+		);
+		background-size: 100% 120%;
+		pointer-events: none;
+		opacity: 0.24;
+		animation: barSheenSweep 3.2s ease-in-out infinite alternate;
+	}
+
+	&::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background-image: radial-gradient(circle, rgba(255, 255, 255, 0.38) 0 2px, rgba(255, 255, 255, 0) 2.2px),
+			radial-gradient(circle, rgba(255, 255, 255, 0.26) 0 1.5px, rgba(255, 255, 255, 0) 1.7px),
+			radial-gradient(circle, rgba(0, 0, 0, 0.2) 0 1.3px, rgba(0, 0, 0, 0) 1.5px);
+		background-size: 16px 34px, 13px 42px, 17px 48px;
+		background-repeat: repeat;
+		pointer-events: none;
+		opacity: 0.68;
+		animation: barTextureDrift 1.6s linear infinite;
+	}
+
+	&:not(.no-glow) {
+		filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.4)) drop-shadow(0 0 2px currentColor);
+	}
+
+	&.no-glow {
+		animation: none;
+		opacity: 1;
+		filter: none;
+
+		&::before {
+			animation: none;
+			opacity: 0;
+		}
+
+		&::after {
+			animation: none;
+			opacity: 0;
+		}
+	}
+}
+
+/* Per-bar contrast tuning so fizz remains readable on saturated fills */
+.progressbar .bar.healthbar .currentbar::before {
+	opacity: 0.3;
+}
+
+.progressbar .bar.healthbar .currentbar::after {
+	background-image:
+		linear-gradient(180deg,
+			rgba(255,120,120,0.4) 0%,
+			rgba(255,180,120,0.25) 40%,
+			rgba(255,120,120,0.15) 70%,
+			transparent 100%),
+		radial-gradient(ellipse 80% 100% at 20% 20%, rgba(255, 255, 255, 0.7) 0%, transparent 50%),
+		radial-gradient(ellipse 80% 100% at 80% 80%, rgba(255, 150, 100, 0.6) 0%, transparent 50%);
+	background-size: 100% 240%, 100% 100%, 100% 100%;
+	background-repeat: repeat, no-repeat, no-repeat;
+	opacity: 0.75;
+	animation: boldGradient 2.4s linear infinite, intenseSparkle 2.0s ease-in-out infinite;
+}
+
+.progressbar .bar.energybar .currentbar::before {
+	opacity: 0.28;
+}
+
+.progressbar .bar.energybar .currentbar::after {
+	background-image: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0 2.2px, rgba(255, 255, 255, 0) 2.5px),
+		radial-gradient(circle, rgba(0, 0, 0, 0.24) 0 1.9px, rgba(0, 0, 0, 0) 2.2px),
+		radial-gradient(circle, rgba(0, 0, 0, 0.16) 0 1.6px, rgba(0, 0, 0, 0) 1.9px);
+	background-size: 6px 34px, 6px 42px, 6px 48px;
+	opacity: 0.82;
+	animation: barTextureDriftEnergyWave 1.6s linear infinite;
+}
+
+/* Turn Time Bar - white fill, ring-based particles for contrast */
+.progressbar .bar.timebar.turntime-mode .currentbar::after {
+	background-image: radial-gradient(circle, rgba(95, 110, 140, 0) 0 1.0px, rgba(95, 110, 140, 0.46) 1.05px 1.75px, rgba(95, 110, 140, 0.16) 1.8px 2.2px, rgba(95, 110, 140, 0) 3.0px),
+		radial-gradient(circle, rgba(45, 55, 75, 0) 0 0.9px, rgba(45, 55, 75, 0.42) 0.95px 1.55px, rgba(45, 55, 75, 0.12) 1.6px 1.95px, rgba(45, 55, 75, 0) 2.6px),
+		radial-gradient(circle, rgba(15, 20, 30, 0) 0 0.7px, rgba(15, 20, 30, 0.34) 0.75px 1.15px, rgba(15, 20, 30, 0.10) 1.2px 1.45px, rgba(15, 20, 30, 0) 2.2px);
+	background-size: 8px 34px, 7px 42px, 9px 48px;
+	background-repeat: repeat;
+	opacity: 0.9;
+	animation: boldGradient 2.2s linear infinite, barTextureDrift 1.6s linear infinite alternate;
+}
+
+/* Plasma Bar - restored pre-turntime-tuning particles */
+.progressbar .bar.timebar.plasma-mode .currentbar::after {
+	background-image: radial-gradient(circle, rgba(255, 255, 255, 0.28) 0 2.2px, rgba(255, 255, 255, 0) 2.5px),
+		radial-gradient(circle, rgba(255, 255, 255, 0.20) 0 1.8px, rgba(255, 255, 255, 0) 2.1px),
+		radial-gradient(circle, rgba(0, 0, 0, 0.18) 0 1.5px, rgba(0, 0, 0, 0) 1.8px);
+	background-size: 9px 34px, 8px 42px, 10px 48px;
+	background-repeat: repeat;
+	opacity: 0.75;
+	animation: barTextureDrift 1.6s linear infinite;
+}
+
+/* Score Bar Animation Options */
+.progressbar .bar.poolbar .currentbar::after {
+	background-image: linear-gradient(180deg, rgba(200,200,200,0.25) 0%, rgba(220,220,220,0.18) 40%, rgba(200,200,200,0.08) 70%, transparent 100%),
+		radial-gradient(circle, rgba(255, 255, 255, 0.19) 0 1.7px, rgba(255, 255, 255, 0) 1.9px),
+		radial-gradient(circle, rgba(0, 0, 0, 0.25) 0 1.5px, rgba(0, 0, 0, 0) 1.7px),
+		radial-gradient(circle, rgba(0, 0, 0, 0.17) 0 1.2px, rgba(0, 0, 0, 0) 1.4px);
+	background-size: 100% 240%, 8px 34px, 8px 42px, 8px 48px;
+	background-repeat: repeat, repeat, repeat, repeat;
+	opacity: 0.75;
+	animation: boldGradient 2.2s linear infinite, barTextureDrift 1.6s linear infinite alternate;
+}
+
+/* Score Bar - Option 1: Flowing waves like energy */
+.progressbar .bar.poolbar.variant1 .currentbar::after {
+	background-image: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0 2.2px, rgba(255, 255, 255, 0) 2.5px),
+		radial-gradient(circle, rgba(0, 0, 0, 0.24) 0 1.9px, rgba(0, 0, 0, 0) 2.2px),
+		radial-gradient(circle, rgba(0, 0, 0, 0.16) 0 1.6px, rgba(0, 0, 0, 0) 1.9px);
+	background-size: 6px 34px, 6px 42px, 6px 48px;
+	opacity: 0.82;
+	animation: barTextureDriftEnergyWave 1.6s linear infinite;
+}
+
+/* Score Bar - Option 2: Gradient + Sparkle like health */
+.progressbar .bar.poolbar.variant2 .currentbar::after {
+	background-image:
+		linear-gradient(180deg,
+			rgba(200,200,200,0.3) 0%,
+			rgba(220,220,220,0.2) 40%,
+			rgba(200,200,200,0.1) 70%,
+			transparent 100%),
+		radial-gradient(ellipse 80% 100% at 20% 20%, rgba(255, 255, 255, 0.6) 0%, transparent 50%),
+		radial-gradient(ellipse 80% 100% at 80% 80%, rgba(220, 220, 220, 0.5) 0%, transparent 50%);
+	background-size: 100% 240%, 100% 100%, 100% 100%;
+	background-repeat: repeat, no-repeat, no-repeat;
+	opacity: 0.65;
+	animation: boldGradient 2.2s linear infinite, intenseSparkle 1.8s ease-in-out infinite;
+}
+
+/* Score Bar - Option 3: Slower shimmer */
+.progressbar .bar.poolbar.variant3 .currentbar::after {
+	background-image: radial-gradient(circle, rgba(255, 255, 255, 0.32) 0 1.8px, rgba(255, 255, 255, 0) 2.0px),
+		radial-gradient(circle, rgba(255, 255, 255, 0.22) 0 1.3px, rgba(255, 255, 255, 0) 1.5px),
+		radial-gradient(circle, rgba(0, 0, 0, 0.18) 0 1.1px, rgba(0, 0, 0, 0) 1.3px);
+	background-size: 12px 34px, 10px 42px, 14px 48px;
+	opacity: 0.72;
+	animation: barTextureDrift 2.0s linear infinite;
+}
+
+/* Score Bar - Option 4: Fine particles */
+.progressbar .bar.poolbar.variant4 .currentbar::after {
+	background-image: radial-gradient(circle, rgba(255, 255, 255, 0.16) 0 1.4px, rgba(255, 255, 255, 0) 1.6px),
+		radial-gradient(circle, rgba(0, 0, 0, 0.20) 0 1.2px, rgba(0, 0, 0, 0) 1.4px),
+		radial-gradient(circle, rgba(0, 0, 0, 0.14) 0 1.0px, rgba(0, 0, 0, 0) 1.2px);
+	background-size: 5px 34px, 5px 42px, 5px 48px;
+	opacity: 0.78;
+	animation: barTextureDrift 1.6s linear infinite;
 }
 
 .progressbar .bar.energybar,
