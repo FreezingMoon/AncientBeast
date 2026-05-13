@@ -100,7 +100,8 @@ const getIcicleDirectionalOptions = (ability: Ability, game: Game) => {
 			processed.originalChoice.some(
 				(hex) =>
 					hex.creature instanceof Creature &&
-					hex.creature.id !== creature.id,
+					hex.creature.id !== creature.id &&
+					isTeam(creature, hex.creature, Team.Enemy),
 			),
 		)
 		.map((processed) => processed.originalChoice);
