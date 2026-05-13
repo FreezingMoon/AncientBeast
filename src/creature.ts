@@ -624,6 +624,9 @@ export class Creature {
 		this.status.dizzy = false;
 		// Effects triggers
 		if (reason === 'turn-end') {
+			// Prevent queryMove() from replaying hover on the old mouse hex during
+			// turn handoff, which can briefly render the active unit preview at cursor.
+			game.grid.lastMouseHex = undefined;
 			this.remainingMove = 0;
 			this.queryMove(null);
 			this.turnsActive += 1;
