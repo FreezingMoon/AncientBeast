@@ -2709,12 +2709,21 @@ export class UI {
 			// Time Bar
 			const timeRatio = (date - playerStartTime) / 1000 / game.turnTimePool;
 			this.timeBar.setSize(1 - timeRatio);
+			this.timeBar.setColor('white');
 		} else {
 			$j('.turntime').text('∞');
 			$j('.turntime').removeClass('alert turntime-warning');
 			this.btnSkipTurn.$button.removeClass('bounce');
 			this.lastTurnWarningSecond = null;
 			this.lastTurnWarningPlayerId = null;
+
+			// Display plasma bar instead when turn time is infinite
+			const plasmaRatio =
+				game.configData.plasma_amount > 0
+					? Math.min(1, game.activeCreature.player.plasma / game.configData.plasma_amount)
+					: 0;
+			this.timeBar.setColor('#c5f');
+			this.timeBar.setSize(plasmaRatio);
 		}
 
 		// TotalTimePool
@@ -2734,8 +2743,16 @@ export class UI {
 				1000 /
 				game.timePool;
 			this.poolBar.setSize(poolRatio);
+			this.poolBar.setColor('grey');
 		} else {
 			$j('.timepool').text('∞');
+
+			// Display score bar instead when pool time is infinite
+			const scores = game.players.map((pl) => pl.getScore().total);
+			const maxScore = Math.max(...scores, 1);
+			const scoreRatio = Math.max(0, Math.min(1, game.activeCreature.player.getScore().total / maxScore));
+			this.poolBar.setColor('#aaf');
+			this.poolBar.setSize(scoreRatio);
 		}
 
 		// Keep scoreboard values and bars in sync while it is open.

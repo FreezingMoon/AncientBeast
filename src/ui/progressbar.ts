@@ -134,4 +134,19 @@ export class ProgressBar {
 
 		this.setStripePattern(this.$current);
 	}
+
+	/**
+	 * Change the bar's color dynamically
+	 * @param {string} newColor - CSS color value
+	 */
+	setColor(newColor: string) {
+		this.color = newColor;
+		this.$current.css({
+			'background-color': this.color,
+		});
+		// Update border color for unavailable style if it was set
+		this.$bar.css({
+			'border-color': this.color,
+		});
+	}
 }
