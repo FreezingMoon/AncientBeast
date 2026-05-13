@@ -2090,7 +2090,7 @@ class CreatureSprite {
 		group.alpha = 0;
 
 		const isDarkPriest = type === '--';
-		const darkPriestColorOrEmpty = isDarkPriest ? creature.player.color : '';
+		const darkPriestColorOrEmpty = isDarkPriest ? ' ' + creature.player.color : '';
 
 		// Adding sprite
 		const spriteKey = creature.name + darkPriestColorOrEmpty;
