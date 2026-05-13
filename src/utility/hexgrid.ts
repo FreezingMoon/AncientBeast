@@ -638,6 +638,7 @@ export class HexGrid {
 			fnOnCancel: () => {
 				game.activeCreature?.queryMove();
 			},
+			fnOnHoverOutside: undefined as (() => void) | undefined,
 			team: Team.Enemy,
 			requireCreature: 1,
 			id: 0,
@@ -677,9 +678,11 @@ export class HexGrid {
 
 			if (validChoice) {
 				hexes = hexes.concat(o.choices[i]);
-				o.choices[i].forEach((hex) => {
-					arrayUtils.removePos(o.hexesDashed, hex);
-				});
+				if (!(o as any).preserveDashedHexesInChoices) {
+					o.choices[i].forEach((hex) => {
+						arrayUtils.removePos(o.hexesDashed, hex);
+					});
+				}
 			} else if (o.isDirectionsQuery) {
 				this.forEachHex((hex) => {
 					if (o.choices[i][0].direction == hex.direction) {
@@ -721,6 +724,7 @@ export class HexGrid {
 				}
 			},
 			fnOnCancel: o.fnOnCancel,
+			fnOnHoverOutside: o.fnOnHoverOutside,
 			args: {
 				opt: o,
 			},
@@ -1587,6 +1591,27 @@ export class HexGrid {
 
 		this.cleanHex(hex);
 		this.restoreReachableHexVisual(hex);
+
+		// Restore the base query display class after transient hover cleanup so
+		// sideways cursor movement does not leave a lighter/transparent-looking hex.
+		const queryOpt = this.lastQueryOpt as any;
+		if (hex.creature instanceof Creature) {
+			return;
+		}
+
+		if (Array.isArray(queryOpt.hexesDashed) && queryOpt.hexesDashed.indexOf(hex) !== -1) {
+			hex.displayVisualState('dashed');
+			hex.grid.displayHexesGroup.bringToTop(hex.display);
+			return;
+		}
+
+		if (
+			queryOpt.restoreAdjOnTransientCleanup &&
+			Array.isArray(queryOpt.hexes) &&
+			queryOpt.hexes.indexOf(hex) !== -1
+		) {
+			hex.displayVisualState('adj');
+		}
 	}
 
 	clearTransientCreatureHoverVisual(creature: Creature) {

@@ -456,6 +456,14 @@ export class UI {
 							}
 							// Colored frame around selected ability
 							if (ability.require() == true && i != 0) {
+								if (ability._abilityRangeHexes?.length) {
+									ability._abilityRangeHexes.forEach((hex) => {
+										this.game.Phaser.tweens.removeFrom(hex.display.scale);
+										hex.display.scale.setTo(0);
+										hex.display.anchor.setTo(0, 0);
+										hex.cleanDisplayVisualState('abilityRange');
+									});
+								}
 								this.selectAbility(i);
 							}
 							// Activate Ability
@@ -1566,12 +1574,8 @@ export class UI {
 		} else {
 			this.hideAbilityCosts();
 			this.activeAbility = false;
+			this.game.grid?.refreshHoverState();
 		}
-
-		// Changing the selected ability sets up a new queryHexes which changes
-		// reachability and targeting. Refresh hover state so cursor and unit preview
-		// update immediately without requiring mouse movement.
-		this.game.grid?.refreshHoverState();
 	}
 
 	/**
