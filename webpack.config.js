@@ -160,8 +160,8 @@ module.exports = (env, argv) => {
 		devServer: {
 			client: {
 				overlay: {
-					// Avoid duplicate uncaught runtime error popups in dev (console still shows details).
-					errors: true,
+					// Avoid duplicate error popups in dev (console still shows details).
+					errors: false,
 					warnings: false,
 					runtimeErrors: false,
 				},

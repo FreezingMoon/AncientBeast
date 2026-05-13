@@ -25,6 +25,7 @@ export class MetaPowers {
 		executeMonster: defaultToggleObj;
 		resetCooldowns: defaultToggleObj;
 		disableMaterializationSickness: defaultToggleObj;
+		infiniteEnergy: defaultToggleObj;
 	};
 	// eslint-disable-next-line no-undef
 	$els: { [key: string]: JQuery<HTMLElement> } = {};
@@ -32,6 +33,7 @@ export class MetaPowers {
 	btnExecuteMonster: Button;
 	btnResetCooldowns: Button;
 	btnDisableMaterializationSickness: Button;
+	btnInfiniteEnergy: Button;
 
 	constructor(game: Game) {
 		this.game = game;
@@ -40,6 +42,7 @@ export class MetaPowers {
 			executeMonster: { enabled: false, label: 'Execution Mode' },
 			resetCooldowns: { enabled: false, label: 'Disable Cooldowns' },
 			disableMaterializationSickness: { enabled: false, label: 'Disable Materialization Sickness' },
+			infiniteEnergy: { enabled: false, label: 'Infinite Energy' },
 		};
 
 		// Object that will contain jQuery element references
@@ -96,6 +99,7 @@ export class MetaPowers {
 			executeMonsterButton: $j('#execute-monster-button'),
 			resetCooldownsButton: $j('#reset-cooldowns-button'),
 			disableMaterializationSicknessButton: $j('#disable-materialization-sickness-button'),
+			infiniteEnergyButton: $j('#infinite-energy-button'),
 		};
 
 		this.btnCloseModal = new Button(
@@ -133,6 +137,15 @@ export class MetaPowers {
 						'disableMaterializationSickness',
 						this.btnDisableMaterializationSickness,
 					),
+			},
+			{ isAcceptingInput: this.game.isAcceptingInput },
+		);
+
+		this.btnInfiniteEnergy = new Button(
+			{
+				$button: this.$els.infiniteEnergyButton,
+				hasShortcut: true,
+				click: () => this._togglePower('infiniteEnergy', this.btnInfiniteEnergy),
 			},
 			{ isAcceptingInput: this.game.isAcceptingInput },
 		);

@@ -122,6 +122,7 @@ export class Ability {
 	_lastBonus?: number;
 
 	_disableCooldowns: boolean;
+	_infiniteEnergy: boolean;
 
 	_energyNormal?: number;
 	_energySelfUpgraded: number;
@@ -221,6 +222,9 @@ export class Ability {
 		// If set, abilities can be used multiple times in a single round.
 		this._disableCooldowns = false;
 
+		// If set, active unit's energy is restored to max after each ability use.
+		this._infiniteEnergy = false;
+
 		// Events
 		this.game.signals.metaPowers.add(this.handleMetaPowerEvent, this);
 	}
@@ -235,6 +239,20 @@ export class Ability {
 				this.reset();
 				// Refresh UI to show ability is available.
 				this.game.UI.selectAbility(-1);
+			}
+		}
+
+		if (message === 'toggleInfiniteEnergy') {
+			this._infiniteEnergy = payload;
+
+			// Immediately refill energy for the active creature when enabled.
+			// Gate on id === 0 so only one ability instance triggers the refill.
+			if (payload && this.id === 0) {
+				const active = this.game.activeCreature;
+				if (active && active.id === this.creature.id && active.stats.energy > 0) {
+					active.energy = active.stats.energy;
+					this.game.UI.energyBar.animSize(1);
+				}
 			}
 		}
 	}
@@ -946,6 +964,10 @@ export class Ability {
 				creature[key] = Math.max(creature[key] - value, 0); // Cap
 			}
 		});
+
+		if (this._infiniteEnergy && creature.stats.energy > 0) {
+			creature.energy = creature.stats.energy;
+		}
 
 		creature.updateHealth();
 		if (creature.id == game.activeCreature.id) {
