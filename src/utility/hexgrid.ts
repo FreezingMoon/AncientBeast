@@ -626,6 +626,12 @@ export class HexGrid {
 				}
 				// Normal behavior
 				else {
+					// Reset all choices to base state so only the hovered one is emphasised.
+					o.choices.forEach((otherChoice) => {
+						otherChoice.forEach((item) => {
+							item.cleanDisplayVisualState('adj creature player0 player1 player2 player3');
+						});
+					});
 					choice.forEach((item) => {
 						if (item.creature instanceof Creature) {
 							item.displayVisualState('creature selected player' + item.creature.team);
@@ -638,7 +644,14 @@ export class HexGrid {
 			fnOnCancel: () => {
 				game.activeCreature?.queryMove();
 			},
-			fnOnHoverOutside: undefined as (() => void) | undefined,
+			fnOnHoverOutside: (() => {
+				// Restore all choices to base/light state when pointer leaves the valid area.
+				o.choices.forEach((choice) => {
+					choice.forEach((item) => {
+						item.cleanDisplayVisualState('adj creature player0 player1 player2 player3');
+					});
+				});
+			}) as (() => void) | undefined,
 			team: Team.Enemy,
 			requireCreature: 1,
 			id: 0,
