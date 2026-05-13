@@ -893,7 +893,10 @@ export class UI {
 					? (() => {
 							const scores = game.players.map((pl) => pl.getScore().total);
 							const maxScore = Math.max(...scores, 1);
-							return Math.max(0, Math.min(1, game.activeCreature.player.getScore().total / maxScore));
+							return Math.max(
+								0,
+								Math.min(1, game.activeCreature.player.getScore().total / maxScore),
+							);
 					  })()
 					: 0;
 			this.poolBar.setColor('#aaf');
@@ -2791,7 +2794,10 @@ export class UI {
 			// Display score bar instead when pool time is infinite
 			const scores = game.players.map((pl) => pl.getScore().total);
 			const maxScore = Math.max(...scores, 1);
-			const scoreRatio = Math.max(0, Math.min(1, game.activeCreature.player.getScore().total / maxScore));
+			const scoreRatio = Math.max(
+				0,
+				Math.min(1, game.activeCreature.player.getScore().total / maxScore),
+			);
 			this.poolBar.setColor('#aaf');
 			if (!this.infinitePoolBarInitialized) {
 				this.poolBar.setSize(scoreRatio);

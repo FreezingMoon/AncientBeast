@@ -45,7 +45,11 @@ const uniqueHexes = (hexes: Hex[]) => {
 };
 
 const preserveAbilityRangeHexes = (
-	ability: { _inDirectionTest?: boolean; _abilityRangeHexes?: Hex[]; _abilityRangeHexesDashed?: Hex[] },
+	ability: {
+		_inDirectionTest?: boolean;
+		_abilityRangeHexes?: Hex[];
+		_abilityRangeHexesDashed?: Hex[];
+	},
 	hexes: Hex[],
 	dashedHexes: Hex[],
 	callback: () => boolean,
@@ -77,7 +81,7 @@ const getIcicleDirectionalOptions = (ability: Ability, game: Game) => {
 
 	const rangeHexes: Hex[] = [];
 	directionalOptions.hexesDashed = [];
-	
+
 	// Process each choice to split at blockers and collect dashed hexes
 	const processedChoices = directionalOptions.choices.map((choice) => {
 		const { solidHexes, dashedHexes } = splitIciclePathAtBlocker(creature, choice);
@@ -107,7 +111,7 @@ const getIcicleDirectionalOptions = (ability: Ability, game: Game) => {
 		.map((processed) => processed.originalChoice);
 
 	directionalOptions.choices = targetChoices;
-	
+
 	return {
 		directionalOptions,
 		rangeHexes: uniqueHexes(rangeHexes),
@@ -365,21 +369,34 @@ export default (G: Game) => {
 
 				const { directionalOptions, rangeHexes } = getIcicleDirectionalOptions(this as Ability, G);
 
-				return preserveAbilityRangeHexes(this, rangeHexes, directionalOptions.hexesDashed || [], () => {
-					if (directionalOptions.choices.length > 0) {
-						this.message = '';
-						return true;
-					}
+				return preserveAbilityRangeHexes(
+					this,
+					rangeHexes,
+					directionalOptions.hexesDashed || [],
+					() => {
+						if (directionalOptions.choices.length > 0) {
+							this.message = '';
+							return true;
+						}
 
-					this.message = G.msg.abilities.noTarget;
-					return false;
-				});
+						this.message = G.msg.abilities.noTarget;
+						return false;
+					},
+				);
 			},
 
 			// 	query() :
 			query: function () {
 				const ability = this;
 				const { directionalOptions } = getIcicleDirectionalOptions(this as Ability, G);
+				type DirectionalOptionsWithCallbacks = Omit<typeof directionalOptions, 'fnOnSelect'> & {
+					preserveDashedHexesInChoices?: boolean;
+					callbackAfterQueryHexes?: () => void;
+					fnOnHoverOutside?: () => void;
+					fnOnSelect?: (choice: Hex[]) => void;
+				};
+				const directionalOptionsWithCallbacks =
+					directionalOptions as DirectionalOptionsWithCallbacks;
 				const basePathHexes = uniqueHexes(directionalOptions.choices.flat());
 				const dashedContinuationHexes = uniqueHexes(directionalOptions.hexesDashed || []);
 				const dashedPos = new Set(dashedContinuationHexes.map((hex) => hex.pos));
@@ -403,17 +420,17 @@ export default (G: Game) => {
 					});
 				};
 
-				(directionalOptions as any).hexesDashed = dashedContinuationHexes;
-				(directionalOptions as any).preserveDashedHexesInChoices = true;
-				(directionalOptions as any).callbackAfterQueryHexes = () => {
+				directionalOptionsWithCallbacks.hexesDashed = dashedContinuationHexes;
+				directionalOptionsWithCallbacks.preserveDashedHexesInChoices = true;
+				directionalOptionsWithCallbacks.callbackAfterQueryHexes = () => {
 					renderBasePath();
 					renderDashedContinuation();
 				};
-				(directionalOptions as any).fnOnHoverOutside = () => {
+				directionalOptionsWithCallbacks.fnOnHoverOutside = () => {
 					renderBasePath();
 					renderDashedContinuation();
 				};
-				(directionalOptions as any).fnOnSelect = (choice: Hex[]) => {
+				directionalOptionsWithCallbacks.fnOnSelect = (choice: Hex[]) => {
 					renderBasePath();
 
 					choice.forEach((item) => {
@@ -455,118 +472,118 @@ export default (G: Game) => {
 				const isBackwardsShot = ability.isTargetingBackwards(direction);
 
 				// Use the clicked path directly instead of recalculating
-				let travelPath = path.filter(
-					(hex) =>
-						!(hex.creature instanceof Creature && hex.creature.id === ability.creature.id),
+				const travelPath = path.filter(
+					(hex) => !(hex.creature instanceof Creature && hex.creature.id === ability.creature.id),
 				);
 
-			const applyDamage = () => {
-				let wasBlocked = false;
-				let blockerHex: Hex | null = null;
-				
-				for (let i = 0; i < travelPath.length; i++) {
-					const hex = travelPath[i];
-					
-					if (hex.creature instanceof Creature) {
-						const trg = hex.creature;
+				const applyDamage = () => {
+					let wasBlocked = false;
+					let blockerHex: Hex | null = null;
 
-						if (isPlasmaFieldBlocker(ability.creature, trg)) {
-							// Icicle gets destroyed by shield, reduce plasma by 1
-							if (trg.player.plasma > 0) {
-								trg.player.plasma--;
-								trg.updateHealth();
-								trg.hint('Shielded', 'damage');
-								G.log('%CreatureName' + trg.id + '% shielded the attack');
+					for (let i = 0; i < travelPath.length; i++) {
+						const hex = travelPath[i];
+
+						if (hex.creature instanceof Creature) {
+							const trg = hex.creature;
+
+							if (isPlasmaFieldBlocker(ability.creature, trg)) {
+								// Icicle gets destroyed by shield, reduce plasma by 1
+								if (trg.player.plasma > 0) {
+									trg.player.plasma--;
+									trg.updateHealth();
+									trg.hint('Shielded', 'damage');
+									G.log('%CreatureName' + trg.id + '% shielded the attack');
+								}
+								wasBlocked = true;
+								blockerHex = travelPath[i];
+								break;
 							}
-							wasBlocked = true;
-							blockerHex = travelPath[i];
-							break;
-						}
 
-						const d = {
-							pierce: ability.damages.pierce,
-							frost: 6 - i,
-						};
-						if (d.frost < 0) {
-							d.frost = 0;
-						}
+							const d = {
+								pierce: ability.damages.pierce,
+								frost: 6 - i,
+							};
+							if (d.frost < 0) {
+								d.frost = 0;
+							}
 
-						//Damage
-						const damage = new Damage(
-							ability.creature, // Attacker
-							d, // Damage Type
-							1, // Area
-							[], // Effects
-							G,
-						);
+							//Damage
+							const damage = new Damage(
+								ability.creature, // Attacker
+								d, // Damage Type
+								1, // Area
+								[], // Effects
+								G,
+							);
 
-						const result = trg.takeDamage(damage);
-						G.Phaser.camera.shake(0.02, 80, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+							const result = trg.takeDamage(damage);
+							G.Phaser.camera.shake(0.02, 80, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
-						// Stop propagating if no damage dealt
-						if (
-							result.damageObj.status === 'Shielded' ||
-							(result.damages && result.damages.total <= 0)
-						) {
-							break;
+							// Stop propagating if no damage dealt
+							if (
+								result.damageObj.status === 'Shielded' ||
+								(result.damages && result.damages.total <= 0)
+							) {
+								break;
+							}
 						}
 					}
-				}
-				return { wasBlocked, blockerHex };
-			};
-
-			ability.end(false, true);
-
-			const fireIcicle = () => {
-				if (travelPath.length === 0) {
-					applyDamage();
-					ability.creature.facePlayerDefault();
-					G.activeCreature.queryMove();
-					return;
-				}
-
-				const emissionPoint = ability.creature.legacyProjectileEmissionPoint;
-				const { wasBlocked, blockerHex } = applyDamage();
-				const pathEndHex = travelPath[travelPath.length - 1];
-				const endHex = wasBlocked && blockerHex ? blockerHex : travelPath[travelPath.length - 1];
-				if (!endHex || !pathEndHex) {
-					ability.creature.facePlayerDefault();
-					G.activeCreature.queryMove();
-					return;
-				}
-				const startX = emissionPoint.x + (screenGoingRight ? 150 : 30);
-				const startY = emissionPoint.y - 130;
-				const aimPoint = getIcicleHexCenterPoint(pathEndHex);
-				const blockerIndex = blockerHex ? travelPath.indexOf(blockerHex) : -1;
-				const travelledStepCount = wasBlocked && blockerIndex >= 0 ? blockerIndex + 1 : travelPath.length;
-				const travelProgress = Math.max(
-					0,
-					Math.min(1, travelledStepCount / Math.max(1, travelPath.length)),
-				);
-				const impactPoint = {
-					x: startX + (aimPoint.x - startX) * travelProgress,
-					y: startY + (aimPoint.y - startY) * travelProgress,
+					return { wasBlocked, blockerHex };
 				};
-				// Tongue is at +150 from group origin when facing right, +30 when facing left
-				// (creature size 2: 2 * HEX_WIDTH_PX - 150 = 30)
-				const duration = Math.max(1, travelledStepCount) * 75;
-				const sprite = G.grid.creatureGroup.create(startX, startY, 'effects_icicle-spear');
-				sprite.anchor.setTo(0.5);
-				const dx = aimPoint.x - startX;
-				const dy = aimPoint.y - startY;
-				sprite.rotation = Math.atan2(dy, dx);
-				const tween = G.Phaser.add
-					.tween(sprite)
-					.to({ x: impactPoint.x, y: impactPoint.y }, duration, Phaser.Easing.Linear.None)
-					.start();
 
-				tween.onComplete.add(function () {
-					// @ts-expect-error 'this' refers to the animation sprite, not the ability.
-					this.destroy();
-					ability.creature.facePlayerDefault();
-					G.activeCreature.queryMove();
-				}, sprite);
-			};
+				ability.end(false, true);
+
+				const fireIcicle = () => {
+					if (travelPath.length === 0) {
+						applyDamage();
+						ability.creature.facePlayerDefault();
+						G.activeCreature.queryMove();
+						return;
+					}
+
+					const emissionPoint = ability.creature.legacyProjectileEmissionPoint;
+					const { wasBlocked, blockerHex } = applyDamage();
+					const pathEndHex = travelPath[travelPath.length - 1];
+					const endHex = wasBlocked && blockerHex ? blockerHex : travelPath[travelPath.length - 1];
+					if (!endHex || !pathEndHex) {
+						ability.creature.facePlayerDefault();
+						G.activeCreature.queryMove();
+						return;
+					}
+					const startX = emissionPoint.x + (screenGoingRight ? 150 : 30);
+					const startY = emissionPoint.y - 130;
+					const aimPoint = getIcicleHexCenterPoint(pathEndHex);
+					const blockerIndex = blockerHex ? travelPath.indexOf(blockerHex) : -1;
+					const travelledStepCount =
+						wasBlocked && blockerIndex >= 0 ? blockerIndex + 1 : travelPath.length;
+					const travelProgress = Math.max(
+						0,
+						Math.min(1, travelledStepCount / Math.max(1, travelPath.length)),
+					);
+					const impactPoint = {
+						x: startX + (aimPoint.x - startX) * travelProgress,
+						y: startY + (aimPoint.y - startY) * travelProgress,
+					};
+					// Tongue is at +150 from group origin when facing right, +30 when facing left
+					// (creature size 2: 2 * HEX_WIDTH_PX - 150 = 30)
+					const duration = Math.max(1, travelledStepCount) * 75;
+					const sprite = G.grid.creatureGroup.create(startX, startY, 'effects_icicle-spear');
+					sprite.anchor.setTo(0.5);
+					const dx = aimPoint.x - startX;
+					const dy = aimPoint.y - startY;
+					sprite.rotation = Math.atan2(dy, dx);
+					const tween = G.Phaser.add
+						.tween(sprite)
+						.to({ x: impactPoint.x, y: impactPoint.y }, duration, Phaser.Easing.Linear.None)
+						.start();
+
+					tween.onComplete.add(function () {
+						// @ts-expect-error 'this' refers to the animation sprite, not the ability.
+						this.destroy();
+						ability.creature.facePlayerDefault();
+						G.activeCreature.queryMove();
+					}, sprite);
+				};
 
 				if (isBackwardsShot) {
 					// Turn to face backwards, wait briefly, then fire; turn back in onComplete
