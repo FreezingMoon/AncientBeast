@@ -100,6 +100,7 @@ export class UI {
 	dashAnimSpeed: number;
 	materializeToggled: boolean;
 	glowInterval: ReturnType<typeof setInterval>;
+	hoveringNoActionCreature: boolean;
 	lastTurnWarningSecond: number | null;
 	lastTurnWarningPlayerId: number | null;
 	infiniteTurnBarInitialized: boolean;
@@ -835,6 +836,7 @@ export class UI {
 		this.selectedAbility = -1;
 		this.clickedAbility = -1;
 		this.hoveredAbilityIndex = -1;
+		this.hoveringNoActionCreature = false;
 		this.queueAnimSpeed = 500; // ms
 		this.dashAnimSpeed = 250; // ms
 
@@ -2731,7 +2733,13 @@ export class UI {
 			const isUrgentWarning = remainingTime > 0 && remainingTime <= 3;
 			if (isUrgentWarning) {
 				$turnTime.addClass('turntime-warning');
-				this.btnSkipTurn.$button.addClass('bounce');
+				if (this.hoveringNoActionCreature) {
+					this.btnSkipTurn.$button.removeClass('bounce');
+					this.btnSkipTurn.$button.removeClass('hidden');
+				} else {
+					this.btnSkipTurn.$button.removeClass('hidden');
+					this.btnSkipTurn.$button.addClass('bounce');
+				}
 
 				if (this.lastTurnWarningSecond !== remainingTime) {
 					this.lastTurnWarningSecond = remainingTime;
@@ -2740,6 +2748,7 @@ export class UI {
 			} else {
 				$turnTime.removeClass('turntime-warning');
 				this.btnSkipTurn.$button.removeClass('bounce');
+				this.btnSkipTurn.$button.removeClass('hidden');
 				this.lastTurnWarningSecond = null;
 			}
 
@@ -2752,6 +2761,7 @@ export class UI {
 			$j('.turntime').text('∞');
 			$j('.turntime').removeClass('alert turntime-warning');
 			this.btnSkipTurn.$button.removeClass('bounce');
+			this.btnSkipTurn.$button.removeClass('hidden');
 			this.lastTurnWarningSecond = null;
 			this.lastTurnWarningPlayerId = null;
 

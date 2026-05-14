@@ -1294,13 +1294,21 @@ export class HexGrid {
 
 				hex = this.hexes[y][x]; // New coords
 				game.activeCreature.faceHex(hex);
+				isQueryLockedAfterConfirm = true;
+				this.lastMouseHex = undefined;
+
+				if (game.activeCreature === hex.creature && hex.creature.noActionPossible) {
+					game.UI.hoveringNoActionCreature = false;
+					// Clear noActionPossible before fading so any cleanup queryMove(null)
+					// during turn-end deactivation does not re-trigger querySelf and spawn
+					// a second Skip turn marker on top of the fading one.
+					hex.creature.noActionPossible = false;
+					hex.creature.fadeOutNoActionHints();
+				}
 
 				if (hex !== this.lastClickedHex) {
 					this.lastClickedHex = hex;
 				}
-
-				isQueryLockedAfterConfirm = true;
-				this.lastMouseHex = undefined;
 
 				// Keep primary materialize preview alive for summon handoff:
 				// Creature.summon() uses fadeOutTempCreature() for a smooth transition.
@@ -1334,7 +1342,6 @@ export class HexGrid {
 					game.UI.btnSkipTurn.$button.removeClass('hidden');
 					// Stop bouncing no-action hint when cursor leaves, but keep it visible.
 					creature.stopNoActionHintBounce();
-					creature.clearHints(['confirm']);
 				}
 			}
 			game.UI.chat.hideExpanded();
@@ -1370,7 +1377,7 @@ export class HexGrid {
 				if (game.activeCreature === hex.creature && hex.creature.noActionPossible) {
 					game.UI.hoveringNoActionCreature = true;
 					game.UI.btnSkipTurn.$button.removeClass('bounce');
-					game.UI.btnSkipTurn.$button.addClass('hidden');
+					game.UI.btnSkipTurn.$button.removeClass('hidden');
 					// Show "Skip Turn" icon
 					hex.creature.hint('Skip turn', 'no_action');
 				}
