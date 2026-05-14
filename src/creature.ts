@@ -1095,6 +1095,17 @@ export class Creature {
 		let path;
 
 		opts = $j.extend(defaultOpt, opts);
+		const userCallback = opts.callback;
+		opts.callback = () => {
+			userCallback();
+			if (game.activeCreature?.id === this.id) {
+				game.UI.checkAbilities();
+				game.UI.selectAbility(-1);
+			}
+			game.signals.creature.dispatch('movementComplete', { creature: this, hex });
+			// @ts-expect-error 2554
+			game.onCreatureMove(this, hex); // Trigger
+		};
 
 		// Teleportation ignores moveable
 		if (this.stats.moveable || opts.animation === 'teleport') {
@@ -1119,17 +1130,6 @@ export class Creature {
 		} else {
 			game.log('This creature cannot be moved');
 		}
-
-		const interval = setInterval(() => {
-			// Check if creature's movement animation is completely finished.
-			if (!game.freezedInput) {
-				clearInterval(interval);
-				opts.callback();
-				game.signals.creature.dispatch('movementComplete', { creature: this, hex });
-				// @ts-expect-error 2554
-				game.onCreatureMove(this, hex); // Trigger
-			}
-		}, 100);
 	}
 
 	/**

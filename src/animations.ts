@@ -268,6 +268,7 @@ export class Animations {
 		}
 
 		game.animationQueue = queue;
+		opts.callback?.();
 	}
 
 	projectile(
