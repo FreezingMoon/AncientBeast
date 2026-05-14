@@ -147,6 +147,11 @@ export class HexGrid {
 	isRefreshingHoverState = false;
 
 	/**
+	 * One-shot guard used to skip the next hover replay after a turn handoff.
+	 */
+	suppressNextHoverRefresh = false;
+
+	/**
 	 * Deferred clear for active-creature dashed hex visuals. This avoids
 	 * toggling dashed->normal->dashed while the cursor crosses adjacent hexes.
 	 */
@@ -906,6 +911,10 @@ export class HexGrid {
 	 * visual highlights update without requiring mouse movement.
 	 */
 	refreshHoverState() {
+		if (this.suppressNextHoverRefresh) {
+			this.suppressNextHoverRefresh = false;
+			return;
+		}
 		const hex = this.lastMouseHex;
 		if (!hex || this.game.freezedInput || this.isRefreshingHoverState) return;
 		this.cancelDeferredActiveHexDashedClear();
@@ -1195,7 +1204,7 @@ export class HexGrid {
 					hex.displayVisualState('creature player' + hex.creature.team);
 				}
 			} else if (game.activeCreature.noActionPossible) {
-				$j('canvas').css('cursor', 'wait');
+				$j('canvas').css('cursor', 'pointer');
 			}
 			queueEffect(creature.id);
 		};
@@ -1321,8 +1330,11 @@ export class HexGrid {
 				}
 
 				if (game.activeCreature === hex.creature && hex.creature.noActionPossible) {
-					// Remove "Skip Turn" icon
-					creature.clearHints(['confirm', 'no_action']);
+					game.UI.hoveringNoActionCreature = false;
+					game.UI.btnSkipTurn.$button.removeClass('hidden');
+					// Stop bouncing no-action hint when cursor leaves, but keep it visible.
+					creature.stopNoActionHintBounce();
+					creature.clearHints(['confirm']);
 				}
 			}
 			game.UI.chat.hideExpanded();
@@ -1344,6 +1356,7 @@ export class HexGrid {
 			// Clear display and overlay
 			game.UI.xrayQueue(-1);
 			$j('canvas').css('cursor', 'pointer');
+			$j('body').css('cursor', 'default');
 
 			if (hex.creature instanceof Creature) {
 				if (!game.botController?.isBotTurn()) {
@@ -1355,6 +1368,9 @@ export class HexGrid {
 				hex.creature.startBounce();
 
 				if (game.activeCreature === hex.creature && hex.creature.noActionPossible) {
+					game.UI.hoveringNoActionCreature = true;
+					game.UI.btnSkipTurn.$button.removeClass('bounce');
+					game.UI.btnSkipTurn.$button.addClass('hidden');
 					// Show "Skip Turn" icon
 					hex.creature.hint('Skip turn', 'no_action');
 				}

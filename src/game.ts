@@ -807,6 +807,9 @@ export default class Game {
 				// Block ability icon state changes during the turn transition (fold + unfold).
 				// activate() resets abilities via setUsed() which would otherwise flash icons.
 				this.UI._abilityPanelAnimating = true;
+				// The new active creature's queryMove() will replay hover once its handlers
+				// are installed; suppress that single replay to avoid a stale cursor preview.
+				this.grid.suppressNextHoverRefresh = true;
 				this.activeCreature.activate();
 				// console.log(this.activeCreature);
 
@@ -938,6 +941,12 @@ export default class Game {
 			// Block icon state changes for the entire fold+unfold cycle.
 			// Must be set before deactivate() which calls queryMove(null) → selectAbility(-1) → checkAbilities.
 			this.UI._abilityPanelAnimating = true;
+
+			// Animate out the no-action hint before deactivating
+			if (this.activeCreature.noActionPossible) {
+				this.activeCreature.fadeOutNoActionHints();
+			}
+
 			this.activeCreature.deactivate('turn-end');
 			const activeCreature = this.activeCreature;
 			this.nextCreature();

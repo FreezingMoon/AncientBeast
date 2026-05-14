@@ -627,6 +627,7 @@ export class Creature {
 			// Prevent queryMove() from replaying hover on the old mouse hex during
 			// turn handoff, which can briefly render the active unit preview at cursor.
 			game.grid.lastMouseHex = undefined;
+			game.grid.suppressNextHoverRefresh = true;
 			this.remainingMove = 0;
 			this.queryMove(null);
 			this.turnsActive += 1;
@@ -1650,6 +1651,14 @@ export class Creature {
 		this.creatureSprite.clearHints(hintTypes);
 	}
 
+	stopNoActionHintBounce() {
+		this.creatureSprite.stopNoActionHintBounce();
+	}
+
+	fadeOutNoActionHints() {
+		this.creatureSprite.fadeOutNoActionHints();
+	}
+
 	/**
 	 * Update the stats taking into account the effects' alteration
 	 */
@@ -2060,6 +2069,9 @@ class CreatureSprite {
 	private _healthIndicatorSprite: Phaser.Sprite;
 	private _healthIndicatorText: Phaser.Text;
 	private _healthIndicatorTween: Phaser.Tween | null;
+	private _noActionHintElements: Array<Phaser.Text | Phaser.Sprite> = [];
+	private _noActionHintGroup: Phaser.Group | null = null;
+	private _noActionHintTween: Phaser.Tween | null = null;
 	private _healthBounceOffset = 0; // y-offset driven by the bounce tween
 	private _healthUiGroup: Phaser.Group; // elevated layer for active/hovered indicators
 	private _healthInUiGroup = false; // whether the indicator is currently elevated
@@ -2543,10 +2555,92 @@ class CreatureSprite {
 		return this._group.position;
 	}
 
+	private isNoActionHintType(hintType: string): boolean {
+		return (
+			hintType === 'no_action' || hintType === 'no_action_bg' || hintType === 'no_action_icon'
+		);
+	}
+
+	private setSkipButtonNoActionVisibility(hidden: boolean) {
+		const skipButton = $j('#skip.button');
+		if (hidden) {
+			skipButton.addClass('hidden');
+			return;
+		}
+
+		skipButton.removeClass('hidden');
+	}
+
+	private restartNoActionHintBounce() {
+		if (!this._noActionHintGroup || !this._noActionHintGroup.exists) {
+			return;
+		}
+
+		if (this._noActionHintTween && this._noActionHintTween.isRunning) {
+			return;
+		}
+
+		const bounceHeight = 10;
+		const durationMS = 350;
+		const bounceSrc = { offset: 0 };
+		const bounceTgt = { offset: -bounceHeight };
+		this._noActionHintGroup.y = 50;
+
+		this._noActionHintTween = this._phaser.add
+			.tween(bounceSrc)
+			.to(bounceTgt, durationMS, Phaser.Easing.Quadratic.InOut, true)
+			.yoyo(true)
+			.repeat(-1);
+		this._noActionHintTween.onUpdateCallback(() => {
+			if (!this._noActionHintGroup || !this._noActionHintGroup.exists) {
+				return;
+			}
+			this._noActionHintGroup.y = 50 + bounceSrc.offset;
+		});
+	}
+
+	private destroyNoActionHintGroup() {
+		if (this._noActionHintTween) {
+			this._noActionHintTween.stop();
+			this._noActionHintTween = null;
+		}
+
+		if (this._noActionHintGroup && this._noActionHintGroup.exists) {
+			this._noActionHintGroup.destroy(true);
+		}
+		this._noActionHintGroup = null;
+	}
+
 	hint(text: string, hintType: CreatureHintType) {
 		const tooltipSpeed = 250;
 		const tooltipDisplaySpeed = 500;
 		const tooltipTransition = Phaser.Easing.Linear.None;
+		const noActionBaseY = 50;
+		// Keep no-action hint bounce synced with the health indicator bounce feel.
+		const noActionBounceHeight = 10;
+		const noActionBounceSpeed = 350;
+		const startNoActionBounce = (hintElement: Phaser.Text | Phaser.Sprite) => {
+			if (hintElement.data.tweenBounce && hintElement.data.tweenBounce.isRunning) {
+				return;
+			}
+
+			if (typeof hintElement.data.baseY !== 'number') {
+				hintElement.data.baseY = hintElement.y;
+			}
+
+			hintElement.y = hintElement.data.baseY;
+			const bounceSrc = { offset: 0 };
+			const bounceTgt = { offset: -noActionBounceHeight };
+
+			hintElement.data.tweenBounce = this._phaser.add
+				.tween(bounceSrc)
+				.to(bounceTgt, noActionBounceSpeed, Phaser.Easing.Quadratic.InOut, true)
+				.yoyo(true)
+				.repeat(-1);
+			hintElement.data.tweenBounce.onUpdateCallback(() => {
+				hintElement.y = hintElement.data.baseY + bounceSrc.offset;
+			});
+		};
 
 		const hintColor: Record<CreatureHintType, { fill: string; stroke: string }> = {
 			damage: {
@@ -2590,11 +2684,57 @@ class CreatureSprite {
 			...(hintColor.hasOwnProperty(hintType) ? hintColor[hintType] : {}),
 		};
 
+		if (hintType === 'no_action') {
+			this.setSkipButtonNoActionVisibility(true);
+
+			if (this._noActionHintGroup && this._noActionHintGroup.exists) {
+				this.restartNoActionHintBounce();
+				return;
+			}
+
+			// Deterministic reset: remove all previous hint children before creating no-action.
+			this._hintGrp.removeAll(true);
+			this.destroyNoActionHintGroup();
+
+			const frame = this._phaser.add.sprite(0, 50, 'frame');
+			const frameBackground = this._phaser.make.bitmapData(frame.width, frame.height);
+			frameBackground.ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+			frameBackground.ctx.fillRect(0, 0, frameBackground.width, frameBackground.height);
+			frameBackground.draw('frame', 0, 0);
+			frame.destroy();
+
+			const noActionGroup = this._phaser.add.group(this._hintGrp, 'noActionHint');
+			noActionGroup.y = noActionBaseY;
+			const background = noActionGroup.create(0, 0, frameBackground);
+			background.anchor.setTo(0.5, 0.175);
+			background.setScaleMinMax(0.75, 0.75, 0.75, 0.75);
+
+			const noActionText = this._phaser.add.text(0, 0, text, style);
+			noActionText.anchor.setTo(0.5, 0.5);
+			noActionGroup.add(noActionText);
+
+			const skipTurnIcon = noActionGroup.create(0, 0, 'skip');
+			skipTurnIcon.anchor.setTo(0.5, 0.7);
+			skipTurnIcon.setScaleMinMax(0.15, 0.15, 0.15, 0.15);
+
+			this._noActionHintGroup = noActionGroup;
+			this.restartNoActionHintBounce();
+			return;
+		}
+
 		// Remove constant element
 		// Animation length reduced from 250 to 100 to prevent animation overlap
 		this._hintGrp.forEach(
 			(hint: Phaser.Text | Phaser.Sprite) => {
-				if (hint.data.hintType === 'confirm' || hint.data.hintType === 'no_action') {
+				if (
+					hint.data.hintType === 'confirm' ||
+					this.isNoActionHintType(hint.data.hintType)
+				) {
+					if (hint.data.tweenBounce) {
+						hint.data.tweenBounce.stop();
+						hint.data.tweenBounce = null;
+					}
+
 					hint.data.hintType = 'confirm_deleted';
 					hint.data.tweenAlpha = this._phaser.add
 						.tween(hint)
@@ -2614,8 +2754,9 @@ class CreatureSprite {
 		hint.data.hintType = hintType;
 		hint.data.tweenAlpha = null;
 		hint.data.tweenPos = null;
+		hint.data.tweenBounce = null;
 
-		if (hintType === 'confirm' || hintType === 'no_action') {
+		if (hintType === 'confirm') {
 			hint.data.tweenAlpha = this._phaser.add
 				.tween(hint)
 				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
@@ -2630,7 +2771,7 @@ class CreatureSprite {
 			hint.data.tweenAlpha.onComplete.add(() => hint.destroy());
 		}
 
-		if (hintType === 'no_action' || hintType === 'confirm') {
+		if (hintType === 'confirm') {
 			// Add "Skip turn" frame
 			const frame = this._phaser.add.sprite(0, 50, 'frame');
 			const frameBackground = this._phaser.make.bitmapData(frame.width, frame.height);
@@ -2644,9 +2785,11 @@ class CreatureSprite {
 			combinedSprite.anchor.setTo(0.5, 0.175);
 			combinedSprite.setScaleMinMax(0.75, 0.75, 0.75, 0.75);
 			combinedSprite.alpha = 0;
+			combinedSprite.visible = true;
 			combinedSprite.data.hintType = hintType;
 			combinedSprite.data.tweenAlpha = null;
 			combinedSprite.data.tweenPos = null;
+			combinedSprite.data.tweenBounce = null;
 			this._phaser.add
 				.tween(combinedSprite)
 				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
@@ -2658,9 +2801,11 @@ class CreatureSprite {
 			skipTurnIcon.anchor.setTo(0.5, 0.7); // Give a bit more vertical space
 			skipTurnIcon.setScaleMinMax(0.15, 0.15, 0.15, 0.15);
 			skipTurnIcon.alpha = 0;
+			skipTurnIcon.visible = true;
 			skipTurnIcon.data.hintType = hintType;
 			skipTurnIcon.data.tweenAlpha = null;
 			skipTurnIcon.data.tweenPos = null;
+			skipTurnIcon.data.tweenBounce = null;
 			this._phaser.add
 				.tween(skipTurnIcon)
 				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
@@ -2676,8 +2821,22 @@ class CreatureSprite {
 				const index = this._hintGrp.total - this._hintGrp.getIndex(hint) - 1;
 				const offset = -50 * index;
 
+				if (hint.data.tweenBounce) {
+					hint.data.tweenBounce.stop();
+					hint.data.tweenBounce = null;
+				}
+
 				if (hint.data.tweenPos) {
 					hint.data.tweenPos.stop();
+					hint.data.tweenPos = null;
+				}
+
+				if (hint.data.hintType === 'no_action') {
+					this.setSkipButtonNoActionVisibility(true);
+					// Keep no-action hints stable on first show: place immediately, then bounce.
+					hint.y = offset;
+					startNoActionBounce(hint);
+					return;
 				}
 
 				hint.data.tweenPos = this._phaser.add
@@ -2690,16 +2849,65 @@ class CreatureSprite {
 		);
 	}
 
+	stopNoActionHintBounce() {
+		this.setSkipButtonNoActionVisibility(false);
+		if (this._noActionHintTween) {
+			this._noActionHintTween.stop();
+			this._noActionHintTween = null;
+		}
+		if (this._noActionHintGroup && this._noActionHintGroup.exists) {
+			this._noActionHintGroup.y = 50;
+		}
+		this._noActionHintElements = [];
+	}
+
+	fadeOutNoActionHints() {
+		const tooltipSpeed = 250;
+		const tooltipTransition = Phaser.Easing.Linear.None;
+		this.setSkipButtonNoActionVisibility(false);
+		this._noActionHintElements = [];
+
+		if (this._noActionHintTween) {
+			this._noActionHintTween.stop();
+			this._noActionHintTween = null;
+		}
+		if (this._noActionHintGroup && this._noActionHintGroup.exists) {
+			const group = this._noActionHintGroup;
+			this._noActionHintGroup = null;
+
+			this._phaser.add.tween(group).to({ y: group.y - 30 }, tooltipSpeed, tooltipTransition).start();
+			const fadeTween = this._phaser.add
+				.tween(group)
+				.to({ alpha: 0 }, tooltipSpeed, tooltipTransition)
+				.start();
+			fadeTween.onComplete.add(() => group.destroy(true));
+		}
+	}
+
 	clearHints(hintTypes: CreatureHintType[] = ['confirm', 'no_action']) {
 		const tooltipTransition = Phaser.Easing.Linear.None;
+		if (hintTypes.includes('no_action')) {
+			this._noActionHintElements = [];
+			this.destroyNoActionHintGroup();
+			this.setSkipButtonNoActionVisibility(false);
+		}
 
 		this._hintGrp.forEach(
 			(hint: Phaser.Text | Phaser.Sprite) => {
-				if (!hintTypes.includes(hint.data.hintType)) {
+				if (!hint.data || typeof hint.data.hintType !== 'string') {
+					return;
+				}
+
+				const isNoAction = this.isNoActionHintType(hint.data.hintType);
+				if (!hintTypes.includes(hint.data.hintType) && !(isNoAction && hintTypes.includes('no_action'))) {
 					return;
 				}
 
 				hint.data.hintType = 'confirm_deleted';
+				if (hint.data.tweenBounce) {
+					hint.data.tweenBounce.stop();
+					hint.data.tweenBounce = null;
+				}
 				if (hint.data.tweenAlpha) {
 					hint.data.tweenAlpha.stop();
 				}
