@@ -1204,7 +1204,7 @@ export class HexGrid {
 					hex.displayVisualState('creature player' + hex.creature.team);
 				}
 			} else if (game.activeCreature.noActionPossible) {
-				$j('canvas').css('cursor', 'pointer');
+				$j('canvas').css('cursor', 'progress');
 			}
 			queueEffect(creature.id);
 		};
@@ -1259,7 +1259,11 @@ export class HexGrid {
 					}
 				} else {
 					// If nothing
-					o.fnOnCancel(hex, o.args); // ON CANCEL
+					if (game.activeCreature.noActionPossible) {
+						game.skipTurn();
+					} else {
+						o.fnOnCancel(hex, o.args); // ON CANCEL
+					}
 				}
 			} else {
 				// Reachable hex
@@ -1434,7 +1438,7 @@ export class HexGrid {
 				clearPreviewOverlay(this.secondary_overlay, true);
 				hex.overlayVisualState('hover');
 
-				$j('canvas').css('cursor', 'not-allowed');
+				$j('canvas').css('cursor', game.activeCreature.noActionPossible ? 'progress' : 'not-allowed');
 
 				if (o.fnOnHoverOutside) {
 					o.fnOnHoverOutside();
