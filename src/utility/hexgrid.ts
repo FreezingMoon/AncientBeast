@@ -1438,7 +1438,10 @@ export class HexGrid {
 				clearPreviewOverlay(this.secondary_overlay, true);
 				hex.overlayVisualState('hover');
 
-				$j('canvas').css('cursor', game.activeCreature.noActionPossible ? 'progress' : 'not-allowed');
+				$j('canvas').css(
+					'cursor',
+					game.activeCreature.noActionPossible ? 'progress' : 'not-allowed',
+				);
 
 				if (o.fnOnHoverOutside) {
 					o.fnOnHoverOutside();
