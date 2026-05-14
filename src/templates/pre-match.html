@@ -1,0 +1,174 @@
+				<div id="pre-match">
+					<div class="setupFrame">
+						<div class="welcome border-frame">Welcome <span class="user"></span></div>
+						<div class="match-frame border-frame">
+							<div>
+								<div class="announcement-text">Warning: This is early alpha. Drop by <a href="https://discord.gg/MJfMF4R" target="_blank" title="Discord" rel="noopener">Discord</a> if no players online.</div>
+								<div class="buttons-wrapper">
+									<div class="button-wrapper">
+										<input class="crimson-button" id="createMatchButton" type="submit" value="Create Match">
+									</div>
+									<div class="button-wrapper">
+										<input class="crimson-button" id="joinMatchButton" type="submit" value="Join Match">
+									</div>
+								</div>
+							</div>
+						</div>
+						<form id="gameSetup">
+							<div class="game-options border-frame">
+								<div class="gameOption">
+									<h2>Game Mode&nbsp;<span id="gameModeType"></span></h2>
+									<div id="gameMode" class="typeRadio">
+										<input type="radio" id="p2" name="gameMode" value="2" checked>
+										<label for="p2" class="dragIt">1 vs 1</label>
+										<input type="radio" id="p4" name="gameMode" value="4">
+										<label for="p4" class="dragIt">2 vs 2</label>
+									</div>
+								</div>
+									<div class="gameOption">
+										<h2>Match Lobby [ players ]</h2>
+										<div id="playerList">
+											<label class="playerToggle" data-player-index="0">
+												<input type="checkbox" id="player1" name="players" value="0" checked>
+												<span>P1</span>
+											</label>
+											<label class="playerToggle" data-player-index="1">
+												<input type="checkbox" id="player2" name="players" value="1">
+												<span>P2</span>
+											</label>
+											<label class="playerToggle" data-player-index="2">
+												<input type="checkbox" id="player3" name="players" value="2">
+												<span>P3</span>
+											</label>
+											<label class="playerToggle" data-player-index="3">
+												<input type="checkbox" id="player4" name="players" value="3">
+												<span>P4</span>
+											</label>
+										</div>
+									</div>
+								<div class="gameOption">
+									<h2>Plasma Points [ materialization ]</h2>
+									<div id="plasmaPoints" class="typeRadio">
+										<input type="radio" id="plasmaPointsOpt1" name="plasmaPoints" value="20"><label for="plasmaPointsOpt1" class="dragIt">20</label>
+										<input type="radio" id="plasmaPointsOpt2" name="plasmaPoints" value="30" checked><label for="plasmaPointsOpt2" class="dragIt">30</label>
+										<input type="radio" id="plasmaPointsOpt3" name="plasmaPoints" value="40"><label for="plasmaPointsOpt3" class="dragIt">40</label>
+										<input type="radio" id="plasmaPointsOpt4" name="plasmaPoints" value="50"><label for="plasmaPointsOpt4" class="dragIt">50</label>
+										<input type="radio" id="plasmaPointsOpt5" name="plasmaPoints" value="60"><label for="plasmaPointsOpt5" class="dragIt">60</label>
+										<input type="radio" id="plasmaPointsOpt6" name="plasmaPoints" value="70"><label for="plasmaPointsOpt6" class="dragIt">70</label>
+										<input type="radio" id="plasmaPointsOpt7" name="plasmaPoints" value="80"><label for="plasmaPointsOpt7" class="dragIt">80</label>
+										<input type="radio" id="plasmaPointsOpt8" name="plasmaPoints" value="90"><label for="plasmaPointsOpt8" class="dragIt">90</label>
+										<input type="radio" id="plasmaPointsOpt9" name="plasmaPoints" value="100"><label for="plasmaPointsOpt9" class="dragIt">100</label>
+									</div>
+								</div>
+								<div class="gameOption">
+									<h2>Unit Drops</h2>
+									<div id="unitDrops" class="typeRadio">
+										<input type="radio" id="unitDropsOff" name="unitDrops" value="0"><label for="unitDropsOff" class="dragIt">Off</label>
+										<input type="radio" id="unitDropsOn" name="unitDrops" value="1" checked><label for="unitDropsOn" class="dragIt">On</label>
+									</div>
+								</div>
+								<div class="gameOption">
+									<h2>Active Units [ Psyhelm limit ]</h2>
+									<div id="activeUnits" class="typeRadio">
+										<input type="radio" id="activeUnitsOpt1" name="activeUnits" value="1"><label for="activeUnitsOpt1" class="dragIt">1</label>
+										<input type="radio" id="activeUnitsOpt2" name="activeUnits" value="2"><label for="activeUnitsOpt2" class="dragIt">2</label>
+										<input type="radio" id="activeUnitsOpt3" name="activeUnits" value="3" checked><label for="activeUnitsOpt3" class="dragIt">3</label>
+										<input type="radio" id="activeUnitsOpt4" name="activeUnits" value="4"><label for="activeUnitsOpt4" class="dragIt">4</label>
+										<input type="radio" id="activeUnitsOpt5" name="activeUnits" value="5"><label for="activeUnitsOpt5" class="dragIt">5</label>
+										<input type="radio" id="activeUnitsOpt6" name="activeUnits" value="6"><label for="activeUnitsOpt6" class="dragIt">6</label>
+										<input type="radio" id="activeUnitsOpt7" name="activeUnits" value="7"><label for="activeUnitsOpt7" class="dragIt">7</label>
+									</div>
+								</div>
+								<div class="gameOption">
+									<h2>Ability Upgrades [ uses ]</h2>
+									<div id="abilityUpgrades" class="typeRadio">
+										<input type="radio" id="abilityUpgrade1" name="abilityUpgrades" value="-1"><label for="abilityUpgrade1" class="dragIt">Off</label>
+										<input type="radio" id="abilityUpgrade2" name="abilityUpgrades" value="5"><label for="abilityUpgrade2" class="dragIt">5</label>
+										<input type="radio" id="abilityUpgrade3" name="abilityUpgrades" value="4"><label for="abilityUpgrade3" class="dragIt">4</label>
+										<input type="radio" id="abilityUpgrade4" name="abilityUpgrades" value="3" checked><label for="abilityUpgrade4" class="dragIt">3</label>
+										<input type="radio" id="abilityUpgrade5" name="abilityUpgrades" value="2"><label for="abilityUpgrade5" class="dragIt">2</label>
+										<input type="radio" id="abilityUpgrade6" name="abilityUpgrades" value="1"><label for="abilityUpgrade6" class="dragIt">1</label>
+										<input type="radio" id="abilityUpgrade7" name="abilityUpgrades" value="0"><label for="abilityUpgrade7" class="dragIt">On</label>
+									</div>
+								</div>
+								<div class="gameOption">
+									<h2>Turn Time [ seconds ]</h2>
+									<div id="turnTime" class="typeRadio">
+										<input type="radio" id="turnTimeOpt1" name="turnTime" value="20"><label for="turnTimeOpt1" class="dragIt">20</label>
+										<input type="radio" id="turnTimeOpt2" name="turnTime" value="40"><label for="turnTimeOpt2" class="dragIt">40</label>
+										<input type="radio" id="turnTimeOpt3" name="turnTime" value="60"><label for="turnTimeOpt3" class="dragIt">60</label>
+										<input type="radio" id="turnTimeOpt4" name="turnTime" value="80"><label for="turnTimeOpt4" class="dragIt">80</label>
+										<input type="radio" id="turnTimeOpt5" name="turnTime" value="99"><label for="turnTimeOpt5" class="dragIt">99</label>
+										<input type="radio" id="turnTimeOpt6" name="turnTime" value="-1" checked><label for="turnTimeOpt6" class="dragIt">&#8734;</label>
+									</div>
+								</div>
+								<div class="gameOption">
+									<h2>Time Pools [ minutes ]</h2>
+									<div id="timePool" class="typeRadio">
+										<!-- <input type="radio" id="timePoolOpt0" name="timePool" value="1" ><label for="timePoolOpt0">1 min</label> -->
+										<input type="radio" id="timePoolOpt1" name="timePool" value="15"><label for="timePoolOpt1" class="dragIt">15</label>
+										<input type="radio" id="timePoolOpt2" name="timePool" value="20"><label for="timePoolOpt2" class="dragIt">20</label>
+										<input type="radio" id="timePoolOpt3" name="timePool" value="25"><label for="timePoolOpt3" class="dragIt">25</label>
+										<input type="radio" id="timePoolOpt4" name="timePool" value="30"><label for="timePoolOpt4" class="dragIt">30</label>
+										<input type="radio" id="timePoolOpt5" name="timePool" value="-1" checked><label for="timePoolOpt5" class="dragIt">&#8734;</label>
+									</div>
+								</div>
+								<div class="gameOption">
+									<h2>Combat Location [ no influence to the actual gameplay ]</h2>
+									<div id="combatLocation" class="typeRadio">
+									</div>
+								</div>
+							</div>
+							<div class="button-wrapper" id="start-btn">
+								<span class="blink">PRESS </span>
+								<input class="crimson-button" id="startButton" type="submit" value="START">
+								<input class="crimson-button" id="startMatchButton" type="submit" value="Create Match">
+								<span class="blink"> BUTTON</span>
+							</div>
+							<div id="start"><button type="submit"></button><span>Start</span></div>
+						</form>
+					</div>
+					<div class="loginregFrame">
+						<div class="multiplayer-announcement">
+							<h3>Multiplayer Status</h3>
+							<p>
+								<a href="https://github.com/FreezingMoon/AncientBeast/issues/2632" target="_blank" rel="noopener">
+									https://github.com/FreezingMoon/AncientBeast/issues/2632
+								</a>
+							</p>
+							<p class="announcement-text">ETA: v0.6</p>
+						</div>
+					</div>
+					<div class="lobby">
+						<h2>Open Matches (click to join)</h2>
+						<div class="lobby-match-list"></div>
+						<div class="lobby-no-matches">No matches available.</div>
+						<div class="lobby-loader hide">
+							<img src="data:," width="32" height="32" />
+						</div>
+						<div class="buttons-wrapper">
+							<div class="button-wrapper">
+								<input class="crimson-button" id="backFromMatchButton" type="button" value="Back">
+							</div>
+							<div class="button-wrapper">
+								<input class="crimson-button" id="refreshMatchButton" type="button" value="Refresh">
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="fullscreen">
+					<div></div>
+					<span class="fullscreen__title">Fullscreen</span>
+				</div>
+				<div id="multiplayer">
+					<a href="#" title="Play online versus others">
+						<div></div>
+						<span class="multiplayer__title">Multiplayer</span>
+					</a>
+				</div>
+				<div id="singleplayer">
+					<a href="#" title="Play offline in hotseat mode">
+						<div></div>
+						<span class="singleplayer__title">Singleplayer</span>
+					</a>
+				</div>

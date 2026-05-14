@@ -1,0 +1,237 @@
+			<div id="unit-hover-panel"></div>
+			<div id="bottompanel">
+				<div id="queue">
+					<div id="queuewrapper"></div>
+				</div>
+
+
+
+				<div id="rightpanel">
+					<div class="panel-control score-control" style="position:relative">
+					<div id="playerbutton" class="quickinfowrapper togglescore vignette active frame button">
+						<div class="frame"></div>
+						<div id="playerinfo">
+							<p class="name"></p>
+							<p class="points"><span></span> Points</p>
+							<p class="plasma"><span></span> Plasma</p>
+							<p class="units"><span></span> Units</p>
+							<p><span class="activePlayer turntime">&#8734;</span> / <span class="timepool">&#8734;</span></p>
+						</div>
+					</div>
+					<div class="desc">
+						<div class="arrow"></div>
+						<div class="shortcut">hotkey T</div>
+						<span>Show Score</span>
+						<p>Visualize various stats related to how you've matched up against your foes.</p>
+					</div>
+				</div>
+
+					<div class="panel-control audio-control" style="position:relative">
+						<div id="audio" class="toggle-music-player button">
+							<img id="audio-icon" src="data:," alt="audio icon" width="32" height="32" />
+							<div class="tooltiptext" id="audio-tooltip">Audio: Full</div>
+						</div>
+												<div class="desc">
+							<div class="arrow"></div>
+							<div class="shortcut">hotkey Shift + A</div>
+							<span>Audio Player</span>
+							<p>Listen to some really fine epic tracks.</p>
+						</div>
+					</div>
+					<div class="panel-control skip-control" style="position:relative">
+						<div id="skip" class="button"></div>
+						<div class="desc">
+							<div class="arrow"></div>
+							<div class="shortcut">hotkey S</div>
+							<span>Skip Turn</span>
+							<p>End the turn of the current creature and proceed with the next in queue.</p>
+						</div>
+					</div>
+					<div class="panel-control delay-control" style="position:relative">
+						<div id="delay" class="button"></div>
+						<div class="desc">
+							<div class="arrow"></div>
+							<div class="shortcut">hotkey D</div>
+							<span>Delay Unit</span>
+							<p>Delayed creatures will act at the end of the round, if alive and still able to.</p>
+						</div>
+					</div>
+					<div class="panel-control fullscreen-control" style="position:relative" >
+						<div id="fullscreen" class="button slideIn" >
+							<div></div>
+						</div>
+						<div class="desc">
+							<div class="arrow"></div>
+							<div class="shortcut">hotkey Shift + F</div>
+							<span>Fullscreen</span>
+							<p>Toggle fullscreen mode as you wish.</p>
+						</div>
+
+						<!-- Will be moved to another part of the ui -->
+						<!-- <div id="flee" class="button"></div>
+						<div class="desc">
+							<div class="arrow"></div>
+							<div class="shortcut">hotkey F</div>
+							<span>Flee Match</span>
+							<p>Give up but only after first 12 rounds.</p>
+						</div> -->
+					</div>
+
+					<div class="progressbar">
+						<div class="bar poolbar"></div>
+						<div class="bar timebar"></div>
+					</div>
+				</div>
+				<div id="leftpanel" class="offscreen">
+					<div id="activebox">
+						<div id="abilities">
+							<div class="ability-slot passive-slot" style="position:relative">
+								<div ability="0" class="ability button" style="cursor: default;"></div>
+								<div ability="0" class="desc">
+									<div class="arrow"></div>
+									<div class="abilityinfo_content">
+										<div class="shortcut">passive ability</div>
+										<span class="title"></span>
+										<p class="description"></p>
+										<p class="full-info"></p>
+									</div>
+								</div>
+							</div>
+							<div class="ability-slot active-slot" style="position:relative">
+								<div ability="1" class="ability button"></div>
+								<div ability="1" class="desc">
+									<div class="arrow"></div>
+									<div class="abilityinfo_content">
+										<div class="shortcut">hotkey W</div>
+										<span class="title"></span>
+										<p class="description"></p>
+										<p class="full-info"></p>
+									</div>
+								</div>
+							</div>
+							<div class="ability-slot active-slot" style="position:relative">
+								<div ability="2" class="ability button"></div>
+								<div ability="2" class="desc">
+									<div class="arrow"></div>
+									<div class="abilityinfo_content">
+										<div class="shortcut">hotkey E</div>
+										<span class="title"></span>
+										<p class="description"></p>
+										<p class="full-info"></p>
+									</div>
+								</div>
+							</div>
+							<div class="ability-slot active-slot" style="position:relative">
+								<div ability="3" class="ability button"></div>
+								<div ability="3" class="desc">
+									<div class="arrow"></div>
+									<div class="abilityinfo_content">
+										<div class="shortcut">hotkey R</div>
+										<span class="title"></span>
+										<p class="description"></p>
+										<p class="full-info"></p>
+									</div>
+								</div>
+							</div>
+							<div class="progressbar">
+								<div class="bar energybar"></div>
+								<div class="bar healthbar"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id="chat">
+				<div id="chatbox">
+					<div id="chatcontent">
+					</div>
+				</div>
+				<textarea id="chatinput"></textarea>
+				<div id="chatexpanded" class="chat-expanded-content"></div>
+			</div>
+			<div id="meta-powers" class="framed-modal__wrapper hide">
+				<div class="framed-modal framed-modal--fluid">
+					<div class="framed-modal__return">
+						<button class="toggle-meta-powers close-button"></button>
+					</div>
+
+					<div class="meta-powers-header">
+						<h2>Toggled Powers</h2>
+						<button id="reset-toggled-powers" title="Click to reset selection">
+							Reset Toggled Powers
+						</button>
+					</div>
+
+					<div class="meta-powers-actions">
+						<div style="position: relative;">
+							<div
+								id="execute-monster-button"
+								class="button"
+							>
+								Execution Mode
+							</div>
+
+							<div class="desc">
+								<div class="arrow"></div>
+								<span>Execution Mode</span>
+								<p>When activated, clicking a creature will immediately kill it.</p>
+							</div>
+						</div>
+
+						<div style="position: relative;">
+							<div
+								id="disable-materialization-sickness-button"
+								class="button"
+							>
+								Disable Materialization Sickness
+							</div>
+
+							<div class="desc">
+								<div class="arrow"></div>
+								<span>Disable Materialization Sickness</span>
+								<p>
+									When activated, summoned creatures will not suffer from Materialization
+									Sickness on their first turn.
+								</p>
+							</div>
+						</div>
+
+						<div style="position: relative;">
+							<div
+								id="reset-cooldowns-button"
+								class="button"
+							>
+								Disable Cooldowns
+							</div>
+
+							<div class="desc">
+								<div class="arrow"></div>
+								<span>Disable Cooldowns</span>
+								<p>
+									Disable ability cooldowns for all units, including the Dark Priest, allowing
+									them to be used multiple times in a single round.
+								</p>
+							</div>
+						</div>
+
+						<div style="position: relative;">
+							<div
+								id="infinite-energy-button"
+								class="button"
+							>
+								Infinite Energy
+							</div>
+
+							<div class="desc">
+								<div class="arrow"></div>
+								<span>Infinite Energy</span>
+								<p>
+									The active unit's energy is fully restored after each ability use,
+									allowing abilities to be used regardless of their energy cost.
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id="meta-powers-list"></div>
