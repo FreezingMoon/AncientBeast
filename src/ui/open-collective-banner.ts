@@ -59,8 +59,7 @@ export class OpenCollectiveBanner {
 		this.scrollOffsetPx = 0;
 		this.lastMarqueeTickTs = null;
 		this.loopWidthPx = 0;
-		this.memberPitchPx =
-			OpenCollectiveBanner.MEMBER_SIZE_PX + OpenCollectiveBanner.MEMBER_GAP_PX;
+		this.memberPitchPx = OpenCollectiveBanner.MEMBER_SIZE_PX + OpenCollectiveBanner.MEMBER_GAP_PX;
 	}
 
 	init() {
@@ -206,8 +205,7 @@ export class OpenCollectiveBanner {
 			}
 
 			this.scrollOffsetPx =
-				(this.scrollOffsetPx +
-					(deltaMs / 1000) * OpenCollectiveBanner.SPEED_PX_PER_SECOND) %
+				(this.scrollOffsetPx + (deltaMs / 1000) * OpenCollectiveBanner.SPEED_PX_PER_SECOND) %
 				this.loopWidthPx;
 			this.applyMarqueeOffset();
 		}, 16);
@@ -469,7 +467,7 @@ export class OpenCollectiveBanner {
 		$inner.append($pill, $ctaWrapper);
 		this.$banner.empty().append($inner).attr('data-oc-view', 'contributors');
 		this.$track = $track;
-		this.$members = $track.children('.opencollective_member') as JQuery<HTMLElement>;
+		this.$members = $track.children('.opencollective_member');
 		this.applyMarqueeOffset();
 
 		if (this.isViewOpen()) {

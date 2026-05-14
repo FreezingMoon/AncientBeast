@@ -1555,7 +1555,6 @@ export class UI {
 			$j('#materialize_button p').text(game.msg.ui.dash.heavyDev);
 			$j('#materialize_button').show();
 			$j('#card .sideA').addClass('disabled').off('click');
-
 		}
 	}
 
@@ -2156,7 +2155,6 @@ export class UI {
 		} else {
 			this.showCreature(game.activeCreature.type, game.activeCreature.team, '');
 		}
-
 	}
 
 	closeDash() {
