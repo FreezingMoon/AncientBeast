@@ -22,6 +22,7 @@ import { CreatureType } from '../data/types';
 import { getAvatarSet } from '../style/avatar-styles';
 import { applyBuffDebuffStyle } from './buffs-debuffs';
 import { getSummonCandidates } from '../utility/summon-candidates';
+import { OpenCollectiveBanner } from './open-collective-banner';
 
 type Config = {
 	isAcceptingInput: () => boolean;
@@ -105,6 +106,9 @@ export class UI {
 	lastTurnWarningPlayerId: number | null;
 	infiniteTurnBarInitialized: boolean;
 	infinitePoolBarInitialized: boolean;
+	dashOpenCollectiveBanner: OpenCollectiveBanner;
+	scoreboardOpenCollectiveBanner: OpenCollectiveBanner;
+	musicPlayerOpenCollectiveBanner: OpenCollectiveBanner;
 	selectedCreatureObj: Creature | undefined;
 	activeAbility: boolean;
 	hoveredAbilityIndex: number;
@@ -133,6 +137,30 @@ export class UI {
 
 		this.queue = UI.#getQueue(this, document.getElementById('queuewrapper'));
 		this.quickInfo = UI.#getQuickInfo(this, document.querySelector('div.quickinfowrapper'));
+		this.dashOpenCollectiveBanner = new OpenCollectiveBanner({
+			bannerSelector: '#opencollective_banner',
+			onCloseView: () => {
+				this.closeDash();
+			},
+			isViewOpen: () => this.dashopen,
+		});
+		this.scoreboardOpenCollectiveBanner = new OpenCollectiveBanner({
+			bannerSelector: '#opencollective_banner_scoreboard',
+			onCloseView: () => {
+				this.closeScoreboard();
+			},
+			isViewOpen: () => !this.$scoreboard.hasClass('hide'),
+		});
+		this.musicPlayerOpenCollectiveBanner = new OpenCollectiveBanner({
+			bannerSelector: '#opencollective_banner_musicplayer',
+			onCloseView: () => {
+				this.closeMusicPlayer();
+			},
+			isViewOpen: () => !$j('#musicplayerwrapper').hasClass('hide'),
+		});
+		this.dashOpenCollectiveBanner.init();
+		this.scoreboardOpenCollectiveBanner.init();
+		this.musicPlayerOpenCollectiveBanner.init();
 
 		// Last clicked creature in Godlet Printer for the current turn
 		this.lastViewedCreature = '';
@@ -704,10 +732,20 @@ export class UI {
 					break;
 				case 3:
 					// Right mouse button pressed
+					e.preventDefault();
+					e.stopPropagation();
 					if (this.dashopen) {
 						this.closeDash();
 					}
 					break;
+			}
+		});
+
+		$j('#dash').on('contextmenu', (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			if (this.dashopen) {
+				this.closeDash();
 			}
 		});
 
@@ -1115,7 +1153,9 @@ export class UI {
 			return getUrlWithFallback('units/artwork/' + name, 'units/artwork/Dark Priest');
 		};
 
-		if (!this.dashopen) {
+		const wasDashClosed = !this.dashopen;
+
+		if (wasDashClosed) {
 			this.$dash.show().css('opacity', 0);
 			this.$dash.transition(
 				{
@@ -1123,6 +1163,9 @@ export class UI {
 				},
 				this.dashAnimSpeed,
 				'linear',
+				() => {
+					this.dashOpenCollectiveBanner.onViewOpen();
+				},
 			);
 		}
 
@@ -1513,14 +1556,6 @@ export class UI {
 			$j('#materialize_button').show();
 			$j('#card .sideA').addClass('disabled').off('click');
 
-			// OpenCollective Banner
-			const bannerTitles = ['sponsor', 'backer', 'helper'];
-			$j('#opencollective_banner > object').attr(
-				'data',
-				`https://opencollective.com/ancientbeast/tiers/${
-					bannerTitles[Math.floor(Math.random() * bannerTitles.length)]
-				}.svg?avatarHeight=61&width=800&limit=10`,
-			);
 		}
 	}
 
@@ -1661,10 +1696,19 @@ export class UI {
 	}
 
 	toggleMusicPlayer() {
-		$j('#musicplayerwrapper').toggleClass('hide');
+		const $musicPlayerWrapper = $j('#musicplayerwrapper');
+		$musicPlayerWrapper.toggleClass('hide');
+
+		if ($musicPlayerWrapper.hasClass('hide')) {
+			this.musicPlayerOpenCollectiveBanner.onViewClose();
+			return;
+		}
+
+		this.musicPlayerOpenCollectiveBanner.onViewOpen();
 	}
 
 	closeMusicPlayer() {
+		this.musicPlayerOpenCollectiveBanner.onViewClose();
 		$j('#musicplayerwrapper').addClass('hide');
 	}
 
@@ -1986,6 +2030,7 @@ export class UI {
 
 		// Finally, show the scoreboard
 		this.$scoreboard.removeClass('hide');
+		this.scoreboardOpenCollectiveBanner.onViewOpen();
 	}
 
 	refreshScoreboard() {
@@ -2075,6 +2120,7 @@ export class UI {
 	}
 
 	closeScoreboard() {
+		this.scoreboardOpenCollectiveBanner.onViewClose();
 		this.$scoreboard.off('click', this.easyScoreClose);
 		this.scoreboardGameOver = false;
 		this.$scoreboard.addClass('hide');
@@ -2110,10 +2156,12 @@ export class UI {
 		} else {
 			this.showCreature(game.activeCreature.type, game.activeCreature.team, '');
 		}
+
 	}
 
 	closeDash() {
 		const game = this.game;
+		this.dashOpenCollectiveBanner.onViewClose();
 
 		game.signals.ui.dispatch('onCloseDash');
 

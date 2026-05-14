@@ -950,13 +950,203 @@ div.section.info {
 	animation: glowingtext 750ms infinite alternate;
 }
 
-#opencollective_banner > object {
-	background-color: rgba(0, 0, 0, 0.7);
+.opencollective_banner_slot {
+	height: 85px;
+	overflow: visible;
+}
+
+.opencollective_banner_slot--dash {
+	width: 860px;
+	max-width: calc(100% - 10px);
+	margin: 0 5px;
+}
+
+.opencollective_banner_slot--fullscreen {
+	position: relative;
+	left: auto;
+	bottom: auto;
+	transform: none;
+	width: 100%;
+	height: auto;
+	margin: 10px auto 0;
+	z-index: 2;
+}
+
+#opencollective_banner_scoreboard {
+	display: block;
+	clear: both;
+	width: 100%;
+	max-width: none;
+	margin: 16px auto 0;
+}
+
+#opencollective_banner_musicplayer {
+	width: 450px;
+	max-width: calc(100% - 16px);
+	margin: 12px auto 0;
+}
+
+#opencollective_banner_scoreboard .opencollective_inner,
+#opencollective_banner_musicplayer .opencollective_inner {
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-start;
+	gap: 8px;
+	height: auto;
+}
+
+#opencollective_banner_scoreboard .opencollective_pill,
+#opencollective_banner_musicplayer .opencollective_pill {
+	width: 100%;
+	height: 85px;
+	flex: 0 0 auto;
+}
+
+#opencollective_banner_scoreboard .opencollective_cta_wrapper,
+#opencollective_banner_musicplayer .opencollective_cta_wrapper {
+	width: 245px;
+	height: 85px;
+	flex: 0 0 auto;
+	padding: 0;
+}
+
+#opencollective_banner_scoreboard[data-oc-view='cta-only'],
+#opencollective_banner_musicplayer[data-oc-view='cta-only'] {
+	height: 85px;
+}
+
+.opencollective_banner_slot .opencollective_inner {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	height: 100%;
+	padding: 0;
+}
+
+.opencollective_banner_slot .opencollective_pill {
+	flex: 1 1 auto;
+	height: 100%;
+	box-sizing: border-box;
+	background-color: rgba(0, 0, 0, 0.68);
 	border: 4px ridge;
 	border-color: grey;
-	border-radius: 35px;
-	width: 800px;
-	height: 70px;
+	border-radius: 999px;
+	overflow: hidden;
+}
+
+.opencollective_banner_slot .opencollective_track {
+	width: 100%;
+	overflow: hidden;
+	height: 100%;
+	padding-left: 8px;
+	position: relative;
+}
+
+.opencollective_banner_slot .opencollective_member {
+	display: block;
+	position: absolute;
+	left: 0;
+	top: 50%;
+	box-sizing: border-box;
+	width: 68px;
+	height: 68px;
+	border-radius: 50%;
+	overflow: hidden;
+	border: 2px solid rgba(255, 255, 255, 0.2);
+	flex-shrink: 0;
+	opacity: 0.95;
+}
+
+.opencollective_banner_slot .opencollective_member img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	border-radius: 50%;
+}
+
+.opencollective_banner_slot .opencollective_member:hover {
+	opacity: 1;
+	border-color: rgba(255, 255, 255, 0.7);
+}
+
+#opencollective_banner_tooltip {
+	display: none;
+	background-color: rgba(0, 0, 0, 0.65);
+	backdrop-filter: blur(3px);
+	-webkit-backdrop-filter: blur(3px);
+	color: #fff;
+	text-align: center;
+	border-radius: 10px;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	padding: 5px 8px;
+	position: fixed;
+	white-space: nowrap;
+	left: 0;
+	top: 0;
+	transform: translateX(-50%);
+	z-index: 1002;
+	pointer-events: none;
+}
+
+#opencollective_banner_tooltip.active {
+	display: block;
+	animation: opencollectiveTooltipReveal 220ms ease-out forwards;
+}
+
+@keyframes opencollectiveTooltipReveal {
+	0% {
+		opacity: 0;
+		transform: translate(-50%, -45%);
+	}
+	100% {
+		opacity: 1;
+		transform: translate(-50%, 0);
+	}
+}
+
+.opencollective_banner_slot .opencollective_cta_wrapper {
+	flex: 0 0 245px;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+}
+
+.opencollective_banner_slot[data-oc-view='cta-only'] .opencollective_inner {
+	justify-content: center;
+}
+
+.opencollective_banner_slot[data-oc-view='cta-only'] .opencollective_cta_wrapper {
+	flex: 0 0 300px;
+}
+
+.opencollective_banner_slot .opencollective_cta {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+	border-radius: 999px;
+	background-color: transparent;
+	background-image: url('~assets/interface/small_button.png');
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+	border: 0;
+	color: #fff;
+	text-decoration: none;
+	font-size: 18px;
+	font-weight: bold;
+	white-space: nowrap;
+	text-shadow: 2px 2px black;
+}
+
+.opencollective_banner_slot .opencollective_cta:hover {
+	filter: brightness(135%);
+}
+
+#musicplayerwrapper .opencollective_banner_slot .opencollective_cta {
+	color: #fff;
 }
 
 .buff {
@@ -2995,11 +3185,14 @@ input {
 	text-align: center !important;
 }
 
-/* scoreboard-content shrinks to fit its widest child (the table),
-   then margin:auto centers that intrinsic-width box */
+/* Keep scoreboard content full-width so OC panel can match it cleanly. */
 #scoreboard .scoreboard-inner--scores .scoreboard-content {
-	display: block;
-	width: fit-content;
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	row-gap: 16px;
+	width: 100%;
+	max-width: none;
 	margin: 0 auto;
 	transform: none;
 }
@@ -3043,8 +3236,15 @@ input {
 	display: flex !important;
 	justify-content: center !important;
 	gap: 24px;
-	padding-bottom: 64px !important;
+	padding-bottom: 0 !important;
 	margin-top: 8px !important;
+}
+
+#scoreboard #opencollective_banner_scoreboard {
+	width: 100% !important;
+	max-width: none !important;
+	margin: 0 !important;
+	position: static !important;
 }
 
 #scoreboard .scoreboardActions #fleeWrapper,
