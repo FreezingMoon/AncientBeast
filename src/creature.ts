@@ -552,22 +552,27 @@ export class Creature {
 					this.updateHex();
 					this.facePlayerDefault();
 
-					// Reset angle + position left by the death animation, then fade back in
+					// Revive with rise animation (inverse of melt)
 					const reviveFadeMs = 1000;
 					this.creatureSprite.setAngle(0, 0);
 					this.creatureSprite.setHex(brbState.gooTrap.hex, 0);
 
-					// Fade trap out while Gumble fades back in
+					// Fade trap out while Gumble rises back in
 					brbState.gooTrap.hide(reviveFadeMs);
 					setTimeout(() => brbState.gooTrap.destroy(), reviveFadeMs);
-					this.creatureSprite.setAlpha(1, reviveFadeMs);
 					this.healthShow();
 					this.updateHealth();
 
+					game.animations.rise(this, {
+						callback: () => {
+							game.updateQueueDisplay();
+							game.grid.updateDisplay();
+						},
+						overrideSpeed: reviveFadeMs,
+					});
+
 					game.log('%CreatureName' + this.id + '% rises from the goo!');
 					this.hint('Back!', 'msg_effects');
-					game.updateQueueDisplay();
-					game.grid.updateDisplay();
 
 					setTimeout(() => {
 						game.startTimer();
@@ -1746,7 +1751,7 @@ export class Creature {
 			// and pathfinding/queue-display sees the correct state.
 			this.cleanHex();
 
-			// Play full death animation — Gumble appears to die but the trap will
+			// Play melt animation — Gumble appears to die but the trap will
 			// resurrect him. No score, no 'is dead' log. Queue avatar shows BRB.
 			const brbAnimOpts = {
 				callback: () => {
@@ -1755,7 +1760,7 @@ export class Creature {
 				},
 				flipped: killerCreature instanceof Creature ? this.pos.x - killerCreature.pos.x < 0 : false,
 			};
-			game.animations.death(this, brbAnimOpts);
+			game.animations.melt(this, brbAnimOpts);
 			game.log('%CreatureName' + this.id + '% will be right back...');
 			game.updateQueueDisplay();
 			game.grid.updateDisplay();
@@ -1872,6 +1877,8 @@ export class Creature {
 		const customDeathAnimation = (this as CreatureRuntimeFlags).deathAnimationType;
 		if (customDeathAnimation === 'shatterDown') {
 			game.animations.shatterDown(this, opts);
+		} else if (customDeathAnimation === 'melt') {
+			game.animations.melt(this, opts);
 		} else {
 			game.animations.death(this, opts);
 		}
@@ -2573,9 +2580,7 @@ class CreatureSprite {
 	}
 
 	private isNoActionHintType(hintType: string): boolean {
-		return (
-			hintType === 'no_action' || hintType === 'no_action_bg' || hintType === 'no_action_icon'
-		);
+		return hintType === 'no_action' || hintType === 'no_action_bg' || hintType === 'no_action_icon';
 	}
 
 	private setSkipButtonNoActionVisibility(hidden: boolean) {
@@ -2912,10 +2917,7 @@ class CreatureSprite {
 		// Animation length reduced from 250 to 100 to prevent animation overlap
 		this._hintGrp.forEach(
 			(hint: Phaser.Text | Phaser.Sprite) => {
-				if (
-					hint.data.hintType === 'confirm' ||
-					this.isNoActionHintType(hint.data.hintType)
-				) {
+				if (hint.data.hintType === 'confirm' || this.isNoActionHintType(hint.data.hintType)) {
 					if (hint.data.tweenBounce) {
 						hint.data.tweenBounce.stop();
 						hint.data.tweenBounce = null;
@@ -3135,7 +3137,10 @@ class CreatureSprite {
 			const group = this._noActionHintGroup;
 			this._noActionHintGroup = null;
 
-			this._phaser.add.tween(group).to({ y: group.y - 30 }, tooltipSpeed, tooltipTransition).start();
+			this._phaser.add
+				.tween(group)
+				.to({ y: group.y - 30 }, tooltipSpeed, tooltipTransition)
+				.start();
 			const fadeTween = this._phaser.add
 				.tween(group)
 				.to({ alpha: 0 }, tooltipSpeed, tooltipTransition)
@@ -3158,7 +3163,10 @@ class CreatureSprite {
 				}
 
 				const isNoAction = this.isNoActionHintType(hint.data.hintType);
-				if (!hintTypes.includes(hint.data.hintType) && !(isNoAction && hintTypes.includes('no_action'))) {
+				if (
+					!hintTypes.includes(hint.data.hintType) &&
+					!(isNoAction && hintTypes.includes('no_action'))
+				) {
 					return;
 				}
 

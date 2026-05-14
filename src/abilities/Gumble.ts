@@ -9,6 +9,10 @@ import Game from '../game';
 import { Hex } from '../utility/hex';
 import { Trap } from '../utility/trap';
 
+type GumbleRuntimeFlags = {
+	deathAnimationType?: string;
+};
+
 const PRETTY_RIBBON_HEAL = 20;
 const PRETTY_RIBBON_BUFF = 2;
 const PRETTY_RIBBON_DEBUFF = -2;
@@ -112,9 +116,10 @@ export default (G: Game) => {
 			},
 
 			activate: function (deadCreature: Creature) {
-				const deathHex = G.grid.hexAt(deadCreature.x, deadCreature.y);
-
 				const ability = this;
+				(ability.creature as unknown as GumbleRuntimeFlags).deathAnimationType = 'melt';
+
+				const deathHex = G.grid.hexAt(deadCreature.x, deadCreature.y);
 
 				// Create goo trap at Gumble's death location
 				const createGooTrap = () => {

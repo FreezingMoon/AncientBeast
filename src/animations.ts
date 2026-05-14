@@ -371,6 +371,68 @@ export class Animations {
 		anim();
 	}
 
+	melt(creature: Creature, opts: AnimationOptions) {
+		const speed = !opts.overrideSpeed ? 650 : opts.overrideSpeed;
+		const sprite = creature.sprite;
+		const startScaleX = sprite.scale.x;
+		const startScaleY = sprite.scale.y;
+
+		creature.healthHide();
+		creature.creatureSprite.setAngle(0, 0);
+
+		// Squash and fade the sprite as it melts into the puddle
+		this.game.Phaser.add
+			.tween(sprite.scale)
+			.to(
+				{
+					x: startScaleX * 1.1,
+					y: startScaleY * 0.2,
+				},
+				Math.round(speed * 0.7),
+				Phaser.Easing.Quadratic.In,
+				true,
+			)
+			.start();
+
+		creature.creatureSprite.setAlpha(0, speed).then(() => {
+			opts.callback();
+		});
+	}
+
+	rise(creature: Creature, opts: AnimationOptions) {
+		const speed = !opts.overrideSpeed ? 650 : opts.overrideSpeed;
+		const sprite = creature.sprite;
+		const startScaleX = sprite.scale.x;
+		const startScaleY = sprite.scale.y;
+
+		creature.healthHide();
+		creature.creatureSprite.setAngle(0, 0);
+
+		// Start from squashed position
+		sprite.scale.x = startScaleX * 1.1;
+		sprite.scale.y = startScaleY * 0.2;
+		creature.creatureSprite.setAlpha(0, 0);
+
+		// Unsquash and fade back in as Gumble reshapes himself
+		this.game.Phaser.add
+			.tween(sprite.scale)
+			.to(
+				{
+					x: startScaleX,
+					y: startScaleY,
+				},
+				Math.round(speed * 0.7),
+				Phaser.Easing.Quadratic.Out,
+				true,
+			)
+			.start();
+
+		creature.creatureSprite.setAlpha(1, speed).then(() => {
+			creature.healthShow();
+			opts.callback();
+		});
+	}
+
 	shatterDown(creature: Creature, opts: AnimationOptions) {
 		const speed = !opts.overrideSpeed ? 300 : opts.overrideSpeed;
 		const game = this.game;
