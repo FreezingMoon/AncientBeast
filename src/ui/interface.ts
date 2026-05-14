@@ -1271,9 +1271,14 @@ export class UI {
 			});
 			$j.each(game.abilities[stats.id], (key) => {
 				const $ability = $j('#card .sideB .abilities .ability:eq(' + key + ')');
+				const abilityIndex = Number(key);
+				const isUpgraded = Boolean(
+					this.selectedCreatureObj?.abilities?.[abilityIndex]?.isUpgraded(),
+				);
 				$ability.children('.icon').css({
 					'background-image': `url('${getUrl('units/abilities/' + stats.name + ' ' + key)}')`,
 				});
+				$ability.toggleClass('upgraded', isUpgraded);
 				$ability
 					.children('.wrapper')
 					.children('.info')
@@ -1460,6 +1465,7 @@ export class UI {
 				$ability.children('.icon').css({
 					'background-image': `url('${getUrl('units/abilities/' + stats.name + ' ' + key)}')`,
 				});
+				$ability.removeClass('upgraded');
 				$ability
 					.children('.wrapper')
 					.children('.info')
