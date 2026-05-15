@@ -2616,36 +2616,39 @@ span.pure {
 
 	/*--------------Meta Powers------------------*/
 	#meta-powers {
-		.meta-powers-header {
-			align-items: center;
-			display: flex;
-			margin-bottom: 16px;
+		align-items: flex-start;
+		background: transparent;
+		display: flex;
+		height: auto;
+		justify-content: center;
+		padding-top: 92px;
+		pointer-events: none;
 
-			h2 {
-				margin: 0;
-			}
+		.framed-modal {
+			background-color: rgba(0, 0, 0, 0.55);
+			backdrop-filter: blur(3px);
+			-webkit-backdrop-filter: blur(3px);
+			border: none;
+			border-image: none;
+			border-radius: 9999px;
+			color: white;
+			margin: 0;
+			padding: 8px 12px;
+			pointer-events: auto;
+		}
 
-			button {
-				background: none;
-				background-image: url('~assets/icons/rotate.svg');
-				border: none;
-				height: 16px;
-				margin-left: 16px;
-				margin-top: 4px;
-				text-indent: -9999px;
-				width: 16px;
-				cursor: pointer;
-			}
-
-			#reset-toggle-powers {
-				background-image: url('~assets/icons/rotate.svg');
-			}
+		.framed-modal--fluid {
+			max-width: none;
+			width: auto;
 		}
 
 		.meta-powers-actions {
+			align-items: center;
 			display: flex;
-			gap: 16px;
-			margin-bottom: 40px;
+			flex-wrap: wrap;
+			gap: 0;
+			justify-content: center;
+			margin-bottom: 0;
 
 			.button {
 				text-indent: -9999px;
@@ -2661,35 +2664,89 @@ span.pure {
 
 			#execute-monster-button {
 				background-image: url('~assets/interface/frame.png'), url('~assets/icons/execute.svg');
+				background-position: center, center;
+				background-repeat: no-repeat, no-repeat;
+				background-size: 100% 100%, 100% 100%;
 			}
 
 			#reset-cooldowns-button {
 				background-image: url('~assets/interface/frame.png'), url('~assets/icons/tv-remote.svg');
+				background-position: center, center;
+				background-repeat: no-repeat, no-repeat;
+				background-size: 100% 100%, 100% 100%;
 			}
 
 			#disable-materialization-sickness-button {
 				background-image: url('~assets/interface/frame.png'),
 					url('~assets/icons/miracle-medicine.svg');
+				background-position: center, center;
+				background-repeat: no-repeat, no-repeat;
+				background-size: 100% 100%, 100% 100%;
 			}
 
 			#infinite-energy-button {
 				background-image: url('~assets/interface/frame.png'), url('~assets/icons/battery.svg');
+				background-position: center, center;
+				background-repeat: no-repeat, no-repeat;
+				background-size: 100% 100%, 100% 100%;
+			}
+
+			#reset-toggled-powers {
+				margin-right: 0;
+			}
+
+			#reset-toggled-powers.meta-powers-reset-button {
+				align-items: center;
+				background-image: url('~assets/icons/rotate.svg');
+				background-position: center;
+				background-repeat: no-repeat;
+				background-size: 100% 100%;
+				border: none;
+				display: flex;
+				height: 80px;
+				justify-content: center;
+				line-height: 0;
+				margin-right: 0;
+				padding: 0;
+				text-indent: -9999px;
+				transition: transform 0.5s;
+				width: 80px;
+
+				&:before {
+					display: none;
+				}
+
+				&:hover {
+					transform: rotate(-90deg);
+				}
+			}
+
+			#reset-toggled-powers.meta-powers-reset-button:hover + .desc {
+				visibility: visible;
+				pointer-events: auto;
+			}
+
+			#meta-powers-close-button.meta-powers-close-inline {
+				align-items: center;
+				background-image: url('~assets/icons/close.svg');
+				background-position: center;
+				background-repeat: no-repeat;
+				background-size: 100% 100%;
+				display: flex;
+				flex: 0 0 80px;
+				height: 80px;
+				justify-content: center;
+				line-height: 0;
+				margin-left: 0;
+				text-indent: -9999px;
+				width: 80px;
 			}
 		}
 	}
 }
 
 #meta-powers-list {
-	bottom: 48px;
-	color: white;
-	font-size: 12px;
-	left: 0;
-	pointer-events: none;
-	position: absolute;
-	text-align: center;
-	text-shadow: 1px 1px 0 #333, -1px -1px 0 #333, 1px -1px 0 #333, -1px 1px 0 #333;
-	width: 100%;
-	z-index: 4;
+	display: none;
 }
 
 /*------------------Progress Bars-------------------*/

@@ -151,18 +151,19 @@
 			</div>
 			<div id="meta-powers" class="framed-modal__wrapper hide">
 				<div class="framed-modal framed-modal--fluid">
-					<div class="framed-modal__return">
-						<button class="toggle-meta-powers close-button"></button>
-					</div>
-
-					<div class="meta-powers-header">
-						<h2>Toggled Powers</h2>
-						<button id="reset-toggled-powers" title="Click to reset selection">
-							Reset Toggled Powers
-						</button>
-					</div>
-
 					<div class="meta-powers-actions">
+						<div style="position: relative;">
+							<div id="reset-toggled-powers" class="button meta-powers-reset-button">
+								Reset Toggled Powers
+							</div>
+
+							<div class="desc">
+								<div class="arrow"></div>
+								<span>Reset Toggled Powers</span>
+								<p>Disables all currently toggled meta powers at once.</p>
+							</div>
+						</div>
+
 						<div style="position: relative;">
 							<div
 								id="execute-monster-button"
@@ -231,6 +232,10 @@
 								</p>
 							</div>
 						</div>
+
+						<button id="meta-powers-close-button" class="close-button meta-powers-close-inline">
+							Close Meta Powers
+						</button>
 					</div>
 				</div>
 			</div>

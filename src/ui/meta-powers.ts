@@ -93,7 +93,7 @@ export class MetaPowers {
 	_bindElements() {
 		this.$els = {
 			modal: $j('#meta-powers'),
-			closeModal: $j('#meta-powers .close-button'),
+			closeModal: $j('#meta-powers-close-button'),
 			resetPowersButton: $j('#reset-toggled-powers'),
 			powersList: $j('#meta-powers-list'),
 			executeMonsterButton: $j('#execute-monster-button'),
@@ -105,7 +105,7 @@ export class MetaPowers {
 		this.btnCloseModal = new Button(
 			{
 				$button: this.$els.closeModal,
-				click: () => this._toggleModal(),
+				click: () => this._closeModal(),
 			},
 			{ isAcceptingInput: this.game.isAcceptingInput },
 		);
@@ -213,17 +213,7 @@ export class MetaPowers {
 	 * Display a list of enabled powers outside of the modal for easy reference
 	 */
 	_updateEnabledPowersPreview() {
-		const list = Object.keys(this.toggles)
-			.reduce((acc, curr) => {
-				if (this.toggles[curr].enabled) {
-					return [...acc, this.toggles[curr].label];
-				}
-
-				return acc;
-			}, [])
-			.join(', ');
-
-		this.$els.powersList.html(list.length ? `Enabled Meta Powers: ${list}` : '');
+		this.$els.powersList.html('');
 	}
 
 	/**

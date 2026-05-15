@@ -804,7 +804,7 @@ export class UI {
 					break;
 				case 3:
 					// Right mouse button pressed
-					this.metaPowers._closeModal();
+					this.metaPowers?._closeModal();
 					break;
 			}
 		});
@@ -983,6 +983,10 @@ export class UI {
 		}
 
 		if (message === 'toggleMetaPowers') {
+			if (!this.canToggleMetaPowers()) {
+				return;
+			}
+
 			this.closeDash();
 			this.closeMusicPlayer();
 			this.closeScoreboard();
@@ -993,6 +997,10 @@ export class UI {
 			this.closeMusicPlayer();
 			this.closeScoreboard();
 		}
+	}
+
+	canToggleMetaPowers() {
+		return process.env.NODE_ENV === 'development' && !this.game.multiplayer && !!this.metaPowers;
 	}
 
 	showAbilityCosts(abilityId: number) {
@@ -3223,6 +3231,12 @@ export class UI {
 			ui.game.soundsys.playSFX('sounds/AncientBeast');
 		}, 2000);
 
+		const onTurnEndRightClick = ifGameNotFrozen(() => {
+			if (ui.canToggleMetaPowers()) {
+				ui.game.signals.ui.dispatch('toggleMetaPowers');
+			}
+		});
+
 		const onTurnEndMouseEnter = ifGameNotFrozen(() => {
 			ui.brandlogo.alpha = 0;
 			ui.game.grid.showGrid(true);
@@ -3259,6 +3273,7 @@ export class UI {
 		const SIGNAL_DELAY_MOUSE_ENTER = 'vignettedelaymouseenter';
 		const SIGNAL_DELAY_MOUSE_LEAVE = 'vignettedelaymouseleave';
 		const SIGNAL_TURN_END_CLICK = 'vignetteturnendlick';
+		const SIGNAL_TURN_END_RIGHT_CLICK = 'vignetteturnendrightclick';
 		const SIGNAL_TURN_END_MOUSE_ENTER = 'vignetteturnendmouseenter';
 		const SIGNAL_TURN_END_MOUSE_LEAVE = 'vignetteturnendmouseleave';
 
@@ -3275,6 +3290,9 @@ export class UI {
 					break;
 				case SIGNAL_TURN_END_CLICK:
 					onTurnEndClick();
+					break;
+				case SIGNAL_TURN_END_RIGHT_CLICK:
+					onTurnEndRightClick();
 					break;
 				case SIGNAL_TURN_END_MOUSE_ENTER:
 					onTurnEndMouseEnter(payload.turnNumber);
@@ -3296,6 +3314,8 @@ export class UI {
 			onDelayMouseLeave: () => ui.game.signals.ui.dispatch(SIGNAL_DELAY_MOUSE_LEAVE, {}),
 			onTurnEndClick: (turnNumber: number) =>
 				ui.game.signals.ui.dispatch(SIGNAL_TURN_END_CLICK, { turnNumber }),
+			onTurnEndRightClick: (turnNumber: number) =>
+				ui.game.signals.ui.dispatch(SIGNAL_TURN_END_RIGHT_CLICK, { turnNumber }),
 			onTurnEndMouseEnter: (turnNumber: number) =>
 				ui.game.signals.ui.dispatch(SIGNAL_TURN_END_MOUSE_ENTER, { turnNumber }),
 			onTurnEndMouseLeave: () => ui.game.signals.ui.dispatch(SIGNAL_TURN_END_MOUSE_LEAVE, {}),
