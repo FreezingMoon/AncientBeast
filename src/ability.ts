@@ -230,6 +230,8 @@ export class Ability {
 	}
 
 	handleMetaPowerEvent(message: string, payload: boolean) {
+		const ui = this.game.UI;
+
 		if (message === 'toggleResetCooldowns') {
 			// Prevent ability from going on cooldown.
 			this._disableCooldowns = payload;
@@ -238,7 +240,7 @@ export class Ability {
 			if (this.used && payload === true) {
 				this.reset();
 				// Refresh UI to show ability is available.
-				this.game.UI.selectAbility(-1);
+				ui?.selectAbility(-1);
 			}
 		}
 
@@ -251,7 +253,7 @@ export class Ability {
 				const active = this.game.activeCreature;
 				if (active && active.id === this.creature.id && active.stats.energy > 0) {
 					active.energy = active.stats.energy;
-					this.game.UI.energyBar.animSize(1);
+					ui?.energyBar.animSize(1);
 				}
 			}
 		}
