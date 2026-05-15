@@ -8,6 +8,10 @@ import SnowBunnyStrategy from './bots/Snow-Bunny';
 import DarkPriestStrategy from './bots/Dark-Priest';
 import AbolishedStrategy from './bots/Abolished';
 import GoldenWyrmStrategy from './bots/Golden-Wyrm';
+import GumbleStrategy from './bots/Gumble';
+import VehemothStrategy from './bots/Vehemoth';
+import StomperStrategy from './bots/Stomper';
+import CycloperStrategy from './bots/Cycloper';
 
 /**
  * Optional per-unit behaviour overrides for BotController.
@@ -80,8 +84,12 @@ export interface UnitBotStrategy {
 export const unitStrategies: Partial<Record<string, UnitBotStrategy>> = {
 	'--': DarkPriestStrategy,
 	S1: SnowBunnyStrategy,
+	E3: StomperStrategy,
+	S7: VehemothStrategy,
 	P7: AbolishedStrategy,
 	A7: GoldenWyrmStrategy,
+	P1: GumbleStrategy,
+	W3: CycloperStrategy,
 };
 
 type BotPendingAction =
