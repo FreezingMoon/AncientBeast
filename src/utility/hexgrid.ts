@@ -915,6 +915,9 @@ export class HexGrid {
 			this.suppressNextHoverRefresh = false;
 			return;
 		}
+		if (this.game.botController?.isBotTurn()) {
+			return;
+		}
 		const hex = this.lastMouseHex;
 		if (!hex || this.game.freezedInput || this.isRefreshingHoverState) return;
 		this.cancelDeferredActiveHexDashedClear();
