@@ -507,25 +507,42 @@ export default (G: Game) => {
 					G,
 				);
 
-				const result = target.takeDamage(damage, {
-					ignoreRetaliation: true,
-				});
+				// Animate a sonic wave projectile from Gumble's belly to the target
+				const [tween, sprite] = G.animations.projectile(
+					// @ts-expect-error `this.creature` exists once this file is extended into `ability.ts`
+					this,
+					target,
+					'effects_boom-box',
+					path,
+					args,
+					0,
+					25,
+				);
 
-				if (result.kill) {
-					return;
-				} // if creature die stop here
+				tween.onComplete.add(function () {
+					// @ts-expect-error 'this' refers to the animation object, _not_ the ability
+					this.destroy();
 
-				// Knockback the target 1 hex
-				if (canKnockBack) {
-					target.moveTo(dir[1], {
-						ignoreMovementPoint: true,
-						ignorePath: true,
-						callback: function () {
-							G.activeCreature.queryMove();
-						},
-						animation: 'push',
+					const result = target.takeDamage(damage, {
+						ignoreRetaliation: true,
 					});
-				}
+
+					if (result.kill) {
+						return;
+					} // if creature die stop here
+
+					// Knockback the target 1 hex
+					if (canKnockBack) {
+						target.moveTo(dir[1], {
+							ignoreMovementPoint: true,
+							ignorePath: true,
+							callback: function () {
+								G.activeCreature.queryMove();
+							},
+							animation: 'push',
+						});
+					}
+				}, sprite);
 			},
 		},
 	];
