@@ -215,6 +215,12 @@ export class Hex {
 					game.activeCreature.highlightCurrentHexesAsDashed();
 				}
 
+				// Set cursor to progress when hovering active creature with no ability selected
+				const creature = game.grid.getCreaturesAt(this.x, this.y)[0];
+				if (creature && creature === game.activeCreature && game.UI.selectedAbility === -1) {
+					$j('body').css('cursor', 'progress');
+				}
+
 				game.signals.hex.dispatch('over', { hex: this });
 				grid.selectedHex = this;
 				this.onSelectFn(this);
@@ -247,6 +253,9 @@ export class Hex {
 				if (this.reachable && game.activeCreature) {
 					grid.scheduleDeferredActiveHexDashedClear();
 				}
+
+				// Reset cursor to default when leaving active creature
+				$j('body').css('cursor', 'default');
 
 				game.signals.hex.dispatch('out', { hex: this });
 				if (this.creature instanceof Creature) {
