@@ -169,11 +169,7 @@ function scoreGummyMallet(hex: Hex, activeCreature: Creature, controller: BotCon
 	return score;
 }
 
-function scorePrettyRibbon(
-	hex: Hex,
-	activeCreature: Creature,
-	controller: BotController,
-): number {
+function scorePrettyRibbon(hex: Hex, activeCreature: Creature, controller: BotController): number {
 	const target = hex.creature;
 	if (!(target instanceof Creature)) {
 		return Number.NEGATIVE_INFINITY;
@@ -256,12 +252,8 @@ function scoreBoomBox(hex: Hex, activeCreature: Creature, controller: BotControl
 
 	const targetStrategy = unitStrategies[target.type as string];
 	score +=
-		targetStrategy?.getTargetingPenalty?.(
-			activeCreature,
-			target,
-			ABILITY.BOOM_BOX,
-			controller,
-		) ?? 0;
+		targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.BOOM_BOX, controller) ??
+		0;
 	score +=
 		targetStrategy?.getCounterTargetingModifier?.(
 			activeCreature,
@@ -270,7 +262,8 @@ function scoreBoomBox(hex: Hex, activeCreature: Creature, controller: BotControl
 			controller,
 		) ?? 0;
 
-	const hasUpgradedGooeyBody = activeCreature.abilities[ABILITY.GOOEY_BODY]?.isUpgraded?.() ?? false;
+	const hasUpgradedGooeyBody =
+		activeCreature.abilities[ABILITY.GOOEY_BODY]?.isUpgraded?.() ?? false;
 	if (hasUpgradedGooeyBody && isDarkPriest(target)) {
 		score += 180;
 	}
@@ -285,20 +278,24 @@ function hasWoundedRibbonTarget(creature: Creature): boolean {
 }
 
 function hasStrongMalletWindow(creature: Creature): boolean {
-	const nearbyEnemies = creature.adjacentHexes(2).filter(
-		(hex) => hex.creature instanceof Creature && isTeam(creature, hex.creature, Team.Enemy),
-	).length;
-	const nearbyAllies = creature.adjacentHexes(2).filter(
-		(hex) => hex.creature instanceof Creature && isTeam(creature, hex.creature, Team.Ally),
-	).length;
+	const nearbyEnemies = creature
+		.adjacentHexes(2)
+		.filter(
+			(hex) => hex.creature instanceof Creature && isTeam(creature, hex.creature, Team.Enemy),
+		).length;
+	const nearbyAllies = creature
+		.adjacentHexes(2)
+		.filter(
+			(hex) => hex.creature instanceof Creature && isTeam(creature, hex.creature, Team.Ally),
+		).length;
 
 	return nearbyEnemies >= 2 && nearbyAllies <= 1;
 }
 
 function hasBoomBoxTarget(creature: Creature): boolean {
-	return creature.adjacentHexes(6).some(
-		(hex) => hex.creature instanceof Creature && isTeam(creature, hex.creature, Team.Enemy),
-	);
+	return creature
+		.adjacentHexes(6)
+		.some((hex) => hex.creature instanceof Creature && isTeam(creature, hex.creature, Team.Enemy));
 }
 
 const GumbleStrategy: UnitBotStrategy = {

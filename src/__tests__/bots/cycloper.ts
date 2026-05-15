@@ -144,7 +144,10 @@ describe('CycloperStrategy.scoreAbilityHex', () => {
 		const fullEnemy = makeCreature({ id: 3, team: 1, x: 9, y: 4, health: 70, maxHealth: 70 });
 		const lowEnemyHex = makeHex({ x: 5, y: 4, creature: lowEnemy });
 		const fullEnemyHex = makeHex({ x: 9, y: 4, creature: fullEnemy });
-		const controller = makeController({ activeCreature: cycloper, creatures: [lowEnemy, fullEnemy] });
+		const controller = makeController({
+			activeCreature: cycloper,
+			creatures: [lowEnemy, fullEnemy],
+		});
 
 		const lowScore = scoreAbilityHex(lowEnemyHex, 1, controller as any) as number;
 		const fullScore = scoreAbilityHex(fullEnemyHex, 1, controller as any) as number;
@@ -160,7 +163,10 @@ describe('CycloperStrategy.scoreAbilityHex', () => {
 		const enemy = makeCreature({ id: 3, team: 1, health: 70, maxHealth: 70, x: 7, y: 4 });
 		const allyHex = makeHex({ x: 4, y: 5, creature: woundedAlly });
 		const enemyHex = makeHex({ x: 7, y: 4, creature: enemy });
-		const controller = makeController({ activeCreature: cycloper, creatures: [woundedAlly, enemy] });
+		const controller = makeController({
+			activeCreature: cycloper,
+			creatures: [woundedAlly, enemy],
+		});
 
 		const allyScore = scoreAbilityHex(allyHex, 1, controller as any) as number;
 		const enemyScore = scoreAbilityHex(enemyHex, 1, controller as any) as number;
@@ -236,7 +242,12 @@ describe('CycloperStrategy.counter hooks', () => {
 		});
 
 		const weakScore = getCounterTargetingModifier(attacker, weakCycloper, 1, {} as any) as number;
-		const strongScore = getCounterTargetingModifier(attacker, strongCycloper, 1, {} as any) as number;
+		const strongScore = getCounterTargetingModifier(
+			attacker,
+			strongCycloper,
+			1,
+			{} as any,
+		) as number;
 		expect(weakScore).toBeGreaterThan(strongScore);
 	});
 

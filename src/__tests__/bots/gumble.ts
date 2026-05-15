@@ -140,9 +140,30 @@ describe('GumbleStrategy.scoreAbilityHex', () => {
 	});
 
 	test('Pretty Ribbon favors larger wounded allies in support mode', () => {
-		const bigWoundedAlly = makeCreature({ id: 2, team: 0, level: 4, size: 2, health: 30, maxHealth: 90 });
-		const smallWoundedAlly = makeCreature({ id: 3, team: 0, level: 1, size: 1, health: 30, maxHealth: 90 });
-		const frontliner = makeCreature({ id: 4, team: 0, level: 5, size: 2, health: 90, maxHealth: 90 });
+		const bigWoundedAlly = makeCreature({
+			id: 2,
+			team: 0,
+			level: 4,
+			size: 2,
+			health: 30,
+			maxHealth: 90,
+		});
+		const smallWoundedAlly = makeCreature({
+			id: 3,
+			team: 0,
+			level: 1,
+			size: 1,
+			health: 30,
+			maxHealth: 90,
+		});
+		const frontliner = makeCreature({
+			id: 4,
+			team: 0,
+			level: 5,
+			size: 2,
+			health: 90,
+			maxHealth: 90,
+		});
 		const gumble = makeCreature({
 			team: 0,
 			hexagons: [makeHex({ x: 2, y: 2 })],
@@ -177,7 +198,10 @@ describe('GumbleStrategy.scoreAbilityHex', () => {
 			creature: ally,
 			adjacentHex: () => [makeHex({ creature: enemyTwo })],
 		});
-		const controller = makeController({ activeCreature: gumble, creatures: [enemyOne, enemyTwo, ally] });
+		const controller = makeController({
+			activeCreature: gumble,
+			creatures: [enemyOne, enemyTwo, ally],
+		});
 
 		const clusterScore = scoreAbilityHex(clusterHex, 1, controller as any) as number;
 		const collateralScore = scoreAbilityHex(collateralHex, 1, controller as any) as number;
@@ -190,7 +214,10 @@ describe('GumbleStrategy.scoreAbilityHex', () => {
 		const healthyEnemy = makeCreature({ id: 3, team: 1, health: 60, maxHealth: 70 });
 		const killableHex = makeHex({ x: 4, y: 4, creature: killableEnemy });
 		const healthyHex = makeHex({ x: 5, y: 4, creature: healthyEnemy });
-		const controller = makeController({ activeCreature: gumble, creatures: [killableEnemy, healthyEnemy] });
+		const controller = makeController({
+			activeCreature: gumble,
+			creatures: [killableEnemy, healthyEnemy],
+		});
 
 		expect(scoreAbilityHex(killableHex, 3, controller as any)).toBeGreaterThan(
 			scoreAbilityHex(healthyHex, 3, controller as any) as number,
@@ -203,7 +230,10 @@ describe('GumbleStrategy.scoreAbilityHex', () => {
 		const regularEnemy = makeCreature({ id: 3, team: 1, type: 'S1', health: 45, maxHealth: 70 });
 		const darkPriestHex = makeHex({ x: 4, y: 4, creature: darkPriest });
 		const regularHex = makeHex({ x: 5, y: 4, creature: regularEnemy });
-		const controller = makeController({ activeCreature: gumble, creatures: [darkPriest, regularEnemy] });
+		const controller = makeController({
+			activeCreature: gumble,
+			creatures: [darkPriest, regularEnemy],
+		});
 
 		expect(scoreAbilityHex(darkPriestHex, 3, controller as any)).toBeGreaterThan(
 			scoreAbilityHex(regularHex, 3, controller as any) as number,
@@ -216,7 +246,15 @@ describe('GumbleStrategy.scoreMoveHex', () => {
 		const gumble = makeCreature({ team: 0, abilities: [{ isUpgraded: () => true }, {}, {}, {}] });
 		const enemyOne = makeCreature({ id: 2, team: 1, x: 6, y: 6, health: 60, maxHealth: 70 });
 		const enemyTwo = makeCreature({ id: 3, team: 1, x: 7, y: 6, health: 55, maxHealth: 70 });
-		const darkPriest = makeCreature({ id: 4, team: 1, type: '--', x: 8, y: 6, health: 50, maxHealth: 70 });
+		const darkPriest = makeCreature({
+			id: 4,
+			team: 1,
+			type: '--',
+			x: 8,
+			y: 6,
+			health: 50,
+			maxHealth: 70,
+		});
 
 		const hotHex = makeHex({
 			x: 6,
@@ -224,7 +262,10 @@ describe('GumbleStrategy.scoreMoveHex', () => {
 			adjacentHex: () => [makeHex({ creature: enemyOne }), makeHex({ creature: enemyTwo })],
 		});
 		const coldHex = makeHex({ x: 2, y: 2, adjacentHex: () => [] });
-		const controller = makeController({ activeCreature: gumble, creatures: [enemyOne, enemyTwo, darkPriest] });
+		const controller = makeController({
+			activeCreature: gumble,
+			creatures: [enemyOne, enemyTwo, darkPriest],
+		});
 
 		expect(scoreMoveHex(hotHex, controller as any)).toBeGreaterThan(
 			scoreMoveHex(coldHex, controller as any) as number,
@@ -233,8 +274,24 @@ describe('GumbleStrategy.scoreMoveHex', () => {
 
 	test('prefers adjacent Dark Priest pressure over non-priest pressure', () => {
 		const gumble = makeCreature({ team: 0, abilities: [{ isUpgraded: () => true }, {}, {}, {}] });
-		const darkPriest = makeCreature({ id: 2, team: 1, type: '--', x: 6, y: 6, health: 60, maxHealth: 70 });
-		const nonPriestEnemy = makeCreature({ id: 3, team: 1, type: 'S1', x: 6, y: 6, health: 60, maxHealth: 70 });
+		const darkPriest = makeCreature({
+			id: 2,
+			team: 1,
+			type: '--',
+			x: 6,
+			y: 6,
+			health: 60,
+			maxHealth: 70,
+		});
+		const nonPriestEnemy = makeCreature({
+			id: 3,
+			team: 1,
+			type: 'S1',
+			x: 6,
+			y: 6,
+			health: 60,
+			maxHealth: 70,
+		});
 		const darkPriestHex = makeHex({
 			x: 6,
 			y: 6,
@@ -245,7 +302,10 @@ describe('GumbleStrategy.scoreMoveHex', () => {
 			y: 6,
 			adjacentHex: () => [makeHex({ creature: nonPriestEnemy })],
 		});
-		const controller = makeController({ activeCreature: gumble, creatures: [darkPriest, nonPriestEnemy] });
+		const controller = makeController({
+			activeCreature: gumble,
+			creatures: [darkPriest, nonPriestEnemy],
+		});
 
 		expect(scoreMoveHex(darkPriestHex, controller as any)).toBeGreaterThan(
 			scoreMoveHex(nonPriestHex, controller as any) as number,
@@ -259,7 +319,8 @@ describe('GumbleStrategy.getAbilityPriority', () => {
 		const gumble = makeCreature({
 			team: 0,
 			hexagons: [makeHex({ x: 2, y: 2 })],
-			adjacentHexes: (distance: number) => (distance === 2 ? [makeHex({ creature: woundedAlly })] : []),
+			adjacentHexes: (distance: number) =>
+				distance === 2 ? [makeHex({ creature: woundedAlly })] : [],
 		});
 		const controller = makeController({ activeCreature: gumble, creatures: [woundedAlly] });
 
@@ -267,11 +328,19 @@ describe('GumbleStrategy.getAbilityPriority', () => {
 	});
 
 	test('goes support-first when bigger allies are alive', () => {
-		const woundedAlly = makeCreature({ id: 2, team: 0, health: 25, maxHealth: 70, level: 3, size: 2 });
+		const woundedAlly = makeCreature({
+			id: 2,
+			team: 0,
+			health: 25,
+			maxHealth: 70,
+			level: 3,
+			size: 2,
+		});
 		const gumble = makeCreature({
 			team: 0,
 			hexagons: [makeHex({ x: 2, y: 2 })],
-			adjacentHexes: (distance: number) => (distance === 2 ? [makeHex({ creature: woundedAlly })] : []),
+			adjacentHexes: (distance: number) =>
+				distance === 2 ? [makeHex({ creature: woundedAlly })] : [],
 		});
 		const controller = makeController({ activeCreature: gumble, creatures: [woundedAlly] });
 
@@ -279,8 +348,23 @@ describe('GumbleStrategy.getAbilityPriority', () => {
 	});
 
 	test('keeps support-first when Dark Priest is not in hard-focus health range', () => {
-		const woundedAlly = makeCreature({ id: 2, team: 0, health: 25, maxHealth: 70, level: 3, size: 2 });
-		const darkPriest = makeCreature({ id: 3, team: 1, type: '--', health: 50, maxHealth: 70, x: 8, y: 6 });
+		const woundedAlly = makeCreature({
+			id: 2,
+			team: 0,
+			health: 25,
+			maxHealth: 70,
+			level: 3,
+			size: 2,
+		});
+		const darkPriest = makeCreature({
+			id: 3,
+			team: 1,
+			type: '--',
+			health: 50,
+			maxHealth: 70,
+			x: 8,
+			y: 6,
+		});
 		const gumble = makeCreature({
 			team: 0,
 			hexagons: [makeHex({ x: 2, y: 2 })],
@@ -290,13 +374,23 @@ describe('GumbleStrategy.getAbilityPriority', () => {
 				return [];
 			},
 		});
-		const controller = makeController({ activeCreature: gumble, creatures: [woundedAlly, darkPriest] });
+		const controller = makeController({
+			activeCreature: gumble,
+			creatures: [woundedAlly, darkPriest],
+		});
 
 		expect(getAbilityPriority(gumble, controller as any)).toEqual([2, 3, 1]);
 	});
 
 	test('overrides support-first to hard-focus low-health Dark Priest', () => {
-		const woundedAlly = makeCreature({ id: 2, team: 0, health: 25, maxHealth: 70, level: 3, size: 2 });
+		const woundedAlly = makeCreature({
+			id: 2,
+			team: 0,
+			health: 25,
+			maxHealth: 70,
+			level: 3,
+			size: 2,
+		});
 		const lowDarkPriest = makeCreature({
 			id: 3,
 			team: 1,
@@ -315,17 +409,29 @@ describe('GumbleStrategy.getAbilityPriority', () => {
 				return [];
 			},
 		});
-		const controller = makeController({ activeCreature: gumble, creatures: [woundedAlly, lowDarkPriest] });
+		const controller = makeController({
+			activeCreature: gumble,
+			creatures: [woundedAlly, lowDarkPriest],
+		});
 
 		expect(getAbilityPriority(gumble, controller as any)).toEqual([3, 1, 2]);
 	});
 
 	test('harasses Dark Priest first when no support window exists', () => {
-		const darkPriest = makeCreature({ id: 2, team: 1, type: '--', x: 8, y: 6, health: 50, maxHealth: 70 });
+		const darkPriest = makeCreature({
+			id: 2,
+			team: 1,
+			type: '--',
+			x: 8,
+			y: 6,
+			health: 50,
+			maxHealth: 70,
+		});
 		const gumble = makeCreature({
 			team: 0,
 			hexagons: [makeHex({ x: 2, y: 2 })],
-			adjacentHexes: (distance: number) => (distance === 6 ? [makeHex({ creature: darkPriest })] : []),
+			adjacentHexes: (distance: number) =>
+				distance === 6 ? [makeHex({ creature: darkPriest })] : [],
 		});
 		const controller = makeController({ activeCreature: gumble, creatures: [darkPriest] });
 
@@ -344,7 +450,12 @@ describe('GumbleStrategy.counter hooks', () => {
 
 	test('getCounterTargetingModifier rises as Gumble gets weaker', () => {
 		const attacker = makeCreature({ team: 0 });
-		const healthyGumble = makeCreature({ team: 1, health: 60, maxHealth: 70, abilities: [{}, {}, {}, {}] });
+		const healthyGumble = makeCreature({
+			team: 1,
+			health: 60,
+			maxHealth: 70,
+			abilities: [{}, {}, {}, {}],
+		});
 		const woundedGumble = makeCreature({
 			team: 1,
 			health: 15,
@@ -359,7 +470,12 @@ describe('GumbleStrategy.counter hooks', () => {
 
 	test('getProximityPenalty discourages healthy Gumble more than weakened Gumble', () => {
 		const mover = makeCreature({ team: 0 });
-		const healthyGumble = makeCreature({ team: 1, health: 60, maxHealth: 70, abilities: [{}, {}, {}, {}] });
+		const healthyGumble = makeCreature({
+			team: 1,
+			health: 60,
+			maxHealth: 70,
+			abilities: [{}, {}, {}, {}],
+		});
 		const weakGumble = makeCreature({
 			team: 1,
 			health: 15,
