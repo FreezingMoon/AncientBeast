@@ -11,6 +11,7 @@ import { Locations } from './ui/locations';
 import Connect from './multiplayer/connect';
 import { installAvatarStyles } from './style/avatar-styles';
 import {
+	DEBUG,
 	DEBUG_AUTO_START_GAME,
 	DEBUG_DISABLE_HOTKEYS,
 	DEBUG_GAME_LOG,
@@ -30,6 +31,7 @@ export type GameConfig = ReturnType<typeof getGameConfig>;
 const AB = {} as any;
 // Create the game
 const G = new Game();
+const LAST_MATCH_LOG_STORAGE_KEY = 'ab:last-match-log';
 // Helper properties and methods for retrieving and playing back game logs.
 // TODO: Expose these in a less hacky way too.
 AB.currentGame = G;
@@ -377,6 +379,49 @@ $j(() => {
 	const restoreGameLog = (log) => {
 		G.gamelog.load(log);
 	};
+
+	const storeLastMatchLog = () => {
+		if (!DEBUG || G.gameState === 'initialized') {
+			return;
+		}
+
+		if (G.gamelog.actions.length === 0) {
+			return;
+		}
+
+		try {
+			localStorage.setItem(LAST_MATCH_LOG_STORAGE_KEY, G.gamelog.stringify());
+		} catch (error) {
+			console.warn('Could not persist last match replay log.', error);
+		}
+	};
+
+	const replayLastStoredMatch = () => {
+		let storedLog: string | null = null;
+
+		try {
+			storedLog = localStorage.getItem(LAST_MATCH_LOG_STORAGE_KEY);
+		} catch (error) {
+			console.warn('Could not read persisted match replay log.', error);
+		}
+
+		if (!storedLog) {
+			return;
+		}
+
+		restoreGameLog(storedLog);
+	};
+
+	window.addEventListener('beforeunload', storeLastMatchLog);
+
+	if (DEBUG) {
+		// Dev shortcut: right-click Start/Demo to replay the latest locally stored match.
+		$j('#startButton').on('contextmenu', (event) => {
+			event.preventDefault();
+			replayLastStoredMatch();
+			return false;
+		});
+	}
 
 	if (DEBUG_HAS_GAME_LOG) {
 		setTimeout(() => restoreGameLog(DEBUG_GAME_LOG), 50);
