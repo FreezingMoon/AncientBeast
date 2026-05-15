@@ -3381,10 +3381,21 @@ input {
 }
 
 #scoreboard #opencollective_banner_scoreboard {
-	width: 100% !important;
-	max-width: none !important;
-	margin: 0 !important;
+	width: 530px !important;
+	max-width: calc(100% - 24px) !important;
+	margin: 14px auto 0 !important;
 	position: static !important;
+	z-index: auto !important;
+}
+
+#scoreboard #opencollective_banner_scoreboard .opencollective_pill {
+	width: 100% !important;
+}
+
+@media screen and (min-height: 200px) and (max-height: 479px) and (orientation: landscape) {
+	#scoreboard #opencollective_banner_scoreboard {
+		width: calc(80% + 80px) !important;
+	}
 }
 
 #scoreboard .scoreboardActions #fleeWrapper,
