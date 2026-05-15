@@ -204,6 +204,7 @@ export class Hex {
 				grid.lastMouseHex = this;
 				if (
 					game.freezedInput ||
+					!game.UI ||
 					game.UI.dashopen ||
 					shouldUseDirectTouchInput() ||
 					game.botController?.isBotTurn()
@@ -223,6 +224,7 @@ export class Hex {
 			this.hitBox.events.onInputOut.add((_, pointer) => {
 				if (
 					game.freezedInput ||
+					!game.UI ||
 					game.UI.dashopen ||
 					shouldUseDirectTouchInput() ||
 					game.botController?.isBotTurn()
@@ -258,7 +260,7 @@ export class Hex {
 			}, this);
 
 			this.hitBox.events.onInputUp.add((Sprite, Pointer) => {
-				if (game.freezedInput || game.UI.dashopen || game.botController?.isBotTurn()) {
+				if (game.freezedInput || !game.UI || game.UI.dashopen || game.botController?.isBotTurn()) {
 					return;
 				}
 

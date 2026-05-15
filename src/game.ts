@@ -485,7 +485,7 @@ export default class Game {
 
 		bg.inputEnabled = true;
 		bg.events.onInputUp.add((Sprite, Pointer) => {
-			if (this.freezedInput || this.UI.dashopen) {
+			if (this.freezedInput || !this.UI || this.UI.dashopen) {
 				return;
 			}
 
