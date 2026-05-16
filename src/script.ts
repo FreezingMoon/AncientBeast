@@ -141,7 +141,12 @@ $j(() => {
 			keyDownTest() {
 				return true;
 			},
-			keyDownAction() {
+			keyDownAction(event) {
+				if (DEBUG && event.shiftKey) {
+					$j('#startButton').trigger('contextmenu');
+					return;
+				}
+
 				startGame();
 			},
 		},
@@ -149,7 +154,12 @@ $j(() => {
 			keyDownTest() {
 				return true;
 			},
-			keyDownAction() {
+			keyDownAction(event) {
+				if (DEBUG && event.shiftKey) {
+					$j('#startButton').trigger('contextmenu');
+					return;
+				}
+
 				startGame();
 			},
 		},
