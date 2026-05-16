@@ -137,9 +137,20 @@ export class MusicPlayer {
 	run(track) {
 		// Style the active track in the playlist
 		const link = track.find('a');
+		const nextSrc = link.attr('href');
+
+		if (!nextSrc) {
+			return;
+		}
+
+		const resolvedNextSrc = new URL(nextSrc, window.location.href).href;
+		const currentSrc = this.audio.currentSrc || this.audio.src;
+		if (currentSrc === resolvedNextSrc && !this.audio.paused) {
+			return;
+		}
 
 		track.addClass('active-text').siblings().removeClass('active-text');
-		this.audio.src = link.attr('href');
+		this.audio.src = nextSrc;
 		this.audio.load();
 
 		// Debug play button state
@@ -151,6 +162,9 @@ export class MusicPlayer {
 
 		// Play audio
 		this.audio.play().catch((error) => {
+			if (error?.name === 'AbortError') {
+				return;
+			}
 			console.error('Error playing audio:', error);
 		});
 	}

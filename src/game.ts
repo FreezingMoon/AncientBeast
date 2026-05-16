@@ -638,8 +638,6 @@ export default class Game {
 			// Throttle down to 1 event every 100ms of inactivity
 			resizeGame();
 		});
-
-		this.soundsys.playMusic();
 		if (DEBUG_DISABLE_MUSIC) {
 			this.musicPlayer.audio.pause();
 		}
