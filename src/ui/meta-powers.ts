@@ -74,14 +74,6 @@ export class MetaPowers {
 			this._closeModal();
 		}
 
-		if (message === 'toggleScore') {
-			this._closeModal();
-		}
-
-		if (message === 'toggleMusicPlayer') {
-			this._closeModal();
-		}
-
 		if (message === 'closeInterfaceScreens') {
 			this._closeModal();
 		}
