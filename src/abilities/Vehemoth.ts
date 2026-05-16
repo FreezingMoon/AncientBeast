@@ -484,7 +484,12 @@ export default (G: Game) => {
 				ability.end();
 				G.Phaser.camera.shake(0.02, 123, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
-				const levelDifference = Math.max(((vehemoth.level as number) - target.level) as number, 0);
+				const vehemothLevel = Number(vehemoth.level);
+				const targetLevel = Number(target.level);
+				const levelDifference =
+					Number.isFinite(vehemothLevel) && Number.isFinite(targetLevel)
+						? Math.max(vehemothLevel - targetLevel, 0)
+						: 1;
 				const damages = {
 					...ability.damages,
 					frost: ability.damages.frost + levelDifference * 3,
