@@ -1665,9 +1665,39 @@ export default class Game {
 		const configData = log.custom.configData;
 		this.configData = log.custom.configData ?? this.configData;
 
+		const restoreInteractiveState = (pollAttempt = 0) => {
+			if (this.gameState !== 'playing' || this.pause || !this.activeCreature) {
+				return;
+			}
+
+			this._deferredQueryMovePending = 0;
+			this.turnThrottle = false;
+			this.freezedInput = false;
+
+			const activeCreatureId = this.activeCreature.id;
+			const activeQueryInstalled =
+				activeCreatureId !== undefined && this.grid?.lastQueryOpt?.id === activeCreatureId;
+			if (activeQueryInstalled) {
+				this.grid?.refreshHoverState();
+				return;
+			}
+
+			// Turn handoffs (skip/delay) install the next unit query asynchronously.
+			// Wait briefly to avoid issuing a duplicate queryMove() that can lock input.
+			if (pollAttempt < 20) {
+				setTimeout(() => restoreInteractiveState(pollAttempt + 1), 100);
+				return;
+			}
+
+			this.activeCreature.queryMove();
+			this.grid?.refreshHoverState();
+		};
+
 		const nextAction = () => {
 			if (actions.length === 0) {
-				// this.activeCreature.queryMove(); // Avoid bug: called twice breaks opening UI (may need to revisit)
+				// Replay finishes between turns for some logs; explicitly re-arm the
+				// active creature query to restore live input controls.
+				setTimeout(() => restoreInteractiveState(), 0);
 				return;
 			}
 
