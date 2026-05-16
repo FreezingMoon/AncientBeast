@@ -2073,6 +2073,52 @@ export class HexGrid {
 	 */
 	previewCreature(pos, creatureData, player, secondary = false) {
 		const game = this.game;
+		const clearPreviewOverlay = (preview, isSecondary = false) => {
+			if (!preview) {
+				return;
+			}
+
+			if (isSecondary) {
+				if (this._flickerTweenSecondary) {
+					this._flickerTweenSecondary.stop(true);
+					this._flickerTweenSecondary = undefined;
+				}
+			} else {
+				if (this._flickerTween) {
+					this._flickerTween.stop(true);
+					this._flickerTween = undefined;
+				}
+			}
+
+			preview.alpha = 0;
+
+			if (preview._previewPos === undefined) {
+				return;
+			}
+
+			for (let i = 0, prevSize = preview._previewSize; i < prevSize; i++) {
+				const prevHex = this.hexes[preview._previewPos.y]?.[preview._previewPos.x - i];
+				if (prevHex && prevHex.creature !== game.activeCreature) {
+					this.cleanHex(prevHex);
+					this.restoreReachableHexVisual(prevHex);
+				}
+			}
+
+			preview._previewPos = undefined;
+		};
+
+		const targetHex = this.hexes[pos.y]?.[pos.x];
+		const queryHexes = this.lastQueryOpt?.hexes;
+		if (
+			!targetHex ||
+			(Array.isArray(queryHexes) &&
+				queryHexes.length > 0 &&
+				(!targetHex.reachable || queryHexes.indexOf(targetHex) === -1))
+		) {
+			clearPreviewOverlay(secondary ? this.secondary_overlay : this.materialize_overlay, secondary);
+			return;
+		}
+
 		const hex = this.hexes[pos.y][pos.x - (creatureData.size - 1)];
 		const cardboard =
 			creatureData.type == '--' ? creatureData.name + ' ' + player.color : creatureData.name;

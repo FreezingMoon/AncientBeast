@@ -292,6 +292,9 @@ export default (G: Game) => {
 
 				G.grid.queryHexes({
 					fnOnSelect: function (hex, args) {
+						if (!hex.reachable || args.spawnRange.indexOf(hex) === -1) {
+							return;
+						}
 						const crea = G.retrieveCreatureStats(args.creature);
 						G.grid.previewCreature(hex.pos, crea, ability.creature.player);
 					},
@@ -304,6 +307,7 @@ export default (G: Game) => {
 					args: {
 						creature: creature,
 						cost: crea.size - 0 + ((crea.level as number) - 0),
+						spawnRange,
 					}, // OptionalArgs
 					size: crea.size,
 					flipped: dpriest.player.flipped,
