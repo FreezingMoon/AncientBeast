@@ -63,7 +63,11 @@ describe('Vehemoth Falling Arrow damage fallback', () => {
 		};
 	};
 	let ability: {
-		activate: (target: { level: string; hexagons: { displayPos: { x: number; y: number } }[]; takeDamage: ReturnType<typeof jest.fn> }) => void;
+		activate: (target: {
+			level: string;
+			hexagons: { displayPos: { x: number; y: number } }[];
+			takeDamage: ReturnType<typeof jest.fn>;
+		}) => void;
 		creature: {
 			id: number;
 			level: number;
@@ -89,7 +93,7 @@ describe('Vehemoth Falling Arrow damage fallback', () => {
 	};
 
 	beforeEach(() => {
-		(globalThis as { Phaser?: { Easing: { Linear: { None: string } } } }).Phaser = {
+		(global as { Phaser?: { Easing: { Linear: { None: string } } } }).Phaser = {
 			Easing: {
 				Linear: {
 					None: 'linear-none',
@@ -100,6 +104,11 @@ describe('Vehemoth Falling Arrow damage fallback', () => {
 		game = {
 			abilities: {},
 			Phaser: {
+				Easing: {
+					Linear: {
+						None: 'linear-none',
+					},
+				},
 				camera: {
 					shake: jest.fn(),
 					SHAKE_VERTICAL: 'vertical',
@@ -169,7 +178,7 @@ describe('Vehemoth Falling Arrow damage fallback', () => {
 	test('defaults to the base frost bonus when the target has no numeric level', () => {
 		const target = {
 			level: '-',
-				hexagons: [{ displayPos: { x: 1000, y: 10 } }],
+			hexagons: [{ displayPos: { x: 1000, y: 10 } }],
 			takeDamage: jest.fn(),
 		};
 
@@ -177,7 +186,9 @@ describe('Vehemoth Falling Arrow damage fallback', () => {
 
 		expect(ability.end).toHaveBeenCalledTimes(1);
 		expect(target.takeDamage).toHaveBeenCalledTimes(1);
-		const damage = target.takeDamage.mock.calls[0][0] as { damages: { pierce: number; frost: number } };
+		const damage = target.takeDamage.mock.calls[0][0] as {
+			damages: { pierce: number; frost: number };
+		};
 		expect(damage.damages).toEqual({ pierce: 20, frost: 3 });
 	});
 });

@@ -574,6 +574,12 @@ class CreatureVignette extends Vignette {
 			if (h.onCreatureClick) h.onCreatureClick(this.creature);
 		});
 
+		el.addEventListener('contextmenu', (event) => {
+			event.preventDefault();
+			event.stopPropagation();
+			if (h.onCreatureClick) h.onCreatureClick(this.creature);
+		});
+
 		el.addEventListener('mouseenter', () => {
 			if (h.onCreatureMouseEnter) h.onCreatureMouseEnter(this.creature);
 		});
