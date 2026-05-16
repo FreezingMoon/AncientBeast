@@ -12,6 +12,7 @@ import GumbleStrategy from './bots/Gumble';
 import VehemothStrategy from './bots/Vehemoth';
 import StomperStrategy from './bots/Stomper';
 import CycloperStrategy from './bots/Cycloper';
+import ImpalerStrategy from './bots/Impaler';
 
 /**
  * Optional per-unit behaviour overrides for BotController.
@@ -90,6 +91,7 @@ export const unitStrategies: Partial<Record<string, UnitBotStrategy>> = {
 	A7: GoldenWyrmStrategy,
 	P1: GumbleStrategy,
 	W3: CycloperStrategy,
+	S5: ImpalerStrategy,
 };
 
 type BotPendingAction =
