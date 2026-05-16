@@ -1638,14 +1638,13 @@ export class Creature {
 	 * Remove an effect by name
 	 */
 	removeEffect(effectName: string) {
-		const totalEffects = this.effects.length;
+		const effectToRemove = this.effects.find((effect) => effect.name === effectName);
 
-		for (let i = 0; i < totalEffects; i++) {
-			if (this.effects[i].name === effectName) {
-				this.effects.splice(i, 1);
-				break;
-			}
+		if (!effectToRemove) {
+			return;
 		}
+
+		effectToRemove.deleteEffect();
 	}
 
 	hint(text: string, hintType: CreatureHintType) {
