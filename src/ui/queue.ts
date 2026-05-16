@@ -624,8 +624,23 @@ class TurnEndMarkerVignette extends Vignette {
 		const el = this.el;
 		const h = this.eventHandlers;
 
-		el.addEventListener('click', () => {
-			if (h.onTurnEndClick) h.onTurnEndClick(this.turnNumber);
+		el.addEventListener('mousedown', (event: MouseEvent) => {
+			if (event.button !== 0 && event.button !== 1) {
+				return;
+			}
+			event.preventDefault();
+			event.stopPropagation();
+			if (h.onTurnEndMarkerMouseDown) {
+				h.onTurnEndMarkerMouseDown(event.button, this.turnNumber);
+			}
+		});
+
+		el.addEventListener('contextmenu', (event: MouseEvent) => {
+			event.preventDefault();
+			event.stopPropagation();
+			if (h.onTurnEndMarkerMouseDown) {
+				h.onTurnEndMarkerMouseDown(event.button, this.turnNumber);
+			}
 		});
 
 		el.addEventListener('mouseenter', () => {
@@ -765,6 +780,7 @@ type QueueEventHandlers = {
 	onDelayMouseEnter?: () => void;
 	onDelayMouseLeave?: () => void;
 	onTurnEndClick?: (turnNumber: number) => void;
+	onTurnEndMarkerMouseDown?: (button: number, turnNumber: number) => void;
 	onTurnEndMouseEnter?: (turnNumber: number) => void;
 	onTurnEndMouseLeave?: (turnNumber: number) => void;
 };

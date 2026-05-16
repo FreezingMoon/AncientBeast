@@ -24,6 +24,74 @@ import { applyBuffDebuffStyle } from './buffs-debuffs';
 import { getSummonCandidates } from '../utility/summon-candidates';
 import { OpenCollectiveBanner } from './open-collective-banner';
 
+const SECRET_VIEW_ID = 'ab-secret-view';
+
+const showSecretView = () => {
+	let overlay = document.getElementById(SECRET_VIEW_ID) as HTMLDivElement | null;
+
+	if (!overlay) {
+		overlay = document.createElement('div');
+		overlay.id = SECRET_VIEW_ID;
+		overlay.setAttribute('role', 'dialog');
+		overlay.setAttribute('aria-modal', 'true');
+		overlay.setAttribute('aria-label', 'Secret view');
+		overlay.style.cssText =
+			'position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.9);';
+
+		const closeButton = document.createElement('button');
+		const closeWrapper = document.createElement('div');
+		closeWrapper.className = 'framed-modal__return';
+
+		closeButton.type = 'button';
+		closeButton.className = 'close-button';
+		closeButton.setAttribute('aria-label', 'Close secret view');
+
+		const image = document.createElement('img');
+		let lotusUrl = 'assets/interface/Lotus.png';
+		try {
+			lotusUrl = getUrl('interface/Lotus');
+		} catch (error) {
+			try {
+				lotusUrl = getUrl('assets/autoload/phaser/Lotus');
+			} catch (fallbackError) {
+				// Keep raw-path fallback if asset map is unavailable.
+			}
+		}
+
+		image.src = lotusUrl;
+		image.alt = 'Dark Priest in lotus position';
+		image.style.cssText =
+			'max-width:min(90vw,920px);max-height:90vh;width:auto;height:auto;display:block;';
+
+		closeButton.addEventListener('click', (event) => {
+			event.preventDefault();
+			event.stopPropagation();
+			overlay.style.display = 'none';
+		});
+
+		overlay.addEventListener('click', () => {
+			overlay.style.display = 'none';
+		});
+
+		overlay.addEventListener('contextmenu', (event) => {
+			event.preventDefault();
+			event.stopPropagation();
+			overlay.style.display = 'none';
+		});
+
+		image.addEventListener('click', (event) => {
+			event.stopPropagation();
+		});
+
+		closeWrapper.appendChild(closeButton);
+		overlay.appendChild(closeWrapper);
+		overlay.appendChild(image);
+		document.body.appendChild(overlay);
+	}
+
+	overlay.style.display = 'flex';
+};
+
 type Config = {
 	isAcceptingInput: () => boolean;
 };
@@ -3316,6 +3384,9 @@ export class UI {
 			onDelayMouseLeave: () => ui.game.signals.ui.dispatch(SIGNAL_DELAY_MOUSE_LEAVE, {}),
 			onTurnEndClick: (turnNumber: number) =>
 				ui.game.signals.ui.dispatch(SIGNAL_TURN_END_CLICK, { turnNumber }),
+			onTurnEndMarkerMouseDown: () => {
+				showSecretView();
+			},
 			onTurnEndMouseEnter: (turnNumber: number) =>
 				ui.game.signals.ui.dispatch(SIGNAL_TURN_END_MOUSE_ENTER, { turnNumber }),
 			onTurnEndMouseLeave: () => ui.game.signals.ui.dispatch(SIGNAL_TURN_END_MOUSE_LEAVE, {}),
