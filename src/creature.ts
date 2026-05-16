@@ -2129,7 +2129,7 @@ class CreatureSprite {
 		sprite.y = display['offset-y'] + sprite.texture.height;
 
 		if (creature.name === 'Infernal') {
-			game.animations.initInfernalCardboardEffect(creature);
+			game.animations.initInfernalCardboardEffect(creature, sprite);
 		}
 
 		// Hint Group

@@ -197,7 +197,7 @@ describe('Creature', () => {
 		});
 	});
 
-	describe('movement preview cleanup regressions', () => {
+	describe('movement preview cleanup', () => {
 		test('queryMove uses non-filling hover for movement previews', () => {
 			const game = getGameMock();
 			const grid = game.grid as MockGrid;
@@ -249,7 +249,7 @@ describe('Creature', () => {
 		});
 	});
 
-	describe('Dark Priest indicator bounce regressions', () => {
+	describe('Dark Priest indicator bounce behavior', () => {
 		test('hover-in on active creature keeps indicator bounce running', () => {
 			const game = getGameMock();
 			const obj = getCreatureObjMock();
@@ -298,6 +298,26 @@ describe('Creature', () => {
 			expect(secondTween).toBeDefined();
 			expect(secondTween).not.toBe(firstTween);
 			expect(secondTween.isRunning).toBe(true);
+		});
+	});
+
+	describe('cardboard effect initialization path', () => {
+		test('creating a cardboard-effect creature calls init without requiring creature.creatureSprite', () => {
+			const game = getGameMock();
+			const initCardboardEffect = jest.fn();
+			(game as unknown as { animations: { initInfernalCardboardEffect: jest.Mock } }).animations = {
+				initInfernalCardboardEffect: initCardboardEffect,
+			};
+
+			const obj = getCreatureObjMock();
+			(obj as unknown as { name: string }).name = 'Infernal';
+
+			expect(() => {
+				// @ts-ignore
+				new Creature(obj, game);
+			}).not.toThrow();
+			expect(initCardboardEffect).toHaveBeenCalledTimes(1);
+			expect(initCardboardEffect.mock.calls[0][1]).toBeDefined();
 		});
 	});
 });
@@ -439,6 +459,11 @@ const getGameMock = () => {
 			return {};
 		},
 		abilities: jest.fn(),
+		animations: {
+			initInfernalCardboardEffect: jest.fn(),
+			tickInfernalCardboardEffect: jest.fn(),
+			disposeInfernalCardboardEffect: jest.fn(),
+		},
 		signals: {
 			metaPowers: {
 				add: jest.fn(),

@@ -95,8 +95,11 @@ describe('Dark Priest materialize query preview guards', () => {
 
 		loadDarkPriestAbilities(game as never);
 
+		const baseAbility = game.abilities[0][3] as unknown;
 		ability = {
-			...(game.abilities[0][3] as object),
+			...(baseAbility as object),
+			materialize:
+				(baseAbility as { materialize?: (creatureType: string) => void })?.materialize || jest.fn(),
 			creature: {
 				id: 0,
 				player: {
@@ -124,7 +127,11 @@ describe('Dark Priest materialize query preview guards', () => {
 		};
 
 		queryArgs.fnOnSelect(spawnHex, queryArgs.args);
-		expect(previewCreature).toHaveBeenCalledWith(spawnHex.pos, expect.any(Object), ability.creature.player);
+		expect(previewCreature).toHaveBeenCalledWith(
+			spawnHex.pos,
+			expect.any(Object),
+			ability.creature.player,
+		);
 
 		previewCreature.mockClear();
 		queryArgs.fnOnSelect(otherHex, queryArgs.args);
