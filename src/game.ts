@@ -1599,6 +1599,7 @@ export default class Game {
 
 	resetGame() {
 		this.endGameSound;
+		this.UI?.metaPowers?._clearPowers();
 		this.UI.showGameSetup();
 		this.stopTimer();
 		this.players = [];
