@@ -34,6 +34,8 @@ type InfernalCardboardEffectState = {
 	trailNextAt: number;
 	heatNextAt: number;
 	glowOffsetY: number;
+	hazePulsePhaseMs: number;
+	hazePulsePeriodMs: number;
 	sprite: Phaser.Sprite;
 	group: Phaser.Group;
 	hazeSprite?: Phaser.Sprite;
@@ -852,8 +854,10 @@ export class Animations {
 		const randInt = (n: number) => Math.floor(rand(n));
 		const state: InfernalCardboardEffectState = {
 			trailNextAt: this.game.Phaser.time.now,
-			heatNextAt: this.game.Phaser.time.now + 120,
+			heatNextAt: this.game.Phaser.time.now + 80 + randInt(220),
 			glowOffsetY: sprite.texture.height * 0.02,
+			hazePulsePhaseMs: randInt(2000),
+			hazePulsePeriodMs: 260 + randInt(180),
 			sprite,
 			group,
 			tweens: [],
@@ -1007,7 +1011,10 @@ export class Animations {
 			state.hazeSprite.x = sprite.x;
 			state.hazeSprite.y = sprite.y;
 			state.hazeSprite.scale.setTo(dir, 1);
-			const hazePulse = 0.5 + 0.5 * Math.sin(now / 320);
+			const hazePulse =
+				0.5 +
+				0.5 *
+				Math.sin((now + state.hazePulsePhaseMs) / Math.max(1, state.hazePulsePeriodMs));
 			state.hazeSprite.alpha = 0.12 + hazePulse * 0.88;
 		}
 		if (state.heatLayerSprite) {
