@@ -3,6 +3,7 @@ import { Creature } from '../creature';
 import { Hex } from '../utility/hex';
 import { Team, isTeam } from '../utility/team';
 import * as arrayUtils from '../utility/arrayUtils';
+import { extractTextureFrameInfo, createBitmapDataFromTexture } from '../utility/bitmapUtils';
 import Game from '../game';
 import type { Ability } from '../ability';
 import type { UnitData } from '../data/types';
@@ -329,13 +330,21 @@ function createPowerApertureTiles(
 	forcedFlipped?: boolean,
 ) {
 	const targetTexture = targetSprite.texture as ShatterTexture;
-	const targetFrame = targetTexture.crop ||
-		targetTexture.frame || { x: 0, y: 0, width: 0, height: 0 };
-	const targetSource = targetTexture.baseTexture?.source;
-	const targetTexW = Math.round(targetTexture.width || targetFrame.width || 1);
-	const targetTexH = Math.round(targetTexture.height || targetFrame.height || 1);
 	const targetIsFlipped =
 		typeof forcedFlipped === 'boolean' ? forcedFlipped : targetSprite.scale.x < 0;
+
+	const textureFrameInfo = extractTextureFrameInfo(targetTexture, {
+		x: 0,
+		y: 0,
+		width: 0,
+		height: 0,
+	});
+
+	if (!textureFrameInfo) {
+		return [];
+	}
+
+	const { width: targetTexW, height: targetTexH } = textureFrameInfo;
 	const scaleX = displayWidth / targetTexW;
 	const scaleY = displayHeight / targetTexH;
 	const overlapScale = 1;
@@ -344,43 +353,7 @@ function createPowerApertureTiles(
 	const tileSize = Math.max(2, Math.floor(Math.min(targetTexW, targetTexH) / 16));
 	const tiles: PowerApertureTile[] = [];
 
-	if (!targetSource) {
-		return tiles;
-	}
-
-	const orientedBitmapData = G.Phaser.add.bitmapData(targetTexW, targetTexH);
-	orientedBitmapData.ctx.clearRect(0, 0, targetTexW, targetTexH);
-
-	if (targetIsFlipped) {
-		orientedBitmapData.ctx.save();
-		orientedBitmapData.ctx.translate(targetTexW, 0);
-		orientedBitmapData.ctx.scale(-1, 1);
-		orientedBitmapData.ctx.drawImage(
-			targetSource,
-			targetFrame.x,
-			targetFrame.y,
-			targetTexW,
-			targetTexH,
-			0,
-			0,
-			targetTexW,
-			targetTexH,
-		);
-		orientedBitmapData.ctx.restore();
-	} else {
-		orientedBitmapData.ctx.drawImage(
-			targetSource,
-			targetFrame.x,
-			targetFrame.y,
-			targetTexW,
-			targetTexH,
-			0,
-			0,
-			targetTexW,
-			targetTexH,
-		);
-	}
-	orientedBitmapData.dirty = true;
+	const orientedBitmapData = createBitmapDataFromTexture(G, textureFrameInfo, targetIsFlipped);
 
 	for (let sy = 0; sy < targetTexH; sy += tileSize) {
 		for (let sx = 0; sx < targetTexW; sx += tileSize) {

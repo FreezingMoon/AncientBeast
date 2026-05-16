@@ -1,4 +1,5 @@
 import * as arrayUtils from './utility/arrayUtils';
+import { extractTextureFrameInfo } from './utility/bitmapUtils';
 import Game from './game';
 import { Creature } from './creature';
 import { Hex } from './utility/hex';
@@ -864,10 +865,11 @@ export class Animations {
 		const hazeTex = sprite.texture as unknown as ShatterTexture & {
 			baseTexture?: { source?: CanvasImageSource };
 		};
-		const hazeFrame = hazeTex.crop ?? hazeTex.frame;
-		const hazeSource = hazeTex.baseTexture?.source;
-		const heatFrame = hazeTex.crop ?? hazeTex.frame;
-		const heatSource = hazeTex.baseTexture?.source;
+		const hazeFrameInfo = extractTextureFrameInfo(hazeTex);
+		const hazeFrame = hazeFrameInfo?.frame;
+		const hazeSource = hazeFrameInfo?.source;
+		const heatFrame = hazeFrame;
+		const heatSource = hazeSource;
 
 		// Always create a visible haze layer bound to Infernal's silhouette.
 		const hazeSprite = group.create(sprite.x, sprite.y - state.glowOffsetY, sprite.key);
