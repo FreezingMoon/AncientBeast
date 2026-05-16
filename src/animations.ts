@@ -31,7 +31,18 @@ type ShatterTexture = {
 
 type InfernalCardboardEffectState = {
 	trailNextAt: number;
+	heatNextAt: number;
 	glowOffsetY: number;
+	sprite: Phaser.Sprite;
+	group: Phaser.Group;
+	hazeSprite?: Phaser.Sprite;
+	hazeBmd?: Phaser.BitmapData;
+	hazeFrame?: { x: number; y: number; width: number; height: number };
+	hazeSource?: CanvasImageSource;
+	heatBmd?: Phaser.BitmapData;
+	heatFrame?: { x: number; y: number; width: number; height: number };
+	heatSource?: CanvasImageSource;
+	heatLayerSprite?: Phaser.Sprite;
 	tweens: Phaser.Tween[];
 	trailSprites: Phaser.Sprite[];
 };
@@ -826,20 +837,121 @@ export class Animations {
 		});
 	}
 
-	initInfernalCardboardEffect(creature: Creature) {
+	initInfernalCardboardEffect(creature: Creature, spriteRef?: Phaser.Sprite) {
 		if (creature.name !== 'Infernal' || this._infernalCardboardFx.has(creature.id)) {
 			return;
 		}
 
-		const sprite = creature.creatureSprite.sprite;
+		const sprite = spriteRef ?? creature.creatureSprite?.sprite;
+		const group = (sprite?.parent as Phaser.Group | undefined) ?? creature.creatureSprite?.grp;
+		if (!sprite || !group) {
+			return;
+		}
 		const rand = (n: number) => Math.random() * n;
 		const randInt = (n: number) => Math.floor(rand(n));
 		const state: InfernalCardboardEffectState = {
-			trailNextAt: this.game.Phaser.time.now + 260,
+			trailNextAt: this.game.Phaser.time.now,
+			heatNextAt: this.game.Phaser.time.now + 120,
 			glowOffsetY: sprite.texture.height * 0.02,
+			sprite,
+			group,
 			tweens: [],
 			trailSprites: [],
 		};
+
+		const spriteIndex = group.getChildIndex(sprite);
+		const dir = sprite.scale.x < 0 ? -1 : 1;
+		const hazeTex = sprite.texture as unknown as ShatterTexture & {
+			baseTexture?: { source?: CanvasImageSource };
+		};
+		const hazeFrame = hazeTex.crop ?? hazeTex.frame;
+		const hazeSource = hazeTex.baseTexture?.source;
+		const heatFrame = hazeTex.crop ?? hazeTex.frame;
+		const heatSource = hazeTex.baseTexture?.source;
+
+		// Always create a visible haze layer bound to Infernal's silhouette.
+		const hazeSprite = group.create(sprite.x, sprite.y - state.glowOffsetY, sprite.key);
+		hazeSprite.anchor.setTo(0.5, 1);
+		hazeSprite.scale.setTo(dir, 1);
+		hazeSprite.alpha = 0.3;
+		hazeSprite.tint = 0xff8f3a;
+		hazeSprite.blendMode = Phaser.blendModes.ADD;
+		group.addAt(hazeSprite, Math.min(group.children.length - 1, spriteIndex + 1));
+		state.hazeSprite = hazeSprite;
+		state.trailSprites.push(hazeSprite);
+		if (hazeFrame && hazeSource && hazeFrame.width > 0 && hazeFrame.height > 0) {
+			state.hazeFrame = hazeFrame;
+			state.hazeSource = hazeSource;
+			state.hazeBmd = this.game.Phaser.add.bitmapData(hazeFrame.width, hazeFrame.height);
+			const { ctx } = state.hazeBmd;
+			const { width, height, x, y } = hazeFrame;
+			ctx.clearRect(0, 0, width, height);
+			ctx.drawImage(hazeSource, x, y, width, height, 0, 0, width, height);
+			const imageData = ctx.getImageData(0, 0, width, height);
+			const data = imageData.data;
+			for (let index = 0; index < data.length; index += 4) {
+				const red = data[index];
+				const green = data[index + 1];
+				const blue = data[index + 2];
+				const alpha = data[index + 3] / 255;
+				const warmMask = Math.max(0, (red - blue) / 255) * Math.max(0, (red - green) / 255);
+				if (warmMask <= 0.08) {
+					data[index + 3] = 0;
+					continue;
+				}
+
+				const warmBoost = 1 + warmMask * 0.95;
+				data[index] = Math.min(255, red * warmBoost);
+				data[index + 1] = Math.min(255, green * (1 + warmMask * 0.48));
+				data[index + 2] = Math.min(255, blue * (1 - warmMask * 0.2));
+				data[index + 3] = Math.min(255, alpha * warmMask * 255 * 1.15);
+			}
+			ctx.putImageData(imageData, 0, 0);
+			state.hazeBmd.dirty = true;
+			state.hazeSprite.loadTexture(state.hazeBmd);
+			state.hazeSprite.tint = 0xffffff;
+		}
+		if (heatFrame && heatSource && heatFrame.width > 0 && heatFrame.height > 0) {
+			state.heatFrame = heatFrame;
+			state.heatSource = heatSource;
+			state.heatBmd = this.game.Phaser.add.bitmapData(heatFrame.width, heatFrame.height);
+			const { ctx } = state.heatBmd;
+			const { width, height, x, y } = heatFrame;
+			ctx.clearRect(0, 0, width, height);
+			ctx.drawImage(heatSource, x, y, width, height, 0, 0, width, height);
+			const imageData = ctx.getImageData(0, 0, width, height);
+			const data = imageData.data;
+			const leftFadeWidth = 45;
+			const rightFadeWidth = 10;
+			for (let py = 0; py < height; py += 1) {
+				for (let px = 0; px < width; px += 1) {
+					const index = (py * width + px) * 4;
+					const alpha = data[index + 3] / 255;
+					const leftFade = Math.min(1, (px + 1) / leftFadeWidth);
+					const rightFade = Math.min(1, (width - px) / rightFadeWidth);
+					const fade = Math.min(leftFade, rightFade);
+					data[index + 3] = Math.min(255, alpha * fade * 255);
+				}
+			}
+			ctx.putImageData(imageData, 0, 0);
+			state.heatBmd.dirty = true;
+		}
+
+		const heatLayerSprite = group.create(sprite.x, sprite.y - state.glowOffsetY, sprite.key);
+		heatLayerSprite.anchor.setTo(0.5, 1);
+		heatLayerSprite.scale.setTo(dir, 1.38);
+		heatLayerSprite.alpha = 0.24;
+		heatLayerSprite.tint = 0xffa15a;
+		heatLayerSprite.blendMode = Phaser.blendModes.ADD;
+		group.addAt(heatLayerSprite, Math.min(group.children.length - 1, spriteIndex + 2));
+		state.heatLayerSprite = heatLayerSprite;
+		state.trailSprites.push(heatLayerSprite);
+		if (state.heatBmd) {
+			heatLayerSprite.loadTexture(state.heatBmd);
+			heatLayerSprite.tint = 0xffffff;
+		}
+
+		this._spawnInfernalCardboardTrail(creature, state);
 
 		state.tweens.push(
 			this.game.Phaser.add
@@ -860,7 +972,7 @@ export class Animations {
 
 	tickInfernalCardboardEffect(creature: Creature) {
 		const state = this._infernalCardboardFx.get(creature.id);
-		if (!state || this.game.Phaser.time.now < state.trailNextAt) {
+		if (!state) {
 			return;
 		}
 
@@ -881,51 +993,69 @@ export class Animations {
 	private _spawnInfernalCardboardTrail(creature: Creature, state: InfernalCardboardEffectState) {
 		const rand = (n: number) => Math.random() * n;
 		const randInt = (n: number) => Math.floor(rand(n));
-		const sprite = creature.creatureSprite.sprite;
-		const group = creature.creatureSprite.grp;
+		const now = this.game.Phaser.time.now;
+
+		const sprite = state.sprite;
+		if (!sprite) {
+			return;
+		}
+
 		const dir = sprite.scale.x < 0 ? -1 : 1;
-		const trail = group.create(sprite.x, sprite.y - state.glowOffsetY, sprite.key);
-		trail.anchor.setTo(0.5, 1);
-		trail.alpha = 0.3;
-		trail.tint = 0xff9a3d;
-		trail.blendMode = Phaser.blendModes.ADD;
-		trail.scale.setTo(dir * 1.02, 1.02);
-		group.addAt(trail, 0);
-		state.trailSprites.push(trail);
+		if (state.hazeSprite) {
+			state.hazeSprite.x = sprite.x;
+			state.hazeSprite.y = sprite.y;
+			state.hazeSprite.scale.setTo(dir, 1);
+			const hazePulse = 0.5 + 0.5 * Math.sin(now / 320);
+			state.hazeSprite.alpha = 0.12 + hazePulse * 0.88;
+		}
+		if (state.heatLayerSprite) {
+			state.heatLayerSprite.x = sprite.x;
+			state.heatLayerSprite.y = sprite.y;
+			state.heatLayerSprite.scale.setTo(dir, 1.38);
+		}
 
-		const duration = 1620 + randInt(360);
-		const driftX = (randInt(2) === 0 ? -1 : 1) * (6 + randInt(10));
-		const moveTween = this.game.Phaser.add
-			.tween(trail)
-			.to(
-				{ x: trail.x + driftX, y: trail.y - (14 + randInt(6)), alpha: 0.18 },
-				duration,
-				Phaser.Easing.Sinusoidal.Out,
-				true,
-			);
-		const scaleTween = this.game.Phaser.add
-			.tween(trail.scale)
-			.to({ x: dir * 1.08, y: 1.06 }, duration, Phaser.Easing.Sinusoidal.Out, true);
+		if (now >= state.heatNextAt) {
+			const group = state.group;
+			const wisp = group.create(sprite.x, sprite.y - state.glowOffsetY, sprite.key);
+			wisp.anchor.setTo(0.5, 1);
+			wisp.scale.setTo(dir * (1 + rand(0.06)), 0.96 + rand(0.1));
+			wisp.alpha = 0.26 + rand(0.12);
+			wisp.tint = 0xff9c52;
+			wisp.blendMode = Phaser.blendModes.ADD;
+			group.addAt(wisp, 0);
+			if (state.heatBmd) {
+				wisp.loadTexture(state.heatBmd);
+				wisp.tint = 0xffffff;
+			}
+			state.trailSprites.push(wisp);
 
-		moveTween.onComplete.add(() => {
-			const lingerTween = this.game.Phaser.add
-				.tween(trail)
+			const driftX = (randInt(2) === 0 ? -1 : 1) * (2 + rand(4));
+			const riseY = 22 + rand(18);
+			const duration = 1900 + randInt(700);
+			const moveTween = this.game.Phaser.add
+				.tween(wisp)
 				.to(
-					{ y: trail.y - (6 + randInt(4)), alpha: 0 },
-					760 + randInt(220),
-					Phaser.Easing.Sinusoidal.In,
+					{ x: wisp.x + driftX, y: wisp.y - riseY, alpha: 0 },
+					duration,
+					Phaser.Easing.Sinusoidal.Out,
 					true,
 				);
-			lingerTween.onComplete.add(() => {
-				trail.destroy();
-				state.trailSprites = state.trailSprites.filter((sprite) => sprite !== trail);
-				state.tweens = state.tweens.filter((tween) => tween !== lingerTween);
+			const scaleTween = this.game.Phaser.add
+				.tween(wisp.scale)
+				.to(
+					{ x: dir * (1.02 + rand(0.08)), y: 1.5 + rand(0.12) },
+					duration,
+					Phaser.Easing.Sinusoidal.Out,
+					true,
+				);
+			moveTween.onComplete.add(() => {
+				wisp.destroy();
+				state.trailSprites = state.trailSprites.filter((s) => s !== wisp);
+				state.tweens = state.tweens.filter((t) => t !== moveTween && t !== scaleTween);
 			});
-			state.tweens.push(lingerTween);
-			state.tweens = state.tweens.filter((tween) => tween !== moveTween && tween !== scaleTween);
-		});
-		state.tweens.push(moveTween, scaleTween);
+			state.tweens.push(moveTween, scaleTween);
 
-		state.trailNextAt = this.game.Phaser.time.now + 460 + randInt(180);
+			state.heatNextAt = now + 240 + randInt(160);
+		}
 	}
 }
