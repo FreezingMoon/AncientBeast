@@ -6,6 +6,7 @@ import { Direction, Hex } from '../utility/hex';
 import { QueryOptions } from '../utility/hexgrid';
 import { Effect } from '../effect';
 import { getPointFacade } from '../utility/pointfacade';
+import { HEX_WIDTH_PX } from '../utility/const';
 import Game from '../game';
 
 /** Creates the abilities
@@ -357,7 +358,7 @@ export default (G: Game) => {
 					// @ts-expect-error `this.creature` exists once this file is extended into `ability.ts`
 					this,
 					target,
-					'effects_freezing-spit',
+					'effects_ice-bolt',
 					path,
 					args,
 					52,
@@ -490,7 +491,91 @@ export default (G: Game) => {
 					pierce: ability.damages.pierce + (ability.isUpgraded() ? levelDifference * 2 : 0),
 				};
 				const damage = new Damage(vehemoth, damages, 1, [], G);
-				target.takeDamage(damage);
+
+				const emissionPoint = vehemoth.legacyProjectileEmissionPoint;
+				const targetHex = target.hexagons.reduce((closestHex, hex) => {
+					return Math.abs(emissionPoint.x - hex.displayPos.x) <
+						Math.abs(emissionPoint.x - closestHex.displayPos.x)
+						? hex
+						: closestHex;
+				});
+
+				const impactPoint = {
+					x: targetHex.displayPos.x + 45,
+					y: targetHex.displayPos.y + 32,
+				};
+
+				const shotGoesRight = impactPoint.x >= emissionPoint.x + (vehemoth.size * HEX_WIDTH_PX) / 2;
+				const defaultFacingRight = !vehemoth.player.flipped;
+				const isBackwardsShot = shotGoesRight !== defaultFacingRight;
+
+				const fireProjectile = () => {
+					// Convert cardboard-local nose coordinates into world coordinates using
+					// the current sprite transform (position + anchor + scale).
+					// This keeps forward/backward shots aligned after setDir mirroring.
+					const cardboardNoseLocalX = 221;
+					const cardboardNoseLocalY = 127;
+					const creatureGroup = vehemoth.creatureSprite.grp;
+					const creatureSprite = vehemoth.creatureSprite.sprite;
+					const localOffsetX =
+						(cardboardNoseLocalX - creatureSprite.anchor.x * creatureSprite.texture.width) *
+						creatureSprite.scale.x;
+					const localOffsetY =
+						(cardboardNoseLocalY - creatureSprite.anchor.y * creatureSprite.texture.height) *
+						creatureSprite.scale.y;
+					const noseWorldX = creatureGroup.x + creatureSprite.x + localOffsetX;
+					const noseWorldY = creatureGroup.y + creatureSprite.y + localOffsetY;
+
+					const shotAngle = Math.atan2(impactPoint.y - noseWorldY, impactPoint.x - noseWorldX);
+					const emergenceInsetPx = 18;
+					const startX = noseWorldX - Math.cos(shotAngle) * emergenceInsetPx;
+					const startY = noseWorldY - Math.sin(shotAngle) * emergenceInsetPx;
+					const sprite = G.grid.creatureGroup.create(startX, startY, 'effects_ice-bolt');
+					sprite.anchor.setTo(0, 0.5); // Center-left
+					sprite.rotation = shotAngle;
+
+					// Vertical clipping line slightly inside the nose cavity.
+					const revealMask = G.Phaser.add.graphics(0, 0, G.grid.creatureGroup);
+					const outwardClipPx = 2;
+					const maskLineNudgeX = -3;
+					const shotDirX = Math.cos(shotAngle);
+					const shotGoesRightAtFire = shotDirX >= 0;
+					const clipX =
+						noseWorldX + (shotGoesRightAtFire ? outwardClipPx : -outwardClipPx) + maskLineNudgeX;
+					revealMask.beginFill(0xffffff);
+					if (shotGoesRightAtFire) {
+						revealMask.drawRect(clipX, -2000, 5000, 4000);
+					} else {
+						revealMask.drawRect(-2000, -2000, clipX + 2000, 4000);
+					}
+					revealMask.endFill();
+					sprite.mask = revealMask;
+
+					const travelDistance = Math.hypot(impactPoint.x - startX, impactPoint.y - startY);
+					const duration = Math.max(180, Math.min(420, travelDistance * 0.6));
+					const tween = G.Phaser.add
+						.tween(sprite)
+						.to({ x: impactPoint.x, y: impactPoint.y }, duration, Phaser.Easing.Linear.None)
+						.start();
+
+					tween.onComplete.add(() => {
+						sprite.mask = null;
+						sprite.destroy();
+						revealMask.destroy();
+						target.takeDamage(damage);
+						if (isBackwardsShot) {
+							vehemoth.facePlayerDefault();
+						}
+					});
+				};
+
+				if (isBackwardsShot) {
+					const backDir: 1 | -1 = shotGoesRight ? 1 : -1;
+					vehemoth.creatureSprite.setDir(backDir);
+					setTimeout(fireProjectile, 250);
+				} else {
+					fireProjectile();
+				}
 			},
 
 			/**
