@@ -2128,6 +2128,10 @@ class CreatureSprite {
 			sprite.texture.width / 2;
 		sprite.y = display['offset-y'] + sprite.texture.height;
 
+		if (creature.name === 'Infernal') {
+			game.animations.initInfernalCardboardEffect(creature);
+		}
+
 		// Hint Group
 		const hintGrp = phaser.add.group(group, 'creatureHintGrp_' + id);
 		hintGrp.x = 0.5 * HEX_WIDTH_PX * size;
@@ -2177,6 +2181,7 @@ class CreatureSprite {
 		const XRAY_FADE_RATE = 0.08; // ~160 ms fade at 60 fps
 		this._group.update = () => {
 			_groupUpdate();
+			game.animations.tickInfernalCardboardEffect(this._creature);
 			// Animate xray alpha toward target
 			if (this._xrayAlpha < this._xrayTargetAlpha) {
 				this._xrayAlpha = Math.min(this._xrayTargetAlpha, this._xrayAlpha + XRAY_FADE_RATE);
@@ -3190,6 +3195,7 @@ class CreatureSprite {
 	}
 
 	destroy() {
+		this._creature.game.animations.disposeInfernalCardboardEffect(this._creature);
 		this._group.parent.removeChild(this._group);
 	}
 }

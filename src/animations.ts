@@ -29,15 +29,234 @@ type ShatterTexture = {
 	height?: number;
 };
 
+type InfernalCardboardEffectState = {
+	trailNextAt: number;
+	glowOffsetY: number;
+	tweens: Phaser.Tween[];
+	trailSprites: Phaser.Sprite[];
+};
+
 export class Animations {
 	game: Game;
 	movementPoints: number;
 	animationCounter: number;
+	private _infernalCardboardFx = new Map<number, InfernalCardboardEffectState>();
 
 	constructor(game: Game) {
 		this.game = game;
 		this.movementPoints = 0;
 		this.animationCounter = 0;
+	}
+
+	private _yoyo(
+		obj: object,
+		props: object,
+		duration: number,
+		ease: (k: number) => number,
+		maxPhase = duration,
+	) {
+		return this.game.Phaser.add
+			.tween(obj)
+			.to(props, duration, ease, true, Math.floor(Math.random() * maxPhase), -1, true);
+	}
+
+	startBonfireSpringTrapAnimation(
+		display: Phaser.Sprite,
+		trapGroup: Phaser.Group,
+		idleTweens: Phaser.Tween[],
+		overlaySprites: Phaser.Sprite[],
+	) {
+		const base = display;
+
+		base.anchor.y = 1;
+		base.y += base.height / 2;
+		base.scale.y = 0.62;
+		base.alpha = 0.76;
+		const bx = base.x;
+		const by = base.y;
+
+		const rand = (n: number) => Math.random() * n;
+		const randInt = (n: number) => Math.floor(rand(n));
+
+		const baseGlow = trapGroup.create(bx, by, 'trap_bonfire-spring') as Phaser.Sprite;
+		baseGlow.anchor.setTo(0.5, 1);
+		baseGlow.alpha = 0.4;
+		baseGlow.scale.setTo(1.08, 0.72);
+		idleTweens.push(
+			this._yoyo(
+				baseGlow.scale,
+				{ x: 1.14, y: 0.8 },
+				180 + randInt(120),
+				Phaser.Easing.Quadratic.InOut,
+			),
+			this._yoyo(baseGlow, { alpha: 0.34 }, 180 + randInt(120), Phaser.Easing.Linear.None),
+		);
+		overlaySprites.push(baseGlow);
+
+		const core = trapGroup.create(bx, by - 6, 'trap_bonfire-spring') as Phaser.Sprite;
+		core.anchor.setTo(0.5, 1);
+		core.alpha = 0.58;
+		core.scale.setTo(0.76, 0.98);
+		idleTweens.push(
+			this._yoyo(
+				core.scale,
+				{ x: 0.81, y: 1.1 },
+				220 + randInt(120),
+				Phaser.Easing.Quadratic.InOut,
+			),
+			this._yoyo(core, { alpha: 0.5 }, 220 + randInt(120), Phaser.Easing.Linear.None),
+		);
+		overlaySprites.push(core);
+
+		const bridge = trapGroup.create(bx, by - 10, 'trap_bonfire-spring') as Phaser.Sprite;
+		bridge.anchor.setTo(0.5, 1);
+		bridge.alpha = 0.34;
+		bridge.scale.setTo(0.56, 1.14);
+		const bridgeDrift = 0.8 + rand(0.8);
+		bridge.x = bx - bridgeDrift;
+		idleTweens.push(
+			this._yoyo(
+				bridge.scale,
+				{ x: 0.58, y: 1.2 },
+				230 + randInt(120),
+				Phaser.Easing.Quadratic.InOut,
+			),
+			this._yoyo(bridge, { alpha: 0.32 }, 230 + randInt(120), Phaser.Easing.Linear.None),
+			this._yoyo(
+				bridge,
+				{ x: bx + bridgeDrift },
+				240 + randInt(120),
+				Phaser.Easing.Sinusoidal.InOut,
+			),
+		);
+		overlaySprites.push(bridge);
+
+		const clusters: Array<{
+			dx: number;
+			bodyScaleY: number;
+			tongueScaleY: number;
+			tongueScaleX: number;
+		}> = [
+			{ dx: -26, bodyScaleY: 0.75, tongueScaleY: 1.18, tongueScaleX: 0.38 },
+			{ dx: -2, bodyScaleY: 0.82, tongueScaleY: 1.28, tongueScaleX: 0.42 },
+			{ dx: 24, bodyScaleY: 0.7, tongueScaleY: 1.14, tongueScaleX: 0.35 },
+		];
+
+		for (const c of clusters) {
+			const cx = bx + c.dx;
+			const body = trapGroup.create(cx, by - 4, 'trap_bonfire-spring') as Phaser.Sprite;
+			body.anchor.setTo(0.5, 1);
+			body.alpha = 0.72;
+			body.scale.setTo(0.78, c.bodyScaleY);
+			const bodySway = 0.02 + rand(0.02);
+			body.rotation = -bodySway;
+			idleTweens.push(
+				this._yoyo(
+					body.scale,
+					{ y: c.bodyScaleY * 1.18 },
+					380 + randInt(120),
+					Phaser.Easing.Quadratic.InOut,
+				),
+				this._yoyo(body, { alpha: 0.52 }, 320 + randInt(100), Phaser.Easing.Linear.None),
+				this._yoyo(
+					body,
+					{ rotation: bodySway },
+					850 + randInt(300),
+					Phaser.Easing.Sinusoidal.InOut,
+				),
+			);
+			overlaySprites.push(body);
+
+			const tongue = trapGroup.create(cx, by - 8, 'trap_bonfire-spring') as Phaser.Sprite;
+			tongue.anchor.setTo(0.5, 1);
+			tongue.alpha = 0.36;
+			tongue.scale.setTo(c.tongueScaleX, c.tongueScaleY);
+			const tongueDrift = 0.015 + rand(0.015);
+			tongue.rotation = -tongueDrift;
+			idleTweens.push(
+				this._yoyo(
+					tongue.scale,
+					{ y: c.tongueScaleY * 1.32, x: c.tongueScaleX * 0.8 },
+					240 + randInt(120),
+					Phaser.Easing.Quadratic.InOut,
+				),
+				this._yoyo(tongue, { alpha: 0.31 }, 220 + randInt(120), Phaser.Easing.Linear.None),
+				this._yoyo(
+					tongue,
+					{ rotation: tongueDrift },
+					760 + randInt(340),
+					Phaser.Easing.Sinusoidal.InOut,
+				),
+			);
+			overlaySprites.push(tongue);
+
+			const tip = trapGroup.create(cx, by - 10, 'trap_bonfire-spring') as Phaser.Sprite;
+			tip.anchor.setTo(0.5, 1);
+			tip.alpha = 0.48;
+			tip.scale.setTo(c.tongueScaleX * 0.55, c.tongueScaleY * 0.95);
+			const tipSway = 0.09 + rand(0.04);
+			const tipDriftX = 0.8 + rand(1.0);
+			tip.x = cx - tipDriftX;
+			tip.rotation = -tipSway;
+			idleTweens.push(
+				this._yoyo(
+					tip.scale,
+					{ y: c.tongueScaleY * 1.2, x: c.tongueScaleX * 0.46 },
+					210 + randInt(120),
+					Phaser.Easing.Quadratic.InOut,
+				),
+				this._yoyo(tip, { alpha: 0.38 }, 180 + randInt(100), Phaser.Easing.Linear.None),
+				this._yoyo(tip, { rotation: tipSway }, 300 + randInt(140), Phaser.Easing.Sinusoidal.InOut),
+				this._yoyo(tip, { x: cx + tipDriftX }, 280 + randInt(140), Phaser.Easing.Sinusoidal.InOut),
+			);
+			overlaySprites.push(tip);
+		}
+	}
+
+	startScorchedGroundTrapAnimation(
+		display: Phaser.Sprite,
+		trapGroup: Phaser.Group,
+		idleTweens: Phaser.Tween[],
+		overlaySprites: Phaser.Sprite[],
+	) {
+		display.alpha = 1;
+		const bx = display.x;
+		const by = display.y;
+		const randInt = (n: number) => Math.floor(Math.random() * n);
+
+		const innerGlow = trapGroup.create(bx, by, 'trap_scorched-ground') as Phaser.Sprite;
+		innerGlow.anchor.setTo(0.5);
+		innerGlow.alpha = 0.3;
+		innerGlow.tint = 0xffa347;
+		innerGlow.scale.setTo(1.07, 1.06);
+		innerGlow.blendMode = Phaser.blendModes.ADD;
+		idleTweens.push(
+			this._yoyo(innerGlow, { alpha: 0.43 }, 480 + randInt(200), Phaser.Easing.Linear.None),
+			this._yoyo(
+				innerGlow.scale,
+				{ x: 1.2, y: 1.17 },
+				520 + randInt(210),
+				Phaser.Easing.Quadratic.InOut,
+			),
+		);
+		overlaySprites.push(innerGlow);
+
+		const outerAura = trapGroup.create(bx, by, 'trap_scorched-ground') as Phaser.Sprite;
+		outerAura.anchor.setTo(0.5);
+		outerAura.alpha = 0.19;
+		outerAura.tint = 0xff7a1f;
+		outerAura.scale.setTo(1.24, 1.22);
+		outerAura.blendMode = Phaser.blendModes.ADD;
+		idleTweens.push(
+			this._yoyo(outerAura, { alpha: 0.3 }, 700 + randInt(260), Phaser.Easing.Linear.None),
+			this._yoyo(
+				outerAura.scale,
+				{ x: 1.46, y: 1.38 },
+				780 + randInt(280),
+				Phaser.Easing.Sinusoidal.InOut,
+			),
+		);
+		overlaySprites.push(outerAura);
 	}
 
 	walk(creature: Creature, path: Hex[], opts: AnimationOptions) {
@@ -605,5 +824,108 @@ export class Animations {
 		creature.creatureSprite.setAlpha(0, speed).then(() => {
 			opts.callback?.();
 		});
+	}
+
+	initInfernalCardboardEffect(creature: Creature) {
+		if (creature.name !== 'Infernal' || this._infernalCardboardFx.has(creature.id)) {
+			return;
+		}
+
+		const sprite = creature.creatureSprite.sprite;
+		const rand = (n: number) => Math.random() * n;
+		const randInt = (n: number) => Math.floor(rand(n));
+		const state: InfernalCardboardEffectState = {
+			trailNextAt: this.game.Phaser.time.now + 260,
+			glowOffsetY: sprite.texture.height * 0.02,
+			tweens: [],
+			trailSprites: [],
+		};
+
+		state.tweens.push(
+			this.game.Phaser.add
+				.tween(sprite)
+				.to(
+					{ alpha: 0.86 },
+					1160 + randInt(300),
+					Phaser.Easing.Sinusoidal.InOut,
+					true,
+					randInt(500),
+					-1,
+					true,
+				),
+		);
+
+		this._infernalCardboardFx.set(creature.id, state);
+	}
+
+	tickInfernalCardboardEffect(creature: Creature) {
+		const state = this._infernalCardboardFx.get(creature.id);
+		if (!state || this.game.Phaser.time.now < state.trailNextAt) {
+			return;
+		}
+
+		this._spawnInfernalCardboardTrail(creature, state);
+	}
+
+	disposeInfernalCardboardEffect(creature: Creature) {
+		const state = this._infernalCardboardFx.get(creature.id);
+		if (!state) {
+			return;
+		}
+
+		state.tweens.forEach((tween) => tween.stop());
+		state.trailSprites.forEach((sprite) => sprite.destroy());
+		this._infernalCardboardFx.delete(creature.id);
+	}
+
+	private _spawnInfernalCardboardTrail(creature: Creature, state: InfernalCardboardEffectState) {
+		const rand = (n: number) => Math.random() * n;
+		const randInt = (n: number) => Math.floor(rand(n));
+		const sprite = creature.creatureSprite.sprite;
+		const group = creature.creatureSprite.grp;
+		const dir = sprite.scale.x < 0 ? -1 : 1;
+		const trail = group.create(sprite.x, sprite.y - state.glowOffsetY, sprite.key);
+		trail.anchor.setTo(0.5, 1);
+		trail.alpha = 0.3;
+		trail.tint = 0xff9a3d;
+		trail.blendMode = Phaser.blendModes.ADD;
+		trail.scale.setTo(dir * 1.02, 1.02);
+		group.addAt(trail, 0);
+		state.trailSprites.push(trail);
+
+		const duration = 1620 + randInt(360);
+		const driftX = (randInt(2) === 0 ? -1 : 1) * (6 + randInt(10));
+		const moveTween = this.game.Phaser.add
+			.tween(trail)
+			.to(
+				{ x: trail.x + driftX, y: trail.y - (14 + randInt(6)), alpha: 0.18 },
+				duration,
+				Phaser.Easing.Sinusoidal.Out,
+				true,
+			);
+		const scaleTween = this.game.Phaser.add
+			.tween(trail.scale)
+			.to({ x: dir * 1.08, y: 1.06 }, duration, Phaser.Easing.Sinusoidal.Out, true);
+
+		moveTween.onComplete.add(() => {
+			const lingerTween = this.game.Phaser.add
+				.tween(trail)
+				.to(
+					{ y: trail.y - (6 + randInt(4)), alpha: 0 },
+					760 + randInt(220),
+					Phaser.Easing.Sinusoidal.In,
+					true,
+				);
+			lingerTween.onComplete.add(() => {
+				trail.destroy();
+				state.trailSprites = state.trailSprites.filter((sprite) => sprite !== trail);
+				state.tweens = state.tweens.filter((tween) => tween !== lingerTween);
+			});
+			state.tweens.push(lingerTween);
+			state.tweens = state.tweens.filter((tween) => tween !== moveTween && tween !== scaleTween);
+		});
+		state.tweens.push(moveTween, scaleTween);
+
+		state.trailNextAt = this.game.Phaser.time.now + 460 + randInt(180);
 	}
 }
