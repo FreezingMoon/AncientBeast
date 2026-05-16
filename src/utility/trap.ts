@@ -96,6 +96,10 @@ export class Trap {
 			this._startFlameAnimation(game);
 		}
 
+		if (type === 'scorched-ground') {
+			this._startScorchedGroundGlowAnimation(game);
+		}
+
 		if (this.typeOver) {
 			this.displayOver = game.grid.trapOverGroup.create(
 				px.x + HEX_WIDTH_PX / 2,
@@ -325,5 +329,59 @@ export class Trap {
 			);
 			this._overlaySprites.push(tip);
 		}
+	}
+
+	/**
+	 * Adds a strong pulsing glow to Infernal's scorched-ground trap.
+	 * Uses additive overlays so hot spots stay readable at gameplay zoom.
+	 */
+	private _startScorchedGroundGlowAnimation(game: Game) {
+		const phaser: Phaser.Game = game.Phaser;
+		const base = this.display;
+		const bx = base.x;
+		const by = base.y;
+		const rand = (n: number) => Math.random() * n;
+		const randInt = (n: number) => Math.floor(rand(n));
+
+		const yoyo = (
+			obj: object,
+			props: object,
+			duration: number,
+			ease: (k: number) => number,
+			maxPhase = duration,
+		): Phaser.Tween =>
+			phaser.add.tween(obj).to(props, duration, ease, true, randInt(maxPhase), -1, true);
+
+		// Keep the base trap stable; only glow overlays pulse.
+		base.alpha = 1;
+
+		const innerGlow = game.grid.trapGroup.create(bx, by, 'trap_scorched-ground') as Phaser.Sprite;
+		innerGlow.anchor.setTo(0.5);
+		innerGlow.alpha = 0.3;
+		innerGlow.tint = 0xffa347;
+		innerGlow.scale.setTo(1.07, 1.06);
+		innerGlow.blendMode = Phaser.blendModes.ADD;
+		this._idleTweens.push(
+			yoyo(innerGlow, { alpha: 0.43 }, 480 + randInt(200), Phaser.Easing.Linear.None),
+			yoyo(innerGlow.scale, { x: 1.2, y: 1.17 }, 520 + randInt(210), Phaser.Easing.Quadratic.InOut),
+		);
+		this._overlaySprites.push(innerGlow);
+
+		const outerAura = game.grid.trapGroup.create(bx, by, 'trap_scorched-ground') as Phaser.Sprite;
+		outerAura.anchor.setTo(0.5);
+		outerAura.alpha = 0.19;
+		outerAura.tint = 0xff7a1f;
+		outerAura.scale.setTo(1.24, 1.22);
+		outerAura.blendMode = Phaser.blendModes.ADD;
+		this._idleTweens.push(
+			yoyo(outerAura, { alpha: 0.3 }, 700 + randInt(260), Phaser.Easing.Linear.None),
+			yoyo(
+				outerAura.scale,
+				{ x: 1.46, y: 1.38 },
+				780 + randInt(280),
+				Phaser.Easing.Sinusoidal.InOut,
+			),
+		);
+		this._overlaySprites.push(outerAura);
 	}
 }
