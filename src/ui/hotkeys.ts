@@ -76,6 +76,26 @@ export class Hotkeys {
 		}
 	}
 
+	pressDigit(index: number) {
+		if (index === 0) {
+			// Reset powers
+			if (this.ui.metaPowers) {
+				this.ui.metaPowers._clearPowers();
+			}
+		} else if (index >= 1 && index <= 9) {
+			// Enable power by index
+			if (this.ui.metaPowers) {
+				this.ui.metaPowers.enablePowerByIndex(index);
+			}
+		}
+	}
+
+	pressBackspace() {
+		if (this.ui.canToggleMetaPowers()) {
+			this.ui.game.signals.ui.dispatch('toggleMetaPowers');
+		}
+	}
+
 	pressR() {
 		if (this.ui.game.botController?.isBotTurn()) {
 			return;
@@ -344,6 +364,61 @@ export function getHotKeys(hk) {
 		F11: {
 			onkeydown(event) {
 				hk.pressF11(event);
+			},
+		},
+		Digit0: {
+			onkeydown() {
+				hk.pressDigit(0);
+			},
+		},
+		Digit1: {
+			onkeydown() {
+				hk.pressDigit(1);
+			},
+		},
+		Digit2: {
+			onkeydown() {
+				hk.pressDigit(2);
+			},
+		},
+		Digit3: {
+			onkeydown() {
+				hk.pressDigit(3);
+			},
+		},
+		Digit4: {
+			onkeydown() {
+				hk.pressDigit(4);
+			},
+		},
+		Digit5: {
+			onkeydown() {
+				hk.pressDigit(5);
+			},
+		},
+		Digit6: {
+			onkeydown() {
+				hk.pressDigit(6);
+			},
+		},
+		Digit7: {
+			onkeydown() {
+				hk.pressDigit(7);
+			},
+		},
+		Digit8: {
+			onkeydown() {
+				hk.pressDigit(8);
+			},
+		},
+		Digit9: {
+			onkeydown() {
+				hk.pressDigit(9);
+			},
+		},
+		Backspace: {
+			onkeydown() {
+				hk.pressBackspace();
 			},
 		},
 	};

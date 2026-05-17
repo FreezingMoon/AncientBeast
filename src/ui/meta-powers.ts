@@ -24,6 +24,7 @@ type MetaPowerStateKey = keyof MetaPowersState;
 export class MetaPowers {
 	game: Game;
 	toggles: Record<MetaPowerStateKey, defaultToggleObj>;
+	powerKeysInDisplayOrder: MetaPowerStateKey[];
 	panelVisible: boolean;
 	// eslint-disable-next-line no-undef
 	$els: { [key: string]: JQuery<HTMLElement> } = {};
@@ -32,24 +33,33 @@ export class MetaPowers {
 	btnResetCooldowns: Button;
 	btnDisableMaterializationSickness: Button;
 	btnInfiniteEnergy: Button;
+	buttonIdToStateKey: Record<string, MetaPowerStateKey>;
 
 	constructor(game: Game) {
 		this.game = game;
+		this.powerKeysInDisplayOrder = [];
+		this.buttonIdToStateKey = {
+			'execute-monster-button': 'executeMonster',
+			'disable-materialization-sickness-button': 'disableMaterializationSickness',
+			'reset-cooldowns-button': 'resetCooldowns',
+			'infinite-energy-button': 'infiniteEnergy',
+		};
 
 		this.toggles = {
 			executeMonster: {
 				enabled: this.game.metaPowersState.executeMonster,
 				label: 'Execution Mode',
 			},
+			disableMaterializationSickness: {
+				enabled: this.game.metaPowersState.disableMaterializationSickness,
+				label: 'Disable Materialization Sickness',
+			},
 			resetCooldowns: {
 				enabled: this.game.metaPowersState.resetCooldowns,
 				label: 'Disable Cooldowns',
 			},
-			disableMaterializationSickness: { enabled: false, label: 'Disable Materialization Sickness' },
 			infiniteEnergy: { enabled: this.game.metaPowersState.infiniteEnergy, label: 'Infinite Energy' },
 		};
-		this.toggles.disableMaterializationSickness.enabled =
-			this.game.metaPowersState.disableMaterializationSickness;
 
 		// Object that will contain jQuery element references
 		this.$els = {};
@@ -154,6 +164,13 @@ export class MetaPowers {
 		this.$els.resetPowersButton.on('click', () => {
 			this._clearPowers();
 		});
+
+		// Resolve power keys from visible button order so number hotkeys follow UI order.
+		this.powerKeysInDisplayOrder = this.$els.modal
+			.find('.meta-powers-actions .button[id]')
+			.toArray()
+			.map((el) => this.buttonIdToStateKey[(el as HTMLElement).id])
+			.filter(Boolean) as MetaPowerStateKey[];
 	}
 
 	/**
@@ -257,5 +274,27 @@ export class MetaPowers {
 		this.panelVisible = false;
 		this.$els.modal.addClass('hide');
 		this._persistPowers();
+	}
+
+	/**
+	 * Enable a power by index (1-based) from the available powers
+	 *
+	 * @param {number} index Index of the power (1 = first power, 2 = second, etc.)
+	 */
+	enablePowerByIndex(index: number) {
+		const powerKeys = this.powerKeysInDisplayOrder.length
+			? this.powerKeysInDisplayOrder.slice(0, 9)
+			: (Object.keys(this.toggles) as MetaPowerStateKey[]).slice(0, 9);
+		if (index < 1 || index > powerKeys.length) {
+			return;
+		}
+
+		const powerKey = powerKeys[index - 1];
+		const button = this[`btn${capitalize(powerKey)}`];
+
+		if (button) {
+			const enabled = !this.toggles[powerKey].enabled;
+			this._setPowerState(powerKey, enabled, button);
+		}
 	}
 }
