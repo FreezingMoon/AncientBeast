@@ -110,9 +110,9 @@ export class Hotkeys {
 
 	pressA(event) {
 		if (event.shiftKey) {
-			this.ui.btnAudio.triggerClick();
+			this.ui.cycleAudioMode();
 		} else {
-			this.ui.dashopen && this.ui.gridSelectLeft();
+			this.ui.btnAudio.triggerClick();
 		}
 	}
 
