@@ -137,10 +137,13 @@ export class Drop {
 	}
 
 	pickupAnimAndDestroy() {
-		this.display.destroy();
+		const { dropGroup, creatureGroup } = this.game.grid;
+		dropGroup.remove(this.display, false);
+		creatureGroup.add(this.display);
+
 		const tween = this.game.Phaser.add
 			.tween(this.display)
-			.to({ alpha: 0, x: 400 }, 500, Phaser.Easing.Linear.None)
+			.to({ alpha: 0, y: this.display.y - 100 }, 500, Phaser.Easing.Linear.None)
 			.start();
 
 		tween.onComplete.add(() => {
