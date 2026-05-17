@@ -118,7 +118,8 @@ export class Player {
 		/**
 		 * Whether creatures summoned by Player are affected by Materialization Sickness.
 		 */
-		this._summonCreaturesWithMaterializationSickness = true;
+		this._summonCreaturesWithMaterializationSickness =
+			!this.game.metaPowersState.disableMaterializationSickness;
 
 		// Events
 		this.game.signals.metaPowers.add(this.handleMetaPowerEvent, this);

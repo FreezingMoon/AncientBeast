@@ -252,7 +252,7 @@ export class HexGrid {
 		this.onShoutCooldown = false;
 
 		// If true, clicking a monster will instantly kill it.
-		this._executionMode = false;
+		this._executionMode = this.game.metaPowersState.executeMonster;
 
 		// Events
 		this.game.signals.metaPowers.add(this.handleMetaPowerEvent, this);

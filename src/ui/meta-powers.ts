@@ -2,7 +2,7 @@ import * as $j from 'jquery';
 import Cookies from 'js-cookie';
 import { capitalize } from '../utility/string';
 import { Button, ButtonStateEnum } from './button';
-import Game from '../game';
+import Game, { MetaPowersState } from '../game';
 
 const COOKIE_KEY = 'ab-meta-powers';
 
@@ -19,14 +19,12 @@ type defaultToggleObj = {
 	enabled: boolean;
 	label: string;
 };
+
+type MetaPowerStateKey = keyof MetaPowersState;
 export class MetaPowers {
 	game: Game;
-	toggles: {
-		executeMonster: defaultToggleObj;
-		resetCooldowns: defaultToggleObj;
-		disableMaterializationSickness: defaultToggleObj;
-		infiniteEnergy: defaultToggleObj;
-	};
+	toggles: Record<MetaPowerStateKey, defaultToggleObj>;
+	panelVisible: boolean;
 	// eslint-disable-next-line no-undef
 	$els: { [key: string]: JQuery<HTMLElement> } = {};
 	btnCloseModal: Button;
@@ -39,14 +37,23 @@ export class MetaPowers {
 		this.game = game;
 
 		this.toggles = {
-			executeMonster: { enabled: false, label: 'Execution Mode' },
-			resetCooldowns: { enabled: false, label: 'Disable Cooldowns' },
+			executeMonster: {
+				enabled: this.game.metaPowersState.executeMonster,
+				label: 'Execution Mode',
+			},
+			resetCooldowns: {
+				enabled: this.game.metaPowersState.resetCooldowns,
+				label: 'Disable Cooldowns',
+			},
 			disableMaterializationSickness: { enabled: false, label: 'Disable Materialization Sickness' },
-			infiniteEnergy: { enabled: false, label: 'Infinite Energy' },
+			infiniteEnergy: { enabled: this.game.metaPowersState.infiniteEnergy, label: 'Infinite Energy' },
 		};
+		this.toggles.disableMaterializationSickness.enabled =
+			this.game.metaPowersState.disableMaterializationSickness;
 
 		// Object that will contain jQuery element references
 		this.$els = {};
+		this.panelVisible = false;
 		this._bindElements();
 
 		// Events
@@ -93,6 +100,8 @@ export class MetaPowers {
 			disableMaterializationSicknessButton: $j('#disable-materialization-sickness-button'),
 			infiniteEnergyButton: $j('#infinite-energy-button'),
 		};
+
+		this.panelVisible = !this.$els.modal.hasClass('hide');
 
 		this.btnCloseModal = new Button(
 			{
@@ -153,8 +162,8 @@ export class MetaPowers {
 	 * @param {string} stateKey Key for `this.state` setting
 	 * @param {Button} button Button representing the toggle state
 	 */
-	_togglePower(stateKey: string, button: Button) {
-		const enabled = !this.toggles[stateKey].enabled;
+	_setPowerState(stateKey: MetaPowerStateKey, enabled: boolean, button: Button) {
+		this.game.metaPowersState[stateKey] = enabled;
 
 		this.toggles = {
 			...this.toggles,
@@ -163,41 +172,65 @@ export class MetaPowers {
 
 		button.changeState(enabled ? ButtonStateEnum.active : ButtonStateEnum.normal);
 
-		//eg toggleExecuteMonster
 		this.game.signals.metaPowers.dispatch(`toggle${capitalize(stateKey)}`, enabled);
 
 		this._updateEnabledPowersPreview();
 		this._persistPowers();
 	}
 
+	_togglePower(stateKey: MetaPowerStateKey, button: Button) {
+		const enabled = !this.toggles[stateKey].enabled;
+		this._setPowerState(stateKey, enabled, button);
+	}
+
 	/**
 	 * Persist toggled Meta Powers to a cookie
 	 */
 	_persistPowers() {
-		Cookies.set(COOKIE_KEY, JSON.stringify({ persisting: true, toggles: this.toggles }));
+		Cookies.set(
+			COOKIE_KEY,
+			JSON.stringify({
+				persisting: true,
+				toggles: this.toggles,
+				panelVisible: this.panelVisible,
+			}),
+		);
 	}
 
 	/**
 	 * If the toggled Meta Powers were persisted to a cookie, restore them
 	 */
 	_restorePowers() {
-		const powers = JSON.parse(Cookies.get(COOKIE_KEY)).toggles;
+		let powers = null;
+		let panelVisible = false;
 
-		Object.keys(powers).forEach((key) => {
-			if (powers[key].enabled) {
-				this._togglePower(key, this[`btn${capitalize(key)}`]);
-			}
+		try {
+			const cookieData = JSON.parse(Cookies.get(COOKIE_KEY));
+			powers = cookieData?.toggles;
+			panelVisible = !!cookieData?.panelVisible;
+		} catch (error) {
+			Cookies.remove(COOKIE_KEY);
+			return;
+		}
+
+		(Object.keys(this.toggles) as MetaPowerStateKey[]).forEach((key) => {
+			const enabled = !!powers?.[key]?.enabled;
+			const button = this[`btn${capitalize(key)}`];
+			this._setPowerState(key, enabled, button);
 		});
+
+		this.panelVisible = panelVisible;
+		this.$els.modal.toggleClass('hide', !panelVisible);
+		this._persistPowers();
 	}
 
 	/**
 	 * Clear toggled Meta Powers and remove cookie
 	 */
 	_clearPowers() {
-		Object.keys(this.toggles).forEach((key) => {
-			if (this.toggles[key].enabled) {
-				this._togglePower(key, this[`btn${capitalize(key)}`]);
-			}
+		(Object.keys(this.toggles) as MetaPowerStateKey[]).forEach((key) => {
+			const button = this[`btn${capitalize(key)}`];
+			this._setPowerState(key, false, button);
 		});
 	}
 
@@ -212,13 +245,17 @@ export class MetaPowers {
 	 * Toggle the visibility of the Meta Powers modal
 	 */
 	_toggleModal() {
-		this.$els.modal.toggleClass('hide');
+		this.panelVisible = !this.panelVisible;
+		this.$els.modal.toggleClass('hide', !this.panelVisible);
+		this._persistPowers();
 	}
 
 	/**
 	 * Close the Meta Powers modal
 	 */
 	_closeModal() {
+		this.panelVisible = false;
 		this.$els.modal.addClass('hide');
+		this._persistPowers();
 	}
 }
