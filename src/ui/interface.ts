@@ -25,6 +25,41 @@ import { getSummonCandidates } from '../utility/summon-candidates';
 import { OpenCollectiveBanner } from './open-collective-banner';
 
 const SECRET_VIEW_ID = 'ab-secret-view';
+const GAME_IN_PROGRESS_UNLOAD_CONFIRMATION =
+	'A game is in progress and cannot be restored, are you sure you want to leave?';
+
+type ConfirmUnloadState = {
+	ignoreNextConfirmUnload: boolean;
+};
+
+let activeConfirmUnloadState: ConfirmUnloadState | null = null;
+let hasConfirmUnloadListener = false;
+let hasWebpackReloadBypassListener = false;
+
+const confirmUnload = (event: BeforeUnloadEvent) => {
+	if (!activeConfirmUnloadState) {
+		return;
+	}
+
+	if (activeConfirmUnloadState.ignoreNextConfirmUnload) {
+		delete event.returnValue;
+		return;
+	}
+
+	// https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload#example
+	event.preventDefault();
+	event.returnValue = GAME_IN_PROGRESS_UNLOAD_CONFIRMATION;
+	return GAME_IN_PROGRESS_UNLOAD_CONFIRMATION;
+};
+
+const handleWebpackDevReloadMessage = (messageEvent: MessageEvent) => {
+	if (messageEvent.data?.type !== 'webpackInvalid' || !activeConfirmUnloadState) {
+		return;
+	}
+
+	activeConfirmUnloadState.ignoreNextConfirmUnload = true;
+	window.location.reload();
+};
 
 const showSecretView = () => {
 	let overlay = document.getElementById(SECRET_VIEW_ID) as HTMLDivElement | null;
@@ -3016,33 +3051,18 @@ export class UI {
 	 */
 	confirmWindowUnload() {
 		this.ignoreNextConfirmUnload = false;
+		activeConfirmUnloadState = this;
 
-		const confirmUnload = (event) => {
-			const confirmation =
-				'A game is in progress and cannot be restored, are you sure you want to leave?';
-
-			if (this.ignoreNextConfirmUnload) {
-				delete event['returnValue'];
-				return;
-			}
-
-			// https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload#example
-			event.preventDefault();
-			event.returnValue = confirmation;
-			return confirmation;
-		};
-
-		window.addEventListener('beforeunload', confirmUnload);
+		if (!hasConfirmUnloadListener) {
+			window.addEventListener('beforeunload', confirmUnload);
+			hasConfirmUnloadListener = true;
+		}
 
 		// If running in webpack-dev-server, allow Live Reload events to bypass this check.
-		if (process.env.NODE_ENV === 'development') {
+		if (process.env.NODE_ENV === 'development' && !hasWebpackReloadBypassListener) {
 			// https://stackoverflow.com/a/61579190/1414008
-			window.addEventListener('message', ({ data: { type } }) => {
-				if (type === 'webpackInvalid') {
-					this.ignoreNextConfirmUnload = true;
-					window.location.reload();
-				}
-			});
+			window.addEventListener('message', handleWebpackDevReloadMessage);
+			hasWebpackReloadBypassListener = true;
 		}
 	}
 
