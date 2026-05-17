@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
+import { afterEach, beforeAll, beforeEach, describe, expect, jest, test } from '@jest/globals';
 
 jest.mock('phaser-ce', () => ({
 	Point: class PointMock {},
@@ -16,6 +16,25 @@ jest.mock('../../utility/pointfacade', () => ({
 }));
 
 import loadInfernalAbilities from '../../abilities/Infernal';
+import { Animations } from '../../animations';
+import type { Creature } from '../../creature';
+
+beforeAll(() => {
+	Object.defineProperty(window, 'Phaser', {
+		get() {
+			return {
+				blendModes: { ADD: 1 },
+				Easing: {
+					Linear: { None: 1 },
+					Sinusoidal: {
+						InOut: jest.fn((t) => t),
+						Out: jest.fn((t) => t),
+					},
+				},
+			};
+		},
+	});
+});
 
 type MockHex = {
 	x: number;
@@ -181,3 +200,230 @@ describe('Infernal Molten Hurl movement safety', () => {
 		expect(cameraShake).toHaveBeenCalledTimes(1);
 	});
 });
+
+describe('Infernal cardboard FX regression', () => {
+	test('keeps duplicate overlays hidden when bitmap masks are unavailable', () => {
+		const game = getInfernalAnimationsGameMock();
+		const animations = new Animations(game as never);
+		const { group, sprite } = createInfernalSpriteMock({ x: 24, y: 60, scaleX: -1 });
+		const creature = {
+			name: 'Infernal',
+			team: 1,
+			id: 9,
+			creatureSprite: { sprite, grp: group },
+		} as unknown as Creature;
+
+		animations.initInfernalCardboardEffect(creature, sprite as never);
+
+		const haze = group.children.find((child) => child !== sprite && child.scale.y === 1);
+		const heatLayer = group.children.find((child) => child !== sprite && child.scale.y === 1.38);
+
+		expect(haze).toBeDefined();
+		expect(heatLayer).toBeDefined();
+		expect(haze?.alpha).toBe(0);
+		expect(heatLayer?.alpha).toBe(0);
+
+		game.Phaser.time.now = 30;
+		game.Phaser.time.elapsedMS = 16;
+		animations.tickInfernalCardboardEffect(creature);
+
+		expect(haze?.alpha).toBe(0);
+		expect(heatLayer?.alpha).toBe(0);
+	});
+
+	test('re-init replaces stale sprite state and preserves flip/position sync', () => {
+		const game = getInfernalAnimationsGameMock();
+		const animations = new Animations(game as never);
+		const first = createInfernalSpriteMock({ x: 12, y: 44, scaleX: -1 });
+		const creature = {
+			name: 'Infernal',
+			team: 0,
+			id: 3,
+			creatureSprite: { sprite: first.sprite, grp: first.group },
+		} as unknown as Creature;
+
+		animations.initInfernalCardboardEffect(creature, first.sprite as never);
+		const firstOverlays = first.group.children.filter((child) => child !== first.sprite);
+
+		const second = createInfernalSpriteMock({ x: 80, y: 92, scaleX: 1 });
+		creature.creatureSprite = {
+			sprite: second.sprite,
+			grp: second.group,
+		} as unknown as Creature['creatureSprite'];
+		animations.initInfernalCardboardEffect(creature, second.sprite as never);
+
+		firstOverlays.forEach((overlay) => {
+			expect(overlay.destroy).toHaveBeenCalledTimes(1);
+			expect(overlay.exists).toBe(false);
+		});
+
+		const secondHeatLayer = second.group.children.find(
+			(child) => child !== second.sprite && child.scale.y === 1.38,
+		);
+		expect(secondHeatLayer).toBeDefined();
+		expect(secondHeatLayer?.scale.x).toBe(1);
+
+		second.sprite.scale.x = -1;
+		second.sprite.x = 101;
+		second.sprite.y = 55;
+		game.Phaser.time.now = 65;
+		game.Phaser.time.elapsedMS = 17;
+		animations.tickInfernalCardboardEffect(creature);
+
+		expect(secondHeatLayer?.scale.x).toBe(-1);
+		expect(secondHeatLayer?.y).toBeLessThan(second.sprite.y);
+		expect(secondHeatLayer?.x).toBe(second.sprite.x);
+	});
+});
+
+type InfernalSpriteMock = {
+	x: number;
+	y: number;
+	key: string;
+	alpha: number;
+	tint: number;
+	blendMode: number | null;
+	exists: boolean;
+	parent: InfernalGroupMock;
+	anchor: { setTo: (x: number, y: number) => void; x: number; y: number };
+	scale: { setTo: (x: number, y: number) => void; x: number; y: number };
+	texture: {
+		width: number;
+		height: number;
+		baseTexture?: { source?: CanvasImageSource };
+	};
+	loadTexture: jest.Mock;
+	destroy: jest.Mock;
+};
+
+type InfernalGroupMock = {
+	children: InfernalSpriteMock[];
+	exists: boolean;
+	create: (x: number, y: number, key: string) => InfernalSpriteMock;
+	addAt: (sprite: InfernalSpriteMock, index: number) => InfernalSpriteMock;
+	getChildIndex: (sprite: InfernalSpriteMock) => number;
+};
+
+const createInfernalSpriteMock = ({
+	x,
+	y,
+	scaleX,
+}: {
+	x: number;
+	y: number;
+	scaleX: -1 | 1;
+}) => {
+	const group = {
+		children: [] as InfernalSpriteMock[],
+		exists: true,
+		create(createX: number, createY: number, key: string) {
+			const sprite = createInfernalOverlayMock(this, {
+				x: createX,
+				y: createY,
+				key,
+				scaleX: 1,
+			});
+			this.children.push(sprite);
+			return sprite;
+		},
+		addAt(sprite: InfernalSpriteMock, index: number) {
+			this.children = this.children.filter((child) => child !== sprite);
+			const clamped = Math.max(0, Math.min(index, this.children.length));
+			this.children.splice(clamped, 0, sprite);
+			sprite.parent = this;
+			return sprite;
+		},
+		getChildIndex(sprite: InfernalSpriteMock) {
+			return this.children.indexOf(sprite);
+		},
+	} as InfernalGroupMock;
+
+	const sprite = createInfernalOverlayMock(group, {
+		x,
+		y,
+		key: 'Infernal',
+		scaleX,
+	});
+	group.children.push(sprite);
+
+	return { group, sprite };
+};
+
+const createInfernalOverlayMock = (
+	group: InfernalGroupMock,
+	{
+		x,
+		y,
+		key,
+		scaleX,
+	}: {
+		x: number;
+		y: number;
+		key: string;
+		scaleX: number;
+	},
+) => {
+	const anchor = {
+		x: 0,
+		y: 0,
+		setTo(anchorX: number, anchorY: number) {
+			this.x = anchorX;
+			this.y = anchorY;
+		},
+	};
+	const scale = {
+		x: scaleX,
+		y: 1,
+		setTo(nextX: number, nextY: number) {
+			this.x = nextX;
+			this.y = nextY;
+		},
+	};
+
+	const sprite = {
+		x,
+		y,
+		key,
+		alpha: 1,
+		tint: 0xffffff,
+		blendMode: null,
+		exists: true,
+		parent: group,
+		anchor,
+		scale,
+		texture: {
+			width: 120,
+			height: 180,
+		},
+		loadTexture: jest.fn(),
+		destroy: jest.fn(function (this: InfernalSpriteMock) {
+			this.exists = false;
+			this.parent.children = this.parent.children.filter((child) => child !== this);
+		}),
+	} as InfernalSpriteMock;
+
+	return sprite;
+};
+
+const getInfernalAnimationsGameMock = () => {
+	const makeTween = () => {
+		const tween = {
+			to: jest.fn().mockReturnThis(),
+			onComplete: { add: jest.fn() },
+			stop: jest.fn(),
+		};
+		return tween;
+	};
+
+	return {
+		Phaser: {
+			time: {
+				now: 0,
+				elapsedMS: 16,
+			},
+			add: {
+				tween: jest.fn(() => makeTween()),
+			},
+		},
+	};
+};

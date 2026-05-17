@@ -1676,7 +1676,7 @@ export class Animations {
 		const hazeSprite = group.create(sprite.x, sprite.y - state.glowOffsetY, sprite.key);
 		hazeSprite.anchor.setTo(0.5, 1);
 		hazeSprite.scale.setTo(dir, 1);
-		hazeSprite.alpha = 0.3;
+		hazeSprite.alpha = 0;
 		hazeSprite.tint = 0xff8f3a;
 		hazeSprite.blendMode = Phaser.blendModes.ADD;
 		group.addAt(hazeSprite, Math.min(group.children.length - 1, spriteIndex + 1));
@@ -1753,15 +1753,17 @@ export class Animations {
 		const heatLayerSprite = group.create(sprite.x, sprite.y - state.glowOffsetY, sprite.key);
 		heatLayerSprite.anchor.setTo(0.5, 1);
 		heatLayerSprite.scale.setTo(dir, 1.38);
-		heatLayerSprite.alpha = 0.24;
+		heatLayerSprite.alpha = 0;
 		heatLayerSprite.tint = 0xffa15a;
 		heatLayerSprite.blendMode = Phaser.blendModes.ADD;
-		group.addAt(heatLayerSprite, Math.min(group.children.length - 1, spriteIndex + 2));
+		// Keep expanded heat distortion behind the cardboard to prevent ghost overlays.
+		group.addAt(heatLayerSprite, Math.max(0, spriteIndex));
 		state.heatLayerSprite = heatLayerSprite;
 		state.trailSprites.push(heatLayerSprite);
 		if (state.heatReady && state.heatBmd) {
 			heatLayerSprite.loadTexture(state.heatBmd);
 			heatLayerSprite.tint = 0xffffff;
+			heatLayerSprite.alpha = 0.24;
 		}
 
 		this._spawnInfernalCardboardTrail(creature, state, true);
@@ -1827,7 +1829,7 @@ export class Animations {
 		const dir = sprite.scale.x < 0 ? -1 : 1;
 		if (state.hazeSprite && state.hazeReady) {
 			state.hazeSprite.x = sprite.x;
-			state.hazeSprite.y = sprite.y;
+			state.hazeSprite.y = sprite.y - state.glowOffsetY;
 			state.hazeSprite.scale.setTo(dir, 1);
 			const deltaSeconds = (this.game.Phaser?.time?.elapsedMS ?? 0) / 1000;
 			state.luminescenceUniforms = advanceShaderTime(state.luminescenceUniforms, deltaSeconds);
@@ -1838,8 +1840,9 @@ export class Animations {
 		}
 		if (state.heatLayerSprite) {
 			state.heatLayerSprite.x = sprite.x;
-			state.heatLayerSprite.y = sprite.y;
+			state.heatLayerSprite.y = sprite.y - state.glowOffsetY;
 			state.heatLayerSprite.scale.setTo(dir, 1.38);
+			state.heatLayerSprite.alpha = state.heatReady ? 0.24 : 0;
 		}
 
 		if (state.heatReady && (forceHeatSpawn || now >= state.heatNextAt)) {
