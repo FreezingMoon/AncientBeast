@@ -2301,21 +2301,21 @@ class CreatureSprite {
 	xray(enable: boolean, referenceCreature?: Creature) {
 		if (!enable && !this._isXray && this._xrayTargetAlpha === 0) return;
 		if (enable && referenceCreature) {
+			if (this._isXray && this._xrayRefCreatures.length === 1 && this._xrayRefCreatures[0] === referenceCreature) {
+				return;
+			}
 			this._isXray = true;
 			this._xrayTargetAlpha = 1;
-			// Accumulate refs — only rebuild if this creature isn't already included
-			if (!this._xrayRefCreatures.includes(referenceCreature)) {
-				const newRefs = [...this._xrayRefCreatures, referenceCreature];
-				// Rebuild BitmapData with updated ref list, preserving fade progress/state
-				const alpha = this._xrayAlpha;
-				const targetAlpha = this._xrayTargetAlpha;
-				this._xrayScratch = null;
-				this._xrayMask = null;
-				this._xrayAlpha = alpha;
-				this._xrayTargetAlpha = targetAlpha;
-				this._isXray = true;
-				this._buildXrayTexture(newRefs);
-			}
+			// Replace the active hover reference instead of accumulating old ones.
+			const alpha = this._xrayAlpha;
+			const targetAlpha = this._xrayTargetAlpha;
+			this._xrayScratch = null;
+			this._xrayMask = null;
+			this._xrayRefCreatures = [referenceCreature];
+			this._xrayAlpha = alpha;
+			this._xrayTargetAlpha = targetAlpha;
+			this._isXray = true;
+			this._buildXrayTexture(this._xrayRefCreatures);
 		} else if (enable) {
 			// Ignore legacy calls that try to enable xray without a reference target.
 			// The pixel-mask implementation needs a reference creature silhouette;
@@ -2427,12 +2427,14 @@ class CreatureSprite {
 	 */
 	private _drawXrayBmd(refCreatures: Creature[], bmd: Phaser.BitmapData) {
 		const oSprite = this._sprite;
-		const oGroup = this._group;
 		const otw = bmd.width;
 		const oth = bmd.height;
 		const oFlipped = oSprite.scale.x < 0;
-		const oLeft = oGroup.x + oSprite.x - otw / 2;
-		const oTop = oGroup.y + oSprite.y - oth;
+		const oBounds = oSprite.getBounds();
+		const oLeft = oBounds.left;
+		const oTop = oBounds.top;
+		const oScaleX = oBounds.width > 0 ? otw / oBounds.width : 1;
+		const oScaleY = oBounds.height > 0 ? oth / oBounds.height : 1;
 
 		const oSrc = this._xrayOriginalSrc as CanvasImageSource;
 		const ctx = bmd.context;
@@ -2447,13 +2449,11 @@ class CreatureSprite {
 
 		for (const refCreature of refCreatures) {
 			const refSprite = refCreature.sprite;
-			const refGroup = refCreature.grp;
-			const rtw = refSprite.texture.width;
-			const rth = refSprite.texture.height;
-			const rLeft = refGroup.x + refSprite.x - rtw / 2;
-			const rTop = refGroup.y + refSprite.y - refSprite.texture.height;
-			const relX = Math.round(rLeft - oLeft);
-			const relY = Math.round(rTop - oTop);
+			const rBounds = refSprite.getBounds();
+			const rtw = Math.max(1, Math.round(rBounds.width * oScaleX));
+			const rth = Math.max(1, Math.round(rBounds.height * oScaleY));
+			const relX = Math.round((rBounds.left - oLeft) * oScaleX);
+			const relY = Math.round((rBounds.top - oTop) * oScaleY);
 			const drawX = oFlipped ? Math.round(otw - relX - rtw) : relX;
 			const rFlipped = refSprite.scale.x < 0;
 			const flipRef = oFlipped !== rFlipped;

@@ -3330,10 +3330,7 @@ export class UI {
 				ui.game.grid.updateDisplay();
 			}
 
-			ui.game.grid.clearAllXray();
-			creatures.forEach((creature) => {
-				creature.xray(false);
-			});
+			ui.game.grid.refreshActiveCreatureXray();
 
 			ui.queue.xray(-1);
 			ui.quickInfo.clear();

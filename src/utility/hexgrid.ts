@@ -1515,43 +1515,79 @@ export class HexGrid {
 	 */
 	xray(hex: Hex) {
 		this.lastXrayHex = hex;
-		// Clear previous ghost
 		this.game.creatures.forEach((creature) => {
 			if (creature instanceof Creature) {
 				creature.xray(false);
 			}
 		});
 
-		// Always ghost creatures that obstruct the active creature's view
 		const { activeCreature } = this.game;
-		if (activeCreature instanceof Creature) {
-			activeCreature.hexagons.forEach((item) => {
-				item.ghostOverlap(activeCreature);
-			});
+		if (!(activeCreature instanceof Creature)) {
+			return;
 		}
 
-		// Also ghost creatures that obstruct the hovered hex/creature
-		if (hex.creature instanceof Creature) {
-			if (hex.creature !== activeCreature) {
-				hex.creature.hexagons.forEach((item) => {
-					item.ghostOverlap(hex.creature as Creature);
-				});
+		const noAbilitySelected = this.game.UI?.selectedAbility === -1;
+		const hoveredCreature =
+			hex.creature instanceof Creature ? (hex.creature as Creature) : undefined;
+		const hoveredTrap = this.game.traps.some((trap) => trap.x === hex.x && trap.y === hex.y);
+
+		// Exception 1/2: reveal hovered non-active target when no ability is selected.
+		if (hoveredCreature && hoveredCreature !== activeCreature && noAbilitySelected) {
+			hoveredCreature.hexagons.forEach((hoveredHex) => hoveredHex.ghostOverlap(hoveredCreature));
+			hoveredCreature.xray(false);
+			return;
+		}
+
+		// Exception 3: reveal hovered trap only when it is unreachable.
+		if (hoveredTrap && !hex.reachable) {
+			const hoveredTrapSprites = this.game.traps
+				.filter((trap) => trap.x === hex.x && trap.y === hex.y)
+				.flatMap((trap) => trap.getVisualSprites())
+				.filter((sprite) => sprite.exists && typeof sprite.getBounds === 'function');
+
+			if (hoveredTrapSprites.length === 0) {
+				hex.ghostOverlap();
+				return;
 			}
-		} else {
-			hex.ghostOverlap();
+
+			const trapReferences = hoveredTrapSprites.map((sprite) => {
+				return {
+					sprite,
+					grp: this.creatureGroup,
+				} as unknown as Creature;
+			});
+
+			this.game.creatures.forEach((candidate) => {
+				if (!(candidate instanceof Creature)) {
+					return;
+				}
+				if (!candidate.sprite || typeof candidate.sprite.getBounds !== 'function') {
+					return;
+				}
+
+				const candidateBounds = candidate.sprite.getBounds();
+				const overlapsTrap = hoveredTrapSprites.some((sprite) => {
+					const trapBounds = sprite.getBounds();
+					return !(
+						candidateBounds.right <= trapBounds.left ||
+						candidateBounds.left >= trapBounds.right ||
+						candidateBounds.bottom <= trapBounds.top ||
+						candidateBounds.top >= trapBounds.bottom
+					);
+				});
+
+				if (!overlapsTrap) {
+					return;
+				}
+
+				candidate.xray(true, trapReferences[0]);
+			});
+			return;
 		}
 
-		// Hovered creatures should never appear x-rayed — restore them fully opaque.
-		if (hex.creature instanceof Creature) {
-			hex.creature.xray(false);
-		}
-
-		// Active creature should never appear x-rayed either — ghostOverlap called
-		// for the hovered creature's hexes can pick up the active creature as a
-		// same-row or adjacent-row candidate.
-		if (activeCreature instanceof Creature) {
-			activeCreature.xray(false);
-		}
+		// Default: keep active creature visible through obstructions.
+		activeCreature.hexagons.forEach((activeHex) => activeHex.ghostOverlap(activeCreature));
+		activeCreature.xray(false);
 	}
 
 	/**
