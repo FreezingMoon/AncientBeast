@@ -228,7 +228,7 @@ describe('HexGrid xray hover behavior', () => {
 		expect(blocker.xray.mock.calls.some((args) => args[0] === true)).toBe(false);
 	});
 
-	test('unreachable hovered trap reveals trap by ghosting overlapping blockers', () => {
+	test('hovered trap reveals trap by ghosting overlapping blockers, even when reachable', () => {
 		const active = makeCreature(1, { left: 0, top: 0, right: 10, bottom: 10 });
 		const blocker = makeCreature(2, { left: 18, top: 18, right: 42, bottom: 42 });
 		const farCreature = makeCreature(3, { left: 100, top: 100, right: 120, bottom: 120 });
@@ -257,7 +257,7 @@ describe('HexGrid xray hover behavior', () => {
 		const hoverHex = {
 			x: 8,
 			y: 3,
-			reachable: false,
+			reachable: true,
 			creature: null,
 			ghostOverlap: jest.fn(),
 		};

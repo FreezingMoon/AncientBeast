@@ -1538,8 +1538,8 @@ export class HexGrid {
 			return;
 		}
 
-		// Exception 3: reveal hovered trap only when it is unreachable.
-		if (hoveredTrap && !hex.reachable) {
+		// Exception 3: reveal hovered trap regardless of movement reachability.
+		if (hoveredTrap) {
 			const hoveredTrapSprites = this.game.traps
 				.filter((trap) => trap.x === hex.x && trap.y === hex.y)
 				.flatMap((trap) => trap.getVisualSprites())
