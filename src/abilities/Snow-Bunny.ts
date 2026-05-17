@@ -365,7 +365,9 @@ export default (G: Game) => {
 			//	activate() :
 			activate: function (path: Hex[], args) {
 				const ability = this;
-				ability.end();
+				// This ability resolves after projectile + push; defer queryMove/input release
+				// so follow-up actions use the target's updated board position.
+				ability.end(false, true);
 
 				const hexWithTarget = path.find((hex: Hex) => {
 					const creature = getPointFacade().getCreaturesAt({ x: hex.x, y: hex.y })[0];
@@ -493,7 +495,9 @@ export default (G: Game) => {
 			//	activate() :
 			activate: function (path, args) {
 				const ability = this;
-				ability.end();
+				// Defer turn handoff until the projectile lands so damage/freeze state
+				// is applied before any next bot decision is evaluated.
+				ability.end(false, true);
 
 				const hexWithTarget = path.find((hex: Hex) => {
 					const creature = getPointFacade().getCreaturesAt({ x: hex.x, y: hex.y })[0];
@@ -548,6 +552,9 @@ export default (G: Game) => {
 					if (ability.isUpgraded() && damageResult.damageObj.melee) {
 						target.freeze();
 					}
+
+					// Deferred end() requires explicit handoff when impact resolves.
+					G.activeCreature.queryMove();
 				}, sprite); // End tween.onComplete
 			},
 		},

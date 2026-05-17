@@ -21,6 +21,7 @@ jest.mock('../../utility/hex', () => ({
 }));
 
 import { jest, expect, describe, test, beforeEach } from '@jest/globals';
+import createSnowBunnyAbilities from '../../abilities/Snow-Bunny';
 
 // ---- Import PointFacade separately (no Phaser dependency) ----
 import { configure, getPointFacade } from '../../utility/pointfacade';
@@ -534,5 +535,173 @@ describe('Snow Bunny Bunny Hop', () => {
 
 			expect(result).toBe(true);
 		});
+	});
+});
+
+describe('Snow Bunny sequencing', () => {
+	type TweenCompleteHandler = {
+		cb: (() => void) | null;
+		ctx: unknown;
+	};
+
+	function makeProjectileHarness() {
+		const complete: TweenCompleteHandler = {
+			cb: null,
+			ctx: undefined,
+		};
+
+		const projectile = jest.fn(() => {
+			const tween = {
+				duration: 120,
+				onComplete: {
+					add: (cb: () => void, ctx: unknown) => {
+						complete.cb = cb;
+						complete.ctx = ctx;
+					},
+				},
+			};
+			const sprite = {
+				alpha: 1,
+				destroy: jest.fn(),
+			};
+			return [tween, sprite] as const;
+		});
+
+		return {
+			projectile,
+			triggerComplete: () => {
+				if (!complete.cb) {
+					throw new Error('Projectile completion callback was not registered');
+				}
+				complete.cb.call(complete.ctx);
+			},
+		};
+	}
+
+	function makeAbilityGame() {
+		const queryMove = jest.fn();
+		const getHexMap = jest.fn();
+		const projectileHarness = makeProjectileHarness();
+
+		const game = {
+			abilities: [] as unknown[],
+			activeCreature: {
+				queryMove,
+			},
+			animations: {
+				projectile: projectileHarness.projectile,
+			},
+			grid: {
+				queryDirection: jest.fn(),
+				getHexMap,
+			},
+			Phaser: {
+				camera: {
+					shake: jest.fn(),
+					SHAKE_HORIZONTAL: 'horizontal',
+				},
+				add: {
+					tween: () => ({
+						to: jest.fn(),
+					}),
+				},
+			},
+			soundsys: {
+				playSFX: jest.fn(),
+			},
+		};
+
+		return {
+			game,
+			queryMove,
+			getHexMap,
+			projectileHarness,
+		};
+	}
+
+	beforeEach(() => {
+		(global as unknown as { Phaser: unknown }).Phaser = {
+			Easing: {
+				Linear: {
+					None: {},
+				},
+			},
+		};
+	});
+
+	test('Blowing Wind defers turn handoff until push movement callback resolves', () => {
+		const { game, queryMove, getHexMap, projectileHarness } = makeAbilityGame();
+		createSnowBunnyAbilities(game as any);
+
+		const ability = (game.abilities as any[])[12][2];
+		const pushHex = { x: 9, y: 3, isWalkable: () => true };
+		getHexMap.mockReturnValue([pushHex]);
+
+		const target = {
+			x: 7,
+			y: 3,
+			size: 1,
+			id: 100,
+			dead: false,
+			temp: false,
+			_brbState: null,
+			hexagons: [{ x: 7, y: 3 }],
+			isFrozen: () => false,
+			moveTo: jest.fn((_hex: unknown, opts: { callback: () => void }) => {
+				opts.callback();
+			}),
+		};
+		creatures = [target as any];
+
+		const context = {
+			creature: { x: 5, y: 3, id: 12 },
+			_maxPushDistance: 6,
+			isUpgraded: () => false,
+			end: jest.fn(),
+		};
+
+		ability.activate.call(context, [{ x: 7, y: 3 }], { direction: 1 });
+
+		expect(context.end).toHaveBeenCalledWith(false, true);
+		expect(queryMove).toHaveBeenCalledTimes(0);
+
+		projectileHarness.triggerComplete();
+		expect(queryMove).toHaveBeenCalledTimes(1);
+	});
+
+	test('Freezing Spit defers and resumes on projectile impact', () => {
+		const { game, queryMove, projectileHarness } = makeAbilityGame();
+		createSnowBunnyAbilities(game as any);
+
+		const ability = (game.abilities as any[])[12][3];
+		const target = {
+			x: 8,
+			y: 3,
+			size: 1,
+			id: 101,
+			dead: false,
+			temp: false,
+			_brbState: null,
+			hexagons: [{ x: 8, y: 3 }],
+			takeDamage: jest.fn(() => ({ damageObj: { melee: false } })),
+			freeze: jest.fn(),
+		};
+		creatures = [target as any];
+
+		const context = {
+			creature: { id: 12 },
+			damages: { frost: 5, crush: 4 },
+			isUpgraded: () => false,
+			end: jest.fn(),
+		};
+
+		ability.activate.call(context, [{ x: 8, y: 3 }], { direction: 1 });
+
+		expect(context.end).toHaveBeenCalledWith(false, true);
+		expect(queryMove).toHaveBeenCalledTimes(0);
+
+		projectileHarness.triggerComplete();
+		expect(queryMove).toHaveBeenCalledTimes(1);
+		expect(target.takeDamage).toHaveBeenCalledTimes(1);
 	});
 });
