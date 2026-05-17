@@ -86,4 +86,67 @@ describe('HexGrid previewCreature query guards', () => {
 		expect(materializeOverlay._previewPos).toBeUndefined();
 		expect(createOverlay).not.toHaveBeenCalled();
 	});
+
+	test('replay mode clears stale preview and suppresses cardboard rendering', () => {
+		const oldHex = { creature: null };
+		const stopFlicker = jest.fn();
+		const cleanHex = jest.fn();
+		const restoreReachableHexVisual = jest.fn();
+		const createOverlay = jest.fn();
+
+		const materializeOverlay = {
+			alpha: 0.5,
+			_previewPos: { x: 1, y: 0 },
+			_previewSize: 1,
+		};
+
+		const gridMock = {
+			game: {
+				isReplayInProgress: true,
+				botController: { isBotTurn: () => false },
+				activeCreature: { id: 7, team: 0, player: { id: 1 } },
+				activePlayer: { id: 1 },
+				Phaser: {
+					add: {
+						tween: jest.fn(),
+					},
+				},
+			},
+			hexes: [[{}, oldHex, {}]],
+			lastQueryOpt: {
+				hexes: [],
+			},
+			materialize_overlay: materializeOverlay,
+			secondary_overlay: undefined,
+			_flickerTween: { stop: stopFlicker },
+			_flickerTweenSecondary: undefined,
+			cleanHex,
+			restoreReachableHexVisual,
+			creatureGroup: {
+				create: createOverlay,
+			},
+		};
+
+		HexGrid.prototype.previewCreature.call(
+			gridMock,
+			{ x: 2, y: 0 },
+			{
+				size: 1,
+				type: '--',
+				name: 'Dark Priest',
+				display: {
+					'offset-x': 0,
+					'offset-y': 0,
+				},
+			},
+			{ flipped: false, color: 'blue' },
+		);
+
+		expect(stopFlicker).toHaveBeenCalledWith(true);
+		expect(materializeOverlay.alpha).toBe(0);
+		expect(materializeOverlay._previewPos).toBeUndefined();
+		expect(cleanHex).toHaveBeenCalledTimes(1);
+		expect(restoreReachableHexVisual).toHaveBeenCalledTimes(1);
+		expect(createOverlay).not.toHaveBeenCalled();
+	});
 });

@@ -2107,6 +2107,17 @@ export class HexGrid {
 			preview._previewPos = undefined;
 		};
 
+		const shouldShowPlacementPreview =
+			!game.isReplayInProgress &&
+			!game.botController?.isBotTurn() &&
+			!!game.activeCreature &&
+			game.activePlayer === game.activeCreature.player;
+
+		if (!shouldShowPlacementPreview) {
+			clearPreviewOverlay(secondary ? this.secondary_overlay : this.materialize_overlay, secondary);
+			return;
+		}
+
 		const targetHex = this.hexes[pos.y]?.[pos.x];
 		const queryHexes = this.lastQueryOpt?.hexes;
 		if (

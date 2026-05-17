@@ -120,6 +120,7 @@ export default class Game {
 	inputMethod = 'Mouse';
 	firstKill: boolean;
 	freezedInput: boolean;
+	isReplayInProgress: boolean;
 	turnThrottle: boolean;
 	turn: number;
 	metaPowersState: MetaPowersState;
@@ -203,6 +204,7 @@ export default class Game {
 		// Gameplay properties
 		this.firstKill = false;
 		this.freezedInput = false;
+		this.isReplayInProgress = false;
 		this.turnThrottle = false;
 		this.turn = 0;
 		this.metaPowersState = {
@@ -1637,6 +1639,7 @@ export default class Game {
 		this.matchInitialized = false;
 		this.firstKill = false;
 		this.freezedInput = false;
+		this.isReplayInProgress = false;
 		this.turnThrottle = false;
 		this.turn = 0;
 
@@ -1676,6 +1679,8 @@ export default class Game {
 			return;
 		}
 
+		this.isReplayInProgress = true;
+
 		const actions = [...log.actions];
 		const numTotalActions = actions.length;
 		const configData = log.custom.configData;
@@ -1711,6 +1716,7 @@ export default class Game {
 
 		const nextAction = () => {
 			if (actions.length === 0) {
+				this.isReplayInProgress = false;
 				// Replay finishes between turns for some logs; explicitly re-arm the
 				// active creature query to restore live input controls.
 				setTimeout(() => restoreInteractiveState(), 0);
