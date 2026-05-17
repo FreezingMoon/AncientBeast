@@ -208,6 +208,53 @@ describe('GumbleStrategy.scoreAbilityHex', () => {
 		expect(clusterScore).toBeGreaterThan(collateralScore + 500);
 	});
 
+	test('Gummy Mallet never targets own Dark Priest directly', () => {
+		const gumble = makeCreature({ team: 0 });
+		const alliedDarkPriest = makeCreature({
+			id: 2,
+			team: 0,
+			type: '--',
+			health: 70,
+			maxHealth: 70,
+		});
+		const darkPriestHex = makeHex({
+			x: 5,
+			y: 5,
+			creature: alliedDarkPriest,
+			adjacentHex: () => [],
+		});
+		const controller = makeController({
+			activeCreature: gumble,
+			creatures: [alliedDarkPriest],
+		});
+
+		expect(scoreAbilityHex(darkPriestHex, 1, controller as any)).toBe(Number.NEGATIVE_INFINITY);
+	});
+
+	test('Gummy Mallet never targets splash that hits allied Dark Priest', () => {
+		const gumble = makeCreature({ team: 0 });
+		const enemy = makeCreature({ id: 2, team: 1, health: 40, maxHealth: 70 });
+		const alliedDarkPriest = makeCreature({
+			id: 3,
+			team: 0,
+			type: '--',
+			health: 70,
+			maxHealth: 70,
+		});
+		const riskyHex = makeHex({
+			x: 5,
+			y: 5,
+			creature: enemy,
+			adjacentHex: () => [makeHex({ creature: alliedDarkPriest })],
+		});
+		const controller = makeController({
+			activeCreature: gumble,
+			creatures: [enemy, alliedDarkPriest],
+		});
+
+		expect(scoreAbilityHex(riskyHex, 1, controller as any)).toBe(Number.NEGATIVE_INFINITY);
+	});
+
 	test('Boom Box prioritizes killable enemies', () => {
 		const gumble = makeCreature({ team: 0 });
 		const killableEnemy = makeCreature({ id: 2, team: 1, health: 12, maxHealth: 70 });
