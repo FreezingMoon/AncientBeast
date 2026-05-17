@@ -32,11 +32,12 @@ type ConfirmUnloadState = {
 	ignoreNextConfirmUnload: boolean;
 };
 
-let activeConfirmUnloadState: ConfirmUnloadState | null = null;
+let getActiveConfirmUnloadState: () => ConfirmUnloadState | null = () => null;
 let hasConfirmUnloadListener = false;
 let hasWebpackReloadBypassListener = false;
 
 const confirmUnload = (event: BeforeUnloadEvent) => {
+	const activeConfirmUnloadState = getActiveConfirmUnloadState();
 	if (!activeConfirmUnloadState) {
 		return;
 	}
@@ -53,6 +54,7 @@ const confirmUnload = (event: BeforeUnloadEvent) => {
 };
 
 const handleWebpackDevReloadMessage = (messageEvent: MessageEvent) => {
+	const activeConfirmUnloadState = getActiveConfirmUnloadState();
 	if (messageEvent.data?.type !== 'webpackInvalid' || !activeConfirmUnloadState) {
 		return;
 	}
@@ -3051,7 +3053,7 @@ export class UI {
 	 */
 	confirmWindowUnload() {
 		this.ignoreNextConfirmUnload = false;
-		activeConfirmUnloadState = this;
+		getActiveConfirmUnloadState = () => this;
 
 		if (!hasConfirmUnloadListener) {
 			window.addEventListener('beforeunload', confirmUnload);

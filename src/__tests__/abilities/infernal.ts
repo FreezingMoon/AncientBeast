@@ -304,15 +304,7 @@ type InfernalGroupMock = {
 	getChildIndex: (sprite: InfernalSpriteMock) => number;
 };
 
-const createInfernalSpriteMock = ({
-	x,
-	y,
-	scaleX,
-}: {
-	x: number;
-	y: number;
-	scaleX: -1 | 1;
-}) => {
+const createInfernalSpriteMock = ({ x, y, scaleX }: { x: number; y: number; scaleX: -1 | 1 }) => {
 	const group = {
 		children: [] as InfernalSpriteMock[],
 		exists: true,

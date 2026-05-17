@@ -904,10 +904,7 @@ export class Animations {
 				return Math.max(4.2, (cardboardHeight / Math.max(1, baselineHeight)) * 3.2);
 			};
 
-			const liftBonfireCurtainFromTraps = (
-				originTraps: Trap[],
-				shouldOverlapCreature = false,
-			) => {
+			const liftBonfireCurtainFromTraps = (originTraps: Trap[], shouldOverlapCreature = false) => {
 				const trapOverGroup = game.grid.trapOverGroup;
 				const trapGroup = game.grid.trapGroup;
 				type SpriteRestore = {

@@ -58,7 +58,10 @@ export class MetaPowers {
 				enabled: this.game.metaPowersState.resetCooldowns,
 				label: 'Disable Cooldowns',
 			},
-			infiniteEnergy: { enabled: this.game.metaPowersState.infiniteEnergy, label: 'Infinite Energy' },
+			infiniteEnergy: {
+				enabled: this.game.metaPowersState.infiniteEnergy,
+				label: 'Infinite Energy',
+			},
 		};
 
 		// Object that will contain jQuery element references

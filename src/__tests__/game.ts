@@ -166,7 +166,10 @@ describe('Game unload confirmation integration', () => {
 			preventDefault: jest.fn(),
 			returnValue: undefined,
 		} as unknown as BeforeUnloadEvent;
-		const result = beforeUnloadListener!(unloadEvent);
+		if (!beforeUnloadListener) {
+			throw new Error('beforeunload listener should be defined');
+		}
+		const result = beforeUnloadListener(unloadEvent);
 
 		expect(unloadEvent.preventDefault).toHaveBeenCalledTimes(1);
 		expect(unloadEvent.returnValue).toBe(
@@ -181,7 +184,7 @@ describe('Game unload confirmation integration', () => {
 			preventDefault: jest.fn(),
 			returnValue: 'existing',
 		} as unknown as BeforeUnloadEvent;
-		const bypassResult = beforeUnloadListener!(bypassEvent);
+		const bypassResult = beforeUnloadListener(bypassEvent);
 
 		expect(bypassEvent.preventDefault).not.toHaveBeenCalled();
 		expect((bypassEvent as unknown as { returnValue?: string }).returnValue).toBeUndefined();
