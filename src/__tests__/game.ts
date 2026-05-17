@@ -146,12 +146,23 @@ describe('Game unload confirmation integration', () => {
 	});
 
 	test('confirmWindowUnload listener uses active state for prompt and bypass', () => {
+		jest.resetModules();
+		let TestUI: typeof UI | undefined;
+		jest.isolateModules(() => {
+			// eslint-disable-next-line @typescript-eslint/no-var-requires
+			TestUI = require('../ui/interface').UI;
+		});
+
+		if (!TestUI) {
+			throw new Error('Failed to load UI module');
+		}
+
 		const addEventListenerSpy = jest.spyOn(window, 'addEventListener');
 		const firstUiState = { ignoreNextConfirmUnload: false };
 		const secondUiState = { ignoreNextConfirmUnload: false };
 
-		UI.prototype.confirmWindowUnload.call(firstUiState as UI);
-		UI.prototype.confirmWindowUnload.call(secondUiState as UI);
+		TestUI.prototype.confirmWindowUnload.call(firstUiState as UI);
+		TestUI.prototype.confirmWindowUnload.call(secondUiState as UI);
 
 		const beforeUnloadCall = addEventListenerSpy.mock.calls.find(
 			([eventName]) => eventName === 'beforeunload',
