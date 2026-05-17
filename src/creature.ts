@@ -2130,6 +2130,9 @@ class CreatureSprite {
 		if (creature.name === 'Infernal') {
 			game.animations.initInfernalCardboardEffect(creature, sprite);
 		}
+		if (creature.name === 'Abolished') {
+			game.animations.syncAbolishedBonfireTrapLayers(creature);
+		}
 
 		// Hint Group
 		const hintGrp = phaser.add.group(group, 'creatureHintGrp_' + id);
@@ -2180,6 +2183,7 @@ class CreatureSprite {
 		const XRAY_FADE_RATE = 0.08; // ~160 ms fade at 60 fps
 		this._group.update = () => {
 			_groupUpdate();
+			game.animations.syncAbolishedBonfireTrapLayers(this._creature);
 			game.animations.tickInfernalCardboardEffect(this._creature);
 			// Animate xray alpha toward target
 			if (this._xrayAlpha < this._xrayTargetAlpha) {
@@ -3194,6 +3198,8 @@ class CreatureSprite {
 	}
 
 	destroy() {
+		this._creature.game.animations.setAbolishedBonfireLayerOverride(this._creature);
+		this._creature.game.animations.syncAbolishedBonfireTrapLayers(this._creature, []);
 		this._creature.game.animations.disposeInfernalCardboardEffect(this._creature);
 		this._group.parent.removeChild(this._group);
 	}

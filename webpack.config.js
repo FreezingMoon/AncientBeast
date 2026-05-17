@@ -26,7 +26,7 @@ const Dotenv = require('dotenv-webpack');
 	const toObjString = (paths) =>
 		'{' + paths.map((path) => `"${path}":require("${path}")`).join(',') + '}';
 	const globOptions = { ignore: ['**/*.js', '**/*.ts', '**/*.md'], posix: true };
-	const phaserAutoloadAssets = toObjString(glob.sync('assets/autoload/phaser/**/*.*', globOptions));
+	const phaserAutoloadAssets = toObjString(glob.sync('assets/autoload/**/*.*', globOptions));
 	const allAssets = toObjString(glob.sync('assets/**/*.*', globOptions));
 	const soundPaths = JSON.stringify(
 		[

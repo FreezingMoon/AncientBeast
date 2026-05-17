@@ -7,7 +7,6 @@ import { Hex } from './utility/hex';
 import { Trap } from './utility/trap';
 import { Ability } from './ability';
 import { QuadraticCurve } from './utility/curve';
-import { HEX_WIDTH_PX } from './utility/const';
 import { DEBUG_ENABLE_FAST_WALKING, DEBUG_WALK_SPEED_MS } from './debug';
 
 // to fix @ts-expect-error 2554: properly type the arguments for the trigger functions in `game.ts`
@@ -67,6 +66,7 @@ export class Animations {
 	movementPoints: number;
 	animationCounter: number;
 	private _infernalCardboardFx = new Map<string, InfernalCardboardEffectState>();
+	private _abolishedBonfireLayerOverride = new Map<string, Set<string>>();
 
 	constructor(game: Game) {
 		this.game = game;
@@ -75,6 +75,10 @@ export class Animations {
 	}
 
 	private _infernalCardboardFxKey(creature: Creature): string {
+		return `${creature.team}:${creature.id}`;
+	}
+
+	private _creatureKey(creature: Creature): string {
 		return `${creature.team}:${creature.id}`;
 	}
 
@@ -92,6 +96,75 @@ export class Animations {
 
 	private _hexKey(hexagon: Hex): string {
 		return `${hexagon.x},${hexagon.y}`;
+	}
+
+	private _moveSpriteToGroup(sprite: Phaser.Sprite, targetGroup: Phaser.Group) {
+		const worldPos = sprite.worldPosition;
+		sprite.parent.removeChild(sprite);
+		targetGroup.add(sprite);
+		const localPos = targetGroup.toLocal(worldPos, this.game.Phaser.world);
+		sprite.position.set(localPos.x, localPos.y);
+	}
+
+	private _syncBonfireSpringTrapLayers(creature: Creature, occupiedHexes: Hex[]) {
+		const trapGroup = this.game.grid.trapGroup;
+		const trapOverGroup = this.game.grid.trapOverGroup;
+		const occupiedHexKeySet = new Set(occupiedHexes.map((hexagon) => this._hexKey(hexagon)));
+
+		this.game.traps.forEach((trap) => {
+			if (trap.type !== 'bonfire-spring' || trap.ownerCreature !== creature) {
+				return;
+			}
+
+			const targetGroup = occupiedHexKeySet.has(`${trap.x},${trap.y}`) ? trapOverGroup : trapGroup;
+			trap.getVisualSprites().forEach((sprite) => {
+				if (sprite.parent !== targetGroup) {
+					this._moveSpriteToGroup(sprite, targetGroup);
+				}
+				targetGroup.bringToTop(sprite);
+			});
+		});
+	}
+
+	syncAbolishedBonfireTrapLayers(creature: Creature, occupiedHexes: Hex[] = creature.hexagons) {
+		if (creature.name !== 'Abolished') {
+			return;
+		}
+
+		const overrideHexKeys = this._abolishedBonfireLayerOverride.get(this._creatureKey(creature));
+		const resolvedHexes =
+			overrideHexKeys === undefined
+				? occupiedHexes
+				: occupiedHexes.filter((hexagon) => overrideHexKeys.has(this._hexKey(hexagon)));
+		if (overrideHexKeys !== undefined) {
+			const overrideHexes = Array.from(overrideHexKeys)
+				.map((key) => {
+					const [x, y] = key.split(',').map(Number);
+					return this.game.grid.hexes[y]?.[x];
+				})
+				.filter((hexagon): hexagon is Hex => Boolean(hexagon));
+			this._syncBonfireSpringTrapLayers(creature, overrideHexes);
+			return;
+		}
+
+		this._syncBonfireSpringTrapLayers(creature, resolvedHexes);
+	}
+
+	setAbolishedBonfireLayerOverride(creature: Creature, occupiedHexes?: Hex[]) {
+		if (creature.name !== 'Abolished') {
+			return;
+		}
+
+		const creatureKey = this._creatureKey(creature);
+		if (!occupiedHexes || occupiedHexes.length === 0) {
+			this._abolishedBonfireLayerOverride.delete(creatureKey);
+			return;
+		}
+
+		this._abolishedBonfireLayerOverride.set(
+			creatureKey,
+			new Set(occupiedHexes.map((hexagon) => this._hexKey(hexagon))),
+		);
 	}
 
 	private _uniqueHexes(hexes: Hex[]): Hex[] {
@@ -137,7 +210,8 @@ export class Animations {
 		const overlayKey = hexagon.overlay?.key;
 		const isPlayerOverlayKey = typeof overlayKey === 'string' && /^hex_p[0-3]$/.test(overlayKey);
 		const isMovementOverlayKey =
-			typeof overlayKey === 'string' && (overlayKey === 'hex_path' || /^hex_dashed_p[0-3]$/.test(overlayKey));
+			typeof overlayKey === 'string' &&
+			(overlayKey === 'hex_path' || /^hex_dashed_p[0-3]$/.test(overlayKey));
 		return (
 			Boolean(hexagon.overlayClasses.match(/\bcreature\b/)) ||
 			Boolean(hexagon.overlayClasses.match(/\breachable\b|\bdashed\b/)) ||
@@ -170,8 +244,9 @@ export class Animations {
 		this.movementComplete(creature, hex, animId, opts);
 
 		const excludeKeySet = new Set(creature.hexagons.map((hexagon) => this._hexKey(hexagon)));
-		const movementAreaHexes = this._collectVisibleMovementAreaHexes()
-			.filter((hexagon) => !excludeKeySet.has(this._hexKey(hexagon)));
+		const movementAreaHexes = this._collectVisibleMovementAreaHexes().filter(
+			(hexagon) => !excludeKeySet.has(this._hexKey(hexagon)),
+		);
 
 		const release = () => {
 			game.animationQueue = game.animationQueue.filter((item) => item !== lockId);
@@ -262,10 +337,10 @@ export class Animations {
 						typeof hexagon.forcedDisplayAlpha === 'number'
 							? hexagon.forcedDisplayAlpha
 							: hasDisplay
-								? hexagon.display.alpha
-								: hasOverlay
-									? hexagon.overlay.alpha
-									: alpha,
+							? hexagon.display.alpha
+							: hasOverlay
+							? hexagon.overlay.alpha
+							: alpha,
 				};
 				hexagon.forcedDisplayAlpha = tweenState.alpha;
 				hexagon.forcedCreatureOverlayAlpha = tweenState.alpha;
@@ -317,7 +392,8 @@ export class Animations {
 		const tryClear = () => {
 			const pending = uniqueHexes.filter((hexagon) => {
 				const hasCreatureClass =
-					/\bcreature\b/.test(hexagon.displayClasses) || /\bcreature\b/.test(hexagon.overlayClasses);
+					/\bcreature\b/.test(hexagon.displayClasses) ||
+					/\bcreature\b/.test(hexagon.overlayClasses);
 				if (hasCreatureClass || (blockOnReachable && hexagon.reachable)) {
 					return true;
 				}
@@ -475,12 +551,7 @@ export class Animations {
 					260 + randInt(110),
 					Phaser.Easing.Quadratic.InOut,
 				),
-				this._yoyo(
-					emberSkirt,
-					{ alpha: 0.26 },
-					220 + randInt(100),
-					Phaser.Easing.Linear.None,
-				),
+				this._yoyo(emberSkirt, { alpha: 0.26 }, 220 + randInt(100), Phaser.Easing.Linear.None),
 			);
 			overlaySprites.push(emberSkirt);
 		}
@@ -521,10 +592,17 @@ export class Animations {
 				);
 				overlaySprites.push(depthBody);
 
-				const depthTongue = trapGroup.create(cx, by + row.dy - 4, 'trap_bonfire-spring') as Phaser.Sprite;
+				const depthTongue = trapGroup.create(
+					cx,
+					by + row.dy - 4,
+					'trap_bonfire-spring',
+				) as Phaser.Sprite;
 				depthTongue.anchor.setTo(0.5, 1);
 				depthTongue.alpha = 0.34 * row.alphaMul;
-				depthTongue.scale.setTo(c.tongueScaleX * 0.66 * row.scaleMul, c.tongueScaleY * row.scaleMul);
+				depthTongue.scale.setTo(
+					c.tongueScaleX * 0.66 * row.scaleMul,
+					c.tongueScaleY * row.scaleMul,
+				);
 				const depthTongueDrift = 0.012 + rand(0.012);
 				depthTongue.rotation = -depthTongueDrift;
 				idleTweens.push(
@@ -802,7 +880,6 @@ export class Animations {
 		const game = this.game,
 			hex = path[0],
 			currentHex = game.grid.hexes[hex.y][hex.x - creature.size + 1];
-		const originHexes = [...creature.hexagons];
 
 		this.leaveHex(creature, currentHex, opts);
 
@@ -827,19 +904,31 @@ export class Animations {
 				return Math.max(4.2, (cardboardHeight / Math.max(1, baselineHeight)) * 3.2);
 			};
 
-			const liftBonfireCurtainFromTraps = (originTraps: Trap[], shouldOverlapCreature = false) => {
+			const liftBonfireCurtainFromTraps = (
+				originTraps: Trap[],
+				shouldOverlapCreature = false,
+			) => {
 				const trapOverGroup = game.grid.trapOverGroup;
 				const trapGroup = game.grid.trapGroup;
-				type SpriteRestore = { sprite: Phaser.Sprite; parent: Phaser.Group; index: number; bringToTop: boolean; shouldStayInTopLayer: boolean };
+				type SpriteRestore = {
+					trap: Trap;
+					sprite: Phaser.Sprite;
+					parent: Phaser.Group;
+					index: number;
+					bringToTop: boolean;
+				};
 				const spriteRestoreData: SpriteRestore[] = [];
 
 				originTraps.forEach((trap) => trap.pauseIdleAnimation());
 
-				const curtainSprites = originTraps
-					.flatMap((trap) => trap.getVisualSprites())
-					.filter((sprite) => sprite.exists);
+				const curtainSprites = originTraps.flatMap((trap) =>
+					trap
+						.getVisualSprites()
+						.filter((sprite) => sprite.exists)
+						.map((sprite) => ({ trap, sprite })),
+				);
 
-				curtainSprites.forEach((sprite) => {
+				curtainSprites.forEach(({ trap, sprite }) => {
 					if (sprite.anchor.y !== 1) {
 						sprite.anchor.y = 1;
 						sprite.y += sprite.height / 2;
@@ -847,11 +936,11 @@ export class Animations {
 					if (shouldOverlapCreature) {
 						const parent = sprite.parent as Phaser.Group;
 						spriteRestoreData.push({
+							trap,
 							sprite,
 							parent,
 							index: parent.getChildIndex(sprite),
 							bringToTop: parent === trapGroup,
-							shouldStayInTopLayer: parent === trapGroup,
 						});
 						// Move sprites without bringToTop yet to preserve their relative layering order
 						moveSpriteToGroup(sprite, trapOverGroup);
@@ -862,34 +951,38 @@ export class Animations {
 				// After all sprites are moved, bring only the last one to top to place trap above existing sprites
 				// while preserving the internal layering of display vs overlays
 				if (shouldOverlapCreature && curtainSprites.length > 0) {
-					trapOverGroup.bringToTop(curtainSprites[curtainSprites.length - 1]);
+					trapOverGroup.bringToTop(curtainSprites[curtainSprites.length - 1].sprite);
 				}
 
-				const baseScales = curtainSprites.map((sprite) => ({
+				const baseScales = curtainSprites.map(({ sprite }) => ({
 					x: sprite.scale.x,
 					y: sprite.scale.y,
 				}));
 				const baselineHeight = Math.max(
 					1,
-					...curtainSprites.map((sprite) => Math.max(1, Math.abs(sprite.height))),
+					...curtainSprites.map(({ sprite }) => Math.max(1, Math.abs(sprite.height))),
 				);
 
-				const tweenSprites = (target: 'tower' | 'idle', duration: number, ease: (k: number) => number) => {
+				const tweenSprites = (
+					target: 'tower' | 'idle',
+					duration: number,
+					ease: (k: number) => number,
+				) => {
 					const towerRatio = getTallScaleMultiplier(baselineHeight);
 
 					return Promise.all(
-						curtainSprites.map((sprite, index) => {
+						curtainSprites.map(({ sprite }, index) => {
 							const baseScale = baseScales[index];
 							const targetScale =
 								target === 'tower'
 									? {
-										x: baseScale.x * 1.08,
-										y: baseScale.y * towerRatio,
-								  }
+											x: baseScale.x * 1.08,
+											y: baseScale.y * towerRatio,
+									  }
 									: {
-										x: baseScale.x,
-										y: baseScale.y,
-								  };
+											x: baseScale.x,
+											y: baseScale.y,
+									  };
 
 							const scaleTween = phaser.add
 								.tween(sprite.scale)
@@ -906,19 +999,19 @@ export class Animations {
 						if (!item.sprite.exists) {
 							return;
 						}
-						// Destination traps that need to overlap creature should stay in top layer
-						if (item.shouldStayInTopLayer) {
+						if (!trapGroup.exists) {
 							return;
 						}
-						if (!item.parent.exists) {
-							return;
-						}
-						moveSpriteToGroup(item.sprite, item.parent);
-						if (item.bringToTop) {
-							item.parent.bringToTop(item.sprite);
+						moveSpriteToGroup(item.sprite, trapGroup);
+						if (item.parent === trapGroup) {
+							if (item.bringToTop) {
+								trapGroup.bringToTop(item.sprite);
+							} else {
+								const safeIndex = Math.min(item.index, trapGroup.children.length - 1);
+								trapGroup.setChildIndex(item.sprite, Math.max(safeIndex, 0));
+							}
 						} else {
-							const safeIndex = Math.min(item.index, item.parent.children.length - 1);
-							item.parent.setChildIndex(item.sprite, Math.max(safeIndex, 0));
+							trapGroup.bringToTop(item.sprite);
 						}
 					});
 					originTraps.forEach((trap) => trap.resumeIdleAnimation());
@@ -966,7 +1059,9 @@ export class Animations {
 						creatureSprite.setHex(currentHex);
 						this.enterHex(creature, hex, opts);
 						const destinationHexes = [...creature.hexagons];
-						const destinationHexKeySet = new Set(destinationHexes.map((hexagon) => this._hexKey(hexagon)));
+						const destinationHexKeySet = new Set(
+							destinationHexes.map((hexagon) => this._hexKey(hexagon)),
+						);
 						fallbackOriginOnlyHexes = originHexes.filter(
 							(hexagon) => !destinationHexKeySet.has(this._hexKey(hexagon)),
 						);
@@ -987,7 +1082,7 @@ export class Animations {
 				return;
 			}
 
-			const originCurtains = liftBonfireCurtainFromTraps(originTraps, true);
+			const originCurtains = liftBonfireCurtainFromTraps(originTraps, false);
 			let didRestoreOriginLayer = false;
 			const restoreOriginLayer = () => {
 				if (didRestoreOriginLayer) {
@@ -1014,7 +1109,9 @@ export class Animations {
 				.then(() => {
 					this.enterHex(creature, hex, opts);
 					const destinationHexes = [...creature.hexagons];
-					const destinationHexKeySet = new Set(destinationHexes.map((hexagon) => this._hexKey(hexagon)));
+					const destinationHexKeySet = new Set(
+						destinationHexes.map((hexagon) => this._hexKey(hexagon)),
+					);
 					const originOnlyHexes = originHexes.filter(
 						(hexagon) => !destinationHexKeySet.has(this._hexKey(hexagon)),
 					);
@@ -1025,17 +1122,13 @@ export class Animations {
 					const destinationTraps = opts.createTeleportDestinationTraps?.() ?? [];
 
 					if (destinationTraps.length > 0) {
-						const destinationCurtains = liftBonfireCurtainFromTraps(destinationTraps, true);
+						const destinationCurtains = liftBonfireCurtainFromTraps(destinationTraps, false);
 						return destinationCurtains
 							.tweenSprites('tower', 300, Phaser.Easing.Cubic.Out)
 							.then(() =>
 								Promise.all([
 									creature.creatureSprite.setAlpha(1, 420),
-									destinationCurtains.tweenSprites(
-										'idle',
-										420,
-										Phaser.Easing.Quadratic.InOut,
-									),
+									destinationCurtains.tweenSprites('idle', 420, Phaser.Easing.Quadratic.InOut),
 								]),
 							)
 							.then(() => {
@@ -1059,6 +1152,7 @@ export class Animations {
 						});
 				})
 				.catch(() => {
+					this.syncAbolishedBonfireTrapLayers(creature, creature.hexagons);
 					restoreOriginLayer();
 					this._setHexVisualAlpha(originHexes, 1, true);
 					this._setHexVisualAlpha(creature.hexagons, 1, true);
@@ -1102,6 +1196,8 @@ export class Animations {
 		creature.y = hex.y - 0;
 		creature.pos = hex.pos;
 		creature.updateHex();
+		this.setAbolishedBonfireLayerOverride(creature);
+		this.syncAbolishedBonfireTrapLayers(creature, creature.hexagons);
 
 		game.onStepIn(creature, hex, opts);
 
@@ -1121,6 +1217,17 @@ export class Animations {
 
 	leaveHex(creature: Creature, hex: Hex, opts: AnimationOptions) {
 		const game = this.game;
+		if (creature.name === 'Abolished') {
+			const isMovingToUpperRow = hex.y < creature.y;
+			if (isMovingToUpperRow) {
+				this.setAbolishedBonfireLayerOverride(creature);
+				this.syncAbolishedBonfireTrapLayers(creature, creature.hexagons);
+			} else {
+				const destinationFootprint = this._footprintAt(hex, creature.size);
+				this.setAbolishedBonfireLayerOverride(creature, destinationFootprint);
+				this.syncAbolishedBonfireTrapLayers(creature, destinationFootprint);
+			}
+		}
 
 		if (!opts.ignoreFacing && !opts.pushed) {
 			creature.faceHex(hex, creature.hexagons[0], false, false); // Determine facing
