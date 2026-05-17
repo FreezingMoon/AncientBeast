@@ -78,6 +78,12 @@ export class Animations {
 		return `${creature.team}:${creature.id}`;
 	}
 
+	private _getLiveInfernalCardboardTarget(creature: Creature, fallbackSprite?: Phaser.Sprite) {
+		const sprite = fallbackSprite ?? creature.creatureSprite?.sprite;
+		const group = (sprite?.parent as Phaser.Group | undefined) ?? creature.creatureSprite?.grp;
+		return { sprite, group };
+	}
+
 	private _creatureKey(creature: Creature): string {
 		return `${creature.team}:${creature.id}`;
 	}
@@ -1610,8 +1616,7 @@ export class Animations {
 			return;
 		}
 
-		const sprite = spriteRef ?? creature.creatureSprite?.sprite;
-		const group = (sprite?.parent as Phaser.Group | undefined) ?? creature.creatureSprite?.grp;
+		const { sprite, group } = this._getLiveInfernalCardboardTarget(creature, spriteRef);
 		if (!sprite || !group) {
 			return;
 		}
@@ -1619,7 +1624,12 @@ export class Animations {
 		const effectKey = this._infernalCardboardFxKey(creature);
 		const existingState = this._infernalCardboardFx.get(effectKey);
 		if (existingState) {
-			if (existingState.sprite === sprite) {
+			const isExistingStateAttached =
+				existingState.group === group &&
+				sprite.parent === group &&
+				existingState.hazeSprite?.parent === group &&
+				existingState.heatLayerSprite?.parent === group;
+			if (existingState.sprite === sprite && isExistingStateAttached) {
 				return;
 			}
 
@@ -1787,8 +1797,20 @@ export class Animations {
 		if (!state) {
 			return;
 		}
-		if (!state.sprite.exists || !state.group.exists) {
+		const { sprite, group } = this._getLiveInfernalCardboardTarget(creature, state.sprite);
+		if (!sprite || !group || !state.sprite.exists || !state.group.exists) {
 			this.disposeInfernalCardboardEffect(creature);
+			return;
+		}
+		if (
+			sprite !== state.sprite ||
+			group !== state.group ||
+			state.sprite.parent !== state.group ||
+			state.hazeSprite?.parent !== state.group ||
+			state.heatLayerSprite?.parent !== state.group
+		) {
+			this.disposeInfernalCardboardEffect(creature);
+			this.initInfernalCardboardEffect(creature, sprite);
 			return;
 		}
 

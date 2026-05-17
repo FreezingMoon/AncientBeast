@@ -274,6 +274,48 @@ describe('Infernal cardboard FX regression', () => {
 		expect(secondHeatLayer?.y).toBeLessThan(second.sprite.y);
 		expect(secondHeatLayer?.x).toBe(second.sprite.x);
 	});
+
+	test('tick rebinds cardboard FX when the live sprite is reparented', () => {
+		const game = getInfernalAnimationsGameMock();
+		const animations = new Animations(game as never);
+		const { group: originalGroup, sprite } = createInfernalSpriteMock({
+			x: 32,
+			y: 70,
+			scaleX: 1,
+		});
+		const creature = {
+			name: 'Infernal',
+			team: 1,
+			id: 7,
+			creatureSprite: { sprite, grp: originalGroup },
+		} as unknown as Creature;
+
+		animations.initInfernalCardboardEffect(creature, sprite as never);
+		const originalOverlays = originalGroup.children.filter((child) => child !== sprite);
+
+		const replacement = createInfernalSpriteMock({ x: 0, y: 0, scaleX: 1 }).group;
+		originalGroup.children = originalGroup.children.filter((child) => child === sprite);
+		replacement.children.push(sprite);
+		sprite.parent = replacement;
+		creature.creatureSprite = {
+			sprite,
+			grp: replacement,
+		} as unknown as Creature['creatureSprite'];
+
+		game.Phaser.time.now = 48;
+		game.Phaser.time.elapsedMS = 16;
+		animations.tickInfernalCardboardEffect(creature);
+
+		originalOverlays.forEach((overlay) => {
+			expect(overlay.destroy).toHaveBeenCalledTimes(1);
+			expect(overlay.exists).toBe(false);
+		});
+		expect(replacement.children.length).toBeGreaterThan(1);
+		expect(replacement.children).toContain(sprite);
+		replacement.children
+			.filter((child) => child !== sprite)
+			.forEach((overlay) => expect(overlay.parent).toBe(replacement));
+	});
 });
 
 type InfernalSpriteMock = {
