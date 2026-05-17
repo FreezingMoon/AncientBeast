@@ -815,8 +815,8 @@ export const unitData: UnitDataStructure = [
 			},
 			{
 				title: 'Bonfire Spring',
-				desc: 'Relocates within 6 hexagons range, leaving a firewall in the old location.',
-				info: '3 x 10 burn damage per each hexagon.',
+				desc: 'Relocates within 6 hexagons range, creating firewalls in both locations.',
+				info: '6 x 10 burn damage per each hexagon.',
 				upgrade: 'Increased range each usage.',
 				effects: [
 					{

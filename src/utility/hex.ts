@@ -79,6 +79,9 @@ export class Hex {
 	direction: Direction;
 	displayClasses: string;
 	overlayClasses: string;
+	forcedDisplayAlpha: number | undefined;
+	forcedCreatureOverlayAlpha: number | undefined;
+	forcedHidden: boolean;
 	width: number;
 	height: number;
 
@@ -133,6 +136,9 @@ export class Hex {
 		this.direction = Direction.None; // Used for queryDirection
 		this.displayClasses = '';
 		this.overlayClasses = '';
+		this.forcedDisplayAlpha = undefined;
+		this.forcedCreatureOverlayAlpha = undefined;
+		this.forcedHidden = false;
 
 		this.width = Const.HEX_WIDTH_PX;
 		this.height = Const.HEX_HEIGHT_PX;
@@ -663,7 +669,7 @@ export class Hex {
 		// Display Hex
 		let targetAlpha = this.reachable || Boolean(this.displayClasses.match(/creature/g));
 
-		targetAlpha = !this.displayClasses.match(/hidden/g) && targetAlpha;
+		targetAlpha = !this.displayClasses.match(/hidden|teleportHidden/g) && targetAlpha;
 		targetAlpha = Boolean(this.displayClasses.match(/showGrid/g)) || targetAlpha;
 		targetAlpha = Boolean(this.displayClasses.match(/\badj\b/g)) || targetAlpha;
 		targetAlpha = Boolean(this.displayClasses.match(/dashed/g)) || targetAlpha;
@@ -701,7 +707,12 @@ export class Hex {
 			this.display.anchor.setTo(0, 0);
 		}
 
-		this.display.alpha = targetAlpha ? 1 : 0;
+		const computedDisplayAlpha = targetAlpha ? 1 : 0;
+		this.display.alpha =
+			typeof this.forcedDisplayAlpha === 'number' ? this.forcedDisplayAlpha : computedDisplayAlpha;
+		if (this.forcedHidden) {
+			this.display.alpha = 0;
+		}
 
 		if (this.displayClasses.match(/\babilityRange\b/)) {
 			// Scale is managed externally by tweens; only ensure positioning.
@@ -788,7 +799,18 @@ export class Hex {
 		// here it restarts the visible phase every time overlayClasses is touched.
 		const isGlowControlled = Boolean(this.overlayClasses.match(/\bactive\b|\bselected\b/));
 		if (!isGlowControlled) {
-			this.overlay.alpha = targetAlpha ? 1 : 0;
+			const computedOverlayAlpha = targetAlpha ? 1 : 0;
+			const overlayKey = this.overlay.key;
+			const isPlayerOverlayKey = typeof overlayKey === 'string' && /^hex_p[0-3]$/.test(overlayKey);
+			const isCreatureOverlay =
+				Boolean(this.overlayClasses.match(/\bcreature\b/)) || isPlayerOverlayKey;
+			this.overlay.alpha =
+				typeof this.forcedCreatureOverlayAlpha === 'number' && isCreatureOverlay
+					? this.forcedCreatureOverlayAlpha
+					: computedOverlayAlpha;
+			if (this.forcedHidden) {
+				this.overlay.alpha = 0;
+			}
 		}
 	}
 

@@ -4,8 +4,10 @@ import { getEffectShader, advanceShaderTime, type ShaderUniformMap } from './sha
 import Game from './game';
 import { Creature } from './creature';
 import { Hex } from './utility/hex';
+import { Trap } from './utility/trap';
 import { Ability } from './ability';
 import { QuadraticCurve } from './utility/curve';
+import { HEX_WIDTH_PX } from './utility/const';
 import { DEBUG_ENABLE_FAST_WALKING, DEBUG_WALK_SPEED_MS } from './debug';
 
 // to fix @ts-expect-error 2554: properly type the arguments for the trigger functions in `game.ts`
@@ -16,6 +18,8 @@ type AnimationOptions = {
 	ignoreMovementPoint?: boolean;
 	ignoreTraps?: boolean;
 	ignoreFacing?: boolean;
+	teleportEffect?: 'abolishedBonfire';
+	createTeleportDestinationTraps?: () => Trap[];
 	callback?: () => void;
 	callbackStepIn?: (hex?: Hex) => void;
 	pushed?: boolean;
@@ -56,6 +60,8 @@ type InfernalCardboardEffectState = {
 	trailSprites: Phaser.Sprite[];
 };
 
+const BONFIRE_BASELINE_Y_COMPENSATION_PX = -15;
+
 export class Animations {
 	game: Game;
 	movementPoints: number;
@@ -84,6 +90,284 @@ export class Animations {
 			.to(props, duration, ease, true, Math.floor(Math.random() * maxPhase), -1, true);
 	}
 
+	private _hexKey(hexagon: Hex): string {
+		return `${hexagon.x},${hexagon.y}`;
+	}
+
+	private _uniqueHexes(hexes: Hex[]): Hex[] {
+		const seen = new Set<string>();
+		return hexes.filter((hexagon) => {
+			const key = this._hexKey(hexagon);
+			if (seen.has(key)) {
+				return false;
+			}
+			seen.add(key);
+			return true;
+		});
+	}
+
+	private _footprintAt(hex: Hex, creatureSize: number): Hex[] {
+		const footprint: Hex[] = [];
+		for (let i = 0; i < creatureSize; i++) {
+			const segment = this.game.grid.hexes[hex.y]?.[hex.x - i];
+			if (segment) {
+				footprint.push(segment);
+			}
+		}
+		return footprint;
+	}
+
+	private _collectVisibleMovementAreaHexes(): Hex[] {
+		const movementHexes: Hex[] = [];
+		for (const row of this.game.grid.hexes) {
+			for (const hexagon of row) {
+				const isMovementHex =
+					hexagon.reachable ||
+					/\b(adj|dashed|abilityRange)\b/.test(hexagon.displayClasses) ||
+					/\b(reachable|dashed)\b/.test(hexagon.overlayClasses);
+				if (isMovementHex) {
+					movementHexes.push(hexagon);
+				}
+			}
+		}
+		return this._uniqueHexes(movementHexes);
+	}
+
+	private _shouldAffectOverlayAlpha(hexagon: Hex): boolean {
+		const overlayKey = hexagon.overlay?.key;
+		const isPlayerOverlayKey = typeof overlayKey === 'string' && /^hex_p[0-3]$/.test(overlayKey);
+		const isMovementOverlayKey =
+			typeof overlayKey === 'string' && (overlayKey === 'hex_path' || /^hex_dashed_p[0-3]$/.test(overlayKey));
+		return (
+			Boolean(hexagon.overlayClasses.match(/\bcreature\b/)) ||
+			Boolean(hexagon.overlayClasses.match(/\breachable\b|\bdashed\b/)) ||
+			isPlayerOverlayKey ||
+			isMovementOverlayKey
+		);
+	}
+
+	/**
+	 * Atomically completes movement and fades in destination movement-area hexes with
+	 * no gap in input locking. The secondary lockId is pushed to animationQueue BEFORE
+	 * movementComplete removes animId, so freezedInput never momentarily drops to false.
+	 * Movement hexes are collected AFTER movementComplete so we capture the correct
+	 * hexes at the destination (established by the ability callback).
+	 */
+	private _completeThenFadeInMovementArea(
+		creature: Creature,
+		hex: Hex,
+		animId: number,
+		opts: AnimationOptions,
+		duration = 420,
+	): void {
+		const game = this.game;
+
+		// Lock BEFORE movementComplete so there is never a gap where freezedInput is false.
+		const lockId = ++this.animationCounter;
+		game.animationQueue.push(lockId);
+
+		// Complete movement; ability callback runs here, establishing movement hexes at B.
+		this.movementComplete(creature, hex, animId, opts);
+
+		const excludeKeySet = new Set(creature.hexagons.map((hexagon) => this._hexKey(hexagon)));
+		const movementAreaHexes = this._collectVisibleMovementAreaHexes()
+			.filter((hexagon) => !excludeKeySet.has(this._hexKey(hexagon)));
+
+		const release = () => {
+			game.animationQueue = game.animationQueue.filter((item) => item !== lockId);
+			if (game.animationQueue.length === 0) {
+				game.freezedInput = false;
+				if (game.multiplayer) {
+					game.freezedInput = game.UI.active ? false : true;
+				}
+				game.grid?.refreshHoverState();
+			}
+		};
+
+		if (movementAreaHexes.length === 0) {
+			release();
+			return;
+		}
+
+		this._setHexVisualAlpha(movementAreaHexes, 0);
+		this._tweenHexVisualAlpha(movementAreaHexes, 1, duration, true)
+			.catch(() => undefined)
+			.then(() => release());
+	}
+
+	private _createMovementHexTransition(creature: Creature, destinationHex: Hex) {
+		const originHexes = this._uniqueHexes([...creature.hexagons]);
+		const destinationHexes = this._uniqueHexes(this._footprintAt(destinationHex, creature.size));
+		const destinationKeySet = new Set(destinationHexes.map((hexagon) => this._hexKey(hexagon)));
+		const originOnlyHexes = originHexes.filter(
+			(hexagon) => !destinationKeySet.has(this._hexKey(hexagon)),
+		);
+		return {
+			originHexes,
+			destinationHexes,
+			originOnlyHexes,
+		};
+	}
+
+	private _setHexForcedHidden(hexes: Hex[], hidden: boolean) {
+		hexes.forEach((hexagon) => {
+			hexagon.forcedHidden = hidden;
+			if (hexagon.display?.exists) {
+				hexagon.display.visible = !hidden;
+			}
+			if (hexagon.overlay?.exists) {
+				hexagon.overlay.visible = !hidden;
+			}
+			if (hidden) {
+				hexagon.displayVisualState('teleportHidden');
+			} else {
+				hexagon.cleanDisplayVisualState('teleportHidden');
+			}
+		});
+	}
+
+	private _setHexVisualAlpha(hexes: Hex[], alpha: number, clearOverride = false) {
+		hexes.forEach((hexagon) => {
+			hexagon.forcedDisplayAlpha = clearOverride ? undefined : alpha;
+			hexagon.forcedCreatureOverlayAlpha = clearOverride ? undefined : alpha;
+			if (hexagon.display?.exists) {
+				hexagon.display.alpha = alpha;
+			}
+			if (hexagon.overlay?.exists) {
+				const shouldAffectOverlay = this._shouldAffectOverlayAlpha(hexagon);
+				if (shouldAffectOverlay) {
+					hexagon.overlay.alpha = alpha;
+				}
+			}
+		});
+	}
+
+	private _tweenHexVisualAlpha(
+		hexes: Hex[],
+		alpha: number,
+		duration: number,
+		clearOverrideOnComplete = false,
+	): Promise<void[]> {
+		const phaser = this.game.Phaser;
+		return Promise.all(
+			hexes.map((hexagon) => {
+				const hasDisplay = Boolean(hexagon.display?.exists);
+				const hasOverlay = Boolean(hexagon.overlay?.exists);
+				if (!hasDisplay && !hasOverlay) {
+					return Promise.resolve();
+				}
+
+				const tweenState = {
+					alpha:
+						typeof hexagon.forcedDisplayAlpha === 'number'
+							? hexagon.forcedDisplayAlpha
+							: hasDisplay
+								? hexagon.display.alpha
+								: hasOverlay
+									? hexagon.overlay.alpha
+									: alpha,
+				};
+				hexagon.forcedDisplayAlpha = tweenState.alpha;
+				hexagon.forcedCreatureOverlayAlpha = tweenState.alpha;
+
+				const alphaTween = phaser.add
+					.tween(tweenState)
+					.to({ alpha }, duration, Phaser.Easing.Quadratic.InOut, true);
+				alphaTween.onUpdateCallback(() => {
+					hexagon.forcedDisplayAlpha = tweenState.alpha;
+					hexagon.forcedCreatureOverlayAlpha = tweenState.alpha;
+					if (hasDisplay) {
+						hexagon.display.alpha = tweenState.alpha;
+					}
+					if (hasOverlay) {
+						const shouldAffectOverlay = this._shouldAffectOverlayAlpha(hexagon);
+						if (shouldAffectOverlay) {
+							hexagon.overlay.alpha = tweenState.alpha;
+						}
+					}
+				});
+
+				return new Promise<void>((resolve) => {
+					alphaTween.onComplete.addOnce(() => {
+						hexagon.forcedDisplayAlpha = clearOverrideOnComplete ? undefined : alpha;
+						hexagon.forcedCreatureOverlayAlpha = clearOverrideOnComplete ? undefined : alpha;
+						resolve();
+					});
+				});
+			}),
+		);
+	}
+
+	private _scheduleHexVisualCleanup(
+		hexes: Hex[],
+		options: {
+			minDelayMs?: number;
+			requiredStableChecks?: number;
+			maxAttempts?: number;
+			intervalMs?: number;
+			blockOnReachable?: boolean;
+		} = {},
+	) {
+		const uniqueHexes = this._uniqueHexes(hexes);
+		let attemptsLeft = options.maxAttempts ?? 18;
+		let stableChecks = 0;
+		const requiredStableChecks = options.requiredStableChecks ?? 3;
+		const intervalMs = options.intervalMs ?? 50;
+		const blockOnReachable = options.blockOnReachable ?? false;
+		const tryClear = () => {
+			const pending = uniqueHexes.filter((hexagon) => {
+				const hasCreatureClass =
+					/\bcreature\b/.test(hexagon.displayClasses) || /\bcreature\b/.test(hexagon.overlayClasses);
+				if (hasCreatureClass || (blockOnReachable && hexagon.reachable)) {
+					return true;
+				}
+				hexagon.forcedDisplayAlpha = undefined;
+				hexagon.forcedCreatureOverlayAlpha = undefined;
+				hexagon.forcedHidden = false;
+				if (hexagon.display?.exists) {
+					hexagon.display.visible = true;
+				}
+				if (hexagon.overlay?.exists) {
+					hexagon.overlay.visible = true;
+				}
+				hexagon.cleanDisplayVisualState('teleportHidden');
+				return false;
+			});
+
+			attemptsLeft--;
+			if (pending.length > 0) {
+				stableChecks = 0;
+			} else {
+				stableChecks++;
+				if (stableChecks >= requiredStableChecks) {
+					return;
+				}
+			}
+
+			if (attemptsLeft > 0) {
+				this.game.Phaser.time.events.add(intervalMs, tryClear);
+			}
+		};
+
+		this.game.Phaser.time.events.add(options.minDelayMs ?? 0, tryClear);
+	}
+
+	private _scheduleHexVisualCleanupOnNextInput(hexes: Hex[], timeoutMs = 2500) {
+		// Deprecated path; keep signature for compatibility if reused later.
+		this._scheduleHexVisualCleanup(hexes, {
+			minDelayMs: timeoutMs,
+			requiredStableChecks: 4,
+			maxAttempts: 20,
+		});
+	}
+
+	private _applyCreatureHexVisuals(hexes: Hex[], team: number) {
+		hexes.forEach((hexagon) => {
+			hexagon.displayVisualState(`creature player${team}`);
+			hexagon.overlayVisualState(`creature player${team}`);
+		});
+	}
+
 	startBonfireSpringTrapAnimation(
 		display: Phaser.Sprite,
 		trapGroup: Phaser.Group,
@@ -92,8 +376,10 @@ export class Animations {
 	) {
 		const base = display;
 
-		base.anchor.y = 1;
-		base.y += base.height / 2;
+		if (base.anchor.y !== 1) {
+			base.anchor.y = 1;
+			base.y += base.height / 2 + BONFIRE_BASELINE_Y_COMPENSATION_PX;
+		}
 		base.scale.y = 0.62;
 		base.alpha = 0.76;
 		const bx = base.x;
@@ -165,6 +451,108 @@ export class Animations {
 			{ dx: -2, bodyScaleY: 0.82, tongueScaleY: 1.28, tongueScaleX: 0.42 },
 			{ dx: 24, bodyScaleY: 0.7, tongueScaleY: 1.14, tongueScaleX: 0.35 },
 		];
+
+		const depthRows: Array<{
+			dy: number;
+			dxScale: number;
+			scaleMul: number;
+			alphaMul: number;
+		}> = [
+			{ dy: -10, dxScale: 0.74, scaleMul: 0.82, alphaMul: 0.62 },
+			{ dy: -4, dxScale: 0.98, scaleMul: 1.02, alphaMul: 0.92 },
+		];
+
+		for (const c of clusters) {
+			const emberX = bx + c.dx * 0.94;
+			const emberSkirt = trapGroup.create(emberX, by + 1, 'trap_bonfire-spring') as Phaser.Sprite;
+			emberSkirt.anchor.setTo(0.5, 1);
+			emberSkirt.alpha = 0.32;
+			emberSkirt.scale.setTo(1.02, 0.44 + c.bodyScaleY * 0.08);
+			idleTweens.push(
+				this._yoyo(
+					emberSkirt.scale,
+					{ x: emberSkirt.scale.x * 1.12, y: emberSkirt.scale.y * 1.08 },
+					260 + randInt(110),
+					Phaser.Easing.Quadratic.InOut,
+				),
+				this._yoyo(
+					emberSkirt,
+					{ alpha: 0.26 },
+					220 + randInt(100),
+					Phaser.Easing.Linear.None,
+				),
+			);
+			overlaySprites.push(emberSkirt);
+		}
+
+		for (const row of depthRows) {
+			for (const c of clusters) {
+				const cx = bx + c.dx * row.dxScale;
+				const isFloorRow = row.dy >= -5;
+
+				const depthBody = trapGroup.create(cx, by + row.dy, 'trap_bonfire-spring') as Phaser.Sprite;
+				depthBody.anchor.setTo(0.5, 1);
+				depthBody.alpha = 0.62 * row.alphaMul;
+				depthBody.scale.setTo(
+					(isFloorRow ? 0.86 : 0.72) * row.scaleMul,
+					c.bodyScaleY * row.scaleMul,
+				);
+				const depthSway = 0.012 + rand(0.012);
+				depthBody.rotation = -depthSway;
+				idleTweens.push(
+					this._yoyo(
+						depthBody.scale,
+						{ y: c.bodyScaleY * row.scaleMul * 1.2 },
+						340 + randInt(110),
+						Phaser.Easing.Quadratic.InOut,
+					),
+					this._yoyo(
+						depthBody,
+						{ alpha: depthBody.alpha * 0.74 },
+						300 + randInt(100),
+						Phaser.Easing.Linear.None,
+					),
+					this._yoyo(
+						depthBody,
+						{ rotation: depthSway },
+						760 + randInt(280),
+						Phaser.Easing.Sinusoidal.InOut,
+					),
+				);
+				overlaySprites.push(depthBody);
+
+				const depthTongue = trapGroup.create(cx, by + row.dy - 4, 'trap_bonfire-spring') as Phaser.Sprite;
+				depthTongue.anchor.setTo(0.5, 1);
+				depthTongue.alpha = 0.34 * row.alphaMul;
+				depthTongue.scale.setTo(c.tongueScaleX * 0.66 * row.scaleMul, c.tongueScaleY * row.scaleMul);
+				const depthTongueDrift = 0.012 + rand(0.012);
+				depthTongue.rotation = -depthTongueDrift;
+				idleTweens.push(
+					this._yoyo(
+						depthTongue.scale,
+						{
+							y: c.tongueScaleY * row.scaleMul * 1.26,
+							x: c.tongueScaleX * 0.58 * row.scaleMul,
+						},
+						260 + randInt(100),
+						Phaser.Easing.Quadratic.InOut,
+					),
+					this._yoyo(
+						depthTongue,
+						{ alpha: depthTongue.alpha * 0.76 },
+						220 + randInt(100),
+						Phaser.Easing.Linear.None,
+					),
+					this._yoyo(
+						depthTongue,
+						{ rotation: depthTongueDrift },
+						680 + randInt(260),
+						Phaser.Easing.Sinusoidal.InOut,
+					),
+				);
+				overlaySprites.push(depthTongue);
+			}
+		}
 
 		for (const c of clusters) {
 			const cx = bx + c.dx;
@@ -414,11 +802,274 @@ export class Animations {
 		const game = this.game,
 			hex = path[0],
 			currentHex = game.grid.hexes[hex.y][hex.x - creature.size + 1];
+		const originHexes = [...creature.hexagons];
 
 		this.leaveHex(creature, currentHex, opts);
 
 		const animId = Math.random();
 		game.animationQueue.push(animId);
+
+		if (opts.teleportEffect === 'abolishedBonfire') {
+			const phaser = game.Phaser;
+			const transition = this._createMovementHexTransition(creature, hex);
+			const originHexes = transition.originHexes;
+			this._setHexForcedHidden(transition.originOnlyHexes, true);
+			const moveSpriteToGroup = (sprite: Phaser.Sprite, targetGroup: Phaser.Group) => {
+				const sourceGroup = sprite.parent as Phaser.Group;
+				const worldPos = sourceGroup.toGlobal(sprite.position.clone());
+				sourceGroup.remove(sprite, false);
+				targetGroup.add(sprite);
+				const localPos = targetGroup.toLocal(worldPos, game.Phaser.world);
+				sprite.position.set(localPos.x, localPos.y);
+			};
+			const getTallScaleMultiplier = (baselineHeight: number) => {
+				const cardboardHeight = Math.max(70, Math.abs(creature.creatureSprite.sprite.height));
+				return Math.max(4.2, (cardboardHeight / Math.max(1, baselineHeight)) * 3.2);
+			};
+
+			const liftBonfireCurtainFromTraps = (originTraps: Trap[], shouldOverlapCreature = false) => {
+				const trapOverGroup = game.grid.trapOverGroup;
+				const trapGroup = game.grid.trapGroup;
+				type SpriteRestore = { sprite: Phaser.Sprite; parent: Phaser.Group; index: number; bringToTop: boolean; shouldStayInTopLayer: boolean };
+				const spriteRestoreData: SpriteRestore[] = [];
+
+				originTraps.forEach((trap) => trap.pauseIdleAnimation());
+
+				const curtainSprites = originTraps
+					.flatMap((trap) => trap.getVisualSprites())
+					.filter((sprite) => sprite.exists);
+
+				curtainSprites.forEach((sprite) => {
+					if (sprite.anchor.y !== 1) {
+						sprite.anchor.y = 1;
+						sprite.y += sprite.height / 2;
+					}
+					if (shouldOverlapCreature) {
+						const parent = sprite.parent as Phaser.Group;
+						spriteRestoreData.push({
+							sprite,
+							parent,
+							index: parent.getChildIndex(sprite),
+							bringToTop: parent === trapGroup,
+							shouldStayInTopLayer: parent === trapGroup,
+						});
+						// Move sprites without bringToTop yet to preserve their relative layering order
+						moveSpriteToGroup(sprite, trapOverGroup);
+					} else {
+						trapGroup.bringToTop(sprite);
+					}
+				});
+				// After all sprites are moved, bring only the last one to top to place trap above existing sprites
+				// while preserving the internal layering of display vs overlays
+				if (shouldOverlapCreature && curtainSprites.length > 0) {
+					trapOverGroup.bringToTop(curtainSprites[curtainSprites.length - 1]);
+				}
+
+				const baseScales = curtainSprites.map((sprite) => ({
+					x: sprite.scale.x,
+					y: sprite.scale.y,
+				}));
+				const baselineHeight = Math.max(
+					1,
+					...curtainSprites.map((sprite) => Math.max(1, Math.abs(sprite.height))),
+				);
+
+				const tweenSprites = (target: 'tower' | 'idle', duration: number, ease: (k: number) => number) => {
+					const towerRatio = getTallScaleMultiplier(baselineHeight);
+
+					return Promise.all(
+						curtainSprites.map((sprite, index) => {
+							const baseScale = baseScales[index];
+							const targetScale =
+								target === 'tower'
+									? {
+										x: baseScale.x * 1.08,
+										y: baseScale.y * towerRatio,
+								  }
+									: {
+										x: baseScale.x,
+										y: baseScale.y,
+								  };
+
+							const scaleTween = phaser.add
+								.tween(sprite.scale)
+								.to(targetScale, duration, ease, true);
+							return new Promise<void>((resolve) => {
+								scaleTween.onComplete.addOnce(() => resolve());
+							});
+						}),
+					);
+				};
+
+				const restore = () => {
+					spriteRestoreData.forEach((item) => {
+						if (!item.sprite.exists) {
+							return;
+						}
+						// Destination traps that need to overlap creature should stay in top layer
+						if (item.shouldStayInTopLayer) {
+							return;
+						}
+						if (!item.parent.exists) {
+							return;
+						}
+						moveSpriteToGroup(item.sprite, item.parent);
+						if (item.bringToTop) {
+							item.parent.bringToTop(item.sprite);
+						} else {
+							const safeIndex = Math.min(item.index, item.parent.children.length - 1);
+							item.parent.setChildIndex(item.sprite, Math.max(safeIndex, 0));
+						}
+					});
+					originTraps.forEach((trap) => trap.resumeIdleAnimation());
+				};
+
+				return { tweenSprites, restore };
+			};
+
+			const originTraps = game.traps.filter((trap) => {
+				if (trap.type !== 'bonfire-spring' || trap.ownerCreature !== creature) {
+					return false;
+				}
+				return creature.hexagons.some((hexagon) => hexagon.x === trap.x && hexagon.y === trap.y);
+			});
+			const originMovementAreaHexes = this._collectVisibleMovementAreaHexes();
+			const originHexKeySet = new Set(originHexes.map((hexagon) => this._hexKey(hexagon)));
+			const originOutlineHexes = originMovementAreaHexes.filter(
+				(hexagon) => !originHexKeySet.has(this._hexKey(hexagon)),
+			);
+			const teleportCleanupOptions = {
+				minDelayMs: 180,
+				requiredStableChecks: 2,
+				maxAttempts: 16,
+				intervalMs: 40,
+			};
+			const fadePhaseAOriginHexes = () =>
+				Promise.resolve()
+					.then(() =>
+						originOutlineHexes.length > 0
+							? this._tweenHexVisualAlpha(originOutlineHexes, 0, 150)
+							: Promise.resolve([]),
+					)
+					.then(() =>
+						originHexes.length > 0
+							? this._tweenHexVisualAlpha(originHexes, 0, 150)
+							: Promise.resolve([]),
+					);
+			let fallbackOriginOnlyHexes: Hex[] = [];
+
+			if (originTraps.length === 0) {
+				fadePhaseAOriginHexes()
+					.then(() => creature.creatureSprite.setAlpha(0, 500))
+					.then((creatureSprite) => {
+						game.soundsys.playSFX('sounds/step');
+						creatureSprite.setHex(currentHex);
+						this.enterHex(creature, hex, opts);
+						const destinationHexes = [...creature.hexagons];
+						const destinationHexKeySet = new Set(destinationHexes.map((hexagon) => this._hexKey(hexagon)));
+						fallbackOriginOnlyHexes = originHexes.filter(
+							(hexagon) => !destinationHexKeySet.has(this._hexKey(hexagon)),
+						);
+						this._setHexForcedHidden(fallbackOriginOnlyHexes, true);
+						const destinationFadeInHexes = destinationHexes;
+						this._applyCreatureHexVisuals(destinationHexes, creature.team);
+						this._setHexVisualAlpha(destinationFadeInHexes, 0);
+						return Promise.all([
+							creatureSprite.setAlpha(1, 500),
+							this._tweenHexVisualAlpha(destinationFadeInHexes, 1, 620, true),
+						]).then(() => creatureSprite);
+					})
+					.then(() => {
+						this._completeThenFadeInMovementArea(creature, hex, animId, opts);
+						this._scheduleHexVisualCleanup(fallbackOriginOnlyHexes, teleportCleanupOptions);
+						this._scheduleHexVisualCleanup(originMovementAreaHexes, teleportCleanupOptions);
+					});
+				return;
+			}
+
+			const originCurtains = liftBonfireCurtainFromTraps(originTraps, true);
+			let didRestoreOriginLayer = false;
+			const restoreOriginLayer = () => {
+				if (didRestoreOriginLayer) {
+					return;
+				}
+				didRestoreOriginLayer = true;
+				originCurtains.restore();
+			};
+
+			Promise.resolve()
+				.then(() => fadePhaseAOriginHexes())
+				.then(() => originCurtains.tweenSprites('tower', 260, Phaser.Easing.Cubic.Out))
+				.then(() =>
+					Promise.all([
+						creature.creatureSprite.setAlpha(0, 340),
+						originCurtains.tweenSprites('idle', 340, Phaser.Easing.Quadratic.InOut),
+					]),
+				)
+				.then(() => {
+					restoreOriginLayer();
+					game.soundsys.playSFX('sounds/step');
+					return creature.creatureSprite.setHex(currentHex);
+				})
+				.then(() => {
+					this.enterHex(creature, hex, opts);
+					const destinationHexes = [...creature.hexagons];
+					const destinationHexKeySet = new Set(destinationHexes.map((hexagon) => this._hexKey(hexagon)));
+					const originOnlyHexes = originHexes.filter(
+						(hexagon) => !destinationHexKeySet.has(this._hexKey(hexagon)),
+					);
+					this._setHexForcedHidden(originOnlyHexes, true);
+					const destinationFadeInHexes = destinationHexes;
+					this._applyCreatureHexVisuals(destinationHexes, creature.team);
+					this._setHexVisualAlpha(destinationFadeInHexes, 0);
+					const destinationTraps = opts.createTeleportDestinationTraps?.() ?? [];
+
+					if (destinationTraps.length > 0) {
+						const destinationCurtains = liftBonfireCurtainFromTraps(destinationTraps, true);
+						return destinationCurtains
+							.tweenSprites('tower', 300, Phaser.Easing.Cubic.Out)
+							.then(() =>
+								Promise.all([
+									creature.creatureSprite.setAlpha(1, 420),
+									destinationCurtains.tweenSprites(
+										'idle',
+										420,
+										Phaser.Easing.Quadratic.InOut,
+									),
+								]),
+							)
+							.then(() => {
+								destinationCurtains.restore();
+								return this._tweenHexVisualAlpha(destinationFadeInHexes, 1, 620, true);
+							})
+							.then(() => {
+								this._completeThenFadeInMovementArea(creature, hex, animId, opts);
+								this._scheduleHexVisualCleanup(originOnlyHexes, teleportCleanupOptions);
+								this._scheduleHexVisualCleanup(originMovementAreaHexes, teleportCleanupOptions);
+							});
+					}
+
+					return creature.creatureSprite
+						.setAlpha(1, 420)
+						.then(() => this._tweenHexVisualAlpha(destinationFadeInHexes, 1, 620, true))
+						.then(() => {
+							this._completeThenFadeInMovementArea(creature, hex, animId, opts);
+							this._scheduleHexVisualCleanup(originOnlyHexes, teleportCleanupOptions);
+							this._scheduleHexVisualCleanup(originMovementAreaHexes, teleportCleanupOptions);
+						});
+				})
+				.catch(() => {
+					restoreOriginLayer();
+					this._setHexVisualAlpha(originHexes, 1, true);
+					this._setHexVisualAlpha(creature.hexagons, 1, true);
+					this._setHexForcedHidden(originHexes, false);
+					this._setHexForcedHidden(creature.hexagons, false);
+					this._scheduleHexVisualCleanup([...originHexes, ...creature.hexagons]);
+					this.movementComplete(creature, hex, animId, opts);
+				});
+
+			return;
+		}
 
 		creature.creatureSprite
 			.setAlpha(0, 500)

@@ -220,10 +220,10 @@ export class Ability {
 		}
 
 		// If set, abilities can be used multiple times in a single round.
-		this._disableCooldowns = false;
+		this._disableCooldowns = this.game.metaPowersState.resetCooldowns;
 
 		// If set, active unit's energy is restored to max after each ability use.
-		this._infiniteEnergy = false;
+		this._infiniteEnergy = this.game.metaPowersState.infiniteEnergy;
 
 		// Events
 		this.game.signals.metaPowers.add(this.handleMetaPowerEvent, this);

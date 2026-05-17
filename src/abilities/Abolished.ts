@@ -246,6 +246,39 @@ export default (G: Game) => {
 					}
 				});
 
+				const createBonfireSpringTraps = (ownerCreature: Creature) => {
+					const createdTraps = [];
+					ownerCreature.hexagons.forEach(function (h) {
+						const trap = h.createTrap(
+							'bonfire-spring',
+							[
+								new Effect(
+									'Bonfire Spring',
+									ownerCreature,
+									h,
+									'onStepIn',
+									{
+										requireFn: requireFn,
+										effectFn: effectFn,
+										attacker: ownerCreature,
+									},
+									G,
+								),
+							],
+							ownerCreature.player,
+							{
+								turnLifetime: 1,
+								ownerCreature,
+								fullTurnLifetime: true,
+								destroyAnimation: 'shrinkDown',
+							},
+						);
+						createdTraps.push(trap);
+					});
+
+					return createdTraps;
+				};
+
 				// Leave a Firewall in current location
 				const effectFn = function (effect, creatureOrHex) {
 					let creature = creatureOrHex;
@@ -272,37 +305,15 @@ export default (G: Game) => {
 				};
 
 				const crea = this.creature;
-				crea.hexagons.forEach(function (h) {
-					h.createTrap(
-						'bonfire-spring',
-						[
-							new Effect(
-								'Bonfire Spring',
-								crea,
-								h,
-								'onStepIn',
-								{
-									requireFn: requireFn,
-									effectFn: effectFn,
-									attacker: crea,
-								},
-								G,
-							),
-						],
-						crea.player,
-						{
-							turnLifetime: 1,
-							ownerCreature: crea,
-							fullTurnLifetime: true,
-							destroyAnimation: 'shrinkDown',
-						},
-					);
-				});
+				createBonfireSpringTraps(crea);
 
 				ability.creature.moveTo(hex, {
 					ignoreMovementPoint: true,
 					ignorePath: true,
+					ignoreFacing: true,
 					animation: 'teleport',
+					teleportEffect: 'abolishedBonfire',
+					createTeleportDestinationTraps: () => createBonfireSpringTraps(crea),
 					callback: function () {
 						G.activeCreature.queryMove();
 					},

@@ -192,4 +192,53 @@ export class Trap {
 			.to({ alpha: 1 }, duration, Phaser.Easing.Linear.None)
 			.start();
 	}
+
+	getVisualSprites(): Phaser.Sprite[] {
+		const sprites = [this.display, ...this._overlaySprites];
+		return sprites.filter((sprite): sprite is Phaser.Sprite => Boolean(sprite && sprite.exists));
+	}
+
+	pauseIdleAnimation() {
+		this._idleTweens.forEach((tween) => tween.stop());
+		this._idleTweens = [];
+	}
+
+	resumeIdleAnimation() {
+		if (!this.display || !this.display.exists) {
+			return;
+		}
+
+		if (this.type !== 'bonfire-spring' && this.type !== 'scorched-ground') {
+			return;
+		}
+
+		this._overlaySprites.forEach((sprite) => {
+			if (sprite && sprite.exists) {
+				sprite.destroy();
+			}
+		});
+		this._overlaySprites = [];
+
+		const group = this.display.parent as Phaser.Group | null;
+		if (!group) {
+			return;
+		}
+
+		if (this.type === 'bonfire-spring') {
+			this.game.animations.startBonfireSpringTrapAnimation(
+				this.display,
+				group,
+				this._idleTweens,
+				this._overlaySprites,
+			);
+			return;
+		}
+
+		this.game.animations.startScorchedGroundTrapAnimation(
+			this.display,
+			group,
+			this._idleTweens,
+			this._overlaySprites,
+		);
+	}
 }

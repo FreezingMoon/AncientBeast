@@ -50,6 +50,14 @@ import BotController from './bot';
  */
 
 type AnimationID = number;
+
+export type MetaPowersState = {
+	executeMonster: boolean;
+	resetCooldowns: boolean;
+	disableMaterializationSickness: boolean;
+	infiniteEnergy: boolean;
+};
+
 export default class Game {
 	/* Attributes
 	 *
@@ -114,6 +122,7 @@ export default class Game {
 	freezedInput: boolean;
 	turnThrottle: boolean;
 	turn: number;
+	metaPowersState: MetaPowersState;
 	/** Counts abilities that called end(false,true) but haven't yet invoked queryMove(). */
 	_deferredQueryMovePending: number;
 	Phaser: Phaser;
@@ -196,6 +205,12 @@ export default class Game {
 		this.freezedInput = false;
 		this.turnThrottle = false;
 		this.turn = 0;
+		this.metaPowersState = {
+			executeMonster: false,
+			resetCooldowns: false,
+			disableMaterializationSickness: false,
+			infiniteEnergy: false,
+		};
 
 		// Phaser
 		this.Phaser = new Phaser.Game(1920, 1080, Phaser.AUTO, 'combatwrapper', {
@@ -638,6 +653,8 @@ export default class Game {
 			// Throttle down to 1 event every 100ms of inactivity
 			resizeGame();
 		});
+
+		this.soundsys.playMusic();
 		if (DEBUG_DISABLE_MUSIC) {
 			this.musicPlayer.audio.pause();
 		}

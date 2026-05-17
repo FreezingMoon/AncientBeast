@@ -451,6 +451,11 @@ export class UI {
 							return;
 						}
 
+						// Block all ability interactions while an animation is running
+						if (game.freezedInput) {
+							return;
+						}
+
 						this.clickedAbility = i;
 
 						// Animate ability range circles when clicking a no-target ability
@@ -580,7 +585,12 @@ export class UI {
 
 						// Show hex_path markers over the ability's target range when hovering
 						// a non-passive ability that currently has no targets in sight
-						if (i !== 0 && this.selectedAbility === -1 && !this.game.botController.isBotTurn()) {
+						if (
+							i !== 0 &&
+							this.selectedAbility === -1 &&
+							!this.game.botController.isBotTurn() &&
+							!this.game.freezedInput
+						) {
 							const game = this.game;
 							const creature = game.activeCreature;
 							if (creature) {

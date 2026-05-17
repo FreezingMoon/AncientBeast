@@ -733,7 +733,7 @@ export class Creature {
 		if (game._deferredQueryMovePending > 0) {
 			game._deferredQueryMovePending--;
 		}
-		if (game._deferredQueryMovePending === 0) {
+		if (game._deferredQueryMovePending === 0 && game.animationQueue.length === 0) {
 			game.freezedInput = false;
 			// refreshHoverState() fires at the end of queryHexes() below, after the new movement query handlers are in place.
 		}
