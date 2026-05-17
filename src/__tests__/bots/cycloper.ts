@@ -44,6 +44,7 @@ const makeCreature = ({
 	size = 1,
 	flipped = false,
 	dead = false,
+	temp = false,
 	abilities = [] as any[],
 	adjacentHexes = (_: number) => [] as Hex[],
 	playerCreatures = [] as (Creature & { team: number })[],
@@ -62,6 +63,7 @@ const makeCreature = ({
 	size: number;
 	flipped: boolean;
 	dead: boolean;
+	temp: boolean;
 	abilities: any[];
 	adjacentHexes: (_: number) => Hex[];
 	playerCreatures: (Creature & { team: number })[];
@@ -80,7 +82,7 @@ const makeCreature = ({
 		level,
 		size,
 		dead,
-		temp: false,
+		temp,
 		player: { id: team, flipped, controller: 'bot', creatures: playerCreatures },
 		abilities,
 		adjacentHexes,
@@ -171,6 +173,84 @@ describe('CycloperStrategy.scoreAbilityHex', () => {
 		const allyScore = scoreAbilityHex(allyHex, 1, controller as any) as number;
 		const enemyScore = scoreAbilityHex(enemyHex, 1, controller as any) as number;
 		expect(allyScore).toBeGreaterThan(enemyScore);
+	});
+
+	test('Power Aperture ignores unaffordable targets', () => {
+		const cycloper = makeCreature({
+			team: 0,
+			energy: 60,
+			maxEnergy: 150,
+			abilities: [{}, {}, {}, { isUpgraded: () => false }],
+		});
+		const expensiveEnemy = makeCreature({ id: 4, team: 1, health: 120, maxHealth: 120, level: 7 });
+		const affordableEnemy = makeCreature({ id: 5, team: 1, health: 40, maxHealth: 40, level: 3 });
+		const expensiveHex = makeHex({ x: 6, y: 4, creature: expensiveEnemy });
+		const affordableHex = makeHex({ x: 5, y: 4, creature: affordableEnemy });
+		const controller = makeController({
+			activeCreature: cycloper,
+			creatures: [expensiveEnemy, affordableEnemy],
+		});
+
+		const expensiveScore = scoreAbilityHex(expensiveHex, 3, controller as any) as number;
+		const affordableScore = scoreAbilityHex(affordableHex, 3, controller as any) as number;
+		expect(expensiveScore).toBe(Number.NEGATIVE_INFINITY);
+		expect(affordableScore).toBeGreaterThan(Number.NEGATIVE_INFINITY);
+	});
+
+	test('Power Aperture ignores shielded enemy Dark Priest', () => {
+		const cycloper = makeCreature({
+			team: 0,
+			energy: 100,
+			maxEnergy: 150,
+			abilities: [{}, {}, {}, { isUpgraded: () => false }],
+		});
+		const shieldedDarkPriest = makeCreature({
+			id: 6,
+			team: 1,
+			type: '--',
+			health: 30,
+			maxHealth: 30,
+		});
+		(shieldedDarkPriest.player as { plasma?: number }).plasma = 1;
+		const enemy = makeCreature({ id: 7, team: 1, health: 35, maxHealth: 35 });
+		const priestHex = makeHex({ x: 6, y: 4, creature: shieldedDarkPriest });
+		const enemyHex = makeHex({ x: 5, y: 4, creature: enemy });
+		const controller = makeController({
+			activeCreature: cycloper,
+			creatures: [shieldedDarkPriest, enemy],
+		});
+
+		const priestScore = scoreAbilityHex(priestHex, 3, controller as any) as number;
+		const enemyScore = scoreAbilityHex(enemyHex, 3, controller as any) as number;
+		expect(priestScore).toBe(Number.NEGATIVE_INFINITY);
+		expect(enemyScore).toBeGreaterThan(Number.NEGATIVE_INFINITY);
+	});
+
+	test('Power Aperture ignores dead and temp creatures', () => {
+		const cycloper = makeCreature({
+			team: 0,
+			energy: 100,
+			maxEnergy: 150,
+			abilities: [{}, {}, {}, { isUpgraded: () => false }],
+		});
+		const deadAlly = makeCreature({ id: 10, team: 0, health: 50, maxHealth: 50, dead: true });
+		const tempEnemy = makeCreature({ id: 11, team: 1, health: 50, maxHealth: 50 });
+		(tempEnemy as any).temp = true;
+		const validAlly = makeCreature({ id: 12, team: 0, health: 30, maxHealth: 60 });
+		const deadHex = makeHex({ x: 6, y: 4, creature: deadAlly });
+		const tempHex = makeHex({ x: 5, y: 4, creature: tempEnemy });
+		const validHex = makeHex({ x: 4, y: 4, creature: validAlly });
+		const controller = makeController({
+			activeCreature: cycloper,
+			creatures: [deadAlly, tempEnemy, validAlly],
+		});
+
+		const deadScore = scoreAbilityHex(deadHex, 3, controller as any) as number;
+		const tempScore = scoreAbilityHex(tempHex, 3, controller as any) as number;
+		const validScore = scoreAbilityHex(validHex, 3, controller as any) as number;
+		expect(deadScore).toBe(Number.NEGATIVE_INFINITY);
+		expect(tempScore).toBe(Number.NEGATIVE_INFINITY);
+		expect(validScore).toBeGreaterThan(Number.NEGATIVE_INFINITY);
 	});
 });
 

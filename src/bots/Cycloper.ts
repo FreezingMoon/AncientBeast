@@ -87,6 +87,10 @@ function hasLethalOpticBurstTarget(creature: Creature): boolean {
 	});
 }
 
+function isShieldedDarkPriestTarget(attacker: Creature, target: Creature): boolean {
+	return target.type === '--' && isTeam(attacker, target, Team.Enemy) && target.player.plasma > 0;
+}
+
 function scoreOpticBurst(hex: Hex, activeCreature: Creature, controller: BotController): number {
 	const target = hex.creature;
 	if (!(target instanceof Creature) || target === activeCreature || isAcrylicWall(target)) {
@@ -197,12 +201,15 @@ function scoreRiotShield(hex: Hex, activeCreature: Creature, controller: BotCont
 
 function scorePowerAperture(hex: Hex, activeCreature: Creature, controller: BotController): number {
 	const target = hex.creature;
-	if (!(target instanceof Creature) || target === activeCreature) {
+	if (!(target instanceof Creature) || target === activeCreature || target.dead || target.temp) {
 		return Number.NEGATIVE_INFINITY;
 	}
 
 	const upgraded = activeCreature.abilities[ABILITY.POWER_APERTURE]?.isUpgraded?.() ?? false;
 	const apertureCost = getApertureCost(target, upgraded);
+	if (apertureCost > activeCreature.energy) {
+		return Number.NEGATIVE_INFINITY;
+	}
 	const energyAfter = activeCreature.energy - apertureCost;
 
 	if (isTeam(activeCreature, target, Team.Ally)) {
@@ -234,6 +241,10 @@ function scorePowerAperture(hex: Hex, activeCreature: Creature, controller: BotC
 	}
 
 	if (!isTeam(activeCreature, target, Team.Enemy) || isAcrylicWall(target)) {
+		return Number.NEGATIVE_INFINITY;
+	}
+
+	if (isShieldedDarkPriestTarget(activeCreature, target)) {
 		return Number.NEGATIVE_INFINITY;
 	}
 
