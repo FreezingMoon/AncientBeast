@@ -1898,6 +1898,12 @@ export class UI {
 			const scoreRatio = Math.max(0, Math.min(1, player.getScore().total / maxScore));
 			const statData = [
 				{
+					label: 'Plasma',
+					emoji: '🌐',
+					color: '#c5f',
+					ratio: plasmaRatio,
+				},
+				{
 					label: 'Health',
 					emoji: emoji.get('heartbeat'),
 					color: '#f00',
@@ -1910,13 +1916,7 @@ export class UI {
 					ratio: dpEnergyRatio,
 				},
 				{
-					label: 'Plasma',
-					emoji: '🌐',
-					color: '#c5f',
-					ratio: plasmaRatio,
-				},
-				{
-					label: 'Time',
+					label: 'Time Pool',
 					emoji: emoji.get('alarm_clock'),
 					color: '#888',
 					ratio: poolTimeRatio,
