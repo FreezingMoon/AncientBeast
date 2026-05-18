@@ -6,6 +6,14 @@ jest.mock('phaser-ce', () => ({
 }));
 
 jest.mock('../../utility/hex', () => ({
+	Direction: {
+		Right: 0,
+		DownRight: 1,
+		DownLeft: 2,
+		Left: 3,
+		UpLeft: 4,
+		UpRight: 5,
+	},
 	Hex: class HexMock {
 		x: number;
 		y: number;
@@ -64,7 +72,12 @@ jest.mock('../../effect', () => ({
 	},
 }));
 
+jest.mock('../../creature', () => ({
+	Creature: class CreatureMock {},
+}));
+
 import loadKnightmareAbilities from '../../abilities/Knightmare';
+import { Creature } from '../../creature';
 
 type MockEffect = {
 	name: string;
@@ -244,5 +257,120 @@ describe('Knightmare Icy Talons', () => {
 		expect(damageArg.effects[0].alterations.frost).toBe(-1);
 		expect(damageArg.effects[0].stackable).toBe(true);
 		expect(damageArg.effects[0].turnLifetime).toBe(-1);
+	});
+});
+
+describe('Knightmare Icicle Spear', () => {
+	test('does not crash when takeDamage returns without damageObj', () => {
+		(globalThis as { Phaser?: unknown }).Phaser = {
+			Easing: {
+				Linear: {
+					None: 0,
+				},
+			},
+		};
+
+		const sprite = {
+			anchor: {
+				setTo: jest.fn(),
+			},
+			destroy: jest.fn(),
+			rotation: 0,
+		};
+
+		const tweenResult = {
+			onComplete: {
+				add: jest.fn(),
+			},
+		};
+
+		const game = {
+			abilities: [],
+			effectId: 0,
+			effects: [],
+			log: jest.fn(),
+			activeCreature: {
+				queryMove: jest.fn(),
+			},
+			grid: {
+				creatureGroup: {
+					create: jest.fn(() => sprite),
+				},
+			},
+			Phaser: {
+				Easing: {
+					Linear: {
+						None: 0,
+					},
+				},
+				add: {
+					tween: jest.fn(() => ({
+						to: jest.fn().mockReturnThis(),
+						start: jest.fn(() => tweenResult),
+					})),
+				},
+				camera: {
+					SHAKE_HORIZONTAL: 0,
+					shake: jest.fn(),
+				},
+			},
+		};
+
+		loadKnightmareAbilities(game as never);
+
+		const target = Object.assign(new Creature(), {
+			id: 99,
+			player: {
+				plasma: 0,
+			},
+			takeDamage: jest.fn(() => ({
+				kill: false,
+			})),
+			isDarkPriest: jest.fn(() => false),
+			hasCreaturePlayerGotPlasma: jest.fn(() => false),
+		});
+
+		const icicleSpear = {
+			...((game.abilities[9] as Array<Record<string, unknown>>)[3] as object),
+			creature: {
+				id: 9,
+				legacyProjectileEmissionPoint: {
+					x: 0,
+					y: 0,
+				},
+				player: {
+					flipped: false,
+				},
+				facePlayerDefault: jest.fn(),
+				creatureSprite: {
+					setDir: jest.fn(),
+				},
+			},
+			damages: {
+				pierce: 4,
+			},
+			isTargetingBackwards: jest.fn(() => false),
+			end: jest.fn(),
+		};
+
+		const path = [
+			{
+				creature: target,
+				displayPos: {
+					x: 120,
+					y: 60,
+				},
+			},
+		];
+
+		expect(() => {
+			(
+				icicleSpear as unknown as {
+					activate: (pathArg: typeof path, argsArg: { direction: number }) => void;
+				}
+			).activate(path, { direction: 0 });
+		}).not.toThrow();
+
+		expect(target.takeDamage).toHaveBeenCalledTimes(1);
 	});
 });

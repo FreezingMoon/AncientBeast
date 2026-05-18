@@ -341,7 +341,7 @@ export default (G: Game) => {
 
 				const result = target.takeDamage(damage);
 
-				if (result.kill || result.damageObj.status !== '') {
+				if (result.kill || result.damageObj?.status !== '') {
 					return;
 				}
 
@@ -521,6 +521,7 @@ export default (G: Game) => {
 
 							// Stop propagating if no damage dealt
 							if (
+								!result.damageObj ||
 								result.damageObj.status === 'Shielded' ||
 								(result.damages && result.damages.total <= 0)
 							) {
