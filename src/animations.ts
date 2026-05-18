@@ -81,7 +81,7 @@ export class Animations {
 	}
 
 	private _getLiveInfernalCardboardTarget(creature: Creature, fallbackSprite?: Phaser.Sprite) {
-		const sprite = fallbackSprite ?? creature.creatureSprite?.sprite;
+		const sprite = creature.creatureSprite?.sprite ?? fallbackSprite;
 		const group = (sprite?.parent as Phaser.Group | undefined) ?? creature.creatureSprite?.grp;
 		return { sprite, group };
 	}
@@ -121,9 +121,9 @@ export class Animations {
 		return !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom);
 	}
 
-	private _trapOverlapsLowerRowCreature(
+	private _trapOverlapsCreature(
 		trap: Trap,
-		lowerRowCreatureBounds: Array<{
+		creatureBounds: Array<{
 			y: number;
 			bounds: { left: number; right: number; top: number; bottom: number };
 		}>,
@@ -137,11 +137,7 @@ export class Animations {
 			return false;
 		}
 
-		return lowerRowCreatureBounds.some((candidate) => {
-			if (candidate.y <= trap.y) {
-				return false;
-			}
-
+		return creatureBounds.some((candidate) => {
 			return trapBounds.some((bounds) => this._boundsOverlap(bounds, candidate.bounds));
 		});
 	}
@@ -152,7 +148,7 @@ export class Animations {
 		const creatureKey = this._creatureKey(creature);
 		const forcedOverTrapIds = this._abolishedBonfireForcedOverTraps.get(creatureKey);
 		const occupiedHexKeySet = new Set(occupiedHexes.map((hexagon) => this._hexKey(hexagon)));
-		const lowerRowCreatureBounds = this.game.creatures
+		const creatureBounds = this.game.creatures
 			.filter((candidate): candidate is Creature => {
 				return (
 					candidate instanceof Creature &&
@@ -170,10 +166,10 @@ export class Animations {
 			}
 
 			if (forcedOverTrapIds?.has(trap.id)) {
-				// Still respect lower-row creature overlap: a forced trap must
-				// stay behind a creature that visually straddles it from below.
-				const overLower = this._trapOverlapsLowerRowCreature(trap, lowerRowCreatureBounds);
-				const forcedGroup = overLower ? trapGroup : trapOverGroup;
+				// Forced traps are only kept above the board while they are not
+				// visually colliding with another creature.
+				const overCreature = this._trapOverlapsCreature(trap, creatureBounds);
+				const forcedGroup = overCreature ? trapGroup : trapOverGroup;
 				trap.getVisualSprites().forEach((sprite) => {
 					if (sprite.parent !== forcedGroup) {
 						this._moveSpriteToGroup(sprite, forcedGroup);
@@ -186,7 +182,7 @@ export class Animations {
 			const shouldRenderOverCreature =
 				occupiedHexKeySet.has(`${trap.x},${trap.y}`) &&
 				((creature.isXrayed && !this.xraySuppressed) ||
-					!this._trapOverlapsLowerRowCreature(trap, lowerRowCreatureBounds));
+					!this._trapOverlapsCreature(trap, creatureBounds));
 			const targetGroup = shouldRenderOverCreature ? trapOverGroup : trapGroup;
 			trap.getVisualSprites().forEach((sprite) => {
 				if (sprite.parent !== targetGroup) {
