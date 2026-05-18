@@ -374,10 +374,24 @@ export class UI {
 		this.buttons.push(this.btnSkipTurn);
 
 		// Delay Unit Button
+		const canPreviewDelay = () =>
+			!this.dashopen &&
+			!game.turnThrottle &&
+			!game.botController.isBotTurn() &&
+			Boolean(game.activeCreature?.canWait) &&
+			!game.queue.isCurrentEmpty();
 		this.btnDelay = new Button(
 			{
 				$button: $j('#delay.button'),
 				hasShortcut: true,
+				mouseover: () => {
+					if (canPreviewDelay()) {
+						this.queue.showDelayPreview();
+					}
+				},
+				mouseleave: () => {
+					this.queue.clearDelayPreview();
+				},
 				click: () => {
 					if (!this.dashopen) {
 						if (

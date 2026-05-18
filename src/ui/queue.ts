@@ -11,6 +11,7 @@ export class Queue {
 	private element: HTMLElement;
 	private vignettes: Array<Vignette>;
 	private eventHandlers: QueueEventHandlers;
+	private delayPreviewEl: HTMLElement | null = null;
 
 	static IMMEDIATE = 1;
 
@@ -36,6 +37,7 @@ export class Queue {
 	}
 
 	empty(immediately: number) {
+		this.clearDelayPreview();
 		if (immediately === Queue.IMMEDIATE) {
 			this.vignettes = [];
 			this.element.innerHTML = '';
@@ -52,11 +54,82 @@ export class Queue {
 		Queue.throttledBounce(this.vignettes, creatureId, bounceHeight);
 	}
 
+	showDelayPreview() {
+		this.clearDelayPreview();
+
+		const activeVignette = this.vignettes.find(
+			(v) => CreatureVignette.is(v) && (v as CreatureVignette).isActiveCreature,
+		) as CreatureVignette | undefined;
+
+		if (!activeVignette) {
+			return;
+		}
+
+		const queueWithoutActive = this.vignettes.filter((v) => v !== activeVignette);
+		const insertAt = this.getDelayPreviewIndex(activeVignette, queueWithoutActive);
+		const x = queueWithoutActive
+			.slice(0, insertAt)
+			.reduce((position, vignette) => position + vignette.getWidth(), 0);
+
+		const preview = activeVignette.el.cloneNode(true) as HTMLElement;
+		preview.removeAttribute('creatureid');
+		preview.setAttribute('aria-hidden', 'true');
+		preview.classList.remove('active', 'xray');
+		preview.classList.add('delay-preview', 'delayed');
+		preview.style.zIndex = '999';
+		preview.style.transform = `translateX(${x}px) translateY(0px) scale(1)`;
+
+		this.delayPreviewEl = preview;
+		this.element.appendChild(preview);
+	}
+
+	clearDelayPreview() {
+		if (this.delayPreviewEl) {
+			this.delayPreviewEl.remove();
+			this.delayPreviewEl = null;
+		}
+	}
+
 	private setVignettes(nextVignettes: Vignette[]) {
+		this.clearDelayPreview();
 		const prevVs = this.vignettes;
 		this.vignettes = Queue.reuseOldDomElements(prevVs, nextVignettes);
 		Queue.deleteRemovedVignettes(this.vignettes, prevVs);
 		Queue.insertUpdateNextVignettes(this.vignettes, prevVs, this.element);
+	}
+
+	private getDelayPreviewIndex(activeVignette: CreatureVignette, vignettes: Vignette[]) {
+		const delayedCreatureIndex = vignettes.findIndex((v) => {
+			if (!CreatureVignette.is(v)) {
+				return false;
+			}
+
+			const creatureVignette = v as CreatureVignette;
+			return (
+				creatureVignette.turnNumberIsCurrentTurn &&
+				creatureVignette.creature.isDelayed &&
+				activeVignette.creature.getInitiative() > creatureVignette.creature.getInitiative()
+			);
+		});
+
+		if (delayedCreatureIndex >= 0) {
+			return delayedCreatureIndex;
+		}
+
+		const lastDelayedCreatureIndex = utils.findLastIndex(vignettes, (v) => {
+			return (
+				CreatureVignette.is(v) &&
+				(v as CreatureVignette).turnNumberIsCurrentTurn &&
+				(v as CreatureVignette).creature.isDelayed
+			);
+		});
+
+		if (lastDelayedCreatureIndex >= 0) {
+			return lastDelayedCreatureIndex + 1;
+		}
+
+		const turnEndIndex = vignettes.findIndex((v) => TurnEndMarkerVignette.is(v));
+		return turnEndIndex >= 0 ? turnEndIndex : vignettes.length;
 	}
 
 	private static throttledBounce = throttle(
@@ -651,6 +724,10 @@ class TurnEndMarkerVignette extends Vignette {
 			if (h.onTurnEndMouseLeave) h.onTurnEndMouseLeave(this.turnNumber);
 		});
 	}
+
+	static is(obj: object) {
+		return typeof obj !== 'undefined' && TurnEndMarkerVignette.prototype.isPrototypeOf(obj);
+	}
 }
 
 class DelayMarkerVignette extends Vignette {
@@ -684,7 +761,7 @@ class DelayMarkerVignette extends Vignette {
 		});
 
 		el.addEventListener('mouseleave', () => {
-			if (h.onDelayClick) h.onDelayMouseLeave();
+			if (h.onDelayMouseLeave) h.onDelayMouseLeave();
 		});
 	}
 
@@ -740,6 +817,15 @@ const utils = {
 			result.push(element);
 		}
 		return result;
+	},
+
+	findLastIndex: (arr: Vignette[], findFn: (arg0: Vignette) => boolean) => {
+		for (let i = arr.length - 1; i >= 0; i--) {
+			if (findFn(arr[i])) {
+				return i;
+			}
+		}
+		return -1;
 	},
 
 	splitSetBy: (
