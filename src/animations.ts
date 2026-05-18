@@ -1,5 +1,5 @@
 import * as arrayUtils from './utility/arrayUtils';
-import { extractTextureFrameInfo } from './utility/bitmapUtils';
+import { extractTextureFrameInfo, createBitmapDataFromTexture } from './utility/bitmapUtils';
 import { getEffectShader, advanceShaderTime, type ShaderUniformMap } from './shader';
 import Game from './game';
 import { Creature } from './creature';
@@ -1786,11 +1786,15 @@ export class Animations {
 			try {
 				state.hazeFrame = hazeFrame;
 				state.hazeSource = hazeSource;
-				state.hazeBmd = this.game.Phaser.add.bitmapData(hazeFrame.width, hazeFrame.height);
+				const hazeFrameInfo = {
+					frame: hazeFrame,
+					source: hazeSource,
+					width: hazeFrame.width,
+					height: hazeFrame.height,
+				};
+				state.hazeBmd = createBitmapDataFromTexture(this.game, hazeFrameInfo, dir < 0);
 				const { ctx } = state.hazeBmd;
-				const { width, height, x, y } = hazeFrame;
-				ctx.clearRect(0, 0, width, height);
-				ctx.drawImage(hazeSource, x, y, width, height, 0, 0, width, height);
+				const { width, height } = hazeFrame;
 				const imageData = ctx.getImageData(0, 0, width, height);
 				const data = imageData.data;
 				for (let index = 0; index < data.length; index += 4) {
@@ -1823,11 +1827,15 @@ export class Animations {
 			try {
 				state.heatFrame = heatFrame;
 				state.heatSource = heatSource;
-				state.heatBmd = this.game.Phaser.add.bitmapData(heatFrame.width, heatFrame.height);
+				const heatFrameInfo = {
+					frame: heatFrame,
+					source: heatSource,
+					width: heatFrame.width,
+					height: heatFrame.height,
+				};
+				state.heatBmd = createBitmapDataFromTexture(this.game, heatFrameInfo, dir < 0);
 				const { ctx } = state.heatBmd;
-				const { width, height, x, y } = heatFrame;
-				ctx.clearRect(0, 0, width, height);
-				ctx.drawImage(heatSource, x, y, width, height, 0, 0, width, height);
+				const { width, height } = heatFrame;
 				const imageData = ctx.getImageData(0, 0, width, height);
 				const data = imageData.data;
 				const leftFadeWidth = 45;
