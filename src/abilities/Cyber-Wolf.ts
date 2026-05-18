@@ -314,11 +314,23 @@ export default (G: Game) => {
 
 			// 	require() :
 			require: function () {
+				const rocketLauncherAbility = this.creature.abilities[2];
+				const missedRockets = rocketLauncherAbility?.token ?? 0;
+				const rocketsToUse = this.isUpgraded() ? missedRockets : Math.min(missedRockets, 2);
+
+				// Target Locking scales cost with the number of rockets converted.
+				this.requirements = {
+					energy: rocketsToUse * 10,
+				};
+				this.costs = {
+					energy: rocketsToUse * 10,
+				};
+
 				if (!this.testRequirements()) {
 					return false;
 				}
 
-				if (this.creature.abilities[2].token === 0) {
+				if (missedRockets === 0) {
 					this.message = 'No rocket launched.';
 					return false;
 				}

@@ -2601,7 +2601,7 @@ export const unitData: UnitDataStructure = [
 			health: 140,
 			regrowth: 5,
 			endurance: 75,
-			energy: 60,
+			energy: 70,
 			meditation: 25,
 			initiative: 60,
 			offense: 7,

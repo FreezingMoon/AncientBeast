@@ -13,6 +13,7 @@ import VehemothStrategy from './bots/Vehemoth';
 import StomperStrategy from './bots/Stomper';
 import CycloperStrategy from './bots/Cycloper';
 import ImpalerStrategy from './bots/Impaler';
+import CyberWolfStrategy from './bots/Cyber-Wolf';
 
 /**
  * Optional per-unit behaviour overrides for BotController.
@@ -84,6 +85,7 @@ export interface UnitBotStrategy {
 /** Registry of unit-specific strategies, keyed by creature.type (e.g. 'S1'). */
 export const unitStrategies: Partial<Record<string, UnitBotStrategy>> = {
 	'--': DarkPriestStrategy,
+	A3: CyberWolfStrategy,
 	S1: SnowBunnyStrategy,
 	E3: StomperStrategy,
 	S7: VehemothStrategy,
