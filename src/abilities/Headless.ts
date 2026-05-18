@@ -340,9 +340,7 @@ export default (G: Game) => {
 							const interval = setInterval(function () {
 								if (!G.freezedInput) {
 									clearInterval(interval);
-									if (G.activeCreature?.player?.controller !== 'bot') {
-										G.activeCreature.queryMove();
-									}
+									G.activeCreature.queryMove();
 									headless.facePlayerDefault();
 								}
 							}, 100);
@@ -366,37 +364,33 @@ export default (G: Game) => {
 				crush: 5,
 			},
 
-					callback: function () {
-						const interval = setInterval(function () {
-							if (!G.freezedInput) {
-								clearInterval(interval);
-								if (G.activeCreature?.player?.controller !== 'bot') {
-									G.activeCreature.queryMove();
-								}
-								headless.facePlayerDefault();
-							}
-						}, 100);
-					},
-				});
-			}
+			_getHexes: function () {
+				// extra range if upgraded
+				if (this.isUpgraded()) {
+					return matrices.headlessBoomerangUpgraded;
+				} else {
+					return matrices.headlessBoomerang;
+				}
+			},
 
-			// Check if target creature will be moved.
-			if (destinationTargetX) {
-				hex = G.grid.hexes[headless.y][destinationTargetX];
-				target.moveTo(hex, {
-					ignoreMovementPoint: true,
-					ignorePath: true,
-					callback: function () {
-						const interval = setInterval(function () {
-							if (!G.freezedInput) {
-								clearInterval(interval);
-								if (G.activeCreature?.player?.controller !== 'bot') {
-									G.activeCreature.queryMove();
-								}
-								headless.facePlayerDefault();
-							}
-						}, 100);
-					},
+			// 	require() :
+			require: function () {
+				if (!this.testRequirements()) {
+					return false;
+				}
+				return true;
+			},
+
+			// 	query() :
+			query: function () {
+				const ability = this;
+				const crea = this.creature;
+
+				const hexes = this._getHexes();
+
+				G.grid.queryChoice({
+					fnOnConfirm: function () {
+						// eslint-disable-next-line
 						ability.animation(...arguments);
 					},
 					team: Team.Both,
