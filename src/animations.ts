@@ -185,7 +185,8 @@ export class Animations {
 
 			const shouldRenderOverCreature =
 				occupiedHexKeySet.has(`${trap.x},${trap.y}`) &&
-				((creature.isXrayed && !this.xraySuppressed) || !this._trapOverlapsLowerRowCreature(trap, lowerRowCreatureBounds));
+				((creature.isXrayed && !this.xraySuppressed) ||
+					!this._trapOverlapsLowerRowCreature(trap, lowerRowCreatureBounds));
 			const targetGroup = shouldRenderOverCreature ? trapOverGroup : trapGroup;
 			trap.getVisualSprites().forEach((sprite) => {
 				if (sprite.parent !== targetGroup) {
@@ -1132,12 +1133,12 @@ export class Animations {
 					);
 			let fallbackOriginOnlyHexes: Hex[] = [];
 
-				if (originTraps.length === 0) {
-					this.xraySuppressed = true;
-					game.grid.clearAllXray();
-					fadePhaseAOriginHexes()
-						.then(() => creature.creatureSprite.setAlpha(0, 500))
-						.then((creatureSprite) => {
+			if (originTraps.length === 0) {
+				this.xraySuppressed = true;
+				game.grid.clearAllXray();
+				fadePhaseAOriginHexes()
+					.then(() => creature.creatureSprite.setAlpha(0, 500))
+					.then((creatureSprite) => {
 						game.soundsys.playSFX('sounds/step');
 						creatureSprite.setHex(currentHex);
 						this.enterHex(creature, hex, opts);
@@ -1157,17 +1158,17 @@ export class Animations {
 							this._tweenHexVisualAlpha(destinationFadeInHexes, 1, 620, true),
 						]).then(() => creatureSprite);
 					})
-						.then(() => {
-							this.xraySuppressed = false;
-							this._completeThenFadeInMovementArea(creature, hex, animId, opts);
-							this._scheduleHexVisualCleanup(fallbackOriginOnlyHexes, teleportCleanupOptions);
-							this._scheduleHexVisualCleanup(originMovementAreaHexes, teleportCleanupOptions);
-						})
-						.catch(() => {
-							this.xraySuppressed = false;
-						});
-					return;
-				}
+					.then(() => {
+						this.xraySuppressed = false;
+						this._completeThenFadeInMovementArea(creature, hex, animId, opts);
+						this._scheduleHexVisualCleanup(fallbackOriginOnlyHexes, teleportCleanupOptions);
+						this._scheduleHexVisualCleanup(originMovementAreaHexes, teleportCleanupOptions);
+					})
+					.catch(() => {
+						this.xraySuppressed = false;
+					});
+				return;
+			}
 			const originCurtains = liftBonfireCurtainFromTraps(originTraps, false);
 			if (originTraps.length > 0) {
 				this.setAbolishedBonfireForcedOverTraps(creature, originTraps);
@@ -1239,11 +1240,11 @@ export class Animations {
 						.setAlpha(1, 420)
 						.then(() => this._tweenHexVisualAlpha(destinationFadeInHexes, 1, 620, true))
 						.then(() => {
-						this.xraySuppressed = false;
-						this._completeThenFadeInMovementArea(creature, hex, animId, opts);
-						this._scheduleHexVisualCleanup(originOnlyHexes, teleportCleanupOptions);
-						this._scheduleHexVisualCleanup(originMovementAreaHexes, teleportCleanupOptions);
-					});
+							this.xraySuppressed = false;
+							this._completeThenFadeInMovementArea(creature, hex, animId, opts);
+							this._scheduleHexVisualCleanup(originOnlyHexes, teleportCleanupOptions);
+							this._scheduleHexVisualCleanup(originMovementAreaHexes, teleportCleanupOptions);
+						});
 				})
 				.catch(() => {
 					this.xraySuppressed = false;
