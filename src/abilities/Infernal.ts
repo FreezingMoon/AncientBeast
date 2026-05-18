@@ -54,9 +54,23 @@ export default (G) => {
 									return this.trap.hex.creature.id !== ability.creature.id;
 								},
 								effectFn: function (effect, target: Creature) {
-									target.takeDamage(new Damage(effect.attacker, ability.damages, 1, [], G), {
-										isFromTrap: true,
-									});
+									const targetCreature =
+										target instanceof Creature
+											? target
+											: target?.creature instanceof Creature
+											? target.creature
+											: this.trap?.hex?.creature;
+
+									if (!(targetCreature instanceof Creature)) {
+										return;
+									}
+
+									targetCreature.takeDamage(
+										new Damage(effect.attacker, ability.damages, 1, [], G),
+										{
+											isFromTrap: true,
+										},
+									);
 									this.trap.destroy();
 									effect.deleteEffect();
 								},

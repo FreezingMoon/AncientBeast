@@ -18,6 +18,7 @@ jest.mock('../../utility/pointfacade', () => ({
 import loadInfernalAbilities from '../../abilities/Infernal';
 import { Animations } from '../../animations';
 import type { Creature } from '../../creature';
+import { Creature as CreatureClass } from '../../creature';
 
 beforeAll(() => {
 	Object.defineProperty(window, 'Phaser', {
@@ -198,6 +199,73 @@ describe('Infernal Molten Hurl movement safety', () => {
 		expect(selectAbility).toHaveBeenCalledWith(-1);
 		expect(queryMove).toHaveBeenCalledTimes(1);
 		expect(cameraShake).toHaveBeenCalledTimes(1);
+	});
+});
+
+describe('Infernal trap damage safety', () => {
+	test('resolves the stepped-on creature from a hex target before applying damage', () => {
+		const takeDamage = jest.fn();
+		const trapDestroy = jest.fn();
+		const createdEffects: unknown[] = [];
+
+		const game = {
+			abilities: [] as unknown[],
+			effects: [] as unknown[],
+			turn: 0,
+			grid: {
+				hexes: [],
+			},
+			soundsys: {
+				playSFX: jest.fn(),
+			},
+		};
+
+		loadInfernalAbilities(game as never);
+
+		const abilityDef = (game.abilities[4] as Array<Record<string, unknown>>)[0];
+		const infernalAbility = {
+			...(abilityDef as object),
+			creature: {
+				id: 4,
+				player: { flipped: false },
+				hexagons: [{}, {}, {}],
+			},
+			damages: { burn: 10, crush: 5 },
+			title: 'Boiling Point',
+			isUpgraded: () => false,
+		};
+
+		const trapHex = {
+			createTrap: jest.fn((_type: string, effects: unknown[]) => {
+				createdEffects.push(...effects);
+			}),
+		};
+
+		(abilityDef as { _addTrap: (hex: typeof trapHex) => void })._addTrap.call(
+			infernalAbility,
+			trapHex,
+		);
+
+		const effect = createdEffects[0] as {
+			trap: { destroy: () => void; hex: { creature?: Creature } };
+			deleteEffect: () => void;
+			effectFn: (effectArg: unknown, targetArg: unknown) => void;
+		};
+		const targetCreature = Object.create(CreatureClass.prototype) as Creature & {
+			takeDamage: typeof takeDamage;
+		};
+		targetCreature.takeDamage = takeDamage;
+
+		effect.trap = {
+			destroy: trapDestroy,
+			hex: { creature: targetCreature },
+		};
+		effect.deleteEffect = jest.fn();
+
+		effect.effectFn(effect, { creature: targetCreature });
+
+		expect(takeDamage).toHaveBeenCalledTimes(1);
+		expect(trapDestroy).toHaveBeenCalledTimes(1);
 	});
 });
 
