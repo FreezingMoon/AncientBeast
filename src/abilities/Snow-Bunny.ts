@@ -374,7 +374,9 @@ export default (G: Game) => {
 					return creature && creature != this.creature;
 				});
 
-				const target = getPointFacade().getCreaturesAt(hexWithTarget.x, hexWithTarget.y)[0];
+				const target = hexWithTarget
+					? getPointFacade().getCreaturesAt(hexWithTarget.x, hexWithTarget.y)[0]
+					: undefined;
 
 				// No blow size penalty if upgraded and target is frozen
 				const dist =
@@ -434,14 +436,33 @@ export default (G: Game) => {
 					// @ts-expect-error 'this' refers to the animation object, _not_ the ability
 					this.destroy();
 
+					let didResumeTurn = false;
+					const resumeTurn = () => {
+						if (didResumeTurn) {
+							return;
+						}
+						didResumeTurn = true;
+						G.activeCreature.queryMove();
+					};
+
+					if (!target) {
+						resumeTurn();
+						return;
+					}
+
 					G.Phaser.camera.shake(0.01, 400, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+
+					const cannotBePushed = target.stats?.moveable === false;
+					const landsInPlace = pushHex.x === target.x && pushHex.y === target.y;
+					if (cannotBePushed || landsInPlace) {
+						resumeTurn();
+						return;
+					}
 
 					target.moveTo(pushHex, {
 						ignoreMovementPoint: true,
 						ignorePath: true,
-						callback: function () {
-							G.activeCreature.queryMove();
-						},
+						callback: resumeTurn,
 						animation: 'push',
 					});
 				}, sprite);
