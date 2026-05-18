@@ -303,4 +303,49 @@ describe('BotController', () => {
 		expect(bot.failedAbilityIds.has(0)).toBe(true);
 		expect(game.skipTurn).toHaveBeenCalledWith({ noTooltip: true });
 	});
+
+	test('bot does not get stuck when ability use opens an empty query (no viable targets)', () => {
+		// Reproduces the "no energy / no targets" freeze: ability.use() calls queryHexes
+		// with an empty hexes array, which causes resolveQuery to clear pendingAction
+		// synchronously *inside* ability.use().  The guard must not return true in this case.
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+		});
+
+		const abilityUse = jest.fn().mockImplementation(function () {
+			// Simulate queryHexes being called with no valid hexes, causing resolveQuery
+			// to clear pendingAction and mark the ability as failed before use() returns.
+			bot.resolveQuery(
+				{ hexes: [] },
+				{ onSelect: jest.fn(), onConfirm: jest.fn() },
+			);
+		});
+
+		activeCreature.abilities = [
+			{
+				used: false,
+				getTrigger: () => 'onQuery',
+				require: () => true,
+				use: abilityUse,
+			},
+		];
+		activeCreature.remainingMove = 0;
+
+		const game = makeGame(activeCreature);
+		// Simulate lastQueryOpt changing (queryHexes DID run, just with empty hexes).
+		game.grid.lastQueryOpt = {};
+		const bot = new BotController(game);
+		bot.activeCreatureId = activeCreature.id;
+
+		bot.takeTurn();
+
+		expect(abilityUse).toHaveBeenCalledTimes(1);
+		expect(bot.pendingAction).toBeNull();
+		expect(bot.failedAbilityIds.has(0)).toBe(true);
+		expect(game.skipTurn).toHaveBeenCalledWith({ noTooltip: true });
+	});
 });

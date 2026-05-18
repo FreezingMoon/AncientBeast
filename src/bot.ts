@@ -327,16 +327,21 @@ export default class BotController {
 			const previousQueryOpt = this.game.grid?.lastQueryOpt;
 			ability.use();
 
-			// Guard against no-op ability.use() paths that do not open a query
-			// (e.g. target availability changed between require() checks).
-			if (this.pendingAction?.type === 'ability' && this.pendingAction.abilityIndex === i) {
-				const currentQueryOpt = this.game.grid?.lastQueryOpt;
-				if (currentQueryOpt === previousQueryOpt) {
-					this.pendingAction = null;
-					this.failedAbilityIds.add(i);
-					continue;
-				}
+			// Case A: resolveQuery already ran synchronously with no targets and cleared
+			// pendingAction (empty query path).  failedAbilityIds was already updated.
+			if (this.pendingAction === null) {
+				continue;
 			}
+
+			// Case B: ability.use() returned without opening any query at all
+			// (require() failed inside use(), or query() bailed early).
+			if (this.game.grid?.lastQueryOpt === previousQueryOpt) {
+				this.pendingAction = null;
+				this.failedAbilityIds.add(i);
+				continue;
+			}
+
+			// Case C: query opened successfully — wait for resolveQuery callback.
 			return true;
 		}
 
@@ -849,13 +854,13 @@ export default class BotController {
 			this.pendingAction = { type: 'ability', abilityIndex: i };
 			const previousQueryOpt = this.game.grid?.lastQueryOpt;
 			ability.use();
-			if (this.pendingAction?.type === 'ability' && this.pendingAction.abilityIndex === i) {
-				const currentQueryOpt = this.game.grid?.lastQueryOpt;
-				if (currentQueryOpt === previousQueryOpt) {
-					this.pendingAction = null;
-					this.failedAbilityIds.add(i);
-					continue;
-				}
+			if (this.pendingAction === null) {
+				continue;
+			}
+			if (this.game.grid?.lastQueryOpt === previousQueryOpt) {
+				this.pendingAction = null;
+				this.failedAbilityIds.add(i);
+				continue;
 			}
 			return true;
 		}
