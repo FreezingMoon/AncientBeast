@@ -462,14 +462,22 @@ export default class BotController {
 			if (!this.isBotTurn()) {
 				return;
 			}
-			this.isResolvingQuery = false;
 			handlers.onConfirm(chosenHex);
+			this.isResolvingQuery = false;
 			setTimeout(() => {
 				if (this.pendingAction && !this.isResolvingQuery) {
 					this.pendingAction = null;
 				}
 			}, 0);
-			this.queueDecision(1200);
+			// For deferred abilities (freezedInput=true, e.g. Icicle Spear) we must
+			// wait for the animation tween to finish before the next decision.
+			// For moves, keep a fallback in case 'movementComplete' never fires
+			// (null-movement / blocked path); the signal will cancel this early.
+			// For non-deferred abilities the 'abilityend' signal already scheduled
+			// queueDecision(250), which is sufficient.
+			if (this.game.freezedInput || this.pendingAction?.type === 'move') {
+				this.queueDecision(1200);
+			}
 		}, 140);
 	}
 
