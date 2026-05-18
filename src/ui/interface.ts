@@ -39,6 +39,7 @@ let getActiveConfirmUnloadState: () => ConfirmUnloadState | null = () => null;
 let hasConfirmUnloadListener = false;
 let hasWebpackReloadConfirmListener = false;
 let devReloadPromptOverlay: HTMLDivElement | null = null;
+let removeDevReloadPromptEscListener: (() => void) | null = null;
 
 const confirmUnload = (event: BeforeUnloadEvent) => {
 	const activeConfirmUnloadState = getActiveConfirmUnloadState();
@@ -64,6 +65,11 @@ const closeDevReloadPrompt = () => {
 
 	devReloadPromptOverlay.remove();
 	devReloadPromptOverlay = null;
+
+	if (removeDevReloadPromptEscListener) {
+		removeDevReloadPromptEscListener();
+		removeDevReloadPromptEscListener = null;
+	}
 };
 
 const createDevReloadButton = (label: string, onClick: () => void, variant?: 'secondary') => {
@@ -122,6 +128,16 @@ const showDevReloadPrompt = () => {
 
 	closeWrapper.appendChild(closeButton);
 
+	const handlePromptKeydown = (event: KeyboardEvent) => {
+		if (event.key !== 'Escape') {
+			return;
+		}
+
+		event.preventDefault();
+		event.stopPropagation();
+		closeDevReloadPrompt();
+	};
+
 	const title = document.createElement('p');
 	title.style.cssText = 'margin:0 0 12px;font-size:24px;line-height:1.2;text-align:center;';
 	title.textContent = DEV_RELOAD_PROMPT_TITLE;
@@ -165,7 +181,16 @@ const showDevReloadPrompt = () => {
 			closeDevReloadPrompt();
 		}
 	});
+	overlay.addEventListener('contextmenu', (event) => {
+		event.preventDefault();
+		event.stopPropagation();
+		closeDevReloadPrompt();
+	});
 	document.body.appendChild(overlay);
+	window.addEventListener('keydown', handlePromptKeydown);
+	removeDevReloadPromptEscListener = () => {
+		window.removeEventListener('keydown', handlePromptKeydown);
+	};
 	devReloadPromptOverlay = overlay;
 
 	return overlay;

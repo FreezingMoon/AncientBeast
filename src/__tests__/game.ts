@@ -269,6 +269,25 @@ describe('Game unload confirmation integration', () => {
 		messageListener({ data: { type: 'webpackInvalid' } } as MessageEvent);
 		expect(document.getElementById('ab-dev-reload-prompt')).toBeDefined();
 
+		window.dispatchEvent(
+			new KeyboardEvent('keydown', {
+				key: 'Escape',
+				bubbles: true,
+			}),
+		);
+		expect(document.getElementById('ab-dev-reload-prompt')).toBeNull();
+
+		messageListener({ data: { type: 'webpackInvalid' } } as MessageEvent);
+		expect(document.getElementById('ab-dev-reload-prompt')).toBeDefined();
+
+		document
+			.getElementById('ab-dev-reload-prompt')
+			?.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
+		expect(document.getElementById('ab-dev-reload-prompt')).toBeNull();
+
+		messageListener({ data: { type: 'webpackInvalid' } } as MessageEvent);
+		expect(document.getElementById('ab-dev-reload-prompt')).toBeDefined();
+
 		saveButton?.click();
 		expect(saveLog).toHaveBeenCalledTimes(1);
 		expect(document.getElementById('ab-dev-reload-prompt')).toBeDefined();
