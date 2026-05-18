@@ -466,22 +466,20 @@ export default class BotController {
 
 		setTimeout(() => {
 			if (!this.isBotTurn()) {
+				this.isResolvingQuery = false;
 				return;
 			}
-			handlers.onConfirm(chosenHex);
 			this.isResolvingQuery = false;
+			handlers.onConfirm(chosenHex);
 			setTimeout(() => {
 				if (this.pendingAction && !this.isResolvingQuery) {
 					this.pendingAction = null;
 				}
 			}, 0);
-			// For deferred abilities (freezedInput=true, e.g. Icicle Spear) we must
-			// wait for the animation tween to finish before the next decision.
-			// For moves, keep a fallback in case 'movementComplete' never fires
-			// (null-movement / blocked path); the signal will cancel this early.
-			// For non-deferred abilities the 'abilityend' signal already scheduled
-			// queueDecision(250), which is sufficient.
-			if (this.game.freezedInput || this.pendingAction?.type === 'move') {
+			// Always keep a fallback decision in case no follow-up signal arrives.
+			// If a chained query starts during onConfirm, defer fallback scheduling
+			// to the chained resolution cycle instead.
+			if (!this.isResolvingQuery) {
 				this.queueDecision(1200);
 			}
 		}, 140);
