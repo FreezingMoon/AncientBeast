@@ -126,26 +126,37 @@ describe('Game replay completion', () => {
 });
 
 describe('Game unload confirmation integration', () => {
-	test('confirmWindowUnload registers one beforeunload listener across repeated setup calls', () => {
+	test('confirmWindowUnload sets window.onbeforeunload and updates active state', () => {
 		const addEventListenerSpy = jest.spyOn(window, 'addEventListener');
+		const originalNodeEnv = process.env.NODE_ENV;
+		process.env.NODE_ENV = 'development';
+		const originalOnBeforeUnload = window.onbeforeunload;
 		const firstUiState = { ignoreNextConfirmUnload: true };
 		const secondUiState = { ignoreNextConfirmUnload: true };
 
 		UI.prototype.confirmWindowUnload.call(firstUiState as UI);
+		const firstHandler = window.onbeforeunload;
 		UI.prototype.confirmWindowUnload.call(secondUiState as UI);
+		const secondHandler = window.onbeforeunload;
 
-		const beforeUnloadCalls = addEventListenerSpy.mock.calls.filter(
-			([eventName]) => eventName === 'beforeunload',
-		);
-
-		expect(beforeUnloadCalls).toHaveLength(1);
+		expect(firstHandler).toBeDefined();
+		expect(secondHandler).toBeDefined();
+		expect(secondHandler).toBe(firstHandler);
+		expect(
+			addEventListenerSpy.mock.calls.filter(([eventName]) => eventName === 'beforeunload'),
+		).toHaveLength(1);
+		expect(
+			addEventListenerSpy.mock.calls.filter(([eventName]) => eventName === 'message'),
+		).toHaveLength(1);
 		expect(firstUiState.ignoreNextConfirmUnload).toBe(false);
 		expect(secondUiState.ignoreNextConfirmUnload).toBe(false);
 
 		addEventListenerSpy.mockRestore();
+		process.env.NODE_ENV = originalNodeEnv;
+		window.onbeforeunload = originalOnBeforeUnload;
 	});
 
-	test('confirmWindowUnload listener uses active state for prompt and bypass', () => {
+	test('confirmWindowUnload onbeforeunload handler uses active state for prompt and bypass', () => {
 		jest.resetModules();
 		let TestUI: typeof UI | undefined;
 		jest.isolateModules(() => {
@@ -157,17 +168,14 @@ describe('Game unload confirmation integration', () => {
 			throw new Error('Failed to load UI module');
 		}
 
-		const addEventListenerSpy = jest.spyOn(window, 'addEventListener');
+		const originalOnBeforeUnload = window.onbeforeunload;
 		const firstUiState = { ignoreNextConfirmUnload: false };
 		const secondUiState = { ignoreNextConfirmUnload: false };
 
 		TestUI.prototype.confirmWindowUnload.call(firstUiState as UI);
 		TestUI.prototype.confirmWindowUnload.call(secondUiState as UI);
 
-		const beforeUnloadCall = addEventListenerSpy.mock.calls.find(
-			([eventName]) => eventName === 'beforeunload',
-		);
-		const beforeUnloadListener = beforeUnloadCall?.[1] as
+		const beforeUnloadListener = window.onbeforeunload as
 			| ((event: BeforeUnloadEvent) => string | void)
 			| undefined;
 
@@ -201,6 +209,76 @@ describe('Game unload confirmation integration', () => {
 		expect((bypassEvent as unknown as { returnValue?: string }).returnValue).toBeUndefined();
 		expect(bypassResult).toBeUndefined();
 
+		window.onbeforeunload = originalOnBeforeUnload;
+	});
+
+	test('confirmWindowUnload dev message handler shows save prompt and dismisses cleanly', () => {
+		jest.resetModules();
+		const originalNodeEnv = process.env.NODE_ENV;
+		process.env.NODE_ENV = 'development';
+		let TestUI: typeof UI | undefined;
+		jest.isolateModules(() => {
+			// eslint-disable-next-line @typescript-eslint/no-var-requires
+			TestUI = require('../ui/interface').UI;
+		});
+
+		if (!TestUI) {
+			throw new Error('Failed to load UI module');
+		}
+
+		const addEventListenerSpy = jest.spyOn(window, 'addEventListener');
+		const originalAB = window.AB;
+		const saveLog = jest.fn();
+		window.AB = { saveLog };
+		const uiState = { ignoreNextConfirmUnload: false };
+
+		TestUI.prototype.confirmWindowUnload.call(uiState as UI);
+
+		const messageListenerCall = addEventListenerSpy.mock.calls.find(
+			([eventName]) => eventName === 'message',
+		);
+		const messageListener = messageListenerCall?.[1] as ((event: MessageEvent) => void) | undefined;
+
+		expect(messageListener).toBeDefined();
+		if (!messageListener) {
+			throw new Error('message listener should be defined');
+		}
+
+		messageListener({ data: { type: 'webpackInvalid' } } as MessageEvent);
+
+		const prompt = document.getElementById('ab-dev-reload-prompt');
+		expect(prompt).toBeDefined();
+
+		const buttons = Array.from(prompt?.querySelectorAll('button') ?? []);
+		const closeButton = buttons.find((button) => button.classList.contains('close-button')) as
+			| HTMLButtonElement
+			| undefined;
+		const actionButtons = buttons.filter((button) => !button.classList.contains('close-button'));
+		const saveButton = actionButtons[0] as HTMLButtonElement | undefined;
+		const reloadButton = actionButtons[1] as HTMLButtonElement | undefined;
+		const keepButton = actionButtons[2] as HTMLButtonElement | undefined;
+
+		expect(closeButton).toBeDefined();
+		expect(closeButton?.closest('.framed-modal')).toBeNull();
+		expect(saveButton).toBeDefined();
+		expect(reloadButton).toBeDefined();
+		expect(keepButton).toBeDefined();
+		closeButton?.click();
+		expect(document.getElementById('ab-dev-reload-prompt')).toBeNull();
+
+		messageListener({ data: { type: 'webpackInvalid' } } as MessageEvent);
+		expect(document.getElementById('ab-dev-reload-prompt')).toBeDefined();
+
+		saveButton?.click();
+		expect(saveLog).toHaveBeenCalledTimes(1);
+		expect(document.getElementById('ab-dev-reload-prompt')).toBeDefined();
+
+		keepButton?.click();
+		expect(document.getElementById('ab-dev-reload-prompt')).toBeNull();
+		expect(uiState.ignoreNextConfirmUnload).toBe(false);
+
 		addEventListenerSpy.mockRestore();
+		window.AB = originalAB;
+		process.env.NODE_ENV = originalNodeEnv;
 	});
 });

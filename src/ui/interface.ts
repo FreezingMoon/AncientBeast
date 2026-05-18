@@ -27,6 +27,9 @@ import { OpenCollectiveBanner } from './open-collective-banner';
 const SECRET_VIEW_ID = 'ab-secret-view';
 const GAME_IN_PROGRESS_UNLOAD_CONFIRMATION =
 	'A game is in progress and cannot be restored, are you sure you want to leave?';
+const DEV_RELOAD_PROMPT_ID = 'ab-dev-reload-prompt';
+const DEV_RELOAD_PROMPT_TITLE = 'New changes have been compiled!';
+const DEV_RELOAD_PROMPT_BODY = 'Insert coin to continue';
 
 type ConfirmUnloadState = {
 	ignoreNextConfirmUnload: boolean;
@@ -34,7 +37,8 @@ type ConfirmUnloadState = {
 
 let getActiveConfirmUnloadState: () => ConfirmUnloadState | null = () => null;
 let hasConfirmUnloadListener = false;
-let hasWebpackReloadBypassListener = false;
+let hasWebpackReloadConfirmListener = false;
+let devReloadPromptOverlay: HTMLDivElement | null = null;
 
 const confirmUnload = (event: BeforeUnloadEvent) => {
 	const activeConfirmUnloadState = getActiveConfirmUnloadState();
@@ -53,14 +57,126 @@ const confirmUnload = (event: BeforeUnloadEvent) => {
 	return GAME_IN_PROGRESS_UNLOAD_CONFIRMATION;
 };
 
-const handleWebpackDevReloadMessage = (messageEvent: MessageEvent) => {
-	const activeConfirmUnloadState = getActiveConfirmUnloadState();
-	if (messageEvent.data?.type !== 'webpackInvalid' || !activeConfirmUnloadState) {
+const closeDevReloadPrompt = () => {
+	if (!devReloadPromptOverlay) {
 		return;
 	}
 
-	activeConfirmUnloadState.ignoreNextConfirmUnload = true;
-	window.location.reload();
+	devReloadPromptOverlay.remove();
+	devReloadPromptOverlay = null;
+};
+
+const createDevReloadButton = (label: string, onClick: () => void, variant?: 'secondary') => {
+	const button = document.createElement('button');
+	button.type = 'button';
+	button.className = `opencollective_cta dev-reload-button${
+		variant === 'secondary' ? ' dev-reload-button--secondary' : ''
+	}`;
+	button.textContent = label;
+	button.addEventListener('click', (event) => {
+		event.preventDefault();
+		event.stopPropagation();
+		onClick();
+	});
+
+	return button;
+};
+
+const showDevReloadPrompt = () => {
+	if (devReloadPromptOverlay) {
+		devReloadPromptOverlay.style.display = 'flex';
+		return devReloadPromptOverlay;
+	}
+
+	const activeConfirmUnloadState = getActiveConfirmUnloadState();
+	if (!activeConfirmUnloadState) {
+		return null;
+	}
+
+	const overlay = document.createElement('div');
+	overlay.id = DEV_RELOAD_PROMPT_ID;
+	overlay.setAttribute('role', 'dialog');
+	overlay.setAttribute('aria-modal', 'true');
+	overlay.setAttribute('aria-label', 'Dev reload prompt');
+	overlay.style.cssText =
+		'position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);';
+
+	const modal = document.createElement('div');
+	modal.className = 'framed-modal framed-modal--fluid';
+	modal.style.cssText = 'position:relative;max-width:min(92vw,560px);padding:28px 24px 22px;';
+
+	const closeWrapper = document.createElement('div');
+	closeWrapper.className = 'framed-modal__return';
+	closeWrapper.style.cssText =
+		'top:0;right:0;position:absolute;height:100px;width:100px;z-index:100000;';
+
+	const closeButton = document.createElement('button');
+	closeButton.type = 'button';
+	closeButton.className = 'close-button';
+	closeButton.setAttribute('aria-label', 'Close dev reload prompt');
+	closeButton.addEventListener('click', (event) => {
+		event.preventDefault();
+		event.stopPropagation();
+		closeDevReloadPrompt();
+	});
+
+	closeWrapper.appendChild(closeButton);
+
+	const title = document.createElement('p');
+	title.style.cssText = 'margin:0 0 12px;font-size:24px;line-height:1.2;text-align:center;';
+	title.textContent = DEV_RELOAD_PROMPT_TITLE;
+
+	const body = document.createElement('p');
+	body.style.cssText = 'margin:0 0 20px;text-align:center;line-height:1.45;';
+	body.textContent = DEV_RELOAD_PROMPT_BODY;
+
+	const actions = document.createElement('div');
+	actions.className = 'dev-reload-actions';
+
+	actions.appendChild(
+		createDevReloadButton('Save', () => {
+			window.AB?.saveLog?.();
+		}),
+	);
+	actions.appendChild(
+		createDevReloadButton('Reload', () => {
+			activeConfirmUnloadState.ignoreNextConfirmUnload = true;
+			closeDevReloadPrompt();
+			window.location.reload();
+		}),
+	);
+	actions.appendChild(
+		createDevReloadButton(
+			'Continue',
+			() => {
+				closeDevReloadPrompt();
+			},
+			'secondary',
+		),
+	);
+
+	modal.appendChild(title);
+	modal.appendChild(body);
+	modal.appendChild(actions);
+	overlay.appendChild(closeWrapper);
+	overlay.appendChild(modal);
+	overlay.addEventListener('click', (event) => {
+		if (event.target === overlay) {
+			closeDevReloadPrompt();
+		}
+	});
+	document.body.appendChild(overlay);
+	devReloadPromptOverlay = overlay;
+
+	return overlay;
+};
+
+const confirmWebpackDevReload = (messageEvent: MessageEvent) => {
+	if (messageEvent.data?.type !== 'webpackInvalid') {
+		return;
+	}
+
+	showDevReloadPrompt();
 };
 
 const showSecretView = () => {
@@ -3048,23 +3164,20 @@ export class UI {
 	/**
 	 * Make the user confirm attempts to navigate away (refresh, back button, close
 	 * tab, etc) to prevent accidentally ending the game.
-	 *
-	 * webpack-dev-server reloads in the development environment will bypass this check.
 	 */
 	confirmWindowUnload() {
 		this.ignoreNextConfirmUnload = false;
 		getActiveConfirmUnloadState = () => this;
+		window.onbeforeunload = confirmUnload;
 
 		if (!hasConfirmUnloadListener) {
 			window.addEventListener('beforeunload', confirmUnload);
 			hasConfirmUnloadListener = true;
 		}
 
-		// If running in webpack-dev-server, allow Live Reload events to bypass this check.
-		if (process.env.NODE_ENV === 'development' && !hasWebpackReloadBypassListener) {
-			// https://stackoverflow.com/a/61579190/1414008
-			window.addEventListener('message', handleWebpackDevReloadMessage);
-			hasWebpackReloadBypassListener = true;
+		if (process.env.NODE_ENV === 'development' && !hasWebpackReloadConfirmListener) {
+			window.addEventListener('message', confirmWebpackDevReload);
+			hasWebpackReloadConfirmListener = true;
 		}
 	}
 
