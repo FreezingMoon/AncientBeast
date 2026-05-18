@@ -1,4 +1,5 @@
 import { Creature } from '../creature';
+import { Effect } from '../effect';
 import { jest, expect, describe, test, beforeEach, beforeAll } from '@jest/globals';
 
 // NOTE: ts-comments are necessary in this file to avoid mocking the entire game.
@@ -249,6 +250,27 @@ describe('Creature', () => {
 		});
 	});
 
+	describe('effect attachment', () => {
+		test('addEffect ignores re-attaching the same Effect instance', () => {
+			const game = getGameMock();
+			const obj = getCreatureObjMock();
+			// @ts-ignore
+			const creature = new Creature(obj, game);
+			const effect = new Effect('Trap Effect', creature, creature, 'onStepIn', {}, game);
+
+			creature.addEffect(effect, undefined, undefined, true, true);
+			creature.addEffect(effect, undefined, undefined, true, true);
+
+			expect(creature.effects).toHaveLength(1);
+			expect(game.effects).toHaveLength(1);
+
+			effect.deleteEffect();
+
+			expect(creature.effects).toHaveLength(0);
+			expect(game.effects).toHaveLength(0);
+		});
+	});
+
 	describe('Dark Priest indicator bounce behavior', () => {
 		test('hover-in on active creature keeps indicator bounce running', () => {
 			const game = getGameMock();
@@ -460,6 +482,8 @@ const getGameMock = () => {
 	const self = {
 		turn: 0,
 		creatures: [],
+		effects: [],
+		effectId: 0,
 		players: [],
 		queue: { update: jest.fn() },
 		updateQueueDisplay: jest.fn(),
@@ -514,6 +538,7 @@ const getGameMock = () => {
 		onReset: jest.fn(),
 		onStartPhase: jest.fn(),
 		onEndPhase: jest.fn(),
+		onEffectAttach: jest.fn(),
 		log: jest.fn(),
 		onHeal: jest.fn(),
 	};

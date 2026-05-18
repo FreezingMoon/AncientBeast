@@ -1610,6 +1610,10 @@ export class Creature {
 			return false;
 		}
 
+		if (this.effects.includes(effect)) {
+			return false;
+		}
+
 		effect.target = this;
 		this.effects.push(effect);
 
@@ -2205,7 +2209,14 @@ class CreatureSprite {
 		const XRAY_FADE_RATE = 0.08; // ~160 ms fade at 60 fps
 		this._group.update = () => {
 			_groupUpdate();
-			game.animations.syncAbolishedBonfireTrapLayers(this._creature);
+			// Sync Abolished's bonfire traps every frame to handle overlaps with other moving units.
+			// Find the Abolished creature so traps stay properly layered as ANY unit moves.
+			const abolishedCreature = game.creatures.find(
+				(c) => c instanceof Creature && c.name === 'Abolished',
+			);
+			if (abolishedCreature) {
+				game.animations.syncAbolishedBonfireTrapLayers(abolishedCreature);
+			}
 			game.animations.tickInfernalCardboardEffect(this._creature);
 			// Animate xray alpha toward target
 			if (this._xrayAlpha < this._xrayTargetAlpha) {
