@@ -1792,7 +1792,7 @@ export class Animations {
 					width: hazeFrame.width,
 					height: hazeFrame.height,
 				};
-				state.hazeBmd = createBitmapDataFromTexture(this.game, hazeFrameInfo, dir < 0);
+				state.hazeBmd = createBitmapDataFromTexture(this.game, hazeFrameInfo, false);
 				const { ctx } = state.hazeBmd;
 				const { width, height } = hazeFrame;
 				const imageData = ctx.getImageData(0, 0, width, height);
@@ -1833,13 +1833,14 @@ export class Animations {
 					width: heatFrame.width,
 					height: heatFrame.height,
 				};
-				state.heatBmd = createBitmapDataFromTexture(this.game, heatFrameInfo, dir < 0);
+				state.heatBmd = createBitmapDataFromTexture(this.game, heatFrameInfo, false);
 				const { ctx } = state.heatBmd;
 				const { width, height } = heatFrame;
 				const imageData = ctx.getImageData(0, 0, width, height);
 				const data = imageData.data;
-				const leftFadeWidth = 45;
-				const rightFadeWidth = 10;
+				// Swap fade widths for the mirrored side so the visual result is symmetric.
+				const leftFadeWidth = dir < 0 ? 10 : 45;
+				const rightFadeWidth = dir < 0 ? 45 : 10;
 				for (let py = 0; py < height; py += 1) {
 					for (let px = 0; px < width; px += 1) {
 						const index = (py * width + px) * 4;
@@ -1951,7 +1952,7 @@ export class Animations {
 			state.hazeSprite.x = sprite.x;
 			state.hazeSprite.y = sprite.y - state.glowOffsetY;
 			state.hazeSprite.scale.setTo(dir, 1);
-			const deltaSeconds = (this.game.Phaser?.time?.elapsedMS ?? 0) / 1000;
+			const deltaSeconds = Math.min((this.game.Phaser?.time?.elapsedMS ?? 0) / 1000, 0.1);
 			state.luminescenceUniforms = advanceShaderTime(state.luminescenceUniforms, deltaSeconds);
 			const uTime = state.luminescenceUniforms.uTime as number;
 			const pulseSpeed = (state.luminescenceUniforms.uPulseSpeed as number) ?? 4.2;
@@ -1967,7 +1968,7 @@ export class Animations {
 
 		if (state.heatReady && (forceHeatSpawn || now >= state.heatNextAt)) {
 			const group = state.group;
-			const deltaSeconds = (this.game.Phaser?.time?.elapsedMS ?? 0) / 1000;
+			const deltaSeconds = Math.min((this.game.Phaser?.time?.elapsedMS ?? 0) / 1000, 0.1);
 			state.heatUniforms = advanceShaderTime(state.heatUniforms, deltaSeconds);
 			const wisp = group.create(sprite.x, sprite.y - state.glowOffsetY, sprite.key);
 			wisp.anchor.setTo(0.5, 1);
