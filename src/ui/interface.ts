@@ -41,6 +41,43 @@ let hasWebpackReloadConfirmListener = false;
 let devReloadPromptOverlay: HTMLDivElement | null = null;
 let removeDevReloadPromptEscListener: (() => void) | null = null;
 
+// Intercept browser modals while dev reload prompt is visible to prevent them from appearing on top
+const savedModalFunctions = {
+	alert: window.alert,
+	confirm: window.confirm,
+	prompt: window.prompt,
+};
+
+let isDevReloadPromptVisible = false;
+
+const suppressBrowserModalWhilePromptVisible = () => {
+	window.alert = (message?: unknown) => {
+		if (isDevReloadPromptVisible) {
+			console.warn('[Dev Reload] Suppressed alert:', message);
+			return undefined;
+		}
+		return savedModalFunctions.alert(message);
+	};
+
+	window.confirm = (message?: string) => {
+		if (isDevReloadPromptVisible) {
+			console.warn('[Dev Reload] Suppressed confirm:', message);
+			return false;
+		}
+		return savedModalFunctions.confirm(message);
+	};
+
+	window.prompt = (message?: string, defaultValue?: string) => {
+		if (isDevReloadPromptVisible) {
+			console.warn('[Dev Reload] Suppressed prompt:', message);
+			return null;
+		}
+		return savedModalFunctions.prompt(message, defaultValue);
+	};
+};
+
+suppressBrowserModalWhilePromptVisible();
+
 const confirmUnload = (event: BeforeUnloadEvent) => {
 	const activeConfirmUnloadState = getActiveConfirmUnloadState();
 	if (!activeConfirmUnloadState) {
@@ -63,6 +100,7 @@ const closeDevReloadPrompt = () => {
 		return;
 	}
 
+	isDevReloadPromptVisible = false;
 	devReloadPromptOverlay.remove();
 	devReloadPromptOverlay = null;
 
@@ -90,7 +128,12 @@ const createDevReloadButton = (label: string, onClick: () => void, variant?: 'se
 
 const showDevReloadPrompt = () => {
 	if (devReloadPromptOverlay) {
-		devReloadPromptOverlay.style.display = 'flex';
+		isDevReloadPromptVisible = true;
+		devReloadPromptOverlay.style.cssText =
+			'position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);pointer-events:auto;contain:layout style paint;';
+		if (devReloadPromptOverlay.parentElement !== document.body) {
+			document.body.appendChild(devReloadPromptOverlay);
+		}
 		return devReloadPromptOverlay;
 	}
 
@@ -105,7 +148,7 @@ const showDevReloadPrompt = () => {
 	overlay.setAttribute('aria-modal', 'true');
 	overlay.setAttribute('aria-label', 'Dev reload prompt');
 	overlay.style.cssText =
-		'position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);';
+		'position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);pointer-events:auto;contain:layout style paint;';
 
 	const modal = document.createElement('div');
 	modal.className = 'framed-modal framed-modal--fluid';
@@ -192,6 +235,7 @@ const showDevReloadPrompt = () => {
 		window.removeEventListener('keydown', handlePromptKeydown);
 	};
 	devReloadPromptOverlay = overlay;
+	isDevReloadPromptVisible = true;
 
 	return overlay;
 };
