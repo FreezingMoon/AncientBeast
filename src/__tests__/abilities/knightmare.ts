@@ -262,6 +262,7 @@ describe('Knightmare Icy Talons', () => {
 
 describe('Knightmare Icicle Spear', () => {
 	test('does not crash when takeDamage returns without damageObj', () => {
+		/* eslint-disable-next-line no-undef */
 		(globalThis as { Phaser?: unknown }).Phaser = {
 			Easing: {
 				Linear: {
@@ -318,7 +319,7 @@ describe('Knightmare Icicle Spear', () => {
 
 		loadKnightmareAbilities(game as never);
 
-		const target = Object.assign(new Creature(), {
+		const target = Object.assign(Object.create(Creature.prototype), {
 			id: 99,
 			player: {
 				plasma: 0,

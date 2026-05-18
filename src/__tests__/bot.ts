@@ -18,6 +18,7 @@ import BotController from '../bot';
 import { Creature } from '../creature';
 import type Game from '../game';
 import { Hex } from '../utility/hex';
+import { Team } from '../utility/team';
 
 // Minimal mock creature for testing.
 // Object.create(Creature.prototype) ensures `instanceof Creature` is true in
@@ -288,7 +289,29 @@ describe('BotController', () => {
 				getTrigger: () => 'onQuery',
 				require: () => true,
 				use: abilityUse,
-			},
+				creature: activeCreature,
+				game: {} as unknown as Game,
+				id: 0,
+				priority: 0,
+				timesUsed: 0,
+				timesUsedThisTurn: 0,
+				token: 0,
+				upgraded: false,
+				title: 'Test Ability',
+				_disableCooldowns: false,
+				_infiniteEnergy: false,
+				_energySelfUpgraded: 0,
+				_getMaxDistance: () => 0,
+				_targetTeam: Team.Enemy,
+				_targets: [],
+				_addOffenseBuff: () => undefined,
+				_maxTransferAmount: 0,
+				_damaged: false,
+				_executeHealthThreshold: 0,
+				_getDirections: () => [],
+				_activateOnAttacker: () => false,
+				_activateOnTarget: () => undefined,
+			} as unknown as Creature['abilities'][number],
 		];
 		activeCreature.remainingMove = 0;
 
@@ -319,10 +342,7 @@ describe('BotController', () => {
 		const abilityUse = jest.fn().mockImplementation(function () {
 			// Simulate queryHexes being called with no valid hexes, causing resolveQuery
 			// to clear pendingAction and mark the ability as failed before use() returns.
-			bot.resolveQuery(
-				{ hexes: [] },
-				{ onSelect: jest.fn(), onConfirm: jest.fn() },
-			);
+			bot.resolveQuery({ hexes: [] }, { onSelect: jest.fn(), onConfirm: jest.fn() });
 		});
 
 		activeCreature.abilities = [
@@ -331,7 +351,29 @@ describe('BotController', () => {
 				getTrigger: () => 'onQuery',
 				require: () => true,
 				use: abilityUse,
-			},
+				creature: activeCreature,
+				game: {} as unknown as Game,
+				id: 0,
+				priority: 0,
+				timesUsed: 0,
+				timesUsedThisTurn: 0,
+				token: 0,
+				upgraded: false,
+				title: 'Test Ability',
+				_disableCooldowns: false,
+				_infiniteEnergy: false,
+				_energySelfUpgraded: 0,
+				_getMaxDistance: () => 0,
+				_targetTeam: Team.Enemy,
+				_targets: [],
+				_addOffenseBuff: () => undefined,
+				_maxTransferAmount: 0,
+				_damaged: false,
+				_executeHealthThreshold: 0,
+				_getDirections: () => [],
+				_activateOnAttacker: () => false,
+				_activateOnTarget: () => undefined,
+			} as unknown as Creature['abilities'][number],
 		];
 		activeCreature.remainingMove = 0;
 

@@ -256,7 +256,7 @@ describe('Creature', () => {
 			const obj = getCreatureObjMock();
 			// @ts-ignore
 			const creature = new Creature(obj, game);
-			const effect = new Effect('Trap Effect', creature, creature, 'onStepIn', {}, game);
+			const effect = new Effect('Trap Effect', creature, creature, 'onStepIn', {}, game as never);
 
 			creature.addEffect(effect, undefined, undefined, true, true);
 			creature.addEffect(effect, undefined, undefined, true, true);
