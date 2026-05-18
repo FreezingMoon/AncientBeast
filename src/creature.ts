@@ -2444,6 +2444,10 @@ class CreatureSprite {
 		const otw = bmd.width;
 		const oth = bmd.height;
 		const oFlipped = oSprite.scale.x < 0;
+		// Guard: skip if sprite hasn't been added to display tree yet
+		if (!oSprite.worldTransform) {
+			return;
+		}
 		const oBounds = oSprite.getBounds();
 		const oLeft = oBounds.left;
 		const oTop = oBounds.top;
@@ -2463,6 +2467,10 @@ class CreatureSprite {
 
 		for (const refCreature of refCreatures) {
 			const refSprite = refCreature.sprite;
+			// Guard: skip ref creatures whose sprites haven't been added to display tree yet
+			if (!refSprite.worldTransform) {
+				continue;
+			}
 			const rBounds = refSprite.getBounds();
 			const rtw = Math.max(1, Math.round(rBounds.width * oScaleX));
 			const rth = Math.max(1, Math.round(rBounds.height * oScaleY));
