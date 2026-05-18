@@ -254,7 +254,7 @@ describe('Infernal trap damage safety', () => {
 		const targetCreature = Object.create(CreatureClass.prototype) as Creature & {
 			takeDamage: typeof takeDamage;
 		};
-		targetCreature.takeDamage = takeDamage;
+		targetCreature.takeDamage = takeDamage as any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 		effect.trap = {
 			destroy: trapDestroy,
