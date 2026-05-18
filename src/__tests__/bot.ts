@@ -96,6 +96,10 @@ const makeGame = (activeCreature: ReturnType<typeof makeCreature>, otherCreature
 	({
 		activeCreature,
 		creatures: [activeCreature, ...otherCreatures],
+		grid: {
+			lastQueryOpt: undefined,
+			findCreatureMovementHexes: () => [],
+		},
 		multiplayer: false,
 		gameState: 'playing',
 		freezedInput: false,
@@ -204,7 +208,99 @@ describe('BotController', () => {
 
 		jest.advanceTimersByTime(90);
 		expect(onConfirm).toHaveBeenCalled();
+		jest.runOnlyPendingTimers();
 		expect(bot.pendingAction).toBeNull();
 		expect(queueDecisionSpy).toHaveBeenCalledWith(1200);
+	});
+
+	test('query resolution preserves pending ability for chained bot queries', () => {
+		jest.useFakeTimers();
+
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+		});
+		const firstTarget = makeCreature({
+			id: 2,
+			team: 1,
+			x: 1,
+			y: 0,
+			health: 30,
+		});
+		const destinationHex = makeHex({ x: 2, y: 0 });
+		const game = makeGame(activeCreature, [firstTarget]);
+		const bot = new BotController(game);
+		bot.activeCreatureId = activeCreature.id;
+		bot.pendingAction = { type: 'ability', abilityIndex: 3 };
+		jest.spyOn(bot, 'queueDecision').mockImplementation(() => undefined);
+
+		const secondOnSelect = jest.fn();
+		const secondOnConfirm = jest.fn();
+		const firstOnConfirm = jest.fn(() => {
+			bot.resolveQuery(
+				{ hexes: [destinationHex] },
+				{
+					onSelect: secondOnSelect,
+					onConfirm: secondOnConfirm,
+				},
+			);
+		});
+
+		bot.resolveQuery(
+			{ hexes: [makeHex({ x: 1, y: 0, creature: firstTarget })] },
+			{
+				onSelect: jest.fn(),
+				onConfirm: firstOnConfirm,
+			},
+		);
+
+		jest.advanceTimersByTime(140);
+		expect(firstOnConfirm).toHaveBeenCalled();
+		expect(bot.pendingAction).not.toBeNull();
+		expect(bot.isResolvingQuery).toBe(true);
+		expect(bot.pendingAction).not.toBeNull();
+
+		jest.advanceTimersByTime(50);
+		expect(secondOnSelect).toHaveBeenCalled();
+
+		jest.advanceTimersByTime(90);
+		expect(secondOnConfirm).toHaveBeenCalled();
+		jest.runOnlyPendingTimers();
+		expect(bot.pendingAction).toBeNull();
+	});
+
+	test('bot does not get stuck when ability use opens no query', () => {
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+		});
+
+		const abilityUse = jest.fn();
+		activeCreature.abilities = [
+			{
+				used: false,
+				getTrigger: () => 'onQuery',
+				require: () => true,
+				use: abilityUse,
+			},
+		];
+		activeCreature.remainingMove = 0;
+
+		const game = makeGame(activeCreature);
+		const bot = new BotController(game);
+		bot.activeCreatureId = activeCreature.id;
+
+		bot.takeTurn();
+
+		expect(abilityUse).toHaveBeenCalledTimes(1);
+		expect(bot.pendingAction).toBeNull();
+		expect(bot.failedAbilityIds.has(0)).toBe(true);
+		expect(game.skipTurn).toHaveBeenCalledWith({ noTooltip: true });
 	});
 });

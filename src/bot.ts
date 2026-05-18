@@ -324,7 +324,19 @@ export default class BotController {
 				type: 'ability',
 				abilityIndex: i,
 			};
+			const previousQueryOpt = this.game.grid?.lastQueryOpt;
 			ability.use();
+
+			// Guard against no-op ability.use() paths that do not open a query
+			// (e.g. target availability changed between require() checks).
+			if (this.pendingAction?.type === 'ability' && this.pendingAction.abilityIndex === i) {
+				const currentQueryOpt = this.game.grid?.lastQueryOpt;
+				if (currentQueryOpt === previousQueryOpt) {
+					this.pendingAction = null;
+					this.failedAbilityIds.add(i);
+					continue;
+				}
+			}
 			return true;
 		}
 
@@ -445,9 +457,13 @@ export default class BotController {
 			if (!this.isBotTurn()) {
 				return;
 			}
-			this.pendingAction = null;
 			this.isResolvingQuery = false;
 			handlers.onConfirm(chosenHex);
+			setTimeout(() => {
+				if (this.pendingAction && !this.isResolvingQuery) {
+					this.pendingAction = null;
+				}
+			}, 0);
 			this.queueDecision(1200);
 		}, 140);
 	}
@@ -831,7 +847,16 @@ export default class BotController {
 				continue;
 			}
 			this.pendingAction = { type: 'ability', abilityIndex: i };
+			const previousQueryOpt = this.game.grid?.lastQueryOpt;
 			ability.use();
+			if (this.pendingAction?.type === 'ability' && this.pendingAction.abilityIndex === i) {
+				const currentQueryOpt = this.game.grid?.lastQueryOpt;
+				if (currentQueryOpt === previousQueryOpt) {
+					this.pendingAction = null;
+					this.failedAbilityIds.add(i);
+					continue;
+				}
+			}
 			return true;
 		}
 
