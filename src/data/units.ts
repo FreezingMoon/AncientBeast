@@ -206,7 +206,7 @@ export const unitData: UnitDataStructure = [
 			mental: 8,
 		},
 		drop: {
-			name: 'gold coin',
+			name: 'pouch',
 			meditation: 6,
 			initiative: 4,
 		},
