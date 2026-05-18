@@ -549,7 +549,7 @@ export default (G: Game) => {
 					const damageResult = target.takeDamage(damage);
 
 					// If upgraded and melee range, freeze the target
-					if (ability.isUpgraded() && damageResult.damageObj.melee) {
+					if (ability.isUpgraded() && damageResult.damageObj?.melee) {
 						target.freeze();
 					}
 
