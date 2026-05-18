@@ -214,7 +214,7 @@ export class Ability {
 		this.title = '';
 
 		const data = game.retrieveCreatureStats(creature.type);
-		$j.extend(true, this, game.abilities[data.id][abilityID], data.ability_info[abilityID]);
+		$j.extend(true, this, game.abilities[data.id]?.[abilityID], data.ability_info[abilityID]);
 		if (this.requirements === undefined && this.costs !== undefined) {
 			this.requirements = this.costs;
 		}

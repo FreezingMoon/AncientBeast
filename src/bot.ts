@@ -414,12 +414,18 @@ export default class BotController {
 				requireAffordable: true,
 				plasma: activeCreature.player.plasma,
 			},
-		).map((type) => {
-			const stats = this.game.retrieveCreatureStats(type);
-			const level = Number.parseInt(type.substring(1, 2), 10);
-			const cost = level + Number(stats?.size ?? 0);
-			return { type, cost };
-		});
+		)
+			.filter((type) => {
+				// Skip creatures whose ability scripts haven't finished loading yet
+				const stats = this.game.retrieveCreatureStats(type);
+				return stats != null && this.game.abilities[stats.id] != null;
+			})
+			.map((type) => {
+				const stats = this.game.retrieveCreatureStats(type);
+				const level = Number.parseInt(type.substring(1, 2), 10);
+				const cost = level + Number(stats?.size ?? 0);
+				return { type, cost };
+			});
 
 		if (affordableCreatures.length === 0) {
 			return undefined;
