@@ -186,7 +186,7 @@ describe('HexGrid xray hover behavior', () => {
 		};
 	};
 
-	test('hovered non-active creature takes precedence over trap branch', () => {
+	test('hovered non-active creature on trap reveals both creature and trap blockers', () => {
 		const active = makeCreature(1, { left: 0, top: 0, right: 10, bottom: 10 });
 		const hovered = makeCreature(2, { left: 20, top: 20, right: 40, bottom: 40 }, 2);
 		const blocker = makeCreature(3, { left: 22, top: 22, right: 38, bottom: 38 });
@@ -225,7 +225,15 @@ describe('HexGrid xray hover behavior', () => {
 		hovered.hexagons.forEach((hex) => {
 			expect(hex.ghostOverlap).toHaveBeenCalledWith(hovered);
 		});
-		expect(blocker.xray.mock.calls.some((args) => args[0] === true)).toBe(false);
+		expect(hovered.xray).toHaveBeenLastCalledWith(false);
+		expect(hovered.xray.mock.calls.some((args) => args[0] === true)).toBe(false);
+		expect(blocker.xray).toHaveBeenLastCalledWith(
+			true,
+			expect.arrayContaining([
+				expect.objectContaining({ sprite: trapSprite, grp: gridMock.creatureGroup }),
+				hovered,
+			]),
+		);
 	});
 
 	test('hovered trap reveals trap by ghosting overlapping blockers, even when reachable', () => {
@@ -267,6 +275,151 @@ describe('HexGrid xray hover behavior', () => {
 		expect(blocker.xray).toHaveBeenLastCalledWith(
 			true,
 			expect.objectContaining({ sprite: trapSprite, grp: gridMock.creatureGroup }),
+		);
+		expect(farCreature.xray.mock.calls.some((args) => args[0] === true)).toBe(false);
+	});
+
+	test('hovered non-active creature on trap is revealed while trap blockers are still xrayed', () => {
+		const active = makeCreature(1, { left: 0, top: 0, right: 10, bottom: 10 });
+		const hovered = makeCreature(2, { left: 20, top: 20, right: 44, bottom: 44 }, 2);
+		const blocker = makeCreature(3, { left: 18, top: 18, right: 42, bottom: 42 });
+
+		const trapSprite = {
+			exists: true,
+			getBounds: jest.fn(() => ({ left: 20, top: 20, right: 40, bottom: 40 })),
+		};
+
+		const gridMock = {
+			creatureGroup: { id: 'creature-group' },
+			game: {
+				activeCreature: active,
+				creatures: [active, hovered, blocker],
+				UI: { selectedAbility: -1 },
+				traps: [
+					{
+						x: 4,
+						y: 7,
+						getVisualSprites: () => [trapSprite],
+					},
+				],
+			},
+		};
+
+		const hoverHex = {
+			x: 4,
+			y: 7,
+			reachable: false,
+			creature: hovered,
+			ghostOverlap: jest.fn(),
+		};
+
+		HexGrid.prototype.xray.call(gridMock, hoverHex as never);
+
+		hovered.hexagons.forEach((hex) => {
+			expect(hex.ghostOverlap).toHaveBeenCalledWith(hovered);
+		});
+		expect(hovered.xray).toHaveBeenLastCalledWith(false);
+		expect(hovered.xray.mock.calls.some((args) => args[0] === true)).toBe(false);
+		expect(blocker.xray).toHaveBeenLastCalledWith(
+			true,
+			expect.arrayContaining([
+				expect.objectContaining({ sprite: trapSprite, grp: gridMock.creatureGroup }),
+				hovered,
+			]),
+		);
+	});
+
+	test('hovered active creature on trap keeps active visible and includes active in reveal refs', () => {
+		const active = makeCreature(1, { left: 20, top: 20, right: 44, bottom: 44 }, 2);
+		const blocker = makeCreature(3, { left: 18, top: 18, right: 42, bottom: 42 });
+
+		const trapSprite = {
+			exists: true,
+			getBounds: jest.fn(() => ({ left: 20, top: 20, right: 40, bottom: 40 })),
+		};
+
+		const gridMock = {
+			creatureGroup: { id: 'creature-group' },
+			game: {
+				activeCreature: active,
+				creatures: [active, blocker],
+				UI: { selectedAbility: -1 },
+				traps: [
+					{
+						x: 4,
+						y: 7,
+						getVisualSprites: () => [trapSprite],
+					},
+				],
+			},
+		};
+
+		const hoverHex = {
+			x: 4,
+			y: 7,
+			reachable: false,
+			creature: active,
+			ghostOverlap: jest.fn(),
+		};
+
+		HexGrid.prototype.xray.call(gridMock, hoverHex as never);
+
+		active.hexagons.forEach((hex) => {
+			expect(hex.ghostOverlap).toHaveBeenCalledWith(active);
+		});
+		expect(active.xray).toHaveBeenLastCalledWith(false);
+		expect(active.xray.mock.calls.some((args) => args[0] === true)).toBe(false);
+		expect(blocker.xray).toHaveBeenLastCalledWith(
+			true,
+			expect.arrayContaining([
+				expect.objectContaining({ sprite: trapSprite, grp: gridMock.creatureGroup }),
+				active,
+			]),
+		);
+	});
+
+	test('hovered drop reveals drop by ghosting overlapping blockers', () => {
+		const active = makeCreature(1, { left: 0, top: 0, right: 10, bottom: 10 });
+		const blocker = makeCreature(2, { left: 18, top: 18, right: 42, bottom: 42 });
+		const farCreature = makeCreature(3, { left: 100, top: 100, right: 120, bottom: 120 });
+
+		const dropSprite = {
+			exists: true,
+			getBounds: jest.fn(() => ({ left: 20, top: 20, right: 40, bottom: 40 })),
+		};
+
+		const gridMock = {
+			creatureGroup: { id: 'creature-group' },
+			game: {
+				activeCreature: active,
+				creatures: [active, blocker, farCreature],
+				UI: { selectedAbility: -1 },
+				traps: [],
+				drops: [
+					{
+						x: 8,
+						y: 3,
+						pickedUp: false,
+						display: dropSprite,
+					},
+				],
+			},
+		};
+
+		const hoverHex = {
+			x: 8,
+			y: 3,
+			reachable: true,
+			creature: null,
+			drop: gridMock.game.drops[0],
+			ghostOverlap: jest.fn(),
+		};
+
+		HexGrid.prototype.xray.call(gridMock, hoverHex as never);
+
+		expect(blocker.xray).toHaveBeenLastCalledWith(
+			true,
+			expect.objectContaining({ sprite: dropSprite, grp: gridMock.creatureGroup }),
 		);
 		expect(farCreature.xray.mock.calls.some((args) => args[0] === true)).toBe(false);
 	});
@@ -365,7 +518,7 @@ describe('HexGrid xray hover behavior', () => {
 			expect(hex.ghostOverlap).not.toHaveBeenCalled();
 		});
 
-		active.hexagons.forEach((hex) => hex.ghostOverlap.mockClear());
+		active.hexagons.forEach((hex) => (hex.ghostOverlap as jest.Mock).mockClear());
 
 		const neutralHex = {
 			x: 7,
@@ -424,7 +577,7 @@ describe('HexGrid xray hover behavior', () => {
 			expect.objectContaining({ sprite: trapSprite, grp: gridMock.creatureGroup }),
 		);
 
-		scavenger.hexagons.forEach((hex) => hex.ghostOverlap.mockClear());
+		scavenger.hexagons.forEach((hex) => (hex.ghostOverlap as jest.Mock).mockClear());
 
 		const scavengerHex = {
 			x: 9,
@@ -439,5 +592,62 @@ describe('HexGrid xray hover behavior', () => {
 		scavenger.hexagons.forEach((hex) => {
 			expect(hex.ghostOverlap).toHaveBeenCalledWith(scavenger);
 		});
+	});
+
+	test('hovered drop stacked on trap passes both reveal masks to overlapping blockers', () => {
+		const active = makeCreature(1, { left: 0, top: 0, right: 10, bottom: 10 });
+		const blocker = makeCreature(2, { left: 18, top: 18, right: 42, bottom: 42 });
+
+		const trapSprite = {
+			exists: true,
+			getBounds: jest.fn(() => ({ left: 20, top: 20, right: 30, bottom: 34 })),
+		};
+		const dropSprite = {
+			exists: true,
+			getBounds: jest.fn(() => ({ left: 24, top: 22, right: 40, bottom: 40 })),
+		};
+
+		const gridMock = {
+			creatureGroup: { id: 'creature-group' },
+			game: {
+				activeCreature: active,
+				creatures: [active, blocker],
+				UI: { selectedAbility: -1 },
+				traps: [
+					{
+						x: 5,
+						y: 4,
+						getVisualSprites: () => [trapSprite],
+					},
+				],
+				drops: [
+					{
+						x: 5,
+						y: 4,
+						pickedUp: false,
+						display: dropSprite,
+					},
+				],
+			},
+		};
+
+		const hoverHex = {
+			x: 5,
+			y: 4,
+			reachable: false,
+			creature: null,
+			drop: gridMock.game.drops[0],
+			ghostOverlap: jest.fn(),
+		};
+
+		HexGrid.prototype.xray.call(gridMock, hoverHex as never);
+
+		expect(blocker.xray).toHaveBeenLastCalledWith(
+			true,
+			expect.arrayContaining([
+				expect.objectContaining({ sprite: trapSprite, grp: gridMock.creatureGroup }),
+				expect.objectContaining({ sprite: dropSprite, grp: gridMock.creatureGroup }),
+			]),
+		);
 	});
 });

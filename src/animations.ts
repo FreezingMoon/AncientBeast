@@ -67,6 +67,8 @@ export class Animations {
 	animationCounter: number;
 	private _infernalCardboardFx = new Map<string, InfernalCardboardEffectState>();
 	private _abolishedBonfireLayerOverride = new Map<string, Set<string>>();
+	private _abolishedBonfireForcedOverTraps = new Map<string, Set<number>>();
+	xraySuppressed = false;
 
 	constructor(game: Game) {
 		this.game = game;
@@ -112,17 +114,79 @@ export class Animations {
 		sprite.position.set(localPos.x, localPos.y);
 	}
 
+	private _boundsOverlap(
+		a: { left: number; right: number; top: number; bottom: number },
+		b: { left: number; right: number; top: number; bottom: number },
+	): boolean {
+		return !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom);
+	}
+
+	private _trapOverlapsLowerRowCreature(
+		trap: Trap,
+		lowerRowCreatureBounds: Array<{
+			y: number;
+			bounds: { left: number; right: number; top: number; bottom: number };
+		}>,
+	): boolean {
+		const trapBounds = trap
+			.getVisualSprites()
+			.filter((sprite) => sprite.exists && typeof sprite.getBounds === 'function')
+			.map((sprite) => sprite.getBounds());
+
+		if (trapBounds.length === 0) {
+			return false;
+		}
+
+		return lowerRowCreatureBounds.some((candidate) => {
+			if (candidate.y <= trap.y) {
+				return false;
+			}
+
+			return trapBounds.some((bounds) => this._boundsOverlap(bounds, candidate.bounds));
+		});
+	}
+
 	private _syncBonfireSpringTrapLayers(creature: Creature, occupiedHexes: Hex[]) {
 		const trapGroup = this.game.grid.trapGroup;
 		const trapOverGroup = this.game.grid.trapOverGroup;
+		const creatureKey = this._creatureKey(creature);
+		const forcedOverTrapIds = this._abolishedBonfireForcedOverTraps.get(creatureKey);
 		const occupiedHexKeySet = new Set(occupiedHexes.map((hexagon) => this._hexKey(hexagon)));
+		const lowerRowCreatureBounds = this.game.creatures
+			.filter((candidate): candidate is Creature => {
+				return (
+					candidate instanceof Creature &&
+					candidate !== creature &&
+					!candidate.dead &&
+					Boolean(candidate.sprite) &&
+					typeof candidate.sprite.getBounds === 'function'
+				);
+			})
+			.map((candidate) => ({ y: candidate.y, bounds: candidate.sprite.getBounds() }));
 
 		this.game.traps.forEach((trap) => {
 			if (trap.type !== 'bonfire-spring' || trap.ownerCreature !== creature) {
 				return;
 			}
 
-			const targetGroup = occupiedHexKeySet.has(`${trap.x},${trap.y}`) ? trapOverGroup : trapGroup;
+			if (forcedOverTrapIds?.has(trap.id)) {
+				// Still respect lower-row creature overlap: a forced trap must
+				// stay behind a creature that visually straddles it from below.
+				const overLower = this._trapOverlapsLowerRowCreature(trap, lowerRowCreatureBounds);
+				const forcedGroup = overLower ? trapGroup : trapOverGroup;
+				trap.getVisualSprites().forEach((sprite) => {
+					if (sprite.parent !== forcedGroup) {
+						this._moveSpriteToGroup(sprite, forcedGroup);
+					}
+					forcedGroup.bringToTop(sprite);
+				});
+				return;
+			}
+
+			const shouldRenderOverCreature =
+				occupiedHexKeySet.has(`${trap.x},${trap.y}`) &&
+				((creature.isXrayed && !this.xraySuppressed) || !this._trapOverlapsLowerRowCreature(trap, lowerRowCreatureBounds));
+			const targetGroup = shouldRenderOverCreature ? trapOverGroup : trapGroup;
 			trap.getVisualSprites().forEach((sprite) => {
 				if (sprite.parent !== targetGroup) {
 					this._moveSpriteToGroup(sprite, targetGroup);
@@ -171,6 +235,20 @@ export class Animations {
 			creatureKey,
 			new Set(occupiedHexes.map((hexagon) => this._hexKey(hexagon))),
 		);
+	}
+
+	setAbolishedBonfireForcedOverTraps(creature: Creature, traps?: Trap[]) {
+		if (creature.name !== 'Abolished') {
+			return;
+		}
+
+		const creatureKey = this._creatureKey(creature);
+		if (!traps || traps.length === 0) {
+			this._abolishedBonfireForcedOverTraps.delete(creatureKey);
+			return;
+		}
+
+		this._abolishedBonfireForcedOverTraps.set(creatureKey, new Set(traps.map((trap) => trap.id)));
 	}
 
 	private _uniqueHexes(hexes: Hex[]): Hex[] {
@@ -1054,10 +1132,12 @@ export class Animations {
 					);
 			let fallbackOriginOnlyHexes: Hex[] = [];
 
-			if (originTraps.length === 0) {
-				fadePhaseAOriginHexes()
-					.then(() => creature.creatureSprite.setAlpha(0, 500))
-					.then((creatureSprite) => {
+				if (originTraps.length === 0) {
+					this.xraySuppressed = true;
+					game.grid.clearAllXray();
+					fadePhaseAOriginHexes()
+						.then(() => creature.creatureSprite.setAlpha(0, 500))
+						.then((creatureSprite) => {
 						game.soundsys.playSFX('sounds/step');
 						creatureSprite.setHex(currentHex);
 						this.enterHex(creature, hex, opts);
@@ -1077,24 +1157,33 @@ export class Animations {
 							this._tweenHexVisualAlpha(destinationFadeInHexes, 1, 620, true),
 						]).then(() => creatureSprite);
 					})
-					.then(() => {
-						this._completeThenFadeInMovementArea(creature, hex, animId, opts);
-						this._scheduleHexVisualCleanup(fallbackOriginOnlyHexes, teleportCleanupOptions);
-						this._scheduleHexVisualCleanup(originMovementAreaHexes, teleportCleanupOptions);
-					});
-				return;
-			}
-
+						.then(() => {
+							this.xraySuppressed = false;
+							this._completeThenFadeInMovementArea(creature, hex, animId, opts);
+							this._scheduleHexVisualCleanup(fallbackOriginOnlyHexes, teleportCleanupOptions);
+							this._scheduleHexVisualCleanup(originMovementAreaHexes, teleportCleanupOptions);
+						})
+						.catch(() => {
+							this.xraySuppressed = false;
+						});
+					return;
+				}
 			const originCurtains = liftBonfireCurtainFromTraps(originTraps, false);
+			if (originTraps.length > 0) {
+				this.setAbolishedBonfireForcedOverTraps(creature, originTraps);
+			}
 			let didRestoreOriginLayer = false;
 			const restoreOriginLayer = () => {
 				if (didRestoreOriginLayer) {
 					return;
 				}
 				didRestoreOriginLayer = true;
+				this.setAbolishedBonfireForcedOverTraps(creature);
 				originCurtains.restore();
 			};
 
+			this.xraySuppressed = true;
+			game.grid.clearAllXray();
 			Promise.resolve()
 				.then(() => fadePhaseAOriginHexes())
 				.then(() => originCurtains.tweenSprites('tower', 260, Phaser.Easing.Cubic.Out))
@@ -1139,6 +1228,7 @@ export class Animations {
 								return this._tweenHexVisualAlpha(destinationFadeInHexes, 1, 620, true);
 							})
 							.then(() => {
+								this.xraySuppressed = false;
 								this._completeThenFadeInMovementArea(creature, hex, animId, opts);
 								this._scheduleHexVisualCleanup(originOnlyHexes, teleportCleanupOptions);
 								this._scheduleHexVisualCleanup(originMovementAreaHexes, teleportCleanupOptions);
@@ -1149,12 +1239,14 @@ export class Animations {
 						.setAlpha(1, 420)
 						.then(() => this._tweenHexVisualAlpha(destinationFadeInHexes, 1, 620, true))
 						.then(() => {
-							this._completeThenFadeInMovementArea(creature, hex, animId, opts);
-							this._scheduleHexVisualCleanup(originOnlyHexes, teleportCleanupOptions);
-							this._scheduleHexVisualCleanup(originMovementAreaHexes, teleportCleanupOptions);
-						});
+						this.xraySuppressed = false;
+						this._completeThenFadeInMovementArea(creature, hex, animId, opts);
+						this._scheduleHexVisualCleanup(originOnlyHexes, teleportCleanupOptions);
+						this._scheduleHexVisualCleanup(originMovementAreaHexes, teleportCleanupOptions);
+					});
 				})
 				.catch(() => {
+					this.xraySuppressed = false;
 					this.syncAbolishedBonfireTrapLayers(creature, creature.hexagons);
 					restoreOriginLayer();
 					this._setHexVisualAlpha(originHexes, 1, true);

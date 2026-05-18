@@ -1514,6 +1514,9 @@ export class HexGrid {
 	 * If hex contain creature call ghostOverlap for each creature hexes
 	 */
 	xray(hex: Hex) {
+		if (this.game.animations?.xraySuppressed) {
+			return;
+		}
 		this.lastXrayHex = hex;
 		this.game.creatures.forEach((creature) => {
 			if (creature instanceof Creature) {
@@ -1529,58 +1532,96 @@ export class HexGrid {
 		const noAbilitySelected = this.game.UI?.selectedAbility === -1;
 		const hoveredCreature =
 			hex.creature instanceof Creature ? (hex.creature as Creature) : undefined;
-		const hoveredTrap = this.game.traps.some((trap) => trap.x === hex.x && trap.y === hex.y);
+		const hoveredTrapSprites = this.game.traps
+			.filter((trap) => trap.x === hex.x && trap.y === hex.y)
+			.flatMap((trap) => trap.getVisualSprites())
+			.filter((sprite) => sprite.exists && typeof sprite.getBounds === 'function');
+		const hoveredTrap =
+			hoveredTrapSprites.length > 0 ||
+			this.game.traps.some((trap) => trap.x === hex.x && trap.y === hex.y);
+		const hoveredDropSprites = (this.game.drops ?? [])
+			.filter((drop) => drop.x === hex.x && drop.y === hex.y && !drop.pickedUp)
+			.map((drop) => drop.display)
+			.filter((sprite) => sprite.exists && typeof sprite.getBounds === 'function');
+		const hoveredDrop = hoveredDropSprites.length > 0 || Boolean(hex.drop);
+		const hoveredRevealSprites = [...hoveredTrapSprites, ...hoveredDropSprites];
+		const hoveredRevealCreature = hoveredCreature instanceof Creature ? hoveredCreature : undefined;
+		const hoveredNonActiveCreature =
+			hoveredCreature && hoveredCreature !== activeCreature ? hoveredCreature : undefined;
 
 		// Exception 1/2: reveal hovered non-active target when no ability is selected.
-		if (hoveredCreature && hoveredCreature !== activeCreature && noAbilitySelected) {
-			hoveredCreature.hexagons.forEach((hoveredHex) => hoveredHex.ghostOverlap(hoveredCreature));
-			hoveredCreature.xray(false);
+		// Skip when a trap/drop is also on the hex — Exception 3 handles that case
+		// and must also xray the creature standing on the trap.
+		if (hoveredNonActiveCreature && noAbilitySelected && !hoveredTrap && !hoveredDrop) {
+			hoveredNonActiveCreature.hexagons.forEach((hoveredHex) =>
+				hoveredHex.ghostOverlap(hoveredNonActiveCreature),
+			);
+			hoveredNonActiveCreature.xray(false);
 			return;
 		}
 
-		// Exception 3: reveal hovered trap regardless of movement reachability.
-		if (hoveredTrap) {
-			const hoveredTrapSprites = this.game.traps
-				.filter((trap) => trap.x === hex.x && trap.y === hex.y)
-				.flatMap((trap) => trap.getVisualSprites())
-				.filter((sprite) => sprite.exists && typeof sprite.getBounds === 'function');
+		// Exception 3: reveal hovered traps and drops regardless of movement reachability.
+		if (hoveredTrap || hoveredDrop) {
+			if (hoveredRevealCreature) {
+				hoveredRevealCreature.hexagons.forEach((hoveredHex) =>
+					hoveredHex.ghostOverlap(hoveredRevealCreature),
+				);
+				hoveredRevealCreature.xray(false);
+			}
 
-			if (hoveredTrapSprites.length === 0) {
+			if (hoveredRevealSprites.length === 0) {
 				hex.ghostOverlap();
 				return;
 			}
 
-			const trapReferences = hoveredTrapSprites.map((sprite) => {
+			const revealReferences = hoveredRevealSprites.map((sprite) => {
 				return {
 					sprite,
 					grp: this.creatureGroup,
 				} as unknown as Creature;
 			});
+			if (hoveredRevealCreature) {
+				revealReferences.push(hoveredRevealCreature);
+			}
 
 			this.game.creatures.forEach((candidate) => {
 				if (!(candidate instanceof Creature)) {
+					return;
+				}
+				if (candidate === hoveredRevealCreature || candidate === activeCreature) {
 					return;
 				}
 				if (!candidate.sprite || typeof candidate.sprite.getBounds !== 'function') {
 					return;
 				}
 
-				const candidateBounds = candidate.sprite.getBounds();
-				const overlapsTrap = hoveredTrapSprites.some((sprite) => {
-					const trapBounds = sprite.getBounds();
-					return !(
-						candidateBounds.right <= trapBounds.left ||
-						candidateBounds.left >= trapBounds.right ||
-						candidateBounds.bottom <= trapBounds.top ||
-						candidateBounds.top >= trapBounds.bottom
-					);
-				});
+				// Always xray a creature sitting directly on the hovered trap/drop hex
+				// (its sprite bounds may not intersect the trap sprite, e.g. tall Abolished
+				// standing on a small bonfire flame).
+				const isOnTrapHex =
+					candidate !== activeCreature &&
+					candidate.hexagons.some((h) => h.x === hex.x && h.y === hex.y);
 
-				if (!overlapsTrap) {
-					return;
+				if (!isOnTrapHex) {
+					const candidateBounds = candidate.sprite.getBounds();
+					const overlapsReveal = hoveredRevealSprites.some((sprite) => {
+						const revealBounds = sprite.getBounds();
+						return !(
+							candidateBounds.right <= revealBounds.left ||
+							candidateBounds.left >= revealBounds.right ||
+							candidateBounds.bottom <= revealBounds.top ||
+							candidateBounds.top >= revealBounds.bottom
+						);
+					});
+					if (!overlapsReveal) {
+						return;
+					}
 				}
 
-				candidate.xray(true, trapReferences[0]);
+				candidate.xray(
+					true,
+					revealReferences.length === 1 ? revealReferences[0] : revealReferences,
+				);
 			});
 			return;
 		}
@@ -2062,6 +2103,7 @@ export class HexGrid {
 	 * movement so the effect stays correct as the unit changes rows.
 	 */
 	refreshActiveCreatureXray() {
+		if (this.game.animations?.xraySuppressed) return;
 		const { activeCreature } = this.game;
 		if (!(activeCreature instanceof Creature)) return;
 		this.game.creatures.forEach((c) => {

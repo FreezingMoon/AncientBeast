@@ -1932,8 +1932,12 @@ export class Creature {
 	}
 
 	// Make units transparent
-	xray(enable: boolean, referenceCreature?: Creature) {
+	xray(enable: boolean, referenceCreature?: Creature | Creature[]) {
 		this.creatureSprite.xray(enable, referenceCreature);
+	}
+
+	get isXrayed(): boolean {
+		return this.creatureSprite?.isXrayed ?? false;
 	}
 
 	pickupDrop() {
@@ -2089,6 +2093,9 @@ class CreatureSprite {
 	private _creatureTeam: PlayerID;
 
 	private _isXray = false;
+	get isXrayed(): boolean {
+		return this._isXray;
+	}
 	private _xrayAlpha = 0; // current effect intensity (0 = off, 1 = full)
 	private _xrayTargetAlpha = 0; // target intensity for fade animation
 	private _xrayBmd: Phaser.BitmapData | null = null;
@@ -2298,10 +2305,17 @@ class CreatureSprite {
 			dir === -1 ? HEX_WIDTH_PX * 0.5 : HEX_WIDTH_PX * (this._creatureSize - 0.5);
 	}
 
-	xray(enable: boolean, referenceCreature?: Creature) {
+	xray(enable: boolean, referenceCreature?: Creature | Creature[]) {
 		if (!enable && !this._isXray && this._xrayTargetAlpha === 0) return;
 		if (enable && referenceCreature) {
-			if (this._isXray && this._xrayRefCreatures.length === 1 && this._xrayRefCreatures[0] === referenceCreature) {
+			const nextRefCreatures = Array.isArray(referenceCreature)
+				? referenceCreature
+				: [referenceCreature];
+			const hasSameReferences =
+				this._isXray &&
+				this._xrayRefCreatures.length === nextRefCreatures.length &&
+				this._xrayRefCreatures.every((reference, index) => reference === nextRefCreatures[index]);
+			if (hasSameReferences) {
 				return;
 			}
 			this._isXray = true;
@@ -2311,7 +2325,7 @@ class CreatureSprite {
 			const targetAlpha = this._xrayTargetAlpha;
 			this._xrayScratch = null;
 			this._xrayMask = null;
-			this._xrayRefCreatures = [referenceCreature];
+			this._xrayRefCreatures = nextRefCreatures.slice();
 			this._xrayAlpha = alpha;
 			this._xrayTargetAlpha = targetAlpha;
 			this._isXray = true;
