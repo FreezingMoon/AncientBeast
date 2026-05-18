@@ -319,6 +319,34 @@ describe('Creature', () => {
 			expect(initCardboardEffect).toHaveBeenCalledTimes(1);
 			expect(initCardboardEffect.mock.calls[0][1]).toBeDefined();
 		});
+
+		test('summon forces visibility if materialization tween stalls', () => {
+			jest.useFakeTimers();
+			const game = getGameMock();
+			const obj = getCreatureObjMock();
+			// @ts-ignore
+			const creature = new Creature(obj, game);
+			const setAlphaSpy = jest.spyOn(creature.creatureSprite, 'setAlpha');
+
+			creature.hexagons = [
+				{
+					ghostOverlap: jest.fn(),
+					activateTrap: jest.fn(),
+				},
+			] as unknown as Creature['hexagons'];
+			creature.updateHealth = jest.fn();
+			creature.healthShow = jest.fn();
+			creature.pickupDrop = jest.fn();
+			creature.hint = jest.fn();
+
+			creature.summon();
+
+			expect(setAlphaSpy).toHaveBeenCalledWith(1, 2000);
+			jest.advanceTimersByTime(2050);
+			expect(setAlphaSpy).toHaveBeenCalledWith(1);
+
+			jest.useRealTimers();
+		});
 	});
 });
 
@@ -443,6 +471,7 @@ const getGameMock = () => {
 			updateDisplay: jest.fn(),
 			getFlyingRange: jest.fn(() => []),
 			orderCreatureZ: jest.fn(),
+			fadeOutTempCreature: jest.fn(),
 			hexes: getHexesMock(),
 			allhexes: [] as unknown[],
 			getMovementRange: jest.fn(() => []),

@@ -231,6 +231,37 @@ describe('Infernal cardboard FX regression', () => {
 		expect(heatLayer?.alpha).toBe(0);
 	});
 
+	test('tick retries BitmapData setup when the sprite texture becomes drawable later', () => {
+		const game = getInfernalAnimationsGameMock();
+		const animations = new Animations(game as never);
+		const { group, sprite } = createInfernalSpriteMock({ x: 24, y: 60, scaleX: -1 });
+		const creature = {
+			name: 'Infernal',
+			team: 1,
+			id: 10,
+			creatureSprite: { sprite, grp: group },
+		} as unknown as Creature;
+
+		animations.initInfernalCardboardEffect(creature, sprite as never);
+
+		const haze = group.children.find((child) => child !== sprite && child.scale.y === 1);
+		const heatLayer = group.children.find((child) => child !== sprite && child.scale.y === 1.38);
+		expect(haze?.alpha).toBe(0);
+		expect(heatLayer?.alpha).toBe(0);
+
+		sprite.texture.baseTexture = {
+			source: { width: 120, height: 180 } as unknown as CanvasImageSource,
+		};
+		game.Phaser.time.now = 30;
+		game.Phaser.time.elapsedMS = 16;
+		animations.tickInfernalCardboardEffect(creature);
+
+		expect(haze?.loadTexture).toHaveBeenCalledTimes(1);
+		expect(heatLayer?.loadTexture).toHaveBeenCalledTimes(1);
+		expect(haze?.alpha).toBeGreaterThan(0);
+		expect(heatLayer?.alpha).toBe(0.24);
+	});
+
 	test('re-init replaces stale sprite state and preserves flip/position sync', () => {
 		const game = getInfernalAnimationsGameMock();
 		const animations = new Animations(game as never);
@@ -461,8 +492,10 @@ const createInfernalOverlayMock = (
 		anchor,
 		scale,
 		texture: {
+			frame: { x: 0, y: 0, width: 120, height: 180 },
 			width: 120,
 			height: 180,
+			baseTexture: undefined,
 		},
 		loadTexture: jest.fn(),
 		destroy: jest.fn(function (this: InfernalSpriteMock) {
@@ -475,6 +508,38 @@ const createInfernalOverlayMock = (
 };
 
 const getInfernalAnimationsGameMock = () => {
+	const createBitmapData = (width: number, height: number) => {
+		const imageData = {
+			data: new Uint8ClampedArray(width * height * 4).fill(0),
+		};
+		for (let index = 0; index < imageData.data.length; index += 4) {
+			imageData.data[index] = 255;
+			imageData.data[index + 1] = 120;
+			imageData.data[index + 2] = 20;
+			imageData.data[index + 3] = 255;
+		}
+		const ctx = {
+			clearRect: jest.fn(),
+			drawImage: jest.fn(),
+			getImageData: jest.fn(() => imageData),
+			putImageData: jest.fn(),
+			save: jest.fn(),
+			restore: jest.fn(),
+			translate: jest.fn(),
+			scale: jest.fn(),
+		};
+		return {
+			width,
+			height,
+			ctx,
+			context: ctx,
+			canvas: {} as CanvasImageSource,
+			dirty: false,
+			update: jest.fn(),
+			destroy: jest.fn(),
+		};
+	};
+
 	const makeTween = () => {
 		const tween = {
 			to: jest.fn().mockReturnThis(),
@@ -491,6 +556,7 @@ const getInfernalAnimationsGameMock = () => {
 				elapsedMS: 16,
 			},
 			add: {
+				bitmapData: jest.fn((width: number, height: number) => createBitmapData(width, height)),
 				tween: jest.fn(() => makeTween()),
 			},
 		},

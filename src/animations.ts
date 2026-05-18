@@ -86,6 +86,105 @@ export class Animations {
 		return { sprite, group };
 	}
 
+	private _retryInfernalCardboardBitmaps(
+		state: InfernalCardboardEffectState,
+		sprite: Phaser.Sprite,
+		dir: number,
+	) {
+		const texture = sprite.texture as unknown as ShatterTexture & {
+			baseTexture?: { source?: CanvasImageSource };
+		};
+		const frameInfo = extractTextureFrameInfo(texture);
+		const frame = frameInfo?.frame;
+		const source = frameInfo?.source;
+
+		if (!frame || !source || frame.width <= 0 || frame.height <= 0) {
+			return;
+		}
+
+		if (!state.hazeReady && state.hazeSprite) {
+			try {
+				state.hazeFrame = frame;
+				state.hazeSource = source;
+				state.hazeBmd?.destroy();
+				state.hazeBmd = createBitmapDataFromTexture(this.game, {
+					frame,
+					source,
+					width: frame.width,
+					height: frame.height,
+				});
+				const { ctx } = state.hazeBmd;
+				const { width, height } = frame;
+				const imageData = ctx.getImageData(0, 0, width, height);
+				const data = imageData.data;
+				for (let index = 0; index < data.length; index += 4) {
+					const red = data[index];
+					const green = data[index + 1];
+					const blue = data[index + 2];
+					const alpha = data[index + 3] / 255;
+					const warmMask = Math.max(0, (red - blue) / 255) * Math.max(0, (red - green) / 255);
+					if (warmMask <= 0.08) {
+						data[index + 3] = 0;
+						continue;
+					}
+
+					const warmBoost = 1 + warmMask * 0.95;
+					data[index] = Math.min(255, red * warmBoost);
+					data[index + 1] = Math.min(255, green * (1 + warmMask * 0.48));
+					data[index + 2] = Math.min(255, blue * (1 - warmMask * 0.2));
+					data[index + 3] = Math.min(255, alpha * warmMask * 255 * 1.15);
+				}
+				ctx.putImageData(imageData, 0, 0);
+				state.hazeBmd.dirty = true;
+				state.hazeSprite.loadTexture(state.hazeBmd);
+				state.hazeSprite.scale.setTo(dir, 1);
+				state.hazeSprite.tint = 0xffffff;
+				state.hazeReady = true;
+			} catch (e) {
+				console.warn('[Infernal] Failed to retry haze BitmapData:', e);
+			}
+		}
+
+		if (!state.heatReady && state.heatLayerSprite) {
+			try {
+				state.heatFrame = frame;
+				state.heatSource = source;
+				state.heatBmd?.destroy();
+				state.heatBmd = createBitmapDataFromTexture(this.game, {
+					frame,
+					source,
+					width: frame.width,
+					height: frame.height,
+				});
+				const { ctx } = state.heatBmd;
+				const { width, height } = frame;
+				const imageData = ctx.getImageData(0, 0, width, height);
+				const data = imageData.data;
+				const leftFadeWidth = dir < 0 ? 10 : 45;
+				const rightFadeWidth = dir < 0 ? 45 : 10;
+				for (let py = 0; py < height; py += 1) {
+					for (let px = 0; px < width; px += 1) {
+						const index = (py * width + px) * 4;
+						const alpha = data[index + 3] / 255;
+						const leftFade = Math.min(1, (px + 1) / leftFadeWidth);
+						const rightFade = Math.min(1, (width - px) / rightFadeWidth);
+						const fade = Math.min(leftFade, rightFade);
+						data[index + 3] = Math.min(255, alpha * fade * 255);
+					}
+				}
+				ctx.putImageData(imageData, 0, 0);
+				state.heatBmd.dirty = true;
+				state.heatReady = true;
+				state.heatLayerSprite.loadTexture(state.heatBmd);
+				state.heatLayerSprite.scale.setTo(dir, 1.38);
+				state.heatLayerSprite.tint = 0xffffff;
+				state.heatLayerSprite.alpha = 0.24;
+			} catch (e) {
+				console.warn('[Infernal] Failed to retry heat BitmapData:', e);
+			}
+		}
+	}
+
 	private _creatureKey(creature: Creature): string {
 		return `${creature.team}:${creature.id}`;
 	}
@@ -1912,6 +2011,11 @@ export class Animations {
 			return;
 		}
 
+		if (!state.hazeReady || !state.heatReady) {
+			const dir = sprite.scale.x < 0 ? -1 : 1;
+			this._retryInfernalCardboardBitmaps(state, sprite, dir);
+		}
+
 		this._spawnInfernalCardboardTrail(creature, state);
 	}
 
@@ -1927,6 +2031,22 @@ export class Animations {
 		state.hazeBmd?.destroy();
 		state.heatBmd?.destroy();
 		this._infernalCardboardFx.delete(effectKey);
+	}
+
+	/**
+	 * Re-keys the Infernal cardboard FX state after the creature's ID has been reassigned.
+	 * In the Creature constructor, the auto-assigned ID changes to the temp creature's ID
+	 * after CreatureSprite (and therefore initInfernalCardboardEffect) has already run.
+	 * Without this rekey, tick looks up the new ID and finds no state.
+	 */
+	rekeyInfernalCardboardEffect(creature: Creature, oldId: number) {
+		const oldKey = `${creature.team}:${oldId}`;
+		const state = this._infernalCardboardFx.get(oldKey);
+		if (!state) {
+			return;
+		}
+		this._infernalCardboardFx.delete(oldKey);
+		this._infernalCardboardFx.set(this._infernalCardboardFxKey(creature), state);
 	}
 
 	private _spawnInfernalCardboardTrail(

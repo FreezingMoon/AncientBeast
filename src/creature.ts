@@ -360,8 +360,13 @@ export class Creature {
 				}
 			}
 			if (tempCreature) {
+				const oldId = this.id;
 				this.id = tempCreature.id;
 				tempCreature.destroy();
+				// FX state was keyed under oldId; rekey to match the final assigned id.
+				if (this.name === 'Infernal') {
+					game.animations.rekeyInfernalCardboardEffect(this, oldId);
+				}
 			}
 		}
 		// Adding Himself to creature arrays and queue
@@ -412,6 +417,16 @@ export class Creature {
 		const fadeMs = 1000 * this.size;
 		game.grid.fadeOutTempCreature(undefined, fadeMs);
 		this.creatureSprite.setAlpha(1, fadeMs);
+		setTimeout(() => {
+			if (this.dead) {
+				return;
+			}
+
+			const materializedGroup = this.creatureSprite?.grp;
+			if (materializedGroup && materializedGroup.alpha < 1) {
+				this.creatureSprite.setAlpha(1);
+			}
+		}, fadeMs + 50);
 
 		// Ghost creatures in front so the materializing unit is spotlighted
 		this.hexagons.forEach((hex) => hex.ghostOverlap(this));
