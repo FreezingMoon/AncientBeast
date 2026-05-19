@@ -30,6 +30,17 @@ export class Hotkeys {
 	}
 
 	pressS(event) {
+		if (
+			!this.ui.$scoreboard.hasClass('hide') &&
+			!event.shiftKey &&
+			!event.ctrlKey &&
+			!event.altKey &&
+			!event.metaKey
+		) {
+			this.ui.btnSaveLog.triggerClick();
+			return;
+		}
+
 		if (event.shiftKey) {
 			this.ui.btnToggleScore.triggerClick();
 		} else if (event.ctrlKey) {
@@ -97,6 +108,17 @@ export class Hotkeys {
 	}
 
 	pressR(event?: KeyboardEvent) {
+		if (
+			!this.ui.$scoreboard.hasClass('hide') &&
+			!event?.shiftKey &&
+			!event?.ctrlKey &&
+			!event?.metaKey &&
+			!event?.altKey
+		) {
+			this.ui.btnRestartMatch.triggerClick();
+			return;
+		}
+
 		if (event?.ctrlKey || event?.metaKey || event?.altKey) {
 			return;
 		}

@@ -125,6 +125,72 @@ describe('Game replay completion', () => {
 	});
 });
 
+describe('Game reset lifecycle', () => {
+	test('resetGame recreates signal channels to avoid listener accumulation after restart', () => {
+		const showGameSetup = jest.fn();
+		const stopTimer = jest.fn();
+		const resetLog = jest.fn();
+		const oldSignalCreatureAdd = jest.fn();
+		const newSignalCreatureAdd = jest.fn();
+		const setupSignalChannels = jest.fn(() => ({
+			ui: { add: jest.fn(), dispatch: jest.fn() },
+			metaPowers: { add: jest.fn(), dispatch: jest.fn() },
+			creature: { add: newSignalCreatureAdd, dispatch: jest.fn() },
+			hex: { add: jest.fn(), dispatch: jest.fn() },
+		}));
+
+		const game = {
+			UI: {
+				metaPowers: { _clearPowers: jest.fn() },
+				showGameSetup,
+			},
+			stopTimer,
+			players: [1],
+			creatures: [1],
+			effects: [1],
+			activeCreature: { id: 1 },
+			matchid: 42,
+			playersReady: true,
+			preventSetup: true,
+			animations: { stale: true },
+			queue: { stale: true },
+			creatureData: [1],
+			pause: true,
+			gameState: 'ended',
+			availableCreatures: ['A1'],
+			animationQueue: [1],
+			configData: { gameMode: 2 },
+			match: { stale: true },
+			gameplay: { stale: true },
+			matchInitialized: true,
+			firstKill: true,
+			freezedInput: true,
+			isReplayInProgress: true,
+			turnThrottle: true,
+			turn: 7,
+			gamelog: { reset: resetLog },
+			signals: {
+				ui: { add: jest.fn(), dispatch: jest.fn() },
+				metaPowers: { add: jest.fn(), dispatch: jest.fn() },
+				creature: { add: oldSignalCreatureAdd, dispatch: jest.fn() },
+				hex: { add: jest.fn(), dispatch: jest.fn() },
+			},
+			setupSignalChannels,
+			botController: { stale: true },
+		} as unknown as Game;
+
+		Game.prototype.resetGame.call(game);
+
+		expect(showGameSetup).toHaveBeenCalledTimes(1);
+		expect(stopTimer).toHaveBeenCalledTimes(1);
+		expect(resetLog).toHaveBeenCalledTimes(1);
+		expect(setupSignalChannels).toHaveBeenCalledWith(['ui', 'metaPowers', 'creature', 'hex']);
+		expect(game.signals.creature.add).toBe(newSignalCreatureAdd);
+		expect(newSignalCreatureAdd).toHaveBeenCalledTimes(1);
+		expect(oldSignalCreatureAdd).toHaveBeenCalledTimes(0);
+	});
+});
+
 describe('Game unload confirmation integration', () => {
 	test('confirmWindowUnload sets window.onbeforeunload (single registration) and updates active state', () => {
 		const addEventListenerSpy = jest.spyOn(window, 'addEventListener');

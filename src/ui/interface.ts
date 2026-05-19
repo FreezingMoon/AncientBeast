@@ -523,6 +523,8 @@ export class UI {
 	queryUnit: string;
 	btnDelay: Button;
 	btnFlee?: Button;
+	btnSaveLog: Button;
+	btnRestartMatch: Button;
 	btnExit: Button;
 	materializeButton: Button;
 	clickedAbility: number;
@@ -731,6 +733,49 @@ export class UI {
 			{ isAcceptingInput: this.configuration.isAcceptingInput },
 		);
 		this.buttons.push(this.btnDelay);
+
+		this.btnSaveLog = new Button(
+			{
+				$button: $j('#save.button'),
+				hasShortcut: true,
+				click: () => {
+					game.gamelog.save();
+				},
+				state: ButtonStateEnum.hidden,
+			},
+			{ isAcceptingInput: this.configuration.isAcceptingInput },
+		);
+		this.buttons.push(this.btnSaveLog);
+
+		this.btnRestartMatch = new Button(
+			{
+				$button: $j('#restart.button'),
+				hasShortcut: true,
+				click: () => {
+					game.gamelog.add({
+						action: 'restart',
+					});
+
+					if (game.multiplayer) {
+						game.resetGame();
+						return;
+					}
+
+					const restartConfig = {
+						...game.configData,
+						players: Array.isArray(game.configData.players)
+							? [...game.configData.players]
+							: game.configData.players,
+					};
+
+					game.resetGame();
+					game.loadGame(restartConfig);
+				},
+				state: ButtonStateEnum.hidden,
+			},
+			{ isAcceptingInput: this.configuration.isAcceptingInput },
+		);
+		this.buttons.push(this.btnRestartMatch);
 
 		this.btnExit = new Button(
 			{
@@ -1077,18 +1122,61 @@ export class UI {
 		const ingameHotkeys = getHotKeys(this.hotkeys);
 
 		// Remove hex grid if window loses focus
-		$j(window).on('blur', () => {
+		$j(window).off('blur.ingameHotkeys');
+		$j(window).on('blur.ingameHotkeys', () => {
 			game.grid.showGrid(false);
 		});
 
 		// Binding Hotkeys
 		if (!DEBUG_DISABLE_HOTKEYS) {
-			$j(document).on('keydown', (e) => {
+			$j(document).off('keydown.ingameHotkeys');
+			$j(document).on('keydown.ingameHotkeys', (rawEvent) => {
+				const e = rawEvent as unknown as KeyboardEvent;
 				const keydownAction = ingameHotkeys[e.code] && ingameHotkeys[e.code].onkeydown;
+				const isScoreboardOpen = !this.$scoreboard.hasClass('hide');
+				const isScoreboardHotkey =
+					e.code === 'Escape' ||
+					(e.code === 'KeyS' && e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) ||
+					(e.code === 'KeyS' && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) ||
+					(e.code === 'KeyT' && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) ||
+					(e.code === 'KeyR' && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) ||
+					(e.code === 'KeyX' && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey);
+
+				// While scoreboard is open, block gameplay/navigation hotkeys and keep only
+				// scoreboard-scoped actions (Save, Exit) plus Escape.
+				if (isScoreboardOpen && !isScoreboardHotkey) {
+					return;
+				}
+
 				const isUtilityHotkey =
 					e.code === 'F11' ||
 					(e.code === 'KeyF' && e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) ||
 					(e.code === 'KeyA' && e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) ||
+					(e.code === 'Escape' && isScoreboardOpen) ||
+					(e.code === 'KeyS' &&
+						!e.shiftKey &&
+						!e.ctrlKey &&
+						!e.metaKey &&
+						!e.altKey &&
+						isScoreboardOpen) ||
+					(e.code === 'KeyT' &&
+						!e.shiftKey &&
+						!e.ctrlKey &&
+						!e.metaKey &&
+						!e.altKey &&
+						isScoreboardOpen) ||
+					(e.code === 'KeyR' &&
+						!e.shiftKey &&
+						!e.ctrlKey &&
+						!e.metaKey &&
+						!e.altKey &&
+						isScoreboardOpen) ||
+					(e.code === 'KeyX' &&
+						!e.shiftKey &&
+						!e.ctrlKey &&
+						!e.metaKey &&
+						!e.altKey &&
+						isScoreboardOpen) ||
 					(e.code === 'KeyS' && e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) ||
 					(e.code === 'KeyD' && e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) ||
 					(e.code === 'KeyX' && e.shiftKey && e.ctrlKey && !e.metaKey && !e.altKey) ||
@@ -1110,7 +1198,9 @@ export class UI {
 				}
 			});
 
-			$j(document).on('keyup', (e) => {
+			$j(document).off('keyup.ingameHotkeys');
+			$j(document).on('keyup.ingameHotkeys', (rawEvent) => {
+				const e = rawEvent as unknown as KeyboardEvent;
 				if (game.freezedInput) {
 					return;
 				}
@@ -1126,7 +1216,8 @@ export class UI {
 		}
 
 		// Mouse Shortcut - Middle click to skip turn (global, when dash is not open)
-		$j(document).on('mousedown', (e) => {
+		$j(document).off('mousedown.ingameHotkeys');
+		$j(document).on('mousedown.ingameHotkeys', (e) => {
 			if (game.freezedInput) {
 				return;
 			}
@@ -1385,6 +1476,8 @@ export class UI {
 		$j('#tabwrapper a').removeAttr('href'); // Empty links
 
 		this.btnExit.changeState(ButtonStateEnum.hidden);
+		this.btnSaveLog.changeState(ButtonStateEnum.hidden);
+		this.btnRestartMatch.changeState(ButtonStateEnum.hidden);
 		// Show UI
 		this.$display.show();
 		this.$dash.hide();
@@ -2459,6 +2552,9 @@ export class UI {
 		}
 
 		this.scoreboardGameOver = gameOver;
+		this.btnSaveLog.changeState(ButtonStateEnum.normal);
+		this.btnRestartMatch.changeState(ButtonStateEnum.normal);
+		this.btnExit.changeState(ButtonStateEnum.normal);
 
 		// Binding the click outside of the scoreboard to close the view
 		this.$scoreboard.off('click', this.easyScoreClose).on('click', this.easyScoreClose);
@@ -2560,6 +2656,9 @@ export class UI {
 		this.scoreboardOpenCollectiveBanner.onViewClose();
 		this.$scoreboard.off('click', this.easyScoreClose);
 		this.scoreboardGameOver = false;
+		this.btnSaveLog.changeState(ButtonStateEnum.hidden);
+		this.btnRestartMatch.changeState(ButtonStateEnum.hidden);
+		this.btnExit.changeState(ButtonStateEnum.hidden);
 		this.$scoreboard.addClass('hide');
 	}
 
@@ -3336,6 +3435,8 @@ export class UI {
 	endGame() {
 		this.toggleScoreboard(true);
 		this.btnFlee?.changeState(ButtonStateEnum.hidden);
+		this.btnSaveLog.changeState(ButtonStateEnum.normal);
+		this.btnRestartMatch.changeState(ButtonStateEnum.normal);
 		this.btnExit.changeState(ButtonStateEnum.normal);
 	}
 

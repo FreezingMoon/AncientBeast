@@ -472,6 +472,14 @@
 	background-image: url('~assets/icons/exit.svg');
 }
 
+.button#save {
+	background-image: url('~assets/icons/save.svg');
+}
+
+.button#restart {
+	background-image: url('~assets/icons/rotate.svg');
+}
+
 .p0.player-text.bright {
 	color: #f55;
 }
@@ -2594,6 +2602,8 @@ span.pure {
 			left: auto;
 			transform: none;
 			#fleeWrapper,
+			#saveWrapper,
+			#restartWrapper,
 			#exitWrapper {
 				display: flex;
 				align-items: center;
@@ -2603,6 +2613,8 @@ span.pure {
 				height: 80px;
 			}
 			#flee,
+			#save,
+			#restart,
 			#exit {
 				margin: 0;
 				position: relative;
@@ -3441,6 +3453,16 @@ input {
 	justify-self: center;
 }
 
+#scoreboard .scoreboardActions #saveWrapper {
+	justify-self: center;
+}
+
+#scoreboard .scoreboardActions #restartWrapper {
+	justify-self: center;
+}
+
+#scoreboard .scoreboardActions #save,
+#scoreboard .scoreboardActions #restart,
 #scoreboard .scoreboardActions #exit {
 	display: block;
 	margin: 0 auto !important;
