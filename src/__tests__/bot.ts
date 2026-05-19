@@ -608,4 +608,45 @@ describe('BotController', () => {
 
 		expect(picked).toBeUndefined();
 	});
+
+	test('retreating bot prefers safe path over farther trapped path', () => {
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+			health: 18,
+		});
+		const enemyCreature = makeCreature({
+			id: 2,
+			team: 1,
+			x: 1,
+			y: 0,
+		});
+
+		const safeRetreat = makeHex({ x: 2, y: 0 });
+		const trapRetreat = makeHex({
+			x: 4,
+			y: 0,
+			trap: {
+				effects: [
+					{
+						trigger: 'onStepIn',
+						name: 'burn damage',
+					},
+				],
+			},
+		});
+
+		const game = makeGame(activeCreature, [enemyCreature]);
+		const bot = new BotController(game);
+		bot.pendingAction = { type: 'move' };
+
+		const picked = bot.chooseHexForCurrentQuery([trapRetreat, safeRetreat]);
+
+		expect(bot.isRetreating(activeCreature)).toBe(true);
+		expect(picked).toBe(safeRetreat);
+		expect(bot.scoreMoveHex(safeRetreat)).toBeGreaterThan(bot.scoreMoveHex(trapRetreat));
+	});
 });

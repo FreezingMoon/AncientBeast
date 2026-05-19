@@ -2,6 +2,7 @@ import type Game from './game';
 import { Creature } from './creature';
 import { CreatureType } from './data/types';
 import { Hex } from './utility/hex';
+import { getPointFacade } from './utility/pointfacade';
 import type { Trap } from './utility/trap';
 import { Team, isTeam } from './utility/team';
 import { getSummonCandidates } from './utility/summon-candidates';
@@ -523,11 +524,12 @@ export default class BotController {
 			const filtered = candidates.filter(
 				(hex) => !(hex.x === activeCreature.x && hex.y === activeCreature.y),
 			);
+			const retreating = this.isRetreating(activeCreature);
 			const scored = filtered
 				.map((hex) => ({
 					hex,
 					score: this.scoreMoveHex(hex),
-					trapPenalty: this.getMovePathTrapPenalty(activeCreature, hex),
+					trapPenalty: this.getMovePathTrapPenalty(activeCreature, hex, { retreating }),
 				}))
 				.sort((left, right) => right.score - left.score);
 
@@ -658,8 +660,15 @@ export default class BotController {
 		return score;
 	}
 
-	private getMovePathTrapPenalty(creature: Creature, destination: Hex): number {
-		let penalty = this.getTrapExposurePenalty(creature, destination.trap, true);
+	private getMovePathTrapPenalty(
+		creature: Creature,
+		destination: Hex,
+		opts: { retreating: boolean } = { retreating: false },
+	): number {
+		let penalty = 0;
+		this.getTrapsForHex(destination).forEach((trap) => {
+			penalty += this.getTrapExposurePenalty(creature, trap, true, opts);
+		});
 
 		try {
 			const path = creature.calculatePath({ x: destination.x, y: destination.y });
@@ -669,13 +678,28 @@ export default class BotController {
 				if (isOrigin || isDestination) {
 					return;
 				}
-				penalty += this.getTrapExposurePenalty(creature, pathHex.trap, false);
+				this.getTrapsForHex(pathHex).forEach((trap) => {
+					penalty += this.getTrapExposurePenalty(creature, trap, false, opts);
+				});
 			});
 		} catch {
 			// Keep scoring robust if a path cannot be computed from the mocked/runtime state.
 		}
 
 		return penalty;
+	}
+
+	private getTrapsForHex(hex: Hex): Trap[] {
+		try {
+			const traps = getPointFacade().getTrapsAt(hex);
+			if (Array.isArray(traps) && traps.length > 0) {
+				return traps;
+			}
+		} catch {
+			// Fallback to deprecated accessor when point facade isn't configured.
+		}
+
+		return hex.trap ? [hex.trap] : [];
 	}
 
 	private shouldWaitInsteadOfRiskyMove(
@@ -693,6 +717,16 @@ export default class BotController {
 		}
 
 		const healthRatio = creature.health / creature.stats.health;
+		if (this.isRetreating(creature)) {
+			if (healthRatio <= 0.35 && best.trapPenalty >= 170) {
+				return true;
+			}
+
+			if (best.trapPenalty >= 600) {
+				return true;
+			}
+		}
+
 		if (healthRatio <= 0.2 && best.trapPenalty >= 180) {
 			return true;
 		}
@@ -707,13 +741,10 @@ export default class BotController {
 
 	private getTrapExposurePenalty(
 		creature: Creature,
-		trap: Trap | undefined,
+		trap: Trap,
 		isDestination: boolean,
+		opts: { retreating: boolean },
 	): number {
-		if (!trap) {
-			return 0;
-		}
-
 		const healthRatio = creature.health / creature.stats.health;
 		let penalty = Math.round(80 + (1 - healthRatio) * 270);
 
@@ -721,6 +752,13 @@ export default class BotController {
 			penalty += healthRatio <= 0.35 ? 700 : 240;
 			if (healthRatio <= 0.2) {
 				penalty += 500;
+			}
+		}
+
+		if (opts.retreating) {
+			penalty = Math.round(penalty * 1.7);
+			if (healthRatio <= 0.35) {
+				penalty += 220;
 			}
 		}
 
@@ -755,7 +793,13 @@ export default class BotController {
 			}
 
 			const effectSource = Function.prototype.toString.call(effectFn);
-			return /takeDamage|new Damage|applyDamage|damages/.test(effectSource);
+			if (/takeDamage|new Damage|applyDamage|damages/.test(effectSource)) {
+				return true;
+			}
+
+			// Step-triggered traps with opaque effect functions should still be
+			// treated as dangerous for movement planning.
+			return true;
 		});
 	}
 
@@ -894,7 +938,7 @@ export default class BotController {
 		}
 
 		// Retreating units are already injured; heavily penalize trap exposure.
-		score -= this.getMovePathTrapPenalty(activeCreature, hex);
+		score -= this.getMovePathTrapPenalty(activeCreature, hex, { retreating: true });
 
 		return score;
 	}
