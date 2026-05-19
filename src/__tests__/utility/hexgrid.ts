@@ -778,7 +778,9 @@ describe('HexGrid display group layering', () => {
 		};
 
 		const grid = new HexGrid({ numRows: 2, numCols: 3, isFirstRowFull: true }, gameMock as never);
-		const childNames = (grid.display.children as MockGroup[]).map((child) => child.name);
+		const childNames = grid.display.children.map(
+			(child) => (child as { name?: string }).name ?? '',
+		);
 
 		expect(childNames.indexOf('dropGrp')).toBeGreaterThanOrEqual(0);
 		expect(childNames.indexOf('creaturesGrp')).toBeGreaterThanOrEqual(0);

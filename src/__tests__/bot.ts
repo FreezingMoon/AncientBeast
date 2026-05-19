@@ -392,9 +392,7 @@ describe('BotController', () => {
 			getAbilityMinScore: () => 220,
 		};
 
-		const picked = bot.chooseHexForCurrentQuery([
-			makeHex({ x: 1, y: 0, creature: enemyCreature }),
-		]);
+		const picked = bot.chooseHexForCurrentQuery([makeHex({ x: 1, y: 0, creature: enemyCreature })]);
 
 		expect(picked).toBeUndefined();
 

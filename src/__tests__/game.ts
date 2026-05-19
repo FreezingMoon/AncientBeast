@@ -235,7 +235,6 @@ describe('Game unload confirmation integration', () => {
 		}
 
 		const originalOnBeforeUnload = window.onbeforeunload;
-		const firstUiState = { ignoreNextConfirmUnload: false };
 		const secondUiState = { ignoreNextConfirmUnload: false };
 
 		TestUI.prototype.confirmWindowUnload.call(secondUiState as UI);
