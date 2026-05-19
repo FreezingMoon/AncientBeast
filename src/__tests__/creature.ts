@@ -516,7 +516,6 @@ const getGameMock = () => {
 			initInfernalCardboardEffect: jest.fn(),
 			tickInfernalCardboardEffect: jest.fn(),
 			disposeInfernalCardboardEffect: jest.fn(),
-			syncBonfireSpringTrapLayers: jest.fn(),
 		},
 		signals: {
 			metaPowers: {

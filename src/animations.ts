@@ -78,50 +78,6 @@ export class Animations {
 		return `${creature.team}:${creature.id}`;
 	}
 
-	private _syncBonfireSpringTrapLayers() {
-		const trapGroup = this.game.grid.trapGroup;
-		const trapOverGroup = this.game.grid.trapOverGroup;
-
-		this.game.traps.forEach((trap) => {
-			if (trap.type !== 'bonfire-spring') {
-				return;
-			}
-
-			const trapHexKey = `${trap.x},${trap.y}`;
-			const obstruct = this.game.creatures.find(
-				(c) => c instanceof Creature && !c.dead && c.hexagons.some((h) => `${h.x},${h.y}` === trapHexKey),
-			);
-
-			// If a creature is on the same hex, render trap above it
-			const shouldBeAbove = Boolean(obstruct);
-			const currentGroup = trap.display?.parent as Phaser.Group | undefined;
-			const targetGroup = shouldBeAbove ? trapOverGroup : trapGroup;
-
-			if (currentGroup !== targetGroup) {
-				const sprites = trap.getVisualSprites();
-				sprites.forEach((sprite) => {
-					if (!sprite.exists) return;
-					const worldPos = sprite.worldPosition;
-					currentGroup?.removeChild(sprite);
-					targetGroup.add(sprite);
-					const localPos = targetGroup.toLocal(worldPos, this.game.Phaser.world);
-					sprite.position.set(localPos.x, localPos.y);
-				});
-			}
-
-			// Keep trap at top of its layer
-			trap.getVisualSprites().forEach((sprite) => {
-				if (sprite.exists && sprite.parent) {
-					(sprite.parent as Phaser.Group).bringToTop(sprite);
-				}
-			});
-		});
-	}
-
-	syncBonfireSpringTrapLayers() {
-		this._syncBonfireSpringTrapLayers();
-	}
-
 	private _getLiveInfernalCardboardTarget(creature: Creature, fallbackSprite?: Phaser.Sprite) {
 		const sprite = creature.creatureSprite?.sprite ?? fallbackSprite;
 		const group = (sprite?.parent as Phaser.Group | undefined) ?? creature.creatureSprite?.grp;

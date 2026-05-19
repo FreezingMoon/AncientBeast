@@ -2116,6 +2116,9 @@ class CreatureSprite {
 		return this._isXray;
 	}
 	private _xrayAlpha = 0; // current effect intensity (0 = off, 1 = full)
+	get xrayAlpha(): number {
+		return this._xrayAlpha;
+	}
 	private _xrayTargetAlpha = 0; // target intensity for fade animation
 	private _xrayBmd: Phaser.BitmapData | null = null;
 	private _originalTextureKey: string;
@@ -2206,7 +2209,6 @@ class CreatureSprite {
 		const XRAY_FADE_RATE = 0.08; // ~160 ms fade at 60 fps
 		this._group.update = () => {
 			_groupUpdate();
-			game.animations.syncBonfireSpringTrapLayers();
 			game.animations.tickInfernalCardboardEffect(this._creature);
 			// Animate xray alpha toward target
 			if (this._xrayAlpha < this._xrayTargetAlpha) {

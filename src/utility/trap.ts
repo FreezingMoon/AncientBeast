@@ -90,8 +90,9 @@ export class Trap {
 		const spriteName = 'trap_' + type;
 		const px = offsetCoordsToPx(this);
 
-		// Only bonfire-spring is volumetric and renders in trapOverGroup
-		const targetGroup = this.typeOver ? game.grid.trapOverGroup : game.grid.trapGroup;
+		// Traps are created in the base trap layer.
+		// Bonfire-spring is moved above units only while a creature occupies the same hex.
+		const targetGroup = game.grid.trapGroup;
 		this.display = targetGroup.create(px.x + HEX_WIDTH_PX / 2, px.y + 60, spriteName);
 		this.display.anchor.setTo(0.5);
 
