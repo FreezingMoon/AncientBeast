@@ -93,8 +93,9 @@ const confirmUnload = (event: BeforeUnloadEvent) => {
 	}
 
 	if (isDevReloadPromptVisible) {
-		clearBeforeUnloadReturnValue(event);
-		return;
+		event.preventDefault();
+		setBeforeUnloadReturnValue(event, GAME_IN_PROGRESS_UNLOAD_CONFIRMATION);
+		return GAME_IN_PROGRESS_UNLOAD_CONFIRMATION;
 	}
 
 	if (activeConfirmUnloadState.ignoreNextConfirmUnload) {
