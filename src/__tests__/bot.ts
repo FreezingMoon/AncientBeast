@@ -273,6 +273,45 @@ describe('BotController', () => {
 		expect(bot.pendingAction).toBeNull();
 	});
 
+	test('query resolution clears pending action when onConfirm throws', () => {
+		jest.useFakeTimers();
+
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+		});
+		const enemyCreature = makeCreature({
+			id: 2,
+			team: 1,
+			x: 1,
+			y: 0,
+			health: 30,
+		});
+		const game = makeGame(activeCreature, [enemyCreature]);
+		const bot = new BotController(game);
+		bot.activeCreatureId = activeCreature.id;
+		bot.pendingAction = { type: 'ability', abilityIndex: 2 };
+		const queueDecisionSpy = jest.spyOn(bot, 'queueDecision').mockImplementation(() => undefined);
+
+		bot.resolveQuery(
+			{ hexes: [makeHex({ x: 1, y: 0, creature: enemyCreature })] },
+			{
+				onSelect: jest.fn(),
+				onConfirm: jest.fn(() => {
+					throw new Error('confirm failed');
+				}),
+			},
+		);
+
+		jest.advanceTimersByTime(140);
+		expect(bot.pendingAction).toBeNull();
+		expect(bot.failedAbilityIds.has(2)).toBe(true);
+		expect(queueDecisionSpy).toHaveBeenCalledWith(120);
+	});
+
 	test('bot does not get stuck when ability use opens no query', () => {
 		const activeCreature = makeCreature({
 			id: 1,

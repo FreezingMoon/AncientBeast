@@ -311,19 +311,19 @@ export default (G: Game) => {
 		{
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
 			trigger: 'onQuery',
-			_targetLockingCost: 30,
 
 			// 	require() :
 			require: function () {
 				const rocketLauncherAbility = this.creature.abilities[2];
 				const missedRockets = rocketLauncherAbility?.token ?? 0;
+				const targetLockingCost = 30;
 
 				// Target Locking has a higher flat cost regardless of rockets converted.
 				this.requirements = {
-					energy: this._targetLockingCost,
+					energy: targetLockingCost,
 				};
 				this.costs = {
-					energy: this._targetLockingCost,
+					energy: targetLockingCost,
 				};
 
 				if (missedRockets === 0) {

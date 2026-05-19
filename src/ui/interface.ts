@@ -78,20 +78,33 @@ const suppressBrowserModalWhilePromptVisible = () => {
 
 suppressBrowserModalWhilePromptVisible();
 
+const clearBeforeUnloadReturnValue = (event: BeforeUnloadEvent) => {
+	Reflect.deleteProperty(event as unknown as Record<string, unknown>, 'returnValue');
+};
+
+const setBeforeUnloadReturnValue = (event: BeforeUnloadEvent, value: string) => {
+	Reflect.set(event as unknown as Record<string, unknown>, 'returnValue', value);
+};
+
 const confirmUnload = (event: BeforeUnloadEvent) => {
 	const activeConfirmUnloadState = getActiveConfirmUnloadState();
 	if (!activeConfirmUnloadState) {
 		return;
 	}
 
+	if (isDevReloadPromptVisible) {
+		clearBeforeUnloadReturnValue(event);
+		return;
+	}
+
 	if (activeConfirmUnloadState.ignoreNextConfirmUnload) {
-		delete event.returnValue;
+		clearBeforeUnloadReturnValue(event);
 		return;
 	}
 
 	// https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload#example
 	event.preventDefault();
-	event.returnValue = GAME_IN_PROGRESS_UNLOAD_CONFIRMATION;
+	setBeforeUnloadReturnValue(event, GAME_IN_PROGRESS_UNLOAD_CONFIRMATION);
 	return GAME_IN_PROGRESS_UNLOAD_CONFIRMATION;
 };
 

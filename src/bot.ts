@@ -451,14 +451,18 @@ export default class BotController {
 			return;
 		}
 
-		const chosenHex = this.chooseHexForCurrentQuery(queryOptions.hexes);
-		if (!chosenHex) {
+		const failPendingAction = () => {
 			const failedAction = this.pendingAction;
 			this.pendingAction = null;
 			if (failedAction?.type !== 'move' && typeof failedAction?.abilityIndex === 'number') {
 				this.failedAbilityIds.add(failedAction.abilityIndex);
 			}
 			this.queueDecision(120);
+		};
+
+		const chosenHex = this.chooseHexForCurrentQuery(queryOptions.hexes);
+		if (!chosenHex) {
+			failPendingAction();
 			return;
 		}
 
@@ -468,7 +472,12 @@ export default class BotController {
 			if (!this.isBotTurn()) {
 				return;
 			}
-			handlers.onSelect(chosenHex);
+			try {
+				handlers.onSelect(chosenHex);
+			} catch {
+				this.isResolvingQuery = false;
+				failPendingAction();
+			}
 		}, 50);
 
 		setTimeout(() => {
@@ -477,7 +486,12 @@ export default class BotController {
 				return;
 			}
 			this.isResolvingQuery = false;
-			handlers.onConfirm(chosenHex);
+			try {
+				handlers.onConfirm(chosenHex);
+			} catch {
+				failPendingAction();
+				return;
+			}
 			setTimeout(() => {
 				if (this.pendingAction && !this.isResolvingQuery) {
 					this.pendingAction = null;
