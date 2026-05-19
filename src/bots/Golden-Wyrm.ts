@@ -36,6 +36,7 @@ const LOW_ALLY_HEALTH_RATIO = 0.45;
  * considered worthwhile. One enemy is not enough to justify being surrounded.
  */
 const MIN_ENEMIES_FOR_BATTLE_CRY = 2;
+const LOW_LEVEL_THRESHOLD = 3;
 
 /**
  * Golden Wyrm must retain at least this much health after Visible Stigmata
@@ -113,6 +114,46 @@ function hasHealableAlly(creature: Creature): boolean {
 				hex.creature.health / hex.creature.stats.health < LOW_ALLY_HEALTH_RATIO &&
 				hex.creature.health < hex.creature.stats.health,
 		);
+}
+
+function getUpgradedAbilityCount(creature: Creature): number {
+	return creature.abilities.filter(
+		(ability) => typeof ability?.isUpgraded === 'function' && ability.isUpgraded(),
+	).length;
+}
+
+/**
+ * Higher means the ally scales well over time and is worth preserving.
+ */
+function getAllyGrowthValue(ally: Creature): number {
+	const level = typeof ally.level === 'number' ? ally.level : 1;
+	const upgrades = getUpgradedAbilityCount(ally);
+	const endurance = typeof ally.stats?.endurance === 'number' ? ally.stats.endurance : 0;
+	const regrowth = typeof ally.stats?.regrowth === 'number' ? ally.stats.regrowth : 0;
+
+	let score = 0;
+	score += level * 40;
+	score += upgrades * 170;
+	score += Math.max(0, endurance - 10) * 6;
+	score += Math.max(0, regrowth - 10) * 5;
+
+	return score;
+}
+
+function isReliableWyrmCounter(attacker: Creature): boolean {
+	const level = typeof attacker.level === 'number' ? attacker.level : 1;
+	const endurance = typeof attacker.stats?.endurance === 'number' ? attacker.stats.endurance : 0;
+	const regrowth = typeof attacker.stats?.regrowth === 'number' ? attacker.stats.regrowth : 0;
+	const slash = typeof attacker.stats?.slash === 'number' ? attacker.stats.slash : 0;
+	const sonic = typeof attacker.stats?.sonic === 'number' ? attacker.stats.sonic : 0;
+
+	return (
+		level >= 5 ||
+		endurance >= 20 ||
+		regrowth >= 20 ||
+		slash >= 20 ||
+		sonic >= 20
+	);
 }
 
 // ---------------------------------------------------------------------------
@@ -237,6 +278,9 @@ function scoreDragonFlight(hex: Hex, activeCreature: Creature, controller: BotCo
 	});
 	const adjacentEnemies = [...adjacentEnemyMap.values()];
 	const adjacentAllies = [...adjacentAllyMap.values()];
+	const lowLevelAdjacentEnemyCount = adjacentEnemies.filter(
+		(enemy) => (typeof enemy.level === 'number' ? enemy.level : 1) <= LOW_LEVEL_THRESHOLD,
+	).length;
 
 	const executableTargets = adjacentEnemies.filter((e) => e.health <= EXECUTE_THRESHOLD);
 	const darkPriestTarget = adjacentEnemies.find((e) => e.isDarkPriest() && e.player.plasma <= 0);
@@ -270,9 +314,11 @@ function scoreDragonFlight(hex: Hex, activeCreature: Creature, controller: BotCo
 	if (adjacentEnemies.length >= MIN_ENEMIES_FOR_BATTLE_CRY) {
 		if (isHighHealth) {
 			score += adjacentEnemies.length * 400 + 600;
+			score += lowLevelAdjacentEnemyCount * 160;
 		} else {
 			// Still has some value even at lower health but not worth the risk as much
 			score += adjacentEnemies.length * 80;
+			score += lowLevelAdjacentEnemyCount * 40;
 		}
 	}
 
@@ -284,6 +330,9 @@ function scoreDragonFlight(hex: Hex, activeCreature: Creature, controller: BotCo
 		);
 		if (lowHealthAllies.length > 0) {
 			score += 1200;
+			score += Math.round(
+				lowHealthAllies.reduce((sum, ally) => sum + getAllyGrowthValue(ally), 0) * 0.2,
+			);
 		}
 	}
 
@@ -291,19 +340,30 @@ function scoreDragonFlight(hex: Hex, activeCreature: Creature, controller: BotCo
 	//    If Battle Cry is not yet upgraded, avoid being adjacent to allies
 	//    since Battle Cry can trigger and harm them.
 	if (adjacentAllies.length > 0) {
-		if (adjacentEnemies.length === 0) {
+		const emergencyAllies = adjacentAllies.filter(
+			(ally) => ally.health < ally.stats.health * LOW_ALLY_HEALTH_RATIO,
+		);
+
+		if (adjacentEnemies.length > 0) {
+			// Avoid collateral positioning near allies while enemies are adjacent.
+			score -= adjacentAllies.length * (isBattleCryUpgraded ? 220 : 420);
+		} else {
+			// No nearby enemies: only stay near allies when Battle Cry is upgraded and
+			// there is a real support reason (injured high-value ally).
+			if (isBattleCryUpgraded && emergencyAllies.length > 0) {
+				score += 200;
+				score += Math.round(
+					emergencyAllies.reduce((sum, ally) => sum + getAllyGrowthValue(ally), 0) * 0.15,
+				);
+			} else {
+				score -= adjacentAllies.length * (isBattleCryUpgraded ? 80 : 180);
+			}
+
 			const distFromEnemy = controller.closestDistanceToEnemy(hex);
 			if (distFromEnemy >= 1 && distFromEnemy <= 3) {
-				// Good interception position
+				// Good interception position.
 				score += 300;
 			}
-			if (!isBattleCryUpgraded) {
-				// Not adjacent to enemies here, so Battle Cry won't fire — being adjacent
-				// to an ally is safe in this sub-case.
-			}
-		} else if (!isBattleCryUpgraded) {
-			// Adjacent to both allies and enemies: Battle Cry would harm the allies.
-			score -= adjacentAllies.length * 350;
 		}
 	}
 
@@ -373,15 +433,14 @@ function scoreVisibleStigmata(
 	// Higher-level allies are more impactful — reward healing them
 	const level = typeof target.level === 'number' ? target.level : 1;
 	score += level * 60;
+	score += getAllyGrowthValue(target);
 
 	// Energy: allies with more remaining energy can still act effectively once healed
 	const energyRatio = target.stats.energy > 0 ? target.energy / target.stats.energy : 0;
 	score += Math.round(energyRatio * 200);
 
 	// Upgraded abilities: allies with at least one upgraded ability are more valuable
-	const upgradedAbilityCount = target.abilities.filter(
-		(ability) => typeof ability?.isUpgraded === 'function' && ability.isUpgraded(),
-	).length;
+	const upgradedAbilityCount = getUpgradedAbilityCount(target);
 	score += upgradedAbilityCount * 120;
 
 	// Safety check: penalise if Wyrm health after donation would be risky
@@ -466,6 +525,21 @@ const GoldenWyrmStrategy: UnitBotStrategy = {
 			// Advance toward enemies but don't deliberately get surrounded
 			score += Math.min(adjacentEnemyCount, 1) * 100;
 		}
+
+			const adjacentAllyCount = adjacentHexes.filter(
+				(adj: Hex) =>
+					adj.creature instanceof Creature &&
+					adj.creature !== activeCreature &&
+					isTeam(activeCreature, adj.creature, Team.Ally),
+			).length;
+
+			const battleCryAbility = activeCreature.abilities[ABILITY.BATTLE_CRY];
+			const isBattleCryUpgraded = battleCryAbility?.isUpgraded?.() ?? false;
+			if (adjacentEnemyCount > 0) {
+				score -= adjacentAllyCount * (isBattleCryUpgraded ? 140 : 260);
+			} else {
+				score -= adjacentAllyCount * (isBattleCryUpgraded ? 60 : 130);
+			}
 
 		// Trap avoidance scales with injury level
 		if (hex.trap) {
@@ -596,9 +670,20 @@ const GoldenWyrmStrategy: UnitBotStrategy = {
 	 * is damaged. Any attacker using a melee or close-range ability risks
 	 * taking this retaliation. Return a penalty to discourage reckless attacks.
 	 */
-	getTargetingPenalty(_attacker, _target, _abilityIndex, _controller) {
+	getTargetingPenalty(attacker, _target, _abilityIndex, _controller) {
 		// -30 represents the sonic damage from Battle Cry retaliation
-		return -30;
+		let penalty = -30;
+
+		if (isReliableWyrmCounter(attacker)) {
+			penalty += 14;
+		}
+
+		const level = typeof attacker.level === 'number' ? attacker.level : 1;
+		if (level >= 6) {
+			penalty += 4;
+		}
+
+		return Math.min(-4, Math.round(penalty));
 	},
 
 	/**
@@ -606,10 +691,14 @@ const GoldenWyrmStrategy: UnitBotStrategy = {
 	 * - Keep pressure on it as a priority target.
 	 * - Prefer applying fatigue while it is still susceptible.
 	 */
-	getCounterTargetingModifier(_attacker, target, _abilityIndex, _controller) {
+	getCounterTargetingModifier(attacker, target, _abilityIndex, _controller) {
 		let score = 220; // baseline focus on Golden Wyrm
 		if (!target.protectedFromFatigue && !target.isFatigued()) {
 			score += 220; // strong preference to keep fatigue uptime
+		}
+
+		if (isReliableWyrmCounter(attacker)) {
+			score += 160;
 		}
 		return score;
 	},
@@ -631,6 +720,11 @@ const GoldenWyrmStrategy: UnitBotStrategy = {
 
 		let penalty = -220;
 		penalty -= adjacentAllyCount * 80;
+
+		const moverLevel = typeof mover.level === 'number' ? mover.level : 1;
+		if (moverLevel <= LOW_LEVEL_THRESHOLD) {
+			penalty -= 220;
+		}
 
 		if (mover.health <= 45) {
 			penalty -= 900;

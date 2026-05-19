@@ -390,4 +390,27 @@ describe('BotController', () => {
 		expect(bot.failedAbilityIds.has(0)).toBe(true);
 		expect(game.skipTurn).toHaveBeenCalledWith({ noTooltip: true });
 	});
+
+	test('immoveable bot with remaining movement does not queue move action', () => {
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+		});
+
+		activeCreature.remainingMove = 3;
+		activeCreature.stats.moveable = false;
+
+		const game = makeGame(activeCreature);
+		const bot = new BotController(game);
+		bot.activeCreatureId = activeCreature.id;
+
+		bot.takeTurn();
+
+		expect(activeCreature.queryMove).not.toHaveBeenCalled();
+		expect(bot.pendingAction).toBeNull();
+		expect(game.skipTurn).toHaveBeenCalledWith({ noTooltip: true });
+	});
 });

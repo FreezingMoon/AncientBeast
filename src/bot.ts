@@ -388,6 +388,11 @@ export default class BotController {
 			return false;
 		}
 
+		if (!activeCreature.stats.moveable) {
+			this.moveAttempted = true;
+			return false;
+		}
+
 		this.pendingAction = { type: 'move' };
 		this.moveAttempted = true;
 		activeCreature.queryMove();
