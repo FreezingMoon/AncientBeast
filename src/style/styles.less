@@ -3466,9 +3466,50 @@ input {
 #scoreboard .scoreboardActions #exit {
 	display: block;
 	margin: 0 auto !important;
+	overflow: visible;
+	background-image: none;
 	background-position: center center;
 	background-repeat: no-repeat;
 	background-size: 72% 72%;
+	transition: transform 180ms ease;
+
+	&::before {
+		inset: 4px;
+		height: auto;
+		width: auto;
+		border-radius: 50%;
+		background-image: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.2), rgba(48, 48, 48, 0.88) 62%, rgba(10, 10, 10, 0.96));
+		border: 2px solid rgba(186, 191, 198, 0.92);
+		box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.55), 0 8px 18px rgba(0, 0, 0, 0.35);
+	}
+
+	&::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background-image: var(--scoreboard-action-icon);
+		background-position: center center;
+		background-repeat: no-repeat;
+		background-size: 58% 58%;
+		transition: transform 180ms ease;
+	}
+
+	&:hover::after,
+	&.hover::after {
+		transform: rotate(-20deg);
+	}
+}
+
+#scoreboard .scoreboardActions #save {
+	--scoreboard-action-icon: url('~assets/icons/save.svg');
+}
+
+#scoreboard .scoreboardActions #restart {
+	--scoreboard-action-icon: url('~assets/icons/rotate.svg');
+}
+
+#scoreboard .scoreboardActions #exit {
+	--scoreboard-action-icon: url('~assets/icons/exit.svg');
 }
 
 #scoreboard .scoreboardActions .button.hover + .desc {
