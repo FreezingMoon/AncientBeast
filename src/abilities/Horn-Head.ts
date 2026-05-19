@@ -597,6 +597,13 @@ export default (G: Game) => {
 				const targetIndex = line.findIndex(
 					(hex, index) => index > 0 && hex.creature?.id === target.id,
 				);
+
+				// Ensure valid state: target found in line and not out of range
+				if (targetIndex < 1) {
+					G.activeCreature.queryMove();
+					return;
+				}
+
 				const { landingHex, landingIndex } =
 					targetIndex > 1
 						? getMeatSickleLanding(line, target, direction, targetIndex)
@@ -615,11 +622,7 @@ export default (G: Game) => {
 					return;
 				}
 
-				if (!landingHex || (targetIndex <= 1 && !this.isUpgraded())) {
-					if (this.isUpgraded() && targetIndex === 1) {
-						// Melee attack with upgraded - apply movement ability restriction
-						applyMovementRestriction(ability.creature, target, G);
-					}
+				if (!landingHex) {
 					G.activeCreature.queryMove();
 					return;
 				}
