@@ -94,6 +94,17 @@ function getTargetLockingEnergyRequirement(creature: Creature): number {
 	return rocketsToUse * perRocketEnergyCost;
 }
 
+function hasLiveEnemyTarget(creature: Creature): boolean {
+	return creature.player.game.creatures.some(
+		(candidate) =>
+			candidate instanceof Creature &&
+			!candidate.dead &&
+			!candidate.temp &&
+			candidate !== creature &&
+			isTeam(creature, candidate, Team.Enemy),
+	);
+}
+
 /**
  * Returns true if Cyber Wolf should keep pressure despite low energy.
  * Adjacent pressure enables Bad Doggie/Metal Hand follow-ups, and stored
@@ -111,7 +122,9 @@ function hasLowEnergyCombatOption(creature: Creature): boolean {
 	const missedRockets = creature.abilities[ABILITY.ROCKET_LAUNCHER]?.token ?? 0;
 	const minEnergyForTargetLock = getTargetLockingEnergyRequirement(creature);
 
-	return missedRockets > 0 && creature.energy >= minEnergyForTargetLock;
+	return (
+		missedRockets > 0 && creature.energy >= minEnergyForTargetLock && hasLiveEnemyTarget(creature)
+	);
 }
 
 /**
@@ -220,7 +233,15 @@ function scoreTargetLocking(
 	_controller: BotController,
 ): number {
 	const target = hex.creature;
-	if (!(target instanceof Creature) || !isTeam(activeCreature, target, Team.Enemy)) {
+	if (
+		!(target instanceof Creature) ||
+		target.dead ||
+		target.temp ||
+		!target.stats ||
+		typeof target.stats.health !== 'number' ||
+		target.stats.health <= 0 ||
+		!isTeam(activeCreature, target, Team.Enemy)
+	) {
 		return Number.NEGATIVE_INFINITY;
 	}
 
@@ -313,7 +334,11 @@ const CyberWolfStrategy: UnitBotStrategy = {
 		const missedRockets = rocketLauncherAbility?.token ?? 0;
 		const targetLockEnergyRequirement = getTargetLockingEnergyRequirement(creature);
 
-		if (missedRockets > 0 && creature.energy >= targetLockEnergyRequirement) {
+		if (
+			missedRockets > 0 &&
+			creature.energy >= targetLockEnergyRequirement &&
+			hasLiveEnemyTarget(creature)
+		) {
 			// Prioritize using missed rockets on high-priority targets
 			return [ABILITY.TARGET_LOCKING, ABILITY.METAL_HAND, ABILITY.ROCKET_LAUNCHER];
 		}

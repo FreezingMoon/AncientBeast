@@ -21,6 +21,7 @@ import { Creature } from '../../creature';
 import { Hex } from '../../utility/hex';
 
 const { isRetreating } = CyberWolfStrategy as Required<typeof CyberWolfStrategy>;
+const { scoreAbilityHex } = CyberWolfStrategy as Required<typeof CyberWolfStrategy>;
 
 const makeCreature = ({
 	team = 0,
@@ -31,6 +32,9 @@ const makeCreature = ({
 	abilities = [] as any[],
 	adjacentHexes = (_: number) => [] as Hex[],
 	isFrozen = () => false,
+	dead = false,
+	temp = false,
+	player = undefined as any,
 }: Partial<{
 	team: number;
 	health: number;
@@ -40,8 +44,14 @@ const makeCreature = ({
 	abilities: any[];
 	adjacentHexes: (_: number) => Hex[];
 	isFrozen: () => boolean;
+	dead: boolean;
+	temp: boolean;
+	player: any;
 }> = {}) => {
 	const creature = Object.create(Creature.prototype);
+	const creaturePlayer = player ?? {
+		game: { creatures: [] as any[] },
+	};
 	Object.assign(creature, {
 		team,
 		health,
@@ -50,6 +60,9 @@ const makeCreature = ({
 		abilities,
 		adjacentHexes,
 		isFrozen,
+		dead,
+		temp,
+		player: creaturePlayer,
 	});
 	return creature as Creature & { team: number };
 };
@@ -118,5 +131,44 @@ describe('CyberWolfStrategy.isRetreating', () => {
 		});
 
 		expect(isRetreating(cyberWolf, {} as any)).toBe(false);
+	});
+
+	test('retreats when missed rockets only point at dead enemies', () => {
+		const deadEnemy = makeCreature({ team: 1, dead: true });
+		const cyberWolf = makeCreature({
+			energy: 10,
+			abilities: [{}, {}, { token: 2 }, { costs: { energy: 10 }, isUpgraded: () => false }],
+			adjacentHexes: () => [],
+		});
+		Object.assign(cyberWolf, { player: { game: { creatures: [cyberWolf, deadEnemy] } } });
+		Object.assign(deadEnemy, { player: { game: { creatures: [cyberWolf, deadEnemy] } } });
+
+		expect(isRetreating(cyberWolf, {} as any)).toBe(true);
+	});
+
+	test('ignores dead and temp enemies when scoring target locking', () => {
+		const liveEnemy = makeCreature({ team: 1, health: 90, maxHealth: 100 });
+		const deadEnemy = makeCreature({ team: 1, dead: true, health: 10, maxHealth: 100 });
+		const tempEnemy = makeCreature({ team: 1, temp: true, health: 10, maxHealth: 100 });
+		const cyberWolf = makeCreature({
+			team: 0,
+			abilities: [{}, {}, { token: 2 }, { costs: { energy: 10 }, isUpgraded: () => false }],
+		});
+		const botGame = { activeCreature: cyberWolf };
+		const creatureGame = { creatures: [cyberWolf, deadEnemy, tempEnemy, liveEnemy] };
+		Object.assign(cyberWolf, { player: { game: creatureGame } });
+		Object.assign(deadEnemy, { player: { game: creatureGame } });
+		Object.assign(tempEnemy, { player: { game: creatureGame } });
+		Object.assign(liveEnemy, { player: { game: creatureGame } });
+
+		expect(scoreAbilityHex(makeHex({ creature: deadEnemy }), 3, { game: botGame } as any)).toBe(
+			Number.NEGATIVE_INFINITY,
+		);
+		expect(scoreAbilityHex(makeHex({ creature: tempEnemy }), 3, { game: botGame } as any)).toBe(
+			Number.NEGATIVE_INFINITY,
+		);
+		expect(
+			scoreAbilityHex(makeHex({ creature: liveEnemy }), 3, { game: botGame } as any),
+		).toBeGreaterThan(Number.NEGATIVE_INFINITY);
 	});
 });
