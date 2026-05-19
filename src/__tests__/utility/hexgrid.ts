@@ -650,4 +650,138 @@ describe('HexGrid xray hover behavior', () => {
 			]),
 		);
 	});
+
+	test('orderCreatureZ assigns shared depth bands within each row', () => {
+		const row0Creature = { y: 0, grp: { z: -1 } };
+		const row1Creature = { y: 1, grp: { z: -1 } };
+		const row0Drop = { y: 0, display: { z: -1 } };
+		const row0Materialize = { posy: 0, z: -1 };
+		const row0TrapUnderFx = { z: -1, parent: { id: 'trap-group' } };
+		const row0TrapOverFx = { z: -1, parent: { id: 'trap-over-group' } };
+		const row0Trap = {
+			y: 0,
+			display: { z: -1, parent: { id: 'trap-group' } },
+			displayOver: { z: -1 },
+			getVisualSprites: () => [row0Trap.display, row0TrapUnderFx, row0TrapOverFx],
+		};
+
+		const trapSort = jest.fn();
+		const creatureSort = jest.fn();
+		const dropSort = jest.fn();
+		const trapOverSort = jest.fn();
+
+		const trapGroup = { id: 'trap-group', sort: trapSort };
+		const trapOverGroup = { id: 'trap-over-group', sort: trapOverSort };
+		const gridMock = {
+			hexes: [[{}], [{}]],
+			game: {
+				creatures: [row0Creature, row1Creature],
+				drops: [row0Drop],
+				traps: [row0Trap],
+			},
+			trapGroup,
+			creatureGroup: { sort: creatureSort },
+			dropGroup: { sort: dropSort },
+			trapOverGroup,
+			materialize_overlay: row0Materialize,
+			secondary_overlay: undefined,
+			_rowDepthBaseIndex: HexGrid.prototype['_rowDepthBaseIndex'],
+			getDepthAtBand: HexGrid.prototype.getDepthAtBand,
+			assignSpriteDepthBand: HexGrid.prototype.assignSpriteDepthBand,
+		};
+
+		row0Trap.display.parent = trapGroup;
+		row0TrapUnderFx.parent = trapGroup;
+		row0TrapOverFx.parent = trapOverGroup;
+
+		HexGrid.prototype.orderCreatureZ.call(gridMock);
+
+		expect(row0Trap.display.z).toBe(0);
+		expect(row0TrapUnderFx.z).toBe(20);
+		expect(row0Creature.grp.z).toBe(40);
+		expect(row0Drop.display.z).toBe(85);
+		expect(row0Materialize.z).toBe(80);
+		expect(row0TrapOverFx.z).toBe(90);
+		expect(row0Trap.displayOver.z).toBe(91);
+		expect(row1Creature.grp.z).toBe(140);
+		expect(trapSort).toHaveBeenCalledWith('z', -1);
+		expect(creatureSort).toHaveBeenCalledWith('z', -1);
+		expect(dropSort).toHaveBeenCalledWith('z', -1);
+		expect(trapOverSort).toHaveBeenCalledWith('z', -1);
+	});
+
+	test('clearAllXray can clear immediately without fade state', () => {
+		const clearAllXray = HexGrid.prototype.clearAllXray as (
+			this: { lastXrayHex: unknown; game: { creatures: unknown[] } },
+			immediate?: boolean,
+		) => void;
+		const immediateClear = jest.fn();
+		const fadeClear = jest.fn();
+		const creatureA = Object.assign(Object.create(Creature.prototype), {
+			clearXrayImmediately: immediateClear,
+			xray: fadeClear,
+		});
+		const creatureB = Object.assign(Object.create(Creature.prototype), {
+			clearXrayImmediately: jest.fn(),
+			xray: jest.fn(),
+		});
+		const gridMock = {
+			lastXrayHex: { x: 2, y: 3 },
+			game: {
+				creatures: [creatureA, creatureB, null],
+			},
+		};
+
+		clearAllXray.call(gridMock, true);
+
+		expect(gridMock.lastXrayHex).toBeNull();
+		expect(immediateClear).toHaveBeenCalledTimes(1);
+		expect(fadeClear).not.toHaveBeenCalled();
+		expect(creatureB.clearXrayImmediately).toHaveBeenCalledTimes(1);
+		expect(creatureB.xray).not.toHaveBeenCalled();
+	});
+});
+
+describe('HexGrid display group layering', () => {
+	test('constructor creates drop group below creature group', () => {
+		type MockGroup = {
+			name: string;
+			children: MockGroup[];
+			scale: { set: jest.Mock };
+		};
+
+		const createGroup = (parent?: MockGroup, name = ''): MockGroup => {
+			const group: MockGroup = {
+				name,
+				children: [],
+				scale: { set: jest.fn() },
+			};
+			if (parent) {
+				parent.children.push(group);
+			}
+			return group;
+		};
+
+		const gameMock = {
+			Phaser: {
+				add: {
+					group: jest.fn((parent?: MockGroup, name?: string) => createGroup(parent, name)),
+				},
+			},
+			signals: {
+				metaPowers: { add: jest.fn() },
+				ui: { add: jest.fn() },
+			},
+			metaPowersState: {
+				executeMonster: false,
+			},
+		};
+
+		const grid = new HexGrid({ numRows: 2, numCols: 3, isFirstRowFull: true }, gameMock as never);
+		const childNames = (grid.display.children as MockGroup[]).map((child) => child.name);
+
+		expect(childNames.indexOf('dropGrp')).toBeGreaterThanOrEqual(0);
+		expect(childNames.indexOf('creaturesGrp')).toBeGreaterThanOrEqual(0);
+		expect(childNames.indexOf('dropGrp')).toBeLessThan(childNames.indexOf('creaturesGrp'));
+	});
 });

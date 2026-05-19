@@ -13,6 +13,19 @@ import { Point } from './pointfacade';
 import { AugmentedMatrix } from './matrices';
 import { PierceThroughBehavior } from '../ability';
 
+const ROW_DEPTH_STRIDE = 100;
+
+const DEPTH_BAND = {
+	TRAP_GROUND: 0,
+	EFFECT_UNDER_UNITS: 20,
+	UNITS: 40,
+	EFFECT_OVER_UNITS: 80,
+	DROPS: 85,
+	TRAP_VOLUMETRIC: 90,
+} as const;
+
+export type DepthBand = keyof typeof DEPTH_BAND;
+
 interface GridDefinition {
 	numRows: number;
 	numCols: number;
@@ -2061,28 +2074,137 @@ export class HexGrid {
 		this.game.UI.xrayQueue(-1);
 	}
 
+	private _rowDepthBaseIndex(y: number) {
+		// Leave room within each row for shared layer bands instead of forcing
+		// every renderable to compete in a single linear ordering.
+		return y * ROW_DEPTH_STRIDE;
+	}
+
+	getDepthAtBand(y: number, band: DepthBand, slot = 0) {
+		return this._rowDepthBaseIndex(y) + DEPTH_BAND[band] + slot;
+	}
+
+	assignSpriteDepthBand(sprite: Phaser.Sprite | undefined, y: number, band: DepthBand, slot = 0) {
+		if (!sprite) {
+			return;
+		}
+
+		sprite.z = this.getDepthAtBand(y, band, slot);
+	}
+
 	orderCreatureZ() {
-		let index = 0;
 		const creatures = this.game.creatures;
+		const traps = this.game.traps;
+		const drops = this.game.drops;
 
 		for (let y = 0, leny = this.hexes.length; y < leny; y++) {
+			let groundTrapIndex = 0;
+			let underEffectIndex = 0;
+			let unitIndex = 0;
+			let dropIndex = 0;
+			let overEffectIndex = 0;
+			let volumetricTrapIndex = 0;
+
 			for (let i = 0, len = creatures.length; i < len; i++) {
 				if (creatures[i] && creatures[i].y == y) {
-					this.creatureGroup.remove(creatures[i].grp);
-					this.creatureGroup.addAt(creatures[i].grp, index++);
+					creatures[i].grp.z = this.getDepthAtBand(y, 'UNITS', unitIndex++);
+				}
+			}
+
+			for (let i = 0, len = traps.length; i < len; i++) {
+				const trap = traps[i];
+				if (!trap || trap.y != y) {
+					continue;
+				}
+
+				const occupyingCreature = creatures.find((candidate) => {
+					if (!(candidate instanceof Creature)) {
+						return false;
+					}
+					return candidate.hexagons?.some((hexagon) => hexagon.x === trap.x && hexagon.y === trap.y);
+				}) as Creature | undefined;
+				const occupiedByOwnerCreature =
+					occupyingCreature instanceof Creature && occupyingCreature === trap.ownerCreature;
+				const shouldRenderOverUnits = Boolean(
+					trap.typeOver || (trap.type === 'bonfire-spring' && occupiedByOwnerCreature),
+				);
+				if (typeof trap.syncTypeOverVisual === 'function') {
+					trap.syncTypeOverVisual(shouldRenderOverUnits);
+				} else if (typeof trap.setTypeOver === 'function') {
+					trap.setTypeOver(shouldRenderOverUnits, false);
+				}
+
+				const visualSprites =
+					typeof trap.getVisualSprites === 'function' ? trap.getVisualSprites() : [];
+				for (let j = 0, visualLen = visualSprites.length; j < visualLen; j++) {
+					const sprite = visualSprites[j];
+					if (!sprite) {
+						continue;
+					}
+					const isVolumetricParent =
+						sprite.parent === this.trapOverGroup || sprite.parent === this.creatureGroup;
+					const isCreatureLayerVolumetric = sprite.parent === this.creatureGroup;
+					if (isCreatureLayerVolumetric) {
+						const zReferenceCreature =
+							(occupyingCreature as Creature | undefined) ??
+							((trap.typeOver && trap.ownerCreature instanceof Creature && trap.ownerCreature) ||
+								undefined);
+						if (zReferenceCreature?.grp && typeof zReferenceCreature.grp.z === 'number') {
+							// Keep feet-volumetric tightly coupled to the occupied creature instead of
+							// jumping to a global volumetric slot that can overlap unrelated units.
+							sprite.z = zReferenceCreature.grp.z + (0.5 + volumetricTrapIndex++ * 0.01);
+						} else {
+							sprite.z = this.getDepthAtBand(y, 'TRAP_VOLUMETRIC', volumetricTrapIndex++);
+						}
+						continue;
+					}
+
+					if (sprite === trap.display) {
+						const band = isVolumetricParent ? 'TRAP_VOLUMETRIC' : 'TRAP_GROUND';
+						const slot = band === 'TRAP_VOLUMETRIC' ? volumetricTrapIndex++ : groundTrapIndex++;
+						this.assignSpriteDepthBand(sprite, y, band, slot);
+						continue;
+					}
+
+					const band = isVolumetricParent ? 'TRAP_VOLUMETRIC' : 'EFFECT_UNDER_UNITS';
+					const slot = band === 'TRAP_VOLUMETRIC' ? volumetricTrapIndex++ : underEffectIndex++;
+					this.assignSpriteDepthBand(sprite, y, band, slot);
+				}
+
+				if (trap.displayOver) {
+					this.assignSpriteDepthBand(trap.displayOver, y, 'TRAP_VOLUMETRIC', volumetricTrapIndex++);
+				}
+			}
+
+			for (let i = 0, len = drops.length; i < len; i++) {
+				if (drops[i] && drops[i].y == y && drops[i].display) {
+					this.assignSpriteDepthBand(drops[i].display, y, 'DROPS', dropIndex++);
 				}
 			}
 
 			if (this.materialize_overlay && this.materialize_overlay.posy == y) {
-				this.creatureGroup.remove(this.materialize_overlay);
-				this.creatureGroup.addAt(this.materialize_overlay, index++);
+				this.assignSpriteDepthBand(
+					this.materialize_overlay,
+					y,
+					'EFFECT_OVER_UNITS',
+					overEffectIndex++,
+				);
 			}
 
 			if (this.secondary_overlay && this.secondary_overlay.posy == y) {
-				this.creatureGroup.remove(this.secondary_overlay);
-				this.creatureGroup.addAt(this.secondary_overlay, index++);
+				this.assignSpriteDepthBand(
+					this.secondary_overlay,
+					y,
+					'EFFECT_OVER_UNITS',
+					overEffectIndex++,
+				);
 			}
 		}
+
+		this.trapGroup.sort('z', -1);
+		this.creatureGroup.sort('z', -1);
+		this.dropGroup.sort('z', -1);
+		this.trapOverGroup.sort('z', -1);
 	}
 
 	/**
@@ -2090,10 +2212,17 @@ export class HexGrid {
 	 * any creature. Use this at turn boundaries so the old active creature's
 	 * obstructors fade to zero cleanly before the next unit's ghostOverlap runs.
 	 */
-	clearAllXray() {
+	clearAllXray(immediate = false) {
 		this.lastXrayHex = null;
 		this.game.creatures.forEach((c) => {
-			if (c instanceof Creature) c.xray(false);
+			if (!(c instanceof Creature)) {
+				return;
+			}
+			if (immediate) {
+				c.clearXrayImmediately();
+				return;
+			}
+			c.xray(false);
 		});
 	}
 

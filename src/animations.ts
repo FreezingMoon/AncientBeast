@@ -927,32 +927,31 @@ export class Animations {
 			const transition = this._createMovementHexTransition(creature, hex);
 			const originHexes = transition.originHexes;
 			this._setHexForcedHidden(transition.originOnlyHexes, true);
-			const moveSpriteToGroup = (sprite: Phaser.Sprite, targetGroup: Phaser.Group) => {
-				const sourceGroup = sprite.parent as Phaser.Group;
-				const worldPos = sourceGroup.toGlobal(sprite.position.clone());
-				sourceGroup.remove(sprite, false);
-				targetGroup.add(sprite);
-				const localPos = targetGroup.toLocal(worldPos, game.Phaser.world);
-				sprite.position.set(localPos.x, localPos.y);
-			};
 			const getTallScaleMultiplier = (baselineHeight: number) => {
 				const cardboardHeight = Math.max(70, Math.abs(creature.creatureSprite.sprite.height));
 				return Math.max(4.2, (cardboardHeight / Math.max(1, baselineHeight)) * 3.2);
 			};
 
-			const liftBonfireCurtainFromTraps = (originTraps: Trap[], shouldOverlapCreature = false) => {
-				const trapOverGroup = game.grid.trapOverGroup;
-				const trapGroup = game.grid.trapGroup;
-				type SpriteRestore = {
-					trap: Trap;
-					sprite: Phaser.Sprite;
-					parent: Phaser.Group;
-					index: number;
-					bringToTop: boolean;
-				};
-				const spriteRestoreData: SpriteRestore[] = [];
+			const liftBonfireCurtainFromTraps = (originTraps: Trap[]) => {
+				const previousTypeOver = new Map<number, boolean>();
+				let layerChanged = false;
 
-				originTraps.forEach((trap) => trap.pauseIdleAnimation());
+				originTraps.forEach((trap) => {
+					previousTypeOver.set(trap.id, Boolean(trap.typeOver));
+					trap.pauseIdleAnimation();
+					const activeOccupiesTrapHex = creature.hexagons.some(
+						(hexagon) => hexagon.x === trap.x && hexagon.y === trap.y,
+					);
+					if (activeOccupiesTrapHex) {
+						if (!trap.typeOver) {
+							layerChanged = true;
+						}
+						trap.setTypeOver(true, false);
+					}
+				});
+				if (layerChanged) {
+					game.grid.orderCreatureZ();
+				}
 
 				const curtainSprites = originTraps.flatMap((trap) =>
 					trap
@@ -961,31 +960,12 @@ export class Animations {
 						.map((sprite) => ({ trap, sprite })),
 				);
 
-				curtainSprites.forEach(({ trap, sprite }) => {
+				curtainSprites.forEach(({ sprite }) => {
 					if (sprite.anchor.y !== 1) {
 						sprite.anchor.y = 1;
 						sprite.y += sprite.height / 2;
 					}
-					if (shouldOverlapCreature) {
-						const parent = sprite.parent as Phaser.Group;
-						spriteRestoreData.push({
-							trap,
-							sprite,
-							parent,
-							index: parent.getChildIndex(sprite),
-							bringToTop: parent === trapGroup,
-						});
-						// Move sprites without bringToTop yet to preserve their relative layering order
-						moveSpriteToGroup(sprite, trapOverGroup);
-					} else {
-						trapGroup.bringToTop(sprite);
-					}
 				});
-				// After all sprites are moved, bring only the last one to top to place trap above existing sprites
-				// while preserving the internal layering of display vs overlays
-				if (shouldOverlapCreature && curtainSprites.length > 0) {
-					trapOverGroup.bringToTop(curtainSprites[curtainSprites.length - 1].sprite);
-				}
 
 				const baseScales = curtainSprites.map(({ sprite }) => ({
 					x: sprite.scale.x,
@@ -1028,26 +1008,18 @@ export class Animations {
 				};
 
 				const restore = () => {
-					spriteRestoreData.forEach((item) => {
-						if (!item.sprite.exists) {
-							return;
+					let restoreLayerChanged = false;
+					originTraps.forEach((trap) => {
+						const shouldStayOver = previousTypeOver.get(trap.id) ?? false;
+						if (trap.typeOver !== shouldStayOver) {
+							restoreLayerChanged = true;
 						}
-						if (!trapGroup.exists) {
-							return;
-						}
-						moveSpriteToGroup(item.sprite, trapGroup);
-						if (item.parent === trapGroup) {
-							if (item.bringToTop) {
-								trapGroup.bringToTop(item.sprite);
-							} else {
-								const safeIndex = Math.min(item.index, trapGroup.children.length - 1);
-								trapGroup.setChildIndex(item.sprite, Math.max(safeIndex, 0));
-							}
-						} else {
-							trapGroup.bringToTop(item.sprite);
-						}
+						trap.setTypeOver(shouldStayOver, false);
+						trap.resumeIdleAnimation();
 					});
-					originTraps.forEach((trap) => trap.resumeIdleAnimation());
+					if (restoreLayerChanged) {
+						game.grid.orderCreatureZ();
+					}
 				};
 
 				return { tweenSprites, restore };
@@ -1086,7 +1058,7 @@ export class Animations {
 
 			if (originTraps.length === 0) {
 				this.xraySuppressed = true;
-				game.grid.clearAllXray();
+				game.grid.clearAllXray(true);
 				fadePhaseAOriginHexes()
 					.then(() => creature.creatureSprite.setAlpha(0, 500))
 					.then((creatureSprite) => {
@@ -1120,7 +1092,7 @@ export class Animations {
 					});
 				return;
 			}
-			const originCurtains = liftBonfireCurtainFromTraps(originTraps, true);
+			const originCurtains = liftBonfireCurtainFromTraps(originTraps);
 			let didRestoreOriginLayer = false;
 			const restoreOriginLayer = () => {
 				if (didRestoreOriginLayer) {
@@ -1131,16 +1103,11 @@ export class Animations {
 			};
 
 			this.xraySuppressed = true;
-			game.grid.clearAllXray();
+			game.grid.clearAllXray(true);
 			Promise.resolve()
 				.then(() => fadePhaseAOriginHexes())
 				.then(() => originCurtains.tweenSprites('tower', 260, Phaser.Easing.Cubic.Out))
-				.then(() =>
-					Promise.all([
-						creature.creatureSprite.setAlpha(0, 340),
-						originCurtains.tweenSprites('idle', 340, Phaser.Easing.Quadratic.InOut),
-					]),
-				)
+				.then(() => originCurtains.tweenSprites('idle', 340, Phaser.Easing.Quadratic.InOut))
 				.then(() => {
 					restoreOriginLayer();
 					game.soundsys.playSFX('sounds/step');
@@ -1162,7 +1129,7 @@ export class Animations {
 					const destinationTraps = opts.createTeleportDestinationTraps?.() ?? [];
 
 					if (destinationTraps.length > 0) {
-						const destinationCurtains = liftBonfireCurtainFromTraps(destinationTraps, false);
+						const destinationCurtains = liftBonfireCurtainFromTraps(destinationTraps);
 						return destinationCurtains
 							.tweenSprites('tower', 300, Phaser.Easing.Cubic.Out)
 							.then(() =>
