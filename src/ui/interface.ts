@@ -116,9 +116,8 @@ const confirmUnload = (event: BeforeUnloadEvent) => {
 	}
 
 	if (isDevReloadPromptVisible) {
-		event.preventDefault();
-		setBeforeUnloadReturnValue(event, GAME_IN_PROGRESS_UNLOAD_CONFIRMATION);
-		return GAME_IN_PROGRESS_UNLOAD_CONFIRMATION;
+		clearBeforeUnloadReturnValue(event);
+		return;
 	}
 
 	if (activeConfirmUnloadState.ignoreNextConfirmUnload) {
@@ -1118,11 +1117,21 @@ export class UI {
 		// Binding Hotkeys
 		if (!DEBUG_DISABLE_HOTKEYS) {
 			$j(document).on('keydown', (e) => {
-				if (game.freezedInput) {
+				const keydownAction = ingameHotkeys[e.code] && ingameHotkeys[e.code].onkeydown;
+				const isUtilityHotkey =
+					e.code === 'F11' ||
+					(e.code === 'KeyF' && e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) ||
+					(e.code === 'KeyA' && e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) ||
+					(e.code === 'KeyS' && e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) ||
+					(e.code === 'KeyD' && e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) ||
+					(e.code === 'KeyX' && e.shiftKey && e.ctrlKey && !e.metaKey && !e.altKey) ||
+					e.code === 'Backquote' ||
+					e.code === 'Backspace' ||
+					(e.code === 'KeyP' && e.metaKey && e.altKey && !e.ctrlKey && !e.shiftKey);
+
+				if (game.freezedInput && !isUtilityHotkey) {
 					return;
 				}
-
-				const keydownAction = ingameHotkeys[e.code] && ingameHotkeys[e.code].onkeydown;
 
 				if (keydownAction !== undefined) {
 					keydownAction.call(this, e);
