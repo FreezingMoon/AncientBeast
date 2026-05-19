@@ -66,8 +66,6 @@ export class Animations {
 	movementPoints: number;
 	animationCounter: number;
 	private _infernalCardboardFx = new Map<string, InfernalCardboardEffectState>();
-	private _abolishedBonfireLayerOverride = new Map<string, Set<string>>();
-	private _abolishedBonfireForcedOverTraps = new Map<string, Set<number>>();
 	xraySuppressed = false;
 
 	constructor(game: Game) {
@@ -203,144 +201,6 @@ export class Animations {
 
 	private _hexKey(hexagon: Hex): string {
 		return `${hexagon.x},${hexagon.y}`;
-	}
-
-	private _moveSpriteToGroup(sprite: Phaser.Sprite, targetGroup: Phaser.Group) {
-		const worldPos = sprite.worldPosition;
-		sprite.parent.removeChild(sprite);
-		targetGroup.add(sprite);
-		const localPos = targetGroup.toLocal(worldPos, this.game.Phaser.world);
-		sprite.position.set(localPos.x, localPos.y);
-	}
-
-	private _trapOverlapsCreature(trap: Trap, obstructingCreatures: Creature[]): boolean {
-		const trapHexKey = `${trap.x},${trap.y}`;
-
-		return obstructingCreatures.some((candidate) => {
-			// Exact hex occupancy: another creature is literally standing on the trap's hex.
-			if (candidate.hexagons.some((h) => `${h.x},${h.y}` === trapHexKey)) {
-				return true;
-			}
-
-			// A creature on a lower row is visually in front of this trap in the
-			// isometric projection. Use hex proximity rather than sprite
-			// getBounds(), which oscillates every frame due to the trap's flame animation
-			// tweens and the trapOverGroup's y-scale (0.75) causing bounds to differ between
-			// groups — both of which cause continuous flicker.
-			if (candidate.y <= trap.y) {
-				return false;
-			}
-			return candidate.hexagons.some((h) => Math.abs(h.x - trap.x) <= 1);
-		});
-	}
-
-	private _syncBonfireSpringTrapLayers(creature: Creature, occupiedHexes: Hex[]) {
-		const trapGroup = this.game.grid.trapGroup;
-		const trapOverGroup = this.game.grid.trapOverGroup;
-		const creatureKey = this._creatureKey(creature);
-		const forcedOverTrapIds = this._abolishedBonfireForcedOverTraps.get(creatureKey);
-		const occupiedHexKeySet = new Set(occupiedHexes.map((hexagon) => this._hexKey(hexagon)));
-		const obstructingCreatures = this.game.creatures.filter((candidate): candidate is Creature => {
-			return candidate instanceof Creature && candidate !== creature && !candidate.dead;
-		});
-
-		this.game.traps.forEach((trap) => {
-			if (trap.type !== 'bonfire-spring' || trap.ownerCreature !== creature) {
-				return;
-			}
-
-			const trapHexKey = `${trap.x},${trap.y}`;
-
-			if (forcedOverTrapIds?.has(trap.id)) {
-				// Forced traps are only kept above the board while they are not
-				// visually colliding with another creature.
-				const overCreature = this._trapOverlapsCreature(trap, obstructingCreatures);
-				const forcedGroup = overCreature ? trapGroup : trapOverGroup;
-				trap.getVisualSprites().forEach((sprite) => {
-					if (sprite.parent !== forcedGroup) {
-						this._moveSpriteToGroup(sprite, forcedGroup);
-					}
-					forcedGroup.bringToTop(sprite);
-				});
-				return;
-			}
-
-			const ownerOccupiesTrapHex = occupiedHexKeySet.has(trapHexKey);
-			const trapHexOccupiedByObstructor = obstructingCreatures.some((candidate) => {
-				return candidate.hexagons.some((hexagon) => this._hexKey(hexagon) === trapHexKey);
-			});
-			const trapHexOccupiedByAnyCreature = ownerOccupiesTrapHex || trapHexOccupiedByObstructor;
-			const overlapsNearbyObstructor = this._trapOverlapsCreature(trap, obstructingCreatures);
-
-			const shouldRenderOverCreature =
-				(ownerOccupiesTrapHex &&
-					((trapHexOccupiedByAnyCreature && !overlapsNearbyObstructor) ||
-						(creature.isXrayed && !this.xraySuppressed) ||
-						!overlapsNearbyObstructor)) ||
-				trapHexOccupiedByObstructor;
-			const targetGroup = shouldRenderOverCreature ? trapOverGroup : trapGroup;
-			trap.getVisualSprites().forEach((sprite) => {
-				if (sprite.parent !== targetGroup) {
-					this._moveSpriteToGroup(sprite, targetGroup);
-				}
-				targetGroup.bringToTop(sprite);
-			});
-		});
-	}
-
-	syncAbolishedBonfireTrapLayers(creature: Creature, occupiedHexes: Hex[] = creature.hexagons) {
-		if (creature.name !== 'Abolished') {
-			return;
-		}
-
-		const overrideHexKeys = this._abolishedBonfireLayerOverride.get(this._creatureKey(creature));
-		const resolvedHexes =
-			overrideHexKeys === undefined
-				? occupiedHexes
-				: occupiedHexes.filter((hexagon) => overrideHexKeys.has(this._hexKey(hexagon)));
-		if (overrideHexKeys !== undefined) {
-			const overrideHexes = Array.from(overrideHexKeys)
-				.map((key) => {
-					const [x, y] = key.split(',').map(Number);
-					return this.game.grid.hexes[y]?.[x];
-				})
-				.filter((hexagon): hexagon is Hex => Boolean(hexagon));
-			this._syncBonfireSpringTrapLayers(creature, overrideHexes);
-			return;
-		}
-
-		this._syncBonfireSpringTrapLayers(creature, resolvedHexes);
-	}
-
-	setAbolishedBonfireLayerOverride(creature: Creature, occupiedHexes?: Hex[]) {
-		if (creature.name !== 'Abolished') {
-			return;
-		}
-
-		const creatureKey = this._creatureKey(creature);
-		if (!occupiedHexes || occupiedHexes.length === 0) {
-			this._abolishedBonfireLayerOverride.delete(creatureKey);
-			return;
-		}
-
-		this._abolishedBonfireLayerOverride.set(
-			creatureKey,
-			new Set(occupiedHexes.map((hexagon) => this._hexKey(hexagon))),
-		);
-	}
-
-	setAbolishedBonfireForcedOverTraps(creature: Creature, traps?: Trap[]) {
-		if (creature.name !== 'Abolished') {
-			return;
-		}
-
-		const creatureKey = this._creatureKey(creature);
-		if (!traps || traps.length === 0) {
-			this._abolishedBonfireForcedOverTraps.delete(creatureKey);
-			return;
-		}
-
-		this._abolishedBonfireForcedOverTraps.set(creatureKey, new Set(traps.map((trap) => trap.id)));
 	}
 
 	private _uniqueHexes(hexes: Hex[]): Hex[] {
@@ -1260,17 +1120,13 @@ export class Animations {
 					});
 				return;
 			}
-			const originCurtains = liftBonfireCurtainFromTraps(originTraps, false);
-			if (originTraps.length > 0) {
-				this.setAbolishedBonfireForcedOverTraps(creature, originTraps);
-			}
+			const originCurtains = liftBonfireCurtainFromTraps(originTraps, true);
 			let didRestoreOriginLayer = false;
 			const restoreOriginLayer = () => {
 				if (didRestoreOriginLayer) {
 					return;
 				}
 				didRestoreOriginLayer = true;
-				this.setAbolishedBonfireForcedOverTraps(creature);
 				originCurtains.restore();
 			};
 
@@ -1339,10 +1195,7 @@ export class Animations {
 				})
 				.catch(() => {
 					this.xraySuppressed = false;
-					this.syncAbolishedBonfireTrapLayers(creature, creature.hexagons);
-					restoreOriginLayer();
-					this._setHexVisualAlpha(originHexes, 1, true);
-					this._setHexVisualAlpha(creature.hexagons, 1, true);
+
 					this._setHexForcedHidden(originHexes, false);
 					this._setHexForcedHidden(creature.hexagons, false);
 					this._scheduleHexVisualCleanup([...originHexes, ...creature.hexagons]);
@@ -1383,8 +1236,6 @@ export class Animations {
 		creature.y = hex.y - 0;
 		creature.pos = hex.pos;
 		creature.updateHex();
-		this.setAbolishedBonfireLayerOverride(creature);
-		this.syncAbolishedBonfireTrapLayers(creature, creature.hexagons);
 
 		game.onStepIn(creature, hex, opts);
 
@@ -1404,17 +1255,6 @@ export class Animations {
 
 	leaveHex(creature: Creature, hex: Hex, opts: AnimationOptions) {
 		const game = this.game;
-		if (creature.name === 'Abolished') {
-			const isMovingToUpperRow = hex.y < creature.y;
-			if (isMovingToUpperRow) {
-				this.setAbolishedBonfireLayerOverride(creature);
-				this.syncAbolishedBonfireTrapLayers(creature, creature.hexagons);
-			} else {
-				const destinationFootprint = this._footprintAt(hex, creature.size);
-				this.setAbolishedBonfireLayerOverride(creature, destinationFootprint);
-				this.syncAbolishedBonfireTrapLayers(creature, destinationFootprint);
-			}
-		}
 
 		if (!opts.ignoreFacing && !opts.pushed) {
 			creature.faceHex(hex, creature.hexagons[0], false, false); // Determine facing

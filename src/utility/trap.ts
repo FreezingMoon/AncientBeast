@@ -66,6 +66,11 @@ export class Trap {
 		this.owner = owner;
 		this.creationTurn = game.turn;
 
+		// Fire traps are volumetric and render above units
+		if (type === 'bonfire-spring' || type === 'scorched-ground') {
+			this.typeOver = true;
+		}
+
 		if (opt) {
 			for (const key of Object.keys(opt)) {
 				if (key in this) {
@@ -89,13 +94,16 @@ export class Trap {
 
 		const spriteName = 'trap_' + type;
 		const px = offsetCoordsToPx(this);
-		this.display = game.grid.trapGroup.create(px.x + HEX_WIDTH_PX / 2, px.y + 60, spriteName);
+
+		// Fire traps are volumetric and render in trapOverGroup
+		const targetGroup = this.typeOver ? game.grid.trapOverGroup : game.grid.trapGroup;
+		this.display = targetGroup.create(px.x + HEX_WIDTH_PX / 2, px.y + 60, spriteName);
 		this.display.anchor.setTo(0.5);
 
 		if (type === 'bonfire-spring') {
 			game.animations.startBonfireSpringTrapAnimation(
 				this.display,
-				game.grid.trapGroup,
+				targetGroup,
 				this._idleTweens,
 				this._overlaySprites,
 			);
@@ -104,7 +112,7 @@ export class Trap {
 		if (type === 'scorched-ground') {
 			game.animations.startScorchedGroundTrapAnimation(
 				this.display,
-				game.grid.trapGroup,
+				targetGroup,
 				this._idleTweens,
 				this._overlaySprites,
 			);
@@ -119,6 +127,8 @@ export class Trap {
 			this.displayOver.anchor.setTo(0.5);
 			this.displayOver.scale.x *= -1;
 		}
+
+		game.grid.orderCreatureZ();
 	}
 
 	/**
@@ -231,6 +241,7 @@ export class Trap {
 				this._idleTweens,
 				this._overlaySprites,
 			);
+			this.game.grid.orderCreatureZ();
 			return;
 		}
 
@@ -240,5 +251,6 @@ export class Trap {
 			this._idleTweens,
 			this._overlaySprites,
 		);
+		this.game.grid.orderCreatureZ();
 	}
 }

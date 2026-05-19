@@ -2156,9 +2156,6 @@ class CreatureSprite {
 		if (creature.name === 'Infernal') {
 			game.animations.initInfernalCardboardEffect(creature, sprite);
 		}
-		if (creature.name === 'Abolished') {
-			game.animations.syncAbolishedBonfireTrapLayers(creature);
-		}
 
 		// Hint Group
 		const hintGrp = phaser.add.group(group, 'creatureHintGrp_' + id);
@@ -2209,14 +2206,6 @@ class CreatureSprite {
 		const XRAY_FADE_RATE = 0.08; // ~160 ms fade at 60 fps
 		this._group.update = () => {
 			_groupUpdate();
-			// Sync Abolished's bonfire traps every frame to handle overlaps with other moving units.
-			// Find the Abolished creature so traps stay properly layered as ANY unit moves.
-			const abolishedCreature = game.creatures.find(
-				(c) => c instanceof Creature && c.name === 'Abolished',
-			);
-			if (abolishedCreature) {
-				game.animations.syncAbolishedBonfireTrapLayers(abolishedCreature);
-			}
 			game.animations.tickInfernalCardboardEffect(this._creature);
 			// Animate xray alpha toward target
 			if (this._xrayAlpha < this._xrayTargetAlpha) {
@@ -3329,8 +3318,6 @@ class CreatureSprite {
 	}
 
 	destroy() {
-		this._creature.game.animations.setAbolishedBonfireLayerOverride(this._creature);
-		this._creature.game.animations.syncAbolishedBonfireTrapLayers(this._creature, []);
 		this._creature.game.animations.disposeInfernalCardboardEffect(this._creature);
 		this._group.parent?.removeChild(this._group);
 	}
