@@ -52,6 +52,28 @@ const getMeatSicklePath = (G: Game, creature: Creature, direction: Direction, di
 		)
 		.slice(1, distance + 1);
 
+const getMeatSickleLanding = (
+	line: Hex[],
+	target: Creature,
+	direction: Direction,
+	targetIndex: number,
+) => {
+	const dragsToRight =
+		direction === Direction.UpRight ||
+		direction === Direction.Right ||
+		direction === Direction.DownRight;
+	const landingStartIndex = dragsToRight ? target.size : 1;
+
+	for (let index = landingStartIndex; index < targetIndex; index++) {
+		const hex = line[index];
+		if (hex?.isWalkable(target.size, target.id, true)) {
+			return { landingHex: hex, landingIndex: index };
+		}
+	}
+
+	return { landingHex: undefined, landingIndex: -1 };
+};
+
 const getUpgradedMeatSickleChoices = (G: Game, creature: Creature) =>
 	meatSickleAllDirections.map((direction) =>
 		getMeatSicklePath(
@@ -572,16 +594,15 @@ export default (G: Game) => {
 					direction,
 					this.creature.player.flipped,
 				);
-				const dragsToRight =
-					direction === Direction.UpRight ||
-					direction === Direction.Right ||
-					direction === Direction.DownRight;
-				const landingIndex = dragsToRight ? target.size : 1;
-				const landingHex = line[landingIndex];
 				const targetIndex = line.findIndex(
 					(hex, index) => index > 0 && hex.creature?.id === target.id,
 				);
-				const pulledHexes = Math.max(0, targetIndex - 1);
+				const { landingHex, landingIndex } =
+					targetIndex > 1
+						? getMeatSickleLanding(line, target, direction, targetIndex)
+						: { landingHex: undefined, landingIndex: -1 };
+				const pulledHexes =
+					landingHex && landingIndex > -1 ? Math.max(0, targetIndex - landingIndex) : 0;
 				const movementDrain = Math.min(target.stats.movement, pulledHexes);
 				const damageHexes = Math.max(0, pulledHexes - movementDrain);
 

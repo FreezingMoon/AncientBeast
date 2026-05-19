@@ -148,6 +148,7 @@ jest.mock('../../damage', () => ({
 
 import loadHornHeadAbilities from '../../abilities/Horn-Head';
 import { Damage } from '../../damage';
+import { Direction } from '../../utility/hex';
 
 function createHornHead() {
 	const hornHead: HornHeadMock = {
@@ -291,5 +292,142 @@ describe('Horn Head Life Support passive revamp', () => {
 
 		expect(hornHead.stats.endurance).toBe(5);
 		expect(hornHead.endurance).toBe(1);
+	});
+});
+
+describe('Horn Head Meat Sickle landing validation', () => {
+	test('pulls to the nearest legal landing hex when the default landing footprint is blocked', () => {
+		const target = {
+			id: 33,
+			size: 2,
+			stats: { movement: 3, moveable: true },
+			isDarkPriest: () => false,
+			hasCreaturePlayerGotPlasma: () => false,
+			replaceEffect: jest.fn(),
+			takeDamage: jest.fn(),
+			moveTo: jest.fn((hex, opts: { callback?: () => void }) => {
+				opts.callback?.();
+			}),
+		};
+
+		const source = {
+			id: 8,
+			x: 0,
+			y: 0,
+			size: 2,
+			player: { flipped: false },
+		};
+
+		const line = [
+			{ x: 0, y: 0, creature: source, isWalkable: jest.fn(() => false) },
+			{ x: 1, y: 0, creature: null, isWalkable: jest.fn(() => true) },
+			{ x: 2, y: 0, creature: { id: 99 }, isWalkable: jest.fn(() => false) },
+			{ x: 3, y: 0, creature: null, isWalkable: jest.fn(() => false) },
+			{ x: 4, y: 0, creature: null, isWalkable: jest.fn(() => true) },
+			{ x: 5, y: 0, creature: target, isWalkable: jest.fn(() => true) },
+			{ x: 6, y: 0, creature: target, isWalkable: jest.fn(() => true) },
+		];
+
+		const game = {
+			abilities: {} as Record<number, unknown[]>,
+			grid: {
+				getHexLine: jest.fn(() => line),
+			},
+			activeCreature: {
+				queryMove: jest.fn(),
+			},
+			log: jest.fn(),
+		};
+
+		loadHornHeadAbilities(game as never);
+
+		const baseAbility = (game.abilities[8] as Record<string, unknown>[]).find(
+			(ability) => typeof ability._getMaxDistance === 'function',
+		) as {
+			activate: (path: unknown[], args: { direction: Direction }) => void;
+		};
+		const ability = {
+			...baseAbility,
+			creature: source,
+			isUpgraded: () => false,
+			end: jest.fn(),
+			title: 'Meat Sickle',
+			damages: { pierce: 1 },
+		};
+
+		ability.activate.call(ability, [{ creature: target }], { direction: Direction.Right });
+
+		expect(target.moveTo).toHaveBeenCalledTimes(1);
+		expect(target.moveTo).toHaveBeenCalledWith(
+			line[4],
+			expect.objectContaining({
+				ignoreMovementPoint: true,
+				ignorePath: true,
+			}),
+		);
+		expect(game.activeCreature.queryMove).toHaveBeenCalledTimes(1);
+	});
+
+	test('does not move when every intermediate landing hex is blocked', () => {
+		const target = {
+			id: 34,
+			size: 2,
+			stats: { movement: 3, moveable: true },
+			isDarkPriest: () => false,
+			hasCreaturePlayerGotPlasma: () => false,
+			replaceEffect: jest.fn(),
+			takeDamage: jest.fn(),
+			moveTo: jest.fn(),
+		};
+
+		const source = {
+			id: 8,
+			x: 0,
+			y: 0,
+			size: 2,
+			player: { flipped: false },
+		};
+
+		const line = [
+			{ x: 0, y: 0, creature: source, isWalkable: jest.fn(() => false) },
+			{ x: 1, y: 0, creature: null, isWalkable: jest.fn(() => true) },
+			{ x: 2, y: 0, creature: { id: 99 }, isWalkable: jest.fn(() => false) },
+			{ x: 3, y: 0, creature: null, isWalkable: jest.fn(() => false) },
+			{ x: 4, y: 0, creature: null, isWalkable: jest.fn(() => false) },
+			{ x: 5, y: 0, creature: target, isWalkable: jest.fn(() => true) },
+			{ x: 6, y: 0, creature: target, isWalkable: jest.fn(() => true) },
+		];
+
+		const game = {
+			abilities: {} as Record<number, unknown[]>,
+			grid: {
+				getHexLine: jest.fn(() => line),
+			},
+			activeCreature: {
+				queryMove: jest.fn(),
+			},
+			log: jest.fn(),
+		};
+
+		loadHornHeadAbilities(game as never);
+
+		const baseAbility = (game.abilities[8] as Record<string, unknown>[]).find(
+			(ability) => typeof ability._getMaxDistance === 'function',
+		) as {
+			activate: (path: unknown[], args: { direction: Direction }) => void;
+		};
+		const ability = {
+			...baseAbility,
+			creature: source,
+			isUpgraded: () => false,
+			end: jest.fn(),
+			title: 'Meat Sickle',
+			damages: { pierce: 1 },
+		};
+
+		ability.activate.call(ability, [{ creature: target }], { direction: Direction.Right });
+
+		expect(target.moveTo).not.toHaveBeenCalled();
+		expect(game.activeCreature.queryMove).toHaveBeenCalledTimes(1);
 	});
 });
