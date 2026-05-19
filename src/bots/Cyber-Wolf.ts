@@ -15,7 +15,7 @@ const ABILITY = {
 // Retreat thresholds
 const RETREAT_HEALTH_RATIO = 0.25;
 const RETREAT_ENERGY_RATIO = 0.15;
-const TARGET_LOCKING_ENERGY_COST = 10;
+const TARGET_LOCKING_ENERGY_COST = 30;
 
 // Energy thresholds for strategy selection
 const HIGH_ENERGY_RATIO = 0.6; // Enough for rocket (30-40) + target lock combo
@@ -82,16 +82,7 @@ function getTargetLockingEnergyRequirement(creature: Creature): number {
 		return 0;
 	}
 
-	const targetLockAbility = creature.abilities[ABILITY.TARGET_LOCKING];
-	const isUpgraded = targetLockAbility?.isUpgraded?.() ?? false;
-	const rocketsToUse = isUpgraded ? missedRockets : Math.min(missedRockets, 2);
-
-	const perRocketEnergyCost =
-		typeof targetLockAbility?.costs?.energy === 'number'
-			? targetLockAbility.costs.energy
-			: TARGET_LOCKING_ENERGY_COST;
-
-	return rocketsToUse * perRocketEnergyCost;
+	return TARGET_LOCKING_ENERGY_COST;
 }
 
 function hasLiveEnemyTarget(creature: Creature): boolean {

@@ -21,7 +21,9 @@ import { Creature } from '../../creature';
 import { Hex } from '../../utility/hex';
 
 const { isRetreating } = CyberWolfStrategy as Required<typeof CyberWolfStrategy>;
-const { scoreAbilityHex } = CyberWolfStrategy as Required<typeof CyberWolfStrategy>;
+const { getAbilityPriority, scoreAbilityHex } = CyberWolfStrategy as Required<
+	typeof CyberWolfStrategy
+>;
 
 const makeCreature = ({
 	team = 0,
@@ -113,22 +115,27 @@ describe('CyberWolfStrategy.isRetreating', () => {
 		expect(isRetreating(cyberWolf, {} as any)).toBe(false);
 	});
 
-	test('retreats when missed rockets exist but energy is below dynamic target locking cost', () => {
+	test('retreats when missed rockets exist but energy is below flat target locking cost', () => {
 		const cyberWolf = makeCreature({
 			energy: 9,
-			abilities: [{}, {}, { token: 1 }, { costs: { energy: 10 }, isUpgraded: () => false }],
+			abilities: [{}, {}, { token: 1 }, { costs: { energy: 30 }, isUpgraded: () => false }],
 			adjacentHexes: () => [],
 		});
 
 		expect(isRetreating(cyberWolf, {} as any)).toBe(true);
 	});
 
-	test('does not retreat when missed rockets exist and energy meets dynamic target locking cost', () => {
+	test('does not retreat when missed rockets exist and energy meets flat target locking cost', () => {
+		const liveEnemy = makeCreature({ team: 1 });
 		const cyberWolf = makeCreature({
-			energy: 20,
-			abilities: [{}, {}, { token: 2 }, { costs: { energy: 10 }, isUpgraded: () => false }],
+			energy: 30,
+			maxEnergy: 300,
+			abilities: [{}, {}, { token: 2 }, { costs: { energy: 30 }, isUpgraded: () => false }],
 			adjacentHexes: () => [],
 		});
+		const creatureGame = { creatures: [cyberWolf, liveEnemy] };
+		Object.assign(cyberWolf, { player: { game: creatureGame } });
+		Object.assign(liveEnemy, { player: { game: creatureGame } });
 
 		expect(isRetreating(cyberWolf, {} as any)).toBe(false);
 	});
@@ -137,7 +144,7 @@ describe('CyberWolfStrategy.isRetreating', () => {
 		const deadEnemy = makeCreature({ team: 1, dead: true });
 		const cyberWolf = makeCreature({
 			energy: 10,
-			abilities: [{}, {}, { token: 2 }, { costs: { energy: 10 }, isUpgraded: () => false }],
+			abilities: [{}, {}, { token: 2 }, { costs: { energy: 30 }, isUpgraded: () => false }],
 			adjacentHexes: () => [],
 		});
 		Object.assign(cyberWolf, { player: { game: { creatures: [cyberWolf, deadEnemy] } } });
@@ -152,7 +159,7 @@ describe('CyberWolfStrategy.isRetreating', () => {
 		const tempEnemy = makeCreature({ team: 1, temp: true, health: 10, maxHealth: 100 });
 		const cyberWolf = makeCreature({
 			team: 0,
-			abilities: [{}, {}, { token: 2 }, { costs: { energy: 10 }, isUpgraded: () => false }],
+			abilities: [{}, {}, { token: 2 }, { costs: { energy: 30 }, isUpgraded: () => false }],
 		});
 		const botGame = { activeCreature: cyberWolf };
 		const creatureGame = { creatures: [cyberWolf, deadEnemy, tempEnemy, liveEnemy] };
@@ -170,5 +177,33 @@ describe('CyberWolfStrategy.isRetreating', () => {
 		expect(
 			scoreAbilityHex(makeHex({ creature: liveEnemy }), 3, { game: botGame } as any),
 		).toBeGreaterThan(Number.NEGATIVE_INFINITY);
+	});
+
+	test('prioritizes target locking when non-upgraded flat total cost is affordable', () => {
+		const liveEnemy = makeCreature({ team: 1 });
+		const cyberWolf = makeCreature({
+			team: 0,
+			energy: 30,
+			abilities: [{}, {}, { token: 2 }, { costs: { energy: 30 }, isUpgraded: () => false }],
+		});
+		const creatureGame = { creatures: [cyberWolf, liveEnemy] };
+		Object.assign(cyberWolf, { player: { game: creatureGame } });
+		Object.assign(liveEnemy, { player: { game: creatureGame } });
+
+		expect(getAbilityPriority(cyberWolf, {} as any)[0]).toBe(3);
+	});
+
+	test('prioritizes target locking when upgraded flat total cost is affordable', () => {
+		const liveEnemy = makeCreature({ team: 1 });
+		const cyberWolf = makeCreature({
+			team: 0,
+			energy: 30,
+			abilities: [{}, {}, { token: 3 }, { costs: { energy: 30 }, isUpgraded: () => true }],
+		});
+		const creatureGame = { creatures: [cyberWolf, liveEnemy] };
+		Object.assign(cyberWolf, { player: { game: creatureGame } });
+		Object.assign(liveEnemy, { player: { game: creatureGame } });
+
+		expect(getAbilityPriority(cyberWolf, {} as any)[0]).toBe(3);
 	});
 });
