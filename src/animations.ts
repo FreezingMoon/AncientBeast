@@ -213,31 +213,24 @@ export class Animations {
 		sprite.position.set(localPos.x, localPos.y);
 	}
 
-	private _boundsOverlap(
-		a: { left: number; right: number; top: number; bottom: number },
-		b: { left: number; right: number; top: number; bottom: number },
-	): boolean {
-		return !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom);
-	}
+	private _trapOverlapsCreature(trap: Trap, obstructingCreatures: Creature[]): boolean {
+		const trapHexKey = `${trap.x},${trap.y}`;
 
-	private _trapOverlapsCreature(
-		trap: Trap,
-		creatureBounds: Array<{
-			y: number;
-			bounds: { left: number; right: number; top: number; bottom: number };
-		}>,
-	): boolean {
-		const trapBounds = trap
-			.getVisualSprites()
-			.filter((sprite) => sprite.exists && typeof sprite.getBounds === 'function')
-			.map((sprite) => sprite.getBounds());
+		return obstructingCreatures.some((candidate) => {
+			// Exact hex occupancy: another creature is literally standing on the trap's hex.
+			if (candidate.hexagons.some((h) => `${h.x},${h.y}` === trapHexKey)) {
+				return true;
+			}
 
-		if (trapBounds.length === 0) {
-			return false;
-		}
-
-		return creatureBounds.some((candidate) => {
-			return trapBounds.some((bounds) => this._boundsOverlap(bounds, candidate.bounds));
+			// A creature on a lower row is visually in front of this trap in the
+			// isometric projection. Use hex proximity rather than sprite
+			// getBounds(), which oscillates every frame due to the trap's flame animation
+			// tweens and the trapOverGroup's y-scale (0.75) causing bounds to differ between
+			// groups — both of which cause continuous flicker.
+			if (candidate.y <= trap.y) {
+				return false;
+			}
+			return candidate.hexagons.some((h) => Math.abs(h.x - trap.x) <= 1);
 		});
 	}
 
@@ -247,27 +240,21 @@ export class Animations {
 		const creatureKey = this._creatureKey(creature);
 		const forcedOverTrapIds = this._abolishedBonfireForcedOverTraps.get(creatureKey);
 		const occupiedHexKeySet = new Set(occupiedHexes.map((hexagon) => this._hexKey(hexagon)));
-		const creatureBounds = this.game.creatures
-			.filter((candidate): candidate is Creature => {
-				return (
-					candidate instanceof Creature &&
-					candidate !== creature &&
-					!candidate.dead &&
-					Boolean(candidate.sprite) &&
-					typeof candidate.sprite.getBounds === 'function'
-				);
-			})
-			.map((candidate) => ({ y: candidate.y, bounds: candidate.sprite.getBounds() }));
+		const obstructingCreatures = this.game.creatures.filter((candidate): candidate is Creature => {
+			return candidate instanceof Creature && candidate !== creature && !candidate.dead;
+		});
 
 		this.game.traps.forEach((trap) => {
 			if (trap.type !== 'bonfire-spring' || trap.ownerCreature !== creature) {
 				return;
 			}
 
+			const trapHexKey = `${trap.x},${trap.y}`;
+
 			if (forcedOverTrapIds?.has(trap.id)) {
 				// Forced traps are only kept above the board while they are not
 				// visually colliding with another creature.
-				const overCreature = this._trapOverlapsCreature(trap, creatureBounds);
+				const overCreature = this._trapOverlapsCreature(trap, obstructingCreatures);
 				const forcedGroup = overCreature ? trapGroup : trapOverGroup;
 				trap.getVisualSprites().forEach((sprite) => {
 					if (sprite.parent !== forcedGroup) {
@@ -278,10 +265,19 @@ export class Animations {
 				return;
 			}
 
+			const ownerOccupiesTrapHex = occupiedHexKeySet.has(trapHexKey);
+			const trapHexOccupiedByObstructor = obstructingCreatures.some((candidate) => {
+				return candidate.hexagons.some((hexagon) => this._hexKey(hexagon) === trapHexKey);
+			});
+			const trapHexOccupiedByAnyCreature = ownerOccupiesTrapHex || trapHexOccupiedByObstructor;
+			const overlapsNearbyObstructor = this._trapOverlapsCreature(trap, obstructingCreatures);
+
 			const shouldRenderOverCreature =
-				occupiedHexKeySet.has(`${trap.x},${trap.y}`) &&
-				((creature.isXrayed && !this.xraySuppressed) ||
-					!this._trapOverlapsCreature(trap, creatureBounds));
+				(ownerOccupiesTrapHex &&
+					((trapHexOccupiedByAnyCreature && !overlapsNearbyObstructor) ||
+						(creature.isXrayed && !this.xraySuppressed) ||
+						!overlapsNearbyObstructor)) ||
+				trapHexOccupiedByObstructor;
 			const targetGroup = shouldRenderOverCreature ? trapOverGroup : trapGroup;
 			trap.getVisualSprites().forEach((sprite) => {
 				if (sprite.parent !== targetGroup) {

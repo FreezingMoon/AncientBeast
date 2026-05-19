@@ -228,6 +228,7 @@ describe('Game unload confirmation integration', () => {
 
 		const addEventListenerSpy = jest.spyOn(window, 'addEventListener');
 		const originalAB = window.AB;
+		const originalOnBeforeUnload = window.onbeforeunload;
 		const saveLog = jest.fn();
 		window.AB = { saveLog };
 		const uiState = { ignoreNextConfirmUnload: false };
@@ -247,7 +248,23 @@ describe('Game unload confirmation integration', () => {
 		messageListener({ data: { type: 'webpackInvalid' } } as MessageEvent);
 
 		const prompt = document.getElementById('ab-dev-reload-prompt');
+		const beforeUnloadListener = window.onbeforeunload as
+			| ((event: BeforeUnloadEvent) => string | void)
+			| undefined;
 		expect(prompt).toBeDefined();
+		expect(beforeUnloadListener).toBeDefined();
+
+		const promptVisibleUnloadEvent = {
+			preventDefault: jest.fn(),
+			returnValue: 'existing',
+		} as unknown as BeforeUnloadEvent;
+		const promptVisibleUnloadResult = beforeUnloadListener?.(promptVisibleUnloadEvent);
+
+		expect(promptVisibleUnloadEvent.preventDefault).not.toHaveBeenCalled();
+		expect(
+			(promptVisibleUnloadEvent as unknown as { returnValue?: string }).returnValue,
+		).toBeUndefined();
+		expect(promptVisibleUnloadResult).toBeUndefined();
 
 		const buttons = Array.from(prompt?.querySelectorAll('button') ?? []);
 		const closeButton = buttons.find((button) => button.classList.contains('close-button')) as
@@ -296,8 +313,23 @@ describe('Game unload confirmation integration', () => {
 		expect(document.getElementById('ab-dev-reload-prompt')).toBeNull();
 		expect(uiState.ignoreNextConfirmUnload).toBe(false);
 
+		const promptClosedUnloadEvent = {
+			preventDefault: jest.fn(),
+			returnValue: undefined,
+		} as unknown as BeforeUnloadEvent;
+		const promptClosedUnloadResult = beforeUnloadListener?.(promptClosedUnloadEvent);
+
+		expect(promptClosedUnloadEvent.preventDefault).toHaveBeenCalledTimes(1);
+		expect(promptClosedUnloadEvent.returnValue).toBe(
+			'A game is in progress and cannot be restored, are you sure you want to leave?',
+		);
+		expect(promptClosedUnloadResult).toBe(
+			'A game is in progress and cannot be restored, are you sure you want to leave?',
+		);
+
 		addEventListenerSpy.mockRestore();
 		window.AB = originalAB;
+		window.onbeforeunload = originalOnBeforeUnload;
 		process.env.NODE_ENV = originalNodeEnv;
 	});
 });
