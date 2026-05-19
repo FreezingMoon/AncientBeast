@@ -96,7 +96,11 @@ export class Hotkeys {
 		}
 	}
 
-	pressR() {
+	pressR(event?: KeyboardEvent) {
+		if (event?.ctrlKey || event?.metaKey || event?.altKey) {
+			return;
+		}
+
 		if (this.ui.game.botController?.isBotTurn()) {
 			return;
 		}
@@ -265,8 +269,8 @@ export function getHotKeys(hk) {
 			},
 		},
 		KeyR: {
-			onkeydown() {
-				hk.pressR();
+			onkeydown(event) {
+				hk.pressR(event);
 			},
 		},
 		KeyA: {
