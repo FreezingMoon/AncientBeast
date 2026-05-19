@@ -2206,6 +2206,7 @@ class CreatureSprite {
 		const XRAY_FADE_RATE = 0.08; // ~160 ms fade at 60 fps
 		this._group.update = () => {
 			_groupUpdate();
+			game.animations.syncBonfireSpringTrapLayers();
 			game.animations.tickInfernalCardboardEffect(this._creature);
 			// Animate xray alpha toward target
 			if (this._xrayAlpha < this._xrayTargetAlpha) {

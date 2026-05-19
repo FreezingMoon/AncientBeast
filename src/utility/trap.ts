@@ -66,11 +66,6 @@ export class Trap {
 		this.owner = owner;
 		this.creationTurn = game.turn;
 
-		// Only bonfire-spring is volumetric and renders above units
-		if (type === 'bonfire-spring') {
-			this.typeOver = true;
-		}
-
 		if (opt) {
 			for (const key of Object.keys(opt)) {
 				if (key in this) {
