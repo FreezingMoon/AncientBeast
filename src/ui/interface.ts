@@ -84,11 +84,6 @@ const confirmUnload = (event: BeforeUnloadEvent) => {
 		return;
 	}
 
-	if (isDevReloadPromptVisible) {
-		delete event.returnValue;
-		return;
-	}
-
 	if (activeConfirmUnloadState.ignoreNextConfirmUnload) {
 		delete event.returnValue;
 		return;
