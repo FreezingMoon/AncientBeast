@@ -522,7 +522,7 @@ export class UI {
 	animationUpgradeTimeOutID: ReturnType<typeof setTimeout>;
 	queryUnit: string;
 	btnDelay: Button;
-	btnFlee: Button;
+	btnFlee?: Button;
 	btnExit: Button;
 	materializeButton: Button;
 	clickedAbility: number;
@@ -731,39 +731,6 @@ export class UI {
 			{ isAcceptingInput: this.configuration.isAcceptingInput },
 		);
 		this.buttons.push(this.btnDelay);
-
-		// Flee Match Button
-		this.btnFlee = new Button(
-			{
-				$button: $j('#flee.button'),
-				hasShortcut: true,
-				click: () => {
-					if (!this.dashopen) {
-						if (game.turn < game.minimumTurnBeforeFleeing) {
-							alert(
-								`You cannot flee the match in the first ${game.minimumTurnBeforeFleeing} rounds.`,
-							);
-							return;
-						}
-
-						if (game.activeCreature.player.isLeader()) {
-							alert('You cannot flee the match while being in lead.');
-							return;
-						}
-
-						if (window.confirm('Are you sure you want to flee the match?')) {
-							game.gamelog.add({
-								action: 'flee',
-							});
-							game.activeCreature.player.flee();
-						}
-					}
-				},
-				state: ButtonStateEnum.disabled,
-			},
-			{ isAcceptingInput: this.configuration.isAcceptingInput },
-		);
-		this.buttons.push(this.btnFlee);
 
 		this.btnExit = new Button(
 			{
@@ -2438,9 +2405,6 @@ export class UI {
 			// Hide close button on game over screen
 			this.$scoreboard.find('.framed-modal__return').hide();
 
-			// Hide flee button since the match is already over
-			this.$scoreboard.find('#fleeWrapper').hide();
-
 			// Declare winner
 			if (game.gameMode > 2) {
 				// 2 vs 2
@@ -2483,9 +2447,6 @@ export class UI {
 
 			// Show close button for current score view
 			this.$scoreboard.find('.framed-modal__return').show();
-
-			// Show flee button for mid-game score view
-			this.$scoreboard.find('#fleeWrapper').show();
 		}
 	}
 
@@ -3374,7 +3335,7 @@ export class UI {
 
 	endGame() {
 		this.toggleScoreboard(true);
-		this.btnFlee.changeState(ButtonStateEnum.hidden);
+		this.btnFlee?.changeState(ButtonStateEnum.hidden);
 		this.btnExit.changeState(ButtonStateEnum.normal);
 	}
 

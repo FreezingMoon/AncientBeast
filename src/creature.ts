@@ -612,7 +612,7 @@ export class Creature {
 			// if (!game.freezedInput) { remove for muliplayer
 			clearInterval(interval);
 			if (game.turn >= game.minimumTurnBeforeFleeing) {
-				game.UI.btnFlee.changeState('normal');
+				game.UI.btnFlee?.changeState('normal');
 			}
 
 			game.startTimer();

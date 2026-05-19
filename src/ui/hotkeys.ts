@@ -123,8 +123,6 @@ export class Hotkeys {
 	pressF(event) {
 		if (event.shiftKey) {
 			this.ui.fullscreen.toggle();
-		} else {
-			this.ui.btnFlee.triggerClick();
 		}
 	}
 
