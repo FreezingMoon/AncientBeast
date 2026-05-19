@@ -21,9 +21,7 @@ import { Creature } from '../../creature';
 import { Hex } from '../../utility/hex';
 
 const { isRetreating, getAbilityPriority, scoreAbilityHex, getTargetingPenalty } =
-	GoldenWyrmStrategy as Required<
-	typeof GoldenWyrmStrategy
->;
+	GoldenWyrmStrategy as Required<typeof GoldenWyrmStrategy>;
 
 const makeCreature = ({
 	id = 1,
@@ -245,12 +243,7 @@ describe('GoldenWyrmStrategy.counterplay', () => {
 		const wyrm = makeCreature({ team: 0 });
 		const controller = makeController({ activeCreature: fragileAttacker, creatures: [wyrm] });
 
-		const resilientPenalty = getTargetingPenalty(
-			resilientAttacker,
-			wyrm,
-			1,
-			controller as any,
-		);
+		const resilientPenalty = getTargetingPenalty(resilientAttacker, wyrm, 1, controller as any);
 		const fragilePenalty = getTargetingPenalty(fragileAttacker, wyrm, 1, controller as any);
 
 		expect(resilientPenalty).toBeGreaterThan(fragilePenalty as number);

@@ -215,7 +215,10 @@ export default (G: Game) => {
 						return;
 					}
 
-					if (vehemoth.stats.moveable && vehemoth.calculatePath({ x: destination.x, y: destination.y }).length === 0) {
+					if (
+						vehemoth.stats.moveable &&
+						vehemoth.calculatePath({ x: destination.x, y: destination.y }).length === 0
+					) {
 						resumeQueryMove();
 						return;
 					}

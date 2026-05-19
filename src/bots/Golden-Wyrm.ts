@@ -147,13 +147,7 @@ function isReliableWyrmCounter(attacker: Creature): boolean {
 	const slash = typeof attacker.stats?.slash === 'number' ? attacker.stats.slash : 0;
 	const sonic = typeof attacker.stats?.sonic === 'number' ? attacker.stats.sonic : 0;
 
-	return (
-		level >= 5 ||
-		endurance >= 20 ||
-		regrowth >= 20 ||
-		slash >= 20 ||
-		sonic >= 20
-	);
+	return level >= 5 || endurance >= 20 || regrowth >= 20 || slash >= 20 || sonic >= 20;
 }
 
 // ---------------------------------------------------------------------------
@@ -526,20 +520,20 @@ const GoldenWyrmStrategy: UnitBotStrategy = {
 			score += Math.min(adjacentEnemyCount, 1) * 100;
 		}
 
-			const adjacentAllyCount = adjacentHexes.filter(
-				(adj: Hex) =>
-					adj.creature instanceof Creature &&
-					adj.creature !== activeCreature &&
-					isTeam(activeCreature, adj.creature, Team.Ally),
-			).length;
+		const adjacentAllyCount = adjacentHexes.filter(
+			(adj: Hex) =>
+				adj.creature instanceof Creature &&
+				adj.creature !== activeCreature &&
+				isTeam(activeCreature, adj.creature, Team.Ally),
+		).length;
 
-			const battleCryAbility = activeCreature.abilities[ABILITY.BATTLE_CRY];
-			const isBattleCryUpgraded = battleCryAbility?.isUpgraded?.() ?? false;
-			if (adjacentEnemyCount > 0) {
-				score -= adjacentAllyCount * (isBattleCryUpgraded ? 140 : 260);
-			} else {
-				score -= adjacentAllyCount * (isBattleCryUpgraded ? 60 : 130);
-			}
+		const battleCryAbility = activeCreature.abilities[ABILITY.BATTLE_CRY];
+		const isBattleCryUpgraded = battleCryAbility?.isUpgraded?.() ?? false;
+		if (adjacentEnemyCount > 0) {
+			score -= adjacentAllyCount * (isBattleCryUpgraded ? 140 : 260);
+		} else {
+			score -= adjacentAllyCount * (isBattleCryUpgraded ? 60 : 130);
+		}
 
 		// Trap avoidance scales with injury level
 		if (hex.trap) {
