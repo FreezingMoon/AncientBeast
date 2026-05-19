@@ -25,6 +25,10 @@ jest.mock('../../damage', () => ({
 
 jest.mock('../../utility/hex', () => ({
 	Hex: class HexMock {},
+	Direction: {
+		Right: 1,
+		Left: 4,
+	},
 }));
 
 jest.mock('../../effect', () => ({
@@ -190,5 +194,165 @@ describe('Vehemoth Falling Arrow damage fallback', () => {
 			damages: { pierce: number; frost: number };
 		};
 		expect(damage.damages).toEqual({ pierce: 20, frost: 3 });
+	});
+});
+
+describe('Vehemoth Flat Frons deferred query resume', () => {
+	let game: {
+		abilities: Record<number, unknown[]>;
+		Phaser: {
+			camera: {
+				shake: ReturnType<typeof jest.fn>;
+				SHAKE_HORIZONTAL: string;
+			};
+		};
+		grid: {
+			hexes: { x: number; y: number; creature: unknown }[][];
+			getHexLine: ReturnType<typeof jest.fn>;
+		};
+		activeCreature: {
+			queryMove: ReturnType<typeof jest.fn>;
+		};
+	};
+
+	beforeEach(() => {
+		game = {
+			abilities: {},
+			Phaser: {
+				camera: {
+					shake: jest.fn(),
+					SHAKE_HORIZONTAL: 'horizontal',
+				},
+			},
+			grid: {
+				hexes: [
+					[
+						{ x: 0, y: 0, creature: null },
+						{ x: 1, y: 0, creature: null },
+						{ x: 2, y: 0, creature: null },
+						{ x: 3, y: 0, creature: null },
+						{ x: 4, y: 0, creature: null },
+					],
+				],
+				getHexLine: jest.fn(() => [
+					{ x: 2, y: 0, creature: null },
+					{ x: 3, y: 0, creature: null },
+				]),
+			},
+			activeCreature: {
+				queryMove: jest.fn(),
+			},
+		};
+
+		loadVehemothAbilities(game as never);
+	});
+
+	test('resumes query when knockback target is unmoveable', () => {
+		const ability = game.abilities[6][1] as {
+			activate: (path: unknown[], args: { direction: number }) => void;
+			_damageTarget: (target: unknown) => { kill: boolean };
+			_getHexes: () => unknown[];
+			end: ReturnType<typeof jest.fn>;
+			creature: {
+				id: number;
+				size: number;
+				x: number;
+				y: number;
+				player: { flipped: boolean };
+				queryMove: ReturnType<typeof jest.fn>;
+				moveTo: ReturnType<typeof jest.fn>;
+			};
+		};
+
+		const target = {
+			id: 99,
+			x: 2,
+			y: 0,
+			size: 1,
+			stats: { moveable: false },
+			moveTo: jest.fn(),
+		};
+
+		ability._getHexes = () => [];
+		ability.end = jest.fn();
+		ability._damageTarget = jest.fn(() => ({ kill: false }));
+		ability.creature = {
+			id: 6,
+			size: 2,
+			x: 0,
+			y: 0,
+			player: { flipped: false },
+			queryMove: jest.fn(),
+			moveTo: jest.fn((_hex, opts: { callback: () => void }) => {
+				opts.callback();
+			}),
+		};
+
+		const path = [
+			{ x: 1, y: 0, creature: null },
+			{ x: 2, y: 0, creature: target },
+		];
+
+		ability.activate(path, { direction: 1 });
+
+		expect(ability.end).toHaveBeenCalledWith(false, true);
+		expect(ability.creature.queryMove).toHaveBeenCalledTimes(1);
+		expect(target.moveTo).not.toHaveBeenCalled();
+		expect(game.activeCreature.queryMove).not.toHaveBeenCalled();
+	});
+
+	test('resumes query after successful knockback movement callback', () => {
+		const ability = game.abilities[6][1] as {
+			activate: (path: unknown[], args: { direction: number }) => void;
+			_damageTarget: (target: unknown) => { kill: boolean };
+			_getHexes: () => unknown[];
+			end: ReturnType<typeof jest.fn>;
+			creature: {
+				id: number;
+				size: number;
+				x: number;
+				y: number;
+				player: { flipped: boolean };
+				queryMove: ReturnType<typeof jest.fn>;
+				moveTo: ReturnType<typeof jest.fn>;
+			};
+		};
+
+		const target = {
+			id: 99,
+			x: 2,
+			y: 0,
+			size: 1,
+			stats: { moveable: true },
+			moveTo: jest.fn((_hex, opts: { callback: () => void }) => {
+				opts.callback();
+			}),
+		};
+
+		ability._getHexes = () => [];
+		ability.end = jest.fn();
+		ability._damageTarget = jest.fn(() => ({ kill: false }));
+		ability.creature = {
+			id: 6,
+			size: 2,
+			x: 0,
+			y: 0,
+			player: { flipped: false },
+			queryMove: jest.fn(),
+			moveTo: jest.fn((_hex, opts: { callback: () => void }) => {
+				opts.callback();
+			}),
+		};
+
+		const path = [
+			{ x: 1, y: 0, creature: null },
+			{ x: 2, y: 0, creature: target },
+		];
+
+		ability.activate(path, { direction: 1 });
+
+		expect(target.moveTo).toHaveBeenCalledTimes(1);
+		expect(ability.creature.queryMove).toHaveBeenCalledTimes(1);
+		expect(game.activeCreature.queryMove).not.toHaveBeenCalled();
 	});
 });

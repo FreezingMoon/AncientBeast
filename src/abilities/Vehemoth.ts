@@ -164,17 +164,22 @@ export default (G: Game) => {
 			activate: function (path, args) {
 				const ability = this;
 				const vehemoth = ability.creature;
+				const resumeQueryMove = () => {
+					vehemoth.queryMove();
+				};
 				G.Phaser.camera.shake(0.02, 333, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
-
-				ability.end();
 
 				path = arrayUtils.sortByDirection(path, args.direction);
 				const target = arrayUtils.last(path).creature;
 				const targetIsNearby = this._getHexes().some((hex) => hex.creature?.id === target.id);
 
 				if (targetIsNearby) {
+					ability.end();
 					ability._damageTarget(target);
 				} else {
+					// Resolve query state after the charge + knockback sequence finishes.
+					ability.end(false, true);
+
 					// Charge to target.
 					arrayUtils.filterCreature(path, false, true, vehemoth.id);
 					let destination = arrayUtils.last(path);
@@ -202,10 +207,16 @@ export default (G: Game) => {
 							const damageResult = ability._damageTarget(target);
 
 							if (damageResult.kill) {
+								resumeQueryMove();
 								return;
 							}
 
 							if (knockbackHex) {
+								if (!target.stats.moveable) {
+									resumeQueryMove();
+									return;
+								}
+
 								// If pushing left, account for the difference in x origin of flipped creatures.
 								if (args.direction === Direction.Left) {
 									knockbackHex =
@@ -214,14 +225,14 @@ export default (G: Game) => {
 
 								target.moveTo(knockbackHex, {
 									callback: function () {
-										G.activeCreature.queryMove();
+										resumeQueryMove();
 									},
 									ignoreMovementPoint: true,
 									ignorePath: true,
 									animation: 'push',
 								});
 							} else {
-								G.activeCreature.queryMove();
+								resumeQueryMove();
 							}
 						},
 					});
