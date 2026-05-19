@@ -1295,8 +1295,9 @@ export class HexGrid {
 					}
 				}
 
-				// If hex is reachable & creature, reset health indicator bounce
-				if (hex.creature instanceof Creature) {
+				// If hex is reachable & creature, reset target bounce.
+				// Preserve active creature bounce (bot can confirm without a hover-off cycle).
+				if (hex.creature instanceof Creature && hex.creature !== game.activeCreature) {
 					hex.creature.resetBounce();
 				}
 
@@ -2121,7 +2122,9 @@ export class HexGrid {
 					if (!(candidate instanceof Creature)) {
 						return false;
 					}
-					return candidate.hexagons?.some((hexagon) => hexagon.x === trap.x && hexagon.y === trap.y);
+					return candidate.hexagons?.some(
+						(hexagon) => hexagon.x === trap.x && hexagon.y === trap.y,
+					);
 				}) as Creature | undefined;
 				const occupiedByOwnerCreature =
 					occupyingCreature instanceof Creature && occupyingCreature === trap.ownerCreature;

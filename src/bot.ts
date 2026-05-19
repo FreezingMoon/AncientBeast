@@ -31,6 +31,16 @@ export interface UnitBotStrategy {
 	 * @param abilityIndex The index of the ability currently being queried (0–3).
 	 */
 	scoreAbilityHex?(hex: Hex, abilityIndex: number, controller: BotController): number | undefined;
+	/**
+	 * Optional minimum score threshold for selecting a queried ability target hex.
+	 * If the best reachable target scores below this value, the bot skips that
+	 * ability for the current turn and continues planning.
+	 */
+	getAbilityMinScore?(
+		creature: Creature,
+		abilityIndex: number,
+		controller: BotController,
+	): number | undefined;
 	/** Override the retreat health/energy threshold check. */
 	isRetreating?(creature: Creature, controller: BotController): boolean | undefined;
 	/** Override the preferred board-x position for zone scoring. */
@@ -112,11 +122,13 @@ export default class BotController {
 	game: Game;
 	decisionTimeout: ReturnType<typeof setTimeout> | null = null;
 	pendingAction: BotPendingAction | null = null;
+	pendingActionSetAt = 0;
 	activeCreatureId: number | null = null;
 	decisionCount = 0;
 	moveAttempted = false;
 	failedAbilityIds = new Set<number>();
 	isResolvingQuery = false;
+	stalePendingActionMs = 2200;
 	/** The game round during which damage was last dealt to any creature. */
 	lastDamageRound = 0;
 
@@ -150,7 +162,7 @@ export default class BotController {
 
 	startTurn(creature?: Creature) {
 		this.clearDecisionTimeout();
-		this.pendingAction = null;
+		this.clearPendingAction();
 		this.isResolvingQuery = false;
 		this.activeCreatureId = creature?.id ?? null;
 		this.decisionCount = 0;
@@ -262,6 +274,11 @@ export default class BotController {
 		}
 
 		if (this.pendingAction) {
+			const staleMs = Date.now() - this.pendingActionSetAt;
+			if (!this.isResolvingQuery && staleMs > this.stalePendingActionMs) {
+				this.clearPendingAction({ markFailedAbility: true });
+				this.queueDecision(120);
+			}
 			return;
 		}
 
@@ -362,10 +379,10 @@ export default class BotController {
 				continue;
 			}
 
-			this.pendingAction = {
+			this.setPendingAction({
 				type: 'ability',
 				abilityIndex: i,
-			};
+			});
 			const previousQueryOpt = this.game.grid?.lastQueryOpt;
 			ability.use();
 
@@ -378,7 +395,7 @@ export default class BotController {
 			// Case B: ability.use() returned without opening any query at all
 			// (require() failed inside use(), or query() bailed early).
 			if (this.game.grid?.lastQueryOpt === previousQueryOpt) {
-				this.pendingAction = null;
+				this.clearPendingAction();
 				this.failedAbilityIds.add(i);
 				continue;
 			}
@@ -412,11 +429,11 @@ export default class BotController {
 			return false;
 		}
 
-		this.pendingAction = {
+		this.setPendingAction({
 			type: 'summon',
 			abilityIndex: 3,
 			summonType,
-		};
+		});
 		ability.materialize(summonType);
 		return true;
 	}
@@ -433,7 +450,7 @@ export default class BotController {
 			return false;
 		}
 
-		this.pendingAction = { type: 'move' };
+		this.setPendingAction({ type: 'move' });
 		this.moveAttempted = true;
 		activeCreature.queryMove();
 		return true;
@@ -492,11 +509,7 @@ export default class BotController {
 		}
 
 		const failPendingAction = () => {
-			const failedAction = this.pendingAction;
-			this.pendingAction = null;
-			if (failedAction?.type !== 'move' && typeof failedAction?.abilityIndex === 'number') {
-				this.failedAbilityIds.add(failedAction.abilityIndex);
-			}
+			this.clearPendingAction({ markFailedAbility: true });
 			this.queueDecision(120);
 		};
 
@@ -534,7 +547,7 @@ export default class BotController {
 			}
 			setTimeout(() => {
 				if (this.pendingAction && !this.isResolvingQuery) {
-					this.pendingAction = null;
+					this.clearPendingAction();
 				}
 			}, 0);
 			// Always keep a fallback decision in case no follow-up signal arrives.
@@ -587,7 +600,28 @@ export default class BotController {
 			return this.pickBestHex(candidates, (hex) => this.scoreSummonHex(hex));
 		}
 
-		return this.pickBestHex(candidates, (hex) => this.scoreAbilityHex(hex));
+		const scored = candidates
+			.map((hex) => ({
+				hex,
+				score: this.scoreAbilityHex(hex),
+			}))
+			.filter((entry) => Number.isFinite(entry.score))
+			.sort((left, right) => right.score - left.score);
+
+		const best = scored[0];
+		if (!best) {
+			return undefined;
+		}
+
+		if (action.type === 'ability') {
+			const strategy = this.getStrategyFor(activeCreature);
+			const minScore = strategy?.getAbilityMinScore?.(activeCreature, action.abilityIndex, this);
+			if (typeof minScore === 'number' && best.score < minScore) {
+				return undefined;
+			}
+		}
+
+		return best.hex;
 	}
 
 	getUniqueHexes(hexes: Hex[]) {
@@ -1082,14 +1116,14 @@ export default class BotController {
 			} catch {
 				continue;
 			}
-			this.pendingAction = { type: 'ability', abilityIndex: i };
+			this.setPendingAction({ type: 'ability', abilityIndex: i });
 			const previousQueryOpt = this.game.grid?.lastQueryOpt;
 			ability.use();
 			if (this.pendingAction === null) {
 				continue;
 			}
 			if (this.game.grid?.lastQueryOpt === previousQueryOpt) {
-				this.pendingAction = null;
+				this.clearPendingAction();
 				this.failedAbilityIds.add(i);
 				continue;
 			}
@@ -1097,5 +1131,23 @@ export default class BotController {
 		}
 
 		return false;
+	}
+
+	private setPendingAction(action: BotPendingAction) {
+		this.pendingAction = action;
+		this.pendingActionSetAt = Date.now();
+	}
+
+	private clearPendingAction(options: { markFailedAbility?: boolean } = {}) {
+		const failedAction = this.pendingAction;
+		this.pendingAction = null;
+		this.pendingActionSetAt = 0;
+		if (
+			options.markFailedAbility &&
+			failedAction?.type !== 'move' &&
+			typeof failedAction?.abilityIndex === 'number'
+		) {
+			this.failedAbilityIds.add(failedAction.abilityIndex);
+		}
 	}
 }

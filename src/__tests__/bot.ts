@@ -14,7 +14,7 @@ jest.mock('../creature', () => ({
 	Creature: class Creature {},
 }));
 
-import BotController from '../bot';
+import BotController, { unitStrategies } from '../bot';
 import { Creature } from '../creature';
 import type Game from '../game';
 import { Hex } from '../utility/hex';
@@ -29,6 +29,7 @@ const makeCreature = ({
 	x,
 	y,
 	controller = 'human',
+	type = 'T0',
 	health = 100,
 	maxHealth = 100,
 	size = 1,
@@ -38,6 +39,7 @@ const makeCreature = ({
 	x: number;
 	y: number;
 	controller?: 'human' | 'bot';
+	type?: string;
 	health?: number;
 	maxHealth?: number;
 	size?: number;
@@ -46,6 +48,7 @@ const makeCreature = ({
 	Object.assign(creature, {
 		id,
 		team,
+		type,
 		level: 1,
 		x,
 		y,
@@ -74,6 +77,7 @@ const makeCreature = ({
 	return creature as Creature & {
 		id: number;
 		team: number;
+		type: string;
 		x: number;
 		y: number;
 		health: number;
@@ -333,6 +337,111 @@ describe('BotController', () => {
 		expect(bot.pendingAction).toBeNull();
 		expect(bot.failedAbilityIds.has(2)).toBe(true);
 		expect(queueDecisionSpy).toHaveBeenCalledWith(120);
+	});
+
+	test('stale pending ability action is cleared to avoid turn freeze', () => {
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+		});
+		const game = makeGame(activeCreature);
+		const bot = new BotController(game);
+		bot.activeCreatureId = activeCreature.id;
+		bot.pendingAction = { type: 'ability', abilityIndex: 1 };
+		(bot as unknown as { pendingActionSetAt: number }).pendingActionSetAt = 100;
+		(bot as unknown as { stalePendingActionMs: number }).stalePendingActionMs = 200;
+
+		const queueDecisionSpy = jest.spyOn(bot, 'queueDecision').mockImplementation(() => undefined);
+		const dateNowSpy = jest.spyOn(Date, 'now').mockReturnValue(1000);
+
+		bot.takeTurn();
+
+		expect(bot.pendingAction).toBeNull();
+		expect(bot.failedAbilityIds.has(1)).toBe(true);
+		expect(queueDecisionSpy).toHaveBeenCalledWith(120);
+
+		dateNowSpy.mockRestore();
+	});
+
+	test('ability query skips low-value target when strategy minimum score is not met', () => {
+		const strategyType = 'Z9';
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			type: strategyType,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+		});
+		const enemyCreature = makeCreature({
+			id: 2,
+			team: 1,
+			x: 1,
+			y: 0,
+		});
+		const game = makeGame(activeCreature, [enemyCreature]);
+		const bot = new BotController(game);
+		bot.pendingAction = { type: 'ability', abilityIndex: 0 };
+
+		const originalStrategy = unitStrategies[strategyType];
+		unitStrategies[strategyType] = {
+			scoreAbilityHex: () => 180,
+			getAbilityMinScore: () => 220,
+		};
+
+		const picked = bot.chooseHexForCurrentQuery([
+			makeHex({ x: 1, y: 0, creature: enemyCreature }),
+		]);
+
+		expect(picked).toBeUndefined();
+
+		if (originalStrategy) {
+			unitStrategies[strategyType] = originalStrategy;
+		} else {
+			delete unitStrategies[strategyType];
+		}
+	});
+
+	test('ability query selects target when strategy minimum score is met', () => {
+		const strategyType = 'Z8';
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			type: strategyType,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+		});
+		const enemyCreature = makeCreature({
+			id: 2,
+			team: 1,
+			x: 1,
+			y: 0,
+		});
+		const game = makeGame(activeCreature, [enemyCreature]);
+		const bot = new BotController(game);
+		bot.pendingAction = { type: 'ability', abilityIndex: 0 };
+
+		const targetHex = makeHex({ x: 1, y: 0, creature: enemyCreature });
+
+		const originalStrategy = unitStrategies[strategyType];
+		unitStrategies[strategyType] = {
+			scoreAbilityHex: () => 260,
+			getAbilityMinScore: () => 220,
+		};
+
+		const picked = bot.chooseHexForCurrentQuery([targetHex]);
+
+		expect(picked).toBe(targetHex);
+
+		if (originalStrategy) {
+			unitStrategies[strategyType] = originalStrategy;
+		} else {
+			delete unitStrategies[strategyType];
+		}
 	});
 
 	test('bot does not get stuck when ability use opens no query', () => {

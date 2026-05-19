@@ -19,6 +19,11 @@ const RETREAT_ENERGY_RATIO = 0.22;
 
 const SEISMIC_STOMP_ESTIMATED_DAMAGE = 28;
 const STONE_GRINDER_ESTIMATED_DAMAGE = 10;
+const ABILITY_MIN_SCORE: Partial<Record<number, number>> = {
+	[ABILITY.SEISMIC_STOMP]: 420,
+	[ABILITY.STONE_GRINDER]: 260,
+	[ABILITY.EARTH_SHAKER]: 320,
+};
 
 function hasEarthShakerEffect(target: Creature): boolean {
 	return target.findEffect('Earth Shaker').length > 0;
@@ -322,6 +327,14 @@ const StomperStrategy: UnitBotStrategy = {
 		}
 
 		return undefined;
+	},
+
+	/**
+	 * Skip low-impact ability casts so Stomper does not spend actions on
+	 * poor windows (especially ally-only Stone Grinder / Earth Shaker lines).
+	 */
+	getAbilityMinScore(_creature, abilityIndex, _controller) {
+		return ABILITY_MIN_SCORE[abilityIndex];
 	},
 
 	/**
