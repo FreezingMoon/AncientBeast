@@ -209,10 +209,15 @@ describe('Vehemoth Flat Frons deferred query resume', () => {
 		grid: {
 			hexes: { x: number; y: number; creature: unknown }[][];
 			getHexLine: ReturnType<typeof jest.fn>;
+			refreshHoverState: ReturnType<typeof jest.fn>;
 		};
 		activeCreature: {
 			queryMove: ReturnType<typeof jest.fn>;
+			dead?: boolean;
 		};
+		animationQueue: unknown[];
+		_deferredQueryMovePending: number;
+		freezedInput: boolean;
 	};
 
 	beforeEach(() => {
@@ -238,10 +243,14 @@ describe('Vehemoth Flat Frons deferred query resume', () => {
 					{ x: 2, y: 0, creature: null },
 					{ x: 3, y: 0, creature: null },
 				]),
+				refreshHoverState: jest.fn(),
 			},
 			activeCreature: {
 				queryMove: jest.fn(),
 			},
+			animationQueue: [],
+			_deferredQueryMovePending: 0,
+			freezedInput: false,
 		};
 
 		loadVehemothAbilities(game as never);
@@ -258,8 +267,10 @@ describe('Vehemoth Flat Frons deferred query resume', () => {
 				size: number;
 				x: number;
 				y: number;
+				stats: { moveable: boolean };
 				player: { flipped: boolean };
 				queryMove: ReturnType<typeof jest.fn>;
+				calculatePath: ReturnType<typeof jest.fn>;
 				moveTo: ReturnType<typeof jest.fn>;
 			};
 		};
@@ -281,8 +292,10 @@ describe('Vehemoth Flat Frons deferred query resume', () => {
 			size: 2,
 			x: 0,
 			y: 0,
+			stats: { moveable: true },
 			player: { flipped: false },
 			queryMove: jest.fn(),
+			calculatePath: jest.fn(() => [{ x: 1, y: 0 }]),
 			moveTo: jest.fn((_hex, opts: { callback: () => void }) => {
 				opts.callback();
 			}),
@@ -296,9 +309,9 @@ describe('Vehemoth Flat Frons deferred query resume', () => {
 		ability.activate(path, { direction: 1 });
 
 		expect(ability.end).toHaveBeenCalledWith(false, true);
-		expect(ability.creature.queryMove).toHaveBeenCalledTimes(1);
+		expect(ability.creature.queryMove).not.toHaveBeenCalled();
 		expect(target.moveTo).not.toHaveBeenCalled();
-		expect(game.activeCreature.queryMove).not.toHaveBeenCalled();
+		expect(game.activeCreature.queryMove).toHaveBeenCalledTimes(1);
 	});
 
 	test('resumes query after successful knockback movement callback', () => {
@@ -312,8 +325,10 @@ describe('Vehemoth Flat Frons deferred query resume', () => {
 				size: number;
 				x: number;
 				y: number;
+				stats: { moveable: boolean };
 				player: { flipped: boolean };
 				queryMove: ReturnType<typeof jest.fn>;
+				calculatePath: ReturnType<typeof jest.fn>;
 				moveTo: ReturnType<typeof jest.fn>;
 			};
 		};
@@ -337,8 +352,10 @@ describe('Vehemoth Flat Frons deferred query resume', () => {
 			size: 2,
 			x: 0,
 			y: 0,
+			stats: { moveable: true },
 			player: { flipped: false },
 			queryMove: jest.fn(),
+			calculatePath: jest.fn(() => [{ x: 1, y: 0 }]),
 			moveTo: jest.fn((_hex, opts: { callback: () => void }) => {
 				opts.callback();
 			}),
@@ -352,7 +369,123 @@ describe('Vehemoth Flat Frons deferred query resume', () => {
 		ability.activate(path, { direction: 1 });
 
 		expect(target.moveTo).toHaveBeenCalledTimes(1);
-		expect(ability.creature.queryMove).toHaveBeenCalledTimes(1);
+		expect(ability.creature.queryMove).not.toHaveBeenCalled();
+		expect(game.activeCreature.queryMove).toHaveBeenCalledTimes(1);
+	});
+
+	test('releases deferred freeze when active creature is dead during resume', () => {
+		const ability = game.abilities[6][1] as {
+			activate: (path: unknown[], args: { direction: number }) => void;
+			_damageTarget: (target: unknown) => { kill: boolean };
+			_getHexes: () => unknown[];
+			end: ReturnType<typeof jest.fn>;
+			creature: {
+				id: number;
+				size: number;
+				x: number;
+				y: number;
+				stats: { moveable: boolean };
+				player: { flipped: boolean };
+				queryMove: ReturnType<typeof jest.fn>;
+				calculatePath: ReturnType<typeof jest.fn>;
+				moveTo: ReturnType<typeof jest.fn>;
+			};
+		};
+
+		const target = {
+			id: 99,
+			x: 2,
+			y: 0,
+			size: 1,
+			stats: { moveable: false },
+			moveTo: jest.fn(),
+		};
+
+		game._deferredQueryMovePending = 1;
+		game.freezedInput = true;
+		game.activeCreature.dead = true;
+
+		ability._getHexes = () => [];
+		ability.end = jest.fn();
+		ability._damageTarget = jest.fn(() => ({ kill: false }));
+		ability.creature = {
+			id: 6,
+			size: 2,
+			x: 0,
+			y: 0,
+			stats: { moveable: true },
+			player: { flipped: false },
+			queryMove: jest.fn(),
+			calculatePath: jest.fn(() => [{ x: 1, y: 0 }]),
+			moveTo: jest.fn((_hex, opts: { callback: () => void }) => {
+				opts.callback();
+			}),
+		};
+
+		const path = [
+			{ x: 1, y: 0, creature: null },
+			{ x: 2, y: 0, creature: target },
+		];
+
+		ability.activate(path, { direction: 1 });
+
+		expect(game._deferredQueryMovePending).toBe(0);
+		expect(game.freezedInput).toBe(false);
+		expect(game.grid.refreshHoverState).toHaveBeenCalledTimes(1);
 		expect(game.activeCreature.queryMove).not.toHaveBeenCalled();
+	});
+
+	test('resumes query when charge destination has no path', () => {
+		const ability = game.abilities[6][1] as {
+			activate: (path: unknown[], args: { direction: number }) => void;
+			_damageTarget: (target: unknown) => { kill: boolean };
+			_getHexes: () => unknown[];
+			end: ReturnType<typeof jest.fn>;
+			creature: {
+				id: number;
+				size: number;
+				x: number;
+				y: number;
+				stats: { moveable: boolean };
+				player: { flipped: boolean };
+				queryMove: ReturnType<typeof jest.fn>;
+				calculatePath: ReturnType<typeof jest.fn>;
+				moveTo: ReturnType<typeof jest.fn>;
+			};
+		};
+
+		const target = {
+			id: 99,
+			x: 2,
+			y: 0,
+			size: 1,
+			stats: { moveable: true },
+			moveTo: jest.fn(),
+		};
+
+		ability._getHexes = () => [];
+		ability.end = jest.fn();
+		ability._damageTarget = jest.fn(() => ({ kill: false }));
+		ability.creature = {
+			id: 6,
+			size: 2,
+			x: 0,
+			y: 0,
+			stats: { moveable: true },
+			player: { flipped: false },
+			queryMove: jest.fn(),
+			calculatePath: jest.fn(() => []),
+			moveTo: jest.fn(),
+		};
+
+		const path = [
+			{ x: 1, y: 0, creature: null },
+			{ x: 2, y: 0, creature: target },
+		];
+
+		ability.activate(path, { direction: 1 });
+
+		expect(ability.creature.moveTo).not.toHaveBeenCalled();
+		expect(game.activeCreature.queryMove).toHaveBeenCalledTimes(1);
 	});
 });

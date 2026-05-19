@@ -164,7 +164,28 @@ export default (G: Game) => {
 			activate: function (path, args) {
 				const ability = this;
 				const vehemoth = ability.creature;
+				const releaseDeferredFreeze = () => {
+					if (G._deferredQueryMovePending > 0) {
+						G._deferredQueryMovePending--;
+					}
+					if (G._deferredQueryMovePending === 0 && G.animationQueue.length === 0) {
+						G.freezedInput = false;
+						G.grid?.refreshHoverState?.();
+					}
+				};
 				const resumeQueryMove = () => {
+					const activeCreature = G.activeCreature;
+
+					if (activeCreature?.dead || (!activeCreature && vehemoth.dead)) {
+						releaseDeferredFreeze();
+						return;
+					}
+
+					if (activeCreature?.queryMove) {
+						activeCreature.queryMove();
+						return;
+					}
+
 					vehemoth.queryMove();
 				};
 				G.Phaser.camera.shake(0.02, 333, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
@@ -183,8 +204,21 @@ export default (G: Game) => {
 					// Charge to target.
 					arrayUtils.filterCreature(path, false, true, vehemoth.id);
 					let destination = arrayUtils.last(path);
+					if (!destination) {
+						resumeQueryMove();
+						return;
+					}
 					const x = destination.x + (args.direction === 4 ? vehemoth.size - 1 : 0);
 					destination = G.grid.hexes[destination.y][x];
+					if (!destination) {
+						resumeQueryMove();
+						return;
+					}
+
+					if (vehemoth.stats.moveable && vehemoth.calculatePath({ x: destination.x, y: destination.y }).length === 0) {
+						resumeQueryMove();
+						return;
+					}
 
 					/* Calculate hexes the target could be pushed along. Limited by the number
 					of hexes the Vehemoth charged, and will stop when reaching obstacles. */
