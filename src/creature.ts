@@ -3332,7 +3332,7 @@ class CreatureSprite {
 		this._creature.game.animations.setAbolishedBonfireLayerOverride(this._creature);
 		this._creature.game.animations.syncAbolishedBonfireTrapLayers(this._creature, []);
 		this._creature.game.animations.disposeInfernalCardboardEffect(this._creature);
-		this._group.parent.removeChild(this._group);
+		this._group.parent?.removeChild(this._group);
 	}
 }
 
