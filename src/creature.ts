@@ -1955,6 +1955,10 @@ export class Creature {
 		this.creatureSprite.xray(enable, referenceCreature);
 	}
 
+	clearXrayImmediately() {
+		this.creatureSprite.clearXrayImmediately();
+	}
+
 	get isXrayed(): boolean {
 		return this.creatureSprite?.isXrayed ?? false;
 	}
@@ -2358,6 +2362,11 @@ class CreatureSprite {
 			this._xrayTargetAlpha = 0;
 			// Update hook fades out then calls _finalizeXrayOff automatically
 		}
+	}
+
+	clearXrayImmediately() {
+		this._isXray = false;
+		this._clearXrayTexture();
 	}
 
 	/** Immediately snaps xray alpha to 0 and frees all resources. */

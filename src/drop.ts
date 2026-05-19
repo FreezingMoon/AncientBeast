@@ -90,6 +90,8 @@ export class Drop {
 				Phaser.Easing.Linear.None,
 			)
 			.start();
+
+		game.grid.orderCreatureZ();
 	}
 
 	pickup(creature: Creature) {
