@@ -261,13 +261,11 @@ describe('Game unload confirmation integration', () => {
 		} as unknown as BeforeUnloadEvent;
 		const promptVisibleUnloadResult = beforeUnloadListener?.(promptVisibleUnloadEvent);
 
-		expect(promptVisibleUnloadEvent.preventDefault).toHaveBeenCalledTimes(1);
-		expect(promptVisibleUnloadEvent.returnValue).toBe(
-			'A game is in progress and cannot be restored, are you sure you want to leave?',
-		);
-		expect(promptVisibleUnloadResult).toBe(
-			'A game is in progress and cannot be restored, are you sure you want to leave?',
-		);
+		expect(promptVisibleUnloadEvent.preventDefault).not.toHaveBeenCalled();
+		expect(
+			(promptVisibleUnloadEvent as unknown as { returnValue?: string }).returnValue,
+		).toBeUndefined();
+		expect(promptVisibleUnloadResult).toBeUndefined();
 
 		const buttons = Array.from(prompt?.querySelectorAll('button') ?? []);
 		const closeButton = buttons.find((button) => button.classList.contains('close-button')) as
