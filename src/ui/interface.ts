@@ -30,16 +30,33 @@ const GAME_IN_PROGRESS_UNLOAD_CONFIRMATION =
 const DEV_RELOAD_PROMPT_ID = 'ab-dev-reload-prompt';
 const DEV_RELOAD_PROMPT_TITLE = 'New changes have been compiled!';
 const DEV_RELOAD_PROMPT_BODY = 'Insert coin to continue';
+const MANUAL_REFRESH_PROMPT_TITLE = 'A game is in progress';
+const MANUAL_REFRESH_PROMPT_BODY = 'Reload now and abandon this match?';
 
 type ConfirmUnloadState = {
 	ignoreNextConfirmUnload: boolean;
 };
 
 let getActiveConfirmUnloadState: () => ConfirmUnloadState | null = () => null;
-let hasConfirmUnloadListener = false;
 let hasWebpackReloadConfirmListener = false;
+let hasManualRefreshConfirmListener = false;
 let devReloadPromptOverlay: HTMLDivElement | null = null;
 let removeDevReloadPromptEscListener: (() => void) | null = null;
+let allowNextDevReloadWithoutPrompt = false;
+
+type ReloadPromptVariant = 'dev' | 'manual-refresh';
+
+const isManualReloadShortcut = (event: KeyboardEvent) => {
+	if (event.key === 'F5') {
+		return true;
+	}
+
+	if (event.altKey || !(event.ctrlKey || event.metaKey)) {
+		return false;
+	}
+
+	return event.key.toLowerCase() === 'r';
+};
 
 // Intercept browser modals while dev reload prompt is visible to prevent them from appearing on top
 const savedModalFunctions = {
@@ -87,6 +104,12 @@ const setBeforeUnloadReturnValue = (event: BeforeUnloadEvent, value: string) => 
 };
 
 const confirmUnload = (event: BeforeUnloadEvent) => {
+	if (allowNextDevReloadWithoutPrompt) {
+		allowNextDevReloadWithoutPrompt = false;
+		clearBeforeUnloadReturnValue(event);
+		return;
+	}
+
 	const activeConfirmUnloadState = getActiveConfirmUnloadState();
 	if (!activeConfirmUnloadState) {
 		return;
@@ -124,13 +147,25 @@ const closeDevReloadPrompt = () => {
 	}
 };
 
-const createDevReloadButton = (label: string, onClick: () => void, variant?: 'secondary') => {
+const createDevReloadButton = (
+	label: string,
+	onClick: () => void,
+	hotkey: string,
+	variant?: 'secondary',
+) => {
 	const button = document.createElement('button');
 	button.type = 'button';
 	button.className = `opencollective_cta dev-reload-button${
 		variant === 'secondary' ? ' dev-reload-button--secondary' : ''
 	}`;
-	button.textContent = label;
+	button.dataset.devReloadHotkey = hotkey.toLowerCase();
+	button.setAttribute('aria-keyshortcuts', hotkey.toUpperCase());
+
+	const hotkeyNode = document.createElement('span');
+	hotkeyNode.textContent = label.charAt(0);
+	hotkeyNode.style.cssText = 'text-decoration:underline;';
+	button.appendChild(hotkeyNode);
+	button.appendChild(document.createTextNode(label.slice(1)));
 	button.addEventListener('click', (event) => {
 		event.preventDefault();
 		event.stopPropagation();
@@ -140,11 +175,27 @@ const createDevReloadButton = (label: string, onClick: () => void, variant?: 'se
 	return button;
 };
 
-const showDevReloadPrompt = () => {
+const showDevReloadPrompt = (variant: ReloadPromptVariant = 'dev') => {
+	const titleText =
+		variant === 'manual-refresh' ? MANUAL_REFRESH_PROMPT_TITLE : DEV_RELOAD_PROMPT_TITLE;
+	const bodyText =
+		variant === 'manual-refresh' ? MANUAL_REFRESH_PROMPT_BODY : DEV_RELOAD_PROMPT_BODY;
+
 	if (devReloadPromptOverlay) {
 		isDevReloadPromptVisible = true;
 		devReloadPromptOverlay.style.cssText =
 			'position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);pointer-events:auto;contain:layout style paint;';
+
+		const titleNode = devReloadPromptOverlay.querySelector('[data-dev-reload-title="true"]');
+		if (titleNode) {
+			titleNode.textContent = titleText;
+		}
+
+		const bodyNode = devReloadPromptOverlay.querySelector('[data-dev-reload-body="true"]');
+		if (bodyNode) {
+			bodyNode.textContent = bodyText;
+		}
+
 		if (devReloadPromptOverlay.parentElement !== document.body) {
 			document.body.appendChild(devReloadPromptOverlay);
 		}
@@ -186,37 +237,91 @@ const showDevReloadPrompt = () => {
 	closeWrapper.appendChild(closeButton);
 
 	const handlePromptKeydown = (event: KeyboardEvent) => {
-		if (event.key !== 'Escape') {
+		if (event.key === 'Tab') {
 			return;
 		}
 
 		event.preventDefault();
 		event.stopPropagation();
-		closeDevReloadPrompt();
+		if (typeof event.stopImmediatePropagation === 'function') {
+			event.stopImmediatePropagation();
+		}
+
+		if (event.key === 'Escape') {
+			closeDevReloadPrompt();
+			return;
+		}
+
+		if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) {
+			return;
+		}
+
+		const normalizedKey = event.key.toLowerCase();
+		if (normalizedKey.length !== 1) {
+			return;
+		}
+
+		const hotkeyButton = overlay.querySelector(
+			`[data-dev-reload-hotkey="${normalizedKey}"]`,
+		) as HTMLButtonElement | null;
+		if (!hotkeyButton) {
+			return;
+		}
+
+		hotkeyButton.click();
 	};
 
 	const title = document.createElement('p');
+	title.dataset.devReloadTitle = 'true';
 	title.style.cssText = 'margin:0 0 12px;font-size:24px;line-height:1.2;text-align:center;';
-	title.textContent = DEV_RELOAD_PROMPT_TITLE;
+	title.textContent = titleText;
 
 	const body = document.createElement('p');
+	body.dataset.devReloadBody = 'true';
 	body.style.cssText = 'margin:0 0 20px;text-align:center;line-height:1.45;';
-	body.textContent = DEV_RELOAD_PROMPT_BODY;
+	body.textContent = bodyText;
 
 	const actions = document.createElement('div');
 	actions.className = 'dev-reload-actions';
 
 	actions.appendChild(
-		createDevReloadButton('Save', () => {
-			window.AB?.saveLog?.();
-		}),
+		createDevReloadButton(
+			'Save',
+			() => {
+				window.AB?.saveLog?.();
+			},
+			'S',
+		),
 	);
 	actions.appendChild(
-		createDevReloadButton('Reload', () => {
-			activeConfirmUnloadState.ignoreNextConfirmUnload = true;
-			closeDevReloadPrompt();
-			window.location.reload();
-		}),
+		createDevReloadButton(
+			'Reload',
+			() => {
+				// Re-resolve state at click time — the overlay is created once and reused,
+				// so the creation-time closure may point to a stale UI instance.
+				const currentState = getActiveConfirmUnloadState();
+				allowNextDevReloadWithoutPrompt = true;
+				if (currentState) {
+					currentState.ignoreNextConfirmUnload = true;
+				}
+				closeDevReloadPrompt();
+				const previousOnBeforeUnload = window.onbeforeunload;
+				window.onbeforeunload = null;
+				// Watchdog: if the page doesn't unload within 3 s (reload was silently
+				// blocked by the browser), reset bypass flags so Ctrl+R shows the modal again.
+				setTimeout(() => {
+					allowNextDevReloadWithoutPrompt = false;
+					if (currentState) {
+						currentState.ignoreNextConfirmUnload = false;
+					}
+					if (window.onbeforeunload === null) {
+						window.onbeforeunload = previousOnBeforeUnload;
+					}
+				}, 3000);
+				window.location.assign(window.location.href);
+			},
+			'R',
+		),
 	);
 	actions.appendChild(
 		createDevReloadButton(
@@ -224,6 +329,7 @@ const showDevReloadPrompt = () => {
 			() => {
 				closeDevReloadPrompt();
 			},
+			'C',
 			'secondary',
 		),
 	);
@@ -244,9 +350,9 @@ const showDevReloadPrompt = () => {
 		closeDevReloadPrompt();
 	});
 	document.body.appendChild(overlay);
-	window.addEventListener('keydown', handlePromptKeydown);
+	window.addEventListener('keydown', handlePromptKeydown, true);
 	removeDevReloadPromptEscListener = () => {
-		window.removeEventListener('keydown', handlePromptKeydown);
+		window.removeEventListener('keydown', handlePromptKeydown, true);
 	};
 	devReloadPromptOverlay = overlay;
 	isDevReloadPromptVisible = true;
@@ -255,11 +361,39 @@ const showDevReloadPrompt = () => {
 };
 
 const confirmWebpackDevReload = (messageEvent: MessageEvent) => {
+	if (allowNextDevReloadWithoutPrompt) {
+		return;
+	}
+
 	if (messageEvent.data?.type !== 'webpackInvalid') {
 		return;
 	}
 
 	showDevReloadPrompt();
+};
+
+const confirmManualRefresh = (event: KeyboardEvent) => {
+	if (!isManualReloadShortcut(event)) {
+		return;
+	}
+
+	// A reload is already in flight — let the native shortcut through so it
+	// can bypass the beforeunload guard and complete the reload.
+	if (allowNextDevReloadWithoutPrompt) {
+		return;
+	}
+
+	const activeConfirmUnloadState = getActiveConfirmUnloadState();
+	if (!activeConfirmUnloadState) {
+		return;
+	}
+
+	event.preventDefault();
+	event.stopPropagation();
+	if (typeof event.stopImmediatePropagation === 'function') {
+		event.stopImmediatePropagation();
+	}
+	showDevReloadPrompt('manual-refresh');
 };
 
 const showSecretView = () => {
@@ -3253,14 +3387,14 @@ export class UI {
 		getActiveConfirmUnloadState = () => this;
 		window.onbeforeunload = confirmUnload;
 
-		if (!hasConfirmUnloadListener) {
-			window.addEventListener('beforeunload', confirmUnload);
-			hasConfirmUnloadListener = true;
-		}
-
 		if (process.env.NODE_ENV === 'development' && !hasWebpackReloadConfirmListener) {
 			window.addEventListener('message', confirmWebpackDevReload);
 			hasWebpackReloadConfirmListener = true;
+		}
+
+		if (!hasManualRefreshConfirmListener) {
+			window.addEventListener('keydown', confirmManualRefresh, true);
+			hasManualRefreshConfirmListener = true;
 		}
 	}
 

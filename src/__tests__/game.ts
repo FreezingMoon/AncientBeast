@@ -126,7 +126,7 @@ describe('Game replay completion', () => {
 });
 
 describe('Game unload confirmation integration', () => {
-	test('confirmWindowUnload sets window.onbeforeunload and updates active state', () => {
+	test('confirmWindowUnload sets window.onbeforeunload (single registration) and updates active state', () => {
 		const addEventListenerSpy = jest.spyOn(window, 'addEventListener');
 		const originalNodeEnv = process.env.NODE_ENV;
 		process.env.NODE_ENV = 'development';
@@ -144,7 +144,7 @@ describe('Game unload confirmation integration', () => {
 		expect(secondHandler).toBe(firstHandler);
 		expect(
 			addEventListenerSpy.mock.calls.filter(([eventName]) => eventName === 'beforeunload'),
-		).toHaveLength(1);
+		).toHaveLength(0);
 		expect(
 			addEventListenerSpy.mock.calls.filter(([eventName]) => eventName === 'message'),
 		).toHaveLength(1);
@@ -172,7 +172,6 @@ describe('Game unload confirmation integration', () => {
 		const firstUiState = { ignoreNextConfirmUnload: false };
 		const secondUiState = { ignoreNextConfirmUnload: false };
 
-		TestUI.prototype.confirmWindowUnload.call(firstUiState as UI);
 		TestUI.prototype.confirmWindowUnload.call(secondUiState as UI);
 
 		const beforeUnloadListener = window.onbeforeunload as
@@ -230,7 +229,9 @@ describe('Game unload confirmation integration', () => {
 		const originalAB = window.AB;
 		const originalOnBeforeUnload = window.onbeforeunload;
 		const saveLog = jest.fn();
+		const leakedHotkeyHandler = jest.fn();
 		window.AB = { saveLog };
+		document.addEventListener('keydown', leakedHotkeyHandler);
 		const uiState = { ignoreNextConfirmUnload: false };
 
 		TestUI.prototype.confirmWindowUnload.call(uiState as UI);
@@ -282,19 +283,30 @@ describe('Game unload confirmation integration', () => {
 		expect(saveButton).toBeDefined();
 		expect(reloadButton).toBeDefined();
 		expect(keepButton).toBeDefined();
+		expect(saveButton?.dataset.devReloadHotkey).toBe('s');
+		expect(reloadButton?.dataset.devReloadHotkey).toBe('r');
+		expect(keepButton?.dataset.devReloadHotkey).toBe('c');
+		expect(saveButton?.getAttribute('aria-keyshortcuts')).toBe('S');
+		expect(reloadButton?.getAttribute('aria-keyshortcuts')).toBe('R');
+		expect(keepButton?.getAttribute('aria-keyshortcuts')).toBe('C');
+		expect(saveButton?.querySelector('span')?.textContent).toBe('S');
+		expect(reloadButton?.querySelector('span')?.textContent).toBe('R');
+		expect(keepButton?.querySelector('span')?.textContent).toBe('C');
 		closeButton?.click();
 		expect(document.getElementById('ab-dev-reload-prompt')).toBeNull();
 
 		messageListener({ data: { type: 'webpackInvalid' } } as MessageEvent);
 		expect(document.getElementById('ab-dev-reload-prompt')).toBeDefined();
 
-		window.dispatchEvent(
+		document.dispatchEvent(
 			new KeyboardEvent('keydown', {
 				key: 'Escape',
 				bubbles: true,
+				cancelable: true,
 			}),
 		);
 		expect(document.getElementById('ab-dev-reload-prompt')).toBeNull();
+		expect(leakedHotkeyHandler).not.toHaveBeenCalled();
 
 		messageListener({ data: { type: 'webpackInvalid' } } as MessageEvent);
 		expect(document.getElementById('ab-dev-reload-prompt')).toBeDefined();
@@ -307,13 +319,68 @@ describe('Game unload confirmation integration', () => {
 		messageListener({ data: { type: 'webpackInvalid' } } as MessageEvent);
 		expect(document.getElementById('ab-dev-reload-prompt')).toBeDefined();
 
-		saveButton?.click();
+		document.dispatchEvent(
+			new KeyboardEvent('keydown', {
+				key: 's',
+				bubbles: true,
+				cancelable: true,
+			}),
+		);
 		expect(saveLog).toHaveBeenCalledTimes(1);
 		expect(document.getElementById('ab-dev-reload-prompt')).toBeDefined();
+		expect(leakedHotkeyHandler).not.toHaveBeenCalled();
 
-		keepButton?.click();
+		document.dispatchEvent(
+			new KeyboardEvent('keydown', {
+				key: 'x',
+				bubbles: true,
+				cancelable: true,
+			}),
+		);
+		expect(document.getElementById('ab-dev-reload-prompt')).toBeDefined();
+		expect(leakedHotkeyHandler).not.toHaveBeenCalled();
+
+		document.dispatchEvent(
+			new KeyboardEvent('keydown', {
+				key: 'c',
+				bubbles: true,
+				cancelable: true,
+			}),
+		);
 		expect(document.getElementById('ab-dev-reload-prompt')).toBeNull();
 		expect(uiState.ignoreNextConfirmUnload).toBe(false);
+		expect(leakedHotkeyHandler).not.toHaveBeenCalled();
+
+		messageListener({ data: { type: 'webpackInvalid' } } as MessageEvent);
+		expect(document.getElementById('ab-dev-reload-prompt')).toBeDefined();
+
+		try {
+			document.dispatchEvent(
+				new KeyboardEvent('keydown', {
+					key: 'r',
+					bubbles: true,
+					cancelable: true,
+				}),
+			);
+		} catch (error) {
+			expect(String(error)).toContain('Not implemented: navigation');
+		}
+		expect(document.getElementById('ab-dev-reload-prompt')).toBeNull();
+		expect(window.onbeforeunload).toBeNull();
+		expect(uiState.ignoreNextConfirmUnload).toBe(true);
+		expect(leakedHotkeyHandler).not.toHaveBeenCalled();
+
+		const reloadBypassUnloadEvent = {
+			preventDefault: jest.fn(),
+			returnValue: 'existing',
+		} as unknown as BeforeUnloadEvent;
+		const reloadBypassUnloadResult = beforeUnloadListener?.(reloadBypassUnloadEvent);
+		expect(reloadBypassUnloadEvent.preventDefault).not.toHaveBeenCalled();
+		expect(
+			(reloadBypassUnloadEvent as unknown as { returnValue?: string }).returnValue,
+		).toBeUndefined();
+		expect(reloadBypassUnloadResult).toBeUndefined();
+		uiState.ignoreNextConfirmUnload = false;
 
 		const promptClosedUnloadEvent = {
 			preventDefault: jest.fn(),
@@ -330,7 +397,90 @@ describe('Game unload confirmation integration', () => {
 		);
 
 		addEventListenerSpy.mockRestore();
+		document.removeEventListener('keydown', leakedHotkeyHandler);
 		window.AB = originalAB;
+		window.onbeforeunload = originalOnBeforeUnload;
+		process.env.NODE_ENV = originalNodeEnv;
+	});
+
+	test('confirmWindowUnload uses custom modal for manual refresh shortcuts', () => {
+		jest.resetModules();
+		const originalNodeEnv = process.env.NODE_ENV;
+		process.env.NODE_ENV = 'test';
+		let TestUI: typeof UI | undefined;
+		jest.isolateModules(() => {
+			// eslint-disable-next-line @typescript-eslint/no-var-requires
+			TestUI = require('../ui/interface').UI;
+		});
+
+		if (!TestUI) {
+			throw new Error('Failed to load UI module');
+		}
+
+		const addEventListenerSpy = jest.spyOn(window, 'addEventListener');
+		const originalOnBeforeUnload = window.onbeforeunload;
+		const uiState = { ignoreNextConfirmUnload: false };
+
+		TestUI.prototype.confirmWindowUnload.call(uiState as UI);
+
+		const refreshKeydownListenerCall = addEventListenerSpy.mock.calls.find(
+			([eventName]) => eventName === 'keydown',
+		);
+		const refreshKeydownListener = refreshKeydownListenerCall?.[1] as
+			| ((event: KeyboardEvent) => void)
+			| undefined;
+
+		expect(refreshKeydownListener).toBeDefined();
+		if (!refreshKeydownListener) {
+			throw new Error('refresh keydown listener should be defined');
+		}
+
+		const refreshShortcutEvent = {
+			key: 'r',
+			ctrlKey: true,
+			metaKey: false,
+			altKey: false,
+			preventDefault: jest.fn(),
+			stopPropagation: jest.fn(),
+			stopImmediatePropagation: jest.fn(),
+		} as unknown as KeyboardEvent;
+		refreshKeydownListener(refreshShortcutEvent);
+
+		expect(refreshShortcutEvent.preventDefault).toHaveBeenCalledTimes(1);
+		expect(refreshShortcutEvent.stopPropagation).toHaveBeenCalledTimes(1);
+		expect(refreshShortcutEvent.stopImmediatePropagation).toHaveBeenCalledTimes(1);
+		expect(document.getElementById('ab-dev-reload-prompt')).toBeDefined();
+
+		const beforeUnloadListener = window.onbeforeunload as
+			| ((event: BeforeUnloadEvent) => string | void)
+			| undefined;
+		expect(beforeUnloadListener).toBeDefined();
+
+		const actionButtons = Array.from(
+			document.querySelectorAll('#ab-dev-reload-prompt .dev-reload-button'),
+		) as HTMLButtonElement[];
+		const reloadButton = actionButtons[1] as HTMLButtonElement | undefined;
+		expect(reloadButton).toBeDefined();
+
+		try {
+			reloadButton?.click();
+		} catch (error) {
+			expect(String(error)).toContain('Not implemented: navigation');
+		}
+
+		expect(document.getElementById('ab-dev-reload-prompt')).toBeNull();
+		expect(uiState.ignoreNextConfirmUnload).toBe(true);
+
+		const bypassEvent = {
+			preventDefault: jest.fn(),
+			returnValue: 'existing',
+		} as unknown as BeforeUnloadEvent;
+		const bypassResult = beforeUnloadListener?.(bypassEvent);
+		expect(bypassEvent.preventDefault).not.toHaveBeenCalled();
+		expect((bypassEvent as unknown as { returnValue?: string }).returnValue).toBeUndefined();
+		expect(bypassResult).toBeUndefined();
+
+		addEventListenerSpy.mockRestore();
 		window.onbeforeunload = originalOnBeforeUnload;
 		process.env.NODE_ENV = originalNodeEnv;
 	});
