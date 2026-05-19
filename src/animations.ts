@@ -17,6 +17,7 @@ type AnimationOptions = {
 	ignoreMovementPoint?: boolean;
 	ignoreTraps?: boolean;
 	ignoreFacing?: boolean;
+	animation?: string;
 	teleportEffect?: 'abolishedBonfire';
 	createTeleportDestinationTraps?: () => Trap[];
 	callback?: () => void;

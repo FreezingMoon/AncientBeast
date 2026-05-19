@@ -194,7 +194,45 @@ export default class BotController {
 		const ageFactor = Math.max(0, creature.turnsActive - 4) * 0.5;
 		const stagnantRounds = this.game.turn - this.lastDamageRound;
 		const stagnationFactor = Math.max(0, stagnantRounds - 3) * 1.5;
-		return Math.min(10, ageFactor + stagnationFactor);
+		const engagementPressure = Math.max(0, this.getTeamEngagementPressure(creature));
+		return Math.min(10, ageFactor + stagnationFactor + engagementPressure * 1.25);
+	}
+
+	private getTeamEngagementPressure(creature: Creature): number {
+		const allyPower = this.getTeamCombatPower(creature, Team.Ally);
+		const enemyPower = this.getTeamCombatPower(creature, Team.Enemy);
+		const advantage = allyPower - enemyPower;
+
+		// Keep pressure bounded so it nudges behavior without overriding tactical safety.
+		return Math.max(-4, Math.min(4, advantage / 350));
+	}
+
+	private getTeamCombatPower(reference: Creature, relation: Team): number {
+		let aliveUnits = 0;
+		let totalHealthRatio = 0;
+		let totalLevels = 0;
+		let upgradedAbilities = 0;
+
+		this.game.creatures.forEach((creature) => {
+			if (!creature || creature.dead || creature.temp || !isTeam(reference, creature, relation)) {
+				return;
+			}
+
+			aliveUnits += 1;
+
+			const maxHealth = Number(creature.stats?.health ?? 0);
+			if (maxHealth > 0) {
+				totalHealthRatio += Math.max(0, Math.min(1, creature.health / maxHealth));
+			}
+
+			totalLevels += Number.isFinite(Number(creature.level)) ? Number(creature.level) : 0;
+
+			upgradedAbilities += creature.abilities.filter(
+				(ability) => typeof ability?.isUpgraded === 'function' && ability.isUpgraded(),
+			).length;
+		});
+
+		return aliveUnits * 220 + totalHealthRatio * 140 + totalLevels * 55 + upgradedAbilities * 90;
 	}
 
 	isBotTurn() {
@@ -899,9 +937,12 @@ export default class BotController {
 			if (override !== undefined) return override;
 		}
 
+		const engagementPressure = this.getTeamEngagementPressure(creature);
+		const healthThreshold = Math.max(0.12, Math.min(0.5, 0.3 - engagementPressure * 0.04));
+		const energyThreshold = Math.max(0.1, Math.min(0.45, 0.25 - engagementPressure * 0.03));
 		const healthRatio = creature.health / creature.stats.health;
 		const energyRatio = creature.energy / creature.stats.energy;
-		return healthRatio < 0.3 || energyRatio < 0.25;
+		return healthRatio < healthThreshold || energyRatio < energyThreshold;
 	}
 
 	/**

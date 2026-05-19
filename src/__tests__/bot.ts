@@ -149,6 +149,11 @@ const makeHex = ({
 		adjacentHex: (_radius: number) => [] as Hex[],
 	} as unknown as Hex);
 
+const makeAbility = (upgraded: boolean) =>
+	({
+		isUpgraded: () => upgraded,
+	} as unknown as Creature['abilities'][number]);
+
 describe('BotController', () => {
 	afterEach(() => {
 		jest.useRealTimers();
@@ -480,7 +485,7 @@ describe('BotController', () => {
 			controller: 'bot',
 			health: 18,
 		});
- 		const enemyCreature = makeCreature({
+		const enemyCreature = makeCreature({
 			id: 2,
 			team: 1,
 			x: 10,
@@ -648,5 +653,105 @@ describe('BotController', () => {
 		expect(bot.isRetreating(activeCreature)).toBe(true);
 		expect(picked).toBe(safeRetreat);
 		expect(bot.scoreMoveHex(safeRetreat)).toBeGreaterThan(bot.scoreMoveHex(trapRetreat));
+	});
+
+	test('advantaged side is less likely to retreat at borderline health', () => {
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+			health: 28,
+			maxHealth: 100,
+		});
+		activeCreature.level = 7;
+		activeCreature.abilities = [
+			makeAbility(true),
+			makeAbility(true),
+			makeAbility(true),
+			{} as unknown as Creature['abilities'][number],
+		];
+
+		const strongAlly = makeCreature({
+			id: 2,
+			team: 2,
+			x: 1,
+			y: 0,
+			health: 100,
+			maxHealth: 100,
+		});
+		strongAlly.level = 6;
+		strongAlly.abilities = [
+			makeAbility(true),
+			makeAbility(true),
+			{} as unknown as Creature['abilities'][number],
+			{} as unknown as Creature['abilities'][number],
+		];
+
+		const weakEnemy = makeCreature({
+			id: 3,
+			team: 1,
+			x: 10,
+			y: 0,
+			health: 20,
+			maxHealth: 100,
+		});
+		weakEnemy.level = 1;
+
+		const game = makeGame(activeCreature, [strongAlly, weakEnemy]);
+		const bot = new BotController(game);
+
+		expect(bot.isRetreating(activeCreature)).toBe(false);
+	});
+
+	test('disadvantaged side retreats earlier at moderate health', () => {
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+			health: 32,
+			maxHealth: 100,
+		});
+		activeCreature.level = 1;
+
+		const strongEnemyA = makeCreature({
+			id: 2,
+			team: 1,
+			x: 8,
+			y: 0,
+			health: 100,
+			maxHealth: 100,
+		});
+		strongEnemyA.level = 7;
+		strongEnemyA.abilities = [
+			makeAbility(true),
+			makeAbility(true),
+			makeAbility(true),
+			{} as unknown as Creature['abilities'][number],
+		];
+
+		const strongEnemyB = makeCreature({
+			id: 3,
+			team: 3,
+			x: 9,
+			y: 0,
+			health: 95,
+			maxHealth: 100,
+		});
+		strongEnemyB.level = 6;
+		strongEnemyB.abilities = [
+			makeAbility(true),
+			makeAbility(true),
+			{} as unknown as Creature['abilities'][number],
+			{} as unknown as Creature['abilities'][number],
+		];
+
+		const game = makeGame(activeCreature, [strongEnemyA, strongEnemyB]);
+		const bot = new BotController(game);
+
+		expect(bot.isRetreating(activeCreature)).toBe(true);
 	});
 });
