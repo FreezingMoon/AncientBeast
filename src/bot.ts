@@ -2,6 +2,7 @@ import type Game from './game';
 import { Creature } from './creature';
 import { CreatureType } from './data/types';
 import { Hex } from './utility/hex';
+import type { Trap } from './utility/trap';
 import { Team, isTeam } from './utility/team';
 import { getSummonCandidates } from './utility/summon-candidates';
 import SnowBunnyStrategy from './bots/Snow-Bunny';
@@ -522,7 +523,24 @@ export default class BotController {
 			const filtered = candidates.filter(
 				(hex) => !(hex.x === activeCreature.x && hex.y === activeCreature.y),
 			);
-			return this.pickBestHex(filtered, (hex) => this.scoreMoveHex(hex));
+			const scored = filtered
+				.map((hex) => ({
+					hex,
+					score: this.scoreMoveHex(hex),
+					trapPenalty: this.getMovePathTrapPenalty(activeCreature, hex),
+				}))
+				.sort((left, right) => right.score - left.score);
+
+			const best = scored[0];
+			if (!best) {
+				return undefined;
+			}
+
+			if (this.shouldWaitInsteadOfRiskyMove(activeCreature, best, scored)) {
+				return undefined;
+			}
+
+			return best.hex;
 		}
 
 		if (action.type === 'summon') {
@@ -634,14 +652,111 @@ export default class BotController {
 		const zoneWeight = Math.max(1, 10 - aggression);
 		score -= Math.abs(hex.x - preferredX) * zoneWeight;
 
-		// Trap avoidance: penalty scales with how injured the unit is.
-		// At full health: light deterrent (-80). Near death: heavy deterrent (-350).
-		if (hex.trap) {
-			const healthRatio = activeCreature.health / activeCreature.stats.health;
-			score -= Math.round(80 + (1 - healthRatio) * 270);
-		}
+		// Penalize trap exposure both on the destination and along the walk path.
+		score -= this.getMovePathTrapPenalty(activeCreature, hex);
 
 		return score;
+	}
+
+	private getMovePathTrapPenalty(creature: Creature, destination: Hex): number {
+		let penalty = this.getTrapExposurePenalty(creature, destination.trap, true);
+
+		try {
+			const path = creature.calculatePath({ x: destination.x, y: destination.y });
+			path.forEach((pathHex) => {
+				const isOrigin = pathHex.x === creature.x && pathHex.y === creature.y;
+				const isDestination = pathHex.x === destination.x && pathHex.y === destination.y;
+				if (isOrigin || isDestination) {
+					return;
+				}
+				penalty += this.getTrapExposurePenalty(creature, pathHex.trap, false);
+			});
+		} catch {
+			// Keep scoring robust if a path cannot be computed from the mocked/runtime state.
+		}
+
+		return penalty;
+	}
+
+	private shouldWaitInsteadOfRiskyMove(
+		creature: Creature,
+		best: { trapPenalty: number },
+		allCandidates: Array<{ trapPenalty: number }>,
+	): boolean {
+		if (best.trapPenalty <= 0) {
+			return false;
+		}
+
+		const hasTrapSafeOption = allCandidates.some((candidate) => candidate.trapPenalty <= 0);
+		if (hasTrapSafeOption) {
+			return false;
+		}
+
+		const healthRatio = creature.health / creature.stats.health;
+		if (healthRatio <= 0.2 && best.trapPenalty >= 180) {
+			return true;
+		}
+
+		if (healthRatio <= 0.35 && best.trapPenalty >= 300) {
+			return true;
+		}
+
+		// Even healthy units should occasionally hold if every option is extremely dangerous.
+		return best.trapPenalty >= 950;
+	}
+
+	private getTrapExposurePenalty(
+		creature: Creature,
+		trap: Trap | undefined,
+		isDestination: boolean,
+	): number {
+		if (!trap) {
+			return 0;
+		}
+
+		const healthRatio = creature.health / creature.stats.health;
+		let penalty = Math.round(80 + (1 - healthRatio) * 270);
+
+		if (this.isLikelyDamagingTrap(trap)) {
+			penalty += healthRatio <= 0.35 ? 700 : 240;
+			if (healthRatio <= 0.2) {
+				penalty += 500;
+			}
+		}
+
+		if (!isDestination) {
+			penalty = Math.round(penalty * 0.6);
+		}
+
+		return penalty;
+	}
+
+	private isLikelyDamagingTrap(trap: Trap): boolean {
+		const effects = trap.effects;
+		if (!Array.isArray(effects) || effects.length === 0) {
+			return false;
+		}
+
+		return effects.some((effect) => {
+			const trigger = `${effect?.trigger ?? ''}`;
+			if (!/onStepIn|onStepOut/.test(trigger)) {
+				return false;
+			}
+
+			const name = `${effect?.name ?? ''}`.toLowerCase();
+			const hint = `${effect?.specialHint ?? ''}`.toLowerCase();
+			if (/damage|burn|poison|shock|frost|mental|pure/.test(name + hint)) {
+				return true;
+			}
+
+			const effectFn = effect?.effectFn;
+			if (typeof effectFn !== 'function') {
+				return true;
+			}
+
+			const effectSource = Function.prototype.toString.call(effectFn);
+			return /takeDamage|new Damage|applyDamage|damages/.test(effectSource);
+		});
 	}
 
 	scoreSummonHex(hex: Hex) {
@@ -778,10 +893,8 @@ export default class BotController {
 			score += Math.max(0, 10 - nearestDrop) * 20;
 		}
 
-		// Retreating units are already injured — strongly avoid traps.
-		if (hex.trap) {
-			score -= 350;
-		}
+		// Retreating units are already injured; heavily penalize trap exposure.
+		score -= this.getMovePathTrapPenalty(activeCreature, hex);
 
 		return score;
 	}

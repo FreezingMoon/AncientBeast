@@ -30,6 +30,7 @@ const makeCreature = ({
 	y,
 	controller = 'human',
 	health = 100,
+	maxHealth = 100,
 	size = 1,
 }: {
 	id: number;
@@ -38,19 +39,21 @@ const makeCreature = ({
 	y: number;
 	controller?: 'human' | 'bot';
 	health?: number;
+	maxHealth?: number;
 	size?: number;
 }) => {
 	const creature = Object.create(Creature.prototype);
 	Object.assign(creature, {
 		id,
 		team,
+		level: 1,
 		x,
 		y,
 		health,
 		size,
 		dead: false,
 		temp: false,
-		hexagons: [{ x, y }],
+		hexagons: [{ x, y, pos: { x, y } }],
 		player: {
 			id: team,
 			controller,
@@ -58,9 +61,10 @@ const makeCreature = ({
 		abilities: [],
 		remainingMove: 0,
 		isDarkPriest: () => false,
+		calculatePath: jest.fn(() => []),
 		queryMove: jest.fn(),
 		stats: {
-			health,
+			health: maxHealth,
 			energy: 100,
 		},
 		energy: 100,
@@ -74,9 +78,10 @@ const makeCreature = ({
 		y: number;
 		health: number;
 		size: number;
+		level: number;
 		dead: boolean;
 		temp: boolean;
-		hexagons: { x: number; y: number }[];
+		hexagons: { x: number; y: number; pos: { x: number; y: number } }[];
 		player: {
 			id: number;
 			controller: 'human' | 'bot';
@@ -84,6 +89,7 @@ const makeCreature = ({
 		abilities: unknown[];
 		remainingMove: number;
 		isDarkPriest: () => boolean;
+		calculatePath: jest.Mock;
 		queryMove: jest.Mock;
 		stats: { health: number; energy: number };
 		energy: number;
@@ -97,8 +103,10 @@ const makeGame = (activeCreature: ReturnType<typeof makeCreature>, otherCreature
 	({
 		activeCreature,
 		creatures: [activeCreature, ...otherCreatures],
+		drops: [],
 		grid: {
 			lastQueryOpt: undefined,
+			hexes: [[makeHex({ x: 0, y: 0 })]],
 			findCreatureMovementHexes: () => [],
 		},
 		multiplayer: false,
@@ -119,15 +127,25 @@ const makeHex = ({
 	x,
 	y,
 	creature,
+	trap,
 }: {
 	x: number;
 	y: number;
 	creature?: ReturnType<typeof makeCreature>;
+	trap?: {
+		effects: Array<{
+			trigger?: string;
+			name?: string;
+			specialHint?: string;
+			effectFn?: (...args: unknown[]) => unknown;
+		}>;
+	};
 }) =>
 	({
 		x,
 		y,
 		creature,
+		trap,
 		adjacentHex: (_radius: number) => [] as Hex[],
 	} as unknown as Hex);
 
@@ -451,5 +469,143 @@ describe('BotController', () => {
 		expect(activeCreature.queryMove).not.toHaveBeenCalled();
 		expect(bot.pendingAction).toBeNull();
 		expect(game.skipTurn).toHaveBeenCalledWith({ noTooltip: true });
+	});
+
+	test('low-health bot prefers a safe tile over a damaging trap tile', () => {
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+			health: 18,
+		});
+ 		const enemyCreature = makeCreature({
+			id: 2,
+			team: 1,
+			x: 10,
+			y: 0,
+		});
+
+		const safeHex = makeHex({ x: 3, y: 0 });
+		const trapHex = makeHex({
+			x: 1,
+			y: 0,
+			trap: {
+				effects: [
+					{
+						trigger: 'onStepIn',
+						name: 'burn damage',
+					},
+				],
+			},
+		});
+
+		const game = makeGame(activeCreature, [enemyCreature]);
+		const bot = new BotController(game);
+		bot.pendingAction = { type: 'move' };
+
+		const picked = bot.chooseHexForCurrentQuery([trapHex, safeHex]);
+
+		expect(picked).toBe(safeHex);
+		expect(bot.scoreMoveHex(safeHex)).toBeGreaterThan(bot.scoreMoveHex(trapHex));
+	});
+
+	test('low-health bot avoids routes that cross damaging traps when a safe route exists', () => {
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+			health: 20,
+		});
+		const enemyCreature = makeCreature({
+			id: 2,
+			team: 1,
+			x: 10,
+			y: 0,
+		});
+
+		const damagingTrap = {
+			effects: [
+				{
+					trigger: 'onStepOut',
+					effectFn: () => {
+						/* noop */
+					},
+				},
+			],
+		};
+
+		const safeDestination = makeHex({ x: 2, y: 1 });
+		const riskyDestination = makeHex({ x: 2, y: 0 });
+
+		activeCreature.calculatePath.mockImplementation(({ x, y }: { x: number; y: number }) => {
+			if (x === 2 && y === 0) {
+				return [makeHex({ x: 1, y: 0, trap: damagingTrap }), riskyDestination];
+			}
+			return [safeDestination];
+		});
+
+		const game = makeGame(activeCreature, [enemyCreature]);
+		const bot = new BotController(game);
+		bot.pendingAction = { type: 'move' };
+
+		const picked = bot.chooseHexForCurrentQuery([riskyDestination, safeDestination]);
+
+		expect(picked).toBe(safeDestination);
+		expect(bot.scoreMoveHex(safeDestination)).toBeGreaterThan(bot.scoreMoveHex(riskyDestination));
+	});
+
+	test('low-health bot waits when all movement options are trapped', () => {
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+			health: 14,
+		});
+		const enemyCreature = makeCreature({
+			id: 2,
+			team: 1,
+			x: 10,
+			y: 0,
+		});
+
+		const trapHexA = makeHex({
+			x: 1,
+			y: 0,
+			trap: {
+				effects: [
+					{
+						trigger: 'onStepIn',
+						name: 'poison damage',
+					},
+				],
+			},
+		});
+
+		const trapHexB = makeHex({
+			x: 1,
+			y: 1,
+			trap: {
+				effects: [
+					{
+						trigger: 'onStepOut',
+						name: 'burn damage',
+					},
+				],
+			},
+		});
+
+		const game = makeGame(activeCreature, [enemyCreature]);
+		const bot = new BotController(game);
+		bot.pendingAction = { type: 'move' };
+
+		const picked = bot.chooseHexForCurrentQuery([trapHexA, trapHexB]);
+
+		expect(picked).toBeUndefined();
 	});
 });
