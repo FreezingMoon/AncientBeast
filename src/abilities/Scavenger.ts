@@ -335,7 +335,10 @@ export default (G: Game) => {
 				let distance = 0;
 				let k = 0;
 				const start = G.grid.hexes[crea.y][crea.x];
-				while (!distance) {
+				// Guard against creaDest being unreachable (e.g. same hex as start,
+				// which adjacentHex never includes) to prevent an infinite loop.
+				const maxBoardDistance = 30;
+				while (!distance && k < maxBoardDistance) {
 					k++;
 
 					if (arrayUtils.findPos(start.adjacentHex(k), creaDest)) {

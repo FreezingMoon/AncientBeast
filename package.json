@@ -92,7 +92,8 @@
 		"test": "npm run lint && npm run build && jest",
 		"test:jest": "jest",
 		"jest": "jest",
-		"start:jest": "jest --watch"
+		"start:jest": "jest --watch",
+		"simulate": "jest --config jest.simulation.config.js --runInBand"
 	},
 	"lint-staged": {
 		"*.{ts,js}": [

@@ -129,6 +129,12 @@ export default class BotController {
 	failedAbilityIds = new Set<number>();
 	isResolvingQuery = false;
 	stalePendingActionMs = 2200;
+	/** Delay before the onSelect callback fires in resolveQuery (ms). */
+	selectDelayMs = 50;
+	/** Delay before the onConfirm callback fires in resolveQuery (ms). */
+	confirmDelayMs = 140;
+	/** Default delay passed to queueDecision() when scheduling a new turn. */
+	turnDelayMs = 300;
 	/** The game round during which damage was last dealt to any creature. */
 	lastDamageRound = 0;
 
@@ -156,7 +162,7 @@ export default class BotController {
 			(message === 'abilityend' || message === 'movementComplete') &&
 			payload?.creature?.id === this.game.activeCreature?.id
 		) {
-			this.queueDecision(250);
+			this.queueDecision(this.turnDelayMs);
 		}
 	}
 
@@ -174,9 +180,13 @@ export default class BotController {
 				// Dazzled unit — the creature's activate() will handle the skip
 				return;
 			}
+			if (creature?.isFrozen() || creature?.isDizzy()) {
+				// Frozen/dizzied unit — the creature's activate() interval will handle the skip
+				return;
+			}
 			// Minimize the combat log so it doesn't obstruct bot actions
 			this.game.UI?.chat?.hide();
-			this.queueDecision(1350);
+			this.queueDecision(this.turnDelayMs * 4 + 150);
 		}
 	}
 
@@ -275,9 +285,15 @@ export default class BotController {
 
 		if (this.pendingAction) {
 			const staleMs = Date.now() - this.pendingActionSetAt;
-			if (!this.isResolvingQuery && staleMs > this.stalePendingActionMs) {
+			if (staleMs > this.stalePendingActionMs) {
+				// Force-clear even if isResolvingQuery is stuck true from a failed chain.
+				this.isResolvingQuery = false;
 				this.clearPendingAction({ markFailedAbility: true });
 				this.queueDecision(120);
+			} else if (!this.isResolvingQuery) {
+				// No active resolution cycle driving progress; schedule a retry after
+				// the remaining stale window so we don't just silently block forever.
+				this.queueDecision(Math.max(200, this.stalePendingActionMs - staleMs + 100));
 			}
 			return;
 		}
@@ -401,6 +417,12 @@ export default class BotController {
 			}
 
 			// Case C: query opened successfully — wait for resolveQuery callback.
+			// Add a stale-recovery insurance timer: if the resolution timers fire normally
+			// they call queueDecision which cancels this; if resolveQuery was skipped due
+			// to a stale isResolvingQuery=true, this fires and the stale path recovers.
+			if (this.pendingAction !== null) {
+				this.queueDecision(this.stalePendingActionMs + 200);
+			}
 			return true;
 		}
 
@@ -453,6 +475,19 @@ export default class BotController {
 		this.setPendingAction({ type: 'move' });
 		this.moveAttempted = true;
 		activeCreature.queryMove();
+		// If queryHexes wasn't reached (noActionPossible skips it for bots), resolveQuery
+		// was never called so pendingAction stays set with no resolver — clear immediately.
+		if (this.pendingAction !== null && !this.isResolvingQuery) {
+			this.clearPendingAction();
+			return false;
+		}
+		// resolveQuery was entered (isResolvingQuery=true) but may have been skipped if a
+		// previous call left it stuck true.  Schedule a stale-recovery check as insurance:
+		// if the normal resolution timers (50ms + 140ms) fire they call queueDecision which
+		// cancels this; if they don't, we recover via the stale-action path in takeTurn.
+		if (this.pendingAction !== null) {
+			this.queueDecision(this.stalePendingActionMs + 200);
+		}
 		return true;
 	}
 
@@ -531,7 +566,7 @@ export default class BotController {
 				this.isResolvingQuery = false;
 				failPendingAction();
 			}
-		}, 50);
+		}, this.selectDelayMs);
 
 		setTimeout(() => {
 			if (!this.isBotTurn()) {
@@ -542,21 +577,32 @@ export default class BotController {
 			try {
 				handlers.onConfirm(chosenHex);
 			} catch {
+				// Ensure isResolvingQuery is cleared so the next resolveQuery() call is
+				// not blocked by a stale true value from a chained query that was started
+				// inside onConfirm before it threw.
+				this.isResolvingQuery = false;
 				failPendingAction();
 				return;
 			}
-			setTimeout(() => {
-				if (this.pendingAction && !this.isResolvingQuery) {
-					this.clearPendingAction();
-				}
-			}, 0);
+			// Clear pendingAction synchronously after onConfirm returns.
+			// Using setTimeout(0) is unreliable: sinon fake timers enforce a 1ms minimum
+			// delay, so a setTimeout(0) fires at the same tick as setTimeout(1) —
+			// AFTER any timer scheduled inside onConfirm (e.g. movementComplete).
+			// Clearing here ensures pendingAction is null when movementComplete fires
+			// its callback, preventing queryHexes from re-entering resolveQuery.
+			// The guard `!isResolvingQuery` protects chained ability queries: if a
+			// second query opened during onConfirm it set isResolvingQuery=true, so
+			// we skip the clear and let that chain's resolution cycle clear it instead.
+			if (this.pendingAction && !this.isResolvingQuery) {
+				this.clearPendingAction();
+			}
 			// Always keep a fallback decision in case no follow-up signal arrives.
 			// If a chained query starts during onConfirm, defer fallback scheduling
 			// to the chained resolution cycle instead.
 			if (!this.isResolvingQuery) {
-				this.queueDecision(1200);
+				this.queueDecision(this.confirmDelayMs * 9);
 			}
-		}, 140);
+		}, this.confirmDelayMs);
 	}
 
 	chooseHexForCurrentQuery(hexes: Hex[]) {
@@ -738,9 +784,17 @@ export default class BotController {
 		opts: { retreating: boolean } = { retreating: false },
 	): number {
 		let penalty = 0;
+		// Always check destination hex — getTrapsForHex falls back to hex.trap for unit tests.
 		this.getTrapsForHex(destination).forEach((trap) => {
 			penalty += this.getTrapExposurePenalty(creature, trap, true, opts);
 		});
+
+		// Skip the expensive A* path scan when no traps are registered in the game.
+		// game.traps is the authoritative source for live traps; unit tests that set
+		// hex.trap directly still get the destination check above.
+		if (!this.game.traps?.length) {
+			return penalty;
+		}
 
 		try {
 			const path = creature.calculatePath({ x: destination.x, y: destination.y });

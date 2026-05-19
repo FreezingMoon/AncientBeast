@@ -2,7 +2,6 @@
 import * as $j from 'jquery';
 import { Direction, Hex } from './hex';
 import { Creature } from '../creature';
-import { search } from './pathfinding';
 import * as matrices from './matrices';
 import { Team, isTeam } from './team';
 import * as arrayUtils from './arrayUtils';
@@ -1835,22 +1834,37 @@ export class HexGrid {
 	 * @returns {Hex[]} Set of the reachable hexes
 	 */
 	getMovementRange(x, y, distance, size, id) {
-		//	Populate distance (hex.g) in hexes by asking an impossible
-		//	destination to test all hexagons
-		this.cleanReachable(); // If not pathfinding will bug
-		this.cleanPathAttr(true); // Erase all pathfinding data
-		search(this.hexes[y][x], new Hex(-2, -2, null, this.game), size, id, this.game.grid);
+		this.cleanReachable(); // Required: resets hex.reachable flags for isWalkable correctness
+		this.cleanPathAttr(true); // Erase all pathfinding data (sets hex.g = 0)
 
-		// Gather all the reachable hexes
-		const hexes: Hex[] = [];
-		this.forEachHex((hex) => {
-			// If not Too far or Impossible to reach
-			if (hex.g <= distance && hex.g != 0) {
-				hexes.push(this.hexes[hex.y][hex.x]);
+		if (distance <= 0) {
+			return [];
+		}
+
+		// BFS to collect all hexes reachable within `distance` steps.
+		// O(V) vs the prior O(V²) A* hack that used an impossible destination
+		// to populate hex.g across the whole grid.
+		const start = this.hexes[y][x];
+		const visited = new Set<Hex>([start]);
+		const reachable: Hex[] = [];
+		let frontier: Hex[] = [start];
+
+		for (let d = 1; d <= distance && frontier.length > 0; d++) {
+			const nextFrontier: Hex[] = [];
+			for (const current of frontier) {
+				for (const neighbor of current.adjacentHex(1)) {
+					if (visited.has(neighbor)) continue;
+					visited.add(neighbor);
+					if (!neighbor.isWalkable(size, id)) continue;
+					neighbor.g = d;
+					reachable.push(neighbor);
+					nextFrontier.push(neighbor);
+				}
 			}
-		});
+			frontier = nextFrontier;
+		}
 
-		return arrayUtils.extendToLeft(hexes, size, this.game.grid);
+		return arrayUtils.extendToLeft(reachable, size, this.game.grid);
 	}
 
 	/**

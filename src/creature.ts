@@ -1983,7 +1983,7 @@ export class Creature {
 		// If the creature has an ability that modifies movement type, use that,
 		// otherwise use the creature's base movement type
 		for (let i = 0; i < totalAbilities; i++) {
-			if ('movementType' in this.abilities[i]) {
+			if (typeof this.abilities[i].movementType === 'function') {
 				return this.abilities[i].movementType();
 			}
 		}

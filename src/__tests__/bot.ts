@@ -238,7 +238,7 @@ describe('BotController', () => {
 		expect(onConfirm).toHaveBeenCalled();
 		jest.runOnlyPendingTimers();
 		expect(bot.pendingAction).toBeNull();
-		expect(queueDecisionSpy).toHaveBeenCalledWith(1200);
+		expect(queueDecisionSpy).toHaveBeenCalledWith(1260);
 	});
 
 	test('query resolution preserves pending ability for chained bot queries', () => {

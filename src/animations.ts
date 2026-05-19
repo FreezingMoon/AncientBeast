@@ -890,10 +890,11 @@ export class Animations {
 			game.soundsys.playSFX('sounds/step');
 
 			if (!opts.ignoreMovementPoint) {
-				// Determine distance
+				// Determine distance; guard against same-hex edge case to prevent an infinite loop.
 				let distance = 0;
 				let k = 0;
-				while (!distance) {
+				const maxBoardDistance = 30;
+				while (!distance && k < maxBoardDistance) {
 					k++;
 
 					if (arrayUtils.findPos(start.adjacentHex(k), currentHex)) {
