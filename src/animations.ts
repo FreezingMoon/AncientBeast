@@ -1226,8 +1226,16 @@ export class Animations {
 		if (!opts.ignoreFacing && !opts.pushed) {
 			creature.faceHex(hex, creature.hexagons[0], false, false); // Determine facing
 		}
+		const stepOutHex = creature.hexagons[0];
 		// @ts-expect-error 2554
-		game.onStepOut(creature, creature.hexagons[0]); // Trigger
+		game.onStepOut(creature, stepOutHex); // Trigger
+
+		// For walk/fly, clear logical occupancy right as movement starts so volumetric trap
+		// visuals on the origin hex stop rendering above the moving creature immediately.
+		// For teleport, preserve origin occupancy during the curtain/transition animation.
+		if (opts.animation !== 'teleport') {
+			creature.cleanHex();
+		}
 		game.grid.orderCreatureZ();
 	}
 
