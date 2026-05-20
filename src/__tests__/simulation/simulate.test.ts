@@ -225,16 +225,26 @@ import type { QualityMetrics } from './stats';
 
 // Load all ability files so creatures have working skills
 const ABILITY_FILES = [
-	'../../abilities/Dark-Priest',
-	'../../abilities/Snow-Bunny',
 	'../../abilities/Abolished',
+	'../../abilities/Bounty-Hunter',
+	'../../abilities/Chimera',
+	'../../abilities/Cyber-Wolf',
+	'../../abilities/Cycloper',
+	'../../abilities/Dark-Priest',
 	'../../abilities/Golden-Wyrm',
 	'../../abilities/Gumble',
-	'../../abilities/Vehemoth',
-	'../../abilities/Stomper',
-	'../../abilities/Cycloper',
+	'../../abilities/Headless',
+	'../../abilities/Horn-Head',
 	'../../abilities/Impaler',
-	'../../abilities/Cyber-Wolf',
+	'../../abilities/Infernal',
+	'../../abilities/Knightmare',
+	'../../abilities/Nutcase',
+	'../../abilities/Scavenger',
+	'../../abilities/Snow-Bunny',
+	'../../abilities/Stomper',
+	'../../abilities/Swine-Thug',
+	'../../abilities/Uncle-Fungus',
+	'../../abilities/Vehemoth',
 ];
 
 function loadAbilities(): Array<(G: any) => void> {

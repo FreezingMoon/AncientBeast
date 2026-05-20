@@ -322,7 +322,9 @@ export default (G: Game) => {
 							const interval = setInterval(function () {
 								if (!G.freezedInput) {
 									clearInterval(interval);
-									G.activeCreature.queryMove();
+									if (G.activeCreature?.player?.controller !== 'bot') {
+										G.activeCreature.queryMove();
+									}
 									headless.facePlayerDefault();
 								}
 							}, 100);
@@ -340,7 +342,9 @@ export default (G: Game) => {
 							const interval = setInterval(function () {
 								if (!G.freezedInput) {
 									clearInterval(interval);
-									G.activeCreature.queryMove();
+									if (G.activeCreature?.player?.controller !== 'bot') {
+										G.activeCreature.queryMove();
+									}
 									headless.facePlayerDefault();
 								}
 							}, 100);

@@ -69,11 +69,11 @@ function makeTween() {
 		repeat: () => tween,
 		onUpdateCallback: () => tween,
 		onComplete: {
-			add(cb: () => void) {
-				completeCb = cb;
+			add(cb: (...args: any[]) => void, context?: any) {
+				completeCb = context ? cb.bind(context) : cb;
 			},
-			addOnce(cb: () => void) {
-				completeCb = cb;
+			addOnce(cb: (...args: any[]) => void, context?: any) {
+				completeCb = context ? cb.bind(context) : cb;
 			},
 		},
 	};
@@ -498,6 +498,12 @@ function makeSoundSysStub() {
  *                   (each has signature `(G: Game) => void`)
  */
 export function createGame(abilities: Array<(G: any) => void>): any {
+	// Stub requestAnimationFrame to prevent hex spin-loops from consuming fake-timer
+	// budget. The real rAF is unused in simulation (no renderer), so we replace it with
+	// a noop that returns 0 (a valid cancel handle) and ignore cancelAnimationFrame.
+	(global as any).requestAnimationFrame = (_cb: () => void) => 0;
+	(global as any).cancelAnimationFrame = (_id: number) => undefined;
+
 	// Use require() (synchronous) instead of dynamic import() to avoid
 	// process.nextTick-based Promise resolution, which hangs when Jest fake
 	// timers are active (fake timers intercept process.nextTick).
@@ -580,6 +586,64 @@ export function createGame(abilities: Array<(G: any) => void>): any {
 	// game.setup() calls `this.animations = new Animations(this)` internally, which
 	// overwrites any pre-setup assignment. Re-install the mock here, after setup().
 	game.animations = new MockAnimations(game);
+
+	// Collapse ability animation delays from 350ms/500ms → 1ms/2ms (one-time prototype patch).
+	// The real timings generate ~9 fake-timer callbacks per ability use; with 1ms/2ms and a
+	// 1ms setInterval the whole cycle completes in ~3 callbacks, giving ~3× fewer fake-time
+	// events and keeping games from hitting MAX_SIM_TURNS due to animation-blocked turns.
+	// eslint-disable-next-line @typescript-eslint/no-var-requires
+	const AbilityClass = (require('../../ability') as any).Ability;
+	if (!(AbilityClass.prototype.animation2 as any)._simPatched) {
+		AbilityClass.prototype.animation2 = function (this: any, o: any) {
+			const g = this.game;
+			const opt = Object.assign({ callback: () => {}, arg: {} }, o);
+			const args = opt.arg;
+			const activateAbility = () => {
+				this.activate(args[0], args[1], args[2]);
+				this.postActivate();
+			};
+
+			g.freezedInput = true;
+
+			if (this.getTrigger() === 'onQuery') {
+				const animId = Math.random();
+				g.animationQueue.push(animId);
+
+				// 1ms instead of animationData.delay (default 350ms)
+				setTimeout(() => {
+					if (!g.triggers?.onUnderAttack?.test?.(this.getTrigger())) {
+						activateAbility();
+					}
+				}, 1);
+
+				// 2ms instead of animationData.duration (default 500ms)
+				setTimeout(() => {
+					const queue = g.animationQueue.filter((item: any) => item != animId);
+					if (queue.length === 0 && !g._deferredQueryMovePending) {
+						g.freezedInput = false;
+						g.grid?.refreshHoverState?.();
+					}
+					g.animationQueue = queue;
+				}, 2);
+			} else {
+				activateAbility();
+				if (g.animationQueue.length === 0) {
+					g.freezedInput = false;
+					g.grid?.refreshHoverState?.();
+				}
+			}
+
+			// 1ms instead of 100ms — fires on first tick after freezedInput clears
+			const iv = setInterval(() => {
+				if (!g.freezedInput) {
+					clearInterval(iv);
+					opt.callback();
+				}
+			}, 1);
+		};
+		(AbilityClass.prototype.animation2 as any)._simPatched = true;
+	}
+
 	// Replace real UI (created inside setup) with stub
 	game.UI = makeUiStub();
 
@@ -590,6 +654,11 @@ export function createGame(abilities: Array<(G: any) => void>): any {
 	// those assign the flag before calling updateStyle().
 	game.grid.allhexes.forEach((hex: any) => {
 		hex.updateStyle = () => undefined;
+		// Stop any rAF spin loops started during setup (hex.startSpinning uses
+		// requestAnimationFrame recursively; under Jest fake timers this fires
+		// ~312× per 5000ms tick, eating all wall-clock time).
+		hex.isSpinning = false;
+		hex.startSpinning = () => undefined;
 	});
 
 	// Fast-mode timing: collapse bot delays to 1 ms.
@@ -625,7 +694,7 @@ export interface MatchResult {
 	endedByTimeout: boolean;
 }
 
-const MAX_SIM_TURNS = 400; // hard cap — prevents infinite loops
+const MAX_SIM_TURNS = 150; // hard cap — prevents infinite loops
 
 /**
  * Advance a running game to completion using Jest fake timers.
@@ -644,18 +713,37 @@ export async function runMatch(game: any): Promise<MatchResult> {
 	// With bot delays collapsed to 1ms, total per creature turn ≈ 1515ms.
 	// TICK_MS=5000 covers ~3 creature turns per iteration (efficient).
 	const TICK_MS = 5_000;
-	const MAX_ELAPSED = MAX_SIM_TURNS * 10_000;
+	// Allow enough fake time for MAX_SIM_TURNS turns, with 2× headroom.
+	const MAX_ELAPSED = MAX_SIM_TURNS * 2_000;
 	let elapsed = 0;
+	// Wall-clock bail-out: process.hrtime.bigint() is unaffected by Jest fake
+	// timers, so this guards against truly hung games regardless of fake time.
+	const wallStart = process.hrtime.bigint();
+	const MAX_WALL_NS = BigInt(45_000) * BigInt(1_000_000); // 45 s per game
 
 	while (game.gameState !== 'ended' && game.turn < MAX_SIM_TURNS && elapsed < MAX_ELAPSED) {
+		const tickStart = process.hrtime.bigint();
 		jest.advanceTimersByTime(TICK_MS);
 		// Let microtasks (Promise callbacks from MockAnimations) flush
 		await Promise.resolve();
 		await Promise.resolve();
 		elapsed += TICK_MS;
+		const tickWallMs = Number(process.hrtime.bigint() - tickStart) / 1_000_000;
+		if (tickWallMs > 500) process.stderr.write(`  SLOW TICK fake=${elapsed/1000}s turn=${game.turn} wall=${tickWallMs.toFixed(0)}ms freeze=${game.freezedInput} deferred=${(game as any)._deferredQueryMovePending}\n`);
+		if (process.hrtime.bigint() - wallStart > MAX_WALL_NS) break;
+		// Debug: track what's stuck
+		if (game.freezedInput && elapsed % 15_000 === 0) {
+			const ac = game.activeCreature;
+			process.stderr.write(`  STUCK at turn=${game.turn} fake=${elapsed/1000}s creature=${ac?.name} deferred=${(game as any)._deferredQueryMovePending}\n`);
+		}
 	}
 
 	game.checkTime = origCheckTime;
+
+	// Debug: print end-of-game state to understand why game doesn't end
+	const endReason = game.gameState === 'ended' ? 'ended' : elapsed >= MAX_ELAPSED ? 'fake-time-limit' : 'wall-clock-limit';
+	const creatures = game.players.map((p: any) => `p${p.id}:[${p.creatures.map((c: any) => `${c.name}(dead=${c.dead})`).join(',')}]`).join(' ');
+	process.stderr.write(`  GAME END turn=${game.turn} reason=${endReason} state=${game.gameState} ${creatures}\n`);
 
 	const scores = game.players.map((p: any) => p.getScore().total);
 	let winnerIdx: number | null = null;

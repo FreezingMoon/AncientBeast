@@ -420,7 +420,15 @@ export default class BotController {
 				abilityIndex: i,
 			});
 			const previousQueryOpt = this.game.grid?.lastQueryOpt;
-			ability.use();
+			try {
+				ability.use();
+			} catch {
+				// Ability threw (e.g. TypeError accessing undefined position).
+				// Treat as a failed ability and try the next one.
+				this.clearPendingAction();
+				this.failedAbilityIds.add(i);
+				continue;
+			}
 
 			// Case A: resolveQuery already ran synchronously with no targets and cleared
 			// pendingAction (empty query path).  failedAbilityIds was already updated.

@@ -129,26 +129,39 @@ export const variants: Variant[] = [
 	{
 		label: 'max decisionCount = 12 (more actions per turn)',
 		patch: (game) => {
-			// Monkey-patch the takeTurn function to raise the cap
-			const origTakeTurn = game.botController.takeTurn?.bind(game.botController);
-			if (!origTakeTurn) return () => undefined;
-			// We patch by overriding decisionCount check — use prototype
+			// Monkey-patch takeTurn on the prototype to use a higher cap
 			const proto = Object.getPrototypeOf(game.botController);
 			const origMethod = proto.takeTurn;
 			proto.takeTurn = function (this: any) {
-				const origCap = 8;
-				const cap = 12;
-				// Temporarily raise the cap via a flag
-				this._simDecisionCap = cap;
-				const result = origMethod.call(this);
-				this._simDecisionCap = origCap;
-				return result;
+				// Temporarily override the instance's decisionCount check via a flag,
+				// then call the original. The original checks this.decisionCount >= 10,
+				// so we save/restore and substitute a higher cap by patching the check.
+				const origDecisionCount = this.decisionCount;
+				// Scale existing count so the effective cap is 12 instead of 10.
+				// If decisionCount is 10 (would stop), scale to 12 (lets through).
+				// Cap ratio: 10 → 12. Only adjust if at the boundary.
+				const orig = Object.getOwnPropertyDescriptor(this, 'decisionCount');
+				const REAL_CAP = 10;
+				const NEW_CAP = 12;
+				if (this.decisionCount >= REAL_CAP && this.decisionCount < NEW_CAP) {
+					// Temporarily bring it below the real cap so takeTurn doesn't skip
+					this.decisionCount = REAL_CAP - 1;
+					const result = origMethod.call(this);
+					// After the call decisionCount was incremented; clamp to origDecisionCount+1
+					if (this.decisionCount <= REAL_CAP) {
+						this.decisionCount = origDecisionCount + 1;
+					}
+					return result;
+				}
+				return origMethod.call(this);
 			};
-			return () => { proto.takeTurn = origMethod; };
+			return () => {
+				proto.takeTurn = origMethod;
+			};
 		},
 		suggestion:
 			'In src/bot.ts → BotController.takeTurn(), change:\n' +
-			'  if (this.decisionCount >= 8) {\n' +
+			'  if (this.decisionCount >= 10) {\n' +
 			'to:\n' +
 			'  if (this.decisionCount >= 12) {',
 	},

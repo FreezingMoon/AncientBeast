@@ -399,7 +399,7 @@ function createPowerAperturePhase1Effect(
 	G: Game,
 	onComplete?: () => void,
 ) {
-	if (typeof G.Phaser === 'undefined' || !G.Phaser.add) {
+	if (typeof G.Phaser === 'undefined' || !G.Phaser.add || !G.Phaser.make?.graphics) {
 		if (onComplete) {
 			onComplete();
 		}
@@ -565,7 +565,7 @@ function createPowerAperturePhase2Effect(
 	G: Game,
 	onComplete?: () => void,
 ) {
-	if (typeof G.Phaser === 'undefined' || !G.Phaser.add) {
+	if (typeof G.Phaser === 'undefined' || !G.Phaser.add || !G.Phaser.make?.graphics) {
 		if (onComplete) {
 			onComplete();
 		}
@@ -895,6 +895,9 @@ function countAlliedRelayWallsBeforeTarget(
 	}
 
 	const origin = getCycloperOrigin(cycloper);
+	if (!origin) {
+		return 0;
+	}
 	const line = G.grid.getHexLine(origin.x, origin.y, direction, cycloper.player.flipped);
 
 	// Find target position in line
@@ -934,6 +937,9 @@ function getTargetDistanceInDirection(
 	}
 
 	const origin = getCycloperOrigin(cycloper);
+	if (!origin) {
+		return Number.POSITIVE_INFINITY;
+	}
 	const line = G.grid.getHexLine(origin.x, origin.y, direction, cycloper.player.flipped);
 
 	let distance = 0;
@@ -995,6 +1001,9 @@ function getRiotShieldPlacementRange(cycloper: Creature, G: Game) {
 		: 0;
 	const scanDistance = baseRange + relayCount;
 	const origin = getCycloperOrigin(cycloper);
+	if (!origin) {
+		return [];
+	}
 	const result: Hex[] = [];
 	const seen = new Set<string>();
 
@@ -1070,7 +1079,10 @@ function createAcrylicWall3DPrintEffect(
 	const wallHeight = Math.abs(wallSprite.height);
 	const wallWidth = Math.abs(wallSprite.width);
 
-	if (typeof G.Phaser === 'undefined' || !G.Phaser.add) {
+	if (typeof G.Phaser === 'undefined' || !G.Phaser.add || !G.Phaser.make?.graphics) {
+		if (onComplete) {
+			onComplete();
+		}
 		return;
 	}
 
