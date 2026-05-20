@@ -546,7 +546,12 @@ export default (G: Game) => {
 				const damage = new Damage(vehemoth, damages, 1, [], G);
 
 				const emissionPoint = vehemoth.legacyProjectileEmissionPoint;
-				const targetHex = target.hexagons.reduce((closestHex, hex) => {
+				const hexagons = target.hexagons?.length ? target.hexagons : target.getHexMap?.() ?? [];
+				if (!hexagons.length) {
+					ability.end(true);
+					return;
+				}
+				const targetHex = hexagons.reduce((closestHex: any, hex: any) => {
 					return Math.abs(emissionPoint.x - hex.displayPos.x) <
 						Math.abs(emissionPoint.x - closestHex.displayPos.x)
 						? hex
