@@ -148,7 +148,7 @@ export default class BotController {
 	moveAttempted = false;
 	failedAbilityIds = new Set<number>();
 	isResolvingQuery = false;
-	stalePendingActionMs = 3000;
+	stalePendingActionMs = 2200;
 	/** Delay before the onSelect callback fires in resolveQuery (ms). */
 	selectDelayMs = 50;
 	/** Delay before the onConfirm callback fires in resolveQuery (ms). */
@@ -237,9 +237,9 @@ export default class BotController {
 	 * - Stagnation pressure: rises after 3 global damage-free rounds (+1.5 per round).
 	 */
 	getAggressionFactor(creature: Creature): number {
-		const ageFactor = Math.max(0, creature.turnsActive - 4) * 0.5;
+		const ageFactor = Math.max(0, creature.turnsActive - 4) * 0.3;
 		const stagnantRounds = this.game.turn - this.lastDamageRound;
-		const stagnationFactor = Math.max(0, stagnantRounds - 3) * 1.5;
+		const stagnationFactor = Math.max(0, stagnantRounds - 3) * 2.5;
 		const engagementPressure = Math.max(0, this.getTeamEngagementPressure(creature));
 		return Math.min(10, ageFactor + stagnationFactor + engagementPressure * 1.25);
 	}
