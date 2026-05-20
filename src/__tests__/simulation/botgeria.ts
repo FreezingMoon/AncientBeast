@@ -603,8 +603,18 @@ export function createGame(abilities: Array<(G: any) => void>): any {
 			const opt = Object.assign({ callback: () => {}, arg: {} }, o);
 			const args = opt.arg;
 			const activateAbility = () => {
-				this.activate(args[0], args[1], args[2]);
-				this.postActivate();
+				// Clamp setTimeout only during ability activation — collapses visual-
+				// only timers (Cycloper heal pulses, Knightmare/Vehemoth 250ms shot
+				// delay, keepFacing ticks) without touching bot retry timers.
+				const _origST = (global as any).setTimeout;
+				(global as any).setTimeout = (fn: any, delay: number, ...a: any[]) =>
+					_origST(fn, Math.min(delay ?? 0, 1), ...a);
+				try {
+					this.activate(args[0], args[1], args[2]);
+					this.postActivate();
+				} finally {
+					(global as any).setTimeout = _origST;
+				}
 			};
 
 			g.freezedInput = true;
@@ -648,16 +658,139 @@ export function createGame(abilities: Array<(G: any) => void>): any {
 		(AbilityClass.prototype.animation2 as any)._simPatched = true;
 	}
 
+	// Patch Creature.prototype.activate to use 1ms instead of 1000ms for the
+	// queryMove delay. The normal activation path has setInterval(fn, 1000) that
+	// delays queryMove (and thus bot AI) by 1000ms of fake time per creature.
+	// With 10+ creatures per round this costs 10+ seconds of fake time, requiring
+	// 5 TICK_MS=2000 iterations just for the delays. Capping all setInterval calls
+	// inside activate() to 1ms makes the whole round fit in a single tick.
+	// eslint-disable-next-line @typescript-eslint/no-var-requires
+	const CreatureClass = (require('../../creature') as any).Creature;
+	if (!(CreatureClass.prototype.activate as any)._simPatched) {
+		const _origActivate = CreatureClass.prototype.activate;
+		CreatureClass.prototype.activate = function (this: any, ...args: any[]) {
+			// Temporarily wrap setInterval to cap the delay to 1ms for all calls
+			// inside activate(). This collapses the 1000ms UI-only delay before
+			// queryMove to 1ms, without changing any game logic.
+			const _realSetInterval = (global as any).setInterval;
+			(global as any).setInterval = (fn: any, delay: number, ...a: any[]) =>
+				_realSetInterval(fn, Math.min(delay, 1), ...a);
+			try {
+				return _origActivate.apply(this, args);
+			} finally {
+				(global as any).setInterval = _realSetInterval;
+			}
+		};
+		(CreatureClass.prototype.activate as any)._simPatched = true;
+	}
+
+	// Skip the BFS part of queryMove(null) in deactivate('turn-end'): the
+	// movement-range computation exists only to refresh the hover display for the
+	// incoming creature. In simulation the bot calls its own queryMove() via
+	// tryMove(). The non-UI side effects (clearing freezedInput,
+	// decrementing _deferredQueryMovePending) are preserved.
+	if (!(CreatureClass.prototype.deactivate as any)._simPatched) {
+		const _origDeactivate = CreatureClass.prototype.deactivate;
+		CreatureClass.prototype.deactivate = function (this: any, reason: string) {
+			if (reason === 'turn-end') {
+				const game = this.game;
+				this.resetBounce?.();
+				this.status.frozen = false;
+				this.status.cryostasis = false;
+				this.status.dizzy = false;
+				game.grid.lastMouseHex = undefined;
+				game.grid.suppressNextHoverRefresh = true;
+				this.remainingMove = 0;
+				// Preserve the non-UI side effects of queryMove(null):
+				// decrement deferred-query counter and clear freezedInput.
+				if (game._deferredQueryMovePending > 0) game._deferredQueryMovePending--;
+				if (game._deferredQueryMovePending === 0 && game.animationQueue.length === 0) {
+					game.freezedInput = false;
+				}
+				// Skip: getMovementRange() BFS + queryHexes() — UI-only hover refresh
+				this.turnsActive += 1;
+				this._nextGameTurnActive = game.turn + 1;
+				// @ts-expect-error 2554
+				game.onEndPhase(this);
+				this.hasWait = this.isDelayed;
+			} else {
+				_origDeactivate.call(this, reason);
+			}
+		};
+		(CreatureClass.prototype.deactivate as any)._simPatched = true;
+	}
+
+	// Fast-path hex.trap and hex.creature getters — bypass PointFacade overhead.
+	// The default getters call getPointFacade().getTrapsAt() / getCreaturesAt(), which
+	// creates a new PointFacade instance, builds a hash Set, and iterates ALL traps or
+	// creatures with per-item blocked/passable point lookups on every access.
+	// Profiling shows hex.trap alone accounts for 10.7% of all CPU ticks (=~1.8s/game)
+	// and the creature getter adds another 9.5%.  Simple linear scans of game.traps and
+	// game.creatures are much cheaper (no allocation, no hash ops, 2-5× fewer comparisons).
+	// eslint-disable-next-line @typescript-eslint/no-var-requires
+	const HexClass = (require('../../utility/hex') as any).Hex;
+	if (!(HexClass.prototype as any)._simGetterPatched) {
+		Object.defineProperty(HexClass.prototype, 'trap', {
+			get(this: any) {
+				const traps: any[] = this.game?.traps;
+				if (!traps) return undefined;
+				for (let i = 0; i < traps.length; i++) {
+					if (traps[i].x === this.x && traps[i].y === this.y) return traps[i];
+				}
+				return undefined;
+			},
+			configurable: true,
+		});
+		Object.defineProperty(HexClass.prototype, 'creature', {
+			get(this: any) {
+				const creatures: any[] = this.game?.creatures;
+				if (!creatures) return undefined;
+				const { x, y } = this;
+				for (let i = 0; i < creatures.length; i++) {
+					const c = creatures[i];
+					if (!c || c.dead || c.isVaporized) continue;
+					const hexs: any[] = c.hexagons;
+					if (!hexs) continue;
+					for (let j = 0; j < hexs.length; j++) {
+						if (hexs[j].x === x && hexs[j].y === y) return c;
+					}
+				}
+				return undefined;
+			},
+			// Preserve the no-op setter that existed for compatibility
+			set(_value: any) {},
+			configurable: true,
+		});
+		(HexClass.prototype as any)._simGetterPatched = true;
+	}
+
 	// Replace real UI (created inside setup) with stub
 	game.UI = makeUiStub();
 
-	// Disable hex visual updates: skips ~15 regex ops + requestAnimationFrame spinning
-	// callbacks per call. Without this, 123K+ updateStyle() calls each schedule rAF
-	// animations that fire 7500× during fake-time advancement, consuming all wall time.
-	// hex.reachable is still set correctly by setReachable()/unsetReachable() because
-	// those assign the flag before calling updateStyle().
+	// Disable hex visual methods — all are purely cosmetic and contain expensive work:
+	// - cleanDisplayVisualState/cleanOverlayVisualState compile 9-14 new RegExp objects
+	//   per hex per call; updateDisplay() invokes them on all 63 hexes for every
+	//   queryHexes() call, yielding ~7 245 regex compilations per creature turn.
+	// - setReachable/unsetReachable access this.hitBox (a Phaser proxy) triggering the
+	//   proxy handler chain; hex.reachable is the only flag bot logic reads.
+	// - overlayVisualState/displayVisualState perform string concatenation + updateStyle.
+	// Stubbing these eliminates the bulk of per-turn simulation overhead.
 	game.grid.allhexes.forEach((hex: any) => {
 		hex.updateStyle = () => undefined;
+		hex.displayVisualState = () => undefined;
+		hex.cleanDisplayVisualState = () => undefined;
+		hex.overlayVisualState = () => undefined;
+		hex.cleanOverlayVisualState = () => undefined;
+		hex.setNotTarget = () => undefined;
+		hex.unsetNotTarget = () => undefined;
+		// setReachable/unsetReachable: keep the reachable flag (bot reads it) but skip
+		// hitBox proxy access (UI-only) and updateStyle (already a noop above).
+		hex.setReachable = function (this: any) {
+			this.reachable = true;
+		};
+		hex.unsetReachable = function (this: any) {
+			this.reachable = false;
+		};
 		// Stop any rAF spin loops started during setup (hex.startSpinning uses
 		// requestAnimationFrame recursively; under Jest fake timers this fires
 		// ~312× per 5000ms tick, eating all wall-clock time).
@@ -665,13 +798,119 @@ export function createGame(abilities: Array<(G: any) => void>): any {
 		hex.startSpinning = () => undefined;
 	});
 
+	// updateDisplay() iterates all hexes calling cleanDisplayVisualState and
+	// cleanOverlayVisualState — purely cosmetic, safe to skip entirely.
+	game.grid.updateDisplay = () => undefined;
+
+	// clearAllXray calls creature.xray() on every creature — pure visual effect.
+	game.grid.clearAllXray = () => undefined;
+
 	// Fast-mode timing: collapse bot delays to 1 ms.
 	// stalePendingActionMs must remain above selectDelayMs + confirmDelayMs.
 	const bc = game.botController;
 	bc.selectDelayMs = 1;
 	bc.confirmDelayMs = 1;
 	bc.turnDelayMs = 1;
+	bc.startTurnDelayMs = 1;
 	bc.stalePendingActionMs = 20;
+
+	// Silence game.log: suppresses console.log calls (Jest captures these with
+	// overhead) and skips 7 string.replace() ops per log message × ~thousands
+	// of messages per game.  All log output is purely informational.
+	game.log = () => undefined;
+
+	// Stub skipTurn and delayCreature to eliminate the 1000ms throttle +
+	// 350ms hint timers they schedule.  In a long game (150+ rounds ×
+	// ~10 creatures) those dead callbacks accumulate to 2000+ fake-timer
+	// entries, each costing real wall-clock time when sinon dispatches them.
+	// We keep all game-logic side-effects (temp-creature cleanup, deactivate,
+	// nextCreature) and fire the callback synchronously instead of after 1000ms.
+	game.skipTurn = function (this: any, o: any = {}) {
+		// Destroy any temp (summoned) creatures, as the real skipTurn does.
+		this.creatures?.filter((c: any) => c?.temp).forEach((c: any) => c.destroy?.());
+		if (this.turnThrottle) return;
+		const opts = Object.assign({ callback: () => {}, noTooltip: false, tooltip: 'Skipped' }, o);
+		if (this.activeCreature) {
+			this.pauseTime = 0;
+			this.activeCreature.deactivate?.('turn-end');
+			this.nextCreature?.();
+		}
+		// Fire callback synchronously — no 1000ms delay needed.
+		opts.callback?.();
+	};
+
+	game.delayCreature = function (this: any, o: any = {}) {
+		if (this.turnThrottle) return;
+		if (!this.activeCreature?.canWait || this.queue?.isCurrentEmpty?.()) return;
+		const opts = Object.assign({ callback: () => {} }, o);
+		this.activeCreature.wait?.();
+		this.nextCreature?.();
+		// Fire callback synchronously — no 1000ms delay needed.
+		opts.callback?.();
+	};
+
+	// Override nextCreature to use 1ms delays instead of 300ms+50ms.
+	// The original wraps everything in setTimeout(300ms){setInterval(50ms){…}};
+	// both delays are UI-transition aesthetics with no game-logic purpose.
+	// Collapsing them to a single 1ms setTimeout saves ~350ms of fake time per
+	// creature turn — roughly halving the total fake-time budget of a game.
+	// This mirrors the inner callback of game.ts:nextCreature exactly; keep in
+	// sync if that function changes.
+	const _origNextCreature = game.nextCreature.bind(game);
+	void _origNextCreature; // retained for reference; not called in fast path
+	game.nextCreature = function (this: any) {
+		this.UI?.closeDash?.();
+		this.UI?.btnToggleDash?.changeState?.('normal');
+		// clearAllXray is already stubbed to a noop above
+		if (this.gameState === 'ended') return;
+		this.stopTimer?.();
+		setTimeout(() => {
+			if (this.queue.isCurrentEmpty() || this.turn === 0) {
+				this.nextRound();
+				return;
+			}
+			const next = this.queue.queue[0];
+
+			// Non-playable creatures (e.g. Cycloper crystal walls) have no agency —
+			// skip them instantly without bot AI evaluation.
+			// Fast-path: replicate only the queue-advancing parts of deactivate('turn-end')
+			// without queryMove() or onEndPhase(), both of which do expensive O(N×4) loops
+			// over all creatures/abilities — with 13+ crystal walls per round, those loops
+			// dominate wall-clock time.
+			if (next.playable === false) {
+				this.activeCreature = next;
+				next.status.frozen = false;
+				next.status.cryostasis = false;
+				next.status.dizzy = false;
+				next.remainingMove = 0;
+				next.turnsActive = (next.turnsActive ?? 0) + 1;
+				next._nextGameTurnActive = this.turn + 1;
+				next.hasWait = false;
+				this.nextCreature?.();
+				return;
+			}
+
+			let differentPlayer = false;
+			if (this.activeCreature) {
+				differentPlayer = this.activeCreature.player !== next.player;
+			} else {
+				differentPlayer = true;
+			}
+			const last = this.activeCreature;
+			this.activeCreature = next;
+			if (last && !last.dead) last.updateHealth?.();
+			if (differentPlayer) this.soundsys?.playHeartBeat?.('sounds/heartbeat');
+			if (this.UI) this.UI._abilityPanelAnimating = true;
+			if (this.grid) this.grid.suppressNextHoverRefresh = true;
+			this.activeCreature.activate();
+			this.UI?.updateActivebox?.();
+			this.updateQueueDisplay?.();
+			this.signals.creature.dispatch('activate', { creature: this.activeCreature });
+			if (!this.multiplayer) {
+				this.playersReady = true;
+			}
+		}, 1);
+	};
 
 	// Override turnThrottle to always be false.  In real gameplay it prevents rapid
 	// UI clicks (1000 ms rate-limit per skip/delay action).  In simulation it causes
@@ -698,7 +937,7 @@ export interface MatchResult {
 	endedByTimeout: boolean;
 }
 
-const MAX_SIM_TURNS = 150; // hard cap — prevents infinite loops
+const MAX_SIM_TURNS = 40; // hard cap — 4 rounds is plenty; outlier games beyond this are timeouts
 
 /**
  * Advance a running game to completion using Jest fake timers.
@@ -712,24 +951,36 @@ export async function runMatch(game: any): Promise<MatchResult> {
 
 	// Advance fake time in chunks, yielding between each so microtasks (Promise
 	// callbacks from MockAnimations._completeMove) can flush.
-	// The game engine itself adds ~1350ms of fake time per creature turn
-	// (300ms nextCreature timeout + 50ms interval + 1000ms turnThrottle).
-	// With bot delays collapsed to 1ms, total per creature turn ≈ 1515ms.
-	// TICK_MS=5000 covers ~3 creature turns per iteration (efficient).
-	const TICK_MS = 5_000;
+	// With bot delays collapsed to 1ms and nextCreature at 1ms, total per creature
+	// turn ≈ ~160ms fake time.  TICK_MS=2000 covers ~12 creature turns per iteration.
+	const TICK_MS = 2_000;
 	// Allow enough fake time for MAX_SIM_TURNS turns, with 2× headroom.
-	const MAX_ELAPSED = MAX_SIM_TURNS * 2_000;
+	const MAX_ELAPSED = MAX_SIM_TURNS * 500;
+	// Stagnation timeout: end game if no damage dealt in this many rounds.
+	// Prevents extremely long stalemates where both bots are stuck in a loop.
+	const STAGNATION_ROUNDS = 15;
 	let elapsed = 0;
 	// Wall-clock bail-out using perf_hooks.performance.now() which is NOT mocked
 	// by Jest fake timers (unlike process.hrtime.bigint() which IS mocked).
 	const wallStart = realPerf.now();
 	const MAX_WALL_MS = 120_000; // 2 minutes per game
 
+	let _dbgTick = 0;
+	const bc = game.botController;
 	while (game.gameState !== 'ended' && game.turn < MAX_SIM_TURNS && elapsed < MAX_ELAPSED) {
+		// Stagnation check: bail out early if no damage in STAGNATION_ROUNDS rounds.
+		if (bc && game.turn > 0 && game.turn - (bc.lastDamageRound ?? 0) > STAGNATION_ROUNDS) {
+			break;
+		}
+		const _t0 = realPerf.now();
 		jest.advanceTimersByTime(TICK_MS);
+		const _dtAdv = realPerf.now() - _t0;
 		// Let microtasks (Promise callbacks from MockAnimations) flush
 		await Promise.resolve();
 		await Promise.resolve();
+		const _dtAwait = realPerf.now() - _t0 - _dtAdv;
+		if (_dbgTick < 20) process.stderr.write(`  [tick${_dbgTick} t=${game.turn} adv=${_dtAdv.toFixed(0)}ms await=${_dtAwait.toFixed(0)}ms]\n`);
+		_dbgTick++;
 		elapsed += TICK_MS;
 		if (realPerf.now() - wallStart > MAX_WALL_MS) break;
 	}

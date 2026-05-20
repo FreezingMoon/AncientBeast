@@ -215,6 +215,7 @@ jest.mock('jquery', () => {
 
 // ─── Imports (after mocks) ────────────────────────────────────────────────────
 
+import { performance as realPerf } from 'perf_hooks';
 import { createGame, runMatch, SimSignal } from './botgeria';
 import { aggregateMetrics, formatMetrics } from './stats';
 import { variants, printReport } from './suggester';
@@ -297,12 +298,24 @@ async function runBatch(
 		// guards (stalePendingActionMs) and residual timers slow down subsequent games.
 		jest.clearAllTimers();
 		jest.setSystemTime(0);
+		const _t0 = realPerf.now();
 		const game = createGame(abilities);
+		const _createMs = realPerf.now() - _t0;
 		let restore: (() => void) | undefined;
 		if (patchFn) {
 			restore = patchFn(game);
 		}
+		const _t1 = realPerf.now();
 		const result = await runMatch(game);
+		const _matchMs = realPerf.now() - _t1;
+		const creatureNames = (game.creatures as any[])
+			.filter((c: any) => c && c.type !== 'Dark Priest')
+			.map((c: any) => c.name ?? c.type ?? '?')
+			.join(',');
+		process.stderr.write(
+			`  [game${i} createGame=${_createMs.toFixed(0)}ms runMatch=${_matchMs.toFixed(0)}ms turns=${result.turns} ${creatureNames}]\n`,
+		);
+		restore?.();
 		restore?.();
 		results.push(result);
 		ttyWrite(progressBar(i + 1, count, label));
