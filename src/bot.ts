@@ -148,7 +148,7 @@ export default class BotController {
 	moveAttempted = false;
 	failedAbilityIds = new Set<number>();
 	isResolvingQuery = false;
-	stalePendingActionMs = 2200;
+	stalePendingActionMs = 3000;
 	/** Delay before the onSelect callback fires in resolveQuery (ms). */
 	selectDelayMs = 50;
 	/** Delay before the onConfirm callback fires in resolveQuery (ms). */
