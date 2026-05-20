@@ -1,9 +1,9 @@
 {
   "metrics": {
-    "matchCount": 2,
-    "decisiveness": 56.5,
-    "avgTurns": 11,
+    "matchCount": 20,
+    "decisiveness": 43.85,
+    "avgTurns": 10.15,
     "timeoutRate": 1
   },
-  "timestamp": "2026-05-20T05:59:03.389Z"
+  "timestamp": "2026-05-20T06:02:49.535Z"
 }
