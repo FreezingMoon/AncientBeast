@@ -10,6 +10,10 @@
  *  - runMatch()    — drives a game to completion with Jest fake timers
  */
 
+// perf_hooks.performance.now() is NOT mocked by Jest fake timers (unlike
+// process.hrtime.bigint() which IS mocked and returns fake-clock time).
+import { performance as realPerf } from 'perf_hooks';
+
 // ─── Phaser global ───────────────────────────────────────────────────────────
 // creature.ts references the Phaser namespace as a global (not an import),
 // e.g. `Phaser.Easing.Linear.None`. Jest runs without webpack's ProvidePlugin,
@@ -716,34 +720,21 @@ export async function runMatch(game: any): Promise<MatchResult> {
 	// Allow enough fake time for MAX_SIM_TURNS turns, with 2× headroom.
 	const MAX_ELAPSED = MAX_SIM_TURNS * 2_000;
 	let elapsed = 0;
-	// Wall-clock bail-out: process.hrtime.bigint() is unaffected by Jest fake
-	// timers, so this guards against truly hung games regardless of fake time.
-	const wallStart = process.hrtime.bigint();
-	const MAX_WALL_NS = BigInt(45_000) * BigInt(1_000_000); // 45 s per game
+	// Wall-clock bail-out using perf_hooks.performance.now() which is NOT mocked
+	// by Jest fake timers (unlike process.hrtime.bigint() which IS mocked).
+	const wallStart = realPerf.now();
+	const MAX_WALL_MS = 120_000; // 2 minutes per game
 
 	while (game.gameState !== 'ended' && game.turn < MAX_SIM_TURNS && elapsed < MAX_ELAPSED) {
-		const tickStart = process.hrtime.bigint();
 		jest.advanceTimersByTime(TICK_MS);
 		// Let microtasks (Promise callbacks from MockAnimations) flush
 		await Promise.resolve();
 		await Promise.resolve();
 		elapsed += TICK_MS;
-		const tickWallMs = Number(process.hrtime.bigint() - tickStart) / 1_000_000;
-		if (tickWallMs > 500) process.stderr.write(`  SLOW TICK fake=${elapsed/1000}s turn=${game.turn} wall=${tickWallMs.toFixed(0)}ms freeze=${game.freezedInput} deferred=${(game as any)._deferredQueryMovePending}\n`);
-		if (process.hrtime.bigint() - wallStart > MAX_WALL_NS) break;
-		// Debug: track what's stuck
-		if (game.freezedInput && elapsed % 15_000 === 0) {
-			const ac = game.activeCreature;
-			process.stderr.write(`  STUCK at turn=${game.turn} fake=${elapsed/1000}s creature=${ac?.name} deferred=${(game as any)._deferredQueryMovePending}\n`);
-		}
+		if (realPerf.now() - wallStart > MAX_WALL_MS) break;
 	}
 
 	game.checkTime = origCheckTime;
-
-	// Debug: print end-of-game state to understand why game doesn't end
-	const endReason = game.gameState === 'ended' ? 'ended' : elapsed >= MAX_ELAPSED ? 'fake-time-limit' : 'wall-clock-limit';
-	const creatures = game.players.map((p: any) => `p${p.id}:[${p.creatures.map((c: any) => `${c.name}(dead=${c.dead})`).join(',')}]`).join(' ');
-	process.stderr.write(`  GAME END turn=${game.turn} reason=${endReason} state=${game.gameState} ${creatures}\n`);
 
 	const scores = game.players.map((p: any) => p.getScore().total);
 	let winnerIdx: number | null = null;
