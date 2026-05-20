@@ -12,6 +12,7 @@ import { HEX_WIDTH_PX } from './const';
 import { Point } from './pointfacade';
 import { AugmentedMatrix } from './matrices';
 import { PierceThroughBehavior } from '../ability';
+import { getQueryFootprintHexes } from './query_footprint';
 
 const ROW_DEPTH_STRIDE = 100;
 
@@ -145,6 +146,7 @@ export class HexGrid {
 	 * Last hex passed to xray(). Used to reapply the effect on tab focus.
 	 */
 	lastXrayHex: Hex | null = null;
+	lastXrayHexes: Hex[] | null = null;
 
 	/**
 	 * The hex the physical mouse pointer is currently over, updated before any
@@ -884,7 +886,7 @@ export class HexGrid {
 			}
 		});
 
-		// Active creature (attacker) must never be xrayed — ghostOverlap for a
+		// Active creature (attacker) must never be xrayed ? ghostOverlap for a
 		// target's hexes can pick it up as a same-row or adjacent-row candidate.
 		if (abilityActiveCreature instanceof Creature) {
 			abilityActiveCreature.xray(false);
@@ -1379,7 +1381,11 @@ export class HexGrid {
 			const { y } = hex;
 
 			// Xray
-			this.xray(hex);
+			const xrayHexes =
+				hex.reachable && !(hex.creature instanceof Creature)
+					? getQueryFootprintHexes(this, hex, o.size, o.flipped, o.id)
+					: undefined;
+			this.xray(hex, xrayHexes);
 
 			// Clear display and overlay
 			game.UI.xrayQueue(-1);
@@ -1527,11 +1533,22 @@ export class HexGrid {
 	 *
 	 * If hex contain creature call ghostOverlap for each creature hexes
 	 */
-	xray(hex: Hex) {
+	xray(hex: Hex, referenceHexes?: Hex[]) {
 		if (this.game.animations?.xraySuppressed) {
 			return;
 		}
+		const shouldReuseLastFootprint =
+			!referenceHexes && this.lastXrayHex === hex && this.lastXrayHexes?.length;
 		this.lastXrayHex = hex;
+		if (referenceHexes?.length) {
+			this.lastXrayHexes = referenceHexes;
+		} else if (shouldReuseLastFootprint) {
+			referenceHexes = this.lastXrayHexes;
+		} else {
+			this.lastXrayHexes = null;
+		}
+
+		// Clear previous ghost
 		this.game.creatures.forEach((creature) => {
 			if (creature instanceof Creature) {
 				creature.xray(false);
@@ -1546,14 +1563,15 @@ export class HexGrid {
 		const noAbilitySelected = this.game.UI?.selectedAbility === -1;
 		const hoveredCreature =
 			hex.creature instanceof Creature ? (hex.creature as Creature) : undefined;
-		const hoveredTrapSprites = this.game.traps
+		const traps = this.game.traps ?? [];
+		const drops = this.game.drops ?? [];
+		const hoveredTrapSprites = traps
 			.filter((trap) => trap.x === hex.x && trap.y === hex.y)
 			.flatMap((trap) => trap.getVisualSprites())
 			.filter((sprite) => sprite.exists && typeof sprite.getBounds === 'function');
 		const hoveredTrap =
-			hoveredTrapSprites.length > 0 ||
-			this.game.traps.some((trap) => trap.x === hex.x && trap.y === hex.y);
-		const hoveredDropSprites = (this.game.drops ?? [])
+			hoveredTrapSprites.length > 0 || traps.some((trap) => trap.x === hex.x && trap.y === hex.y);
+		const hoveredDropSprites = drops
 			.filter((drop) => drop.x === hex.x && drop.y === hex.y && !drop.pickedUp)
 			.map((drop) => drop.display)
 			.filter((sprite) => sprite.exists && typeof sprite.getBounds === 'function');
@@ -1564,7 +1582,7 @@ export class HexGrid {
 			hoveredCreature && hoveredCreature !== activeCreature ? hoveredCreature : undefined;
 
 		// Exception 1/2: reveal hovered non-active target when no ability is selected.
-		// Skip when a trap/drop is also on the hex — Exception 3 handles that case
+		// Skip when a trap/drop is also on the hex ? Exception 3 handles that case
 		// and must also xray the creature standing on the trap.
 		if (hoveredNonActiveCreature && noAbilitySelected && !hoveredTrap && !hoveredDrop) {
 			hoveredNonActiveCreature.hexagons.forEach((hoveredHex) =>
@@ -1638,6 +1656,12 @@ export class HexGrid {
 				);
 			});
 			return;
+		}
+
+		if (referenceHexes?.length) {
+			referenceHexes.forEach((item) => item.ghostOverlap());
+		} else {
+			hex.ghostOverlap();
 		}
 
 		// Default: keep active creature visible through obstructions.
@@ -2217,6 +2241,7 @@ export class HexGrid {
 	 */
 	clearAllXray(immediate = false) {
 		this.lastXrayHex = null;
+		this.lastXrayHexes = null;
 		this.game.creatures.forEach((c) => {
 			if (!(c instanceof Creature)) {
 				return;
