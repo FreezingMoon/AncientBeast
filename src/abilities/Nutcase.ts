@@ -371,7 +371,13 @@ export default (G: Game) => {
 					}
 				}
 
-				if (runPath.length > 0) {
+				// If no creature found in path, abort gracefully.
+			if (runPath === undefined || target === undefined) {
+				G.activeCreature.queryMove();
+				return;
+			}
+
+			if (runPath.length > 0) {
 					let destination = arrayUtils.last(runPath);
 
 					if (args.direction === Direction.Left) {
