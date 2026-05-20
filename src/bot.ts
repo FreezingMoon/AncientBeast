@@ -239,7 +239,7 @@ export default class BotController {
 	getAggressionFactor(creature: Creature): number {
 		const ageFactor = Math.max(0, creature.turnsActive - 4) * 0.8;
 		const stagnantRounds = this.game.turn - this.lastDamageRound;
-		const stagnationFactor = Math.max(0, stagnantRounds - 3) * 1.5;
+		const stagnationFactor = Math.max(0, stagnantRounds - 3) * 2.5;
 		const engagementPressure = Math.max(0, this.getTeamEngagementPressure(creature));
 		return Math.min(10, ageFactor + stagnationFactor + engagementPressure * 1.25);
 	}
@@ -333,7 +333,7 @@ export default class BotController {
 			return;
 		}
 
-		if (this.decisionCount >= 10) {
+		if (this.decisionCount >= 12) {
 			this.game.skipTurn({ noTooltip: true });
 			return;
 		}
