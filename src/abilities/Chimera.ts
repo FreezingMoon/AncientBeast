@@ -287,6 +287,10 @@ export default (G: Game) => {
 				G.Phaser.camera.shake(0.02, 300, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				const knockback = (_target, _crush, _range) => {
+					if (!_target) {
+						G.activeCreature.queryMove();
+						return;
+					}
 					const damage = new Damage(
 						ability.creature, // Attacker
 						{
