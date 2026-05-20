@@ -115,6 +115,41 @@ const KnightmareStrategy: UnitBotStrategy = {
 		return creature.player.flipped ? boardWidth * 0.42 : boardWidth * 0.58;
 	},
 
+	/**
+	 * Knightmare gains Frigid Tower stacking when it does NOT move. The move
+	 * scoring makes it prefer positions where it can stay: adjacent to one enemy
+	 * (for melee reach) while not being surrounded. If it's already in a good
+	 * spot the generic logic will find a lower-scored destination and the bot
+	 * might not move at all when no hex scores better than staying.
+	 */
+	scoreMoveHex(hex, controller) {
+		const activeCreature = controller.game.activeCreature;
+		if (!activeCreature || controller.isRetreating(activeCreature)) return undefined;
+
+		let score = 0;
+		let adjacentEnemyCount = 0;
+		hex.adjacentHex(1).forEach((adj) => {
+			if (!(adj.creature instanceof Creature)) return;
+			if (!isTeam(activeCreature, adj.creature, Team.Enemy)) return;
+			adjacentEnemyCount += 1;
+			score += 90;
+		});
+
+		// Penalise being surrounded — Frigid Tower stacks are lost if health drops
+		if (adjacentEnemyCount > 1) {
+			score -= (adjacentEnemyCount - 1) * 180;
+		}
+
+		// Small penalty for moving at all (losing potential Frigid Tower stack)
+		score -= 30;
+
+		const preferredX = controller.getPreferredX(activeCreature);
+		score -= Math.abs(hex.x - preferredX) * 8;
+		if (hex.trap) score -= 240;
+
+		return score;
+	},
+
 	scoreAbilityHex(hex, abilityIndex, controller) {
 		const activeCreature = controller.game.activeCreature;
 		if (!activeCreature) return undefined;

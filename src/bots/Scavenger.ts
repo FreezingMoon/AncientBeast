@@ -103,6 +103,35 @@ const ScavengerStrategy: UnitBotStrategy = {
 		return creature.player.flipped ? boardWidth * 0.38 : boardWidth * 0.62;
 	},
 
+	/**
+	 * Scavenger is a mobile hover/fly unit — it wants to stay at 1–2 hexes
+	 * from enemies (pounce + toxin range) without getting bogged down in melee.
+	 */
+	scoreMoveHex(hex, controller) {
+		const activeCreature = controller.game.activeCreature;
+		if (!activeCreature || controller.isRetreating(activeCreature)) return undefined;
+
+		let score = 0;
+		let adjacentEnemyCount = 0;
+		hex.adjacentHex(1).forEach((adj) => {
+			if (!(adj.creature instanceof Creature)) return;
+			if (!isTeam(activeCreature, adj.creature, Team.Enemy)) return;
+			adjacentEnemyCount += 1;
+			score += 100;
+		});
+
+		// Flying unit takes full damage in melee — avoid being surrounded
+		if (adjacentEnemyCount > 1) {
+			score -= (adjacentEnemyCount - 1) * 180;
+		}
+
+		const preferredX = controller.getPreferredX(activeCreature);
+		score -= Math.abs(hex.x - preferredX) * 8;
+		if (hex.trap) score -= 200; // hover/fly may bypass some traps
+
+		return score;
+	},
+
 	scoreAbilityHex(hex, abilityIndex, controller) {
 		const activeCreature = controller.game.activeCreature;
 		if (!activeCreature) return undefined;
@@ -119,11 +148,25 @@ const ScavengerStrategy: UnitBotStrategy = {
 	},
 
 	/**
-	 * Priority: Slicing Pounce for the permanent offense debuff stacking, then
-	 * Deadly Toxin to start sustained damage.
+	 * Priority: Slicing Pounce if any enemy isn't yet debuffed (stack offense
+	 * debuffs first), then Deadly Toxin for sustained damage.
 	 */
-	getAbilityPriority(_creature, _controller) {
-		return [ABILITY.SLICING_POUNCE, ABILITY.DEADLY_TOXIN, ABILITY.ESCORT_SERVICE];
+	getAbilityPriority(creature, controller) {
+		const anyEnemyNotDebuffed = controller.game.creatures.some(
+			(c) =>
+				c instanceof Creature &&
+				!c.dead &&
+				!c.temp &&
+				isTeam(creature, c, Team.Enemy) &&
+				c.findEffect('Slicing Pounce').length === 0,
+		);
+
+		if (anyEnemyNotDebuffed) {
+			return [ABILITY.SLICING_POUNCE, ABILITY.DEADLY_TOXIN, ABILITY.ESCORT_SERVICE];
+		}
+
+		// All enemies already debuffed — poison for sustained damage
+		return [ABILITY.DEADLY_TOXIN, ABILITY.SLICING_POUNCE, ABILITY.ESCORT_SERVICE];
 	},
 
 	getTargetingPenalty(_attacker, _target, _abilityIndex, _controller) {

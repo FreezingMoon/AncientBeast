@@ -117,6 +117,34 @@ const InfernalStrategy: UnitBotStrategy = {
 		return creature.player.flipped ? boardWidth * 0.36 : boardWidth * 0.64;
 	},
 
+	/**
+	 * Infernal wants to stay mid-close so its passive traps (placed behind it)
+	 * land in the path of advancing enemies. Avoid over-extending.
+	 */
+	scoreMoveHex(hex, controller) {
+		const activeCreature = controller.game.activeCreature;
+		if (!activeCreature || controller.isRetreating(activeCreature)) return undefined;
+
+		let score = 0;
+		let adjacentEnemyCount = 0;
+		hex.adjacentHex(1).forEach((adj) => {
+			if (!(adj.creature instanceof Creature)) return;
+			if (!isTeam(activeCreature, adj.creature, Team.Enemy)) return;
+			adjacentEnemyCount += 1;
+			score += 110;
+		});
+
+		if (adjacentEnemyCount > 1) {
+			score -= (adjacentEnemyCount - 1) * 100;
+		}
+
+		const preferredX = controller.getPreferredX(activeCreature);
+		score -= Math.abs(hex.x - preferredX) * 8;
+		if (hex.trap) score -= 240;
+
+		return score;
+	},
+
 	scoreAbilityHex(hex, abilityIndex, controller) {
 		const activeCreature = controller.game.activeCreature;
 		if (!activeCreature) return undefined;

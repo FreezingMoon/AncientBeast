@@ -87,6 +87,35 @@ const UncleFungusStrategy: UnitBotStrategy = {
 		return creature.player.flipped ? boardWidth * 0.35 : boardWidth * 0.65;
 	},
 
+	/**
+	 * Uncle Fungus is a size-2 brawler — moves to be adjacent to one enemy
+	 * but avoids being flanked by too many at once.
+	 */
+	scoreMoveHex(hex, controller) {
+		const activeCreature = controller.game.activeCreature;
+		if (!activeCreature || controller.isRetreating(activeCreature)) return undefined;
+
+		let score = 0;
+		let adjacentEnemyCount = 0;
+		hex.adjacentHex(1).forEach((adj) => {
+			if (!(adj.creature instanceof Creature)) return;
+			if (!isTeam(activeCreature, adj.creature, Team.Enemy)) return;
+			adjacentEnemyCount += 1;
+			score += 100;
+		});
+
+		// Being flanked by more than 1 enemy is risky for a size-2 creature
+		if (adjacentEnemyCount > 1) {
+			score -= (adjacentEnemyCount - 1) * 150;
+		}
+
+		const preferredX = controller.getPreferredX(activeCreature);
+		score -= Math.abs(hex.x - preferredX) * 9;
+		if (hex.trap) score -= 240;
+
+		return score;
+	},
+
 	scoreAbilityHex(hex, abilityIndex, controller) {
 		const activeCreature = controller.game.activeCreature;
 		if (!activeCreature) return undefined;

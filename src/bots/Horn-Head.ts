@@ -120,6 +120,36 @@ const HornHeadStrategy: UnitBotStrategy = {
 		return creature.player.flipped ? boardWidth * 0.38 : boardWidth * 0.62;
 	},
 
+	/**
+	 * Horn Head is a size-2 tank — prefers 1–2 hex distance for Meat Sickle
+	 * drag range, avoids being surrounded given its large footprint.
+	 */
+	scoreMoveHex(hex, controller) {
+		const activeCreature = controller.game.activeCreature;
+		if (!activeCreature || controller.isRetreating(activeCreature)) return undefined;
+
+		let score = 0;
+		let adjacentEnemyCount = 0;
+		hex.adjacentHex(1).forEach((adj) => {
+			if (!(adj.creature instanceof Creature)) return;
+			if (!isTeam(activeCreature, adj.creature, Team.Enemy)) return;
+			adjacentEnemyCount += 1;
+			score += 115;
+		});
+
+		// Life Support converts damage to endurance — being hit isn't as scary,
+		// but being surrounded by 3+ enemies still overwhelming for a size-2 unit.
+		if (adjacentEnemyCount > 2) {
+			score -= (adjacentEnemyCount - 2) * 140;
+		}
+
+		const preferredX = controller.getPreferredX(activeCreature);
+		score -= Math.abs(hex.x - preferredX) * 8;
+		if (hex.trap) score -= 240;
+
+		return score;
+	},
+
 	scoreAbilityHex(hex, abilityIndex, controller) {
 		const activeCreature = controller.game.activeCreature;
 		if (!activeCreature) return undefined;

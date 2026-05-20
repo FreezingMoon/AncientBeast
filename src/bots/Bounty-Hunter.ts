@@ -118,6 +118,45 @@ const BountyHunterStrategy: UnitBotStrategy = {
 		return creature.player.flipped ? boardWidth * 0.38 : boardWidth * 0.62;
 	},
 
+	/**
+	 * Bounty Hunter is a ranged skirmisher — it wants to stay at 2–5 hex distance
+	 * from enemies so Pistol Shot and Rifle Assassin are in range but it avoids
+	 * taking melee hits that Personal Space cannot fully compensate for.
+	 */
+	scoreMoveHex(hex, controller) {
+		const activeCreature = controller.game.activeCreature;
+		if (!activeCreature || controller.isRetreating(activeCreature)) return undefined;
+
+		let score = 0;
+		const nearestEnemyDist = controller.closestDistanceToEnemy(hex);
+
+		// Ideal range: 2–5 hexes (Pistol 6, Rifle 12). Adjacent is dangerous.
+		if (nearestEnemyDist === 3 || nearestEnemyDist === 4) {
+			score += 200;
+		} else if (nearestEnemyDist === 2 || nearestEnemyDist === 5) {
+			score += 100;
+		} else if (nearestEnemyDist === 1) {
+			score -= 100; // too close; melee risk without melee bonuses
+		} else if (nearestEnemyDist > 6) {
+			score -= (nearestEnemyDist - 6) * 40;
+		}
+
+		// Penalise being surrounded by enemies
+		const adjacentEnemyCount = hex
+			.adjacentHex(1)
+			.filter(
+				(adj) =>
+					adj.creature instanceof Creature && isTeam(activeCreature, adj.creature, Team.Enemy),
+			).length;
+		score -= adjacentEnemyCount * 160;
+
+		const preferredX = controller.getPreferredX(activeCreature);
+		score -= Math.abs(hex.x - preferredX) * 7;
+		if (hex.trap) score -= 260;
+
+		return score;
+	},
+
 	scoreAbilityHex(hex, abilityIndex, controller) {
 		const activeCreature = controller.game.activeCreature;
 		if (!activeCreature) return undefined;
@@ -134,14 +173,28 @@ const BountyHunterStrategy: UnitBotStrategy = {
 	},
 
 	/**
-	 * Priority: finish low-HP targets with Rifle Assassin, otherwise open with
-	 * Sword Slitter up close then shoot with Pistol Shot.
+	 * Priority: Rifle Assassin when any enemy is in kill range (max damage),
+	 * otherwise Sword Slitter in melee then Pistol Shot at range.
 	 */
-	getAbilityPriority(creature, _controller) {
+	getAbilityPriority(creature, controller) {
+		const hasKillableTarget = controller.game.creatures.some(
+			(c) =>
+				c instanceof Creature &&
+				!c.dead &&
+				!c.temp &&
+				isTeam(creature, c, Team.Enemy) &&
+				c.health <= RIFLE_ASSASSIN_ESTIMATED_DAMAGE,
+		);
+
+		if (hasKillableTarget) {
+			return [ABILITY.RIFLE_ASSASSIN, ABILITY.PISTOL_SHOT, ABILITY.SWORD_SLITTER];
+		}
+
 		const healthRatio = creature.health / creature.stats.health;
 		if (healthRatio > 0.5) {
 			return [ABILITY.RIFLE_ASSASSIN, ABILITY.SWORD_SLITTER, ABILITY.PISTOL_SHOT];
 		}
+
 		return [ABILITY.SWORD_SLITTER, ABILITY.PISTOL_SHOT, ABILITY.RIFLE_ASSASSIN];
 	},
 

@@ -117,6 +117,36 @@ const ChimeraStrategy: UnitBotStrategy = {
 		return creature.player.flipped ? boardWidth * 0.42 : boardWidth * 0.58;
 	},
 
+	/**
+	 * Chimera (size-3) wants to be in melee reach for Tooth Fairy and Battering
+	 * Ram while keeping enough space for Disturbing Sound lanes. One adjacent
+	 * enemy is ideal; avoid clustering 3+ enemies simultaneously.
+	 */
+	scoreMoveHex(hex, controller) {
+		const activeCreature = controller.game.activeCreature;
+		if (!activeCreature || controller.isRetreating(activeCreature)) return undefined;
+
+		let score = 0;
+		let adjacentEnemyCount = 0;
+		hex.adjacentHex(1).forEach((adj) => {
+			if (!(adj.creature instanceof Creature)) return;
+			if (!isTeam(activeCreature, adj.creature, Team.Enemy)) return;
+			adjacentEnemyCount += 1;
+			score += 115;
+		});
+
+		// Size-3 creature is hard to reposition — avoid being surrounded
+		if (adjacentEnemyCount > 2) {
+			score -= (adjacentEnemyCount - 2) * 160;
+		}
+
+		const preferredX = controller.getPreferredX(activeCreature);
+		score -= Math.abs(hex.x - preferredX) * 9;
+		if (hex.trap) score -= 250;
+
+		return score;
+	},
+
 	scoreAbilityHex(hex, abilityIndex, controller) {
 		const activeCreature = controller.game.activeCreature;
 		if (!activeCreature) return undefined;
@@ -133,11 +163,25 @@ const ChimeraStrategy: UnitBotStrategy = {
 	},
 
 	/**
-	 * Priority: Disturbing Sound for chain kill potential, then Tooth Fairy for
-	 * reliable bite damage, then Battering Ram for knockback disruption.
+	 * Priority: Disturbing Sound when a kill-chain is possible (low-HP enemy in
+	 * line), else Tooth Fairy for reliable bite, then Battering Ram to disrupt.
 	 */
-	getAbilityPriority(_creature, _controller) {
-		return [ABILITY.DISTURBING_SOUND, ABILITY.TOOTH_FAIRY, ABILITY.BATTERING_RAM];
+	getAbilityPriority(creature, controller) {
+		// Check if any enemy is low enough for Disturbing Sound to chain-kill
+		const hasKillChainTarget = controller.game.creatures.some(
+			(c) =>
+				c instanceof Creature &&
+				!c.dead &&
+				!c.temp &&
+				isTeam(creature, c, Team.Enemy) &&
+				c.health <= DISTURBING_SOUND_ESTIMATED_DAMAGE,
+		);
+
+		if (hasKillChainTarget) {
+			return [ABILITY.DISTURBING_SOUND, ABILITY.TOOTH_FAIRY, ABILITY.BATTERING_RAM];
+		}
+
+		return [ABILITY.TOOTH_FAIRY, ABILITY.DISTURBING_SOUND, ABILITY.BATTERING_RAM];
 	},
 
 	getTargetingPenalty(_attacker, _target, _abilityIndex, _controller) {

@@ -121,6 +121,37 @@ const NutcaseStrategy: UnitBotStrategy = {
 		return creature.player.flipped ? boardWidth * 0.4 : boardWidth * 0.6;
 	},
 
+	/**
+	 * Nutcase becomes immovable at end of turn (Tentacle Bush). It should plant
+	 * itself in the most central useful position before that happens — reward
+	 * being adjacent to 1–2 enemies, penalise being surrounded by more.
+	 */
+	scoreMoveHex(hex, controller) {
+		const activeCreature = controller.game.activeCreature;
+		if (!activeCreature || controller.isRetreating(activeCreature)) return undefined;
+
+		let score = 0;
+		let adjacentEnemyCount = 0;
+		hex.adjacentHex(1).forEach((adj) => {
+			if (!(adj.creature instanceof Creature)) return;
+			if (!isTeam(activeCreature, adj.creature, Team.Enemy)) return;
+			adjacentEnemyCount += 1;
+			score += 110;
+		});
+
+		// Tentacle Bush will root melee attackers but Nutcase still takes damage —
+		// don't deliberately step into 3+ enemy range
+		if (adjacentEnemyCount > 2) {
+			score -= (adjacentEnemyCount - 2) * 200;
+		}
+
+		const preferredX = controller.getPreferredX(activeCreature);
+		score -= Math.abs(hex.x - preferredX) * 8;
+		if (hex.trap) score -= 240;
+
+		return score;
+	},
+
 	scoreAbilityHex(hex, abilityIndex, controller) {
 		const activeCreature = controller.game.activeCreature;
 		if (!activeCreature) return undefined;

@@ -85,6 +85,34 @@ const SwineThugStrategy: UnitBotStrategy = {
 		return creature.player.flipped ? boardWidth * 0.38 : boardWidth * 0.62;
 	},
 
+	/**
+	 * Swine Thug wants to be adjacent to enemies for Baseball Baton and
+	 * Ground Ball, but not surrounded — it needs space to operate.
+	 */
+	scoreMoveHex(hex, controller) {
+		const activeCreature = controller.game.activeCreature;
+		if (!activeCreature || controller.isRetreating(activeCreature)) return undefined;
+
+		let score = 0;
+		let adjacentEnemyCount = 0;
+		hex.adjacentHex(1).forEach((adj) => {
+			if (!(adj.creature instanceof Creature)) return;
+			if (!isTeam(activeCreature, adj.creature, Team.Enemy)) return;
+			adjacentEnemyCount += 1;
+			score += 105;
+		});
+
+		if (adjacentEnemyCount > 2) {
+			score -= (adjacentEnemyCount - 2) * 120;
+		}
+
+		const preferredX = controller.getPreferredX(activeCreature);
+		score -= Math.abs(hex.x - preferredX) * 8;
+		if (hex.trap) score -= 240;
+
+		return score;
+	},
+
 	scoreAbilityHex(hex, abilityIndex, controller) {
 		const activeCreature = controller.game.activeCreature;
 		if (!activeCreature) return undefined;

@@ -329,7 +329,7 @@ export default class BotController {
 			return;
 		}
 
-		if (this.decisionCount >= 8) {
+		if (this.decisionCount >= 10) {
 			this.game.skipTurn({ noTooltip: true });
 			return;
 		}
@@ -754,18 +754,31 @@ export default class BotController {
 			if (score !== undefined) return score;
 		}
 
-		const adjacentEnemy = hex
-			.adjacentHex(1)
-			.some(
-				(adjacentHex) =>
-					adjacentHex.creature && isTeam(activeCreature, adjacentHex.creature, Team.Enemy),
-			);
+		const adjHexes = hex.adjacentHex(1);
+		const adjacentEnemyCreatures = new Map<number, Creature>();
+		adjHexes.forEach((adjacentHex) => {
+			if (
+				adjacentHex.creature instanceof Creature &&
+				isTeam(activeCreature, adjacentHex.creature, Team.Enemy)
+			) {
+				adjacentEnemyCreatures.set(adjacentHex.creature.id, adjacentHex.creature);
+			}
+		});
+		const adjacentEnemyCount = adjacentEnemyCreatures.size;
 
 		const aggression = this.getAggressionFactor(activeCreature);
 
 		let score = 0;
 		// Adjacent-enemy bonus grows with aggression, pushing units to seek contact.
-		score += adjacentEnemy ? 120 + aggression * 25 : 0;
+		// First adjacent enemy gives the full bonus; each additional enemy beyond one
+		// is diminished — being flanked by 3 enemies is dangerous even for fighters.
+		if (adjacentEnemyCount >= 1) {
+			score += 120 + aggression * 25;
+			const extraEnemies = adjacentEnemyCount - 1;
+			const healthRatio = activeCreature.health / activeCreature.stats.health;
+			score -= extraEnemies * Math.round(80 + (1 - healthRatio) * 120);
+		}
+
 		score -= activeCreature.hexagons.some(
 			(creatureHex) => creatureHex.pos.x === hex.x && creatureHex.pos.y === hex.y,
 		)
@@ -773,16 +786,7 @@ export default class BotController {
 			: 0;
 
 		// Apply enemy-owned proximity penalties for adjacent hostile units.
-		const adjacentEnemies = new Map<number, Creature>();
-		hex.adjacentHex(1).forEach((adjacentHex) => {
-			if (
-				adjacentHex.creature instanceof Creature &&
-				isTeam(activeCreature, adjacentHex.creature, Team.Enemy)
-			) {
-				adjacentEnemies.set(adjacentHex.creature.id, adjacentHex.creature);
-			}
-		});
-		adjacentEnemies.forEach((enemy) => {
+		adjacentEnemyCreatures.forEach((enemy) => {
 			const enemyStrategy = unitStrategies[enemy.type as string];
 			score += enemyStrategy?.getProximityPenalty?.(activeCreature, enemy, hex, this) ?? 0;
 		});
@@ -995,10 +999,14 @@ export default class BotController {
 				let score = 1000 - target.health + target.size * 10;
 
 				// Death blow bonus: heavily prefer targets close to elimination
-				if (healthPercent < 0.25) {
-					score += 400;
+				if (target.health <= 8) {
+					score += 650;
+				} else if (healthPercent < 0.2) {
+					score += 480;
+				} else if (healthPercent < 0.35) {
+					score += 250;
 				} else if (healthPercent < 0.5) {
-					score += 150;
+					score += 120;
 				}
 
 				// Prefer targets that can still be fatigued and/or have more energy to drain
@@ -1024,10 +1032,13 @@ export default class BotController {
 			}
 
 			if (hex.creature === activeCreature) {
-				return 150;
+				// Self-targeting (buff/utility abilities) — modest positive score
+				return 80;
 			}
 
-			return 100;
+			// Allied creature in ability range: penalise to avoid collateral from area
+			// abilities, but not so heavily that pure-buff abilities targeting only allies fail.
+			return -200;
 		}
 
 		return 100 - this.closestDistanceToEnemy(hex) * 10;

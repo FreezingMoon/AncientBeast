@@ -137,6 +137,35 @@ const HeadlessStrategy: UnitBotStrategy = {
 		return creature.player.flipped ? boardWidth * 0.4 : boardWidth * 0.6;
 	},
 
+	/**
+	 * Headless (size-2) wants enemies adjacent from its back for Larva Infest
+	 * and within reach for Cartilage Dagger / Boomerang. Reward positions where
+	 * at least one enemy is nearby but avoid being fully surrounded.
+	 */
+	scoreMoveHex(hex, controller) {
+		const activeCreature = controller.game.activeCreature;
+		if (!activeCreature || controller.isRetreating(activeCreature)) return undefined;
+
+		let score = 0;
+		let adjacentEnemyCount = 0;
+		hex.adjacentHex(1).forEach((adj) => {
+			if (!(adj.creature instanceof Creature)) return;
+			if (!isTeam(activeCreature, adj.creature, Team.Enemy)) return;
+			adjacentEnemyCount += 1;
+			score += 100;
+		});
+
+		if (adjacentEnemyCount > 2) {
+			score -= (adjacentEnemyCount - 2) * 160;
+		}
+
+		const preferredX = controller.getPreferredX(activeCreature);
+		score -= Math.abs(hex.x - preferredX) * 9;
+		if (hex.trap) score -= 240;
+
+		return score;
+	},
+
 	scoreAbilityHex(hex, abilityIndex, controller) {
 		const activeCreature = controller.game.activeCreature;
 		if (!activeCreature) return undefined;
