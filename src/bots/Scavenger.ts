@@ -148,25 +148,12 @@ const ScavengerStrategy: UnitBotStrategy = {
 	},
 
 	/**
-	 * Priority: Slicing Pounce if any enemy isn't yet debuffed (stack offense
-	 * debuffs first), then Deadly Toxin for sustained damage.
+	 * Priority: Slicing Pounce first — the offense debuff stacks, so it's always
+	 * worth applying repeatedly on the highest-value target. Follow up with
+	 * Deadly Toxin for sustained damage.
 	 */
-	getAbilityPriority(creature, controller) {
-		const anyEnemyNotDebuffed = controller.game.creatures.some(
-			(c) =>
-				c instanceof Creature &&
-				!c.dead &&
-				!c.temp &&
-				isTeam(creature, c, Team.Enemy) &&
-				c.findEffect('Slicing Pounce').length === 0,
-		);
-
-		if (anyEnemyNotDebuffed) {
-			return [ABILITY.SLICING_POUNCE, ABILITY.DEADLY_TOXIN, ABILITY.ESCORT_SERVICE];
-		}
-
-		// All enemies already debuffed — poison for sustained damage
-		return [ABILITY.DEADLY_TOXIN, ABILITY.SLICING_POUNCE, ABILITY.ESCORT_SERVICE];
+	getAbilityPriority(_creature, _controller) {
+		return [ABILITY.SLICING_POUNCE, ABILITY.DEADLY_TOXIN, ABILITY.ESCORT_SERVICE];
 	},
 
 	getTargetingPenalty(_attacker, _target, _abilityIndex, _controller) {
