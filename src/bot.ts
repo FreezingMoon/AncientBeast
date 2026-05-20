@@ -16,6 +16,16 @@ import StomperStrategy from './bots/Stomper';
 import CycloperStrategy from './bots/Cycloper';
 import ImpalerStrategy from './bots/Impaler';
 import CyberWolfStrategy from './bots/Cyber-Wolf';
+import BountyHunterStrategy from './bots/Bounty-Hunter';
+import UncleFungusStrategy from './bots/Uncle-Fungus';
+import InfernalStrategy from './bots/Infernal';
+import HornHeadStrategy from './bots/Horn-Head';
+import KnightmareStrategy from './bots/Knightmare';
+import SwineThugStrategy from './bots/Swine-Thug';
+import HeadlessStrategy from './bots/Headless';
+import NutcaseStrategy from './bots/Nutcase';
+import ScavengerStrategy from './bots/Scavenger';
+import ChimeraStrategy from './bots/Chimera';
 
 /**
  * Optional per-unit behaviour overrides for BotController.
@@ -106,6 +116,16 @@ export const unitStrategies: Partial<Record<string, UnitBotStrategy>> = {
 	P1: GumbleStrategy,
 	W3: CycloperStrategy,
 	S5: ImpalerStrategy,
+	A2: BountyHunterStrategy,
+	G3: UncleFungusStrategy,
+	L2: InfernalStrategy,
+	W5: HornHeadStrategy,
+	S4: KnightmareStrategy,
+	A1: SwineThugStrategy,
+	W4: HeadlessStrategy,
+	E2: NutcaseStrategy,
+	P3: ScavengerStrategy,
+	P6: ChimeraStrategy,
 };
 
 type BotPendingAction =
