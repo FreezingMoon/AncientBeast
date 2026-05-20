@@ -253,7 +253,30 @@ function loadAbilities(): Array<(G: any) => void> {
 
 // ─── Match batch runner ───────────────────────────────────────────────────────
 
-async function runBatch(count: number, patchFn?: (game: any) => () => void): Promise<MatchResult[]> {
+// Write directly to /dev/tty so progress bypasses Jest's output buffering.
+// Falls back to process.stderr when running in CI or non-TTY environments.
+function ttyWrite(text: string) {
+	try {
+		const fs2 = require('fs') as typeof import('fs');
+		const fd = fs2.openSync('/dev/tty', 'w');
+		fs2.writeSync(fd, text);
+		fs2.closeSync(fd);
+	} catch {
+		process.stderr.write(text);
+	}
+}
+
+function progressBar(done: number, total: number, label: string, width = 30): string {
+	const filled = Math.round((done / total) * width);
+	const bar = '█'.repeat(filled) + '░'.repeat(width - filled);
+	return `\r  [${bar}] ${done}/${total}  ${label}`;
+}
+
+async function runBatch(
+	count: number,
+	label: string,
+	patchFn?: (game: any) => () => void,
+): Promise<MatchResult[]> {
 	jest.useFakeTimers();
 	const abilities = loadAbilities();
 	const results: MatchResult[] = [];
@@ -272,7 +295,9 @@ async function runBatch(count: number, patchFn?: (game: any) => () => void): Pro
 		const result = await runMatch(game);
 		restore?.();
 		results.push(result);
+		ttyWrite(progressBar(i + 1, count, label));
 	}
+	ttyWrite('\n');
 
 	jest.useRealTimers();
 	return results;
@@ -290,8 +315,8 @@ const VARIANT_COUNT = parseInt(process.env.SIM_VARIANT || '10', 10);
 describe('Bot simulation', () => {
 	test('run simulation and suggest improvements', async () => {
 		// ── Phase 1: baseline ──────────────────────────────────────────────────
-		console.log(`\n📊  Phase 1: running ${BASELINE_COUNT} baseline matches …`);
-		const baselineResults = await runBatch(BASELINE_COUNT);
+		ttyWrite(`\n📊  Phase 1: ${BASELINE_COUNT} baseline matches\n`);
+		const baselineResults = await runBatch(BASELINE_COUNT, 'baseline');
 		const baselineMetrics = aggregateMetrics(baselineResults);
 		console.log('Baseline: ' + formatMetrics('baseline', baselineMetrics));
 
@@ -302,12 +327,11 @@ describe('Bot simulation', () => {
 		console.log(`✅  Saved baseline to ${BASELINE_PATH}`);
 
 		// ── Phase 2: variants ─────────────────────────────────────────────────
-		console.log(`\n🔬  Phase 2: testing ${variants.length} variants (${VARIANT_COUNT} matches each) …`);
+		ttyWrite(`\n🔬  Phase 2: ${variants.length} variants × ${VARIANT_COUNT} matches\n`);
 
 		const variantResults = [];
 		for (const variant of variants) {
-			console.log(`  Variant: ${variant.label}`);
-			const matches = await runBatch(VARIANT_COUNT, variant.patch);
+			const matches = await runBatch(VARIANT_COUNT, variant.label, variant.patch);
 			const metrics = aggregateMetrics(matches);
 			const isBetter = metrics.decisiveness > baselineMetrics.decisiveness * 1.05 ||
 				metrics.timeoutRate < baselineMetrics.timeoutRate * 0.95;
