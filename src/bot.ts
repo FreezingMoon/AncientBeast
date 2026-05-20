@@ -155,6 +155,10 @@ export default class BotController {
 	confirmDelayMs = 140;
 	/** Default delay passed to queueDecision() when scheduling a new turn. */
 	turnDelayMs = 300;
+	/** Delay for the very first queueDecision() call when a new creature turn starts.
+	 *  Defaults to turnDelayMs * 4 + 150 to give the UI time to settle.
+	 *  Override this in simulation environments to reduce fake-time overhead. */
+	startTurnDelayMs = -1; // -1 = use default formula
 	/** The game round during which damage was last dealt to any creature. */
 	lastDamageRound = 0;
 
@@ -206,7 +210,7 @@ export default class BotController {
 			}
 			// Minimize the combat log so it doesn't obstruct bot actions
 			this.game.UI?.chat?.hide();
-			this.queueDecision(this.turnDelayMs * 4 + 150);
+			this.queueDecision(this.startTurnDelayMs >= 0 ? this.startTurnDelayMs : this.turnDelayMs * 4 + 150);
 		}
 	}
 
