@@ -81,19 +81,19 @@
 		"node": "20.x"
 	},
 	"scripts": {
-		"build": "webpack --mode=production",
-		"build:dev": "webpack --mode=development",
-		"start": "cross-env NODE_ENV=production webpack-dev-server",
-		"start:dev": "cross-env NODE_ENV=development webpack-dev-server",
-		"lint": "eslint \"src/**/*.{js,ts}\"",
-		"lint-error": "eslint --quiet \"src/**/*.{js,ts}\"",
-		"lint-fix": "eslint --fix \"src/**/*.{js,ts}\"",
-		"lint-staged": "lint-staged",
-		"test": "npm run lint && npm run build && jest",
-		"test:jest": "jest",
-		"jest": "jest",
-		"start:jest": "jest --watch",
-		"simulate": "jest --config jest.simulation.config.js --runInBand"
+		"build": "echo '📦 Production build using webpack' && webpack --mode=production",
+		"build:dev": "echo '🔧 Development build using webpack (unminified, with source maps)' && webpack --mode=development",
+		"start": "echo '🚀 Starting webpack-dev-server in production mode' && cross-env NODE_ENV=production webpack-dev-server",
+		"start:dev": "echo '🛠️  Starting webpack-dev-server in development mode (hot reload)' && cross-env NODE_ENV=development webpack-dev-server",
+		"lint": "echo '🔍 Running ESLint on all JS/TS source files' && eslint \"src/**/*.{js,ts}\"",
+		"lint-error": "echo '❌ Running ESLint reporting errors only (no warnings)' && eslint --quiet \"src/**/*.{js,ts}\"",
+		"lint-fix": "echo '✏️  Running ESLint and auto-fixing all fixable issues' && eslint --fix \"src/**/*.{js,ts}\"",
+		"lint-staged": "echo '📋 Running ESLint and Prettier on staged git files only' && lint-staged",
+		"test": "echo '🧪 Full test suite: lint, production build, then Jest' && npm run lint && npm run build && jest",
+		"test:jest": "echo '🧪 Running Jest unit tests only (skips lint and build)' && jest",
+		"jest": "echo '🧪 Running Jest unit tests' && jest",
+		"start:jest": "echo '👀 Running Jest in interactive watch mode (re-runs on file change)' && jest --watch",
+		"simulate": "echo '🎮 Running headless game simulation tests (sequential)' && jest --config jest.simulation.config.js --runInBand"
 	},
 	"lint-staged": {
 		"*.{ts,js}": [
