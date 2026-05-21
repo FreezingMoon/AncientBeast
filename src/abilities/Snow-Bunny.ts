@@ -379,8 +379,9 @@ export default (G: Game) => {
 					: undefined;
 
 				// No blow size penalty if upgraded and target is frozen
-				const dist =
-					this._maxPushDistance - (this.isUpgraded() && target.isFrozen() ? 0 : target.size);
+				const dist = target
+					? this._maxPushDistance - (this.isUpgraded() && target.isFrozen() ? 0 : target.size)
+					: this._maxPushDistance;
 				let dir = [];
 				switch (args.direction) {
 					case 0: // Upright
