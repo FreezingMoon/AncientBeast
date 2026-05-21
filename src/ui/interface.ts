@@ -911,6 +911,7 @@ export class UI {
 									if (!game.freezedInput) {
 										this.animateNoTargetAbilityRanges();
 									}
+									b.cssTransition('cancelIcon', 1000);
 									this.flashAbilityBtn(0);
 									return;
 								}
@@ -937,6 +938,14 @@ export class UI {
 									b.cssTransition('cancelIcon', 1000);
 									this.flashAbilityBtn(0);
 								}
+								return;
+							}
+							if (
+								ability.used ||
+								ability.message === game.msg.abilities.noTarget ||
+								b.state === ButtonStateEnum.noClick
+							) {
+								b.cssTransition('cancelIcon', 1000);
 								return;
 							}
 							// Colored frame around selected ability
@@ -1054,7 +1063,14 @@ export class UI {
 				{ isAcceptingInput: this.configuration.isAcceptingInput },
 			);
 			// Native listener fires even when Button state is disabled (jQuery unbind doesn't remove it).
-			b.$button[0].addEventListener('click', () => this.flashAbilityBtn(i));
+			b.$button[0].addEventListener('click', () => {
+				this.flashAbilityBtn(i);
+
+				const ability = this.game.activeCreature?.abilities[i];
+				if (ability && i !== 0 && (ability.used || b.state === ButtonStateEnum.disabled)) {
+					b.cssTransition('cancelIcon', 1000);
+				}
+			});
 			this.buttons.push(b);
 			this.abilitiesButtons.push(b);
 		}
