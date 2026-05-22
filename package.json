@@ -27,7 +27,7 @@
 		"compression": "^1.8.1",
 		"jquery": "^3.5.0",
 		"jquery.transit": "0.9.12",
-		"js-cookie": "^3.0.1",
+		"js-cookie": "^3.0.7",
 		"node-emoji": "^1.10.0",
 		"phaser-ce": "2.16.0",
 		"semver": "^7.5.2"
