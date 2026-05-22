@@ -1,4 +1,4 @@
-import * as $j from 'jquery';
+import $j from 'jquery';
 
 export class Locations {
 	// All locations of the game (including future locations) here

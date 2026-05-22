@@ -1,4 +1,4 @@
-import * as $j from 'jquery';
+import $j from 'jquery';
 import { Ability } from './ability';
 import { search } from './utility/pathfinding';
 import { Hex } from './utility/hex';

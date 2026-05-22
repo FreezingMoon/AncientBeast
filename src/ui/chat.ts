@@ -1,4 +1,4 @@
-import * as $j from 'jquery';
+import $j from 'jquery';
 import * as str from '../utility/string';
 import { PRIMARY_STATS, MASTERY_STATS } from '../utility/const';
 import { Creature } from '../creature';

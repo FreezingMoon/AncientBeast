@@ -1,5 +1,5 @@
 // Import jQuery related stuff
-import * as $j from 'jquery';
+import $j from 'jquery';
 import 'jquery.transit';
 import { unitData } from './data/units';
 import Game from './game';
@@ -19,6 +19,7 @@ import {
 } from './debug';
 
 // Load the stylesheet
+// @ts-ignore
 import './style/main.less';
 
 installAvatarStyles();

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import * as $j from 'jquery';
+import $j from 'jquery';
 
 export const ButtonStateEnum = {
 	normal: 'normal',

@@ -1,4 +1,4 @@
-import * as $j from 'jquery';
+import $j from 'jquery';
 import Cookies from 'js-cookie';
 import { capitalize } from '../utility/string';
 import { Button, ButtonStateEnum } from './button';

@@ -710,8 +710,7 @@ export function createGame(abilities: Array<(G: any) => void>): any {
 				// Skip: getMovementRange() BFS + queryHexes() — UI-only hover refresh
 				this.turnsActive += 1;
 				this._nextGameTurnActive = game.turn + 1;
-				// @ts-expect-error 2554
-				game.onEndPhase(this);
+				// game.onEndPhase(this); // @ts-expect-error removed as no longer needed
 				this.hasWait = this.isDelayed;
 			} else {
 				_origDeactivate.call(this, reason);

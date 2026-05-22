@@ -1,4 +1,4 @@
-import * as $j from 'jquery';
+import $j from 'jquery';
 import Phaser from 'phaser-ce';
 import * as time from '../utility/time';
 import * as emoji from 'node-emoji';

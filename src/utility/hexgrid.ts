@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import * as $j from 'jquery';
+import $j from 'jquery';
 import { Direction, Hex } from './hex';
 import { Creature } from '../creature';
 import * as matrices from './matrices';

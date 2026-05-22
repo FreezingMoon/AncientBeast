@@ -1,4 +1,4 @@
-import * as $j from 'jquery';
+import $j from 'jquery';
 import { Animations } from './animations';
 import { CreatureQueue } from './creature_queue';
 import { GameLog } from './utility/gamelog';
@@ -10,7 +10,9 @@ import { Player, PlayerColor, PlayerID } from './player';
 import { UI } from './ui/interface';
 import { Creature, CreatureHintType } from './creature';
 import { unitData } from './data/units';
+// @ts-ignore
 import 'pixi';
+// @ts-ignore
 import 'p2';
 // @ts-expect-error 2307
 import Phaser, { Signal } from 'phaser';

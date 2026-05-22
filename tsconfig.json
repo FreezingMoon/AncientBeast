@@ -11,7 +11,11 @@
 		"noImplicitThis": true,
 		"resolveJsonModule": true,
 		"allowSyntheticDefaultImports": true,
-		"skipLibCheck": true
+		"skipLibCheck": true,
+		"esModuleInterop": true,
+		"noImplicitAny": false,
+		"strict": false,
+		"types": ["jest"]
 	},
 	"include": ["src", "types"]
 }
