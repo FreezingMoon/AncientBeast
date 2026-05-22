@@ -1502,6 +1502,7 @@ export default class Game {
 		this.endGameSound = this.soundsys.playSFX('sounds/drums');
 
 		this.stopTimer();
+		this.activeCreature = undefined;
 		this.gameState = 'ended';
 
 		//-------End bonuses--------//
