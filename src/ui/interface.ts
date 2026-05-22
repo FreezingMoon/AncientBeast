@@ -908,13 +908,9 @@ export class UI {
 								this.checkAbilities(); // Ensure state is up to date
 								const ab = game.activeCreature.abilities[0];
 								if (ab.message === game.msg.abilities.passiveUnavailable) {
-							if (!game.freezedInput) {
 									this.animateNoTargetAbilityRanges();
-								} else {
-									b.cssTransition('cancelIcon', 1000);
-								}
-								this.flashAbilityBtn(0);
-								return;
+									this.flashAbilityBtn(0);
+									return;
 								}
 								// Joywin
 								const selectedAbility = this.selectNextAbility();
@@ -928,31 +924,25 @@ export class UI {
 									});
 									b.cssTransition('nextIcon', 1000);
 									this.flashAbilityBtn(0);
-						} else if (selectedAbility === -1) {
-								this.abilitiesButtons.forEach((btn, index) => {
-									if (index === 0) {
-										btn.$button.removeClass('nextIcon');
-										btn.$button.removeClass('cancelIcon');
-										this.clickedAbility = -1;
-									}
-								});
-								if (game.freezedInput) {
-									b.cssTransition('cancelIcon', 1000);
+								} else if (selectedAbility === -1) {
+									this.abilitiesButtons.forEach((btn, index) => {
+										if (index === 0) {
+											btn.$button.removeClass('nextIcon');
+											btn.$button.removeClass('cancelIcon');
+											this.clickedAbility = -1;
+										}
+									});
+									this.flashAbilityBtn(0);
 								}
-								this.flashAbilityBtn(0);
-							}
 								return;
 							}
-					if (
-							ability.used ||
-							ability.message === game.msg.abilities.noTarget ||
-							b.state === ButtonStateEnum.noClick
-						) {
-							if (game.freezedInput) {
-								b.cssTransition('cancelIcon', 1000);
+							if (
+								ability.used ||
+								ability.message === game.msg.abilities.noTarget ||
+								b.state === ButtonStateEnum.noClick
+							) {
+								return;
 							}
-							return;
-						}
 							// Colored frame around selected ability
 							if (ability.require() == true && i != 0) {
 								if (ability._abilityRangeHexes?.length) {
@@ -1072,10 +1062,14 @@ export class UI {
 				this.flashAbilityBtn(i);
 
 				const ability = this.game.activeCreature?.abilities[i];
-				if (ability && i !== 0 && (ability.used || b.state === ButtonStateEnum.disabled)) {
-					if (this.game.freezedInput) {
-						b.cssTransition('cancelIcon', 1000);
-					}
+				if (
+					this.game.botController.isBotTurn() &&
+					this.game.freezedInput &&
+					ability &&
+					i !== 0 &&
+					(ability.used || b.state === ButtonStateEnum.disabled || b.state === ButtonStateEnum.noClick)
+				) {
+					b.cssTransition('cancelIcon', 1000);
 				}
 			});
 			this.buttons.push(b);
