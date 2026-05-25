@@ -47,6 +47,48 @@ export class Trap {
 	/** Extra sprites created by the idle animation (e.g. flame layers). Destroyed with the trap. */
 	private _overlaySprites: Phaser.Sprite[] = [];
 
+	private _moveSpriteToGroup(sprite: Phaser.Sprite, targetGroup: Phaser.Group) {
+		const sourceGroup = sprite.parent as Phaser.Group | null;
+		if (!sourceGroup || sourceGroup === targetGroup) {
+			return;
+		}
+
+		const worldPos = sourceGroup.toGlobal(sprite.position.clone());
+		sourceGroup.remove(sprite, false);
+		targetGroup.add(sprite);
+		const localPos = targetGroup.toLocal(worldPos, this.game.Phaser.world);
+		sprite.position.set(localPos.x, localPos.y);
+	}
+
+	private _moveVisualsToOverLayer(enabled: boolean) {
+		const targetGroup = enabled ? this.game.grid.creatureGroup : this.game.grid.trapGroup;
+		this._moveSpriteToGroup(this.display, targetGroup);
+		this._overlaySprites.forEach((sprite) => {
+			if (sprite && sprite.exists) {
+				this._moveSpriteToGroup(sprite, targetGroup);
+			}
+		});
+		if (this.displayOver && this.displayOver.exists) {
+			this._moveSpriteToGroup(this.displayOver, targetGroup);
+		}
+	}
+
+	syncTypeOverVisual(enabled: boolean) {
+		this._moveVisualsToOverLayer(enabled);
+	}
+
+	setTypeOver(enabled: boolean, reorder = true) {
+		if (this.typeOver === enabled) {
+			return;
+		}
+
+		this.typeOver = enabled;
+		this._moveVisualsToOverLayer(enabled);
+		if (reorder) {
+			this.game.grid.orderCreatureZ();
+		}
+	}
+
 	constructor(
 		x: number,
 		y: number,
@@ -89,13 +131,17 @@ export class Trap {
 
 		const spriteName = 'trap_' + type;
 		const px = offsetCoordsToPx(this);
-		this.display = game.grid.trapGroup.create(px.x + HEX_WIDTH_PX / 2, px.y + 60, spriteName);
+
+		// Traps are created in the base trap layer.
+		// Bonfire-spring is moved above units only while a creature occupies the same hex.
+		const targetGroup = game.grid.trapGroup;
+		this.display = targetGroup.create(px.x + HEX_WIDTH_PX / 2, px.y + 60, spriteName);
 		this.display.anchor.setTo(0.5);
 
 		if (type === 'bonfire-spring') {
 			game.animations.startBonfireSpringTrapAnimation(
 				this.display,
-				game.grid.trapGroup,
+				targetGroup,
 				this._idleTweens,
 				this._overlaySprites,
 			);
@@ -104,21 +150,13 @@ export class Trap {
 		if (type === 'scorched-ground') {
 			game.animations.startScorchedGroundTrapAnimation(
 				this.display,
-				game.grid.trapGroup,
+				targetGroup,
 				this._idleTweens,
 				this._overlaySprites,
 			);
 		}
 
-		if (this.typeOver) {
-			this.displayOver = game.grid.trapOverGroup.create(
-				px.x + HEX_WIDTH_PX / 2,
-				px.y + 60,
-				spriteName,
-			);
-			this.displayOver.anchor.setTo(0.5);
-			this.displayOver.scale.x *= -1;
-		}
+		game.grid.orderCreatureZ();
 	}
 
 	/**
@@ -231,6 +269,11 @@ export class Trap {
 				this._idleTweens,
 				this._overlaySprites,
 			);
+			if (this.typeOver && group !== this.game.grid.trapOverGroup) {
+				this.setTypeOver(true);
+				return;
+			}
+			this.game.grid.orderCreatureZ();
 			return;
 		}
 
@@ -240,5 +283,10 @@ export class Trap {
 			this._idleTweens,
 			this._overlaySprites,
 		);
+		if (this.typeOver && group !== this.game.grid.trapOverGroup) {
+			this.setTypeOver(true);
+			return;
+		}
+		this.game.grid.orderCreatureZ();
 	}
 }

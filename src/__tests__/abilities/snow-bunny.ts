@@ -669,6 +669,46 @@ describe('Snow Bunny sequencing', () => {
 		expect(queryMove).toHaveBeenCalledTimes(1);
 	});
 
+	test('Blowing Wind resumes turn when target cannot be pushed', () => {
+		const { game, queryMove, getHexMap, projectileHarness } = makeAbilityGame();
+		createSnowBunnyAbilities(game as any);
+
+		const ability = (game.abilities as any[])[12][2];
+		const pushHex = { x: 9, y: 3, isWalkable: () => true };
+		getHexMap.mockReturnValue([pushHex]);
+
+		const target = {
+			x: 7,
+			y: 3,
+			size: 2,
+			id: 100,
+			dead: false,
+			temp: false,
+			_brbState: null,
+			hexagons: [{ x: 7, y: 3 }],
+			stats: { moveable: false },
+			isFrozen: () => false,
+			moveTo: jest.fn(),
+		};
+		creatures = [target as any];
+
+		const context = {
+			creature: { x: 5, y: 3, id: 12 },
+			_maxPushDistance: 6,
+			isUpgraded: () => false,
+			end: jest.fn(),
+		};
+
+		ability.activate.call(context, [{ x: 7, y: 3 }], { direction: 1 });
+
+		expect(context.end).toHaveBeenCalledWith(false, true);
+		expect(queryMove).toHaveBeenCalledTimes(0);
+
+		projectileHarness.triggerComplete();
+		expect(target.moveTo).not.toHaveBeenCalled();
+		expect(queryMove).toHaveBeenCalledTimes(1);
+	});
+
 	test('Freezing Spit defers and resumes on projectile impact', () => {
 		const { game, queryMove, projectileHarness } = makeAbilityGame();
 		createSnowBunnyAbilities(game as any);

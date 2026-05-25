@@ -36,6 +36,7 @@ export class Effect {
 	stackable = true;
 	specialHint: string | undefined = undefined; // Special hint for log
 	deleteOnOwnerDeath = false;
+	isDeleted = false;
 
 	_trap: Trap | undefined = undefined;
 
@@ -100,20 +101,22 @@ export class Effect {
 	}
 
 	deleteEffect() {
+		if (this.isDeleted) {
+			return;
+		}
+
+		this.isDeleted = true;
+
 		if ('effects' in this.target) {
 			const targetIdx = this.target.effects.indexOf(this);
-			if (this.target.effects[targetIdx]) {
+			if (targetIdx !== -1) {
 				this.target.effects.splice(targetIdx, 1);
-			} else {
-				console.warn('Failed to find effect on target.', this);
 			}
 		}
 
 		const gameIdx = this.game.effects.indexOf(this);
-		if (this.game.effects[gameIdx]) {
+		if (gameIdx !== -1) {
 			this.game.effects.splice(gameIdx, 1);
-		} else {
-			console.warn('Failed to find effect on game.', this);
 		}
 
 		if ('updateAlteration' in this.target) {

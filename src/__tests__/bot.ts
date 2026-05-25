@@ -14,10 +14,11 @@ jest.mock('../creature', () => ({
 	Creature: class Creature {},
 }));
 
-import BotController from '../bot';
+import BotController, { unitStrategies } from '../bot';
 import { Creature } from '../creature';
 import type Game from '../game';
 import { Hex } from '../utility/hex';
+import { Team } from '../utility/team';
 
 // Minimal mock creature for testing.
 // Object.create(Creature.prototype) ensures `instanceof Creature` is true in
@@ -28,7 +29,9 @@ const makeCreature = ({
 	x,
 	y,
 	controller = 'human',
+	type = 'T0',
 	health = 100,
+	maxHealth = 100,
 	size = 1,
 }: {
 	id: number;
@@ -36,20 +39,24 @@ const makeCreature = ({
 	x: number;
 	y: number;
 	controller?: 'human' | 'bot';
+	type?: string;
 	health?: number;
+	maxHealth?: number;
 	size?: number;
 }) => {
 	const creature = Object.create(Creature.prototype);
 	Object.assign(creature, {
 		id,
 		team,
+		type,
+		level: 1,
 		x,
 		y,
 		health,
 		size,
 		dead: false,
 		temp: false,
-		hexagons: [{ x, y }],
+		hexagons: [{ x, y, pos: { x, y } }],
 		player: {
 			id: team,
 			controller,
@@ -57,9 +64,10 @@ const makeCreature = ({
 		abilities: [],
 		remainingMove: 0,
 		isDarkPriest: () => false,
+		calculatePath: jest.fn(() => []),
 		queryMove: jest.fn(),
 		stats: {
-			health,
+			health: maxHealth,
 			energy: 100,
 		},
 		energy: 100,
@@ -69,13 +77,15 @@ const makeCreature = ({
 	return creature as Creature & {
 		id: number;
 		team: number;
+		type: string;
 		x: number;
 		y: number;
 		health: number;
 		size: number;
+		level: number;
 		dead: boolean;
 		temp: boolean;
-		hexagons: { x: number; y: number }[];
+		hexagons: { x: number; y: number; pos: { x: number; y: number } }[];
 		player: {
 			id: number;
 			controller: 'human' | 'bot';
@@ -83,6 +93,7 @@ const makeCreature = ({
 		abilities: unknown[];
 		remainingMove: number;
 		isDarkPriest: () => boolean;
+		calculatePath: jest.Mock;
 		queryMove: jest.Mock;
 		stats: { health: number; energy: number };
 		energy: number;
@@ -96,6 +107,12 @@ const makeGame = (activeCreature: ReturnType<typeof makeCreature>, otherCreature
 	({
 		activeCreature,
 		creatures: [activeCreature, ...otherCreatures],
+		drops: [],
+		grid: {
+			lastQueryOpt: undefined,
+			hexes: [[makeHex({ x: 0, y: 0 })]],
+			findCreatureMovementHexes: () => [],
+		},
 		multiplayer: false,
 		gameState: 'playing',
 		freezedInput: false,
@@ -114,17 +131,32 @@ const makeHex = ({
 	x,
 	y,
 	creature,
+	trap,
 }: {
 	x: number;
 	y: number;
 	creature?: ReturnType<typeof makeCreature>;
+	trap?: {
+		effects: Array<{
+			trigger?: string;
+			name?: string;
+			specialHint?: string;
+			effectFn?: (...args: unknown[]) => unknown;
+		}>;
+	};
 }) =>
 	({
 		x,
 		y,
 		creature,
+		trap,
 		adjacentHex: (_radius: number) => [] as Hex[],
 	} as unknown as Hex);
+
+const makeAbility = (upgraded: boolean) =>
+	({
+		isUpgraded: () => upgraded,
+	} as unknown as Creature['abilities'][number]);
 
 describe('BotController', () => {
 	afterEach(() => {
@@ -204,7 +236,629 @@ describe('BotController', () => {
 
 		jest.advanceTimersByTime(90);
 		expect(onConfirm).toHaveBeenCalled();
+		jest.runOnlyPendingTimers();
 		expect(bot.pendingAction).toBeNull();
 		expect(queueDecisionSpy).toHaveBeenCalledWith(1200);
+	});
+
+	test('query resolution preserves pending ability for chained bot queries', () => {
+		jest.useFakeTimers();
+
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+		});
+		const firstTarget = makeCreature({
+			id: 2,
+			team: 1,
+			x: 1,
+			y: 0,
+			health: 30,
+		});
+		const destinationHex = makeHex({ x: 2, y: 0 });
+		const game = makeGame(activeCreature, [firstTarget]);
+		const bot = new BotController(game);
+		bot.activeCreatureId = activeCreature.id;
+		bot.pendingAction = { type: 'ability', abilityIndex: 3 };
+		jest.spyOn(bot, 'queueDecision').mockImplementation(() => undefined);
+
+		const secondOnSelect = jest.fn();
+		const secondOnConfirm = jest.fn();
+		const firstOnConfirm = jest.fn(() => {
+			bot.resolveQuery(
+				{ hexes: [destinationHex] },
+				{
+					onSelect: secondOnSelect,
+					onConfirm: secondOnConfirm,
+				},
+			);
+		});
+
+		bot.resolveQuery(
+			{ hexes: [makeHex({ x: 1, y: 0, creature: firstTarget })] },
+			{
+				onSelect: jest.fn(),
+				onConfirm: firstOnConfirm,
+			},
+		);
+
+		jest.advanceTimersByTime(140);
+		expect(firstOnConfirm).toHaveBeenCalled();
+		expect(bot.pendingAction).not.toBeNull();
+		expect(bot.isResolvingQuery).toBe(true);
+		expect(bot.pendingAction).not.toBeNull();
+
+		jest.advanceTimersByTime(50);
+		expect(secondOnSelect).toHaveBeenCalled();
+
+		jest.advanceTimersByTime(90);
+		expect(secondOnConfirm).toHaveBeenCalled();
+		jest.runOnlyPendingTimers();
+		expect(bot.pendingAction).toBeNull();
+	});
+
+	test('query resolution clears pending action when onConfirm throws', () => {
+		jest.useFakeTimers();
+
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+		});
+		const enemyCreature = makeCreature({
+			id: 2,
+			team: 1,
+			x: 1,
+			y: 0,
+			health: 30,
+		});
+		const game = makeGame(activeCreature, [enemyCreature]);
+		const bot = new BotController(game);
+		bot.activeCreatureId = activeCreature.id;
+		bot.pendingAction = { type: 'ability', abilityIndex: 2 };
+		const queueDecisionSpy = jest.spyOn(bot, 'queueDecision').mockImplementation(() => undefined);
+
+		bot.resolveQuery(
+			{ hexes: [makeHex({ x: 1, y: 0, creature: enemyCreature })] },
+			{
+				onSelect: jest.fn(),
+				onConfirm: jest.fn(() => {
+					throw new Error('confirm failed');
+				}),
+			},
+		);
+
+		jest.advanceTimersByTime(140);
+		expect(bot.pendingAction).toBeNull();
+		expect(bot.failedAbilityIds.has(2)).toBe(true);
+		expect(queueDecisionSpy).toHaveBeenCalledWith(120);
+	});
+
+	test('stale pending ability action is cleared to avoid turn freeze', () => {
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+		});
+		const game = makeGame(activeCreature);
+		const bot = new BotController(game);
+		bot.activeCreatureId = activeCreature.id;
+		bot.pendingAction = { type: 'ability', abilityIndex: 1 };
+		(bot as unknown as { pendingActionSetAt: number }).pendingActionSetAt = 100;
+		(bot as unknown as { stalePendingActionMs: number }).stalePendingActionMs = 200;
+
+		const queueDecisionSpy = jest.spyOn(bot, 'queueDecision').mockImplementation(() => undefined);
+		const dateNowSpy = jest.spyOn(Date, 'now').mockReturnValue(1000);
+
+		bot.takeTurn();
+
+		expect(bot.pendingAction).toBeNull();
+		expect(bot.failedAbilityIds.has(1)).toBe(true);
+		expect(queueDecisionSpy).toHaveBeenCalledWith(120);
+
+		dateNowSpy.mockRestore();
+	});
+
+	test('ability query skips low-value target when strategy minimum score is not met', () => {
+		const strategyType = 'Z9';
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			type: strategyType,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+		});
+		const enemyCreature = makeCreature({
+			id: 2,
+			team: 1,
+			x: 1,
+			y: 0,
+		});
+		const game = makeGame(activeCreature, [enemyCreature]);
+		const bot = new BotController(game);
+		bot.pendingAction = { type: 'ability', abilityIndex: 0 };
+
+		const originalStrategy = unitStrategies[strategyType];
+		unitStrategies[strategyType] = {
+			scoreAbilityHex: () => 180,
+			getAbilityMinScore: () => 220,
+		};
+
+		const picked = bot.chooseHexForCurrentQuery([makeHex({ x: 1, y: 0, creature: enemyCreature })]);
+
+		expect(picked).toBeUndefined();
+
+		if (originalStrategy) {
+			unitStrategies[strategyType] = originalStrategy;
+		} else {
+			delete unitStrategies[strategyType];
+		}
+	});
+
+	test('ability query selects target when strategy minimum score is met', () => {
+		const strategyType = 'Z8';
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			type: strategyType,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+		});
+		const enemyCreature = makeCreature({
+			id: 2,
+			team: 1,
+			x: 1,
+			y: 0,
+		});
+		const game = makeGame(activeCreature, [enemyCreature]);
+		const bot = new BotController(game);
+		bot.pendingAction = { type: 'ability', abilityIndex: 0 };
+
+		const targetHex = makeHex({ x: 1, y: 0, creature: enemyCreature });
+
+		const originalStrategy = unitStrategies[strategyType];
+		unitStrategies[strategyType] = {
+			scoreAbilityHex: () => 260,
+			getAbilityMinScore: () => 220,
+		};
+
+		const picked = bot.chooseHexForCurrentQuery([targetHex]);
+
+		expect(picked).toBe(targetHex);
+
+		if (originalStrategy) {
+			unitStrategies[strategyType] = originalStrategy;
+		} else {
+			delete unitStrategies[strategyType];
+		}
+	});
+
+	test('bot does not get stuck when ability use opens no query', () => {
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+		});
+
+		const abilityUse = jest.fn();
+		activeCreature.abilities = [
+			{
+				used: false,
+				getTrigger: () => 'onQuery',
+				require: () => true,
+				use: abilityUse,
+				creature: activeCreature,
+				game: {} as unknown as Game,
+				id: 0,
+				priority: 0,
+				timesUsed: 0,
+				timesUsedThisTurn: 0,
+				token: 0,
+				upgraded: false,
+				title: 'Test Ability',
+				_disableCooldowns: false,
+				_infiniteEnergy: false,
+				_energySelfUpgraded: 0,
+				_getMaxDistance: () => 0,
+				_targetTeam: Team.Enemy,
+				_targets: [],
+				_addOffenseBuff: () => undefined,
+				_maxTransferAmount: 0,
+				_damaged: false,
+				_executeHealthThreshold: 0,
+				_getDirections: () => [],
+				_activateOnAttacker: () => false,
+				_activateOnTarget: () => undefined,
+			} as unknown as Creature['abilities'][number],
+		];
+		activeCreature.remainingMove = 0;
+
+		const game = makeGame(activeCreature);
+		const bot = new BotController(game);
+		bot.activeCreatureId = activeCreature.id;
+
+		bot.takeTurn();
+
+		expect(abilityUse).toHaveBeenCalledTimes(1);
+		expect(bot.pendingAction).toBeNull();
+		expect(bot.failedAbilityIds.has(0)).toBe(true);
+		expect(game.skipTurn).toHaveBeenCalledWith({ noTooltip: true });
+	});
+
+	test('bot does not get stuck when ability use opens an empty query (no viable targets)', () => {
+		// Reproduces the "no energy / no targets" freeze: ability.use() calls queryHexes
+		// with an empty hexes array, which causes resolveQuery to clear pendingAction
+		// synchronously *inside* ability.use().  The guard must not return true in this case.
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+		});
+
+		const abilityUse = jest.fn().mockImplementation(function () {
+			// Simulate queryHexes being called with no valid hexes, causing resolveQuery
+			// to clear pendingAction and mark the ability as failed before use() returns.
+			bot.resolveQuery({ hexes: [] }, { onSelect: jest.fn(), onConfirm: jest.fn() });
+		});
+
+		activeCreature.abilities = [
+			{
+				used: false,
+				getTrigger: () => 'onQuery',
+				require: () => true,
+				use: abilityUse,
+				creature: activeCreature,
+				game: {} as unknown as Game,
+				id: 0,
+				priority: 0,
+				timesUsed: 0,
+				timesUsedThisTurn: 0,
+				token: 0,
+				upgraded: false,
+				title: 'Test Ability',
+				_disableCooldowns: false,
+				_infiniteEnergy: false,
+				_energySelfUpgraded: 0,
+				_getMaxDistance: () => 0,
+				_targetTeam: Team.Enemy,
+				_targets: [],
+				_addOffenseBuff: () => undefined,
+				_maxTransferAmount: 0,
+				_damaged: false,
+				_executeHealthThreshold: 0,
+				_getDirections: () => [],
+				_activateOnAttacker: () => false,
+				_activateOnTarget: () => undefined,
+			} as unknown as Creature['abilities'][number],
+		];
+		activeCreature.remainingMove = 0;
+
+		const game = makeGame(activeCreature);
+		// Simulate lastQueryOpt changing (queryHexes DID run, just with empty hexes).
+		game.grid.lastQueryOpt = {};
+		const bot = new BotController(game);
+		bot.activeCreatureId = activeCreature.id;
+
+		bot.takeTurn();
+
+		expect(abilityUse).toHaveBeenCalledTimes(1);
+		expect(bot.pendingAction).toBeNull();
+		expect(bot.failedAbilityIds.has(0)).toBe(true);
+		expect(game.skipTurn).toHaveBeenCalledWith({ noTooltip: true });
+	});
+
+	test('immoveable bot with remaining movement does not queue move action', () => {
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+		});
+
+		activeCreature.remainingMove = 3;
+		activeCreature.stats.moveable = false;
+
+		const game = makeGame(activeCreature);
+		const bot = new BotController(game);
+		bot.activeCreatureId = activeCreature.id;
+
+		bot.takeTurn();
+
+		expect(activeCreature.queryMove).not.toHaveBeenCalled();
+		expect(bot.pendingAction).toBeNull();
+		expect(game.skipTurn).toHaveBeenCalledWith({ noTooltip: true });
+	});
+
+	test('low-health bot prefers a safe tile over a damaging trap tile', () => {
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+			health: 18,
+		});
+		const enemyCreature = makeCreature({
+			id: 2,
+			team: 1,
+			x: 10,
+			y: 0,
+		});
+
+		const safeHex = makeHex({ x: 3, y: 0 });
+		const trapHex = makeHex({
+			x: 1,
+			y: 0,
+			trap: {
+				effects: [
+					{
+						trigger: 'onStepIn',
+						name: 'burn damage',
+					},
+				],
+			},
+		});
+
+		const game = makeGame(activeCreature, [enemyCreature]);
+		const bot = new BotController(game);
+		bot.pendingAction = { type: 'move' };
+
+		const picked = bot.chooseHexForCurrentQuery([trapHex, safeHex]);
+
+		expect(picked).toBe(safeHex);
+		expect(bot.scoreMoveHex(safeHex)).toBeGreaterThan(bot.scoreMoveHex(trapHex));
+	});
+
+	test('low-health bot avoids routes that cross damaging traps when a safe route exists', () => {
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+			health: 20,
+		});
+		const enemyCreature = makeCreature({
+			id: 2,
+			team: 1,
+			x: 10,
+			y: 0,
+		});
+
+		const damagingTrap = {
+			effects: [
+				{
+					trigger: 'onStepOut',
+					effectFn: () => {
+						/* noop */
+					},
+				},
+			],
+		};
+
+		const safeDestination = makeHex({ x: 2, y: 1 });
+		const riskyDestination = makeHex({ x: 2, y: 0 });
+
+		activeCreature.calculatePath.mockImplementation(({ x, y }: { x: number; y: number }) => {
+			if (x === 2 && y === 0) {
+				return [makeHex({ x: 1, y: 0, trap: damagingTrap }), riskyDestination];
+			}
+			return [safeDestination];
+		});
+
+		const game = makeGame(activeCreature, [enemyCreature]);
+		const bot = new BotController(game);
+		bot.pendingAction = { type: 'move' };
+
+		const picked = bot.chooseHexForCurrentQuery([riskyDestination, safeDestination]);
+
+		expect(picked).toBe(safeDestination);
+		expect(bot.scoreMoveHex(safeDestination)).toBeGreaterThan(bot.scoreMoveHex(riskyDestination));
+	});
+
+	test('low-health bot waits when all movement options are trapped', () => {
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+			health: 14,
+		});
+		const enemyCreature = makeCreature({
+			id: 2,
+			team: 1,
+			x: 10,
+			y: 0,
+		});
+
+		const trapHexA = makeHex({
+			x: 1,
+			y: 0,
+			trap: {
+				effects: [
+					{
+						trigger: 'onStepIn',
+						name: 'poison damage',
+					},
+				],
+			},
+		});
+
+		const trapHexB = makeHex({
+			x: 1,
+			y: 1,
+			trap: {
+				effects: [
+					{
+						trigger: 'onStepOut',
+						name: 'burn damage',
+					},
+				],
+			},
+		});
+
+		const game = makeGame(activeCreature, [enemyCreature]);
+		const bot = new BotController(game);
+		bot.pendingAction = { type: 'move' };
+
+		const picked = bot.chooseHexForCurrentQuery([trapHexA, trapHexB]);
+
+		expect(picked).toBeUndefined();
+	});
+
+	test('retreating bot prefers safe path over farther trapped path', () => {
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+			health: 18,
+		});
+		const enemyCreature = makeCreature({
+			id: 2,
+			team: 1,
+			x: 1,
+			y: 0,
+		});
+
+		const safeRetreat = makeHex({ x: 2, y: 0 });
+		const trapRetreat = makeHex({
+			x: 4,
+			y: 0,
+			trap: {
+				effects: [
+					{
+						trigger: 'onStepIn',
+						name: 'burn damage',
+					},
+				],
+			},
+		});
+
+		const game = makeGame(activeCreature, [enemyCreature]);
+		const bot = new BotController(game);
+		bot.pendingAction = { type: 'move' };
+
+		const picked = bot.chooseHexForCurrentQuery([trapRetreat, safeRetreat]);
+
+		expect(bot.isRetreating(activeCreature)).toBe(true);
+		expect(picked).toBe(safeRetreat);
+		expect(bot.scoreMoveHex(safeRetreat)).toBeGreaterThan(bot.scoreMoveHex(trapRetreat));
+	});
+
+	test('advantaged side is less likely to retreat at borderline health', () => {
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+			health: 28,
+			maxHealth: 100,
+		});
+		activeCreature.level = 7;
+		activeCreature.abilities = [
+			makeAbility(true),
+			makeAbility(true),
+			makeAbility(true),
+			{} as unknown as Creature['abilities'][number],
+		];
+
+		const strongAlly = makeCreature({
+			id: 2,
+			team: 2,
+			x: 1,
+			y: 0,
+			health: 100,
+			maxHealth: 100,
+		});
+		strongAlly.level = 6;
+		strongAlly.abilities = [
+			makeAbility(true),
+			makeAbility(true),
+			{} as unknown as Creature['abilities'][number],
+			{} as unknown as Creature['abilities'][number],
+		];
+
+		const weakEnemy = makeCreature({
+			id: 3,
+			team: 1,
+			x: 10,
+			y: 0,
+			health: 20,
+			maxHealth: 100,
+		});
+		weakEnemy.level = 1;
+
+		const game = makeGame(activeCreature, [strongAlly, weakEnemy]);
+		const bot = new BotController(game);
+
+		expect(bot.isRetreating(activeCreature)).toBe(false);
+	});
+
+	test('disadvantaged side retreats earlier at moderate health', () => {
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+			health: 32,
+			maxHealth: 100,
+		});
+		activeCreature.level = 1;
+
+		const strongEnemyA = makeCreature({
+			id: 2,
+			team: 1,
+			x: 8,
+			y: 0,
+			health: 100,
+			maxHealth: 100,
+		});
+		strongEnemyA.level = 7;
+		strongEnemyA.abilities = [
+			makeAbility(true),
+			makeAbility(true),
+			makeAbility(true),
+			{} as unknown as Creature['abilities'][number],
+		];
+
+		const strongEnemyB = makeCreature({
+			id: 3,
+			team: 3,
+			x: 9,
+			y: 0,
+			health: 95,
+			maxHealth: 100,
+		});
+		strongEnemyB.level = 6;
+		strongEnemyB.abilities = [
+			makeAbility(true),
+			makeAbility(true),
+			{} as unknown as Creature['abilities'][number],
+			{} as unknown as Creature['abilities'][number],
+		];
+
+		const game = makeGame(activeCreature, [strongEnemyA, strongEnemyB]);
+		const bot = new BotController(game);
+
+		expect(bot.isRetreating(activeCreature)).toBe(true);
 	});
 });

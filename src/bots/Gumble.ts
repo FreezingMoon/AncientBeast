@@ -119,7 +119,20 @@ function countLocalTargets(hex: Hex, source: Creature) {
 	return { enemyCount, allyCount };
 }
 
+function hitsAlliedDarkPriest(hex: Hex, source: Creature): boolean {
+	const localHexes = [hex, ...hex.adjacentHex(1)];
+
+	return localHexes.some((localHex) => {
+		const target = localHex.creature;
+		return target instanceof Creature && isTeam(source, target, Team.Ally) && isDarkPriest(target);
+	});
+}
+
 function scoreGummyMallet(hex: Hex, activeCreature: Creature, controller: BotController): number {
+	if (hitsAlliedDarkPriest(hex, activeCreature)) {
+		return Number.NEGATIVE_INFINITY;
+	}
+
 	const target = hex.creature;
 	const localTargets = countLocalTargets(hex, activeCreature);
 	let score = localTargets.enemyCount * 180 - localTargets.allyCount * 240;

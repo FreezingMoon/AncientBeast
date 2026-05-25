@@ -1880,6 +1880,14 @@ export default (G: Game) => {
 						cleanupTweens();
 						if (target.sprite) {
 							target.sprite.alpha = 1;
+							target.sprite.visible = true;
+							target.sprite.renderable = true;
+						}
+						target.grp.alpha = 1;
+						target.grp.visible = true;
+						target.grp.renderable = true;
+						if (typeof target.creatureSprite?.setAlpha === 'function') {
+							target.creatureSprite.setAlpha(1, 1);
 						}
 						if (G.grid.materialize_overlay) {
 							G.grid.materialize_overlay.alpha = 0;
@@ -1946,18 +1954,6 @@ export default (G: Game) => {
 									oldPreview.alpha = 0;
 									oldPreview.destroy();
 									G.grid.secondary_overlay = null;
-								}
-
-								target.grp.alpha = 0;
-								target.grp.visible = false;
-								target.grp.renderable = false;
-								if (target.sprite) {
-									target.sprite.alpha = 0;
-									target.sprite.visible = false;
-									target.sprite.renderable = false;
-								}
-								if (typeof target.creatureSprite?.setAlpha === 'function') {
-									target.creatureSprite.setAlpha(0, 0);
 								}
 
 								ability.activate(target, hex);
@@ -2094,9 +2090,31 @@ export default (G: Game) => {
 					return;
 				}
 
+				const restoreTargetVisibility = () => {
+					target.grp.alpha = 1;
+					target.grp.visible = true;
+					target.grp.renderable = true;
+					if (target.sprite) {
+						target.sprite.alpha = 1;
+						target.sprite.visible = true;
+						target.sprite.renderable = true;
+					}
+					if (typeof target.creatureSprite?.setAlpha === 'function') {
+						target.creatureSprite.setAlpha(1, 1);
+					}
+				};
+
+				// If target is already invisible (e.g., from a previous failed attempt), restore it first
+				// before proceeding, to avoid accumulating hidden state.
+				const targetWasHidden = target.grp.alpha === 0 || !target.grp.visible;
+				if (targetWasHidden) {
+					restoreTargetVisibility();
+				}
+
 				const energyCost = Math.max(1, this._energySelfUpgraded || Math.ceil(target.health));
 				if (this.creature.energy < energyCost) {
 					this.message = G.msg.abilities.notEnough.replace('%stat%', 'energy');
+					restoreTargetVisibility();
 					return;
 				}
 

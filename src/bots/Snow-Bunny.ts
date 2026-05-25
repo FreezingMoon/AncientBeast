@@ -20,6 +20,12 @@ const HIGH_HEALTH_RATIO = 0.7;
 const HIGH_ENERGY_RATIO = 0.7;
 const HIGH_LEVEL = 5;
 const PRESERVE_FREEZE_THREAT_SCORE = 2;
+const CLOSE_DIRECTIONAL_DISTANCE = 2;
+const FAR_DIRECTIONAL_DISTANCE = 4;
+const LOW_PUSH_DISTANCE_THRESHOLD = 2;
+const BLOWING_WIND_COST = 20;
+const FREEZING_SPIT_COST = 25;
+const DIRECTIONAL_DOUBLE_CAST_ENERGY = BLOWING_WIND_COST + FREEZING_SPIT_COST;
 
 /**
  * Returns true when hex B is on the same straight row or diagonal axis as
@@ -185,12 +191,30 @@ function scoreBlowingWind(hex: Hex, activeCreature: Creature, controller: BotCon
 
 	// Blowing Wind always pushes outward from Snow Bunny – no self-targeting possible
 	const pushDist = Math.max(1, MAX_PUSH_DISTANCE - target.size);
+	const distToTarget = Math.abs(hex.x - activeCreature.x) + Math.abs(hex.y - activeCreature.y);
 	const landingPos = approximateLandingPos(hex, activeCreature.x, activeCreature.y, pushDist);
 
 	let score = 0;
 
 	if (isEnemy) {
 		score += 300; // Base reward for pushing any enemy
+
+		if (distToTarget <= CLOSE_DIRECTIONAL_DISTANCE) {
+			score += 120;
+		} else if (distToTarget >= FAR_DIRECTIONAL_DISTANCE) {
+			score -= 90;
+		}
+
+		// Smaller targets are generally better push candidates.
+		score += Math.max(0, MAX_PUSH_DISTANCE - target.size) * 15;
+
+		if (target.isFrozen()) {
+			score += 80;
+		}
+
+		if (pushDist <= LOW_PUSH_DISTANCE_THRESHOLD) {
+			score -= 220;
+		}
 
 		// Penalise if the enemy would land adjacent to a low-health ally
 		controller.game.creatures.forEach((c) => {
@@ -281,6 +305,12 @@ function scoreBigPliers(hex: Hex, activeCreature: Creature, controller: BotContr
 		}
 	}
 
+	const pushDist = Math.max(1, MAX_PUSH_DISTANCE - target.size);
+	if (pushDist <= LOW_PUSH_DISTANCE_THRESHOLD) {
+		// If wind would barely move this adjacent enemy, prefer direct melee damage.
+		score += 260;
+	}
+
 	// Ask the target's own strategy if attacking it carries retaliation or
 	// debuff risk (e.g. Plasma Field, Battle Cry, Toxic Spores …).
 	const targetStrategy = unitStrategies[target.type as string];
@@ -304,6 +334,69 @@ function hasSharedDirectionalEnemyTarget(creature: Creature, controller: BotCont
 
 		return isOnSameAxis(creature.x, creature.y, other.x, other.y);
 	});
+}
+
+function getDirectionalTargets(creature: Creature, controller: BotController): Creature[] {
+	return controller.game.creatures.filter((other): other is Creature => {
+		if (!other || other.dead || other.temp || !isTeam(creature, other, Team.Enemy)) {
+			return false;
+		}
+
+		return isOnSameAxis(creature.x, creature.y, other.x, other.y);
+	});
+}
+
+function getDirectionalPreferenceWhenEnergyLimited(
+	creature: Creature,
+	controller: BotController,
+): number | undefined {
+	const canUseBlowingWind = creature.energy >= BLOWING_WIND_COST;
+	const canUseFreezingSpit = creature.energy >= FREEZING_SPIT_COST;
+	if (!canUseBlowingWind || !canUseFreezingSpit) {
+		return undefined;
+	}
+
+	if (creature.energy >= DIRECTIONAL_DOUBLE_CAST_ENERGY) {
+		return undefined;
+	}
+
+	const directionalTargets = getDirectionalTargets(creature, controller);
+	if (directionalTargets.length === 0) {
+		return undefined;
+	}
+
+	const distances = directionalTargets.map(
+		(target) => Math.abs(target.x - creature.x) + Math.abs(target.y - creature.y),
+	);
+	const hasFarTarget = distances.some((dist) => dist >= FAR_DIRECTIONAL_DISTANCE);
+	const hasCloseTarget = distances.some((dist) => dist <= CLOSE_DIRECTIONAL_DISTANCE);
+
+	if (hasFarTarget && !hasCloseTarget) {
+		return ABILITY.FREEZING_SPIT;
+	}
+
+	if (hasCloseTarget && !hasFarTarget) {
+		return ABILITY.BLOWING_WIND;
+	}
+
+	let bestSpitScore = Number.NEGATIVE_INFINITY;
+	let bestWindScore = Number.NEGATIVE_INFINITY;
+
+	for (const target of directionalTargets) {
+		const directionalHex = {
+			x: target.x,
+			y: target.y,
+			creature: target,
+		} as Hex;
+
+		bestSpitScore = Math.max(
+			bestSpitScore,
+			scoreFreezingSpit(directionalHex, creature, controller),
+		);
+		bestWindScore = Math.max(bestWindScore, scoreBlowingWind(directionalHex, creature, controller));
+	}
+
+	return bestSpitScore >= bestWindScore ? ABILITY.FREEZING_SPIT : ABILITY.BLOWING_WIND;
 }
 
 /**
@@ -369,6 +462,18 @@ function hasSafeFrozenBigPliersTarget(creature: Creature): boolean {
 		}
 
 		return target.isFrozen() && !shouldPreserveFreezeOnTarget(target);
+	});
+}
+
+function hasLowPushAdjacentEnemyTarget(creature: Creature): boolean {
+	return creature.adjacentHexes(1).some((hex: Hex) => {
+		const target = hex.creature;
+		if (!(target instanceof Creature) || !isTeam(creature, target, Team.Enemy)) {
+			return false;
+		}
+
+		const pushDist = Math.max(1, MAX_PUSH_DISTANCE - target.size);
+		return pushDist <= LOW_PUSH_DISTANCE_THRESHOLD;
 	});
 }
 
@@ -526,6 +631,10 @@ const SnowBunnyStrategy: UnitBotStrategy = {
 	},
 
 	getAbilityPriority(creature, controller) {
+		if (hasLowPushAdjacentEnemyTarget(creature)) {
+			return [ABILITY.BIG_PLIERS, ABILITY.BLOWING_WIND, ABILITY.FREEZING_SPIT];
+		}
+
 		const hasFrozenAdjacent = creature
 			.adjacentHexes(1)
 			.some(
@@ -545,6 +654,15 @@ const SnowBunnyStrategy: UnitBotStrategy = {
 
 		if (shouldOpenWithMeleeFreezingSpit(creature)) {
 			return [ABILITY.FREEZING_SPIT, ABILITY.BLOWING_WIND, ABILITY.BIG_PLIERS];
+		}
+
+		const directionalPreference = getDirectionalPreferenceWhenEnergyLimited(creature, controller);
+		if (directionalPreference === ABILITY.FREEZING_SPIT) {
+			return [ABILITY.FREEZING_SPIT, ABILITY.BLOWING_WIND, ABILITY.BIG_PLIERS];
+		}
+
+		if (directionalPreference === ABILITY.BLOWING_WIND) {
+			return [ABILITY.BLOWING_WIND, ABILITY.FREEZING_SPIT, ABILITY.BIG_PLIERS];
 		}
 
 		if (hasSharedDirectionalEnemyTarget(creature, controller)) {

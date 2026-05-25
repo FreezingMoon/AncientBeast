@@ -454,7 +454,9 @@ export default (G: Game) => {
 							if (!G.freezedInput) {
 								clearInterval(interval);
 								G.UI.selectAbility(-1);
-								G.activeCreature.queryMove();
+								if (G.activeCreature?.player?.controller !== 'bot') {
+									G.activeCreature.queryMove();
+								}
 							}
 						}, 100);
 					},

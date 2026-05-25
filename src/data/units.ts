@@ -206,7 +206,7 @@ export const unitData: UnitDataStructure = [
 			mental: 8,
 		},
 		drop: {
-			name: 'gold coin',
+			name: 'pouch',
 			meditation: 6,
 			initiative: 4,
 		},
@@ -2602,7 +2602,7 @@ export const unitData: UnitDataStructure = [
 			regrowth: 5,
 			endurance: 75,
 			energy: 60,
-			meditation: 25,
+			meditation: 30,
 			initiative: 60,
 			offense: 7,
 			defense: 9,
@@ -2680,7 +2680,7 @@ export const unitData: UnitDataStructure = [
 					burn: 10,
 				},
 				costs: {
-					energy: 10,
+					energy: 30,
 				},
 			},
 		],

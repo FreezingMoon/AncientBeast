@@ -2,6 +2,8 @@ import type Game from './game';
 import { Creature } from './creature';
 import { CreatureType } from './data/types';
 import { Hex } from './utility/hex';
+import { getPointFacade } from './utility/pointfacade';
+import type { Trap } from './utility/trap';
 import { Team, isTeam } from './utility/team';
 import { getSummonCandidates } from './utility/summon-candidates';
 import SnowBunnyStrategy from './bots/Snow-Bunny';
@@ -13,6 +15,7 @@ import VehemothStrategy from './bots/Vehemoth';
 import StomperStrategy from './bots/Stomper';
 import CycloperStrategy from './bots/Cycloper';
 import ImpalerStrategy from './bots/Impaler';
+import CyberWolfStrategy from './bots/Cyber-Wolf';
 
 /**
  * Optional per-unit behaviour overrides for BotController.
@@ -28,6 +31,16 @@ export interface UnitBotStrategy {
 	 * @param abilityIndex The index of the ability currently being queried (0–3).
 	 */
 	scoreAbilityHex?(hex: Hex, abilityIndex: number, controller: BotController): number | undefined;
+	/**
+	 * Optional minimum score threshold for selecting a queried ability target hex.
+	 * If the best reachable target scores below this value, the bot skips that
+	 * ability for the current turn and continues planning.
+	 */
+	getAbilityMinScore?(
+		creature: Creature,
+		abilityIndex: number,
+		controller: BotController,
+	): number | undefined;
 	/** Override the retreat health/energy threshold check. */
 	isRetreating?(creature: Creature, controller: BotController): boolean | undefined;
 	/** Override the preferred board-x position for zone scoring. */
@@ -84,6 +97,7 @@ export interface UnitBotStrategy {
 /** Registry of unit-specific strategies, keyed by creature.type (e.g. 'S1'). */
 export const unitStrategies: Partial<Record<string, UnitBotStrategy>> = {
 	'--': DarkPriestStrategy,
+	A3: CyberWolfStrategy,
 	S1: SnowBunnyStrategy,
 	E3: StomperStrategy,
 	S7: VehemothStrategy,
@@ -108,11 +122,13 @@ export default class BotController {
 	game: Game;
 	decisionTimeout: ReturnType<typeof setTimeout> | null = null;
 	pendingAction: BotPendingAction | null = null;
+	pendingActionSetAt = 0;
 	activeCreatureId: number | null = null;
 	decisionCount = 0;
 	moveAttempted = false;
 	failedAbilityIds = new Set<number>();
 	isResolvingQuery = false;
+	stalePendingActionMs = 2200;
 	/** The game round during which damage was last dealt to any creature. */
 	lastDamageRound = 0;
 
@@ -146,7 +162,7 @@ export default class BotController {
 
 	startTurn(creature?: Creature) {
 		this.clearDecisionTimeout();
-		this.pendingAction = null;
+		this.clearPendingAction();
 		this.isResolvingQuery = false;
 		this.activeCreatureId = creature?.id ?? null;
 		this.decisionCount = 0;
@@ -190,7 +206,45 @@ export default class BotController {
 		const ageFactor = Math.max(0, creature.turnsActive - 4) * 0.5;
 		const stagnantRounds = this.game.turn - this.lastDamageRound;
 		const stagnationFactor = Math.max(0, stagnantRounds - 3) * 1.5;
-		return Math.min(10, ageFactor + stagnationFactor);
+		const engagementPressure = Math.max(0, this.getTeamEngagementPressure(creature));
+		return Math.min(10, ageFactor + stagnationFactor + engagementPressure * 1.25);
+	}
+
+	private getTeamEngagementPressure(creature: Creature): number {
+		const allyPower = this.getTeamCombatPower(creature, Team.Ally);
+		const enemyPower = this.getTeamCombatPower(creature, Team.Enemy);
+		const advantage = allyPower - enemyPower;
+
+		// Keep pressure bounded so it nudges behavior without overriding tactical safety.
+		return Math.max(-4, Math.min(4, advantage / 350));
+	}
+
+	private getTeamCombatPower(reference: Creature, relation: Team): number {
+		let aliveUnits = 0;
+		let totalHealthRatio = 0;
+		let totalLevels = 0;
+		let upgradedAbilities = 0;
+
+		this.game.creatures.forEach((creature) => {
+			if (!creature || creature.dead || creature.temp || !isTeam(reference, creature, relation)) {
+				return;
+			}
+
+			aliveUnits += 1;
+
+			const maxHealth = Number(creature.stats?.health ?? 0);
+			if (maxHealth > 0) {
+				totalHealthRatio += Math.max(0, Math.min(1, creature.health / maxHealth));
+			}
+
+			totalLevels += Number.isFinite(Number(creature.level)) ? Number(creature.level) : 0;
+
+			upgradedAbilities += creature.abilities.filter(
+				(ability) => typeof ability?.isUpgraded === 'function' && ability.isUpgraded(),
+			).length;
+		});
+
+		return aliveUnits * 220 + totalHealthRatio * 140 + totalLevels * 55 + upgradedAbilities * 90;
 	}
 
 	isBotTurn() {
@@ -220,6 +274,11 @@ export default class BotController {
 		}
 
 		if (this.pendingAction) {
+			const staleMs = Date.now() - this.pendingActionSetAt;
+			if (!this.isResolvingQuery && staleMs > this.stalePendingActionMs) {
+				this.clearPendingAction({ markFailedAbility: true });
+				this.queueDecision(120);
+			}
 			return;
 		}
 
@@ -320,11 +379,28 @@ export default class BotController {
 				continue;
 			}
 
-			this.pendingAction = {
+			this.setPendingAction({
 				type: 'ability',
 				abilityIndex: i,
-			};
+			});
+			const previousQueryOpt = this.game.grid?.lastQueryOpt;
 			ability.use();
+
+			// Case A: resolveQuery already ran synchronously with no targets and cleared
+			// pendingAction (empty query path).  failedAbilityIds was already updated.
+			if (this.pendingAction === null) {
+				continue;
+			}
+
+			// Case B: ability.use() returned without opening any query at all
+			// (require() failed inside use(), or query() bailed early).
+			if (this.game.grid?.lastQueryOpt === previousQueryOpt) {
+				this.clearPendingAction();
+				this.failedAbilityIds.add(i);
+				continue;
+			}
+
+			// Case C: query opened successfully — wait for resolveQuery callback.
 			return true;
 		}
 
@@ -353,11 +429,11 @@ export default class BotController {
 			return false;
 		}
 
-		this.pendingAction = {
+		this.setPendingAction({
 			type: 'summon',
 			abilityIndex: 3,
 			summonType,
-		};
+		});
 		ability.materialize(summonType);
 		return true;
 	}
@@ -369,7 +445,12 @@ export default class BotController {
 			return false;
 		}
 
-		this.pendingAction = { type: 'move' };
+		if (!activeCreature.stats.moveable) {
+			this.moveAttempted = true;
+			return false;
+		}
+
+		this.setPendingAction({ type: 'move' });
 		this.moveAttempted = true;
 		activeCreature.queryMove();
 		return true;
@@ -397,12 +478,18 @@ export default class BotController {
 				requireAffordable: true,
 				plasma: activeCreature.player.plasma,
 			},
-		).map((type) => {
-			const stats = this.game.retrieveCreatureStats(type);
-			const level = Number.parseInt(type.substring(1, 2), 10);
-			const cost = level + Number(stats?.size ?? 0);
-			return { type, cost };
-		});
+		)
+			.filter((type) => {
+				// Skip creatures whose ability scripts haven't finished loading yet
+				const stats = this.game.retrieveCreatureStats(type);
+				return stats != null && this.game.abilities[stats.id] != null;
+			})
+			.map((type) => {
+				const stats = this.game.retrieveCreatureStats(type);
+				const level = Number.parseInt(type.substring(1, 2), 10);
+				const cost = level + Number(stats?.size ?? 0);
+				return { type, cost };
+			});
 
 		if (affordableCreatures.length === 0) {
 			return undefined;
@@ -421,14 +508,14 @@ export default class BotController {
 			return;
 		}
 
+		const failPendingAction = () => {
+			this.clearPendingAction({ markFailedAbility: true });
+			this.queueDecision(120);
+		};
+
 		const chosenHex = this.chooseHexForCurrentQuery(queryOptions.hexes);
 		if (!chosenHex) {
-			const failedAction = this.pendingAction;
-			this.pendingAction = null;
-			if (failedAction?.type !== 'move' && typeof failedAction?.abilityIndex === 'number') {
-				this.failedAbilityIds.add(failedAction.abilityIndex);
-			}
-			this.queueDecision(120);
+			failPendingAction();
 			return;
 		}
 
@@ -438,17 +525,37 @@ export default class BotController {
 			if (!this.isBotTurn()) {
 				return;
 			}
-			handlers.onSelect(chosenHex);
+			try {
+				handlers.onSelect(chosenHex);
+			} catch {
+				this.isResolvingQuery = false;
+				failPendingAction();
+			}
 		}, 50);
 
 		setTimeout(() => {
 			if (!this.isBotTurn()) {
+				this.isResolvingQuery = false;
 				return;
 			}
-			this.pendingAction = null;
 			this.isResolvingQuery = false;
-			handlers.onConfirm(chosenHex);
-			this.queueDecision(1200);
+			try {
+				handlers.onConfirm(chosenHex);
+			} catch {
+				failPendingAction();
+				return;
+			}
+			setTimeout(() => {
+				if (this.pendingAction && !this.isResolvingQuery) {
+					this.clearPendingAction();
+				}
+			}, 0);
+			// Always keep a fallback decision in case no follow-up signal arrives.
+			// If a chained query starts during onConfirm, defer fallback scheduling
+			// to the chained resolution cycle instead.
+			if (!this.isResolvingQuery) {
+				this.queueDecision(1200);
+			}
 		}, 140);
 	}
 
@@ -468,14 +575,53 @@ export default class BotController {
 			const filtered = candidates.filter(
 				(hex) => !(hex.x === activeCreature.x && hex.y === activeCreature.y),
 			);
-			return this.pickBestHex(filtered, (hex) => this.scoreMoveHex(hex));
+			const retreating = this.isRetreating(activeCreature);
+			const scored = filtered
+				.map((hex) => ({
+					hex,
+					score: this.scoreMoveHex(hex),
+					trapPenalty: this.getMovePathTrapPenalty(activeCreature, hex, { retreating }),
+				}))
+				.sort((left, right) => right.score - left.score);
+
+			const best = scored[0];
+			if (!best) {
+				return undefined;
+			}
+
+			if (this.shouldWaitInsteadOfRiskyMove(activeCreature, best, scored)) {
+				return undefined;
+			}
+
+			return best.hex;
 		}
 
 		if (action.type === 'summon') {
 			return this.pickBestHex(candidates, (hex) => this.scoreSummonHex(hex));
 		}
 
-		return this.pickBestHex(candidates, (hex) => this.scoreAbilityHex(hex));
+		const scored = candidates
+			.map((hex) => ({
+				hex,
+				score: this.scoreAbilityHex(hex),
+			}))
+			.filter((entry) => Number.isFinite(entry.score))
+			.sort((left, right) => right.score - left.score);
+
+		const best = scored[0];
+		if (!best) {
+			return undefined;
+		}
+
+		if (action.type === 'ability') {
+			const strategy = this.getStrategyFor(activeCreature);
+			const minScore = strategy?.getAbilityMinScore?.(activeCreature, action.abilityIndex, this);
+			if (typeof minScore === 'number' && best.score < minScore) {
+				return undefined;
+			}
+		}
+
+		return best.hex;
 	}
 
 	getUniqueHexes(hexes: Hex[]) {
@@ -580,14 +726,153 @@ export default class BotController {
 		const zoneWeight = Math.max(1, 10 - aggression);
 		score -= Math.abs(hex.x - preferredX) * zoneWeight;
 
-		// Trap avoidance: penalty scales with how injured the unit is.
-		// At full health: light deterrent (-80). Near death: heavy deterrent (-350).
-		if (hex.trap) {
-			const healthRatio = activeCreature.health / activeCreature.stats.health;
-			score -= Math.round(80 + (1 - healthRatio) * 270);
-		}
+		// Penalize trap exposure both on the destination and along the walk path.
+		score -= this.getMovePathTrapPenalty(activeCreature, hex);
 
 		return score;
+	}
+
+	private getMovePathTrapPenalty(
+		creature: Creature,
+		destination: Hex,
+		opts: { retreating: boolean } = { retreating: false },
+	): number {
+		let penalty = 0;
+		this.getTrapsForHex(destination).forEach((trap) => {
+			penalty += this.getTrapExposurePenalty(creature, trap, true, opts);
+		});
+
+		try {
+			const path = creature.calculatePath({ x: destination.x, y: destination.y });
+			path.forEach((pathHex) => {
+				const isOrigin = pathHex.x === creature.x && pathHex.y === creature.y;
+				const isDestination = pathHex.x === destination.x && pathHex.y === destination.y;
+				if (isOrigin || isDestination) {
+					return;
+				}
+				this.getTrapsForHex(pathHex).forEach((trap) => {
+					penalty += this.getTrapExposurePenalty(creature, trap, false, opts);
+				});
+			});
+		} catch {
+			// Keep scoring robust if a path cannot be computed from the mocked/runtime state.
+		}
+
+		return penalty;
+	}
+
+	private getTrapsForHex(hex: Hex): Trap[] {
+		try {
+			const traps = getPointFacade().getTrapsAt(hex);
+			if (Array.isArray(traps) && traps.length > 0) {
+				return traps;
+			}
+		} catch {
+			// Fallback to deprecated accessor when point facade isn't configured.
+		}
+
+		return hex.trap ? [hex.trap] : [];
+	}
+
+	private shouldWaitInsteadOfRiskyMove(
+		creature: Creature,
+		best: { trapPenalty: number },
+		allCandidates: Array<{ trapPenalty: number }>,
+	): boolean {
+		if (best.trapPenalty <= 0) {
+			return false;
+		}
+
+		const hasTrapSafeOption = allCandidates.some((candidate) => candidate.trapPenalty <= 0);
+		if (hasTrapSafeOption) {
+			return false;
+		}
+
+		const healthRatio = creature.health / creature.stats.health;
+		if (this.isRetreating(creature)) {
+			if (healthRatio <= 0.35 && best.trapPenalty >= 170) {
+				return true;
+			}
+
+			if (best.trapPenalty >= 600) {
+				return true;
+			}
+		}
+
+		if (healthRatio <= 0.2 && best.trapPenalty >= 180) {
+			return true;
+		}
+
+		if (healthRatio <= 0.35 && best.trapPenalty >= 300) {
+			return true;
+		}
+
+		// Even healthy units should occasionally hold if every option is extremely dangerous.
+		return best.trapPenalty >= 950;
+	}
+
+	private getTrapExposurePenalty(
+		creature: Creature,
+		trap: Trap,
+		isDestination: boolean,
+		opts: { retreating: boolean },
+	): number {
+		const healthRatio = creature.health / creature.stats.health;
+		let penalty = Math.round(80 + (1 - healthRatio) * 270);
+
+		if (this.isLikelyDamagingTrap(trap)) {
+			penalty += healthRatio <= 0.35 ? 700 : 240;
+			if (healthRatio <= 0.2) {
+				penalty += 500;
+			}
+		}
+
+		if (opts.retreating) {
+			penalty = Math.round(penalty * 1.7);
+			if (healthRatio <= 0.35) {
+				penalty += 220;
+			}
+		}
+
+		if (!isDestination) {
+			penalty = Math.round(penalty * 0.6);
+		}
+
+		return penalty;
+	}
+
+	private isLikelyDamagingTrap(trap: Trap): boolean {
+		const effects = trap.effects;
+		if (!Array.isArray(effects) || effects.length === 0) {
+			return false;
+		}
+
+		return effects.some((effect) => {
+			const trigger = `${effect?.trigger ?? ''}`;
+			if (!/onStepIn|onStepOut/.test(trigger)) {
+				return false;
+			}
+
+			const name = `${effect?.name ?? ''}`.toLowerCase();
+			const hint = `${effect?.specialHint ?? ''}`.toLowerCase();
+			if (/damage|burn|poison|shock|frost|mental|pure/.test(name + hint)) {
+				return true;
+			}
+
+			const effectFn = effect?.effectFn;
+			if (typeof effectFn !== 'function') {
+				return true;
+			}
+
+			const effectSource = Function.prototype.toString.call(effectFn);
+			if (/takeDamage|new Damage|applyDamage|damages/.test(effectSource)) {
+				return true;
+			}
+
+			// Step-triggered traps with opaque effect functions should still be
+			// treated as dangerous for movement planning.
+			return true;
+		});
 	}
 
 	scoreSummonHex(hex: Hex) {
@@ -686,9 +971,12 @@ export default class BotController {
 			if (override !== undefined) return override;
 		}
 
+		const engagementPressure = this.getTeamEngagementPressure(creature);
+		const healthThreshold = Math.max(0.12, Math.min(0.5, 0.3 - engagementPressure * 0.04));
+		const energyThreshold = Math.max(0.1, Math.min(0.45, 0.25 - engagementPressure * 0.03));
 		const healthRatio = creature.health / creature.stats.health;
 		const energyRatio = creature.energy / creature.stats.energy;
-		return healthRatio < 0.3 || energyRatio < 0.25;
+		return healthRatio < healthThreshold || energyRatio < energyThreshold;
 	}
 
 	/**
@@ -724,10 +1012,8 @@ export default class BotController {
 			score += Math.max(0, 10 - nearestDrop) * 20;
 		}
 
-		// Retreating units are already injured — strongly avoid traps.
-		if (hex.trap) {
-			score -= 350;
-		}
+		// Retreating units are already injured; heavily penalize trap exposure.
+		score -= this.getMovePathTrapPenalty(activeCreature, hex, { retreating: true });
 
 		return score;
 	}
@@ -830,11 +1116,38 @@ export default class BotController {
 			} catch {
 				continue;
 			}
-			this.pendingAction = { type: 'ability', abilityIndex: i };
+			this.setPendingAction({ type: 'ability', abilityIndex: i });
+			const previousQueryOpt = this.game.grid?.lastQueryOpt;
 			ability.use();
+			if (this.pendingAction === null) {
+				continue;
+			}
+			if (this.game.grid?.lastQueryOpt === previousQueryOpt) {
+				this.clearPendingAction();
+				this.failedAbilityIds.add(i);
+				continue;
+			}
 			return true;
 		}
 
 		return false;
+	}
+
+	private setPendingAction(action: BotPendingAction) {
+		this.pendingAction = action;
+		this.pendingActionSetAt = Date.now();
+	}
+
+	private clearPendingAction(options: { markFailedAbility?: boolean } = {}) {
+		const failedAction = this.pendingAction;
+		this.pendingAction = null;
+		this.pendingActionSetAt = 0;
+		if (
+			options.markFailedAbility &&
+			failedAction?.type !== 'move' &&
+			typeof failedAction?.abilityIndex === 'number'
+		) {
+			this.failedAbilityIds.add(failedAction.abilityIndex);
+		}
 	}
 }

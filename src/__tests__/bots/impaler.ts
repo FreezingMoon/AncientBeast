@@ -229,6 +229,56 @@ describe('ImpalerStrategy.scoreAbilityHex', () => {
 			scoreAbilityHex(isolatedHex, 3, controller as any) as number,
 		);
 	});
+
+	test('Chain Lightning rejects allied targets with no enemy payoff', () => {
+		const impaler = makeCreature({ abilities: [{}, {}, {}, { isUpgraded: () => true }] });
+		const ally = makeCreature({ id: 2, team: 0, health: 80, maxHealth: 80 });
+		const allyHex = makeHex({
+			x: 3,
+			y: 0,
+			creature: ally,
+			adjacentHex: () => [],
+		});
+		const controller = makeController({
+			activeCreature: impaler,
+			creatures: [ally],
+		});
+
+		expect(scoreAbilityHex(allyHex, 3, controller as any)).toBe(Number.NEGATIVE_INFINITY);
+	});
+
+	test('Chain Lightning avoids allied Dark Priest splash unless the cluster is truly worth it', () => {
+		const impaler = makeCreature({ abilities: [{}, {}, {}, { isUpgraded: () => true }] });
+		const enemyOne = makeCreature({ id: 2, team: 1, health: 60, maxHealth: 80 });
+		const enemyTwo = makeCreature({ id: 3, team: 1, health: 60, maxHealth: 80 });
+		const alliedDarkPriest = makeCreature({
+			id: 4,
+			team: 0,
+			type: '--',
+			health: 70,
+			maxHealth: 70,
+		});
+		const riskyHex = makeHex({
+			x: 3,
+			y: 0,
+			creature: enemyOne,
+			adjacentHex: () => [makeHex({ creature: enemyTwo }), makeHex({ creature: alliedDarkPriest })],
+		});
+		const safeHex = makeHex({
+			x: 4,
+			y: 0,
+			creature: enemyOne,
+			adjacentHex: () => [makeHex({ creature: enemyTwo })],
+		});
+		const controller = makeController({
+			activeCreature: impaler,
+			creatures: [enemyOne, enemyTwo, alliedDarkPriest],
+		});
+
+		expect(scoreAbilityHex(riskyHex, 3, controller as any)).toBeLessThan(
+			scoreAbilityHex(safeHex, 3, controller as any) as number,
+		);
+	});
 });
 
 describe('ImpalerStrategy.getAbilityPriority', () => {

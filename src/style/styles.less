@@ -472,6 +472,14 @@
 	background-image: url('~assets/icons/exit.svg');
 }
 
+.button#save {
+	background-image: url('~assets/icons/save.svg');
+}
+
+.button#restart {
+	background-image: url('~assets/icons/rotate.svg');
+}
+
 .p0.player-text.bright {
 	color: #f55;
 }
@@ -1139,6 +1147,44 @@ div.section.info {
 	font-weight: bold;
 	white-space: nowrap;
 	text-shadow: 2px 2px black;
+}
+
+#ab-dev-reload-prompt .dev-reload-button {
+	flex: 1 1 0;
+	min-width: 0;
+	height: 68px;
+	padding: 0 10px;
+	font-size: 14px;
+	line-height: 1;
+	white-space: nowrap;
+	cursor: pointer;
+	border-radius: 999px;
+	text-align: center;
+	background-color: transparent;
+	background-image: url('~assets/interface/small_button.png');
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+	border: 0;
+	color: #fff;
+	text-decoration: none;
+	font-weight: bold;
+	text-shadow: 2px 2px black;
+}
+
+#ab-dev-reload-prompt .dev-reload-actions {
+	display: flex;
+	flex-wrap: nowrap;
+	gap: 10px;
+	justify-content: center;
+	width: 100%;
+}
+
+#ab-dev-reload-prompt .dev-reload-button:hover {
+	filter: brightness(135%);
+}
+
+#ab-dev-reload-prompt .dev-reload-button--secondary {
+	filter: brightness(0.92);
 }
 
 .opencollective_banner_slot .opencollective_cta:hover {
@@ -2569,6 +2615,8 @@ span.pure {
 			left: auto;
 			transform: none;
 			#fleeWrapper,
+			#saveWrapper,
+			#restartWrapper,
 			#exitWrapper {
 				display: flex;
 				align-items: center;
@@ -2578,6 +2626,8 @@ span.pure {
 				height: 80px;
 			}
 			#flee,
+			#save,
+			#restart,
 			#exit {
 				margin: 0;
 				position: relative;
@@ -3412,18 +3462,67 @@ input {
 	}
 }
 
-#scoreboard .scoreboardActions #fleeWrapper,
 #scoreboard .scoreboardActions #exitWrapper {
 	justify-self: center;
 }
 
-#scoreboard .scoreboardActions #flee,
+#scoreboard .scoreboardActions #saveWrapper {
+	justify-self: center;
+}
+
+#scoreboard .scoreboardActions #restartWrapper {
+	justify-self: center;
+}
+
+#scoreboard .scoreboardActions #save,
+#scoreboard .scoreboardActions #restart,
 #scoreboard .scoreboardActions #exit {
 	display: block;
 	margin: 0 auto !important;
+	overflow: visible;
+	background-image: none;
 	background-position: center center;
 	background-repeat: no-repeat;
 	background-size: 72% 72%;
+	transition: transform 180ms ease;
+
+	&::before {
+		inset: 4px;
+		height: auto;
+		width: auto;
+		border-radius: 50%;
+		background-image: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.2), rgba(48, 48, 48, 0.88) 62%, rgba(10, 10, 10, 0.96));
+		border: 2px solid rgba(186, 191, 198, 0.92);
+		box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.55), 0 8px 18px rgba(0, 0, 0, 0.35);
+	}
+
+	&::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background-image: var(--scoreboard-action-icon);
+		background-position: center center;
+		background-repeat: no-repeat;
+		background-size: 58% 58%;
+		transition: transform 180ms ease;
+	}
+
+	&:hover::after,
+	&.hover::after {
+		transform: rotate(-20deg);
+	}
+}
+
+#scoreboard .scoreboardActions #save {
+	--scoreboard-action-icon: url('~assets/icons/save.svg');
+}
+
+#scoreboard .scoreboardActions #restart {
+	--scoreboard-action-icon: url('~assets/icons/rotate.svg');
+}
+
+#scoreboard .scoreboardActions #exit {
+	--scoreboard-action-icon: url('~assets/icons/exit.svg');
 }
 
 #scoreboard .scoreboardActions .button.hover + .desc {

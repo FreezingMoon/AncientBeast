@@ -27,40 +27,372 @@ import { OpenCollectiveBanner } from './open-collective-banner';
 const SECRET_VIEW_ID = 'ab-secret-view';
 const GAME_IN_PROGRESS_UNLOAD_CONFIRMATION =
 	'A game is in progress and cannot be restored, are you sure you want to leave?';
+const DEV_RELOAD_PROMPT_ID = 'ab-dev-reload-prompt';
+const DEV_RELOAD_PROMPT_TITLE = 'New changes have been compiled!';
+const DEV_RELOAD_PROMPT_BODY = 'Insert coin to continue';
+const MANUAL_REFRESH_PROMPT_TITLE = 'A game is in progress';
+const MANUAL_REFRESH_PROMPT_BODY = 'Reload now and abandon this match?';
 
 type ConfirmUnloadState = {
 	ignoreNextConfirmUnload: boolean;
 };
 
 let getActiveConfirmUnloadState: () => ConfirmUnloadState | null = () => null;
-let hasConfirmUnloadListener = false;
-let hasWebpackReloadBypassListener = false;
+let hasWebpackReloadConfirmListener = false;
+let hasManualRefreshConfirmListener = false;
+let devReloadPromptOverlay: HTMLDivElement | null = null;
+let removeDevReloadPromptEscListener: (() => void) | null = null;
+let allowNextDevReloadWithoutPrompt = false;
+
+type ReloadPromptVariant = 'dev' | 'manual-refresh';
+
+const isManualReloadShortcut = (event: KeyboardEvent) => {
+	if (event.key === 'F5') {
+		return true;
+	}
+
+	if (event.altKey || !(event.ctrlKey || event.metaKey)) {
+		return false;
+	}
+
+	return event.key.toLowerCase() === 'r';
+};
+
+// Intercept browser modals while dev reload prompt is visible to prevent them from appearing on top
+const savedModalFunctions = {
+	alert: window.alert,
+	confirm: window.confirm,
+	prompt: window.prompt,
+};
+
+let isDevReloadPromptVisible = false;
+
+const suppressBrowserModalWhilePromptVisible = () => {
+	window.alert = (message?: unknown) => {
+		if (isDevReloadPromptVisible) {
+			console.warn('[Dev Reload] Suppressed alert:', message);
+			return undefined;
+		}
+		return savedModalFunctions.alert(message);
+	};
+
+	window.confirm = (message?: string) => {
+		if (isDevReloadPromptVisible) {
+			console.warn('[Dev Reload] Suppressed confirm:', message);
+			return false;
+		}
+		return savedModalFunctions.confirm(message);
+	};
+
+	window.prompt = (message?: string, defaultValue?: string) => {
+		if (isDevReloadPromptVisible) {
+			console.warn('[Dev Reload] Suppressed prompt:', message);
+			return null;
+		}
+		return savedModalFunctions.prompt(message, defaultValue);
+	};
+};
+
+suppressBrowserModalWhilePromptVisible();
+
+const clearBeforeUnloadReturnValue = (event: BeforeUnloadEvent) => {
+	Reflect.deleteProperty(event as unknown as Record<string, unknown>, 'returnValue');
+};
+
+const setBeforeUnloadReturnValue = (event: BeforeUnloadEvent, value: string) => {
+	Reflect.set(event as unknown as Record<string, unknown>, 'returnValue', value);
+};
 
 const confirmUnload = (event: BeforeUnloadEvent) => {
+	if (allowNextDevReloadWithoutPrompt) {
+		allowNextDevReloadWithoutPrompt = false;
+		clearBeforeUnloadReturnValue(event);
+		return;
+	}
+
 	const activeConfirmUnloadState = getActiveConfirmUnloadState();
 	if (!activeConfirmUnloadState) {
 		return;
 	}
 
+	if (isDevReloadPromptVisible) {
+		clearBeforeUnloadReturnValue(event);
+		return;
+	}
+
 	if (activeConfirmUnloadState.ignoreNextConfirmUnload) {
-		delete event.returnValue;
+		clearBeforeUnloadReturnValue(event);
 		return;
 	}
 
 	// https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload#example
 	event.preventDefault();
-	event.returnValue = GAME_IN_PROGRESS_UNLOAD_CONFIRMATION;
+	setBeforeUnloadReturnValue(event, GAME_IN_PROGRESS_UNLOAD_CONFIRMATION);
 	return GAME_IN_PROGRESS_UNLOAD_CONFIRMATION;
 };
 
-const handleWebpackDevReloadMessage = (messageEvent: MessageEvent) => {
-	const activeConfirmUnloadState = getActiveConfirmUnloadState();
-	if (messageEvent.data?.type !== 'webpackInvalid' || !activeConfirmUnloadState) {
+const closeDevReloadPrompt = () => {
+	if (!devReloadPromptOverlay) {
 		return;
 	}
 
-	activeConfirmUnloadState.ignoreNextConfirmUnload = true;
-	window.location.reload();
+	isDevReloadPromptVisible = false;
+	devReloadPromptOverlay.remove();
+	devReloadPromptOverlay = null;
+
+	if (removeDevReloadPromptEscListener) {
+		removeDevReloadPromptEscListener();
+		removeDevReloadPromptEscListener = null;
+	}
+};
+
+const createDevReloadButton = (
+	label: string,
+	onClick: () => void,
+	hotkey: string,
+	variant?: 'secondary',
+) => {
+	const button = document.createElement('button');
+	button.type = 'button';
+	button.className = `opencollective_cta dev-reload-button${
+		variant === 'secondary' ? ' dev-reload-button--secondary' : ''
+	}`;
+	button.dataset.devReloadHotkey = hotkey.toLowerCase();
+	button.setAttribute('aria-keyshortcuts', hotkey.toUpperCase());
+
+	const hotkeyNode = document.createElement('span');
+	hotkeyNode.textContent = label.charAt(0);
+	hotkeyNode.style.cssText = 'text-decoration:underline;';
+	button.appendChild(hotkeyNode);
+	button.appendChild(document.createTextNode(label.slice(1)));
+	button.addEventListener('click', (event) => {
+		event.preventDefault();
+		event.stopPropagation();
+		onClick();
+	});
+
+	return button;
+};
+
+const showDevReloadPrompt = (variant: ReloadPromptVariant = 'dev') => {
+	const titleText =
+		variant === 'manual-refresh' ? MANUAL_REFRESH_PROMPT_TITLE : DEV_RELOAD_PROMPT_TITLE;
+	const bodyText =
+		variant === 'manual-refresh' ? MANUAL_REFRESH_PROMPT_BODY : DEV_RELOAD_PROMPT_BODY;
+
+	if (devReloadPromptOverlay) {
+		isDevReloadPromptVisible = true;
+		devReloadPromptOverlay.style.cssText =
+			'position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);pointer-events:auto;contain:layout style paint;';
+
+		const titleNode = devReloadPromptOverlay.querySelector('[data-dev-reload-title="true"]');
+		if (titleNode) {
+			titleNode.textContent = titleText;
+		}
+
+		const bodyNode = devReloadPromptOverlay.querySelector('[data-dev-reload-body="true"]');
+		if (bodyNode) {
+			bodyNode.textContent = bodyText;
+		}
+
+		if (devReloadPromptOverlay.parentElement !== document.body) {
+			document.body.appendChild(devReloadPromptOverlay);
+		}
+		return devReloadPromptOverlay;
+	}
+
+	const activeConfirmUnloadState = getActiveConfirmUnloadState();
+	if (!activeConfirmUnloadState) {
+		return null;
+	}
+
+	const overlay = document.createElement('div');
+	overlay.id = DEV_RELOAD_PROMPT_ID;
+	overlay.setAttribute('role', 'dialog');
+	overlay.setAttribute('aria-modal', 'true');
+	overlay.setAttribute('aria-label', 'Dev reload prompt');
+	overlay.style.cssText =
+		'position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);pointer-events:auto;contain:layout style paint;';
+
+	const modal = document.createElement('div');
+	modal.className = 'framed-modal framed-modal--fluid';
+	modal.style.cssText = 'position:relative;max-width:min(92vw,560px);padding:28px 24px 22px;';
+
+	const closeWrapper = document.createElement('div');
+	closeWrapper.className = 'framed-modal__return';
+	closeWrapper.style.cssText =
+		'top:0;right:0;position:absolute;height:100px;width:100px;z-index:100000;';
+
+	const closeButton = document.createElement('button');
+	closeButton.type = 'button';
+	closeButton.className = 'close-button';
+	closeButton.setAttribute('aria-label', 'Close dev reload prompt');
+	closeButton.addEventListener('click', (event) => {
+		event.preventDefault();
+		event.stopPropagation();
+		closeDevReloadPrompt();
+	});
+
+	closeWrapper.appendChild(closeButton);
+
+	const handlePromptKeydown = (event: KeyboardEvent) => {
+		if (event.key === 'Tab') {
+			return;
+		}
+
+		event.preventDefault();
+		event.stopPropagation();
+		if (typeof event.stopImmediatePropagation === 'function') {
+			event.stopImmediatePropagation();
+		}
+
+		if (event.key === 'Escape') {
+			closeDevReloadPrompt();
+			return;
+		}
+
+		if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) {
+			return;
+		}
+
+		const normalizedKey = event.key.toLowerCase();
+		if (normalizedKey.length !== 1) {
+			return;
+		}
+
+		const hotkeyButton = overlay.querySelector(
+			`[data-dev-reload-hotkey="${normalizedKey}"]`,
+		) as HTMLButtonElement | null;
+		if (!hotkeyButton) {
+			return;
+		}
+
+		hotkeyButton.click();
+	};
+
+	const title = document.createElement('p');
+	title.dataset.devReloadTitle = 'true';
+	title.style.cssText = 'margin:0 0 12px;font-size:24px;line-height:1.2;text-align:center;';
+	title.textContent = titleText;
+
+	const body = document.createElement('p');
+	body.dataset.devReloadBody = 'true';
+	body.style.cssText = 'margin:0 0 20px;text-align:center;line-height:1.45;';
+	body.textContent = bodyText;
+
+	const actions = document.createElement('div');
+	actions.className = 'dev-reload-actions';
+
+	actions.appendChild(
+		createDevReloadButton(
+			'Save',
+			() => {
+				window.AB?.saveLog?.();
+			},
+			'S',
+		),
+	);
+	actions.appendChild(
+		createDevReloadButton(
+			'Reload',
+			() => {
+				// Re-resolve state at click time — the overlay is created once and reused,
+				// so the creation-time closure may point to a stale UI instance.
+				const currentState = getActiveConfirmUnloadState();
+				allowNextDevReloadWithoutPrompt = true;
+				if (currentState) {
+					currentState.ignoreNextConfirmUnload = true;
+				}
+				closeDevReloadPrompt();
+				const previousOnBeforeUnload = window.onbeforeunload;
+				window.onbeforeunload = null;
+				// Watchdog: if the page doesn't unload within 3 s (reload was silently
+				// blocked by the browser), reset bypass flags so Ctrl+R shows the modal again.
+				setTimeout(() => {
+					allowNextDevReloadWithoutPrompt = false;
+					if (currentState) {
+						currentState.ignoreNextConfirmUnload = false;
+					}
+					if (window.onbeforeunload === null) {
+						window.onbeforeunload = previousOnBeforeUnload;
+					}
+				}, 3000);
+				window.location.assign(window.location.href);
+			},
+			'R',
+		),
+	);
+	actions.appendChild(
+		createDevReloadButton(
+			'Continue',
+			() => {
+				closeDevReloadPrompt();
+			},
+			'C',
+			'secondary',
+		),
+	);
+
+	modal.appendChild(title);
+	modal.appendChild(body);
+	modal.appendChild(actions);
+	overlay.appendChild(closeWrapper);
+	overlay.appendChild(modal);
+	overlay.addEventListener('click', (event) => {
+		if (event.target === overlay) {
+			closeDevReloadPrompt();
+		}
+	});
+	overlay.addEventListener('contextmenu', (event) => {
+		event.preventDefault();
+		event.stopPropagation();
+		closeDevReloadPrompt();
+	});
+	document.body.appendChild(overlay);
+	window.addEventListener('keydown', handlePromptKeydown, true);
+	removeDevReloadPromptEscListener = () => {
+		window.removeEventListener('keydown', handlePromptKeydown, true);
+	};
+	devReloadPromptOverlay = overlay;
+	isDevReloadPromptVisible = true;
+
+	return overlay;
+};
+
+const confirmWebpackDevReload = (messageEvent: MessageEvent) => {
+	if (allowNextDevReloadWithoutPrompt) {
+		return;
+	}
+
+	if (messageEvent.data?.type !== 'webpackInvalid') {
+		return;
+	}
+
+	showDevReloadPrompt();
+};
+
+const confirmManualRefresh = (event: KeyboardEvent) => {
+	if (!isManualReloadShortcut(event)) {
+		return;
+	}
+
+	// A reload is already in flight — let the native shortcut through so it
+	// can bypass the beforeunload guard and complete the reload.
+	if (allowNextDevReloadWithoutPrompt) {
+		return;
+	}
+
+	const activeConfirmUnloadState = getActiveConfirmUnloadState();
+	if (!activeConfirmUnloadState) {
+		return;
+	}
+
+	event.preventDefault();
+	event.stopPropagation();
+	if (typeof event.stopImmediatePropagation === 'function') {
+		event.stopImmediatePropagation();
+	}
+	showDevReloadPrompt('manual-refresh');
 };
 
 const showSecretView = () => {
@@ -190,7 +522,9 @@ export class UI {
 	animationUpgradeTimeOutID: ReturnType<typeof setTimeout>;
 	queryUnit: string;
 	btnDelay: Button;
-	btnFlee: Button;
+	btnFlee?: Button;
+	btnSaveLog: Button;
+	btnRestartMatch: Button;
 	btnExit: Button;
 	materializeButton: Button;
 	clickedAbility: number;
@@ -414,38 +748,48 @@ export class UI {
 		);
 		this.buttons.push(this.btnDelay);
 
-		// Flee Match Button
-		this.btnFlee = new Button(
+		this.btnSaveLog = new Button(
 			{
-				$button: $j('#flee.button'),
+				$button: $j('#save.button'),
 				hasShortcut: true,
 				click: () => {
-					if (!this.dashopen) {
-						if (game.turn < game.minimumTurnBeforeFleeing) {
-							alert(
-								`You cannot flee the match in the first ${game.minimumTurnBeforeFleeing} rounds.`,
-							);
-							return;
-						}
-
-						if (game.activeCreature.player.isLeader()) {
-							alert('You cannot flee the match while being in lead.');
-							return;
-						}
-
-						if (window.confirm('Are you sure you want to flee the match?')) {
-							game.gamelog.add({
-								action: 'flee',
-							});
-							game.activeCreature.player.flee();
-						}
-					}
+					game.gamelog.save();
 				},
-				state: ButtonStateEnum.disabled,
+				state: ButtonStateEnum.hidden,
 			},
 			{ isAcceptingInput: this.configuration.isAcceptingInput },
 		);
-		this.buttons.push(this.btnFlee);
+		this.buttons.push(this.btnSaveLog);
+
+		this.btnRestartMatch = new Button(
+			{
+				$button: $j('#restart.button'),
+				hasShortcut: true,
+				click: () => {
+					game.gamelog.add({
+						action: 'restart',
+					});
+
+					if (game.multiplayer) {
+						game.resetGame();
+						return;
+					}
+
+					const restartConfig = {
+						...game.configData,
+						players: Array.isArray(game.configData.players)
+							? [...game.configData.players]
+							: game.configData.players,
+					};
+
+					game.resetGame();
+					game.loadGame(restartConfig);
+				},
+				state: ButtonStateEnum.hidden,
+			},
+			{ isAcceptingInput: this.configuration.isAcceptingInput },
+		);
+		this.buttons.push(this.btnRestartMatch);
 
 		this.btnExit = new Button(
 			{
@@ -792,18 +1136,71 @@ export class UI {
 		const ingameHotkeys = getHotKeys(this.hotkeys);
 
 		// Remove hex grid if window loses focus
-		$j(window).on('blur', () => {
+		$j(window).off('blur.ingameHotkeys');
+		$j(window).on('blur.ingameHotkeys', () => {
 			game.grid.showGrid(false);
 		});
 
 		// Binding Hotkeys
 		if (!DEBUG_DISABLE_HOTKEYS) {
-			$j(document).on('keydown', (e) => {
-				if (game.freezedInput) {
+			$j(document).off('keydown.ingameHotkeys');
+			$j(document).on('keydown.ingameHotkeys', (rawEvent) => {
+				const e = rawEvent as unknown as KeyboardEvent;
+				const keydownAction = ingameHotkeys[e.code] && ingameHotkeys[e.code].onkeydown;
+				const isScoreboardOpen = !this.$scoreboard.hasClass('hide');
+				const isScoreboardHotkey =
+					e.code === 'Escape' ||
+					(e.code === 'KeyS' && e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) ||
+					(e.code === 'KeyS' && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) ||
+					(e.code === 'KeyT' && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) ||
+					(e.code === 'KeyR' && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) ||
+					(e.code === 'KeyX' && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey);
+
+				// While scoreboard is open, block gameplay/navigation hotkeys and keep only
+				// scoreboard-scoped actions (Save, Exit) plus Escape.
+				if (isScoreboardOpen && !isScoreboardHotkey) {
 					return;
 				}
 
-				const keydownAction = ingameHotkeys[e.code] && ingameHotkeys[e.code].onkeydown;
+				const isUtilityHotkey =
+					e.code === 'F11' ||
+					(e.code === 'KeyF' && e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) ||
+					(e.code === 'KeyA' && e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) ||
+					(e.code === 'Escape' && isScoreboardOpen) ||
+					(e.code === 'KeyS' &&
+						!e.shiftKey &&
+						!e.ctrlKey &&
+						!e.metaKey &&
+						!e.altKey &&
+						isScoreboardOpen) ||
+					(e.code === 'KeyT' &&
+						!e.shiftKey &&
+						!e.ctrlKey &&
+						!e.metaKey &&
+						!e.altKey &&
+						isScoreboardOpen) ||
+					(e.code === 'KeyR' &&
+						!e.shiftKey &&
+						!e.ctrlKey &&
+						!e.metaKey &&
+						!e.altKey &&
+						isScoreboardOpen) ||
+					(e.code === 'KeyX' &&
+						!e.shiftKey &&
+						!e.ctrlKey &&
+						!e.metaKey &&
+						!e.altKey &&
+						isScoreboardOpen) ||
+					(e.code === 'KeyS' && e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) ||
+					(e.code === 'KeyD' && e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) ||
+					(e.code === 'KeyX' && e.shiftKey && e.ctrlKey && !e.metaKey && !e.altKey) ||
+					e.code === 'Backquote' ||
+					e.code === 'Backspace' ||
+					(e.code === 'KeyP' && e.metaKey && e.altKey && !e.ctrlKey && !e.shiftKey);
+
+				if (game.freezedInput && !isUtilityHotkey) {
+					return;
+				}
 
 				if (keydownAction !== undefined) {
 					keydownAction.call(this, e);
@@ -815,7 +1212,9 @@ export class UI {
 				}
 			});
 
-			$j(document).on('keyup', (e) => {
+			$j(document).off('keyup.ingameHotkeys');
+			$j(document).on('keyup.ingameHotkeys', (rawEvent) => {
+				const e = rawEvent as unknown as KeyboardEvent;
 				if (game.freezedInput) {
 					return;
 				}
@@ -831,7 +1230,8 @@ export class UI {
 		}
 
 		// Mouse Shortcut - Middle click to skip turn (global, when dash is not open)
-		$j(document).on('mousedown', (e) => {
+		$j(document).off('mousedown.ingameHotkeys');
+		$j(document).on('mousedown.ingameHotkeys', (e) => {
 			if (game.freezedInput) {
 				return;
 			}
@@ -1090,6 +1490,8 @@ export class UI {
 		$j('#tabwrapper a').removeAttr('href'); // Empty links
 
 		this.btnExit.changeState(ButtonStateEnum.hidden);
+		this.btnSaveLog.changeState(ButtonStateEnum.hidden);
+		this.btnRestartMatch.changeState(ButtonStateEnum.hidden);
 		// Show UI
 		this.$display.show();
 		this.$dash.hide();
@@ -1912,6 +2314,12 @@ export class UI {
 			const scoreRatio = Math.max(0, Math.min(1, player.getScore().total / maxScore));
 			const statData = [
 				{
+					label: 'Plasma',
+					emoji: '🌐',
+					color: '#c5f',
+					ratio: plasmaRatio,
+				},
+				{
 					label: 'Health',
 					emoji: emoji.get('heartbeat'),
 					color: '#f00',
@@ -1924,13 +2332,7 @@ export class UI {
 					ratio: dpEnergyRatio,
 				},
 				{
-					label: 'Plasma',
-					emoji: '🌐',
-					color: '#c5f',
-					ratio: plasmaRatio,
-				},
-				{
-					label: 'Time',
+					label: 'Time Pool',
 					emoji: emoji.get('alarm_clock'),
 					color: '#888',
 					ratio: poolTimeRatio,
@@ -2110,9 +2512,6 @@ export class UI {
 			// Hide close button on game over screen
 			this.$scoreboard.find('.framed-modal__return').hide();
 
-			// Hide flee button since the match is already over
-			this.$scoreboard.find('#fleeWrapper').hide();
-
 			// Declare winner
 			if (game.gameMode > 2) {
 				// 2 vs 2
@@ -2155,9 +2554,6 @@ export class UI {
 
 			// Show close button for current score view
 			this.$scoreboard.find('.framed-modal__return').show();
-
-			// Show flee button for mid-game score view
-			this.$scoreboard.find('#fleeWrapper').show();
 		}
 	}
 
@@ -2170,6 +2566,9 @@ export class UI {
 		}
 
 		this.scoreboardGameOver = gameOver;
+		this.btnSaveLog.changeState(ButtonStateEnum.normal);
+		this.btnRestartMatch.changeState(ButtonStateEnum.normal);
+		this.btnExit.changeState(ButtonStateEnum.normal);
 
 		// Binding the click outside of the scoreboard to close the view
 		this.$scoreboard.off('click', this.easyScoreClose).on('click', this.easyScoreClose);
@@ -2271,6 +2670,9 @@ export class UI {
 		this.scoreboardOpenCollectiveBanner.onViewClose();
 		this.$scoreboard.off('click', this.easyScoreClose);
 		this.scoreboardGameOver = false;
+		this.btnSaveLog.changeState(ButtonStateEnum.hidden);
+		this.btnRestartMatch.changeState(ButtonStateEnum.hidden);
+		this.btnExit.changeState(ButtonStateEnum.hidden);
 		this.$scoreboard.addClass('hide');
 	}
 
@@ -3046,7 +3448,9 @@ export class UI {
 
 	endGame() {
 		this.toggleScoreboard(true);
-		this.btnFlee.changeState(ButtonStateEnum.hidden);
+		this.btnFlee?.changeState(ButtonStateEnum.hidden);
+		this.btnSaveLog.changeState(ButtonStateEnum.normal);
+		this.btnRestartMatch.changeState(ButtonStateEnum.normal);
 		this.btnExit.changeState(ButtonStateEnum.normal);
 	}
 
@@ -3062,23 +3466,20 @@ export class UI {
 	/**
 	 * Make the user confirm attempts to navigate away (refresh, back button, close
 	 * tab, etc) to prevent accidentally ending the game.
-	 *
-	 * webpack-dev-server reloads in the development environment will bypass this check.
 	 */
 	confirmWindowUnload() {
 		this.ignoreNextConfirmUnload = false;
 		getActiveConfirmUnloadState = () => this;
+		window.onbeforeunload = confirmUnload;
 
-		if (!hasConfirmUnloadListener) {
-			window.addEventListener('beforeunload', confirmUnload);
-			hasConfirmUnloadListener = true;
+		if (process.env.NODE_ENV === 'development' && !hasWebpackReloadConfirmListener) {
+			window.addEventListener('message', confirmWebpackDevReload);
+			hasWebpackReloadConfirmListener = true;
 		}
 
-		// If running in webpack-dev-server, allow Live Reload events to bypass this check.
-		if (process.env.NODE_ENV === 'development' && !hasWebpackReloadBypassListener) {
-			// https://stackoverflow.com/a/61579190/1414008
-			window.addEventListener('message', handleWebpackDevReloadMessage);
-			hasWebpackReloadBypassListener = true;
+		if (!hasManualRefreshConfirmListener) {
+			window.addEventListener('keydown', confirmManualRefresh, true);
+			hasManualRefreshConfirmListener = true;
 		}
 	}
 
@@ -3344,10 +3745,7 @@ export class UI {
 				ui.game.grid.updateDisplay();
 			}
 
-			ui.game.grid.clearAllXray();
-			creatures.forEach((creature) => {
-				creature.xray(false);
-			});
+			ui.game.grid.refreshActiveCreatureXray();
 
 			ui.queue.xray(-1);
 			ui.quickInfo.clear();

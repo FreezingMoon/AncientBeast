@@ -314,16 +314,24 @@ export default (G: Game) => {
 
 			// 	require() :
 			require: function () {
-				if (!this.testRequirements()) {
-					return false;
-				}
+				const rocketLauncherAbility = this.creature.abilities[2];
+				const missedRockets = rocketLauncherAbility?.token ?? 0;
+				const targetLockingCost = 30;
 
-				if (this.creature.abilities[2].token === 0) {
+				// Target Locking has a higher flat cost regardless of rockets converted.
+				this.requirements = {
+					energy: targetLockingCost,
+				};
+				this.costs = {
+					energy: targetLockingCost,
+				};
+
+				if (missedRockets === 0) {
 					this.message = 'No rocket launched.';
 					return false;
 				}
 
-				return true;
+				return this.testRequirements();
 			},
 
 			// 	query() :

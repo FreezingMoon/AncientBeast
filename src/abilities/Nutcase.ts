@@ -399,7 +399,7 @@ export default (G: Game) => {
 
 									if (ability.isUpgraded()) {
 										ability._pushTarget(target, pushPath, args);
-									} else {
+									} else if (G.activeCreature?.player?.controller !== 'bot') {
 										G.activeCreature.queryMove();
 									}
 								}
@@ -495,7 +495,9 @@ export default (G: Game) => {
 				const interval = setInterval(function () {
 					if (!G.freezedInput) {
 						clearInterval(interval);
-						G.activeCreature.queryMove();
+						if (G.activeCreature?.player?.controller !== 'bot') {
+							G.activeCreature.queryMove();
+						}
 					}
 				}, 100);
 

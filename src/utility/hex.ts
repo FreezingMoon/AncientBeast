@@ -826,7 +826,6 @@ export class Hex {
 	 * - fullTurnLifetime
 	 * - ownerCreature
 	 * - destroyOnActivate
-	 * - typeOver
 	 *
 	 * @deprecated Use new Trap(x, y, type, effects, own, opt, game)
 	 */

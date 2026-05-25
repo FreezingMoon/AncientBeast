@@ -66,6 +66,7 @@ function countClusterTargets(hex: Hex, source: Creature) {
 	const seen = new Set<number>();
 	let enemyCount = 0;
 	let allyCount = 0;
+	let alliedDarkPriestCount = 0;
 
 	[hex, ...hex.adjacentHex(1)].forEach((localHex) => {
 		const target = localHex.creature;
@@ -81,10 +82,13 @@ function countClusterTargets(hex: Hex, source: Creature) {
 
 		if (isTeam(source, target, Team.Ally)) {
 			allyCount += 1;
+			if (target.type === '--') {
+				alliedDarkPriestCount += 1;
+			}
 		}
 	});
 
-	return { enemyCount, allyCount };
+	return { enemyCount, allyCount, alliedDarkPriestCount };
 }
 
 function countNearbyEnemies(
@@ -226,14 +230,15 @@ function scoreChainLightning(
 	}
 
 	const upgraded = activeCreature.abilities[ABILITY.CHAIN_LIGHTNING]?.isUpgraded?.() ?? false;
-	const { enemyCount, allyCount } = countClusterTargets(hex, activeCreature);
+	const { enemyCount, allyCount, alliedDarkPriestCount } = countClusterTargets(hex, activeCreature);
 
 	if (isTeam(activeCreature, target, Team.Ally)) {
-		if (!upgraded) {
+		if (!upgraded || enemyCount === 0 || target.type === '--') {
 			return Number.NEGATIVE_INFINITY;
 		}
 
 		let score = enemyCount * 300 - Math.max(0, allyCount - 1) * 180;
+		score -= alliedDarkPriestCount * 1400;
 		const healthRatio = target.health / target.stats.health;
 		if (healthRatio < 0.35) {
 			score -= 360;
@@ -253,6 +258,7 @@ function scoreChainLightning(
 	let score = 680 - target.health + target.size * 18;
 	score += enemyCount * 220;
 	score -= upgraded ? allyCount * 60 : allyCount * 260;
+	score -= alliedDarkPriestCount * 1400;
 
 	if (target.health <= CHAIN_LIGHTNING_DAMAGE) {
 		score += 950;

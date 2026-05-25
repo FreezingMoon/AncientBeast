@@ -442,6 +442,38 @@ describe('SnowBunnyStrategy.scoreAbilityHex – Big Pliers (index 1)', () => {
 });
 
 describe('SnowBunnyStrategy.scoreAbilityHex – Blowing Wind (index 2)', () => {
+	test('prefers close small enemies over close large enemies', () => {
+		const bunny = makeCreature({ team: 0, x: 5, y: 3 });
+		const smallEnemy = makeCreature({ team: 1, x: 7, y: 3, size: 1 });
+		const largeEnemy = makeCreature({ team: 1, x: 7, y: 3, size: 5 });
+		const smallHex = makeHex({ x: 7, y: 3, creature: smallEnemy });
+		const largeHex = makeHex({ x: 7, y: 3, creature: largeEnemy });
+		const controller = makeController({
+			activeCreature: bunny,
+			creatures: [smallEnemy, largeEnemy],
+		});
+
+		const smallScore = scoreAbilityHex(smallHex, 2, controller as any) as number;
+		const largeScore = scoreAbilityHex(largeHex, 2, controller as any) as number;
+		expect(smallScore).toBeGreaterThan(largeScore);
+	});
+
+	test('prefers frozen close enemies over non-frozen close enemies', () => {
+		const bunny = makeCreature({ team: 0, x: 5, y: 3 });
+		const frozenEnemy = makeCreature({ team: 1, x: 7, y: 3, size: 2, frozen: true });
+		const normalEnemy = makeCreature({ team: 1, x: 7, y: 3, size: 2, frozen: false });
+		const frozenHex = makeHex({ x: 7, y: 3, creature: frozenEnemy });
+		const normalHex = makeHex({ x: 7, y: 3, creature: normalEnemy });
+		const controller = makeController({
+			activeCreature: bunny,
+			creatures: [frozenEnemy, normalEnemy],
+		});
+
+		const frozenScore = scoreAbilityHex(frozenHex, 2, controller as any) as number;
+		const normalScore = scoreAbilityHex(normalHex, 2, controller as any) as number;
+		expect(frozenScore).toBeGreaterThan(normalScore);
+	});
+
 	test('penalises pushing enemy next to a low-health ally', () => {
 		const bunny = makeCreature({ team: 0, x: 5, y: 3 });
 		const enemy = makeCreature({ team: 1, x: 7, y: 3, size: 1 });
@@ -502,6 +534,48 @@ describe('SnowBunnyStrategy.scoreAbilityHex – Blowing Wind (index 2)', () => {
 });
 
 describe('SnowBunnyStrategy.getAbilityPriority', () => {
+	test('in energy-limited directional turns, prefers Freezing Spit first for far targets', () => {
+		const bunny = makeCreature({
+			team: 0,
+			x: 5,
+			y: 3,
+			energy: 30,
+			maxEnergy: 75,
+			adjacentHexes: () => [],
+		});
+		const farEnemy = makeCreature({ team: 1, x: 10, y: 3 });
+		const controller = makeController({ activeCreature: bunny, creatures: [farEnemy] });
+		expect(getAbilityPriority(bunny, controller as any)).toEqual([3, 2, 1]);
+	});
+
+	test('in energy-limited directional turns, prefers Blowing Wind first for close targets', () => {
+		const bunny = makeCreature({
+			team: 0,
+			x: 5,
+			y: 3,
+			energy: 30,
+			maxEnergy: 75,
+			adjacentHexes: () => [],
+		});
+		const closeEnemy = makeCreature({ team: 1, x: 7, y: 3 });
+		const controller = makeController({ activeCreature: bunny, creatures: [closeEnemy] });
+		expect(getAbilityPriority(bunny, controller as any)).toEqual([2, 3, 1]);
+	});
+
+	test('prefers Big Pliers first for adjacent enemies with low push distance', () => {
+		const closeBulkyEnemy = makeCreature({ team: 1, x: 6, y: 3, size: 5, frozen: false });
+		const bunny = makeCreature({
+			team: 0,
+			x: 5,
+			y: 3,
+			energy: 30,
+			maxEnergy: 75,
+			adjacentHexes: () => [makeHex({ x: 6, y: 3, creature: closeBulkyEnemy })],
+		});
+		const controller = makeController({ activeCreature: bunny, creatures: [closeBulkyEnemy] });
+		expect(getAbilityPriority(bunny, controller as any)).toEqual([1, 2, 3]);
+	});
+
 	test('prefers Blowing Wind before Freezing Spit when both can target an enemy', () => {
 		const bunny = makeCreature({ team: 0, x: 5, y: 3, adjacentHexes: () => [] });
 		const enemyInLine = makeCreature({ team: 1, x: 8, y: 3 });

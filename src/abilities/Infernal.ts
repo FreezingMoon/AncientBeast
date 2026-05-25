@@ -5,6 +5,7 @@ import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
 import { getPointFacade } from '../utility/pointfacade';
+import { Hex } from '../utility/hex';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -53,10 +54,24 @@ export default (G) => {
 									// Immunity to own trap type
 									return this.trap.hex.creature.id !== ability.creature.id;
 								},
-								effectFn: function (effect, target: Creature) {
-									target.takeDamage(new Damage(effect.attacker, ability.damages, 1, [], G), {
-										isFromTrap: true,
-									});
+								effectFn: function (effect, target) {
+									const targetCreature =
+										target instanceof Creature
+											? target
+											: target instanceof Hex && target.creature instanceof Creature
+											? target.creature
+											: this.trap?.hex?.creature;
+
+									if (!(targetCreature instanceof Creature)) {
+										return;
+									}
+
+									targetCreature.takeDamage(
+										new Damage(effect.attacker, ability.damages, 1, [], G),
+										{
+											isFromTrap: true,
+										},
+									);
 									this.trap.destroy();
 									effect.deleteEffect();
 								},

@@ -164,22 +164,64 @@ export default (G: Game) => {
 			activate: function (path, args) {
 				const ability = this;
 				const vehemoth = ability.creature;
-				G.Phaser.camera.shake(0.02, 333, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				const releaseDeferredFreeze = () => {
+					if (G._deferredQueryMovePending > 0) {
+						G._deferredQueryMovePending--;
+					}
+					if (G._deferredQueryMovePending === 0 && G.animationQueue.length === 0) {
+						G.freezedInput = false;
+						G.grid?.refreshHoverState?.();
+					}
+				};
+				const resumeQueryMove = () => {
+					const activeCreature = G.activeCreature;
 
-				ability.end();
+					if (activeCreature?.dead || (!activeCreature && vehemoth.dead)) {
+						releaseDeferredFreeze();
+						return;
+					}
+
+					if (activeCreature?.queryMove) {
+						activeCreature.queryMove();
+						return;
+					}
+
+					vehemoth.queryMove();
+				};
+				G.Phaser.camera.shake(0.02, 333, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				path = arrayUtils.sortByDirection(path, args.direction);
 				const target = arrayUtils.last(path).creature;
 				const targetIsNearby = this._getHexes().some((hex) => hex.creature?.id === target.id);
 
 				if (targetIsNearby) {
+					ability.end();
 					ability._damageTarget(target);
 				} else {
+					// Resolve query state after the charge + knockback sequence finishes.
+					ability.end(false, true);
+
 					// Charge to target.
 					arrayUtils.filterCreature(path, false, true, vehemoth.id);
 					let destination = arrayUtils.last(path);
+					if (!destination) {
+						resumeQueryMove();
+						return;
+					}
 					const x = destination.x + (args.direction === 4 ? vehemoth.size - 1 : 0);
 					destination = G.grid.hexes[destination.y][x];
+					if (!destination) {
+						resumeQueryMove();
+						return;
+					}
+
+					if (
+						vehemoth.stats.moveable &&
+						vehemoth.calculatePath({ x: destination.x, y: destination.y }).length === 0
+					) {
+						resumeQueryMove();
+						return;
+					}
 
 					/* Calculate hexes the target could be pushed along. Limited by the number
 					of hexes the Vehemoth charged, and will stop when reaching obstacles. */
@@ -202,10 +244,16 @@ export default (G: Game) => {
 							const damageResult = ability._damageTarget(target);
 
 							if (damageResult.kill) {
+								resumeQueryMove();
 								return;
 							}
 
 							if (knockbackHex) {
+								if (!target.stats.moveable) {
+									resumeQueryMove();
+									return;
+								}
+
 								// If pushing left, account for the difference in x origin of flipped creatures.
 								if (args.direction === Direction.Left) {
 									knockbackHex =
@@ -214,14 +262,14 @@ export default (G: Game) => {
 
 								target.moveTo(knockbackHex, {
 									callback: function () {
-										G.activeCreature.queryMove();
+										resumeQueryMove();
 									},
 									ignoreMovementPoint: true,
 									ignorePath: true,
 									animation: 'push',
 								});
 							} else {
-								G.activeCreature.queryMove();
+								resumeQueryMove();
 							}
 						},
 					});

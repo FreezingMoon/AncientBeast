@@ -549,6 +549,69 @@ describe('Cycloper abilities', () => {
 		expect((powerAperture as any)._noAffordableApertureTargetInRange).toBe(true);
 	});
 
+	test('Power Aperture keeps the selected target visible when no destination hex is available', () => {
+		const cycloper = new (Creature as any)({
+			id: 15,
+			team: 0,
+			type: 'W0',
+			x: 3,
+			y: 3,
+			hexagons: [{ x: 3, y: 3 }],
+			player: { id: 0, flipped: false, creatures: [] },
+			health: 60,
+			energy: 100,
+			stats: { health: 60, energy: 100 },
+		});
+		game.activeCreature = cycloper;
+
+		const target = new (Creature as any)({
+			id: 203,
+			team: 1,
+			type: 'A1',
+			x: 5,
+			y: 3,
+			hexagons: [{ x: 5, y: 3 }],
+			player: { id: 1, flipped: true, creatures: [] },
+			health: 20,
+			stats: { health: 20, energy: 50 },
+		});
+
+		game.grid.getDirectionChoices
+			.mockReturnValueOnce({
+				choices: [[{ x: 5, y: 3, creature: target, direction: 1 }]],
+				hexesDashed: [],
+			})
+			.mockReturnValueOnce({ choices: [[]], hexesDashed: [] });
+		game.grid.getHexLine.mockReturnValue([
+			{ x: 3, y: 3, creature: cycloper },
+			{ x: 4, y: 3, creature: null },
+			{ x: 5, y: 3, creature: target },
+		]);
+
+		const abilityDef = game.abilities[15][3];
+		const powerAperture = {
+			...abilityDef,
+			creature: cycloper,
+			isUpgraded: () => false,
+			testRequirements: () => true,
+			message: '',
+		};
+
+		powerAperture.query();
+		const queryArgs = game.grid.queryDirection.mock.calls[0][0];
+		queryArgs.fnOnConfirm(
+			[
+				{ x: 4, y: 3, creature: null },
+				{ x: 5, y: 3, creature: target },
+			],
+			{ direction: 1 },
+		);
+
+		expect(target.sprite.alpha).toBe(1);
+		expect(target.sprite.visible).not.toBe(false);
+		expect(target.grp.visible).not.toBe(false);
+	});
+
 	test('Power Aperture uses max health by default and current health when upgraded', () => {
 		const cycloper = new (Creature as any)({
 			id: 15,
@@ -605,6 +668,110 @@ describe('Cycloper abilities', () => {
 
 		expect(upgradedPowerAperture.require()).toBe(true);
 		expect((upgradedPowerAperture as any)._noAffordableApertureTargetInRange).toBe(false);
+	});
+
+	test('Power Aperture restores target visibility when activation aborts on energy check', () => {
+		const cycloper = new (Creature as any)({
+			id: 15,
+			team: 0,
+			type: 'W0',
+			x: 3,
+			y: 3,
+			hexagons: [{ x: 3, y: 3 }],
+			player: { id: 0, flipped: false, creatures: [] },
+			health: 60,
+			energy: 5,
+			stats: { health: 60, energy: 100 },
+		});
+
+		const target = new (Creature as any)({
+			id: 204,
+			team: 1,
+			type: 'A1',
+			x: 5,
+			y: 3,
+			hexagons: [{ x: 5, y: 3 }],
+			player: { id: 1, flipped: true, creatures: [] },
+			health: 20,
+			stats: { health: 20, energy: 50 },
+		});
+
+		target.grp.alpha = 0;
+		target.grp.visible = false;
+		target.grp.renderable = false;
+		target.sprite.alpha = 0;
+		target.sprite.visible = false;
+		target.sprite.renderable = false;
+
+		const abilityDef = game.abilities[15][3];
+		const powerAperture = {
+			...abilityDef,
+			creature: cycloper,
+			_energySelfUpgraded: 20,
+			message: '',
+		};
+
+		powerAperture.activate(target, { x: 6, y: 3, pos: { x: 6, y: 3 } });
+
+		expect(powerAperture.message).toBe('Not enough energy.');
+		expect(target.grp.alpha).toBe(1);
+		expect(target.grp.visible).toBe(true);
+		expect(target.grp.renderable).toBe(true);
+		expect(target.sprite.alpha).toBe(1);
+		expect(target.sprite.visible).toBe(true);
+		expect(target.sprite.renderable).toBe(true);
+		expect(target.creatureSprite.setAlpha).toHaveBeenCalledWith(1, 1);
+	});
+
+	test('Power Aperture guards against hidden target from previous failed attempt', () => {
+		const cycloper = new (Creature as any)({
+			id: 15,
+			team: 0,
+			type: 'W0',
+			x: 3,
+			y: 3,
+			hexagons: [{ x: 3, y: 3 }],
+			player: { id: 0, flipped: false, creatures: [] },
+			health: 60,
+			energy: 5,
+			stats: { health: 60, energy: 100 },
+		});
+
+		const target = new (Creature as any)({
+			id: 205,
+			team: 1,
+			type: 'A1',
+			x: 5,
+			y: 3,
+			hexagons: [{ x: 5, y: 3 }],
+			player: { id: 1, flipped: true, creatures: [] },
+			health: 20,
+			stats: { health: 20, energy: 50 },
+		});
+
+		target.grp.alpha = 0;
+		target.grp.visible = false;
+		target.grp.renderable = false;
+		target.sprite.alpha = 0;
+		target.sprite.visible = false;
+		target.sprite.renderable = false;
+
+		const abilityDef = game.abilities[15][3];
+		const powerAperture = {
+			...abilityDef,
+			creature: cycloper,
+			_energySelfUpgraded: 100,
+			message: '',
+		};
+
+		powerAperture.activate(target, { x: 6, y: 3, pos: { x: 6, y: 3 } });
+
+		expect(target.grp.alpha).toBe(1);
+		expect(target.grp.visible).toBe(true);
+		expect(target.grp.renderable).toBe(true);
+		expect(target.sprite.alpha).toBe(1);
+		expect(target.sprite.visible).toBe(true);
+		expect(target.sprite.renderable).toBe(true);
 	});
 
 	test('Power Aperture applies materialization sickness to target after teleport', async () => {

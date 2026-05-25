@@ -1643,7 +1643,29 @@ export default class Game {
 		this.turnThrottle = false;
 		this.turn = 0;
 
+		// Recreate signal channels to avoid accumulating UI listeners between restarts.
+		const signalChannels = ['ui', 'metaPowers', 'creature', 'hex'];
+		this.signals = this.setupSignalChannels(signalChannels);
+		this.botController = new BotController(this);
+
 		this.gamelog.reset();
+	}
+
+	restartMatch() {
+		if (this.multiplayer) {
+			this.resetGame();
+			return;
+		}
+
+		const restartConfig = {
+			...this.configData,
+			players: Array.isArray(this.configData.players)
+				? [...this.configData.players]
+				: this.configData.players,
+		};
+
+		this.resetGame();
+		this.loadGame(restartConfig);
 	}
 
 	/**

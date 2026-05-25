@@ -205,7 +205,7 @@ export default (G: Game) => {
 				const effect = new Effect(
 					ability.title,
 					ability.creature,
-					target,
+					target.hexagons[0],
 					'onStepOut',
 					{
 						effectFn: once((effect) => {

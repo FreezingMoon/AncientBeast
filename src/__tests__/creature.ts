@@ -1,4 +1,5 @@
 import { Creature } from '../creature';
+import { Effect } from '../effect';
 import { jest, expect, describe, test, beforeEach, beforeAll } from '@jest/globals';
 
 // NOTE: ts-comments are necessary in this file to avoid mocking the entire game.
@@ -249,6 +250,27 @@ describe('Creature', () => {
 		});
 	});
 
+	describe('effect attachment', () => {
+		test('addEffect ignores re-attaching the same Effect instance', () => {
+			const game = getGameMock();
+			const obj = getCreatureObjMock();
+			// @ts-ignore
+			const creature = new Creature(obj, game);
+			const effect = new Effect('Trap Effect', creature, creature, 'onStepIn', {}, game as never);
+
+			creature.addEffect(effect, undefined, undefined, true, true);
+			creature.addEffect(effect, undefined, undefined, true, true);
+
+			expect(creature.effects).toHaveLength(1);
+			expect(game.effects).toHaveLength(1);
+
+			effect.deleteEffect();
+
+			expect(creature.effects).toHaveLength(0);
+			expect(game.effects).toHaveLength(0);
+		});
+	});
+
 	describe('Dark Priest indicator bounce behavior', () => {
 		test('hover-in on active creature keeps indicator bounce running', () => {
 			const game = getGameMock();
@@ -318,6 +340,34 @@ describe('Creature', () => {
 			}).not.toThrow();
 			expect(initCardboardEffect).toHaveBeenCalledTimes(1);
 			expect(initCardboardEffect.mock.calls[0][1]).toBeDefined();
+		});
+
+		test('summon forces visibility if materialization tween stalls', () => {
+			jest.useFakeTimers();
+			const game = getGameMock();
+			const obj = getCreatureObjMock();
+			// @ts-ignore
+			const creature = new Creature(obj, game);
+			const setAlphaSpy = jest.spyOn(creature.creatureSprite, 'setAlpha');
+
+			creature.hexagons = [
+				{
+					ghostOverlap: jest.fn(),
+					activateTrap: jest.fn(),
+				},
+			] as unknown as Creature['hexagons'];
+			creature.updateHealth = jest.fn();
+			creature.healthShow = jest.fn();
+			creature.pickupDrop = jest.fn();
+			creature.hint = jest.fn();
+
+			creature.summon();
+
+			expect(setAlphaSpy).toHaveBeenCalledWith(1, 2000);
+			jest.advanceTimersByTime(2050);
+			expect(setAlphaSpy).toHaveBeenCalledWith(1);
+
+			jest.useRealTimers();
 		});
 	});
 });
@@ -432,6 +482,8 @@ const getGameMock = () => {
 	const self = {
 		turn: 0,
 		creatures: [],
+		effects: [],
+		effectId: 0,
 		players: [],
 		queue: { update: jest.fn() },
 		updateQueueDisplay: jest.fn(),
@@ -443,6 +495,7 @@ const getGameMock = () => {
 			updateDisplay: jest.fn(),
 			getFlyingRange: jest.fn(() => []),
 			orderCreatureZ: jest.fn(),
+			fadeOutTempCreature: jest.fn(),
 			hexes: getHexesMock(),
 			allhexes: [] as unknown[],
 			getMovementRange: jest.fn(() => []),
@@ -463,8 +516,6 @@ const getGameMock = () => {
 			initInfernalCardboardEffect: jest.fn(),
 			tickInfernalCardboardEffect: jest.fn(),
 			disposeInfernalCardboardEffect: jest.fn(),
-			setAbolishedBonfireLayerOverride: jest.fn(),
-			syncAbolishedBonfireTrapLayers: jest.fn(),
 		},
 		signals: {
 			metaPowers: {
@@ -485,6 +536,7 @@ const getGameMock = () => {
 		onReset: jest.fn(),
 		onStartPhase: jest.fn(),
 		onEndPhase: jest.fn(),
+		onEffectAttach: jest.fn(),
 		log: jest.fn(),
 		onHeal: jest.fn(),
 	};

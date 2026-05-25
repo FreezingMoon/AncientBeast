@@ -360,8 +360,13 @@ export class Creature {
 				}
 			}
 			if (tempCreature) {
+				const oldId = this.id;
 				this.id = tempCreature.id;
 				tempCreature.destroy();
+				// FX state was keyed under oldId; rekey to match the final assigned id.
+				if (this.name === 'Infernal') {
+					game.animations.rekeyInfernalCardboardEffect(this, oldId);
+				}
 			}
 		}
 		// Adding Himself to creature arrays and queue
@@ -412,6 +417,16 @@ export class Creature {
 		const fadeMs = 1000 * this.size;
 		game.grid.fadeOutTempCreature(undefined, fadeMs);
 		this.creatureSprite.setAlpha(1, fadeMs);
+		setTimeout(() => {
+			if (this.dead) {
+				return;
+			}
+
+			const materializedGroup = this.creatureSprite?.grp;
+			if (materializedGroup && materializedGroup.alpha < 1) {
+				this.creatureSprite.setAlpha(1);
+			}
+		}, fadeMs + 50);
 
 		// Ghost creatures in front so the materializing unit is spotlighted
 		this.hexagons.forEach((hex) => hex.ghostOverlap(this));
@@ -597,7 +612,7 @@ export class Creature {
 			// if (!game.freezedInput) { remove for muliplayer
 			clearInterval(interval);
 			if (game.turn >= game.minimumTurnBeforeFleeing) {
-				game.UI.btnFlee.changeState('normal');
+				game.UI.btnFlee?.changeState('normal');
 			}
 
 			game.startTimer();
@@ -1595,6 +1610,10 @@ export class Creature {
 			return false;
 		}
 
+		if (this.effects.includes(effect)) {
+			return false;
+		}
+
 		effect.target = this;
 		this.effects.push(effect);
 
@@ -1932,8 +1951,16 @@ export class Creature {
 	}
 
 	// Make units transparent
-	xray(enable: boolean, referenceCreature?: Creature) {
+	xray(enable: boolean, referenceCreature?: Creature | Creature[]) {
 		this.creatureSprite.xray(enable, referenceCreature);
+	}
+
+	clearXrayImmediately() {
+		this.creatureSprite.clearXrayImmediately();
+	}
+
+	get isXrayed(): boolean {
+		return this.creatureSprite?.isXrayed ?? false;
 	}
 
 	pickupDrop() {
@@ -2089,7 +2116,13 @@ class CreatureSprite {
 	private _creatureTeam: PlayerID;
 
 	private _isXray = false;
+	get isXrayed(): boolean {
+		return this._isXray;
+	}
 	private _xrayAlpha = 0; // current effect intensity (0 = off, 1 = full)
+	get xrayAlpha(): number {
+		return this._xrayAlpha;
+	}
 	private _xrayTargetAlpha = 0; // target intensity for fade animation
 	private _xrayBmd: Phaser.BitmapData | null = null;
 	private _originalTextureKey: string;
@@ -2129,9 +2162,6 @@ class CreatureSprite {
 
 		if (creature.name === 'Infernal') {
 			game.animations.initInfernalCardboardEffect(creature, sprite);
-		}
-		if (creature.name === 'Abolished') {
-			game.animations.syncAbolishedBonfireTrapLayers(creature);
 		}
 
 		// Hint Group
@@ -2183,7 +2213,6 @@ class CreatureSprite {
 		const XRAY_FADE_RATE = 0.08; // ~160 ms fade at 60 fps
 		this._group.update = () => {
 			_groupUpdate();
-			game.animations.syncAbolishedBonfireTrapLayers(this._creature);
 			game.animations.tickInfernalCardboardEffect(this._creature);
 			// Animate xray alpha toward target
 			if (this._xrayAlpha < this._xrayTargetAlpha) {
@@ -2298,24 +2327,31 @@ class CreatureSprite {
 			dir === -1 ? HEX_WIDTH_PX * 0.5 : HEX_WIDTH_PX * (this._creatureSize - 0.5);
 	}
 
-	xray(enable: boolean, referenceCreature?: Creature) {
+	xray(enable: boolean, referenceCreature?: Creature | Creature[]) {
 		if (!enable && !this._isXray && this._xrayTargetAlpha === 0) return;
 		if (enable && referenceCreature) {
+			const nextRefCreatures = Array.isArray(referenceCreature)
+				? referenceCreature
+				: [referenceCreature];
+			const hasSameReferences =
+				this._isXray &&
+				this._xrayRefCreatures.length === nextRefCreatures.length &&
+				this._xrayRefCreatures.every((reference, index) => reference === nextRefCreatures[index]);
+			if (hasSameReferences) {
+				return;
+			}
 			this._isXray = true;
 			this._xrayTargetAlpha = 1;
-			// Accumulate refs — only rebuild if this creature isn't already included
-			if (!this._xrayRefCreatures.includes(referenceCreature)) {
-				const newRefs = [...this._xrayRefCreatures, referenceCreature];
-				// Rebuild BitmapData with updated ref list, preserving fade progress/state
-				const alpha = this._xrayAlpha;
-				const targetAlpha = this._xrayTargetAlpha;
-				this._xrayScratch = null;
-				this._xrayMask = null;
-				this._xrayAlpha = alpha;
-				this._xrayTargetAlpha = targetAlpha;
-				this._isXray = true;
-				this._buildXrayTexture(newRefs);
-			}
+			// Replace the active hover reference instead of accumulating old ones.
+			const alpha = this._xrayAlpha;
+			const targetAlpha = this._xrayTargetAlpha;
+			this._xrayScratch = null;
+			this._xrayMask = null;
+			this._xrayRefCreatures = nextRefCreatures.slice();
+			this._xrayAlpha = alpha;
+			this._xrayTargetAlpha = targetAlpha;
+			this._isXray = true;
+			this._buildXrayTexture(this._xrayRefCreatures);
 		} else if (enable) {
 			// Ignore legacy calls that try to enable xray without a reference target.
 			// The pixel-mask implementation needs a reference creature silhouette;
@@ -2326,6 +2362,11 @@ class CreatureSprite {
 			this._xrayTargetAlpha = 0;
 			// Update hook fades out then calls _finalizeXrayOff automatically
 		}
+	}
+
+	clearXrayImmediately() {
+		this._isXray = false;
+		this._clearXrayTexture();
 	}
 
 	/** Immediately snaps xray alpha to 0 and frees all resources. */
@@ -2341,18 +2382,33 @@ class CreatureSprite {
 		this._xrayRefCreatures = [];
 		this._xrayScratch = null;
 		this._xrayMask = null;
-		if (this._xrayBmd && this._xrayOriginalSrc) {
+		if (this._xrayBmd && this._isDrawableImageSource(this._xrayOriginalSrc)) {
 			const bmd = this._xrayBmd;
 			const ctx = bmd.context;
 			ctx.clearRect(0, 0, bmd.width, bmd.height);
-			this._drawSpriteFrame(ctx, this._sprite, this._xrayOriginalSrc, 0, 0, bmd.width, bmd.height);
+			const drewOriginal = this._drawSpriteFrame(
+				ctx,
+				this._sprite,
+				this._xrayOriginalSrc,
+				0,
+				0,
+				bmd.width,
+				bmd.height,
+			);
+			if (!drewOriginal) {
+				this._sprite.loadTexture(this._originalTextureKey);
+				return;
+			}
 			bmd.dirty = true;
 			bmd.update();
 
 			if (this._sprite.texture.baseTexture.source !== (bmd.canvas as CanvasImageSource)) {
 				this._sprite.loadTexture(bmd);
 			}
+			return;
 		}
+
+		this._sprite.loadTexture(this._originalTextureKey);
 	}
 
 	private _buildXrayTexture(refCreatures: Creature[]) {
@@ -2362,8 +2418,12 @@ class CreatureSprite {
 		// Capture the original image source BEFORE swapping the texture to the BitmapData.
 		// After loadTexture(bmd), sprite.texture.baseTexture.source would be the BitmapData
 		// canvas itself, causing a circular self-draw on subsequent frames.
-		if (!this._xrayOriginalSrc) {
-			this._xrayOriginalSrc = this._sprite.texture.baseTexture.source as CanvasImageSource;
+		if (!this._isDrawableImageSource(this._xrayOriginalSrc)) {
+			this._xrayOriginalSrc = this._resolveSpriteDrawSource(this._sprite);
+			if (!this._xrayOriginalSrc) {
+				this._clearXrayTexture();
+				return;
+			}
 		}
 		this._xrayRefCreatures = refCreatures.slice(); // copy to avoid external mutation
 
@@ -2404,7 +2464,11 @@ class CreatureSprite {
 		dy: number,
 		dw: number,
 		dh: number,
-	) {
+	): boolean {
+		if (!this._isDrawableImageSource(src) || dw <= 0 || dh <= 0) {
+			return false;
+		}
+
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const texture: any = sprite.texture as any;
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -2413,8 +2477,54 @@ class CreatureSprite {
 		const sy = typeof frame.y === 'number' ? frame.y : 0;
 		const sw = typeof frame.width === 'number' ? frame.width : dw;
 		const sh = typeof frame.height === 'number' ? frame.height : dh;
+		if (sw <= 0 || sh <= 0) {
+			return false;
+		}
 
 		ctx.drawImage(src, sx, sy, sw, sh, dx, dy, dw, dh);
+		return true;
+	}
+
+	private _isDrawableImageSource(src: unknown): src is CanvasImageSource {
+		if (!src) {
+			return false;
+		}
+
+		if (typeof HTMLImageElement !== 'undefined' && src instanceof HTMLImageElement) {
+			return true;
+		}
+		if (typeof SVGImageElement !== 'undefined' && src instanceof SVGImageElement) {
+			return true;
+		}
+		if (typeof HTMLCanvasElement !== 'undefined' && src instanceof HTMLCanvasElement) {
+			return true;
+		}
+		if (typeof HTMLVideoElement !== 'undefined' && src instanceof HTMLVideoElement) {
+			return true;
+		}
+		if (typeof OffscreenCanvas !== 'undefined' && src instanceof OffscreenCanvas) {
+			return true;
+		}
+		if (typeof ImageBitmap !== 'undefined' && src instanceof ImageBitmap) {
+			return true;
+		}
+		const maybeVideoFrame =
+			typeof window !== 'undefined'
+				? (window as unknown as Record<string, unknown>).VideoFrame
+				: undefined;
+		if (
+			typeof maybeVideoFrame === 'function' &&
+			src instanceof (maybeVideoFrame as typeof Function)
+		) {
+			return true;
+		}
+
+		return false;
+	}
+
+	private _resolveSpriteDrawSource(sprite: Phaser.Sprite): CanvasImageSource | null {
+		const src = sprite?.texture?.baseTexture?.source;
+		return this._isDrawableImageSource(src) ? src : null;
 	}
 
 	/**
@@ -2427,14 +2537,24 @@ class CreatureSprite {
 	 */
 	private _drawXrayBmd(refCreatures: Creature[], bmd: Phaser.BitmapData) {
 		const oSprite = this._sprite;
-		const oGroup = this._group;
 		const otw = bmd.width;
 		const oth = bmd.height;
 		const oFlipped = oSprite.scale.x < 0;
-		const oLeft = oGroup.x + oSprite.x - otw / 2;
-		const oTop = oGroup.y + oSprite.y - oth;
+		// Guard: skip if sprite hasn't been added to display tree yet
+		if (!oSprite.worldTransform) {
+			return;
+		}
+		const oBounds = oSprite.getBounds();
+		const oLeft = oBounds.left;
+		const oTop = oBounds.top;
+		const oScaleX = oBounds.width > 0 ? otw / oBounds.width : 1;
+		const oScaleY = oBounds.height > 0 ? oth / oBounds.height : 1;
 
-		const oSrc = this._xrayOriginalSrc as CanvasImageSource;
+		const oSrc = this._xrayOriginalSrc;
+		if (!this._isDrawableImageSource(oSrc)) {
+			this._clearXrayTexture();
+			return;
+		}
 		const ctx = bmd.context;
 		const scratch = this._xrayScratch as HTMLCanvasElement;
 		const sctx = scratch.getContext('2d') as CanvasRenderingContext2D;
@@ -2447,17 +2567,22 @@ class CreatureSprite {
 
 		for (const refCreature of refCreatures) {
 			const refSprite = refCreature.sprite;
-			const refGroup = refCreature.grp;
-			const rtw = refSprite.texture.width;
-			const rth = refSprite.texture.height;
-			const rLeft = refGroup.x + refSprite.x - rtw / 2;
-			const rTop = refGroup.y + refSprite.y - refSprite.texture.height;
-			const relX = Math.round(rLeft - oLeft);
-			const relY = Math.round(rTop - oTop);
+			// Guard: skip ref creatures whose sprites haven't been added to display tree yet
+			if (!refSprite.worldTransform) {
+				continue;
+			}
+			const rBounds = refSprite.getBounds();
+			const rtw = Math.max(1, Math.round(rBounds.width * oScaleX));
+			const rth = Math.max(1, Math.round(rBounds.height * oScaleY));
+			const relX = Math.round((rBounds.left - oLeft) * oScaleX);
+			const relY = Math.round((rBounds.top - oTop) * oScaleY);
 			const drawX = oFlipped ? Math.round(otw - relX - rtw) : relX;
 			const rFlipped = refSprite.scale.x < 0;
 			const flipRef = oFlipped !== rFlipped;
-			const rSrc = refSprite.texture.baseTexture.source as CanvasImageSource;
+			const rSrc = this._resolveSpriteDrawSource(refSprite);
+			if (!rSrc) {
+				continue;
+			}
 
 			// source-over accumulates all ref shapes into the mask (union)
 			mctx.globalCompositeOperation = 'source-over';
@@ -2478,7 +2603,11 @@ class CreatureSprite {
 		ctx.clearRect(0, 0, otw, oth);
 		ctx.save();
 		ctx.globalAlpha = 1.0 - (1.0 - XRAY_OVERLAP_OPACITY) * this._xrayAlpha;
-		this._drawSpriteFrame(ctx, oSprite, oSrc, 0, 0, otw, oth);
+		if (!this._drawSpriteFrame(ctx, oSprite, oSrc, 0, 0, otw, oth)) {
+			ctx.restore();
+			this._clearXrayTexture();
+			return;
+		}
 		ctx.globalAlpha = 1.0;
 		ctx.globalCompositeOperation = 'destination-in';
 		ctx.drawImage(mask, 0, 0);
@@ -2487,7 +2616,10 @@ class CreatureSprite {
 		// --- Part B: non-overlap at full alpha — obstructor minus union mask ---
 		sctx.clearRect(0, 0, otw, oth);
 		sctx.globalCompositeOperation = 'source-over';
-		this._drawSpriteFrame(sctx, oSprite, oSrc, 0, 0, otw, oth);
+		if (!this._drawSpriteFrame(sctx, oSprite, oSrc, 0, 0, otw, oth)) {
+			this._clearXrayTexture();
+			return;
+		}
 		sctx.globalCompositeOperation = 'destination-out';
 		sctx.drawImage(mask, 0, 0);
 
@@ -3198,10 +3330,8 @@ class CreatureSprite {
 	}
 
 	destroy() {
-		this._creature.game.animations.setAbolishedBonfireLayerOverride(this._creature);
-		this._creature.game.animations.syncAbolishedBonfireTrapLayers(this._creature, []);
 		this._creature.game.animations.disposeInfernalCardboardEffect(this._creature);
-		this._group.parent.removeChild(this._group);
+		this._group.parent?.removeChild(this._group);
 	}
 }
 

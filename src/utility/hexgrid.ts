@@ -13,6 +13,19 @@ import { Point } from './pointfacade';
 import { AugmentedMatrix } from './matrices';
 import { PierceThroughBehavior } from '../ability';
 
+const ROW_DEPTH_STRIDE = 100;
+
+const DEPTH_BAND = {
+	TRAP_GROUND: 0,
+	EFFECT_UNDER_UNITS: 20,
+	UNITS: 40,
+	EFFECT_OVER_UNITS: 80,
+	DROPS: 85,
+	TRAP_VOLUMETRIC: 90,
+} as const;
+
+export type DepthBand = keyof typeof DEPTH_BAND;
+
 interface GridDefinition {
 	numRows: number;
 	numCols: number;
@@ -1282,8 +1295,9 @@ export class HexGrid {
 					}
 				}
 
-				// If hex is reachable & creature, reset health indicator bounce
-				if (hex.creature instanceof Creature) {
+				// If hex is reachable & creature, reset target bounce.
+				// Preserve active creature bounce (bot can confirm without a hover-off cycle).
+				if (hex.creature instanceof Creature && hex.creature !== game.activeCreature) {
 					hex.creature.resetBounce();
 				}
 
@@ -1514,44 +1528,121 @@ export class HexGrid {
 	 * If hex contain creature call ghostOverlap for each creature hexes
 	 */
 	xray(hex: Hex) {
+		if (this.game.animations?.xraySuppressed) {
+			return;
+		}
 		this.lastXrayHex = hex;
-		// Clear previous ghost
 		this.game.creatures.forEach((creature) => {
 			if (creature instanceof Creature) {
 				creature.xray(false);
 			}
 		});
 
-		// Always ghost creatures that obstruct the active creature's view
 		const { activeCreature } = this.game;
-		if (activeCreature instanceof Creature) {
-			activeCreature.hexagons.forEach((item) => {
-				item.ghostOverlap(activeCreature);
-			});
+		if (!(activeCreature instanceof Creature)) {
+			return;
 		}
 
-		// Also ghost creatures that obstruct the hovered hex/creature
-		if (hex.creature instanceof Creature) {
-			if (hex.creature !== activeCreature) {
-				hex.creature.hexagons.forEach((item) => {
-					item.ghostOverlap(hex.creature as Creature);
-				});
+		const noAbilitySelected = this.game.UI?.selectedAbility === -1;
+		const hoveredCreature =
+			hex.creature instanceof Creature ? (hex.creature as Creature) : undefined;
+		const hoveredTrapSprites = this.game.traps
+			.filter((trap) => trap.x === hex.x && trap.y === hex.y)
+			.flatMap((trap) => trap.getVisualSprites())
+			.filter((sprite) => sprite.exists && typeof sprite.getBounds === 'function');
+		const hoveredTrap =
+			hoveredTrapSprites.length > 0 ||
+			this.game.traps.some((trap) => trap.x === hex.x && trap.y === hex.y);
+		const hoveredDropSprites = (this.game.drops ?? [])
+			.filter((drop) => drop.x === hex.x && drop.y === hex.y && !drop.pickedUp)
+			.map((drop) => drop.display)
+			.filter((sprite) => sprite.exists && typeof sprite.getBounds === 'function');
+		const hoveredDrop = hoveredDropSprites.length > 0 || Boolean(hex.drop);
+		const hoveredRevealSprites = [...hoveredTrapSprites, ...hoveredDropSprites];
+		const hoveredRevealCreature = hoveredCreature instanceof Creature ? hoveredCreature : undefined;
+		const hoveredNonActiveCreature =
+			hoveredCreature && hoveredCreature !== activeCreature ? hoveredCreature : undefined;
+
+		// Exception 1/2: reveal hovered non-active target when no ability is selected.
+		// Skip when a trap/drop is also on the hex — Exception 3 handles that case
+		// and must also xray the creature standing on the trap.
+		if (hoveredNonActiveCreature && noAbilitySelected && !hoveredTrap && !hoveredDrop) {
+			hoveredNonActiveCreature.hexagons.forEach((hoveredHex) =>
+				hoveredHex.ghostOverlap(hoveredNonActiveCreature),
+			);
+			hoveredNonActiveCreature.xray(false);
+			return;
+		}
+
+		// Exception 3: reveal hovered traps and drops regardless of movement reachability.
+		if (hoveredTrap || hoveredDrop) {
+			if (hoveredRevealCreature) {
+				hoveredRevealCreature.hexagons.forEach((hoveredHex) =>
+					hoveredHex.ghostOverlap(hoveredRevealCreature),
+				);
+				hoveredRevealCreature.xray(false);
 			}
-		} else {
-			hex.ghostOverlap();
+
+			if (hoveredRevealSprites.length === 0) {
+				hex.ghostOverlap();
+				return;
+			}
+
+			const revealReferences = hoveredRevealSprites.map((sprite) => {
+				return {
+					sprite,
+					grp: this.creatureGroup,
+				} as unknown as Creature;
+			});
+			if (hoveredRevealCreature) {
+				revealReferences.push(hoveredRevealCreature);
+			}
+
+			this.game.creatures.forEach((candidate) => {
+				if (!(candidate instanceof Creature)) {
+					return;
+				}
+				if (candidate === hoveredRevealCreature || candidate === activeCreature) {
+					return;
+				}
+				if (!candidate.sprite || typeof candidate.sprite.getBounds !== 'function') {
+					return;
+				}
+
+				// Always xray a creature sitting directly on the hovered trap/drop hex
+				// (its sprite bounds may not intersect the trap sprite, e.g. tall Abolished
+				// standing on a small bonfire flame).
+				const isOnTrapHex =
+					candidate !== activeCreature &&
+					candidate.hexagons.some((h) => h.x === hex.x && h.y === hex.y);
+
+				if (!isOnTrapHex) {
+					const candidateBounds = candidate.sprite.getBounds();
+					const overlapsReveal = hoveredRevealSprites.some((sprite) => {
+						const revealBounds = sprite.getBounds();
+						return !(
+							candidateBounds.right <= revealBounds.left ||
+							candidateBounds.left >= revealBounds.right ||
+							candidateBounds.bottom <= revealBounds.top ||
+							candidateBounds.top >= revealBounds.bottom
+						);
+					});
+					if (!overlapsReveal) {
+						return;
+					}
+				}
+
+				candidate.xray(
+					true,
+					revealReferences.length === 1 ? revealReferences[0] : revealReferences,
+				);
+			});
+			return;
 		}
 
-		// Hovered creatures should never appear x-rayed — restore them fully opaque.
-		if (hex.creature instanceof Creature) {
-			hex.creature.xray(false);
-		}
-
-		// Active creature should never appear x-rayed either — ghostOverlap called
-		// for the hovered creature's hexes can pick up the active creature as a
-		// same-row or adjacent-row candidate.
-		if (activeCreature instanceof Creature) {
-			activeCreature.xray(false);
-		}
+		// Default: keep active creature visible through obstructions.
+		activeCreature.hexagons.forEach((activeHex) => activeHex.ghostOverlap(activeCreature));
+		activeCreature.xray(false);
 	}
 
 	/**
@@ -1984,28 +2075,139 @@ export class HexGrid {
 		this.game.UI.xrayQueue(-1);
 	}
 
+	private _rowDepthBaseIndex(y: number) {
+		// Leave room within each row for shared layer bands instead of forcing
+		// every renderable to compete in a single linear ordering.
+		return y * ROW_DEPTH_STRIDE;
+	}
+
+	getDepthAtBand(y: number, band: DepthBand, slot = 0) {
+		return this._rowDepthBaseIndex(y) + DEPTH_BAND[band] + slot;
+	}
+
+	assignSpriteDepthBand(sprite: Phaser.Sprite | undefined, y: number, band: DepthBand, slot = 0) {
+		if (!sprite) {
+			return;
+		}
+
+		sprite.z = this.getDepthAtBand(y, band, slot);
+	}
+
 	orderCreatureZ() {
-		let index = 0;
 		const creatures = this.game.creatures;
+		const traps = this.game.traps;
+		const drops = this.game.drops;
 
 		for (let y = 0, leny = this.hexes.length; y < leny; y++) {
+			let groundTrapIndex = 0;
+			let underEffectIndex = 0;
+			let unitIndex = 0;
+			let dropIndex = 0;
+			let overEffectIndex = 0;
+			let volumetricTrapIndex = 0;
+
 			for (let i = 0, len = creatures.length; i < len; i++) {
 				if (creatures[i] && creatures[i].y == y) {
-					this.creatureGroup.remove(creatures[i].grp);
-					this.creatureGroup.addAt(creatures[i].grp, index++);
+					creatures[i].grp.z = this.getDepthAtBand(y, 'UNITS', unitIndex++);
+				}
+			}
+
+			for (let i = 0, len = traps.length; i < len; i++) {
+				const trap = traps[i];
+				if (!trap || trap.y != y) {
+					continue;
+				}
+
+				const occupyingCreature = creatures.find((candidate) => {
+					if (!(candidate instanceof Creature)) {
+						return false;
+					}
+					return candidate.hexagons?.some(
+						(hexagon) => hexagon.x === trap.x && hexagon.y === trap.y,
+					);
+				}) as Creature | undefined;
+				const occupiedByOwnerCreature =
+					occupyingCreature instanceof Creature && occupyingCreature === trap.ownerCreature;
+				const shouldRenderOverUnits = Boolean(
+					trap.typeOver || (trap.type === 'bonfire-spring' && occupiedByOwnerCreature),
+				);
+				if (typeof trap.syncTypeOverVisual === 'function') {
+					trap.syncTypeOverVisual(shouldRenderOverUnits);
+				} else if (typeof trap.setTypeOver === 'function') {
+					trap.setTypeOver(shouldRenderOverUnits, false);
+				}
+
+				const visualSprites =
+					typeof trap.getVisualSprites === 'function' ? trap.getVisualSprites() : [];
+				for (let j = 0, visualLen = visualSprites.length; j < visualLen; j++) {
+					const sprite = visualSprites[j];
+					if (!sprite) {
+						continue;
+					}
+					const isVolumetricParent =
+						sprite.parent === this.trapOverGroup || sprite.parent === this.creatureGroup;
+					const isCreatureLayerVolumetric = sprite.parent === this.creatureGroup;
+					if (isCreatureLayerVolumetric) {
+						const zReferenceCreature =
+							(occupyingCreature as Creature | undefined) ??
+							((trap.typeOver && trap.ownerCreature instanceof Creature && trap.ownerCreature) ||
+								undefined);
+						if (zReferenceCreature?.grp && typeof zReferenceCreature.grp.z === 'number') {
+							// Keep feet-volumetric tightly coupled to the occupied creature instead of
+							// jumping to a global volumetric slot that can overlap unrelated units.
+							sprite.z = zReferenceCreature.grp.z + (0.5 + volumetricTrapIndex++ * 0.01);
+						} else {
+							sprite.z = this.getDepthAtBand(y, 'TRAP_VOLUMETRIC', volumetricTrapIndex++);
+						}
+						continue;
+					}
+
+					if (sprite === trap.display) {
+						const band = isVolumetricParent ? 'TRAP_VOLUMETRIC' : 'TRAP_GROUND';
+						const slot = band === 'TRAP_VOLUMETRIC' ? volumetricTrapIndex++ : groundTrapIndex++;
+						this.assignSpriteDepthBand(sprite, y, band, slot);
+						continue;
+					}
+
+					const band = isVolumetricParent ? 'TRAP_VOLUMETRIC' : 'EFFECT_UNDER_UNITS';
+					const slot = band === 'TRAP_VOLUMETRIC' ? volumetricTrapIndex++ : underEffectIndex++;
+					this.assignSpriteDepthBand(sprite, y, band, slot);
+				}
+
+				if (trap.displayOver) {
+					this.assignSpriteDepthBand(trap.displayOver, y, 'TRAP_VOLUMETRIC', volumetricTrapIndex++);
+				}
+			}
+
+			for (let i = 0, len = drops.length; i < len; i++) {
+				if (drops[i] && drops[i].y == y && drops[i].display) {
+					this.assignSpriteDepthBand(drops[i].display, y, 'DROPS', dropIndex++);
 				}
 			}
 
 			if (this.materialize_overlay && this.materialize_overlay.posy == y) {
-				this.creatureGroup.remove(this.materialize_overlay);
-				this.creatureGroup.addAt(this.materialize_overlay, index++);
+				this.assignSpriteDepthBand(
+					this.materialize_overlay,
+					y,
+					'EFFECT_OVER_UNITS',
+					overEffectIndex++,
+				);
 			}
 
 			if (this.secondary_overlay && this.secondary_overlay.posy == y) {
-				this.creatureGroup.remove(this.secondary_overlay);
-				this.creatureGroup.addAt(this.secondary_overlay, index++);
+				this.assignSpriteDepthBand(
+					this.secondary_overlay,
+					y,
+					'EFFECT_OVER_UNITS',
+					overEffectIndex++,
+				);
 			}
 		}
+
+		this.trapGroup.sort('z', -1);
+		this.creatureGroup.sort('z', -1);
+		this.dropGroup.sort('z', -1);
+		this.trapOverGroup.sort('z', -1);
 	}
 
 	/**
@@ -2013,10 +2215,17 @@ export class HexGrid {
 	 * any creature. Use this at turn boundaries so the old active creature's
 	 * obstructors fade to zero cleanly before the next unit's ghostOverlap runs.
 	 */
-	clearAllXray() {
+	clearAllXray(immediate = false) {
 		this.lastXrayHex = null;
 		this.game.creatures.forEach((c) => {
-			if (c instanceof Creature) c.xray(false);
+			if (!(c instanceof Creature)) {
+				return;
+			}
+			if (immediate) {
+				c.clearXrayImmediately();
+				return;
+			}
+			c.xray(false);
 		});
 	}
 
@@ -2026,6 +2235,7 @@ export class HexGrid {
 	 * movement so the effect stays correct as the unit changes rows.
 	 */
 	refreshActiveCreatureXray() {
+		if (this.game.animations?.xraySuppressed) return;
 		const { activeCreature } = this.game;
 		if (!(activeCreature instanceof Creature)) return;
 		this.game.creatures.forEach((c) => {

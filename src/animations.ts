@@ -1,5 +1,5 @@
 import * as arrayUtils from './utility/arrayUtils';
-import { extractTextureFrameInfo } from './utility/bitmapUtils';
+import { extractTextureFrameInfo, createBitmapDataFromTexture } from './utility/bitmapUtils';
 import { getEffectShader, advanceShaderTime, type ShaderUniformMap } from './shader';
 import Game from './game';
 import { Creature } from './creature';
@@ -17,6 +17,7 @@ type AnimationOptions = {
 	ignoreMovementPoint?: boolean;
 	ignoreTraps?: boolean;
 	ignoreFacing?: boolean;
+	animation?: string;
 	teleportEffect?: 'abolishedBonfire';
 	createTeleportDestinationTraps?: () => Trap[];
 	callback?: () => void;
@@ -66,7 +67,7 @@ export class Animations {
 	movementPoints: number;
 	animationCounter: number;
 	private _infernalCardboardFx = new Map<string, InfernalCardboardEffectState>();
-	private _abolishedBonfireLayerOverride = new Map<string, Set<string>>();
+	xraySuppressed = false;
 
 	constructor(game: Game) {
 		this.game = game;
@@ -79,9 +80,108 @@ export class Animations {
 	}
 
 	private _getLiveInfernalCardboardTarget(creature: Creature, fallbackSprite?: Phaser.Sprite) {
-		const sprite = fallbackSprite ?? creature.creatureSprite?.sprite;
+		const sprite = creature.creatureSprite?.sprite ?? fallbackSprite;
 		const group = (sprite?.parent as Phaser.Group | undefined) ?? creature.creatureSprite?.grp;
 		return { sprite, group };
+	}
+
+	private _retryInfernalCardboardBitmaps(
+		state: InfernalCardboardEffectState,
+		sprite: Phaser.Sprite,
+		dir: number,
+	) {
+		const texture = sprite.texture as unknown as ShatterTexture & {
+			baseTexture?: { source?: CanvasImageSource };
+		};
+		const frameInfo = extractTextureFrameInfo(texture);
+		const frame = frameInfo?.frame;
+		const source = frameInfo?.source;
+
+		if (!frame || !source || frame.width <= 0 || frame.height <= 0) {
+			return;
+		}
+
+		if (!state.hazeReady && state.hazeSprite) {
+			try {
+				state.hazeFrame = frame;
+				state.hazeSource = source;
+				state.hazeBmd?.destroy();
+				state.hazeBmd = createBitmapDataFromTexture(this.game, {
+					frame,
+					source,
+					width: frame.width,
+					height: frame.height,
+				});
+				const { ctx } = state.hazeBmd;
+				const { width, height } = frame;
+				const imageData = ctx.getImageData(0, 0, width, height);
+				const data = imageData.data;
+				for (let index = 0; index < data.length; index += 4) {
+					const red = data[index];
+					const green = data[index + 1];
+					const blue = data[index + 2];
+					const alpha = data[index + 3] / 255;
+					const warmMask = Math.max(0, (red - blue) / 255) * Math.max(0, (red - green) / 255);
+					if (warmMask <= 0.08) {
+						data[index + 3] = 0;
+						continue;
+					}
+
+					const warmBoost = 1 + warmMask * 0.95;
+					data[index] = Math.min(255, red * warmBoost);
+					data[index + 1] = Math.min(255, green * (1 + warmMask * 0.48));
+					data[index + 2] = Math.min(255, blue * (1 - warmMask * 0.2));
+					data[index + 3] = Math.min(255, alpha * warmMask * 255 * 1.15);
+				}
+				ctx.putImageData(imageData, 0, 0);
+				state.hazeBmd.dirty = true;
+				state.hazeSprite.loadTexture(state.hazeBmd);
+				state.hazeSprite.scale.setTo(dir, 1);
+				state.hazeSprite.tint = 0xffffff;
+				state.hazeReady = true;
+			} catch (e) {
+				console.warn('[Infernal] Failed to retry haze BitmapData:', e);
+			}
+		}
+
+		if (!state.heatReady && state.heatLayerSprite) {
+			try {
+				state.heatFrame = frame;
+				state.heatSource = source;
+				state.heatBmd?.destroy();
+				state.heatBmd = createBitmapDataFromTexture(this.game, {
+					frame,
+					source,
+					width: frame.width,
+					height: frame.height,
+				});
+				const { ctx } = state.heatBmd;
+				const { width, height } = frame;
+				const imageData = ctx.getImageData(0, 0, width, height);
+				const data = imageData.data;
+				const leftFadeWidth = dir < 0 ? 10 : 45;
+				const rightFadeWidth = dir < 0 ? 45 : 10;
+				for (let py = 0; py < height; py += 1) {
+					for (let px = 0; px < width; px += 1) {
+						const index = (py * width + px) * 4;
+						const alpha = data[index + 3] / 255;
+						const leftFade = Math.min(1, (px + 1) / leftFadeWidth);
+						const rightFade = Math.min(1, (width - px) / rightFadeWidth);
+						const fade = Math.min(leftFade, rightFade);
+						data[index + 3] = Math.min(255, alpha * fade * 255);
+					}
+				}
+				ctx.putImageData(imageData, 0, 0);
+				state.heatBmd.dirty = true;
+				state.heatReady = true;
+				state.heatLayerSprite.loadTexture(state.heatBmd);
+				state.heatLayerSprite.scale.setTo(dir, 1.38);
+				state.heatLayerSprite.tint = 0xffffff;
+				state.heatLayerSprite.alpha = 0.24;
+			} catch (e) {
+				console.warn('[Infernal] Failed to retry heat BitmapData:', e);
+			}
+		}
 	}
 
 	private _creatureKey(creature: Creature): string {
@@ -102,75 +202,6 @@ export class Animations {
 
 	private _hexKey(hexagon: Hex): string {
 		return `${hexagon.x},${hexagon.y}`;
-	}
-
-	private _moveSpriteToGroup(sprite: Phaser.Sprite, targetGroup: Phaser.Group) {
-		const worldPos = sprite.worldPosition;
-		sprite.parent.removeChild(sprite);
-		targetGroup.add(sprite);
-		const localPos = targetGroup.toLocal(worldPos, this.game.Phaser.world);
-		sprite.position.set(localPos.x, localPos.y);
-	}
-
-	private _syncBonfireSpringTrapLayers(creature: Creature, occupiedHexes: Hex[]) {
-		const trapGroup = this.game.grid.trapGroup;
-		const trapOverGroup = this.game.grid.trapOverGroup;
-		const occupiedHexKeySet = new Set(occupiedHexes.map((hexagon) => this._hexKey(hexagon)));
-
-		this.game.traps.forEach((trap) => {
-			if (trap.type !== 'bonfire-spring' || trap.ownerCreature !== creature) {
-				return;
-			}
-
-			const targetGroup = occupiedHexKeySet.has(`${trap.x},${trap.y}`) ? trapOverGroup : trapGroup;
-			trap.getVisualSprites().forEach((sprite) => {
-				if (sprite.parent !== targetGroup) {
-					this._moveSpriteToGroup(sprite, targetGroup);
-				}
-				targetGroup.bringToTop(sprite);
-			});
-		});
-	}
-
-	syncAbolishedBonfireTrapLayers(creature: Creature, occupiedHexes: Hex[] = creature.hexagons) {
-		if (creature.name !== 'Abolished') {
-			return;
-		}
-
-		const overrideHexKeys = this._abolishedBonfireLayerOverride.get(this._creatureKey(creature));
-		const resolvedHexes =
-			overrideHexKeys === undefined
-				? occupiedHexes
-				: occupiedHexes.filter((hexagon) => overrideHexKeys.has(this._hexKey(hexagon)));
-		if (overrideHexKeys !== undefined) {
-			const overrideHexes = Array.from(overrideHexKeys)
-				.map((key) => {
-					const [x, y] = key.split(',').map(Number);
-					return this.game.grid.hexes[y]?.[x];
-				})
-				.filter((hexagon): hexagon is Hex => Boolean(hexagon));
-			this._syncBonfireSpringTrapLayers(creature, overrideHexes);
-			return;
-		}
-
-		this._syncBonfireSpringTrapLayers(creature, resolvedHexes);
-	}
-
-	setAbolishedBonfireLayerOverride(creature: Creature, occupiedHexes?: Hex[]) {
-		if (creature.name !== 'Abolished') {
-			return;
-		}
-
-		const creatureKey = this._creatureKey(creature);
-		if (!occupiedHexes || occupiedHexes.length === 0) {
-			this._abolishedBonfireLayerOverride.delete(creatureKey);
-			return;
-		}
-
-		this._abolishedBonfireLayerOverride.set(
-			creatureKey,
-			new Set(occupiedHexes.map((hexagon) => this._hexKey(hexagon))),
-		);
 	}
 
 	private _uniqueHexes(hexes: Hex[]): Hex[] {
@@ -897,32 +928,31 @@ export class Animations {
 			const transition = this._createMovementHexTransition(creature, hex);
 			const originHexes = transition.originHexes;
 			this._setHexForcedHidden(transition.originOnlyHexes, true);
-			const moveSpriteToGroup = (sprite: Phaser.Sprite, targetGroup: Phaser.Group) => {
-				const sourceGroup = sprite.parent as Phaser.Group;
-				const worldPos = sourceGroup.toGlobal(sprite.position.clone());
-				sourceGroup.remove(sprite, false);
-				targetGroup.add(sprite);
-				const localPos = targetGroup.toLocal(worldPos, game.Phaser.world);
-				sprite.position.set(localPos.x, localPos.y);
-			};
 			const getTallScaleMultiplier = (baselineHeight: number) => {
 				const cardboardHeight = Math.max(70, Math.abs(creature.creatureSprite.sprite.height));
 				return Math.max(4.2, (cardboardHeight / Math.max(1, baselineHeight)) * 3.2);
 			};
 
-			const liftBonfireCurtainFromTraps = (originTraps: Trap[], shouldOverlapCreature = false) => {
-				const trapOverGroup = game.grid.trapOverGroup;
-				const trapGroup = game.grid.trapGroup;
-				type SpriteRestore = {
-					trap: Trap;
-					sprite: Phaser.Sprite;
-					parent: Phaser.Group;
-					index: number;
-					bringToTop: boolean;
-				};
-				const spriteRestoreData: SpriteRestore[] = [];
+			const liftBonfireCurtainFromTraps = (originTraps: Trap[]) => {
+				const previousTypeOver = new Map<number, boolean>();
+				let layerChanged = false;
 
-				originTraps.forEach((trap) => trap.pauseIdleAnimation());
+				originTraps.forEach((trap) => {
+					previousTypeOver.set(trap.id, Boolean(trap.typeOver));
+					trap.pauseIdleAnimation();
+					const activeOccupiesTrapHex = creature.hexagons.some(
+						(hexagon) => hexagon.x === trap.x && hexagon.y === trap.y,
+					);
+					if (activeOccupiesTrapHex) {
+						if (!trap.typeOver) {
+							layerChanged = true;
+						}
+						trap.setTypeOver(true, false);
+					}
+				});
+				if (layerChanged) {
+					game.grid.orderCreatureZ();
+				}
 
 				const curtainSprites = originTraps.flatMap((trap) =>
 					trap
@@ -931,31 +961,12 @@ export class Animations {
 						.map((sprite) => ({ trap, sprite })),
 				);
 
-				curtainSprites.forEach(({ trap, sprite }) => {
+				curtainSprites.forEach(({ sprite }) => {
 					if (sprite.anchor.y !== 1) {
 						sprite.anchor.y = 1;
 						sprite.y += sprite.height / 2;
 					}
-					if (shouldOverlapCreature) {
-						const parent = sprite.parent as Phaser.Group;
-						spriteRestoreData.push({
-							trap,
-							sprite,
-							parent,
-							index: parent.getChildIndex(sprite),
-							bringToTop: parent === trapGroup,
-						});
-						// Move sprites without bringToTop yet to preserve their relative layering order
-						moveSpriteToGroup(sprite, trapOverGroup);
-					} else {
-						trapGroup.bringToTop(sprite);
-					}
 				});
-				// After all sprites are moved, bring only the last one to top to place trap above existing sprites
-				// while preserving the internal layering of display vs overlays
-				if (shouldOverlapCreature && curtainSprites.length > 0) {
-					trapOverGroup.bringToTop(curtainSprites[curtainSprites.length - 1].sprite);
-				}
 
 				const baseScales = curtainSprites.map(({ sprite }) => ({
 					x: sprite.scale.x,
@@ -998,26 +1009,18 @@ export class Animations {
 				};
 
 				const restore = () => {
-					spriteRestoreData.forEach((item) => {
-						if (!item.sprite.exists) {
-							return;
+					let restoreLayerChanged = false;
+					originTraps.forEach((trap) => {
+						const shouldStayOver = previousTypeOver.get(trap.id) ?? false;
+						if (trap.typeOver !== shouldStayOver) {
+							restoreLayerChanged = true;
 						}
-						if (!trapGroup.exists) {
-							return;
-						}
-						moveSpriteToGroup(item.sprite, trapGroup);
-						if (item.parent === trapGroup) {
-							if (item.bringToTop) {
-								trapGroup.bringToTop(item.sprite);
-							} else {
-								const safeIndex = Math.min(item.index, trapGroup.children.length - 1);
-								trapGroup.setChildIndex(item.sprite, Math.max(safeIndex, 0));
-							}
-						} else {
-							trapGroup.bringToTop(item.sprite);
-						}
+						trap.setTypeOver(shouldStayOver, false);
+						trap.resumeIdleAnimation();
 					});
-					originTraps.forEach((trap) => trap.resumeIdleAnimation());
+					if (restoreLayerChanged) {
+						game.grid.orderCreatureZ();
+					}
 				};
 
 				return { tweenSprites, restore };
@@ -1055,6 +1058,8 @@ export class Animations {
 			let fallbackOriginOnlyHexes: Hex[] = [];
 
 			if (originTraps.length === 0) {
+				this.xraySuppressed = true;
+				game.grid.clearAllXray(true);
 				fadePhaseAOriginHexes()
 					.then(() => creature.creatureSprite.setAlpha(0, 500))
 					.then((creatureSprite) => {
@@ -1078,14 +1083,17 @@ export class Animations {
 						]).then(() => creatureSprite);
 					})
 					.then(() => {
+						this.xraySuppressed = false;
 						this._completeThenFadeInMovementArea(creature, hex, animId, opts);
 						this._scheduleHexVisualCleanup(fallbackOriginOnlyHexes, teleportCleanupOptions);
 						this._scheduleHexVisualCleanup(originMovementAreaHexes, teleportCleanupOptions);
+					})
+					.catch(() => {
+						this.xraySuppressed = false;
 					});
 				return;
 			}
-
-			const originCurtains = liftBonfireCurtainFromTraps(originTraps, false);
+			const originCurtains = liftBonfireCurtainFromTraps(originTraps);
 			let didRestoreOriginLayer = false;
 			const restoreOriginLayer = () => {
 				if (didRestoreOriginLayer) {
@@ -1095,15 +1103,12 @@ export class Animations {
 				originCurtains.restore();
 			};
 
+			this.xraySuppressed = true;
+			game.grid.clearAllXray(true);
 			Promise.resolve()
 				.then(() => fadePhaseAOriginHexes())
 				.then(() => originCurtains.tweenSprites('tower', 260, Phaser.Easing.Cubic.Out))
-				.then(() =>
-					Promise.all([
-						creature.creatureSprite.setAlpha(0, 340),
-						originCurtains.tweenSprites('idle', 340, Phaser.Easing.Quadratic.InOut),
-					]),
-				)
+				.then(() => originCurtains.tweenSprites('idle', 340, Phaser.Easing.Quadratic.InOut))
 				.then(() => {
 					restoreOriginLayer();
 					game.soundsys.playSFX('sounds/step');
@@ -1125,7 +1130,7 @@ export class Animations {
 					const destinationTraps = opts.createTeleportDestinationTraps?.() ?? [];
 
 					if (destinationTraps.length > 0) {
-						const destinationCurtains = liftBonfireCurtainFromTraps(destinationTraps, false);
+						const destinationCurtains = liftBonfireCurtainFromTraps(destinationTraps);
 						return destinationCurtains
 							.tweenSprites('tower', 300, Phaser.Easing.Cubic.Out)
 							.then(() =>
@@ -1139,6 +1144,7 @@ export class Animations {
 								return this._tweenHexVisualAlpha(destinationFadeInHexes, 1, 620, true);
 							})
 							.then(() => {
+								this.xraySuppressed = false;
 								this._completeThenFadeInMovementArea(creature, hex, animId, opts);
 								this._scheduleHexVisualCleanup(originOnlyHexes, teleportCleanupOptions);
 								this._scheduleHexVisualCleanup(originMovementAreaHexes, teleportCleanupOptions);
@@ -1149,16 +1155,15 @@ export class Animations {
 						.setAlpha(1, 420)
 						.then(() => this._tweenHexVisualAlpha(destinationFadeInHexes, 1, 620, true))
 						.then(() => {
+							this.xraySuppressed = false;
 							this._completeThenFadeInMovementArea(creature, hex, animId, opts);
 							this._scheduleHexVisualCleanup(originOnlyHexes, teleportCleanupOptions);
 							this._scheduleHexVisualCleanup(originMovementAreaHexes, teleportCleanupOptions);
 						});
 				})
 				.catch(() => {
-					this.syncAbolishedBonfireTrapLayers(creature, creature.hexagons);
-					restoreOriginLayer();
-					this._setHexVisualAlpha(originHexes, 1, true);
-					this._setHexVisualAlpha(creature.hexagons, 1, true);
+					this.xraySuppressed = false;
+
 					this._setHexForcedHidden(originHexes, false);
 					this._setHexForcedHidden(creature.hexagons, false);
 					this._scheduleHexVisualCleanup([...originHexes, ...creature.hexagons]);
@@ -1199,8 +1204,6 @@ export class Animations {
 		creature.y = hex.y - 0;
 		creature.pos = hex.pos;
 		creature.updateHex();
-		this.setAbolishedBonfireLayerOverride(creature);
-		this.syncAbolishedBonfireTrapLayers(creature, creature.hexagons);
 
 		game.onStepIn(creature, hex, opts);
 
@@ -1220,23 +1223,20 @@ export class Animations {
 
 	leaveHex(creature: Creature, hex: Hex, opts: AnimationOptions) {
 		const game = this.game;
-		if (creature.name === 'Abolished') {
-			const isMovingToUpperRow = hex.y < creature.y;
-			if (isMovingToUpperRow) {
-				this.setAbolishedBonfireLayerOverride(creature);
-				this.syncAbolishedBonfireTrapLayers(creature, creature.hexagons);
-			} else {
-				const destinationFootprint = this._footprintAt(hex, creature.size);
-				this.setAbolishedBonfireLayerOverride(creature, destinationFootprint);
-				this.syncAbolishedBonfireTrapLayers(creature, destinationFootprint);
-			}
-		}
 
 		if (!opts.ignoreFacing && !opts.pushed) {
 			creature.faceHex(hex, creature.hexagons[0], false, false); // Determine facing
 		}
+		const stepOutHex = creature.hexagons[0];
 		// @ts-expect-error 2554
-		game.onStepOut(creature, creature.hexagons[0]); // Trigger
+		game.onStepOut(creature, stepOutHex); // Trigger
+
+		// For walk/fly, clear logical occupancy right as movement starts so volumetric trap
+		// visuals on the origin hex stop rendering above the moving creature immediately.
+		// For teleport, preserve origin occupancy during the curtain/transition animation.
+		if (opts.animation !== 'teleport') {
+			creature.cleanHex();
+		}
 		game.grid.orderCreatureZ();
 	}
 
@@ -1693,11 +1693,15 @@ export class Animations {
 			try {
 				state.hazeFrame = hazeFrame;
 				state.hazeSource = hazeSource;
-				state.hazeBmd = this.game.Phaser.add.bitmapData(hazeFrame.width, hazeFrame.height);
+				const hazeFrameInfo = {
+					frame: hazeFrame,
+					source: hazeSource,
+					width: hazeFrame.width,
+					height: hazeFrame.height,
+				};
+				state.hazeBmd = createBitmapDataFromTexture(this.game, hazeFrameInfo, false);
 				const { ctx } = state.hazeBmd;
-				const { width, height, x, y } = hazeFrame;
-				ctx.clearRect(0, 0, width, height);
-				ctx.drawImage(hazeSource, x, y, width, height, 0, 0, width, height);
+				const { width, height } = hazeFrame;
 				const imageData = ctx.getImageData(0, 0, width, height);
 				const data = imageData.data;
 				for (let index = 0; index < data.length; index += 4) {
@@ -1730,15 +1734,20 @@ export class Animations {
 			try {
 				state.heatFrame = heatFrame;
 				state.heatSource = heatSource;
-				state.heatBmd = this.game.Phaser.add.bitmapData(heatFrame.width, heatFrame.height);
+				const heatFrameInfo = {
+					frame: heatFrame,
+					source: heatSource,
+					width: heatFrame.width,
+					height: heatFrame.height,
+				};
+				state.heatBmd = createBitmapDataFromTexture(this.game, heatFrameInfo, false);
 				const { ctx } = state.heatBmd;
-				const { width, height, x, y } = heatFrame;
-				ctx.clearRect(0, 0, width, height);
-				ctx.drawImage(heatSource, x, y, width, height, 0, 0, width, height);
+				const { width, height } = heatFrame;
 				const imageData = ctx.getImageData(0, 0, width, height);
 				const data = imageData.data;
-				const leftFadeWidth = 45;
-				const rightFadeWidth = 10;
+				// Swap fade widths for the mirrored side so the visual result is symmetric.
+				const leftFadeWidth = dir < 0 ? 10 : 45;
+				const rightFadeWidth = dir < 0 ? 45 : 10;
 				for (let py = 0; py < height; py += 1) {
 					for (let px = 0; px < width; px += 1) {
 						const index = (py * width + px) * 4;
@@ -1814,6 +1823,11 @@ export class Animations {
 			return;
 		}
 
+		if (!state.hazeReady || !state.heatReady) {
+			const dir = sprite.scale.x < 0 ? -1 : 1;
+			this._retryInfernalCardboardBitmaps(state, sprite, dir);
+		}
+
 		this._spawnInfernalCardboardTrail(creature, state);
 	}
 
@@ -1829,6 +1843,22 @@ export class Animations {
 		state.hazeBmd?.destroy();
 		state.heatBmd?.destroy();
 		this._infernalCardboardFx.delete(effectKey);
+	}
+
+	/**
+	 * Re-keys the Infernal cardboard FX state after the creature's ID has been reassigned.
+	 * In the Creature constructor, the auto-assigned ID changes to the temp creature's ID
+	 * after CreatureSprite (and therefore initInfernalCardboardEffect) has already run.
+	 * Without this rekey, tick looks up the new ID and finds no state.
+	 */
+	rekeyInfernalCardboardEffect(creature: Creature, oldId: number) {
+		const oldKey = `${creature.team}:${oldId}`;
+		const state = this._infernalCardboardFx.get(oldKey);
+		if (!state) {
+			return;
+		}
+		this._infernalCardboardFx.delete(oldKey);
+		this._infernalCardboardFx.set(this._infernalCardboardFxKey(creature), state);
 	}
 
 	private _spawnInfernalCardboardTrail(
@@ -1850,7 +1880,7 @@ export class Animations {
 			state.hazeSprite.x = sprite.x;
 			state.hazeSprite.y = sprite.y - state.glowOffsetY;
 			state.hazeSprite.scale.setTo(dir, 1);
-			const deltaSeconds = (this.game.Phaser?.time?.elapsedMS ?? 0) / 1000;
+			const deltaSeconds = Math.min((this.game.Phaser?.time?.elapsedMS ?? 0) / 1000, 0.1);
 			state.luminescenceUniforms = advanceShaderTime(state.luminescenceUniforms, deltaSeconds);
 			const uTime = state.luminescenceUniforms.uTime as number;
 			const pulseSpeed = (state.luminescenceUniforms.uPulseSpeed as number) ?? 4.2;
@@ -1866,7 +1896,7 @@ export class Animations {
 
 		if (state.heatReady && (forceHeatSpawn || now >= state.heatNextAt)) {
 			const group = state.group;
-			const deltaSeconds = (this.game.Phaser?.time?.elapsedMS ?? 0) / 1000;
+			const deltaSeconds = Math.min((this.game.Phaser?.time?.elapsedMS ?? 0) / 1000, 0.1);
 			state.heatUniforms = advanceShaderTime(state.heatUniforms, deltaSeconds);
 			const wisp = group.create(sprite.x, sprite.y - state.glowOffsetY, sprite.key);
 			wisp.anchor.setTo(0.5, 1);

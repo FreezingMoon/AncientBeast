@@ -30,6 +30,17 @@ export class Hotkeys {
 	}
 
 	pressS(event) {
+		if (
+			!this.ui.$scoreboard.hasClass('hide') &&
+			!event.shiftKey &&
+			!event.ctrlKey &&
+			!event.altKey &&
+			!event.metaKey
+		) {
+			this.ui.btnSaveLog.triggerClick();
+			return;
+		}
+
 		if (event.shiftKey) {
 			this.ui.btnToggleScore.triggerClick();
 		} else if (event.ctrlKey) {
@@ -96,7 +107,22 @@ export class Hotkeys {
 		}
 	}
 
-	pressR() {
+	pressR(event?: KeyboardEvent) {
+		if (
+			!this.ui.$scoreboard.hasClass('hide') &&
+			!event?.shiftKey &&
+			!event?.ctrlKey &&
+			!event?.metaKey &&
+			!event?.altKey
+		) {
+			this.ui.btnRestartMatch.triggerClick();
+			return;
+		}
+
+		if (event?.ctrlKey || event?.metaKey || event?.altKey) {
+			return;
+		}
+
 		if (this.ui.game.botController?.isBotTurn()) {
 			return;
 		}
@@ -119,8 +145,6 @@ export class Hotkeys {
 	pressF(event) {
 		if (event.shiftKey) {
 			this.ui.fullscreen.toggle();
-		} else {
-			this.ui.btnFlee.triggerClick();
 		}
 	}
 
@@ -265,8 +289,8 @@ export function getHotKeys(hk) {
 			},
 		},
 		KeyR: {
-			onkeydown() {
-				hk.pressR();
+			onkeydown(event) {
+				hk.pressR(event);
 			},
 		},
 		KeyA: {
