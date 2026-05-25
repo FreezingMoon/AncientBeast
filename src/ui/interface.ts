@@ -895,7 +895,11 @@ export class UI {
 							}
 						}
 
-						this.flashAbilityBtn(i);
+						// During bot turns (freezedInput), skip the invert-flash animation
+						// and directly show cancelIcon/nextIcon without blinking.
+						if (!game.freezedInput) {
+							this.flashAbilityBtn(i);
+						}
 
 						if (this.selectedAbility != i) {
 							if (this.dashopen) {
@@ -908,8 +912,12 @@ export class UI {
 								this.checkAbilities(); // Ensure state is up to date
 								const ab = game.activeCreature.abilities[0];
 								if (ab.message === game.msg.abilities.passiveUnavailable) {
-									this.animateNoTargetAbilityRanges();
-									this.flashAbilityBtn(0);
+									if (!game.freezedInput) {
+										this.animateNoTargetAbilityRanges();
+										this.flashAbilityBtn(0);
+									} else {
+										b.cssTransition('cancelIcon', 1000);
+									}
 									return;
 								}
 								// Joywin
@@ -923,7 +931,9 @@ export class UI {
 										}
 									});
 									b.cssTransition('nextIcon', 1000);
-									this.flashAbilityBtn(0);
+									if (!game.freezedInput) {
+										this.flashAbilityBtn(0);
+									}
 								} else if (selectedAbility === -1) {
 									this.abilitiesButtons.forEach((btn, index) => {
 										if (index === 0) {
@@ -932,7 +942,10 @@ export class UI {
 											this.clickedAbility = -1;
 										}
 									});
-									this.flashAbilityBtn(0);
+									b.cssTransition('cancelIcon', 1000);
+									if (!game.freezedInput) {
+										this.flashAbilityBtn(0);
+									}
 								}
 								return;
 							}
@@ -1067,7 +1080,9 @@ export class UI {
 					this.game.freezedInput &&
 					ability &&
 					i !== 0 &&
-					(ability.used || b.state === ButtonStateEnum.disabled || b.state === ButtonStateEnum.noClick)
+					(ability.used ||
+						b.state === ButtonStateEnum.disabled ||
+						b.state === ButtonStateEnum.noClick)
 				) {
 					b.cssTransition('cancelIcon', 1000);
 				}
