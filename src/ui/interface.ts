@@ -939,14 +939,13 @@ export class UI {
 						}
 								return;
 							}
-						if (
-							ability.used ||
-							ability.message === game.msg.abilities.noTarget ||
-							b.state === ButtonStateEnum.noClick
-						) {
-							b.cssTransition('cancelIcon', 1000);
-							return;
-						}
+					if (
+						ability.used ||
+						ability.message === game.msg.abilities.noTarget ||
+						b.state === ButtonStateEnum.noClick
+					) {
+						return;
+					}
 							// Colored frame around selected ability
 							if (ability.require() == true && i != 0) {
 								if (ability._abilityRangeHexes?.length) {
@@ -2992,6 +2991,16 @@ export class UI {
 		)
 			return;
 		const $btn = this.abilitiesButtons[i].$button;
+
+		// During bot turns, skip the blink animation and just show cancelIcon briefly
+		if (this.game.botController?.isBotTurn()) {
+			$btn.removeClass('cancelIcon');
+			void $btn[0].offsetWidth;
+			$btn.addClass('cancelIcon');
+			setTimeout(() => $btn.removeClass('cancelIcon'), 1000);
+			return;
+		}
+
 		$btn.removeClass('iconInvertFlash');
 		void $btn[0].offsetWidth;
 		$btn.addClass('iconInvertFlash');
