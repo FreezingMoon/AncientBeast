@@ -7,10 +7,10 @@ import { Team, isTeam } from '../utility/team';
 
 // Ability slot indices
 const ABILITY = {
-	LARVA_INFEST: 0,    // triggered passive: -5 max endurance to enemy directly behind Headless each turn
+	LARVA_INFEST: 0, // triggered passive: -5 max endurance to enemy directly behind Headless each turn
 	CARTILAGE_DAGGER: 1, // melee pierce; doubled damage if target is fatigued
-	WHIP_MOVE: 2,       // inline pull toward self; size-dependent mechanics
-	BOOMERANG_TOOL: 3,  // area two-pass attack (no retaliation on first pass); front or back choice
+	WHIP_MOVE: 2, // inline pull toward self; size-dependent mechanics
+	BOOMERANG_TOOL: 3, // area two-pass attack (no retaliation on first pass); front or back choice
 } as const;
 
 const CARTILAGE_DAGGER_BASE_DAMAGE = 11;
@@ -26,7 +26,11 @@ function isCreatureFatigued(target: Creature): boolean {
 	return target.endurance <= 0 || target.findEffect('Fatigued').length > 0;
 }
 
-function scoreCartilageDagger(hex: Hex, activeCreature: Creature, controller: BotController): number {
+function scoreCartilageDagger(
+	hex: Hex,
+	activeCreature: Creature,
+	controller: BotController,
+): number {
 	const target = hex.creature;
 	if (!(target instanceof Creature) || !isTeam(activeCreature, target, Team.Enemy)) {
 		return Number.NEGATIVE_INFINITY;
@@ -34,7 +38,9 @@ function scoreCartilageDagger(hex: Hex, activeCreature: Creature, controller: Bo
 
 	const fatigued = isCreatureFatigued(target);
 	// Damage doubles when target is fatigued
-	const estimatedDamage = fatigued ? CARTILAGE_DAGGER_BASE_DAMAGE * 2 : CARTILAGE_DAGGER_BASE_DAMAGE;
+	const estimatedDamage = fatigued
+		? CARTILAGE_DAGGER_BASE_DAMAGE * 2
+		: CARTILAGE_DAGGER_BASE_DAMAGE;
 
 	let score = 600 - target.health + target.size * 12;
 
@@ -52,8 +58,20 @@ function scoreCartilageDagger(hex: Hex, activeCreature: Creature, controller: Bo
 	}
 
 	const targetStrategy = unitStrategies[target.type as string];
-	score += targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.CARTILAGE_DAGGER, controller) ?? 0;
-	score += targetStrategy?.getCounterTargetingModifier?.(activeCreature, target, ABILITY.CARTILAGE_DAGGER, controller) ?? 0;
+	score +=
+		targetStrategy?.getTargetingPenalty?.(
+			activeCreature,
+			target,
+			ABILITY.CARTILAGE_DAGGER,
+			controller,
+		) ?? 0;
+	score +=
+		targetStrategy?.getCounterTargetingModifier?.(
+			activeCreature,
+			target,
+			ABILITY.CARTILAGE_DAGGER,
+			controller,
+		) ?? 0;
 
 	return score;
 }
@@ -83,7 +101,9 @@ function scoreWhipMove(hex: Hex, activeCreature: Creature, controller: BotContro
 	}
 
 	const targetStrategy = unitStrategies[target.type as string];
-	score += targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.WHIP_MOVE, controller) ?? 0;
+	score +=
+		targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.WHIP_MOVE, controller) ??
+		0;
 
 	return score;
 }
@@ -112,8 +132,20 @@ function scoreBoomerangTool(hex: Hex, activeCreature: Creature, controller: BotC
 	}
 
 	const targetStrategy = unitStrategies[target.type as string];
-	score += targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.BOOMERANG_TOOL, controller) ?? 0;
-	score += targetStrategy?.getCounterTargetingModifier?.(activeCreature, target, ABILITY.BOOMERANG_TOOL, controller) ?? 0;
+	score +=
+		targetStrategy?.getTargetingPenalty?.(
+			activeCreature,
+			target,
+			ABILITY.BOOMERANG_TOOL,
+			controller,
+		) ?? 0;
+	score +=
+		targetStrategy?.getCounterTargetingModifier?.(
+			activeCreature,
+			target,
+			ABILITY.BOOMERANG_TOOL,
+			controller,
+		) ?? 0;
 
 	return score;
 }
@@ -170,9 +202,11 @@ const HeadlessStrategy: UnitBotStrategy = {
 		const activeCreature = controller.game.activeCreature;
 		if (!activeCreature) return undefined;
 
-		if (abilityIndex === ABILITY.CARTILAGE_DAGGER) return scoreCartilageDagger(hex, activeCreature, controller);
+		if (abilityIndex === ABILITY.CARTILAGE_DAGGER)
+			return scoreCartilageDagger(hex, activeCreature, controller);
 		if (abilityIndex === ABILITY.WHIP_MOVE) return scoreWhipMove(hex, activeCreature, controller);
-		if (abilityIndex === ABILITY.BOOMERANG_TOOL) return scoreBoomerangTool(hex, activeCreature, controller);
+		if (abilityIndex === ABILITY.BOOMERANG_TOOL)
+			return scoreBoomerangTool(hex, activeCreature, controller);
 
 		return undefined;
 	},

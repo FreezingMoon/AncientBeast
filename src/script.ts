@@ -19,7 +19,6 @@ import {
 } from './debug';
 
 // Load the stylesheet
-// @ts-ignore
 import './style/main.less';
 
 installAvatarStyles();

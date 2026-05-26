@@ -8,9 +8,9 @@ import { Team, isTeam } from '../utility/team';
 // Ability slot indices
 const ABILITY = {
 	TENTACLE_BUSH: 0, // passive: at end of turn, Nutcase becomes immovable; melee attackers get rooted
-	HAMMER_TIME: 1,   // applies "Hammered" effect: target takes damage when they move
-	WAR_HORN: 2,      // inline charge with distance-based damage; pushes target if upgraded
-	FISHING_HOOK: 3,  // swaps position with inline target; deals damage
+	HAMMER_TIME: 1, // applies "Hammered" effect: target takes damage when they move
+	WAR_HORN: 2, // inline charge with distance-based damage; pushes target if upgraded
+	FISHING_HOOK: 3, // swaps position with inline target; deals damage
 } as const;
 
 const HAMMER_TIME_TRIGGER_DAMAGE = 10;
@@ -50,8 +50,20 @@ function scoreHammerTime(hex: Hex, activeCreature: Creature, controller: BotCont
 	}
 
 	const targetStrategy = unitStrategies[target.type as string];
-	score += targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.HAMMER_TIME, controller) ?? 0;
-	score += targetStrategy?.getCounterTargetingModifier?.(activeCreature, target, ABILITY.HAMMER_TIME, controller) ?? 0;
+	score +=
+		targetStrategy?.getTargetingPenalty?.(
+			activeCreature,
+			target,
+			ABILITY.HAMMER_TIME,
+			controller,
+		) ?? 0;
+	score +=
+		targetStrategy?.getCounterTargetingModifier?.(
+			activeCreature,
+			target,
+			ABILITY.HAMMER_TIME,
+			controller,
+		) ?? 0;
 
 	return score;
 }
@@ -74,8 +86,16 @@ function scoreWarHorn(hex: Hex, activeCreature: Creature, controller: BotControl
 	}
 
 	const targetStrategy = unitStrategies[target.type as string];
-	score += targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.WAR_HORN, controller) ?? 0;
-	score += targetStrategy?.getCounterTargetingModifier?.(activeCreature, target, ABILITY.WAR_HORN, controller) ?? 0;
+	score +=
+		targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.WAR_HORN, controller) ??
+		0;
+	score +=
+		targetStrategy?.getCounterTargetingModifier?.(
+			activeCreature,
+			target,
+			ABILITY.WAR_HORN,
+			controller,
+		) ?? 0;
 
 	return score;
 }
@@ -97,8 +117,20 @@ function scoreFishingHook(hex: Hex, activeCreature: Creature, controller: BotCon
 	}
 
 	const targetStrategy = unitStrategies[target.type as string];
-	score += targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.FISHING_HOOK, controller) ?? 0;
-	score += targetStrategy?.getCounterTargetingModifier?.(activeCreature, target, ABILITY.FISHING_HOOK, controller) ?? 0;
+	score +=
+		targetStrategy?.getTargetingPenalty?.(
+			activeCreature,
+			target,
+			ABILITY.FISHING_HOOK,
+			controller,
+		) ?? 0;
+	score +=
+		targetStrategy?.getCounterTargetingModifier?.(
+			activeCreature,
+			target,
+			ABILITY.FISHING_HOOK,
+			controller,
+		) ?? 0;
 
 	return score;
 }
@@ -156,9 +188,11 @@ const NutcaseStrategy: UnitBotStrategy = {
 		const activeCreature = controller.game.activeCreature;
 		if (!activeCreature) return undefined;
 
-		if (abilityIndex === ABILITY.HAMMER_TIME) return scoreHammerTime(hex, activeCreature, controller);
+		if (abilityIndex === ABILITY.HAMMER_TIME)
+			return scoreHammerTime(hex, activeCreature, controller);
 		if (abilityIndex === ABILITY.WAR_HORN) return scoreWarHorn(hex, activeCreature, controller);
-		if (abilityIndex === ABILITY.FISHING_HOOK) return scoreFishingHook(hex, activeCreature, controller);
+		if (abilityIndex === ABILITY.FISHING_HOOK)
+			return scoreFishingHook(hex, activeCreature, controller);
 
 		return undefined;
 	},

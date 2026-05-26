@@ -7,10 +7,10 @@ import { Team, isTeam } from '../utility/team';
 
 // Ability slot indices
 const ABILITY = {
-	CYCLIC_DUALITY: 0,  // passive: on fatigue, heals and recharges meditation/2 if upgraded
-	TOOTH_FAIRY: 1,     // melee bite; second delayed hit if upgraded
+	CYCLIC_DUALITY: 0, // passive: on fatigue, heals and recharges meditation/2 if upgraded
+	TOOTH_FAIRY: 1, // melee bite; second delayed hit if upgraded
 	DISTURBING_SOUND: 2, // directional sonic chain: continues down line if target killed
-	BATTERING_RAM: 3,   // adjacent ram + knockback chain; diminishing damage unless upgraded
+	BATTERING_RAM: 3, // adjacent ram + knockback chain; diminishing damage unless upgraded
 } as const;
 
 const TOOTH_FAIRY_ESTIMATED_DAMAGE = 22;
@@ -40,13 +40,29 @@ function scoreToothFairy(hex: Hex, activeCreature: Creature, controller: BotCont
 	}
 
 	const targetStrategy = unitStrategies[target.type as string];
-	score += targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.TOOTH_FAIRY, controller) ?? 0;
-	score += targetStrategy?.getCounterTargetingModifier?.(activeCreature, target, ABILITY.TOOTH_FAIRY, controller) ?? 0;
+	score +=
+		targetStrategy?.getTargetingPenalty?.(
+			activeCreature,
+			target,
+			ABILITY.TOOTH_FAIRY,
+			controller,
+		) ?? 0;
+	score +=
+		targetStrategy?.getCounterTargetingModifier?.(
+			activeCreature,
+			target,
+			ABILITY.TOOTH_FAIRY,
+			controller,
+		) ?? 0;
 
 	return score;
 }
 
-function scoreDisturbingSound(hex: Hex, activeCreature: Creature, controller: BotController): number {
+function scoreDisturbingSound(
+	hex: Hex,
+	activeCreature: Creature,
+	controller: BotController,
+): number {
 	const target = hex.creature;
 	if (!(target instanceof Creature) || !isTeam(activeCreature, target, Team.Enemy)) {
 		return Number.NEGATIVE_INFINITY;
@@ -64,8 +80,20 @@ function scoreDisturbingSound(hex: Hex, activeCreature: Creature, controller: Bo
 	}
 
 	const targetStrategy = unitStrategies[target.type as string];
-	score += targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.DISTURBING_SOUND, controller) ?? 0;
-	score += targetStrategy?.getCounterTargetingModifier?.(activeCreature, target, ABILITY.DISTURBING_SOUND, controller) ?? 0;
+	score +=
+		targetStrategy?.getTargetingPenalty?.(
+			activeCreature,
+			target,
+			ABILITY.DISTURBING_SOUND,
+			controller,
+		) ?? 0;
+	score +=
+		targetStrategy?.getCounterTargetingModifier?.(
+			activeCreature,
+			target,
+			ABILITY.DISTURBING_SOUND,
+			controller,
+		) ?? 0;
 
 	return score;
 }
@@ -93,8 +121,20 @@ function scoreBatteringRam(hex: Hex, activeCreature: Creature, controller: BotCo
 	}
 
 	const targetStrategy = unitStrategies[target.type as string];
-	score += targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.BATTERING_RAM, controller) ?? 0;
-	score += targetStrategy?.getCounterTargetingModifier?.(activeCreature, target, ABILITY.BATTERING_RAM, controller) ?? 0;
+	score +=
+		targetStrategy?.getTargetingPenalty?.(
+			activeCreature,
+			target,
+			ABILITY.BATTERING_RAM,
+			controller,
+		) ?? 0;
+	score +=
+		targetStrategy?.getCounterTargetingModifier?.(
+			activeCreature,
+			target,
+			ABILITY.BATTERING_RAM,
+			controller,
+		) ?? 0;
 
 	return score;
 }
@@ -151,9 +191,12 @@ const ChimeraStrategy: UnitBotStrategy = {
 		const activeCreature = controller.game.activeCreature;
 		if (!activeCreature) return undefined;
 
-		if (abilityIndex === ABILITY.TOOTH_FAIRY) return scoreToothFairy(hex, activeCreature, controller);
-		if (abilityIndex === ABILITY.DISTURBING_SOUND) return scoreDisturbingSound(hex, activeCreature, controller);
-		if (abilityIndex === ABILITY.BATTERING_RAM) return scoreBatteringRam(hex, activeCreature, controller);
+		if (abilityIndex === ABILITY.TOOTH_FAIRY)
+			return scoreToothFairy(hex, activeCreature, controller);
+		if (abilityIndex === ABILITY.DISTURBING_SOUND)
+			return scoreDisturbingSound(hex, activeCreature, controller);
+		if (abilityIndex === ABILITY.BATTERING_RAM)
+			return scoreBatteringRam(hex, activeCreature, controller);
 
 		return undefined;
 	},

@@ -210,7 +210,9 @@ export default class BotController {
 			}
 			// Minimize the combat log so it doesn't obstruct bot actions
 			this.game.UI?.chat?.hide();
-			this.queueDecision(this.startTurnDelayMs >= 0 ? this.startTurnDelayMs : this.turnDelayMs * 4 + 150);
+			this.queueDecision(
+				this.startTurnDelayMs >= 0 ? this.startTurnDelayMs : this.turnDelayMs * 4 + 150,
+			);
 		}
 	}
 

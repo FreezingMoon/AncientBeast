@@ -10,9 +10,9 @@ import { Player, PlayerColor, PlayerID } from './player';
 import { UI } from './ui/interface';
 import { Creature, CreatureHintType } from './creature';
 import { unitData } from './data/units';
-// @ts-ignore
+// @ts-expect-error: pixi is a virtual dependency for Phaser compatibility
 import 'pixi';
-// @ts-ignore
+// @ts-expect-error: p2 is a virtual dependency for Phaser compatibility
 import 'p2';
 // @ts-expect-error 2307
 import Phaser, { Signal } from 'phaser';
@@ -1618,7 +1618,6 @@ export default class Game {
 	}
 
 	resetGame() {
-		this.endGameSound;
 		this.UI?.metaPowers?._clearPowers();
 		this.UI.showGameSetup();
 		this.stopTimer();

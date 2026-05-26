@@ -33,9 +33,11 @@ export default (G: Game) => {
 				if (this._defenseBuff >= 39) {
 					this._defenseBuff = 40;
 				} else {
-					this.isUpgraded() && !this._damageTaken
-						? (this._defenseBuff += 2)
-						: (this._defenseBuff += 1);
+					if (this.isUpgraded() && !this._damageTaken) {
+						this._defenseBuff += 2;
+					} else {
+						this._defenseBuff += 1;
+					}
 				}
 				return this._defenseBuff;
 			},

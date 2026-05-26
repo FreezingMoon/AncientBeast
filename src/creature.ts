@@ -491,7 +491,11 @@ export class Creature {
 						this.recharge(stats.meditation);
 					}
 				} else {
-					stats.regrowth < 0 ? this.heal(stats.regrowth, true) : this.hint('♦', 'damage');
+					if (stats.regrowth < 0) {
+						this.heal(stats.regrowth, true);
+					} else {
+						this.hint('♦', 'damage');
+					}
 				}
 			} else {
 				this.hint('♣', 'damage');

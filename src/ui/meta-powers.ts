@@ -228,6 +228,7 @@ export class MetaPowers {
 			const cookieData = JSON.parse(Cookies.get(COOKIE_KEY));
 			powers = cookieData?.toggles;
 			panelVisible = !!cookieData?.panelVisible;
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		} catch (error) {
 			Cookies.remove(COOKIE_KEY);
 			return;

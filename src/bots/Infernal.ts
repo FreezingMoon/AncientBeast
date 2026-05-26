@@ -7,10 +7,10 @@ import { Team, isTeam } from '../utility/team';
 
 // Ability slot indices
 const ABILITY = {
-	BOILING_POINT: 0,  // passive: places scorched-ground traps behind self each turn
+	BOILING_POINT: 0, // passive: places scorched-ground traps behind self each turn
 	PULVERIZING_HIT: 1, // melee, stacks burn debuff on target
-	INTENSE_PRAYER: 2,  // area attack front/back, also places traps if upgraded
-	MOLTEN_HURL: 3,    // directional charge into enemy with damage; chains if upgraded
+	INTENSE_PRAYER: 2, // area attack front/back, also places traps if upgraded
+	MOLTEN_HURL: 3, // directional charge into enemy with damage; chains if upgraded
 } as const;
 
 const PULVERIZING_HIT_ESTIMATED_DAMAGE = 18;
@@ -22,7 +22,11 @@ const ABILITY_MIN_SCORE: Partial<Record<number, number>> = {
 	[ABILITY.MOLTEN_HURL]: 420,
 };
 
-function scorePulverizingHit(hex: Hex, activeCreature: Creature, controller: BotController): number {
+function scorePulverizingHit(
+	hex: Hex,
+	activeCreature: Creature,
+	controller: BotController,
+): number {
 	const target = hex.creature;
 	if (!(target instanceof Creature) || !isTeam(activeCreature, target, Team.Enemy)) {
 		return Number.NEGATIVE_INFINITY;
@@ -45,8 +49,20 @@ function scorePulverizingHit(hex: Hex, activeCreature: Creature, controller: Bot
 	}
 
 	const targetStrategy = unitStrategies[target.type as string];
-	score += targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.PULVERIZING_HIT, controller) ?? 0;
-	score += targetStrategy?.getCounterTargetingModifier?.(activeCreature, target, ABILITY.PULVERIZING_HIT, controller) ?? 0;
+	score +=
+		targetStrategy?.getTargetingPenalty?.(
+			activeCreature,
+			target,
+			ABILITY.PULVERIZING_HIT,
+			controller,
+		) ?? 0;
+	score +=
+		targetStrategy?.getCounterTargetingModifier?.(
+			activeCreature,
+			target,
+			ABILITY.PULVERIZING_HIT,
+			controller,
+		) ?? 0;
 
 	return score;
 }
@@ -73,8 +89,20 @@ function scoreIntensePrayer(hex: Hex, activeCreature: Creature, controller: BotC
 	}
 
 	const targetStrategy = unitStrategies[target.type as string];
-	score += targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.INTENSE_PRAYER, controller) ?? 0;
-	score += targetStrategy?.getCounterTargetingModifier?.(activeCreature, target, ABILITY.INTENSE_PRAYER, controller) ?? 0;
+	score +=
+		targetStrategy?.getTargetingPenalty?.(
+			activeCreature,
+			target,
+			ABILITY.INTENSE_PRAYER,
+			controller,
+		) ?? 0;
+	score +=
+		targetStrategy?.getCounterTargetingModifier?.(
+			activeCreature,
+			target,
+			ABILITY.INTENSE_PRAYER,
+			controller,
+		) ?? 0;
 
 	return score;
 }
@@ -97,8 +125,20 @@ function scoreMoltenHurl(hex: Hex, activeCreature: Creature, controller: BotCont
 	}
 
 	const targetStrategy = unitStrategies[target.type as string];
-	score += targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.MOLTEN_HURL, controller) ?? 0;
-	score += targetStrategy?.getCounterTargetingModifier?.(activeCreature, target, ABILITY.MOLTEN_HURL, controller) ?? 0;
+	score +=
+		targetStrategy?.getTargetingPenalty?.(
+			activeCreature,
+			target,
+			ABILITY.MOLTEN_HURL,
+			controller,
+		) ?? 0;
+	score +=
+		targetStrategy?.getCounterTargetingModifier?.(
+			activeCreature,
+			target,
+			ABILITY.MOLTEN_HURL,
+			controller,
+		) ?? 0;
 
 	return score;
 }
@@ -149,9 +189,12 @@ const InfernalStrategy: UnitBotStrategy = {
 		const activeCreature = controller.game.activeCreature;
 		if (!activeCreature) return undefined;
 
-		if (abilityIndex === ABILITY.PULVERIZING_HIT) return scorePulverizingHit(hex, activeCreature, controller);
-		if (abilityIndex === ABILITY.INTENSE_PRAYER) return scoreIntensePrayer(hex, activeCreature, controller);
-		if (abilityIndex === ABILITY.MOLTEN_HURL) return scoreMoltenHurl(hex, activeCreature, controller);
+		if (abilityIndex === ABILITY.PULVERIZING_HIT)
+			return scorePulverizingHit(hex, activeCreature, controller);
+		if (abilityIndex === ABILITY.INTENSE_PRAYER)
+			return scoreIntensePrayer(hex, activeCreature, controller);
+		if (abilityIndex === ABILITY.MOLTEN_HURL)
+			return scoreMoltenHurl(hex, activeCreature, controller);
 
 		return undefined;
 	},

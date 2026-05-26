@@ -46,19 +46,31 @@ export class Hotkeys {
 		} else if (event.ctrlKey) {
 			this.ui.game.gamelog.save();
 		} else {
-			this.ui.dashopen ? this.ui.gridSelectDown() : this.ui.btnSkipTurn.triggerClick();
+			if (this.ui.dashopen) {
+				this.ui.gridSelectDown();
+			} else {
+				this.ui.btnSkipTurn.triggerClick();
+			}
 		}
 	}
 
 	pressT() {
-		this.ui.dashopen ? this.ui.closeDash() : this.ui.btnToggleScore.triggerClick();
+		if (this.ui.dashopen) {
+			this.ui.closeDash();
+		} else {
+			this.ui.btnToggleScore.triggerClick();
+		}
 	}
 
 	pressD(event) {
 		if (event.shiftKey) {
 			this.ui.btnToggleDash.triggerClick();
 		} else {
-			this.ui.dashopen ? this.ui.gridSelectRight() : this.ui.btnDelay.triggerClick();
+			if (this.ui.dashopen) {
+				this.ui.gridSelectRight();
+			} else {
+				this.ui.btnDelay.triggerClick();
+			}
 		}
 	}
 
@@ -78,7 +90,10 @@ export class Hotkeys {
 		if (this.ui.game.botController?.isBotTurn()) {
 			return;
 		}
-		!this.ui.dashopen && (this.ui.flashAbilityBtn(2), this.ui.abilitiesButtons[2].triggerClick());
+		if (!this.ui.dashopen) {
+			this.ui.flashAbilityBtn(2);
+			this.ui.abilitiesButtons[2].triggerClick();
+		}
 	}
 
 	pressP(event) {
@@ -138,7 +153,9 @@ export class Hotkeys {
 		if (event.shiftKey) {
 			this.ui.btnAudio.triggerClick();
 		} else {
-			this.ui.dashopen && this.ui.gridSelectLeft();
+			if (this.ui.dashopen) {
+				this.ui.gridSelectLeft();
+			}
 		}
 	}
 
@@ -169,19 +186,35 @@ export class Hotkeys {
 	}
 
 	pressArrowUp() {
-		this.ui.dashopen ? this.ui.gridSelectUp() : this.ui.game.grid.selectHexUp();
+		if (this.ui.dashopen) {
+			this.ui.gridSelectUp();
+		} else {
+			this.ui.game.grid.selectHexUp();
+		}
 	}
 
 	pressArrowDown() {
-		this.ui.dashopen ? this.ui.gridSelectDown() : this.ui.game.grid.selectHexDown();
+		if (this.ui.dashopen) {
+			this.ui.gridSelectDown();
+		} else {
+			this.ui.game.grid.selectHexDown();
+		}
 	}
 
 	pressArrowLeft() {
-		this.ui.dashopen ? this.ui.gridSelectLeft() : this.ui.game.grid.selectHexLeft();
+		if (this.ui.dashopen) {
+			this.ui.gridSelectLeft();
+		} else {
+			this.ui.game.grid.selectHexLeft();
+		}
 	}
 
 	pressArrowRight() {
-		this.ui.dashopen ? this.ui.gridSelectRight() : this.ui.game.grid.selectHexRight();
+		if (this.ui.dashopen) {
+			this.ui.gridSelectRight();
+		} else {
+			this.ui.game.grid.selectHexRight();
+		}
 	}
 
 	pressBacktick() {
@@ -189,7 +222,11 @@ export class Hotkeys {
 	}
 
 	pressEnter() {
-		this.ui.dashopen ? this.ui.materializeButton.triggerClick() : this.ui.game.grid.confirmHex();
+		if (this.ui.dashopen) {
+			this.ui.materializeButton.triggerClick();
+		} else {
+			this.ui.game.grid.confirmHex();
+		}
 	}
 
 	pressEscape() {
@@ -241,7 +278,11 @@ export class Hotkeys {
 	}
 
 	pressSpace() {
-		this.ui.dashopen ? this.ui.materializeButton.triggerClick() : this.ui.game.grid.confirmHex();
+		if (this.ui.dashopen) {
+			this.ui.materializeButton.triggerClick();
+		} else {
+			this.ui.game.grid.confirmHex();
+		}
 	}
 
 	pressF11(event) {

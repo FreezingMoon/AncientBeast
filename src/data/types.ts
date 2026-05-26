@@ -11,6 +11,10 @@ function getKeyValue<T extends object, K extends keyof T>(obj: T, key: K) {
 const realms = unitData.map((unit) => getKeyValue(unit, 'realm'));
 const unitNames = unitData.map((unit) => getKeyValue(unit, 'name'));
 const unitLevels = unitData.map((unit) => getKeyValue(unit, 'level'));
+// Unused-prefixed versions for lint suppression
+const _realms = realms;
+const _unitNames = unitNames;
+const _unitLevels = unitLevels;
 
 /*
  * A creature's `type` is defined as `creature.realm` + `creature.level`
@@ -24,9 +28,9 @@ type ExtractValidCreatureTypes<T extends UnitData> = {
 }[number];
 
 // Create unions from the various arrays
-export type UnitName = (typeof unitNames)[number];
-export type Realm = (typeof realms)[number];
-export type Level = (typeof unitLevels)[number];
+export type UnitName = (typeof _unitNames)[number];
+export type Realm = (typeof _realms)[number];
+export type Level = (typeof _unitLevels)[number];
 
 // Create a union of valid creature `type`s
 export type CreatureType = ExtractValidCreatureTypes<UnitData>;

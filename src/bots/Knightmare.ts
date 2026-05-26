@@ -7,10 +7,10 @@ import { Team, isTeam } from '../utility/team';
 
 // Ability slot indices
 const ABILITY = {
-	FRIGID_TOWER: 0,   // passive: stacks frost/defense buff when not moved; also offense if upgraded
-	ICY_TALONS: 1,     // melee slash with -1 frost debuff on target
+	FRIGID_TOWER: 0, // passive: stacks frost/defense buff when not moved; also offense if upgraded
+	ICY_TALONS: 1, // melee slash with -1 frost debuff on target
 	SUDDEN_UPPERCUT: 2, // melee uppercut, -10 defense debuff if upgraded, applies hinder
-	ICICLE_SPEAR: 3,   // directional ranged projectile, passes through multiple targets
+	ICICLE_SPEAR: 3, // directional ranged projectile, passes through multiple targets
 } as const;
 
 const ICY_TALONS_ESTIMATED_DAMAGE = 18;
@@ -44,13 +44,25 @@ function scoreIcyTalons(hex: Hex, activeCreature: Creature, controller: BotContr
 	}
 
 	const targetStrategy = unitStrategies[target.type as string];
-	score += targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.ICY_TALONS, controller) ?? 0;
-	score += targetStrategy?.getCounterTargetingModifier?.(activeCreature, target, ABILITY.ICY_TALONS, controller) ?? 0;
+	score +=
+		targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.ICY_TALONS, controller) ??
+		0;
+	score +=
+		targetStrategy?.getCounterTargetingModifier?.(
+			activeCreature,
+			target,
+			ABILITY.ICY_TALONS,
+			controller,
+		) ?? 0;
 
 	return score;
 }
 
-function scoreSuddenUppercut(hex: Hex, activeCreature: Creature, controller: BotController): number {
+function scoreSuddenUppercut(
+	hex: Hex,
+	activeCreature: Creature,
+	controller: BotController,
+): number {
 	const target = hex.creature;
 	if (!(target instanceof Creature) || !isTeam(activeCreature, target, Team.Enemy)) {
 		return Number.NEGATIVE_INFINITY;
@@ -68,8 +80,20 @@ function scoreSuddenUppercut(hex: Hex, activeCreature: Creature, controller: Bot
 	}
 
 	const targetStrategy = unitStrategies[target.type as string];
-	score += targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.SUDDEN_UPPERCUT, controller) ?? 0;
-	score += targetStrategy?.getCounterTargetingModifier?.(activeCreature, target, ABILITY.SUDDEN_UPPERCUT, controller) ?? 0;
+	score +=
+		targetStrategy?.getTargetingPenalty?.(
+			activeCreature,
+			target,
+			ABILITY.SUDDEN_UPPERCUT,
+			controller,
+		) ?? 0;
+	score +=
+		targetStrategy?.getCounterTargetingModifier?.(
+			activeCreature,
+			target,
+			ABILITY.SUDDEN_UPPERCUT,
+			controller,
+		) ?? 0;
 
 	return score;
 }
@@ -91,8 +115,20 @@ function scoreIcicleSpear(hex: Hex, activeCreature: Creature, controller: BotCon
 	}
 
 	const targetStrategy = unitStrategies[target.type as string];
-	score += targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.ICICLE_SPEAR, controller) ?? 0;
-	score += targetStrategy?.getCounterTargetingModifier?.(activeCreature, target, ABILITY.ICICLE_SPEAR, controller) ?? 0;
+	score +=
+		targetStrategy?.getTargetingPenalty?.(
+			activeCreature,
+			target,
+			ABILITY.ICICLE_SPEAR,
+			controller,
+		) ?? 0;
+	score +=
+		targetStrategy?.getCounterTargetingModifier?.(
+			activeCreature,
+			target,
+			ABILITY.ICICLE_SPEAR,
+			controller,
+		) ?? 0;
 
 	return score;
 }
@@ -155,8 +191,10 @@ const KnightmareStrategy: UnitBotStrategy = {
 		if (!activeCreature) return undefined;
 
 		if (abilityIndex === ABILITY.ICY_TALONS) return scoreIcyTalons(hex, activeCreature, controller);
-		if (abilityIndex === ABILITY.SUDDEN_UPPERCUT) return scoreSuddenUppercut(hex, activeCreature, controller);
-		if (abilityIndex === ABILITY.ICICLE_SPEAR) return scoreIcicleSpear(hex, activeCreature, controller);
+		if (abilityIndex === ABILITY.SUDDEN_UPPERCUT)
+			return scoreSuddenUppercut(hex, activeCreature, controller);
+		if (abilityIndex === ABILITY.ICICLE_SPEAR)
+			return scoreIcicleSpear(hex, activeCreature, controller);
 
 		return undefined;
 	},

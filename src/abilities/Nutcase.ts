@@ -9,7 +9,6 @@ import { once } from 'underscore';
 import { Direction } from '../utility/hex';
 import Game from '../game';
 import { QueryOptions } from '../utility/hexgrid';
-
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
@@ -33,12 +32,10 @@ export default (G: Game) => {
 		 */
 		{
 			trigger: 'onEndPhase',
-
 			require: function () {
 				// Always true to highlight ability
 				return true;
 			},
-
 			activate: function () {
 				const immoveableEffect = new Effect(
 					// This effect shows the Nutcase being affected by Tentacle Bush in the UI.
@@ -55,7 +52,6 @@ export default (G: Game) => {
 					},
 					G,
 				);
-
 				const damageShieldEffect = new Effect(
 					// Don't show two effects in the log
 					'',
@@ -69,17 +65,14 @@ export default (G: Game) => {
 					},
 					G,
 				);
-
 				this.creature.addEffect(immoveableEffect);
 				this.creature.addEffect(damageShieldEffect);
 			},
-
 			_activateOnAttacker: function (effect: Effect, damage: Damage) {
 				// Must take melee damage from a non-trap source
 				if (damage === undefined || !damage.melee || damage.isFromTrap) {
 					return false;
 				}
-
 				// Target becomes unmovable until end of their phase
 				const o = {
 					alterations: {
@@ -93,12 +86,10 @@ export default (G: Game) => {
 					deleteOnOwnerDeath: true,
 					stackable: false,
 				};
-
 				// If upgraded, target abilities cost more energy
 				if (this.isUpgraded()) {
 					o.alterations.reqEnergy = 5;
 				}
-
 				const attackerEffect = new Effect(
 					this.title,
 					this.creature, // Caster
@@ -107,13 +98,10 @@ export default (G: Game) => {
 					o,
 					G,
 				);
-
 				damage.attacker.addEffect(
 					attackerEffect,
 					`%CreatureName${(attackerEffect.target as Creature).id}% has been grasped by tentacles`,
 				);
-
-				attackerEffect.target;
 
 				// Making attacker unmovable will change its move query, so update it
 				if (damage.attacker === G.activeCreature) {
@@ -372,12 +360,12 @@ export default (G: Game) => {
 				}
 
 				// If no creature found in path, abort gracefully.
-			if (runPath === undefined || target === undefined) {
-				G.activeCreature.queryMove();
-				return;
-			}
+				if (runPath === undefined || target === undefined) {
+					G.activeCreature.queryMove();
+					return;
+				}
 
-			if (runPath.length > 0) {
+				if (runPath.length > 0) {
 					let destination = arrayUtils.last(runPath);
 
 					if (args.direction === Direction.Left) {

@@ -8,8 +8,8 @@ import { Team, isTeam } from '../utility/team';
 // Ability slot indices
 const ABILITY = {
 	PERSONAL_SPACE: 0, // passive: +offense and +move when adjacent enemy at turn start
-	SWORD_SLITTER: 1,  // melee single-target, 1 hex range
-	PISTOL_SHOT: 2,    // ranged directional, up to 6 hexes
+	SWORD_SLITTER: 1, // melee single-target, 1 hex range
+	PISTOL_SHOT: 2, // ranged directional, up to 6 hexes
 	RIFLE_ASSASSIN: 3, // long-range directional, up to 12 hexes
 } as const;
 
@@ -40,8 +40,20 @@ function scoreSwordSlitter(hex: Hex, activeCreature: Creature, controller: BotCo
 	}
 
 	const targetStrategy = unitStrategies[target.type as string];
-	score += targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.SWORD_SLITTER, controller) ?? 0;
-	score += targetStrategy?.getCounterTargetingModifier?.(activeCreature, target, ABILITY.SWORD_SLITTER, controller) ?? 0;
+	score +=
+		targetStrategy?.getTargetingPenalty?.(
+			activeCreature,
+			target,
+			ABILITY.SWORD_SLITTER,
+			controller,
+		) ?? 0;
+	score +=
+		targetStrategy?.getCounterTargetingModifier?.(
+			activeCreature,
+			target,
+			ABILITY.SWORD_SLITTER,
+			controller,
+		) ?? 0;
 
 	return score;
 }
@@ -63,8 +75,20 @@ function scorePistolShot(hex: Hex, activeCreature: Creature, controller: BotCont
 	}
 
 	const targetStrategy = unitStrategies[target.type as string];
-	score += targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.PISTOL_SHOT, controller) ?? 0;
-	score += targetStrategy?.getCounterTargetingModifier?.(activeCreature, target, ABILITY.PISTOL_SHOT, controller) ?? 0;
+	score +=
+		targetStrategy?.getTargetingPenalty?.(
+			activeCreature,
+			target,
+			ABILITY.PISTOL_SHOT,
+			controller,
+		) ?? 0;
+	score +=
+		targetStrategy?.getCounterTargetingModifier?.(
+			activeCreature,
+			target,
+			ABILITY.PISTOL_SHOT,
+			controller,
+		) ?? 0;
 
 	return score;
 }
@@ -91,8 +115,20 @@ function scoreRifleAssassin(hex: Hex, activeCreature: Creature, controller: BotC
 	}
 
 	const targetStrategy = unitStrategies[target.type as string];
-	score += targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.RIFLE_ASSASSIN, controller) ?? 0;
-	score += targetStrategy?.getCounterTargetingModifier?.(activeCreature, target, ABILITY.RIFLE_ASSASSIN, controller) ?? 0;
+	score +=
+		targetStrategy?.getTargetingPenalty?.(
+			activeCreature,
+			target,
+			ABILITY.RIFLE_ASSASSIN,
+			controller,
+		) ?? 0;
+	score +=
+		targetStrategy?.getCounterTargetingModifier?.(
+			activeCreature,
+			target,
+			ABILITY.RIFLE_ASSASSIN,
+			controller,
+		) ?? 0;
 
 	return score;
 }
@@ -161,9 +197,12 @@ const BountyHunterStrategy: UnitBotStrategy = {
 		const activeCreature = controller.game.activeCreature;
 		if (!activeCreature) return undefined;
 
-		if (abilityIndex === ABILITY.SWORD_SLITTER) return scoreSwordSlitter(hex, activeCreature, controller);
-		if (abilityIndex === ABILITY.PISTOL_SHOT) return scorePistolShot(hex, activeCreature, controller);
-		if (abilityIndex === ABILITY.RIFLE_ASSASSIN) return scoreRifleAssassin(hex, activeCreature, controller);
+		if (abilityIndex === ABILITY.SWORD_SLITTER)
+			return scoreSwordSlitter(hex, activeCreature, controller);
+		if (abilityIndex === ABILITY.PISTOL_SHOT)
+			return scorePistolShot(hex, activeCreature, controller);
+		if (abilityIndex === ABILITY.RIFLE_ASSASSIN)
+			return scoreRifleAssassin(hex, activeCreature, controller);
 
 		return undefined;
 	},

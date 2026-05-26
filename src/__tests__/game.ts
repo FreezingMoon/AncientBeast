@@ -227,7 +227,10 @@ describe('Game unload confirmation integration', () => {
 		let TestUI: typeof UI | undefined;
 		jest.isolateModules(() => {
 			// eslint-disable-next-line @typescript-eslint/no-var-requires
-			TestUI = require('../ui/interface').UI;
+			// Replaced require with import for lint compliance
+			import('../ui/interface').then((mod) => {
+				TestUI = mod.UI;
+			});
 		});
 
 		if (!TestUI) {
@@ -283,7 +286,10 @@ describe('Game unload confirmation integration', () => {
 		let TestUI: typeof UI | undefined;
 		jest.isolateModules(() => {
 			// eslint-disable-next-line @typescript-eslint/no-var-requires
-			TestUI = require('../ui/interface').UI;
+			// Replaced require with import for lint compliance
+			import('../ui/interface').then((mod) => {
+				TestUI = mod.UI;
+			});
 		});
 
 		if (!TestUI) {
@@ -473,7 +479,10 @@ describe('Game unload confirmation integration', () => {
 		let TestUI: typeof UI | undefined;
 		jest.isolateModules(() => {
 			// eslint-disable-next-line @typescript-eslint/no-var-requires
-			TestUI = require('../ui/interface').UI;
+			// Replaced require with import for lint compliance
+			import('../ui/interface').then((mod) => {
+				TestUI = mod.UI;
+			});
 		});
 
 		if (!TestUI) {

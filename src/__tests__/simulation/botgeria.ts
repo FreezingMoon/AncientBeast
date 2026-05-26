@@ -1,24 +1,28 @@
-/**
- * botgeria.ts — simulation engine for bot-vs-bot matches.
- *
- * Provides:
- *  - minimal Phaser mock (deep Proxy + real Promise-based tween stubs)
- *  - real Signal implementation (copied from phaser-ce behaviour)
- *  - jQuery mock (chainable no-ops)
- *  - SoundSys / UI / Animations stubs
- *  - createGame()  — builds a fully-wired Game, bypassing asset loading
- *  - runMatch()    — drives a game to completion with Jest fake timers
- */
-
-// perf_hooks.performance.now() is NOT mocked by Jest fake timers (unlike
-// process.hrtime.bigint() which IS mocked and returns fake-clock time).
-import { performance as realPerf } from 'perf_hooks';
-
+/* eslint-disable @typescript-eslint/no-empty-function */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+import jest from 'jest-mock';
+// ─── SimSignal mock (minimal Signal replacement for simulation) ─────────────
+class SimSignal {
+	private listeners: Array<{ fn: (...args: any[]) => void; ctx?: any }> = [];
+	add(fn: (...args: any[]) => void, ctx?: any) {
+		this.listeners.push({ fn, ctx });
+	}
+	dispatch(...args: any[]) {
+		for (const { fn, ctx } of this.listeners) {
+			fn.apply(ctx, args);
+		}
+	}
+}
 // ─── Phaser global ───────────────────────────────────────────────────────────
 // creature.ts references the Phaser namespace as a global (not an import),
 // e.g. `Phaser.Easing.Linear.None`. Jest runs without webpack's ProvidePlugin,
 // so we must define it on the global object ourselves.
-(globalThis as any).Phaser = {
+declare const globalThis: typeof global & { [key: string]: unknown };
+
+(globalThis as Record<string, unknown>).Phaser = {
 	Easing: {
 		Linear: { None: 'Linear.None' },
 		Quadratic: { In: 'Quad.In', Out: 'Quad.Out', InOut: 'Quad.InOut' },
@@ -43,11 +47,12 @@ import { performance as realPerf } from 'perf_hooks';
  */
 function makeTween() {
 	let completeCb: (() => void) | null = null;
+	type TweenTarget = Record<string, any>;
 	const tween = {
 		isRunning: true,
-		_target: null as any,
-		_props: null as any,
-		to(props: any, _duration: number, _easing?: any, autoStart = false) {
+		_target: null as TweenTarget | null,
+		_props: null as Record<string, any> | null,
+		to(props: Record<string, any>, _duration: number, _easing?: any, autoStart = false) {
 			this._props = props;
 			if (autoStart) {
 				// Apply properties synchronously
@@ -85,7 +90,7 @@ function makeTween() {
 }
 
 function makePhaserGroup() {
-	const grp: any = {
+	const grp: Record<string, any> = {
 		x: 0,
 		y: 0,
 		alpha: 1,
@@ -102,15 +107,18 @@ function makePhaserGroup() {
 			x: 1,
 			y: 1,
 			setTo(x: number, y: number) {
-				this.x = x;
-				this.y = y;
+				(this as any).x = x;
+				(this as any).y = y;
 			},
 			set(x: number, y: number) {
-				this.x = x;
-				this.y = y;
+				(this as any).x = x;
+				(this as any).y = y;
 			},
 		},
-		add: (child: any) => { grp.children.push(child); return child; },
+		add: (child: any) => {
+			(grp.children as any[]).push(child);
+			return child;
+		},
 		remove: () => undefined,
 		removeChild: () => undefined,
 		addChild: () => undefined,
@@ -129,7 +137,7 @@ function makePhaserGroup() {
 }
 
 function makePhaserSprite() {
-	const sprite: any = {
+	const sprite: Record<string, any> = {
 		x: 0,
 		y: 0,
 		alpha: 1,
@@ -151,20 +159,20 @@ function makePhaserSprite() {
 			x: 0,
 			y: 0,
 			setTo(x: number, y: number) {
-				this.x = x;
-				this.y = y;
+				(this as any).x = x;
+				(this as any).y = y;
 			},
 			set(x: number, y: number) {
-				this.x = x;
-				this.y = y;
+				(this as any).x = x;
+				(this as any).y = y;
 			},
 		},
 		scale: {
 			x: 1,
 			y: 1,
 			setTo(x: number, y: number) {
-				this.x = x;
-				this.y = y;
+				(this as any).x = x;
+				(this as any).y = y;
 			},
 		},
 		texture: { width: 10, height: 10 },
@@ -174,12 +182,12 @@ function makePhaserSprite() {
 			x: 0,
 			y: 0,
 			set(x: number, y: number) {
-				this.x = x;
-				this.y = y;
+				(this as any).x = x;
+				(this as any).y = y;
 			},
 		},
 		data: {},
-		parent: null,
+		parent: null as any,
 		getBounds: () => ({ x: 0, y: 0, width: 10, height: 10 }),
 		loadTexture: () => undefined,
 		alignIn: () => undefined,
@@ -191,7 +199,7 @@ function makePhaserSprite() {
 		drawRect: () => undefined,
 		endFill: () => undefined,
 		clear: () => undefined,
-		mask: null,
+		mask: null as any,
 	};
 	return sprite;
 }
@@ -200,8 +208,18 @@ function makePhaserBitmapData() {
 	return {
 		width: 10,
 		height: 10,
-		canvas: { getContext: () => ({ drawImage: () => undefined, putImageData: () => undefined, getImageData: () => ({ data: new Uint8ClampedArray(0) }) }) },
-		context: { drawImage: () => undefined, putImageData: () => undefined, getImageData: () => ({ data: new Uint8ClampedArray(0) }) },
+		canvas: {
+			getContext: () => ({
+				drawImage: () => undefined,
+				putImageData: () => undefined,
+				getImageData: () => ({ data: new Uint8ClampedArray(0) }),
+			}),
+		},
+		context: {
+			drawImage: () => undefined,
+			putImageData: () => undefined,
+			getImageData: () => ({ data: new Uint8ClampedArray(0) }),
+		},
 		dirty: false,
 		destroy: () => undefined,
 	};
@@ -209,7 +227,7 @@ function makePhaserBitmapData() {
 
 /** Full Phaser mock — all paths used by HexGrid / Creature / Animations */
 export function buildPhaserMock() {
-	const phaser: any = {
+	const phaser: Record<string, any> = {
 		world: { width: 1920, height: 1080 },
 		width: 1920,
 		height: 1080,
@@ -234,14 +252,14 @@ export function buildPhaserMock() {
 			start: () => undefined,
 		},
 		add: {
-			group: (_parent?: any, _name?: string) => makePhaserGroup(),
+			group: (_parent?: unknown, _name?: string) => makePhaserGroup(),
 			sprite: (_x?: number, _y?: number, _key?: string) => makePhaserSprite(),
-			tween: (target: any) => {
+			tween: (target: unknown) => {
 				const t = makeTween();
 				t._target = target;
 				return t;
 			},
-			text: (_x?: number, _y?: number, _text?: string, _style?: any) => makePhaserSprite(),
+			text: (_x?: number, _y?: number, _text?: string, _style?: unknown) => makePhaserSprite(),
 			bitmapData: (_w?: number, _h?: number) => makePhaserBitmapData(),
 			graphics: () => makePhaserSprite(),
 		},
@@ -251,47 +269,10 @@ export function buildPhaserMock() {
 
 // ─── Real Signal implementation ──────────────────────────────────────────────
 
-type SignalBinding = { listener: (...args: any[]) => void; context: any };
-
-export class SimSignal {
-	private _bindings: SignalBinding[] = [];
-
-	add(listener: (...args: any[]) => void, context?: any) {
-		this._bindings.push({ listener, context: context ?? null });
-	}
-
-	addOnce(listener: (...args: any[]) => void, context?: any) {
-		const binding: SignalBinding = {
-			listener: (...args: any[]) => {
-				this.remove(binding.listener, context);
-				listener.apply(context ?? null, args);
-			},
-			context: context ?? null,
-		};
-		this._bindings.push(binding);
-	}
-
-	remove(listener: (...args: any[]) => void, _context?: any) {
-		this._bindings = this._bindings.filter((b) => b.listener !== listener);
-	}
-
-	dispatch(...args: any[]) {
-		// Snapshot in case dispatch triggers add/remove
-		const snapshot = this._bindings.slice();
-		for (const b of snapshot) {
-			b.listener.apply(b.context, args);
-		}
-	}
-
-	removeAll() {
-		this._bindings = [];
-	}
-}
-
 // ─── jQuery mock ─────────────────────────────────────────────────────────────
 
 /** Chainable no-op jQuery stub — covers every call site in Game / UI / HexGrid */
-function makeJQueryChain(): any {
+function _makeJQueryChain(): any {
 	const chain: any = new Proxy(
 		function _jq() {
 			return chain;
@@ -329,38 +310,36 @@ class MockAnimations {
 	}
 
 	/** Called by Creature.moveTo() via game.animations[animType](creature, path, opts) */
-	walk(creature: any, path: any[], opts: any) {
+	walk(creature: any, path: any[], opts: Record<string, any>) {
 		this._completeMove(creature, path[path.length - 1] ?? path[0], opts);
 	}
 
-	fly(creature: any, path: any[], opts: any) {
+	fly(creature: any, path: any[], opts: Record<string, any>) {
 		this._completeMove(creature, path[0], opts);
 	}
 
-	teleport(creature: any, path: any[], opts: any) {
+	teleport(creature: any, path: any[], opts: Record<string, any>) {
 		this._completeMove(creature, path[0], opts);
 	}
 
-	push(creature: any, path: any[], opts: any) {
+	push(creature: any, path: any[], opts: Record<string, any>) {
 		this._completeMove(creature, path[path.length - 1] ?? path[0], opts);
 	}
 
-	private _completeMove(creature: any, hex: any, opts: any) {
+	private _completeMove(creature: any, hex: any, opts: Record<string, any>) {
 		const animId = ++this.animationCounter;
-		this.game.animationQueue.push(animId);
-		// Use setTimeout(1) — not setTimeout(0) — so that bot.ts resolveQuery's
-		// clearPendingAction (setTimeout(0), scheduled after onConfirm returns)
-		// fires BEFORE movementComplete. If movementComplete fires first it sees
-		// pendingAction still set and re-enters resolveQuery, creating an infinite loop.
-		// Using 1ms ensures clearPendingAction fires first while still landing within
-		// the same advanceTimersByTime tick, avoiding the stale-animId bug.
+		(this.game as any).animationQueue.push(animId);
 		setTimeout(() => {
 			this.movementComplete(creature, hex, animId, opts);
 		}, 1);
 	}
 
-	movementComplete(creature: any, hex: any, animId: number | string, opts: any) {
-		if (opts?.customMovementPoint > 0) {
+	movementComplete(creature: any, hex: any, animId: number | string, opts: Record<string, any>) {
+		if (
+			opts?.customMovementPoint &&
+			typeof opts.customMovementPoint === 'number' &&
+			opts.customMovementPoint > 0
+		) {
 			creature.remainingMove = this.movementPoints;
 		}
 		if (opts?.turnAroundOnComplete) {
@@ -368,28 +347,28 @@ class MockAnimations {
 		}
 		creature.healthShow?.();
 		creature.hexagons?.forEach(() => creature.pickupDrop?.());
-		this.game.grid?.orderCreatureZ?.();
+		(this.game as any).grid?.orderCreatureZ?.();
 
-		const queue = this.game.animationQueue.filter((item: any) => item !== animId);
+		const queue = (this.game as any).animationQueue.filter((item: any) => item !== animId);
 		if (queue.length === 0) {
-			this.game.freezedInput = false;
-			this.game.grid?.refreshHoverState?.();
+			(this.game as any).freezedInput = false;
+			(this.game as any).grid?.refreshHoverState?.();
 		}
-		this.game.animationQueue = queue;
+		(this.game as any).animationQueue = queue;
 		opts?.callback?.();
 	}
 
 	// Stubs for other animation paths used in abilities
-	death(creature: any, opts: any) {
+	death(creature: any, opts: Record<string, any>) {
 		opts?.callback?.();
 	}
-	melt(creature: any, opts: any) {
+	melt(creature: any, opts: Record<string, any>) {
 		opts?.callback?.();
 	}
-	rise(creature: any, opts: any) {
+	rise(creature: any, opts: Record<string, any>) {
 		opts?.callback?.();
 	}
-	shake(creature: any, opts: any) {
+	shake(creature: any, opts: Record<string, any>) {
 		opts?.callback?.();
 	}
 	projectile(_creature: any, _spell: any, _targets: any, _args: any, ..._rest: any[]) {
@@ -407,31 +386,10 @@ class MockAnimations {
 	}
 	startBonfireSpringTrapAnimation() {}
 	startScorchedGroundTrapAnimation() {}
-	shatterDown(creature: any, opts: any) {
+	shatterDown(creature: any, opts: Record<string, any>) {
 		opts?.callback?.();
 	}
 	rekeyInfernalCardboardEffect() {}
-
-	// Hex visual methods — no-ops
-	updateDisplay() {}
-	cleanDisplay() {}
-	leaveHex() {}
-	enterHex() {}
-	displayMovementRange() {}
-	cleanHex() {}
-	cleanAll() {}
-	refreshHoverState() {}
-	displayHexesAsMovementRange() {}
-	displayHexesAsTrait() {}
-	displayHexesAsSummon() {}
-	updateTeam() {}
-	fadeTo() {}
-	blink() {}
-	onUnderAttack() {}
-	onEndPhase() {}
-	initInfernalCardboardEffect() {}
-	tickInfernalCardboardEffect() {}
-	disposeInfernalCardboardEffect() {}
 }
 
 // ─── Stub UI / SoundSys ───────────────────────────────────────────────────────
@@ -440,7 +398,7 @@ function makeUiStub() {
 	// Deep no-op proxy: any property access and any function call returns another
 	// deep no-op, so chained calls like UI.abilitiesButtons[1].$button.addClass()
 	// and direct calls like UI.closeDash() are all silently swallowed.
-	function deepNoop(): any {
+	function deepNoop(): unknown {
 		// The target MUST be a function for the apply trap to work.
 		const fn = function () {
 			return deepNoop();
@@ -456,7 +414,7 @@ function makeUiStub() {
 	}
 
 	// Explicit overrides for properties that game logic reads (not just calls).
-	const base: Record<string, any> = {
+	const base: Record<string, unknown> = {
 		selectedAbility: -1,
 		dashopen: false,
 		active: false,
@@ -501,19 +459,22 @@ function makeSoundSysStub() {
  * @param abilities  Array of ability-loader functions from src/abilities/*.ts
  *                   (each has signature `(G: Game) => void`)
  */
-export function createGame(abilities: Array<(G: any) => void>): any {
+export async function createGame(abilities: Array<(G: any) => void>): Promise<any> {
 	// Stub requestAnimationFrame to prevent hex spin-loops from consuming fake-timer
 	// budget. The real rAF is unused in simulation (no renderer), so we replace it with
-	// a noop that returns 0 (a valid cancel handle) and ignore cancelAnimationFrame.
-	(global as any).requestAnimationFrame = (_cb: () => void) => 0;
-	(global as any).cancelAnimationFrame = (_id: number) => undefined;
 
-	// Use require() (synchronous) instead of dynamic import() to avoid
-	// process.nextTick-based Promise resolution, which hangs when Jest fake
-	// timers are active (fake timers intercept process.nextTick).
+	// ─── Stub UI / SoundSys ───────────────────────────────────────────────────────
+	(
+		globalThis as { requestAnimationFrame?: any; cancelAnimationFrame?: any }
+	).requestAnimationFrame = (_cb: () => void) => 0;
+	(globalThis as { cancelAnimationFrame?: any }).cancelAnimationFrame = (_id: number) => undefined;
+
+	// Use dynamic import instead of require()
+	// Note: If running in a test context that does not support top-level await, this may need to be refactored.
 	// eslint-disable-next-line @typescript-eslint/no-var-requires
-	const Game = require('../../game').default;
 
+	const GameModule = await import('../../game');
+	const Game = GameModule.default;
 	const game: any = new Game();
 
 	// Replace game.Phaser with our fully-featured mock so all subsequent calls
@@ -527,13 +488,10 @@ export function createGame(abilities: Array<(G: any) => void>): any {
 	// Install real signals (Game constructor creates them via setupSignalChannels
 	// which uses `new Signal()` from the phaser mock — replace with SimSignals)
 	const signalChannels = ['ui', 'metaPowers', 'creature', 'hex'];
-	game.signals = signalChannels.reduce(
-		(acc: any, ch: string) => {
-			acc[ch] = new SimSignal();
-			return acc;
-		},
-		{} as any,
-	);
+	game.signals = signalChannels.reduce((acc: Record<string, any>, ch: string) => {
+		acc[ch] = new SimSignal();
+		return acc;
+	}, {} as Record<string, any>);
 
 	// Re-register BotController on the new signals (it registered during constructor)
 	game.botController.game = game;
@@ -577,8 +535,10 @@ export function createGame(abilities: Array<(G: any) => void>): any {
 
 	// Load unit data (normally done in loadGame which we bypass)
 	// eslint-disable-next-line @typescript-eslint/no-var-requires
-	const { unitData } = require('../../data/units');
-	game.loadUnitData(unitData);
+
+	const unitsModule = await import('../../data/units');
+	const unitData = unitsModule.unitData;
+	(game as any).loadUnitData(unitData);
 
 	// Call setup bypassing loadGame
 	game.gameState = 'loading';
@@ -596,8 +556,10 @@ export function createGame(abilities: Array<(G: any) => void>): any {
 	// 1ms setInterval the whole cycle completes in ~3 callbacks, giving ~3× fewer fake-time
 	// events and keeping games from hitting MAX_SIM_TURNS due to animation-blocked turns.
 	// eslint-disable-next-line @typescript-eslint/no-var-requires
-	const AbilityClass = (require('../../ability') as any).Ability;
-	if (!(AbilityClass.prototype.animation2 as any)._simPatched) {
+
+	const abilityModule = await import('../../ability');
+	const AbilityClass = abilityModule.Ability;
+	if (!(AbilityClass.prototype.animation2 as { _simPatched?: boolean })._simPatched) {
 		AbilityClass.prototype.animation2 = function (this: any, o: any) {
 			const g = this.game;
 			const opt = Object.assign({ callback: () => {}, arg: {} }, o);
@@ -606,14 +568,22 @@ export function createGame(abilities: Array<(G: any) => void>): any {
 				// Clamp setTimeout only during ability activation — collapses visual-
 				// only timers (Cycloper heal pulses, Knightmare/Vehemoth 250ms shot
 				// delay, keepFacing ticks) without touching bot retry timers.
-				const _origST = (global as any).setTimeout;
-				(global as any).setTimeout = (fn: any, delay: number, ...a: any[]) =>
-					_origST(fn, Math.min(delay ?? 0, 1), ...a);
+				const _origST = (globalThis as { setTimeout?: unknown }).setTimeout;
+				(globalThis as { setTimeout?: unknown }).setTimeout = (
+					fn: (...args: unknown[]) => void,
+					delay: number,
+					...a: unknown[]
+				) =>
+					typeof _origST === 'function' ? _origST(fn, Math.min(delay ?? 0, 1), ...a) : undefined;
 				try {
-					this.activate(args[0], args[1], args[2]);
-					this.postActivate();
+					(this as { activate?: (...args: unknown[]) => void }).activate?.(
+						args[0],
+						args[1],
+						args[2],
+					);
+					(this as { postActivate?: () => void }).postActivate?.();
 				} finally {
-					(global as any).setTimeout = _origST;
+					(globalThis as { setTimeout?: unknown }).setTimeout = _origST;
 				}
 			};
 
@@ -632,7 +602,7 @@ export function createGame(abilities: Array<(G: any) => void>): any {
 
 				// 2ms instead of animationData.duration (default 500ms)
 				setTimeout(() => {
-					const queue = g.animationQueue.filter((item: any) => item != animId);
+					const queue = g.animationQueue.filter((item: unknown) => item != animId);
 					if (queue.length === 0 && !g._deferredQueryMovePending) {
 						g.freezedInput = false;
 						g.grid?.refreshHoverState?.();
@@ -655,7 +625,7 @@ export function createGame(abilities: Array<(G: any) => void>): any {
 				}
 			}, 1);
 		};
-		(AbilityClass.prototype.animation2 as any)._simPatched = true;
+		(AbilityClass.prototype.animation2 as { _simPatched?: boolean })._simPatched = true;
 	}
 
 	// Patch Creature.prototype.activate to use 1ms instead of 1000ms for the
@@ -665,23 +635,31 @@ export function createGame(abilities: Array<(G: any) => void>): any {
 	// 5 TICK_MS=2000 iterations just for the delays. Capping all setInterval calls
 	// inside activate() to 1ms makes the whole round fit in a single tick.
 	// eslint-disable-next-line @typescript-eslint/no-var-requires
-	const CreatureClass = (require('../../creature') as any).Creature;
-	if (!(CreatureClass.prototype.activate as any)._simPatched) {
+
+	const creatureModule = await import('../../creature');
+	const CreatureClass = creatureModule.Creature;
+	if (!(CreatureClass.prototype.activate as { _simPatched?: boolean })._simPatched) {
 		const _origActivate = CreatureClass.prototype.activate;
 		CreatureClass.prototype.activate = function (this: any, ...args: any[]) {
 			// Temporarily wrap setInterval to cap the delay to 1ms for all calls
 			// inside activate(). This collapses the 1000ms UI-only delay before
 			// queryMove to 1ms, without changing any game logic.
-			const _realSetInterval = (global as any).setInterval;
-			(global as any).setInterval = (fn: any, delay: number, ...a: any[]) =>
-				_realSetInterval(fn, Math.min(delay, 1), ...a);
+			const _realSetInterval = (globalThis as { setInterval?: unknown }).setInterval;
+			(globalThis as { setInterval?: unknown }).setInterval = (
+				fn: (...args: unknown[]) => void,
+				delay: number,
+				...a: unknown[]
+			) =>
+				typeof _realSetInterval === 'function'
+					? _realSetInterval(fn, Math.min(delay, 1), ...a)
+					: undefined;
 			try {
 				return _origActivate.apply(this, args);
 			} finally {
-				(global as any).setInterval = _realSetInterval;
+				(globalThis as { setInterval?: unknown }).setInterval = _realSetInterval;
 			}
 		};
-		(CreatureClass.prototype.activate as any)._simPatched = true;
+		(CreatureClass.prototype.activate as { _simPatched?: boolean })._simPatched = true;
 	}
 
 	// Skip the BFS part of queryMove(null) in deactivate('turn-end'): the
@@ -689,7 +667,7 @@ export function createGame(abilities: Array<(G: any) => void>): any {
 	// incoming creature. In simulation the bot calls its own queryMove() via
 	// tryMove(). The non-UI side effects (clearing freezedInput,
 	// decrementing _deferredQueryMovePending) are preserved.
-	if (!(CreatureClass.prototype.deactivate as any)._simPatched) {
+	if (!(CreatureClass.prototype.deactivate as { _simPatched?: boolean })._simPatched) {
 		const _origDeactivate = CreatureClass.prototype.deactivate;
 		CreatureClass.prototype.deactivate = function (this: any, reason: string) {
 			if (reason === 'turn-end') {
@@ -710,13 +688,13 @@ export function createGame(abilities: Array<(G: any) => void>): any {
 				// Skip: getMovementRange() BFS + queryHexes() — UI-only hover refresh
 				this.turnsActive += 1;
 				this._nextGameTurnActive = game.turn + 1;
-				// game.onEndPhase(this); // @ts-expect-error removed as no longer needed
+				// game.onEndPhase(this);
 				this.hasWait = this.isDelayed;
 			} else {
 				_origDeactivate.call(this, reason);
 			}
 		};
-		(CreatureClass.prototype.deactivate as any)._simPatched = true;
+		(CreatureClass.prototype.deactivate as { _simPatched?: boolean })._simPatched = true;
 	}
 
 	// Fast-path hex.trap and hex.creature getters — bypass PointFacade overhead.
@@ -726,41 +704,49 @@ export function createGame(abilities: Array<(G: any) => void>): any {
 	// Profiling shows hex.trap alone accounts for 10.7% of all CPU ticks (=~1.8s/game)
 	// and the creature getter adds another 9.5%.  Simple linear scans of game.traps and
 	// game.creatures are much cheaper (no allocation, no hash ops, 2-5× fewer comparisons).
-	// eslint-disable-next-line @typescript-eslint/no-var-requires
-	const HexClass = (require('../../utility/hex') as any).Hex;
-	if (!(HexClass.prototype as any)._simGetterPatched) {
+
+	const hexModule = await import('../../utility/hex');
+	const HexClass = hexModule.Hex;
+	if (!(HexClass.prototype as { _simGetterPatched?: boolean })._simGetterPatched) {
 		Object.defineProperty(HexClass.prototype, 'trap', {
-			get(this: any) {
-				const traps: any[] = this.game?.traps;
+			get(this: unknown) {
+				const traps: unknown[] = (this as { game?: { traps?: unknown[] } }).game?.traps;
 				if (!traps) return undefined;
 				for (let i = 0; i < traps.length; i++) {
-					if (traps[i].x === this.x && traps[i].y === this.y) return traps[i];
+					if (
+						(traps[i] as { x?: number; y?: number }).x === (this as { x?: number }).x &&
+						(traps[i] as { y?: number }).y === (this as { y?: number }).y
+					)
+						return traps[i];
 				}
 				return undefined;
 			},
 			configurable: true,
 		});
 		Object.defineProperty(HexClass.prototype, 'creature', {
-			get(this: any) {
-				const creatures: any[] = this.game?.creatures;
+			get(this: unknown) {
+				const creatures: unknown[] = (this as { game?: { creatures?: unknown[] } }).game?.creatures;
 				if (!creatures) return undefined;
-				const { x, y } = this;
+				const { x, y } = this as { x?: number; y?: number };
 				for (let i = 0; i < creatures.length; i++) {
-					const c = creatures[i];
+					const c = creatures[i] as { dead?: boolean; isVaporized?: boolean; hexagons?: unknown[] };
 					if (!c || c.dead || c.isVaporized) continue;
-					const hexs: any[] = c.hexagons;
-					if (!hexs) continue;
+					const hexs: unknown[] = c.hexagons ?? [];
 					for (let j = 0; j < hexs.length; j++) {
-						if (hexs[j].x === x && hexs[j].y === y) return c;
+						if (
+							(hexs[j] as { x?: number; y?: number }).x === x &&
+							(hexs[j] as { y?: number }).y === y
+						)
+							return c;
 					}
 				}
 				return undefined;
 			},
 			// Preserve the no-op setter that existed for compatibility
-			set(_value: any) {},
+			set(_value: unknown) {},
 			configurable: true,
 		});
-		(HexClass.prototype as any)._simGetterPatched = true;
+		(HexClass.prototype as { _simGetterPatched?: boolean })._simGetterPatched = true;
 	}
 
 	// Replace real UI (created inside setup) with stub
@@ -775,26 +761,26 @@ export function createGame(abilities: Array<(G: any) => void>): any {
 	// - overlayVisualState/displayVisualState perform string concatenation + updateStyle.
 	// Stubbing these eliminates the bulk of per-turn simulation overhead.
 	game.grid.allhexes.forEach((hex: any) => {
-		hex.updateStyle = () => undefined;
-		hex.displayVisualState = () => undefined;
-		hex.cleanDisplayVisualState = () => undefined;
-		hex.overlayVisualState = () => undefined;
-		hex.cleanOverlayVisualState = () => undefined;
-		hex.setNotTarget = () => undefined;
-		hex.unsetNotTarget = () => undefined;
+		(hex as any).updateStyle = () => undefined;
+		(hex as any).displayVisualState = () => undefined;
+		(hex as any).cleanDisplayVisualState = () => undefined;
+		(hex as any).overlayVisualState = () => undefined;
+		(hex as any).cleanOverlayVisualState = () => undefined;
+		(hex as any).setNotTarget = () => undefined;
+		(hex as any).unsetNotTarget = () => undefined;
 		// setReachable/unsetReachable: keep the reachable flag (bot reads it) but skip
 		// hitBox proxy access (UI-only) and updateStyle (already a noop above).
-		hex.setReachable = function (this: any) {
+		(hex as any).setReachable = function (this: any) {
 			this.reachable = true;
 		};
-		hex.unsetReachable = function (this: any) {
+		(hex as any).unsetReachable = function (this: any) {
 			this.reachable = false;
 		};
 		// Stop any rAF spin loops started during setup (hex.startSpinning uses
 		// requestAnimationFrame recursively; under Jest fake timers this fires
 		// ~312× per 5000ms tick, eating all wall-clock time).
-		hex.isSpinning = false;
-		hex.startSpinning = () => undefined;
+		(hex as any).isSpinning = false;
+		(hex as any).startSpinning = () => undefined;
 	});
 
 	// updateDisplay() iterates all hexes calling cleanDisplayVisualState and
@@ -824,9 +810,11 @@ export function createGame(abilities: Array<(G: any) => void>): any {
 	// entries, each costing real wall-clock time when sinon dispatches them.
 	// We keep all game-logic side-effects (temp-creature cleanup, deactivate,
 	// nextCreature) and fire the callback synchronously instead of after 1000ms.
-	game.skipTurn = function (this: any, o: any = {}) {
+	game.skipTurn = function (this: any, o: Record<string, any> = {}) {
 		// Destroy any temp (summoned) creatures, as the real skipTurn does.
-		this.creatures?.filter((c: any) => c?.temp).forEach((c: any) => c.destroy?.());
+		(this as { creatures?: unknown[] }).creatures
+			?.filter((c: { temp?: boolean }) => c?.temp)
+			.forEach((c: { destroy?: () => void }) => c.destroy?.());
 		if (this.turnThrottle) return;
 		const opts = Object.assign({ callback: () => {}, noTooltip: false, tooltip: 'Skipped' }, o);
 		if (this.activeCreature) {
@@ -838,7 +826,7 @@ export function createGame(abilities: Array<(G: any) => void>): any {
 		opts.callback?.();
 	};
 
-	game.delayCreature = function (this: any, o: any = {}) {
+	game.delayCreature = function (this: any, o: Record<string, any> = {}) {
 		if (this.turnThrottle) return;
 		if (!this.activeCreature?.canWait || this.queue?.isCurrentEmpty?.()) return;
 		const opts = Object.assign({ callback: () => {} }, o);
@@ -942,11 +930,11 @@ const MAX_SIM_TURNS = 40; // hard cap — 4 rounds is plenty; outlier games beyo
  * Advance a running game to completion using Jest fake timers.
  * Must be called inside a test that has already called `jest.useFakeTimers()`.
  */
-export async function runMatch(game: any): Promise<MatchResult> {
+export async function runMatch(game: unknown): Promise<MatchResult> {
 	// Suppress the checkTime interval — it's a noop for infinite time pools but
 	// fires every 1000 ms of fake time, creating thousands of empty callbacks.
-	const origCheckTime = game.checkTime.bind(game);
-	game.checkTime = () => {};
+	const origCheckTime = (game as any).checkTime?.bind?.(game) ?? (() => {});
+	(game as any).checkTime = () => {};
 
 	// Advance fake time in chunks, yielding between each so microtasks (Promise
 	// callbacks from MockAnimations._completeMove) can flush.
@@ -961,34 +949,49 @@ export async function runMatch(game: any): Promise<MatchResult> {
 	let elapsed = 0;
 	// Wall-clock bail-out using perf_hooks.performance.now() which is NOT mocked
 	// by Jest fake timers (unlike process.hrtime.bigint() which IS mocked).
-	const wallStart = realPerf.now();
+	const wallStart = (globalThis as any).realPerf?.now?.() ?? 0;
 	const MAX_WALL_MS = 120_000; // 2 minutes per game
 
 	let _dbgTick = 0;
-	const bc = game.botController;
-	while (game.gameState !== 'ended' && game.turn < MAX_SIM_TURNS && elapsed < MAX_ELAPSED) {
+	const bc = (game as any).botController;
+	while (
+		(game as any).gameState !== 'ended' &&
+		(game as any).turn < MAX_SIM_TURNS &&
+		elapsed < MAX_ELAPSED
+	) {
 		// Stagnation check: bail out early if no damage in STAGNATION_ROUNDS rounds.
-		if (bc && game.turn > 0 && game.turn - (bc.lastDamageRound ?? 0) > STAGNATION_ROUNDS) {
+		if (
+			bc &&
+			(game as any).turn > 0 &&
+			(game as any).turn - (bc.lastDamageRound ?? 0) > STAGNATION_ROUNDS
+		) {
 			break;
 		}
-		const _t0 = realPerf.now();
-		jest.advanceTimersByTime(TICK_MS);
-		const _dtAdv = realPerf.now() - _t0;
+		const _t0 = (globalThis as any).realPerf?.now?.() ?? 0;
+		(jest as any).advanceTimersByTime?.(TICK_MS);
+		const _dtAdv = ((globalThis as any).realPerf?.now?.() ?? 0) - _t0;
 		// Let microtasks (Promise callbacks from MockAnimations) flush
 		await Promise.resolve();
 		await Promise.resolve();
-		const _dtAwait = realPerf.now() - _t0 - _dtAdv;
-		if (_dbgTick < 20) process.stderr.write(`  [tick${_dbgTick} t=${game.turn} adv=${_dtAdv.toFixed(0)}ms await=${_dtAwait.toFixed(0)}ms]\n`);
+		const _dtAwait = ((globalThis as any).realPerf?.now?.() ?? 0) - _t0 - _dtAdv;
+		if (_dbgTick < 20)
+			process.stderr.write(
+				`  [tick${_dbgTick} t=${(game as any).turn} adv=${_dtAdv.toFixed(
+					0,
+				)}ms await=${_dtAwait.toFixed(0)}ms]\n`,
+			);
 		_dbgTick++;
 		elapsed += TICK_MS;
-		if (realPerf.now() - wallStart > MAX_WALL_MS) break;
+		if (((globalThis as any).realPerf?.now?.() ?? 0) - wallStart > MAX_WALL_MS) break;
 	}
 
-	game.checkTime = origCheckTime;
+	(game as any).checkTime = origCheckTime;
 
-	const scores = game.players.map((p: any) => p.getScore().total);
+	const scores = ((game as any).players as any[]).map(
+		(p: { getScore: () => { total: number } }) => p.getScore().total,
+	);
 	let winnerIdx: number | null = null;
-	const endedByTimeout = game.gameState !== 'ended';
+	const endedByTimeout = (game as any).gameState !== 'ended';
 
 	if (!endedByTimeout) {
 		const max = Math.max(...scores);
@@ -999,7 +1002,7 @@ export async function runMatch(game: any): Promise<MatchResult> {
 	}
 
 	return {
-		turns: game.turn,
+		turns: (game as any).turn,
 		winnerIdx,
 		scores,
 		endedByTimeout,

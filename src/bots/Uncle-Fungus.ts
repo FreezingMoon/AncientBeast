@@ -7,10 +7,10 @@ import { Team, isTeam } from '../utility/team';
 
 // Ability slot indices
 const ABILITY = {
-	TOXIC_SPORES: 0,  // triggered passive: counter-poisons on being hit (or attacking if upgraded)
-	SUPPER_CHOMP: 1,  // melee bite, heals/generates regrowth when upgraded
-	FROGGER_JUMP: 2,  // movement ability: inline jump forward or backward
-	SABRE_KICK: 3,    // melee kick, knockback if upgraded
+	TOXIC_SPORES: 0, // triggered passive: counter-poisons on being hit (or attacking if upgraded)
+	SUPPER_CHOMP: 1, // melee bite, heals/generates regrowth when upgraded
+	FROGGER_JUMP: 2, // movement ability: inline jump forward or backward
+	SABRE_KICK: 3, // melee kick, knockback if upgraded
 } as const;
 
 const CHOMP_ESTIMATED_DAMAGE = 20;
@@ -44,8 +44,20 @@ function scoreSupperChomp(hex: Hex, activeCreature: Creature, controller: BotCon
 	}
 
 	const targetStrategy = unitStrategies[target.type as string];
-	score += targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.SUPPER_CHOMP, controller) ?? 0;
-	score += targetStrategy?.getCounterTargetingModifier?.(activeCreature, target, ABILITY.SUPPER_CHOMP, controller) ?? 0;
+	score +=
+		targetStrategy?.getTargetingPenalty?.(
+			activeCreature,
+			target,
+			ABILITY.SUPPER_CHOMP,
+			controller,
+		) ?? 0;
+	score +=
+		targetStrategy?.getCounterTargetingModifier?.(
+			activeCreature,
+			target,
+			ABILITY.SUPPER_CHOMP,
+			controller,
+		) ?? 0;
 
 	return score;
 }
@@ -67,8 +79,16 @@ function scoreSabreKick(hex: Hex, activeCreature: Creature, controller: BotContr
 	}
 
 	const targetStrategy = unitStrategies[target.type as string];
-	score += targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.SABRE_KICK, controller) ?? 0;
-	score += targetStrategy?.getCounterTargetingModifier?.(activeCreature, target, ABILITY.SABRE_KICK, controller) ?? 0;
+	score +=
+		targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.SABRE_KICK, controller) ??
+		0;
+	score +=
+		targetStrategy?.getCounterTargetingModifier?.(
+			activeCreature,
+			target,
+			ABILITY.SABRE_KICK,
+			controller,
+		) ?? 0;
 
 	return score;
 }
@@ -120,7 +140,8 @@ const UncleFungusStrategy: UnitBotStrategy = {
 		const activeCreature = controller.game.activeCreature;
 		if (!activeCreature) return undefined;
 
-		if (abilityIndex === ABILITY.SUPPER_CHOMP) return scoreSupperChomp(hex, activeCreature, controller);
+		if (abilityIndex === ABILITY.SUPPER_CHOMP)
+			return scoreSupperChomp(hex, activeCreature, controller);
 		if (abilityIndex === ABILITY.SABRE_KICK) return scoreSabreKick(hex, activeCreature, controller);
 
 		// Frogger Jump is a movement ability — let the generic bot handle hex selection

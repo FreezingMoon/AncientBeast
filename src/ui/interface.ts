@@ -419,9 +419,11 @@ const showSecretView = () => {
 		let lotusUrl = 'assets/interface/Lotus.png';
 		try {
 			lotusUrl = getUrl('interface/Lotus');
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		} catch (error) {
 			try {
 				lotusUrl = getUrl('assets/autoload/phaser/Lotus');
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			} catch (fallbackError) {
 				// Keep raw-path fallback if asset map is unavailable.
 			}

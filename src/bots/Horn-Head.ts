@@ -7,10 +7,10 @@ import { Team, isTeam } from '../utility/team';
 
 // Ability slot indices
 const ABILITY = {
-	LIFE_SUPPORT: 0,   // passive: converts incoming damage to endurance gain; intercepts lethal if upgraded
-	KNUCKLE_NIB: 1,    // melee punch, -2 defense debuff, knockback if upgraded
-	MEAT_SICKLE: 2,    // ranged drag attack, pulls target and restricts their movement
-	TWIN_SLASH: 3,     // area lane attack, hits all enemies in chosen lane twice
+	LIFE_SUPPORT: 0, // passive: converts incoming damage to endurance gain; intercepts lethal if upgraded
+	KNUCKLE_NIB: 1, // melee punch, -2 defense debuff, knockback if upgraded
+	MEAT_SICKLE: 2, // ranged drag attack, pulls target and restricts their movement
+	TWIN_SLASH: 3, // area lane attack, hits all enemies in chosen lane twice
 } as const;
 
 const KNUCKLE_NIB_ESTIMATED_DAMAGE = 22;
@@ -39,8 +39,20 @@ function scoreKnuckleNib(hex: Hex, activeCreature: Creature, controller: BotCont
 	}
 
 	const targetStrategy = unitStrategies[target.type as string];
-	score += targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.KNUCKLE_NIB, controller) ?? 0;
-	score += targetStrategy?.getCounterTargetingModifier?.(activeCreature, target, ABILITY.KNUCKLE_NIB, controller) ?? 0;
+	score +=
+		targetStrategy?.getTargetingPenalty?.(
+			activeCreature,
+			target,
+			ABILITY.KNUCKLE_NIB,
+			controller,
+		) ?? 0;
+	score +=
+		targetStrategy?.getCounterTargetingModifier?.(
+			activeCreature,
+			target,
+			ABILITY.KNUCKLE_NIB,
+			controller,
+		) ?? 0;
 
 	return score;
 }
@@ -68,8 +80,20 @@ function scoreMeatSickle(hex: Hex, activeCreature: Creature, controller: BotCont
 	}
 
 	const targetStrategy = unitStrategies[target.type as string];
-	score += targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.MEAT_SICKLE, controller) ?? 0;
-	score += targetStrategy?.getCounterTargetingModifier?.(activeCreature, target, ABILITY.MEAT_SICKLE, controller) ?? 0;
+	score +=
+		targetStrategy?.getTargetingPenalty?.(
+			activeCreature,
+			target,
+			ABILITY.MEAT_SICKLE,
+			controller,
+		) ?? 0;
+	score +=
+		targetStrategy?.getCounterTargetingModifier?.(
+			activeCreature,
+			target,
+			ABILITY.MEAT_SICKLE,
+			controller,
+		) ?? 0;
 
 	return score;
 }
@@ -96,8 +120,16 @@ function scoreTwinSlash(hex: Hex, activeCreature: Creature, controller: BotContr
 	}
 
 	const targetStrategy = unitStrategies[target.type as string];
-	score += targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.TWIN_SLASH, controller) ?? 0;
-	score += targetStrategy?.getCounterTargetingModifier?.(activeCreature, target, ABILITY.TWIN_SLASH, controller) ?? 0;
+	score +=
+		targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.TWIN_SLASH, controller) ??
+		0;
+	score +=
+		targetStrategy?.getCounterTargetingModifier?.(
+			activeCreature,
+			target,
+			ABILITY.TWIN_SLASH,
+			controller,
+		) ?? 0;
 
 	return score;
 }
@@ -154,8 +186,10 @@ const HornHeadStrategy: UnitBotStrategy = {
 		const activeCreature = controller.game.activeCreature;
 		if (!activeCreature) return undefined;
 
-		if (abilityIndex === ABILITY.KNUCKLE_NIB) return scoreKnuckleNib(hex, activeCreature, controller);
-		if (abilityIndex === ABILITY.MEAT_SICKLE) return scoreMeatSickle(hex, activeCreature, controller);
+		if (abilityIndex === ABILITY.KNUCKLE_NIB)
+			return scoreKnuckleNib(hex, activeCreature, controller);
+		if (abilityIndex === ABILITY.MEAT_SICKLE)
+			return scoreMeatSickle(hex, activeCreature, controller);
 		if (abilityIndex === ABILITY.TWIN_SLASH) return scoreTwinSlash(hex, activeCreature, controller);
 
 		return undefined;

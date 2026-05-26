@@ -7,10 +7,10 @@ import { Team, isTeam } from '../utility/team';
 
 // Ability slot indices
 const ABILITY = {
-	WING_FEATHERS: 0,   // passive: hover movement; flying if upgraded
-	SLICING_POUNCE: 1,  // melee pounce; permanent -1 offense debuff on target if upgraded
-	ESCORT_SERVICE: 2,  // paired movement ability: move self and adjacent creature together
-	DEADLY_TOXIN: 3,    // melee poison; ongoing damage per turn
+	WING_FEATHERS: 0, // passive: hover movement; flying if upgraded
+	SLICING_POUNCE: 1, // melee pounce; permanent -1 offense debuff on target if upgraded
+	ESCORT_SERVICE: 2, // paired movement ability: move self and adjacent creature together
+	DEADLY_TOXIN: 3, // melee poison; ongoing damage per turn
 } as const;
 
 const SLICING_POUNCE_ESTIMATED_DAMAGE = 18;
@@ -44,8 +44,20 @@ function scoreSlicingPounce(hex: Hex, activeCreature: Creature, controller: BotC
 	}
 
 	const targetStrategy = unitStrategies[target.type as string];
-	score += targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.SLICING_POUNCE, controller) ?? 0;
-	score += targetStrategy?.getCounterTargetingModifier?.(activeCreature, target, ABILITY.SLICING_POUNCE, controller) ?? 0;
+	score +=
+		targetStrategy?.getTargetingPenalty?.(
+			activeCreature,
+			target,
+			ABILITY.SLICING_POUNCE,
+			controller,
+		) ?? 0;
+	score +=
+		targetStrategy?.getCounterTargetingModifier?.(
+			activeCreature,
+			target,
+			ABILITY.SLICING_POUNCE,
+			controller,
+		) ?? 0;
 
 	return score;
 }
@@ -79,8 +91,20 @@ function scoreDeadlyToxin(hex: Hex, activeCreature: Creature, controller: BotCon
 	}
 
 	const targetStrategy = unitStrategies[target.type as string];
-	score += targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.DEADLY_TOXIN, controller) ?? 0;
-	score += targetStrategy?.getCounterTargetingModifier?.(activeCreature, target, ABILITY.DEADLY_TOXIN, controller) ?? 0;
+	score +=
+		targetStrategy?.getTargetingPenalty?.(
+			activeCreature,
+			target,
+			ABILITY.DEADLY_TOXIN,
+			controller,
+		) ?? 0;
+	score +=
+		targetStrategy?.getCounterTargetingModifier?.(
+			activeCreature,
+			target,
+			ABILITY.DEADLY_TOXIN,
+			controller,
+		) ?? 0;
 
 	return score;
 }
@@ -136,8 +160,10 @@ const ScavengerStrategy: UnitBotStrategy = {
 		const activeCreature = controller.game.activeCreature;
 		if (!activeCreature) return undefined;
 
-		if (abilityIndex === ABILITY.SLICING_POUNCE) return scoreSlicingPounce(hex, activeCreature, controller);
-		if (abilityIndex === ABILITY.DEADLY_TOXIN) return scoreDeadlyToxin(hex, activeCreature, controller);
+		if (abilityIndex === ABILITY.SLICING_POUNCE)
+			return scoreSlicingPounce(hex, activeCreature, controller);
+		if (abilityIndex === ABILITY.DEADLY_TOXIN)
+			return scoreDeadlyToxin(hex, activeCreature, controller);
 
 		// Escort Service is a movement utility — let generic bot handle hex selection
 		return undefined;

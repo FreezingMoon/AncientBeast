@@ -7,10 +7,10 @@ import { Team, isTeam } from '../utility/team';
 
 // Ability slot indices
 const ABILITY = {
-	SPA_GOGGLES: 0,    // triggered passive: stat buff when moving inside a mud-bath trap
+	SPA_GOGGLES: 0, // triggered passive: stat buff when moving inside a mud-bath trap
 	BASEBALL_BATON: 1, // directional melee swing with knockback; sliding if upgraded and target over mud
-	GROUND_BALL: 2,    // area throw; 6 pattern options hitting nearby enemies
-	MUD_BATH: 3,       // places mud-bath trap on chosen hex (slows creatures passing through)
+	GROUND_BALL: 2, // area throw; 6 pattern options hitting nearby enemies
+	MUD_BATH: 3, // places mud-bath trap on chosen hex (slows creatures passing through)
 } as const;
 
 const BASEBALL_BATON_ESTIMATED_DAMAGE = 20;
@@ -38,8 +38,20 @@ function scoreBaseballBaton(hex: Hex, activeCreature: Creature, controller: BotC
 	}
 
 	const targetStrategy = unitStrategies[target.type as string];
-	score += targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.BASEBALL_BATON, controller) ?? 0;
-	score += targetStrategy?.getCounterTargetingModifier?.(activeCreature, target, ABILITY.BASEBALL_BATON, controller) ?? 0;
+	score +=
+		targetStrategy?.getTargetingPenalty?.(
+			activeCreature,
+			target,
+			ABILITY.BASEBALL_BATON,
+			controller,
+		) ?? 0;
+	score +=
+		targetStrategy?.getCounterTargetingModifier?.(
+			activeCreature,
+			target,
+			ABILITY.BASEBALL_BATON,
+			controller,
+		) ?? 0;
 
 	return score;
 }
@@ -66,8 +78,20 @@ function scoreGroundBall(hex: Hex, activeCreature: Creature, controller: BotCont
 	}
 
 	const targetStrategy = unitStrategies[target.type as string];
-	score += targetStrategy?.getTargetingPenalty?.(activeCreature, target, ABILITY.GROUND_BALL, controller) ?? 0;
-	score += targetStrategy?.getCounterTargetingModifier?.(activeCreature, target, ABILITY.GROUND_BALL, controller) ?? 0;
+	score +=
+		targetStrategy?.getTargetingPenalty?.(
+			activeCreature,
+			target,
+			ABILITY.GROUND_BALL,
+			controller,
+		) ?? 0;
+	score +=
+		targetStrategy?.getCounterTargetingModifier?.(
+			activeCreature,
+			target,
+			ABILITY.GROUND_BALL,
+			controller,
+		) ?? 0;
 
 	return score;
 }
@@ -117,8 +141,10 @@ const SwineThugStrategy: UnitBotStrategy = {
 		const activeCreature = controller.game.activeCreature;
 		if (!activeCreature) return undefined;
 
-		if (abilityIndex === ABILITY.BASEBALL_BATON) return scoreBaseballBaton(hex, activeCreature, controller);
-		if (abilityIndex === ABILITY.GROUND_BALL) return scoreGroundBall(hex, activeCreature, controller);
+		if (abilityIndex === ABILITY.BASEBALL_BATON)
+			return scoreBaseballBaton(hex, activeCreature, controller);
+		if (abilityIndex === ABILITY.GROUND_BALL)
+			return scoreGroundBall(hex, activeCreature, controller);
 
 		// Mud Bath trap placement: let generic scoring handle hex selection
 		return undefined;
