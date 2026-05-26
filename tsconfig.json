@@ -6,7 +6,6 @@
 		"lib": ["ESNext", "dom"],
 		"target": "es2017",
 		"moduleResolution": "node",
-		"ignoreDeprecations": "6.0",
 		"allowJs": true,
 		"noImplicitThis": true,
 		"resolveJsonModule": true,

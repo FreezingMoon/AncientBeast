@@ -10,11 +10,10 @@ import { Player, PlayerColor, PlayerID } from './player';
 import { UI } from './ui/interface';
 import { Creature, CreatureHintType } from './creature';
 import { unitData } from './data/units';
-// @ts-expect-error: pixi is a virtual dependency for Phaser compatibility
 import 'pixi';
-// @ts-expect-error: p2 is a virtual dependency for Phaser compatibility
 import 'p2';
-// @ts-expect-error 2307
+import 'p2';
+// @ts-expect-error: Phaser CE has no official type declarations
 import Phaser, { Signal } from 'phaser';
 import MatchI from './multiplayer/match';
 import Gameplay from './multiplayer/gameplay';
