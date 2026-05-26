@@ -16,7 +16,7 @@ import { pretty as version } from '../utility/version';
 import { capitalize } from '../utility/string';
 import { throttle } from 'underscore';
 import { DEBUG_DISABLE_HOTKEYS } from '../debug';
-import { cycleAudioMode } from '../sound/soundsys';
+import { cycleAudioMode as cycleSoundAudioMode } from '../sound/soundsys';
 import Game from '../game';
 import { CreatureType } from '../data/types';
 import { getAvatarSet } from '../style/avatar-styles';
@@ -673,8 +673,7 @@ export class UI {
 		this.buttons.push(this.btnAudio);
 		this.btnAudio.$button.on('contextmenu', (e) => {
 			e.preventDefault();
-			const newMode = cycleAudioMode(this.game.soundsys);
-			this.updateAudioIcon(newMode);
+			this.cycleAudioMode();
 		});
 		// Skip Turn Button
 		this.btnSkipTurn = new Button(
@@ -3100,16 +3099,19 @@ export class UI {
 			}
 		}
 	}
+	cycleAudioMode() {
+		cycleSoundAudioMode(this.game.soundsys, this);
+	}
 	updateAudioIcon(mode) {
 		let iconKey = 'icons/audio';
-		let tooltipText = 'Audio: Full';
+		let tooltipText = 'Audio: Full (A opens, Shift+A/right-click cycles)';
 
 		if (mode === 'sfx') {
 			iconKey = 'icons/SFX';
-			tooltipText = 'Audio: SFX';
+			tooltipText = 'Audio: SFX (A opens, Shift+A/right-click cycles)';
 		} else if (mode === 'muted') {
 			iconKey = 'icons/muted';
-			tooltipText = 'Audio: Muted';
+			tooltipText = 'Audio: Muted (A opens, Shift+A/right-click cycles)';
 		}
 
 		const iconUrl = getUrl(iconKey);
