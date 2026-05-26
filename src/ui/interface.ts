@@ -895,11 +895,7 @@ export class UI {
 							}
 						}
 
-						// During bot turns (freezedInput), skip the invert-flash animation
-						// and directly show cancelIcon/nextIcon without blinking.
-						if (!game.freezedInput) {
-							this.flashAbilityBtn(i);
-						}
+						this.flashAbilityBtn(i);
 
 						if (this.selectedAbility != i) {
 							if (this.dashopen) {
@@ -911,14 +907,12 @@ export class UI {
 							if (i == 0) {
 								this.checkAbilities(); // Ensure state is up to date
 								const ab = game.activeCreature.abilities[0];
-								if (ab.message === game.msg.abilities.passiveUnavailable) {
-									if (!game.freezedInput) {
-										this.animateNoTargetAbilityRanges();
-										this.flashAbilityBtn(0);
-									} else {
-										b.cssTransition('cancelIcon', 1000);
-									}
-									return;
+							if (ab.message === game.msg.abilities.passiveUnavailable) {
+								if (!game.freezedInput) {
+									this.animateNoTargetAbilityRanges();
+								}
+								this.flashAbilityBtn(0);
+								return;
 								}
 								// Joywin
 								const selectedAbility = this.selectNextAbility();
@@ -930,32 +924,29 @@ export class UI {
 											this.clickedAbility = -1;
 										}
 									});
-									b.cssTransition('nextIcon', 1000);
-									if (!game.freezedInput) {
-										this.flashAbilityBtn(0);
-									}
-								} else if (selectedAbility === -1) {
-									this.abilitiesButtons.forEach((btn, index) => {
-										if (index === 0) {
-											btn.$button.removeClass('nextIcon');
-											btn.$button.removeClass('cancelIcon');
-											this.clickedAbility = -1;
-										}
-									});
-									b.cssTransition('cancelIcon', 1000);
-									if (!game.freezedInput) {
-										this.flashAbilityBtn(0);
-									}
+							b.cssTransition('nextIcon', 1000);
+							this.flashAbilityBtn(0);
+						} else if (selectedAbility === -1) {
+							this.abilitiesButtons.forEach((btn, index) => {
+								if (index === 0) {
+									btn.$button.removeClass('nextIcon');
+									btn.$button.removeClass('cancelIcon');
+									this.clickedAbility = -1;
 								}
+							});
+							b.cssTransition('cancelIcon', 1000);
+							this.flashAbilityBtn(0);
+						}
 								return;
 							}
-							if (
-								ability.used ||
-								ability.message === game.msg.abilities.noTarget ||
-								b.state === ButtonStateEnum.noClick
-							) {
-								return;
-							}
+						if (
+							ability.used ||
+							ability.message === game.msg.abilities.noTarget ||
+							b.state === ButtonStateEnum.noClick
+						) {
+							b.cssTransition('cancelIcon', 1000);
+							return;
+						}
 							// Colored frame around selected ability
 							if (ability.require() == true && i != 0) {
 								if (ability._abilityRangeHexes?.length) {
@@ -1071,22 +1062,7 @@ export class UI {
 				{ isAcceptingInput: this.configuration.isAcceptingInput },
 			);
 			// Native listener fires even when Button state is disabled (jQuery unbind doesn't remove it).
-			b.$button[0].addEventListener('click', () => {
-				this.flashAbilityBtn(i);
-
-				const ability = this.game.activeCreature?.abilities[i];
-				if (
-					this.game.botController.isBotTurn() &&
-					this.game.freezedInput &&
-					ability &&
-					i !== 0 &&
-					(ability.used ||
-						b.state === ButtonStateEnum.disabled ||
-						b.state === ButtonStateEnum.noClick)
-				) {
-					b.cssTransition('cancelIcon', 1000);
-				}
-			});
+			b.$button[0].addEventListener('click', () => this.flashAbilityBtn(i));
 			this.buttons.push(b);
 			this.abilitiesButtons.push(b);
 		}
