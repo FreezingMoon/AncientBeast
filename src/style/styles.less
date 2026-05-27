@@ -431,6 +431,10 @@
 .button#skip {
 	background-image: url('~assets/autoload/interface/skip.svg');
 
+	&.cancelIcon {
+		background-image: url('~assets/icons/cancel.svg') !important;
+	}
+
 	&.disabled {
 		transform: perspective(900px) rotateY(0deg) !important;
 		opacity: 0.35;
@@ -443,6 +447,10 @@
 
 .button#delay {
 	background-image: url('~assets/icons/delay.svg');
+
+	&.cancelIcon {
+		background-image: url('~assets/icons/cancel.svg') !important;
+	}
 
 	&.disabled {
 		transform: perspective(900px) rotateY(0deg) !important;

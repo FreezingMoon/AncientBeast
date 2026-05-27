@@ -686,6 +686,9 @@ export class UI {
 				click: () => {
 					if (!this.dashopen) {
 						if (game.turnThrottle || game.botController.isBotTurn()) {
+							if (game.botController.isBotTurn()) {
+								this.showCancelIconOnButton(this.btnSkipTurn.$button);
+							}
 							return;
 						}
 
@@ -722,6 +725,9 @@ export class UI {
 							!game.activeCreature?.canWait ||
 							game.queue.isCurrentEmpty()
 						) {
+							if (game.botController.isBotTurn()) {
+								this.showCancelIconOnButton(this.btnDelay.$button);
+							}
 							return;
 						}
 
@@ -826,16 +832,17 @@ export class UI {
 				{
 					$button: $j('.ability[ability="' + i + '"]'),
 					hasShortcut: true,
-					click: () => {
-						const game = this.game;
+				click: () => {
+					const game = this.game;
 
-						// Don't show ability range circles during bot's turn
-						if (game.botController.isBotTurn()) {
-							return;
-						}
+					// During bot turns, show cancelIcon and block interaction
+					if (game.botController.isBotTurn()) {
+						this.showCancelIconOnButton(b.$button);
+						return;
+					}
 
-						// Block all ability interactions while an animation is running
-						if (game.freezedInput) {
+					// Block all ability interactions while an animation is running
+					if (game.freezedInput) {
 							return;
 						}
 
@@ -2977,6 +2984,17 @@ export class UI {
 				});
 			}
 		});
+	}
+
+	/**
+	 * Show cancelIcon briefly on any button element during bot turns.
+	 * Used for skip/delay buttons and ability hotkey feedback.
+	 */
+	showCancelIconOnButton($btn: JQuery<HTMLElement>) {
+		$btn.removeClass('cancelIcon');
+		void $btn[0].offsetWidth; // force reflow
+		$btn.addClass('cancelIcon');
+		setTimeout(() => $btn.removeClass('cancelIcon'), 1000);
 	}
 
 	flashAbilityBtn(i: number) {
