@@ -16,16 +16,35 @@ export class Fullscreen {
 		try {
 			if (document.fullscreenElement) {
 				await document.exitFullscreen();
+				// Unlock orientation when exiting fullscreen
+				if (screen.orientation?.unlock) {
+					screen.orientation.unlock();
+				}
 			} else {
 				const gameElement = document.getElementById('AncientBeast');
 				if (gameElement) {
 					await gameElement.requestFullscreen();
+					// Lock to landscape after entering fullscreen
+					this.lockOrientation();
 				}
 			}
 
 			setTimeout(() => this.updateButtonState(), 100);
 		} catch (error) {
 			console.error('Error toggling fullscreen:', error);
+		}
+	}
+
+	private async lockOrientation() {
+		// Lock orientation to landscape using Screen Orientation API
+		// This requires fullscreen on most browsers (Chrome Android, etc.)
+		if (screen.orientation?.lock) {
+			try {
+				await screen.orientation.lock('landscape');
+			} catch (error) {
+				// Lock may fail if not in fullscreen, not supported, or already locked
+				console.warn('Orientation lock not available:', error);
+			}
 		}
 	}
 
