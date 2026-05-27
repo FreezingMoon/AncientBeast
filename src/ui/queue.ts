@@ -228,6 +228,7 @@ class Vignette {
 	turnNumber = -1;
 	el: HTMLElement;
 	eventHandlers: QueueEventHandlers = {};
+	protected prevX = 0;
 
 	getHash() {
 		return 'none';
@@ -239,6 +240,7 @@ class Vignette {
 
 	insert(containerElement: HTMLElement, queuePosition: number, x: number) {
 		this.queuePosition = queuePosition;
+		this.prevX = x;
 		if (this.el) {
 			this.el.remove();
 		}
@@ -297,12 +299,25 @@ class Vignette {
 	}
 
 	animateUpdate(queuePosition: number, x: number) {
-		const keyframes = [{ transform: `translateX(${x}px) translateY(0px) scale(1)` }];
+		// Detect significant backward movement (e.g., when a creature is delayed and
+		// moves from the active section to the delayed section in the queue).
+		// The jump animation makes this position change more intuitive for the player.
+		const JUMP_THRESHOLD = 80; // more than one vignette width = likely a delay move
+		const isJump = this.prevX - x > JUMP_THRESHOLD;
+		const keyframes = isJump
+			? [
+					// Start at current position (prevX), arc upward then down to new position
+					{ transform: `translateX(${this.prevX}px) translateY(0px) scale(1)`, easing: 'ease-out' },
+					{ transform: `translateX(${(this.prevX + x) / 2}px) translateY(-60px) scale(1)`, easing: 'ease-in-out', offset: 0.4 },
+					{ transform: `translateX(${x}px) translateY(0px) scale(1)` },
+				]
+			: [{ transform: `translateX(${x}px) translateY(0px) scale(1)` }];
 		const animation = this.el.animate(keyframes, {
-			duration: CONST.animDurationMS,
+			duration: isJump ? CONST.animDurationMS + 150 : CONST.animDurationMS,
 			fill: 'forwards',
 		});
 		animation.commitStyles();
+		this.prevX = x;
 		return animation;
 	}
 
