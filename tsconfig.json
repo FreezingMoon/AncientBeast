@@ -14,7 +14,7 @@
 		"esModuleInterop": true,
 		"noImplicitAny": false,
 		"strict": false,
-		"types": ["jest"]
+		"types": ["jest", "jquery"]
 	},
 	"include": ["src", "types"]
 }

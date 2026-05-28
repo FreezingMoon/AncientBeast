@@ -2,7 +2,8 @@
  * Jest config for bot simulation tests.
  * Run via: npm run simulate
  */
-const base = require('./jest.config.js');
+
+import base from './jest.config.js';
 
 module.exports = {
 	...base,
