@@ -38,7 +38,7 @@ describe('Queue', () => {
 		expect(div.innerHTML).toBe('');
 	});
 
-	test('shows a translucent active unit preview where delay would place it', () => {
+	test('shows an insertion marker where delay would place the active unit', () => {
 		const div = document.createElement('div');
 		const queue = new Queue(div);
 
@@ -56,11 +56,10 @@ describe('Queue', () => {
 
 		queue.showDelayPreview();
 
-		const preview = div.querySelector('.delay-preview') as HTMLElement;
+		const preview = div.querySelector('.delay-preview-marker') as HTMLElement;
 		expect(preview).not.toBeNull();
 		expect(preview.getAttribute('aria-hidden')).toBe('true');
-		expect(preview.classList.contains('active')).toBe(false);
-		expect(preview.classList.contains('delayed')).toBe(true);
+		expect(preview.classList.contains('vignette')).toBe(false);
 		expect(preview.style.transform).toContain('translateX(160px)');
 
 		queue.clearDelayPreview();

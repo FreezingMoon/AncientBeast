@@ -1351,16 +1351,34 @@ div.section.info {
 	filter: brightness(0.96);
 }
 
-#queue .vignette.delay-preview {
-	opacity: 0.42;
+#queue .delay-preview-marker {
+	position: absolute;
+	top: -8px;
+	width: 0;
+	height: 96px;
 	pointer-events: none;
 
-	.frame {
-		filter: brightness(1.15) saturate(0.8);
+	&::before {
+		content: '';
+		position: absolute;
+		left: -3px;
+		top: 0;
+		width: 6px;
+		height: 100%;
+		border-radius: 999px;
+		background: rgba(255, 226, 90, 0.9);
+		box-shadow: 0 0 0 2px rgba(30, 18, 4, 0.75), 0 0 12px rgba(255, 226, 90, 0.75);
 	}
 
-	.overlay_frame {
-		opacity: 0.45;
+	&::after {
+		content: '';
+		position: absolute;
+		left: -7px;
+		top: -7px;
+		border-left: 7px solid transparent;
+		border-right: 7px solid transparent;
+		border-top: 10px solid rgba(255, 226, 90, 0.95);
+		filter: drop-shadow(0 1px 2px rgba(30, 18, 4, 0.85));
 	}
 }
 

@@ -71,16 +71,14 @@ export class Queue {
 			.slice(0, insertAt)
 			.reduce((position, vignette) => position + vignette.getWidth(), 0);
 
-		const preview = activeVignette.el.cloneNode(true) as HTMLElement;
-		preview.removeAttribute('creatureid');
-		preview.setAttribute('aria-hidden', 'true');
-		preview.classList.remove('active', 'xray');
-		preview.classList.add('delay-preview', 'delayed');
-		preview.style.zIndex = '999';
-		preview.style.transform = `translateX(${x}px) translateY(0px) scale(1)`;
+		const marker = document.createElement('div');
+		marker.setAttribute('aria-hidden', 'true');
+		marker.className = 'delay-preview delay-preview-marker';
+		marker.style.zIndex = '999';
+		marker.style.transform = `translateX(${x}px) translateY(0px) scale(1)`;
 
-		this.delayPreviewEl = preview;
-		this.element.appendChild(preview);
+		this.delayPreviewEl = marker;
+		this.element.appendChild(marker);
 	}
 
 	clearDelayPreview() {
