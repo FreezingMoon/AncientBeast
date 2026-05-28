@@ -686,6 +686,9 @@ export class UI {
 				click: () => {
 					if (!this.dashopen) {
 						if (game.turnThrottle || game.botController.isBotTurn()) {
+							if (game.botController.isBotTurn()) {
+								this.showCancelIconOnButton(this.btnSkipTurn.$button);
+							}
 							return;
 						}
 
@@ -722,6 +725,9 @@ export class UI {
 							!game.activeCreature?.canWait ||
 							game.queue.isCurrentEmpty()
 						) {
+							if (game.botController.isBotTurn()) {
+								this.showCancelIconOnButton(this.btnDelay.$button);
+							}
 							return;
 						}
 
@@ -826,16 +832,17 @@ export class UI {
 				{
 					$button: $j('.ability[ability="' + i + '"]'),
 					hasShortcut: true,
-					click: () => {
-						const game = this.game;
+				click: () => {
+					const game = this.game;
 
-						// Don't show ability range circles during bot's turn
-						if (game.botController.isBotTurn()) {
-							return;
-						}
+					// During bot turns, show cancelIcon and block interaction
+					if (game.botController.isBotTurn()) {
+						this.showCancelIconOnButton(b.$button);
+						return;
+					}
 
-						// Block all ability interactions while an animation is running
-						if (game.freezedInput) {
+					// Block all ability interactions while an animation is running
+					if (game.freezedInput) {
 							return;
 						}
 
@@ -907,12 +914,12 @@ export class UI {
 							if (i == 0) {
 								this.checkAbilities(); // Ensure state is up to date
 								const ab = game.activeCreature.abilities[0];
-								if (ab.message === game.msg.abilities.passiveUnavailable) {
-									if (!game.freezedInput) {
-										this.animateNoTargetAbilityRanges();
-									}
-									this.flashAbilityBtn(0);
-									return;
+							if (ab.message === game.msg.abilities.passiveUnavailable) {
+								if (!game.freezedInput) {
+									this.animateNoTargetAbilityRanges();
+								}
+								this.flashAbilityBtn(0);
+								return;
 								}
 								// Joywin
 								const selectedAbility = this.selectNextAbility();
@@ -924,21 +931,28 @@ export class UI {
 											this.clickedAbility = -1;
 										}
 									});
-									b.cssTransition('nextIcon', 1000);
-									this.flashAbilityBtn(0);
-								} else if (selectedAbility === -1) {
-									this.abilitiesButtons.forEach((btn, index) => {
-										if (index === 0) {
-											btn.$button.removeClass('nextIcon');
-											btn.$button.removeClass('cancelIcon');
-											this.clickedAbility = -1;
-										}
-									});
-									b.cssTransition('cancelIcon', 1000);
-									this.flashAbilityBtn(0);
+							b.cssTransition('nextIcon', 1000);
+							this.flashAbilityBtn(0);
+						} else if (selectedAbility === -1) {
+							this.abilitiesButtons.forEach((btn, index) => {
+								if (index === 0) {
+									btn.$button.removeClass('nextIcon');
+									btn.$button.removeClass('cancelIcon');
+									this.clickedAbility = -1;
 								}
+							});
+							b.cssTransition('cancelIcon', 1000);
+							this.flashAbilityBtn(0);
+						}
 								return;
 							}
+					if (
+						ability.used ||
+						ability.message === game.msg.abilities.noTarget ||
+						b.state === ButtonStateEnum.noClick
+					) {
+						return;
+					}
 							// Colored frame around selected ability
 							if (ability.require() == true && i != 0) {
 								if (ability._abilityRangeHexes?.length) {
@@ -2972,6 +2986,17 @@ export class UI {
 		});
 	}
 
+	/**
+	 * Show cancelIcon briefly on any button element during bot turns.
+	 * Used for skip/delay buttons and ability hotkey feedback.
+	 */
+	showCancelIconOnButton($btn: JQuery<HTMLElement>) {
+		$btn.removeClass('cancelIcon');
+		void $btn[0].offsetWidth; // force reflow
+		$btn.addClass('cancelIcon');
+		setTimeout(() => $btn.removeClass('cancelIcon'), 1000);
+	}
+
 	flashAbilityBtn(i: number) {
 		const ab = this.game.activeCreature?.abilities[i];
 		if (
@@ -2984,6 +3009,16 @@ export class UI {
 		)
 			return;
 		const $btn = this.abilitiesButtons[i].$button;
+
+		// During bot turns, skip the blink animation and just show cancelIcon briefly
+		if (this.game.botController?.isBotTurn()) {
+			$btn.removeClass('cancelIcon');
+			void $btn[0].offsetWidth;
+			$btn.addClass('cancelIcon');
+			setTimeout(() => $btn.removeClass('cancelIcon'), 1000);
+			return;
+		}
+
 		$btn.removeClass('iconInvertFlash');
 		void $btn[0].offsetWidth;
 		$btn.addClass('iconInvertFlash');

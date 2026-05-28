@@ -9,6 +9,9 @@ export class Hotkeys {
 
 	pressQ() {
 		if (this.ui.game.botController?.isBotTurn()) {
+			if (!this.ui.dashopen) {
+				this.ui.showCancelIconOnButton(this.ui.abilitiesButtons[0].$button);
+			}
 			return;
 		}
 		if (this.ui.dashopen) {
@@ -49,6 +52,10 @@ export class Hotkeys {
 			if (this.ui.dashopen) {
 				this.ui.gridSelectDown();
 			} else {
+				if (this.ui.game.botController?.isBotTurn()) {
+					this.ui.showCancelIconOnButton(this.ui.btnSkipTurn.$button);
+					return;
+				}
 				this.ui.btnSkipTurn.triggerClick();
 			}
 		}
@@ -69,6 +76,10 @@ export class Hotkeys {
 			if (this.ui.dashopen) {
 				this.ui.gridSelectRight();
 			} else {
+				if (this.ui.game.botController?.isBotTurn()) {
+					this.ui.showCancelIconOnButton(this.ui.btnDelay.$button);
+					return;
+				}
 				this.ui.btnDelay.triggerClick();
 			}
 		}
@@ -76,6 +87,9 @@ export class Hotkeys {
 
 	pressW() {
 		if (this.ui.game.botController?.isBotTurn()) {
+			if (!this.ui.dashopen) {
+				this.ui.showCancelIconOnButton(this.ui.abilitiesButtons[1].$button);
+			}
 			return;
 		}
 		if (!this.ui.dashopen) {
@@ -88,6 +102,9 @@ export class Hotkeys {
 
 	pressE() {
 		if (this.ui.game.botController?.isBotTurn()) {
+			if (!this.ui.dashopen) {
+				this.ui.showCancelIconOnButton(this.ui.abilitiesButtons[2].$button);
+			}
 			return;
 		}
 		if (!this.ui.dashopen) {
@@ -139,6 +156,9 @@ export class Hotkeys {
 		}
 
 		if (this.ui.game.botController?.isBotTurn()) {
+			if (!this.ui.dashopen) {
+				this.ui.showCancelIconOnButton(this.ui.abilitiesButtons[3].$button);
+			}
 			return;
 		}
 		if (!this.ui.dashopen) {
