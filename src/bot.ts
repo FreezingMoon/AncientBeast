@@ -16,6 +16,16 @@ import StomperStrategy from './bots/Stomper';
 import CycloperStrategy from './bots/Cycloper';
 import ImpalerStrategy from './bots/Impaler';
 import CyberWolfStrategy from './bots/Cyber-Wolf';
+import BountyHunterStrategy from './bots/Bounty-Hunter';
+import UncleFungusStrategy from './bots/Uncle-Fungus';
+import InfernalStrategy from './bots/Infernal';
+import HornHeadStrategy from './bots/Horn-Head';
+import KnightmareStrategy from './bots/Knightmare';
+import SwineThugStrategy from './bots/Swine-Thug';
+import HeadlessStrategy from './bots/Headless';
+import NutcaseStrategy from './bots/Nutcase';
+import ScavengerStrategy from './bots/Scavenger';
+import ChimeraStrategy from './bots/Chimera';
 
 /**
  * Optional per-unit behaviour overrides for BotController.
@@ -106,6 +116,16 @@ export const unitStrategies: Partial<Record<string, UnitBotStrategy>> = {
 	P1: GumbleStrategy,
 	W3: CycloperStrategy,
 	S5: ImpalerStrategy,
+	A2: BountyHunterStrategy,
+	G3: UncleFungusStrategy,
+	L2: InfernalStrategy,
+	W5: HornHeadStrategy,
+	S4: KnightmareStrategy,
+	A1: SwineThugStrategy,
+	W4: HeadlessStrategy,
+	E2: NutcaseStrategy,
+	P3: ScavengerStrategy,
+	P6: ChimeraStrategy,
 };
 
 type BotPendingAction =
@@ -129,6 +149,16 @@ export default class BotController {
 	failedAbilityIds = new Set<number>();
 	isResolvingQuery = false;
 	stalePendingActionMs = 2200;
+	/** Delay before the onSelect callback fires in resolveQuery (ms). */
+	selectDelayMs = 50;
+	/** Delay before the onConfirm callback fires in resolveQuery (ms). */
+	confirmDelayMs = 140;
+	/** Default delay passed to queueDecision() when scheduling a new turn. */
+	turnDelayMs = 300;
+	/** Delay for the very first queueDecision() call when a new creature turn starts.
+	 *  Defaults to turnDelayMs * 4 + 150 to give the UI time to settle.
+	 *  Override this in simulation environments to reduce fake-time overhead. */
+	startTurnDelayMs = -1; // -1 = use default formula
 	/** The game round during which damage was last dealt to any creature. */
 	lastDamageRound = 0;
 
@@ -156,7 +186,7 @@ export default class BotController {
 			(message === 'abilityend' || message === 'movementComplete') &&
 			payload?.creature?.id === this.game.activeCreature?.id
 		) {
-			this.queueDecision(250);
+			this.queueDecision(this.turnDelayMs);
 		}
 	}
 
@@ -174,9 +204,15 @@ export default class BotController {
 				// Dazzled unit — the creature's activate() will handle the skip
 				return;
 			}
+			if (creature?.isFrozen() || creature?.isDizzy()) {
+				// Frozen/dizzied unit — the creature's activate() interval will handle the skip
+				return;
+			}
 			// Minimize the combat log so it doesn't obstruct bot actions
 			this.game.UI?.chat?.hide();
-			this.queueDecision(1350);
+			this.queueDecision(
+				this.startTurnDelayMs >= 0 ? this.startTurnDelayMs : this.turnDelayMs * 4 + 150,
+			);
 		}
 	}
 
@@ -203,9 +239,9 @@ export default class BotController {
 	 * - Stagnation pressure: rises after 3 global damage-free rounds (+1.5 per round).
 	 */
 	getAggressionFactor(creature: Creature): number {
-		const ageFactor = Math.max(0, creature.turnsActive - 4) * 0.5;
+		const ageFactor = Math.max(0, creature.turnsActive - 4) * 0.8;
 		const stagnantRounds = this.game.turn - this.lastDamageRound;
-		const stagnationFactor = Math.max(0, stagnantRounds - 3) * 1.5;
+		const stagnationFactor = Math.max(0, stagnantRounds - 3) * 2.5;
 		const engagementPressure = Math.max(0, this.getTeamEngagementPressure(creature));
 		return Math.min(10, ageFactor + stagnationFactor + engagementPressure * 1.25);
 	}
@@ -275,9 +311,15 @@ export default class BotController {
 
 		if (this.pendingAction) {
 			const staleMs = Date.now() - this.pendingActionSetAt;
-			if (!this.isResolvingQuery && staleMs > this.stalePendingActionMs) {
+			if (staleMs > this.stalePendingActionMs) {
+				// Force-clear even if isResolvingQuery is stuck true from a failed chain.
+				this.isResolvingQuery = false;
 				this.clearPendingAction({ markFailedAbility: true });
 				this.queueDecision(120);
+			} else if (!this.isResolvingQuery) {
+				// No active resolution cycle driving progress; schedule a retry after
+				// the remaining stale window so we don't just silently block forever.
+				this.queueDecision(Math.max(200, this.stalePendingActionMs - staleMs + 100));
 			}
 			return;
 		}
@@ -293,7 +335,7 @@ export default class BotController {
 			return;
 		}
 
-		if (this.decisionCount >= 8) {
+		if (this.decisionCount >= 12) {
 			this.game.skipTurn({ noTooltip: true });
 			return;
 		}
@@ -384,7 +426,15 @@ export default class BotController {
 				abilityIndex: i,
 			});
 			const previousQueryOpt = this.game.grid?.lastQueryOpt;
-			ability.use();
+			try {
+				ability.use();
+			} catch {
+				// Ability threw (e.g. TypeError accessing undefined position).
+				// Treat as a failed ability and try the next one.
+				this.clearPendingAction();
+				this.failedAbilityIds.add(i);
+				continue;
+			}
 
 			// Case A: resolveQuery already ran synchronously with no targets and cleared
 			// pendingAction (empty query path).  failedAbilityIds was already updated.
@@ -401,6 +451,12 @@ export default class BotController {
 			}
 
 			// Case C: query opened successfully — wait for resolveQuery callback.
+			// Add a stale-recovery insurance timer: if the resolution timers fire normally
+			// they call queueDecision which cancels this; if resolveQuery was skipped due
+			// to a stale isResolvingQuery=true, this fires and the stale path recovers.
+			if (this.pendingAction !== null) {
+				this.queueDecision(this.stalePendingActionMs + 200);
+			}
 			return true;
 		}
 
@@ -453,6 +509,19 @@ export default class BotController {
 		this.setPendingAction({ type: 'move' });
 		this.moveAttempted = true;
 		activeCreature.queryMove();
+		// If queryHexes wasn't reached (noActionPossible skips it for bots), resolveQuery
+		// was never called so pendingAction stays set with no resolver — clear immediately.
+		if (this.pendingAction !== null && !this.isResolvingQuery) {
+			this.clearPendingAction();
+			return false;
+		}
+		// resolveQuery was entered (isResolvingQuery=true) but may have been skipped if a
+		// previous call left it stuck true.  Schedule a stale-recovery check as insurance:
+		// if the normal resolution timers (50ms + 140ms) fire they call queueDecision which
+		// cancels this; if they don't, we recover via the stale-action path in takeTurn.
+		if (this.pendingAction !== null) {
+			this.queueDecision(this.stalePendingActionMs + 200);
+		}
 		return true;
 	}
 
@@ -531,7 +600,7 @@ export default class BotController {
 				this.isResolvingQuery = false;
 				failPendingAction();
 			}
-		}, 50);
+		}, this.selectDelayMs);
 
 		setTimeout(() => {
 			if (!this.isBotTurn()) {
@@ -542,21 +611,32 @@ export default class BotController {
 			try {
 				handlers.onConfirm(chosenHex);
 			} catch {
+				// Ensure isResolvingQuery is cleared so the next resolveQuery() call is
+				// not blocked by a stale true value from a chained query that was started
+				// inside onConfirm before it threw.
+				this.isResolvingQuery = false;
 				failPendingAction();
 				return;
 			}
-			setTimeout(() => {
-				if (this.pendingAction && !this.isResolvingQuery) {
-					this.clearPendingAction();
-				}
-			}, 0);
+			// Clear pendingAction synchronously after onConfirm returns.
+			// Using setTimeout(0) is unreliable: sinon fake timers enforce a 1ms minimum
+			// delay, so a setTimeout(0) fires at the same tick as setTimeout(1) —
+			// AFTER any timer scheduled inside onConfirm (e.g. movementComplete).
+			// Clearing here ensures pendingAction is null when movementComplete fires
+			// its callback, preventing queryHexes from re-entering resolveQuery.
+			// The guard `!isResolvingQuery` protects chained ability queries: if a
+			// second query opened during onConfirm it set isResolvingQuery=true, so
+			// we skip the clear and let that chain's resolution cycle clear it instead.
+			if (this.pendingAction && !this.isResolvingQuery) {
+				this.clearPendingAction();
+			}
 			// Always keep a fallback decision in case no follow-up signal arrives.
 			// If a chained query starts during onConfirm, defer fallback scheduling
 			// to the chained resolution cycle instead.
 			if (!this.isResolvingQuery) {
-				this.queueDecision(1200);
+				this.queueDecision(this.confirmDelayMs * 9);
 			}
-		}, 140);
+		}, this.confirmDelayMs);
 	}
 
 	chooseHexForCurrentQuery(hexes: Hex[]) {
@@ -688,18 +768,31 @@ export default class BotController {
 			if (score !== undefined) return score;
 		}
 
-		const adjacentEnemy = hex
-			.adjacentHex(1)
-			.some(
-				(adjacentHex) =>
-					adjacentHex.creature && isTeam(activeCreature, adjacentHex.creature, Team.Enemy),
-			);
+		const adjHexes = hex.adjacentHex(1);
+		const adjacentEnemyCreatures = new Map<number, Creature>();
+		adjHexes.forEach((adjacentHex) => {
+			if (
+				adjacentHex.creature instanceof Creature &&
+				isTeam(activeCreature, adjacentHex.creature, Team.Enemy)
+			) {
+				adjacentEnemyCreatures.set(adjacentHex.creature.id, adjacentHex.creature);
+			}
+		});
+		const adjacentEnemyCount = adjacentEnemyCreatures.size;
 
 		const aggression = this.getAggressionFactor(activeCreature);
 
 		let score = 0;
 		// Adjacent-enemy bonus grows with aggression, pushing units to seek contact.
-		score += adjacentEnemy ? 120 + aggression * 25 : 0;
+		// First adjacent enemy gives the full bonus; each additional enemy beyond one
+		// is diminished — being flanked by 3 enemies is dangerous even for fighters.
+		if (adjacentEnemyCount >= 1) {
+			score += 120 + aggression * 25;
+			const extraEnemies = adjacentEnemyCount - 1;
+			const healthRatio = activeCreature.health / activeCreature.stats.health;
+			score -= extraEnemies * Math.round(80 + (1 - healthRatio) * 120);
+		}
+
 		score -= activeCreature.hexagons.some(
 			(creatureHex) => creatureHex.pos.x === hex.x && creatureHex.pos.y === hex.y,
 		)
@@ -707,16 +800,7 @@ export default class BotController {
 			: 0;
 
 		// Apply enemy-owned proximity penalties for adjacent hostile units.
-		const adjacentEnemies = new Map<number, Creature>();
-		hex.adjacentHex(1).forEach((adjacentHex) => {
-			if (
-				adjacentHex.creature instanceof Creature &&
-				isTeam(activeCreature, adjacentHex.creature, Team.Enemy)
-			) {
-				adjacentEnemies.set(adjacentHex.creature.id, adjacentHex.creature);
-			}
-		});
-		adjacentEnemies.forEach((enemy) => {
+		adjacentEnemyCreatures.forEach((enemy) => {
 			const enemyStrategy = unitStrategies[enemy.type as string];
 			score += enemyStrategy?.getProximityPenalty?.(activeCreature, enemy, hex, this) ?? 0;
 		});
@@ -738,9 +822,17 @@ export default class BotController {
 		opts: { retreating: boolean } = { retreating: false },
 	): number {
 		let penalty = 0;
+		// Always check destination hex — getTrapsForHex falls back to hex.trap for unit tests.
 		this.getTrapsForHex(destination).forEach((trap) => {
 			penalty += this.getTrapExposurePenalty(creature, trap, true, opts);
 		});
+
+		// Skip the expensive A* path scan when no traps are registered in the game.
+		// game.traps is the authoritative source for live traps; unit tests that set
+		// hex.trap directly still get the destination check above.
+		if (!this.game.traps?.length) {
+			return penalty;
+		}
 
 		try {
 			const path = creature.calculatePath({ x: destination.x, y: destination.y });
@@ -921,10 +1013,14 @@ export default class BotController {
 				let score = 1000 - target.health + target.size * 10;
 
 				// Death blow bonus: heavily prefer targets close to elimination
-				if (healthPercent < 0.25) {
-					score += 400;
+				if (target.health <= 8) {
+					score += 650;
+				} else if (healthPercent < 0.2) {
+					score += 480;
+				} else if (healthPercent < 0.35) {
+					score += 250;
 				} else if (healthPercent < 0.5) {
-					score += 150;
+					score += 120;
 				}
 
 				// Prefer targets that can still be fatigued and/or have more energy to drain
@@ -950,10 +1046,13 @@ export default class BotController {
 			}
 
 			if (hex.creature === activeCreature) {
-				return 150;
+				// Self-targeting (buff/utility abilities) — modest positive score
+				return 80;
 			}
 
-			return 100;
+			// Allied creature in ability range: penalise to avoid collateral from area
+			// abilities, but not so heavily that pure-buff abilities targeting only allies fail.
+			return -200;
 		}
 
 		return 100 - this.closestDistanceToEnemy(hex) * 10;

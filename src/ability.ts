@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import * as $j from 'jquery';
+import $j from 'jquery';
 import { Damage, DamageResult } from './damage';
 import { Direction, Hex } from './utility/hex';
 import { Creature, CreatureMasteries, Movement } from './creature';

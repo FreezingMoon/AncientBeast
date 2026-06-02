@@ -222,12 +222,12 @@ describe('Game unload confirmation integration', () => {
 		window.onbeforeunload = originalOnBeforeUnload;
 	});
 
-	test('confirmWindowUnload onbeforeunload handler uses active state for prompt and bypass', () => {
+	test('confirmWindowUnload onbeforeunload handler uses active state for prompt and bypass', async () => {
 		jest.resetModules();
 		let TestUI: typeof UI | undefined;
-		jest.isolateModules(() => {
-			// eslint-disable-next-line @typescript-eslint/no-var-requires
-			TestUI = require('../ui/interface').UI;
+		await jest.isolateModulesAsync(async () => {
+			const mod = await import('../ui/interface');
+			TestUI = mod.UI;
 		});
 
 		if (!TestUI) {
@@ -276,14 +276,14 @@ describe('Game unload confirmation integration', () => {
 		window.onbeforeunload = originalOnBeforeUnload;
 	});
 
-	test('confirmWindowUnload dev message handler shows save prompt and dismisses cleanly', () => {
+	test('confirmWindowUnload dev message handler shows save prompt and dismisses cleanly', async () => {
 		jest.resetModules();
 		const originalNodeEnv = process.env.NODE_ENV;
 		process.env.NODE_ENV = 'development';
 		let TestUI: typeof UI | undefined;
-		jest.isolateModules(() => {
-			// eslint-disable-next-line @typescript-eslint/no-var-requires
-			TestUI = require('../ui/interface').UI;
+		await jest.isolateModulesAsync(async () => {
+			const mod = await import('../ui/interface');
+			TestUI = mod.UI;
 		});
 
 		if (!TestUI) {
@@ -466,14 +466,14 @@ describe('Game unload confirmation integration', () => {
 		process.env.NODE_ENV = originalNodeEnv;
 	});
 
-	test('confirmWindowUnload uses custom modal for manual refresh shortcuts', () => {
+	test('confirmWindowUnload uses custom modal for manual refresh shortcuts', async () => {
 		jest.resetModules();
 		const originalNodeEnv = process.env.NODE_ENV;
 		process.env.NODE_ENV = 'test';
 		let TestUI: typeof UI | undefined;
-		jest.isolateModules(() => {
-			// eslint-disable-next-line @typescript-eslint/no-var-requires
-			TestUI = require('../ui/interface').UI;
+		await jest.isolateModulesAsync(async () => {
+			const mod = await import('../ui/interface');
+			TestUI = mod.UI;
 		});
 
 		if (!TestUI) {

@@ -1,4 +1,4 @@
-import * as $j from 'jquery';
+import $j from 'jquery';
 import { Animations } from './animations';
 import { CreatureQueue } from './creature_queue';
 import { GameLog } from './utility/gamelog';
@@ -12,7 +12,8 @@ import { Creature, CreatureHintType } from './creature';
 import { unitData } from './data/units';
 import 'pixi';
 import 'p2';
-// @ts-expect-error 2307
+import 'p2';
+// @ts-expect-error: Phaser CE has no official type declarations
 import Phaser, { Signal } from 'phaser';
 import MatchI from './multiplayer/match';
 import Gameplay from './multiplayer/gameplay';
@@ -1500,6 +1501,7 @@ export default class Game {
 		this.endGameSound = this.soundsys.playSFX('sounds/drums');
 
 		this.stopTimer();
+		this.activeCreature = undefined;
 		this.gameState = 'ended';
 
 		//-------End bonuses--------//
@@ -1615,7 +1617,6 @@ export default class Game {
 	}
 
 	resetGame() {
-		this.endGameSound;
 		this.UI?.metaPowers?._clearPowers();
 		this.UI.showGameSetup();
 		this.stopTimer();

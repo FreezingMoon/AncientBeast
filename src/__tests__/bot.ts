@@ -188,8 +188,8 @@ describe('BotController', () => {
 		const bot = new BotController(game);
 
 		expect(bot.closestDistanceToEnemy({ x: 0, y: 0 })).toBe(5);
-		// Allied creature at (1,0): team 2, same parity as active team 0 → ally branch → score = 100
-		expect(bot.scoreAbilityHex(makeHex({ x: 1, y: 0, creature: alliedCreature }))).toBe(100);
+		// Allied creature at (1,0): team 2, same parity as active team 0 → ally branch → score = -200
+		expect(bot.scoreAbilityHex(makeHex({ x: 1, y: 0, creature: alliedCreature }))).toBe(-200);
 		// Enemy creature at (5,0): team 1, different parity → enemy branch → score = 1000 - 40 + 1*10 = 970
 		// Enemy hex should score higher than allied hex
 		expect(bot.scoreAbilityHex(makeHex({ x: 5, y: 0, creature: enemyCreature }))).toBeGreaterThan(
@@ -238,7 +238,7 @@ describe('BotController', () => {
 		expect(onConfirm).toHaveBeenCalled();
 		jest.runOnlyPendingTimers();
 		expect(bot.pendingAction).toBeNull();
-		expect(queueDecisionSpy).toHaveBeenCalledWith(1200);
+		expect(queueDecisionSpy).toHaveBeenCalledWith(1260);
 	});
 
 	test('query resolution preserves pending ability for chained bot queries', () => {

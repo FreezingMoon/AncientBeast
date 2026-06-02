@@ -93,6 +93,9 @@ module.exports = {
 		'^assets/(.*)$': '<rootDir>/assets/$1',
 	},
 
+	// Exclude simulation tests — run those via `npm run simulate` instead
+	testPathIgnorePatterns: ['/node_modules/', '/src/__tests__/simulation/'],
+
 	// An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
 	// modulePathIgnorePatterns: [],
 

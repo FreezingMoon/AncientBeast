@@ -1,4 +1,4 @@
-import * as $j from 'jquery';
+import $j from 'jquery';
 import Cookies from 'js-cookie';
 import { capitalize } from '../utility/string';
 import { Button, ButtonStateEnum } from './button';
@@ -228,6 +228,7 @@ export class MetaPowers {
 			const cookieData = JSON.parse(Cookies.get(COOKIE_KEY));
 			powers = cookieData?.toggles;
 			panelVisible = !!cookieData?.panelVisible;
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		} catch (error) {
 			Cookies.remove(COOKIE_KEY);
 			return;

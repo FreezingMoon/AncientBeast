@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import * as $j from 'jquery';
+import $j from 'jquery';
 
 export const ButtonStateEnum = {
 	normal: 'normal',
@@ -213,7 +213,9 @@ export class Button {
 		});
 
 		this.$button.removeClass('disabled glowing selected active noclick slideIn hidden');
-		wrapperElement && wrapperElement.removeClass('hidden');
+		if (wrapperElement) {
+			wrapperElement.removeClass('hidden');
+		}
 		this.$button.css(this.css.normal);
 
 		if (state === ButtonStateEnum.hidden) {

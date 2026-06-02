@@ -1,4 +1,4 @@
-import * as $j from 'jquery';
+import $j from 'jquery';
 import { getUrl } from './assets';
 import { Creature } from './creature';
 import Game from './game';

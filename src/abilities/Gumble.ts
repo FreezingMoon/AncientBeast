@@ -373,6 +373,11 @@ export default (G: Game) => {
 				this.end();
 				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_VERTICAL, true);
 
+				if (!target) {
+					G.activeCreature.queryMove();
+					return;
+				}
+
 				if (isTeam(this.creature, target, Team.Enemy)) {
 					applyEnemyPrettyRibbon(this, target, G);
 				} else {

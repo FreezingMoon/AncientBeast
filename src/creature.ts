@@ -1,4 +1,4 @@
-import * as $j from 'jquery';
+import $j from 'jquery';
 import { Ability } from './ability';
 import { search } from './utility/pathfinding';
 import { Hex } from './utility/hex';
@@ -491,7 +491,11 @@ export class Creature {
 						this.recharge(stats.meditation);
 					}
 				} else {
-					stats.regrowth < 0 ? this.heal(stats.regrowth, true) : this.hint('♦', 'damage');
+					if (stats.regrowth < 0) {
+						this.heal(stats.regrowth, true);
+					} else {
+						this.hint('♦', 'damage');
+					}
 				}
 			} else {
 				this.hint('♣', 'damage');
@@ -1983,7 +1987,7 @@ export class Creature {
 		// If the creature has an ability that modifies movement type, use that,
 		// otherwise use the creature's base movement type
 		for (let i = 0; i < totalAbilities; i++) {
-			if ('movementType' in this.abilities[i]) {
+			if (typeof this.abilities[i].movementType === 'function') {
 				return this.abilities[i].movementType();
 			}
 		}
