@@ -60,11 +60,30 @@ describe('Queue', () => {
 		expect(preview).not.toBeNull();
 		expect(preview.getAttribute('aria-hidden')).toBe('true');
 		expect(preview.classList.contains('vignette')).toBe(false);
-		expect(preview.style.transform).toContain('translateX(160px)');
+		expect(preview.style.transform).toContain('translateX(260px)');
 
 		queue.clearDelayPreview();
 
 		expect(div.querySelector('.delay-preview')).toBeNull();
+	});
+
+	test('shows the delay insertion marker before the visible round marker when no unit is delayed', () => {
+		const div = document.createElement('div');
+		const queue = new Queue(div);
+
+		queue.setQueue(
+			{
+				queue: [creature({ id: 1 }), creature({ id: 2 })],
+				nextQueue: [],
+			} as unknown as CreatureQueue,
+			1,
+		);
+
+		queue.showDelayPreview();
+
+		const preview = div.querySelector('.delay-preview-marker') as HTMLElement;
+		expect(preview).not.toBeNull();
+		expect(preview.style.transform).toContain('translateX(180px)');
 	});
 
 	test('clears stale delay preview whenever the queue is re-rendered', () => {

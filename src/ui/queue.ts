@@ -65,9 +65,8 @@ export class Queue {
 			return;
 		}
 
-		const queueWithoutActive = this.vignettes.filter((v) => v !== activeVignette);
-		const insertAt = this.getDelayPreviewIndex(activeVignette, queueWithoutActive);
-		const x = queueWithoutActive
+		const insertAt = this.getDelayPreviewIndex(activeVignette, this.vignettes);
+		const x = this.vignettes
 			.slice(0, insertAt)
 			.reduce((position, vignette) => position + vignette.getWidth(), 0);
 
