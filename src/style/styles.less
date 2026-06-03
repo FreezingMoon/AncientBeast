@@ -1359,6 +1359,43 @@ div.section.info {
 	filter: brightness(0.96);
 }
 
+#queue .delay-preview-marker {
+	position: absolute;
+	top: -18px;
+	width: 0;
+	height: 50px;
+	pointer-events: none;
+
+	&::before {
+		content: '';
+		position: absolute;
+		left: -2px;
+		top: 14px;
+		width: 4px;
+		height: 36px;
+		border-radius: 2px;
+		background: repeating-linear-gradient(
+			to bottom,
+			rgba(255, 255, 255, 0.95) 0 4px,
+			rgba(255, 255, 255, 0) 4px 7px
+		);
+		filter: drop-shadow(1px 0 0 #0b0907) drop-shadow(-1px 0 0 #0b0907)
+			drop-shadow(0 1px 1px rgba(0, 0, 0, 0.85));
+	}
+
+	&::after {
+		content: '';
+		position: absolute;
+		left: -8px;
+		top: 0;
+		width: 16px;
+		height: 12px;
+		background: rgba(255, 255, 255, 0.95);
+		clip-path: polygon(50% 100%, 0 0, 100% 0);
+		filter: drop-shadow(0 1px 0 #0b0907) drop-shadow(0 2px 2px rgba(0, 0, 0, 0.85));
+	}
+}
+
 #abilities {
 	position: relative;
 	display: flex;
