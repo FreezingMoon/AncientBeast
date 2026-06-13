@@ -182,9 +182,7 @@ const HornHeadStrategy: UnitBotStrategy = {
 			(ability) => typeof ability.interceptDeath === 'function',
 		);
 		if (hasDeathIntercept && hex.trap) {
-			const enduranceRatio =
-				activeCreature.endurance /
-				Math.max(1, activeCreature.stats.endurance);
+			const enduranceRatio = activeCreature.endurance / Math.max(1, activeCreature.stats.endurance);
 			if (enduranceRatio > 0.25) {
 				score -= 80;
 			} else if (enduranceRatio > 0) {

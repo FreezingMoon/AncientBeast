@@ -1857,7 +1857,15 @@ export class Creature {
 			}
 		}
 
-
+		if (this.player.isAnnihilated()) {
+			// Remove humiliation as annihilation is an upgrade
+			const total = this.killer.score.length;
+			for (let i = 0; i < total; i++) {
+				const s = this.killer.score[i];
+				if (s.type == 'humiliation') {
+					if (s.player == this.team) {
+						this.killer.score.splice(i, 1);
+					}
 
 					break;
 				}
