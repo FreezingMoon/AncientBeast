@@ -35,6 +35,7 @@ const makeCreature = ({
 	size = 1,
 	endurance = 100,
 	maxEndurance = 100,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	undead = false,
 }: {
 	id: number;
