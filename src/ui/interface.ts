@@ -2457,7 +2457,7 @@ export class UI {
 			},
 			{
 				cls: 'creaturebonus',
-				emoji: emoji.get('heartbeat'),
+				emoji: emoji.get('chicken'),
 				title: 'Survivor Units',
 			},
 			{
