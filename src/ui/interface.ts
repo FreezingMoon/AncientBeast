@@ -2297,6 +2297,7 @@ export class UI {
 
 		// Configure scoreboard data
 		this.$scoreboard.find('#scoreboardTitle').text('Score');
+		$j('#winnerMessage').text('');
 
 		const date = new Date().valueOf() - game.pauseTime;
 		const players = game.players;
@@ -2390,7 +2391,7 @@ export class UI {
 		});
 
 		const appendWinnerMessage = (winners) => {
-			const $winnerMessage = $j('#winnerMessage').empty();
+			const $winnerMessage = this.$scoreboard.find('#scoreboardTitle').empty();
 
 			winners.forEach((winner, index) => {
 				if (index > 0) {
@@ -2533,9 +2534,6 @@ export class UI {
 		}
 
 		if (gameOver) {
-			// Set title
-			this.$scoreboard.find('#scoreboardTitle').text('Match Over');
-
 			// Hide close button on game over screen
 			this.$scoreboard.find('.framed-modal__return').hide();
 
@@ -2553,7 +2551,7 @@ export class UI {
 					appendWinnerMessage([game.players[1], game.players[3]]);
 				} else if (score1 == score2) {
 					// Draw
-					$j('#winnerMessage').text('Draw!');
+					this.$scoreboard.find('#scoreboardTitle').text('Draw!');
 				}
 			} else {
 				// 1 vs 1
@@ -2568,7 +2566,7 @@ export class UI {
 					appendWinnerMessage([game.players[1]]);
 				} else if (score1 == score2) {
 					// Draw
-					$j('#winnerMessage').text('Draw!');
+					this.$scoreboard.find('#scoreboardTitle').text('Draw!');
 				}
 			}
 		} else {
