@@ -401,9 +401,19 @@ export default (G: Game) => {
 				let hexes = [];
 				if (!selfOnly) {
 					// Gather all the reachable hexes, including the current one
-					hexes = G.grid.getFlyingRange(swine.x, swine.y, 50, 1, 0);
+					hexes = G.grid.getFlyingRange(swine.x, swine.y, 50, 1, swine.id);
 				}
 				hexes.push(G.grid.hexes[swine.y][swine.x]);
+
+				// Filter out hexes containing any creatures (except self for self-cast)
+				hexes = hexes.filter((hex) => {
+					const isSelf = hex.x === swine.x && hex.y === swine.y;
+					if (isSelf) {
+						return true;
+					}
+					const creatures = getPointFacade().getCreaturesAt(hex.x, hex.y);
+					return creatures.length === 0;
+				});
 
 				G.grid.queryHexes({
 					fnOnCancel: function () {
@@ -451,11 +461,12 @@ export default (G: Game) => {
 						'onStepIn',
 						{
 							requireFn: function () {
-								const creaturesOnHex = getPointFacade().getCreaturesAt(hex.x, hex.y);
+								const creaturesOnHex = getPointFacade().getCreaturesAt(this.trap.x, this.trap.y);
 								if (creaturesOnHex.length === 0) {
 									return false;
 								}
-								return creaturesOnHex[0].type != 'A1';
+								// Swine Thugs are immune to the slow effect (they get Spa Goggles instead)
+								return !creaturesOnHex.some((c) => c.type === 'A1');
 							},
 							effectFn: function (effect, crea: Creature) {
 								if (crea) {
