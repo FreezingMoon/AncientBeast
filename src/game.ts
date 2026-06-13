@@ -1644,6 +1644,12 @@ export default class Game {
 		this.turnThrottle = false;
 		this.turn = 0;
 
+		// Destroy existing traps and drops to avoid invisible remnants after restart.
+		this.traps.forEach((trap) => trap.destroy());
+		this.drops.forEach((drop) => drop.destroy());
+		this.traps = [];
+		this.drops = [];
+
 		// Recreate signal channels to avoid accumulating UI listeners between restarts.
 		const signalChannels = ['ui', 'metaPowers', 'creature', 'hex'];
 		this.signals = this.setupSignalChannels(signalChannels);

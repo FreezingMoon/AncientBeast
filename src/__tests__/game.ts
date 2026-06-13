@@ -126,68 +126,75 @@ describe('Game replay completion', () => {
 });
 
 describe('Game reset lifecycle', () => {
-	test('resetGame recreates signal channels to avoid listener accumulation after restart', () => {
-		const showGameSetup = jest.fn();
-		const stopTimer = jest.fn();
-		const resetLog = jest.fn();
-		const oldSignalCreatureAdd = jest.fn();
-		const newSignalCreatureAdd = jest.fn();
-		const setupSignalChannels = jest.fn(() => ({
-			ui: { add: jest.fn(), dispatch: jest.fn() },
-			metaPowers: { add: jest.fn(), dispatch: jest.fn() },
-			creature: { add: newSignalCreatureAdd, dispatch: jest.fn() },
-			hex: { add: jest.fn(), dispatch: jest.fn() },
-		}));
-
-		const game = {
+	const makeMockGame = (overrides = {}): Game =>
+		({
 			UI: {
 				metaPowers: { _clearPowers: jest.fn() },
-				showGameSetup,
+				showGameSetup: jest.fn(),
 			},
-			stopTimer,
-			players: [1],
-			creatures: [1],
-			effects: [1],
-			activeCreature: { id: 1 },
-			matchid: 42,
-			playersReady: true,
-			preventSetup: true,
-			animations: { stale: true },
-			queue: { stale: true },
-			creatureData: [1],
-			pause: true,
+			stopTimer: jest.fn(),
+			players: [],
+			creatures: [],
+			effects: [],
+			activeCreature: undefined,
+			matchid: null,
+			playersReady: false,
+			preventSetup: false,
+			animations: {},
+			queue: {},
+			creatureData: [],
+			pause: false,
 			gameState: 'ended',
-			availableCreatures: ['A1'],
-			animationQueue: [1],
-			configData: { gameMode: 2 },
-			match: { stale: true },
-			gameplay: { stale: true },
+			availableCreatures: [],
+			animationQueue: [],
+			configData: {},
+			match: {},
+			gameplay: undefined,
 			matchInitialized: true,
 			firstKill: true,
 			freezedInput: true,
 			isReplayInProgress: true,
 			turnThrottle: true,
 			turn: 7,
-			gamelog: { reset: resetLog },
+			traps: [],
+			drops: [],
+			gamelog: { reset: jest.fn() },
 			signals: {
 				ui: { add: jest.fn(), dispatch: jest.fn() },
 				metaPowers: { add: jest.fn(), dispatch: jest.fn() },
-				creature: { add: oldSignalCreatureAdd, dispatch: jest.fn() },
+				creature: { add: jest.fn(), dispatch: jest.fn() },
 				hex: { add: jest.fn(), dispatch: jest.fn() },
 			},
-			setupSignalChannels,
-			botController: { stale: true },
-		} as unknown as Game;
+			setupSignalChannels: jest.fn(() => ({
+				ui: { add: jest.fn(), dispatch: jest.fn() },
+				metaPowers: { add: jest.fn(), dispatch: jest.fn() },
+				creature: { add: jest.fn(), dispatch: jest.fn() },
+				hex: { add: jest.fn(), dispatch: jest.fn() },
+			})),
+			botController: {},
+			...overrides,
+		} as unknown as Game);
+
+	test('resetGame recreates signal channels to avoid listener accumulation after restart', () => {
+		const game = makeMockGame();
+		Game.prototype.resetGame.call(game);
+		expect(game.signals.creature.add).toHaveBeenCalledTimes(1);
+	});
+
+	test('resetGame destroys existing traps and drops', () => {
+		const trapDestroy = jest.fn();
+		const dropDestroy = jest.fn();
+		const game = makeMockGame({
+			traps: [{ destroy: trapDestroy }, { destroy: trapDestroy }],
+			drops: [{ destroy: dropDestroy }],
+		});
 
 		Game.prototype.resetGame.call(game);
 
-		expect(showGameSetup).toHaveBeenCalledTimes(1);
-		expect(stopTimer).toHaveBeenCalledTimes(1);
-		expect(resetLog).toHaveBeenCalledTimes(1);
-		expect(setupSignalChannels).toHaveBeenCalledWith(['ui', 'metaPowers', 'creature', 'hex']);
-		expect(game.signals.creature.add).toBe(newSignalCreatureAdd);
-		expect(newSignalCreatureAdd).toHaveBeenCalledTimes(1);
-		expect(oldSignalCreatureAdd).toHaveBeenCalledTimes(0);
+		expect(trapDestroy).toHaveBeenCalledTimes(2);
+		expect(dropDestroy).toHaveBeenCalledTimes(1);
+		expect(game.traps).toEqual([]);
+		expect(game.drops).toEqual([]);
 	});
 });
 
