@@ -2389,6 +2389,20 @@ export class UI {
 			};
 		});
 
+		const appendWinnerMessage = (winners) => {
+			const $winnerMessage = $j('#winnerMessage').empty();
+
+			winners.forEach((winner, index) => {
+				if (index > 0) {
+					$winnerMessage.append(' and ');
+				}
+
+				$winnerMessage.append($j('<span>').text(winner.name).addClass(winner.color));
+			});
+
+			$winnerMessage.append(' won the match!');
+		};
+
 		$j('#scoreboard-overview').html('');
 
 		const $table = $j('#scoreboard table tbody');
@@ -2538,14 +2552,10 @@ export class UI {
 
 				if (score1 > score2) {
 					// Left side wins
-					$j('#winnerMessage').text(
-						game.players[0].name + ' and ' + game.players[2].name + ' won the match!',
-					);
+					appendWinnerMessage([game.players[0], game.players[2]]);
 				} else if (score1 < score2) {
 					// Right side wins
-					$j('#winnerMessage').text(
-						game.players[1].name + ' and ' + game.players[3].name + ' won the match!',
-					);
+					appendWinnerMessage([game.players[1], game.players[3]]);
 				} else if (score1 == score2) {
 					// Draw
 					$j('#winnerMessage').text('Draw!');
@@ -2557,10 +2567,10 @@ export class UI {
 
 				if (score1 > score2) {
 					// Left side wins
-					$j('#winnerMessage').text(game.players[0].name + ' won the match!');
+					appendWinnerMessage([game.players[0]]);
 				} else if (score1 < score2) {
 					// Right side wins
-					$j('#winnerMessage').text(game.players[1].name + ' won the match!');
+					appendWinnerMessage([game.players[1]]);
 				} else if (score1 == score2) {
 					// Draw
 					$j('#winnerMessage').text('Draw!');
