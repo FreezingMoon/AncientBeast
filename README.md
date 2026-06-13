@@ -22,28 +22,6 @@ The game takes place in a dystopian future, where people have excelled in power 
 ### 💻 Hardware
 The game is designed to be lightweight and run on most devices out there as it adjusts on the fly thanks to various optimizations and it will be playable using pretty much any input method you can think of. So far you can play it using mouse, keyboard, touchscreens and pretty soon with gamepads, voice commands, AR/VR glasses and even brainwave headbands.
 
-### 💈 Bottlenecks
-Besides the main bottleneck, it's creator, [Dread Knight](https://github.com/DreadKnight) (hence why development decisions will eventually transition to [Freezing Moon DAO](https://FreezingMoon.org)), the game is currently pre-alpha prototype and lacks some important features (for now), such as online multiplayer, bots and unit animations. Given time, with enough love and support all those major issues will be addressed and the game will be able to reach mainstream audiences.
-
-### 🔮 [Roadmap](https://github.com/FreezingMoon/AncientBeast/milestone/5)
-
-We're working hard on the next version - 0.5, codenamed `Chimera`.
-What we're aiming for are the following:
-
-- 3 new playable creatures
-- 3 new epic sound tracks
-- one new combat location
-- revamping some abilities
-- balancing creatures stats
-- sound effects for actions
-- sprites for ranged attacks
-- many user interface tweaks
-- lots of usability enhancements
-- a ton of bug fixes all around
-- partial code base restructuring
-- development workflow improvements
-- more project lore & documentation
-
 ### ⭐ Stars
 
 You can help out the project by hitting that ★ from the [upper right corner](#) & you can also pin it to your profile.  
@@ -69,12 +47,6 @@ To get your brand featured in-game as well, [become a sponsor](https://opencolle
 You can [become a backer](https://opencollective.com/ancientbeast/contribute/backer-8021), supporting the development of this project financially on a monthly basis.
 
 <a href="https://opencollective.com/ancientbeast/contribute/backer-8021"><img src="https://opencollective.com/ancientbeast/tiers/backer.svg?avatarHeight=50&width=838" alt="Backers"></a>
-
-### 🩹 Helpers
-
-It's easy to [become a helper](https://opencollective.com/ancientbeast/contribute/helper-59413), pitching every month just a little bit of your money.
-
-<a href="https://opencollective.com/ancientbeast/contribute/helper-59413"><img src="https://opencollective.com/ancientbeast/tiers/helper.svg?avatarHeight=30&width=838" alt="Helpers"></a>
 
 ### 🚧 License
 
