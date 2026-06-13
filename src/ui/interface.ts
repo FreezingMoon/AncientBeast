@@ -2456,11 +2456,6 @@ export class UI {
 				title: 'Time Bonus',
 			},
 			{
-				cls: 'nofleeing',
-				emoji: emoji.get('chicken'),
-				title: 'No Fleeing',
-			},
-			{
 				cls: 'creaturebonus',
 				emoji: emoji.get('heartbeat'),
 				title: 'Survivor Units',

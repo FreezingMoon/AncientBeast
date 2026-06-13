@@ -26,7 +26,6 @@ type ScoreType =
 	| 'annihilation'
 	| 'deny'
 	| 'timebonus'
-	| 'nofleeing'
 	| 'creaturebonus'
 	| 'darkpriestbonus'
 	| 'immortal'
@@ -197,7 +196,6 @@ export class Player {
 			humiliation: 0,
 			annihilation: 0,
 			timebonus: 0,
-			nofleeing: 0,
 			creaturebonus: 0,
 			darkpriestbonus: 0,
 			immortal: 0,
@@ -234,9 +232,6 @@ export class Player {
 					break;
 				case 'timebonus':
 					points += Math.round(this.bonusTimePool * 0.5);
-					break;
-				case 'nofleeing':
-					points += 25;
 					break;
 				case 'creaturebonus':
 					if (s.creature.level !== '-') {

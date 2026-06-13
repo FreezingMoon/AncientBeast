@@ -1506,13 +1506,6 @@ export default class Game {
 
 		//-------End bonuses--------//
 		for (let i = 0; i < this.gameMode; i++) {
-			// No fleeing
-			if (!this.players[i].hasFled) {
-				this.players[i].score.push({
-					type: 'nofleeing',
-				});
-			}
-
 			// Surviving Creature Bonus
 			let immortal = true;
 			for (let j = 0; j < this.players[i].creatures.length; j++) {
