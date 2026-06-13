@@ -35,6 +35,7 @@ const makeCreature = ({
 	size = 1,
 	endurance = 100,
 	maxEndurance = 100,
+	undead = false,
 }: {
 	id: number;
 	team: number;
@@ -47,8 +48,15 @@ const makeCreature = ({
 	size?: number;
 	endurance?: number;
 	maxEndurance?: number;
+	undead?: boolean;
 }) => {
 	const creature = Object.create(Creature.prototype);
+	const player = {
+		id: team,
+		controller,
+		plasma: 0,
+		creatures: [] as Creature[],
+	};
 	Object.assign(creature, {
 		id,
 		team,
@@ -61,13 +69,10 @@ const makeCreature = ({
 		dead: false,
 		temp: false,
 		hexagons: [{ x, y, pos: { x, y } }],
-		player: {
-			id: team,
-			controller,
-		},
+		player,
 		abilities: [],
 		remainingMove: 0,
-		isDarkPriest: () => false,
+		isDarkPriest: () => type === '--',
 		calculatePath: jest.fn(() => []),
 		queryMove: jest.fn(),
 		stats: {
@@ -95,6 +100,8 @@ const makeCreature = ({
 		player: {
 			id: number;
 			controller: 'human' | 'bot';
+			plasma: number;
+			creatures: Creature[];
 		};
 		abilities: unknown[];
 		remainingMove: number;
@@ -122,6 +129,8 @@ const makeGame = (activeCreature: ReturnType<typeof makeCreature>, otherCreature
 		},
 		multiplayer: false,
 		gameState: 'playing',
+		turn: 0,
+		minimumTurnBeforeFleeing: 12,
 		freezedInput: false,
 		turnThrottle: false,
 		signals: {
@@ -202,6 +211,180 @@ describe('BotController', () => {
 		expect(bot.scoreAbilityHex(makeHex({ x: 5, y: 0, creature: enemyCreature }))).toBeGreaterThan(
 			bot.scoreAbilityHex(makeHex({ x: 1, y: 0, creature: alliedCreature })),
 		);
+	});
+
+	test('late-match bot aggressively targets a player with no plasma and no units', () => {
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+			type: 'S1',
+		});
+		const enemyDarkPriest = makeCreature({
+			id: 2,
+			team: 1,
+			x: 8,
+			y: 0,
+			type: '--',
+			health: 60,
+		});
+		enemyDarkPriest.player.plasma = 0;
+		enemyDarkPriest.player.creatures = [enemyDarkPriest];
+
+		const game = makeGame(activeCreature, [enemyDarkPriest]);
+		game.turn = 18;
+		const bot = new BotController(game);
+
+		expect(bot.scoreAbilityHex(makeHex({ x: 8, y: 0, creature: enemyDarkPriest }))).toBeGreaterThan(
+			1000 - enemyDarkPriest.health + enemyDarkPriest.size * 10 + 420,
+		);
+	});
+
+	test('late-match bonus applies to any defenseless Dark Priest, not only the first enemy', () => {
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+			type: 'S1',
+		});
+		const firstEnemyDarkPriest = makeCreature({
+			id: 2,
+			team: 1,
+			x: 2,
+			y: 0,
+			type: '--',
+			health: 60,
+		});
+		const secondEnemyDarkPriest = makeCreature({
+			id: 3,
+			team: 3,
+			x: 8,
+			y: 0,
+			type: '--',
+			health: 60,
+		});
+		firstEnemyDarkPriest.player.plasma = 0;
+		firstEnemyDarkPriest.player.creatures = [firstEnemyDarkPriest];
+		secondEnemyDarkPriest.player.plasma = 0;
+		secondEnemyDarkPriest.player.creatures = [secondEnemyDarkPriest];
+
+		const game = makeGame(activeCreature, [firstEnemyDarkPriest, secondEnemyDarkPriest]);
+		game.turn = 18;
+		const bot = new BotController(game);
+
+		expect(
+			bot.scoreAbilityHex(makeHex({ x: 8, y: 0, creature: secondEnemyDarkPriest })),
+		).toBeGreaterThan(1000 - secondEnemyDarkPriest.health + secondEnemyDarkPriest.size * 10);
+	});
+
+	test('strategy override scoring does not add defenseless bonus when target stats are invalid', () => {
+		const strategyType = 'Z7';
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+			type: strategyType,
+		});
+		const enemyDarkPriest = makeCreature({
+			id: 2,
+			team: 1,
+			x: 8,
+			y: 0,
+			type: '--',
+			health: 60,
+		});
+		enemyDarkPriest.player.plasma = 0;
+		enemyDarkPriest.player.creatures = [enemyDarkPriest];
+		enemyDarkPriest.stats.health = 0;
+
+		const game = makeGame(activeCreature, [enemyDarkPriest]);
+		game.turn = 18;
+		const bot = new BotController(game);
+		const originalStrategy = unitStrategies[strategyType];
+		unitStrategies[strategyType] = {
+			scoreAbilityHex: () => 123,
+		};
+
+		expect(bot.scoreAbilityHex(makeHex({ x: 8, y: 0, creature: enemyDarkPriest }))).toBe(123);
+
+		if (originalStrategy) {
+			unitStrategies[strategyType] = originalStrategy;
+		} else {
+			delete unitStrategies[strategyType];
+		}
+	});
+
+	test('late-match defenseless-player bonus does not apply while opponent still has units', () => {
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+			type: 'S1',
+		});
+		const enemyDarkPriest = makeCreature({
+			id: 2,
+			team: 1,
+			x: 8,
+			y: 0,
+			type: '--',
+			health: 60,
+		});
+		const enemyUnit = makeCreature({
+			id: 3,
+			team: 1,
+			x: 9,
+			y: 0,
+			type: 'S1',
+		});
+		enemyDarkPriest.player.plasma = 0;
+		enemyDarkPriest.player.creatures = [enemyDarkPriest, enemyUnit];
+
+		const game = makeGame(activeCreature, [enemyDarkPriest, enemyUnit]);
+		game.turn = 18;
+		const bot = new BotController(game);
+		const targetHex = makeHex({ x: 8, y: 0, creature: enemyDarkPriest });
+
+		const scoreWithUnits = bot.scoreAbilityHex(targetHex);
+		enemyUnit.dead = true;
+		const scoreWithoutUnits = bot.scoreAbilityHex(targetHex);
+
+		expect(scoreWithoutUnits).toBeGreaterThan(scoreWithUnits);
+	});
+
+	test('late-match movement favors closing distance to a defenseless Dark Priest', () => {
+		const activeCreature = makeCreature({
+			id: 1,
+			team: 0,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+			type: 'S1',
+		});
+		const enemyDarkPriest = makeCreature({
+			id: 2,
+			team: 1,
+			x: 8,
+			y: 0,
+			type: '--',
+		});
+		enemyDarkPriest.player.plasma = 0;
+		enemyDarkPriest.player.creatures = [enemyDarkPriest];
+
+		const game = makeGame(activeCreature, [enemyDarkPriest]);
+		game.turn = 18;
+		const bot = new BotController(game);
+		const farHex = makeHex({ x: 1, y: 0 });
+		const closeHex = makeHex({ x: 7, y: 0 });
+
+		expect(bot.scoreMoveHex(closeHex)).toBeGreaterThan(bot.scoreMoveHex(farHex));
 	});
 
 	test('query resolution schedules a fallback decision after confirm', () => {

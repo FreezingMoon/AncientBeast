@@ -239,11 +239,122 @@ export default class BotController {
 	 * - Stagnation pressure: rises after 3 global damage-free rounds (+1.5 per round).
 	 */
 	getAggressionFactor(creature: Creature): number {
-		const ageFactor = Math.max(0, creature.turnsActive - 4) * 0.8;
-		const stagnantRounds = this.game.turn - this.lastDamageRound;
+		const turnsActive = Number(creature.turnsActive ?? 0);
+		const ageFactor = Math.max(0, turnsActive - 4) * 0.8;
+		const currentTurn = Number(this.game.turn ?? 0);
+		const stagnantRounds = currentTurn - this.lastDamageRound;
 		const stagnationFactor = Math.max(0, stagnantRounds - 3) * 2.5;
 		const engagementPressure = Math.max(0, this.getTeamEngagementPressure(creature));
 		return Math.min(10, ageFactor + stagnationFactor + engagementPressure * 1.25);
+	}
+
+	getLateMatchAggressionFactor(creature: Creature): number {
+		const currentTurn = Number(this.game.turn ?? 0);
+		const minimumTurn = Number(this.game.minimumTurnBeforeFleeing ?? 0);
+		const matchAgePressure = Math.max(0, currentTurn - minimumTurn) * 0.75;
+		if (matchAgePressure <= 0) {
+			return 0;
+		}
+
+		return Math.min(10, this.getAggressionFactor(creature) + matchAgePressure);
+	}
+
+	private isDefenselessEnemyDarkPriest(
+		reference: Creature,
+		creature: Creature | undefined,
+	): boolean {
+		if (!creature || creature.dead || creature.temp || !isTeam(reference, creature, Team.Enemy)) {
+			return false;
+		}
+		if (!creature.isDarkPriest?.()) {
+			return false;
+		}
+		if (creature.player.plasma > 0) {
+			return false;
+		}
+
+		return !this.hasLivingUnit(creature.player);
+	}
+
+	private getClosestDefenselessEnemyDarkPriest(
+		reference: Creature,
+		position: { x: number; y: number },
+	): Creature | undefined {
+		let closestTarget: Creature | undefined;
+		let closestDistance = Number.POSITIVE_INFINITY;
+
+		this.game.creatures.forEach((creature) => {
+			if (!this.isDefenselessEnemyDarkPriest(reference, creature)) {
+				return;
+			}
+
+			const distance = this.getDistanceToCreature(position, creature);
+			if (distance < closestDistance) {
+				closestTarget = creature;
+				closestDistance = distance;
+			}
+		});
+
+		return closestTarget;
+	}
+
+	private hasLivingUnit(player: Creature['player']): boolean {
+		return (player.creatures ?? []).some((creature) => this.isLivingUnit(creature));
+	}
+
+	private isLivingUnit(creature: Creature | undefined): boolean {
+		if (!creature || creature.dead || creature.temp || creature.undead) {
+			return false;
+		}
+		if ((creature as Creature & { hideFromCreatureCount?: boolean }).hideFromCreatureCount) {
+			return false;
+		}
+
+		return !creature.isDarkPriest?.();
+	}
+
+	private getDistanceToCreature(position: { x: number; y: number }, creature: Creature): number {
+		let shortestDistance = Number.POSITIVE_INFINITY;
+		creature.hexagons.forEach((hex) => {
+			const distance = Math.abs(position.x - hex.x) + Math.abs(position.y - hex.y);
+			shortestDistance = Math.min(shortestDistance, distance);
+		});
+
+		return shortestDistance;
+	}
+
+	private getDefenselessTargetMovementBonus(creature: Creature, hex: Hex): number {
+		const target = this.getClosestDefenselessEnemyDarkPriest(creature, hex);
+		if (!target) {
+			return 0;
+		}
+
+		const aggression = this.getLateMatchAggressionFactor(creature);
+		const distance = this.getDistanceToCreature(hex, target);
+		const proximityBonus = Math.max(0, 16 - distance) * (18 + aggression * 12);
+		const adjacencyBonus = hex.adjacentHex(1).some((adjacentHex) => adjacentHex.creature === target)
+			? 260 + aggression * 60
+			: 0;
+
+		return proximityBonus + adjacencyBonus;
+	}
+
+	private getDefenselessTargetAbilityBonus(creature: Creature, target: Creature): number {
+		const lateMatchAggression = this.getLateMatchAggressionFactor(creature);
+		if (!this.isDefenselessEnemyDarkPriest(creature, target) || lateMatchAggression <= 0) {
+			return 0;
+		}
+
+		const maxHealth = Number(target.stats?.health ?? 0);
+		if (!Number.isFinite(maxHealth) || maxHealth <= 0) {
+			return 0;
+		}
+
+		const aggression = lateMatchAggression;
+		const healthPercent = target.health / maxHealth;
+		const bonus = 260 + aggression * 85;
+
+		return healthPercent < 0.5 ? bonus + 220 + aggression * 45 : bonus;
 	}
 
 	private getTeamEngagementPressure(creature: Creature): number {
@@ -763,57 +874,56 @@ export default class BotController {
 		}
 
 		const strategy = this.getStrategyFor(activeCreature);
-		if (strategy?.scoreMoveHex) {
-			const score = strategy.scoreMoveHex(hex, this);
-			if (score !== undefined) return score;
-		}
+		let score = strategy?.scoreMoveHex?.(hex, this);
 
-		const adjHexes = hex.adjacentHex(1);
-		const adjacentEnemyCreatures = new Map<number, Creature>();
-		adjHexes.forEach((adjacentHex) => {
-			if (
-				adjacentHex.creature instanceof Creature &&
-				isTeam(activeCreature, adjacentHex.creature, Team.Enemy)
-			) {
-				adjacentEnemyCreatures.set(adjacentHex.creature.id, adjacentHex.creature);
+		if (score === undefined) {
+			const adjHexes = hex.adjacentHex(1);
+			const adjacentEnemyCreatures = new Map<number, Creature>();
+			adjHexes.forEach((adjacentHex) => {
+				if (
+					adjacentHex.creature instanceof Creature &&
+					isTeam(activeCreature, adjacentHex.creature, Team.Enemy)
+				) {
+					adjacentEnemyCreatures.set(adjacentHex.creature.id, adjacentHex.creature);
+				}
+			});
+			const adjacentEnemyCount = adjacentEnemyCreatures.size;
+
+			const aggression = this.getAggressionFactor(activeCreature);
+
+			score = 0;
+			// Adjacent-enemy bonus grows with aggression, pushing units to seek contact.
+			// First adjacent enemy gives the full bonus; each additional enemy beyond one
+			// is diminished — being flanked by 3 enemies is dangerous even for fighters.
+			if (adjacentEnemyCount >= 1) {
+				score += 120 + aggression * 25;
+				const extraEnemies = adjacentEnemyCount - 1;
+				const healthRatio = activeCreature.health / activeCreature.stats.health;
+				score -= extraEnemies * Math.round(80 + (1 - healthRatio) * 120);
 			}
-		});
-		const adjacentEnemyCount = adjacentEnemyCreatures.size;
 
-		const aggression = this.getAggressionFactor(activeCreature);
+			score -= activeCreature.hexagons.some(
+				(creatureHex) => creatureHex.pos.x === hex.x && creatureHex.pos.y === hex.y,
+			)
+				? 1000
+				: 0;
 
-		let score = 0;
-		// Adjacent-enemy bonus grows with aggression, pushing units to seek contact.
-		// First adjacent enemy gives the full bonus; each additional enemy beyond one
-		// is diminished — being flanked by 3 enemies is dangerous even for fighters.
-		if (adjacentEnemyCount >= 1) {
-			score += 120 + aggression * 25;
-			const extraEnemies = adjacentEnemyCount - 1;
-			const healthRatio = activeCreature.health / activeCreature.stats.health;
-			score -= extraEnemies * Math.round(80 + (1 - healthRatio) * 120);
+			// Apply enemy-owned proximity penalties for adjacent hostile units.
+			adjacentEnemyCreatures.forEach((enemy) => {
+				const enemyStrategy = unitStrategies[enemy.type as string];
+				score += enemyStrategy?.getProximityPenalty?.(activeCreature, enemy, hex, this) ?? 0;
+			});
+
+			// Zone preference weakens with aggression so units stop hugging safe ground.
+			const preferredX = this.getPreferredX(activeCreature);
+			const zoneWeight = Math.max(1, 10 - aggression);
+			score -= Math.abs(hex.x - preferredX) * zoneWeight;
+
+			// Penalize trap exposure both on the destination and along the walk path.
+			score -= this.getMovePathTrapPenalty(activeCreature, hex);
 		}
 
-		score -= activeCreature.hexagons.some(
-			(creatureHex) => creatureHex.pos.x === hex.x && creatureHex.pos.y === hex.y,
-		)
-			? 1000
-			: 0;
-
-		// Apply enemy-owned proximity penalties for adjacent hostile units.
-		adjacentEnemyCreatures.forEach((enemy) => {
-			const enemyStrategy = unitStrategies[enemy.type as string];
-			score += enemyStrategy?.getProximityPenalty?.(activeCreature, enemy, hex, this) ?? 0;
-		});
-
-		// Zone preference weakens with aggression so units stop hugging safe ground.
-		const preferredX = this.getPreferredX(activeCreature);
-		const zoneWeight = Math.max(1, 10 - aggression);
-		score -= Math.abs(hex.x - preferredX) * zoneWeight;
-
-		// Penalize trap exposure both on the destination and along the walk path.
-		score -= this.getMovePathTrapPenalty(activeCreature, hex);
-
-		return score;
+		return score + this.getDefenselessTargetMovementBonus(activeCreature, hex);
 	}
 
 	private getMovePathTrapPenalty(
@@ -1003,12 +1113,18 @@ export default class BotController {
 		const abilityIndex =
 			this.pendingAction?.type === 'ability' ? this.pendingAction.abilityIndex : -1;
 		const strategy = this.getStrategyFor(activeCreature);
+		const target = hex.creature instanceof Creature ? hex.creature : undefined;
+		const defenselessTargetBonus = target
+			? this.getDefenselessTargetAbilityBonus(activeCreature, target)
+			: 0;
 		if (strategy?.scoreAbilityHex) {
 			const score = strategy.scoreAbilityHex(hex, abilityIndex, this);
-			if (score !== undefined) return score;
+			if (score !== undefined) {
+				return score + defenselessTargetBonus;
+			}
 		}
 
-		if (hex.creature instanceof Creature) {
+		if (target) {
 			if (isTeam(activeCreature, hex.creature, Team.Enemy)) {
 				const target = hex.creature;
 				if (!target.stats || typeof target.stats.health !== 'number' || target.stats.health === 0) {
@@ -1049,6 +1165,8 @@ export default class BotController {
 						abilityIndex,
 						this,
 					) ?? 0;
+
+				score += defenselessTargetBonus;
 
 				return score;
 			}
