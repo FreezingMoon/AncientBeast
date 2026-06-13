@@ -177,7 +177,24 @@ const HornHeadStrategy: UnitBotStrategy = {
 
 		const preferredX = controller.getPreferredX(activeCreature);
 		score -= Math.abs(hex.x - preferredX) * 8;
-		if (hex.trap) score -= 240;
+
+		const hasDeathIntercept = activeCreature.abilities.some(
+			(ability) => typeof ability.interceptDeath === 'function',
+		);
+		if (hasDeathIntercept && hex.trap) {
+			const enduranceRatio =
+				activeCreature.endurance /
+				Math.max(1, activeCreature.stats.endurance);
+			if (enduranceRatio > 0.25) {
+				score -= 80;
+			} else if (enduranceRatio > 0) {
+				score -= Math.round((1 - enduranceRatio / 0.25) * 220);
+			} else {
+				score -= 420;
+			}
+		} else if (hex.trap) {
+			score -= 240;
+		}
 
 		return score;
 	},

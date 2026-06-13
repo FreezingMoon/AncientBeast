@@ -912,10 +912,18 @@ export default class BotController {
 		const healthRatio = creature.health / creature.stats.health;
 		let penalty = Math.round(80 + (1 - healthRatio) * 270);
 
+		const enduranceRatio = creature.endurance / Math.max(1, creature.stats.endurance);
+
 		if (this.isLikelyDamagingTrap(trap)) {
 			penalty += healthRatio <= 0.35 ? 700 : 240;
 			if (healthRatio <= 0.2) {
 				penalty += 500;
+			}
+
+			if (enduranceRatio < 0.05) {
+				penalty += Math.round((0.05 - enduranceRatio) * 900);
+			} else if (enduranceRatio < 0.25) {
+				penalty += Math.round((0.25 - enduranceRatio) * 180);
 			}
 		}
 

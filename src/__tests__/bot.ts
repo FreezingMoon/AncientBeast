@@ -33,6 +33,8 @@ const makeCreature = ({
 	health = 100,
 	maxHealth = 100,
 	size = 1,
+	endurance = 100,
+	maxEndurance = 100,
 }: {
 	id: number;
 	team: number;
@@ -43,6 +45,8 @@ const makeCreature = ({
 	health?: number;
 	maxHealth?: number;
 	size?: number;
+	endurance?: number;
+	maxEndurance?: number;
 }) => {
 	const creature = Object.create(Creature.prototype);
 	Object.assign(creature, {
@@ -69,8 +73,10 @@ const makeCreature = ({
 		stats: {
 			health: maxHealth,
 			energy: 100,
+			endurance: maxEndurance,
 		},
 		energy: 100,
+		endurance,
 		protectedFromFatigue: false,
 		isFatigued: () => false,
 	});
@@ -95,8 +101,9 @@ const makeCreature = ({
 		isDarkPriest: () => boolean;
 		calculatePath: jest.Mock;
 		queryMove: jest.Mock;
-		stats: { health: number; energy: number };
+		stats: { health: number; energy: number; endurance: number };
 		energy: number;
+		endurance: number;
 		protectedFromFatigue: boolean;
 		isFatigued: () => boolean;
 	};
