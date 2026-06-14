@@ -172,10 +172,10 @@ export class Hotkeys {
 	pressA(event) {
 		if (event.shiftKey) {
 			this.ui.btnAudio.triggerClick();
+		} else if (this.ui.dashopen) {
+			this.ui.gridSelectLeft();
 		} else {
-			if (this.ui.dashopen) {
-				this.ui.gridSelectLeft();
-			}
+			this.ui.cycleAudioMode();
 		}
 	}
 
