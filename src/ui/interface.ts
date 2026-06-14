@@ -397,73 +397,107 @@ const confirmManualRefresh = (event: KeyboardEvent) => {
 	showDevReloadPrompt('manual-refresh');
 };
 
-const showSecretView = () => {
-	let overlay = document.getElementById(SECRET_VIEW_ID) as HTMLDivElement | null;
+const hasNoModifierKeys = (event: KeyboardEvent) =>
+	!event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey;
 
-	if (!overlay) {
-		overlay = document.createElement('div');
-		overlay.id = SECRET_VIEW_ID;
-		overlay.setAttribute('role', 'dialog');
-		overlay.setAttribute('aria-modal', 'true');
-		overlay.setAttribute('aria-label', 'Secret view');
-		overlay.style.cssText =
-			'position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.9);';
+const isFullscreenHotkey = (event: KeyboardEvent) =>
+	event.code === 'KeyF' && event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey;
 
-		const closeButton = document.createElement('button');
-		const closeWrapper = document.createElement('div');
-		closeWrapper.className = 'framed-modal__return';
+const isDashViewHotkey = (event: KeyboardEvent) =>
+	event.code === 'KeyD' && event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey;
 
-		closeButton.type = 'button';
-		closeButton.className = 'close-button';
-		closeButton.setAttribute('aria-label', 'Close secret view');
+const isScoreViewHotkey = (event: KeyboardEvent) =>
+	(event.code === 'KeyT' && hasNoModifierKeys(event)) ||
+	(event.code === 'KeyS' && event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey);
 
-		const image = document.createElement('img');
-		let lotusUrl = 'assets/interface/Lotus.png';
+const isAudioViewHotkey = (event: KeyboardEvent) =>
+	event.code === 'KeyA' && event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey;
+
+const isViewSwitchHotkey = (event: KeyboardEvent) =>
+	isDashViewHotkey(event) || isScoreViewHotkey(event) || isAudioViewHotkey(event);
+
+const isScoreboardActionHotkey = (event: KeyboardEvent) =>
+	(event.code === 'KeyS' || event.code === 'KeyR' || event.code === 'KeyX') &&
+	hasNoModifierKeys(event);
+
+const createSecretViewOverlay = () => {
+	const overlay = document.createElement('div');
+	overlay.id = SECRET_VIEW_ID;
+	overlay.setAttribute('role', 'dialog');
+	overlay.setAttribute('aria-modal', 'true');
+	overlay.setAttribute('aria-label', 'Secret view');
+	overlay.style.cssText =
+		'position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.9);';
+
+	const closeButton = document.createElement('button');
+	const closeWrapper = document.createElement('div');
+	closeWrapper.className = 'framed-modal__return';
+
+	closeButton.type = 'button';
+	closeButton.className = 'close-button';
+	closeButton.setAttribute('aria-label', 'Close secret view');
+
+	const image = document.createElement('img');
+	let lotusUrl = 'assets/interface/Lotus.png';
+	try {
+		lotusUrl = getUrl('interface/Lotus');
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	} catch (error) {
 		try {
-			lotusUrl = getUrl('interface/Lotus');
+			lotusUrl = getUrl('assets/autoload/phaser/Lotus');
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		} catch (error) {
-			try {
-				lotusUrl = getUrl('assets/autoload/phaser/Lotus');
-				// eslint-disable-next-line @typescript-eslint/no-unused-vars
-			} catch (fallbackError) {
-				// Keep raw-path fallback if asset map is unavailable.
-			}
+		} catch (fallbackError) {
+			// Keep raw-path fallback if asset map is unavailable.
 		}
-
-		image.src = lotusUrl;
-		image.alt = 'Dark Priest in lotus position';
-		image.style.cssText =
-			'max-width:min(90vw,920px);max-height:90vh;width:auto;height:auto;display:block;';
-
-		closeButton.addEventListener('click', (event) => {
-			event.preventDefault();
-			event.stopPropagation();
-			overlay.style.display = 'none';
-		});
-
-		overlay.addEventListener('click', () => {
-			overlay.style.display = 'none';
-		});
-
-		overlay.addEventListener('contextmenu', (event) => {
-			event.preventDefault();
-			event.stopPropagation();
-			overlay.style.display = 'none';
-		});
-
-		image.addEventListener('click', (event) => {
-			event.stopPropagation();
-		});
-
-		closeWrapper.appendChild(closeButton);
-		overlay.appendChild(closeWrapper);
-		overlay.appendChild(image);
-		document.body.appendChild(overlay);
 	}
 
-	overlay.style.display = 'flex';
+	image.src = lotusUrl;
+	image.alt = 'Dark Priest in lotus position';
+	image.style.cssText =
+		'max-width:min(90vw,920px);max-height:90vh;width:auto;height:auto;display:block;';
+
+	closeButton.addEventListener('click', (event) => {
+		event.preventDefault();
+		event.stopPropagation();
+		toggleSecretView();
+	});
+
+	overlay.addEventListener('click', () => {
+		toggleSecretView();
+	});
+
+	overlay.addEventListener('contextmenu', (event) => {
+		event.preventDefault();
+		event.stopPropagation();
+		toggleSecretView();
+	});
+
+	image.addEventListener('click', (event) => {
+		event.stopPropagation();
+	});
+
+	closeWrapper.appendChild(closeButton);
+	overlay.appendChild(closeWrapper);
+	overlay.appendChild(image);
+	document.body.appendChild(overlay);
+
+	return overlay;
 };
+
+const toggleSecretView = () => {
+	const overlay =
+		(document.getElementById(SECRET_VIEW_ID) as HTMLDivElement | null) || createSecretViewOverlay();
+	overlay.style.display = overlay.style.display === 'flex' ? 'none' : 'flex';
+};
+
+type InterfaceView = 'dash' | 'score' | 'audio' | 'secret';
+
+const interfaceViewSignals = {
+	dash: 'toggleDash',
+	score: 'toggleScore',
+	audio: 'toggleMusicPlayer',
+	secret: 'toggleSecretView',
+} as const;
 
 type Config = {
 	isAcceptingInput: () => boolean;
@@ -597,7 +631,7 @@ export class UI {
 		this.musicPlayerOpenCollectiveBanner = new OpenCollectiveBanner({
 			bannerSelector: '#opencollective_banner_musicplayer',
 			onCloseView: () => {
-				this.closeMusicPlayer();
+				this.toggleMusicPlayer(false);
 			},
 			isViewOpen: () => !$j('#musicplayerwrapper').hasClass('hide'),
 		});
@@ -1165,51 +1199,25 @@ export class UI {
 				const e = rawEvent as unknown as KeyboardEvent;
 				const keydownAction = ingameHotkeys[e.code] && ingameHotkeys[e.code].onkeydown;
 				const isScoreboardOpen = !this.$scoreboard.hasClass('hide');
+				const isInterfaceViewOpen = this.isInterfaceViewOpen();
 				const isScoreboardHotkey =
 					e.code === 'Escape' ||
-					(e.code === 'KeyS' && e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) ||
-					(e.code === 'KeyS' && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) ||
-					(e.code === 'KeyT' && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) ||
-					(e.code === 'KeyR' && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) ||
-					(e.code === 'KeyX' && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey);
+					isViewSwitchHotkey(e) ||
+					isFullscreenHotkey(e) ||
+					isScoreboardActionHotkey(e);
 
 				// While scoreboard is open, block gameplay/navigation hotkeys and keep only
-				// scoreboard-scoped actions (Save, Exit) plus Escape.
+				// scoreboard-scoped actions (Save, Exit, fullscreen, view switching) plus Escape.
 				if (isScoreboardOpen && !isScoreboardHotkey) {
 					return;
 				}
 
 				const isUtilityHotkey =
 					e.code === 'F11' ||
-					(e.code === 'KeyF' && e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) ||
-					(e.code === 'KeyA' && e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) ||
-					(e.code === 'Escape' && isScoreboardOpen) ||
-					(e.code === 'KeyS' &&
-						!e.shiftKey &&
-						!e.ctrlKey &&
-						!e.metaKey &&
-						!e.altKey &&
-						isScoreboardOpen) ||
-					(e.code === 'KeyT' &&
-						!e.shiftKey &&
-						!e.ctrlKey &&
-						!e.metaKey &&
-						!e.altKey &&
-						isScoreboardOpen) ||
-					(e.code === 'KeyR' &&
-						!e.shiftKey &&
-						!e.ctrlKey &&
-						!e.metaKey &&
-						!e.altKey &&
-						isScoreboardOpen) ||
-					(e.code === 'KeyX' &&
-						!e.shiftKey &&
-						!e.ctrlKey &&
-						!e.metaKey &&
-						!e.altKey &&
-						isScoreboardOpen) ||
-					(e.code === 'KeyS' && e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) ||
-					(e.code === 'KeyD' && e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) ||
+					isFullscreenHotkey(e) ||
+					isViewSwitchHotkey(e) ||
+					(e.code === 'Escape' && isInterfaceViewOpen) ||
+					(isScoreboardActionHotkey(e) && isScoreboardOpen) ||
 					(e.code === 'KeyX' && e.shiftKey && e.ctrlKey && !e.metaKey && !e.altKey) ||
 					e.code === 'Backquote' ||
 					e.code === 'Backspace' ||
@@ -1219,13 +1227,18 @@ export class UI {
 					return;
 				}
 
+				if (this.isViewOpen('secret') && !isUtilityHotkey) {
+					return;
+				}
+
 				if (keydownAction !== undefined) {
-					keydownAction.call(this, e);
-					if (this.dashopen) {
-						e.preventDefault();
-					} else if (!(e.code === 'Tab' && e.shiftKey)) {
+					const shouldPreventDefault =
+						e.code !== 'Escape' || isInterfaceViewOpen || this.activeAbility;
+
+					if (shouldPreventDefault && !(e.code === 'Tab' && e.shiftKey)) {
 						e.preventDefault();
 					}
+					keydownAction.call(this, e);
 				}
 			});
 
@@ -1310,7 +1323,7 @@ export class UI {
 					break;
 				case 3:
 					// Right mouse button pressed
-					this.closeMusicPlayer();
+					this.toggleMusicPlayer(false);
 					break;
 			}
 		});
@@ -1526,20 +1539,18 @@ export class UI {
 	_handleUiEvent(message: string, _payload: object) {
 		if (message === 'toggleDash') {
 			this.toggleDash(false);
-			this.closeMusicPlayer();
-			this.closeScoreboard();
 		}
 
 		if (message === 'toggleScore') {
 			this.toggleScoreboard(false);
-			this.closeDash();
-			this.closeMusicPlayer();
 		}
 
 		if (message === 'toggleMusicPlayer') {
 			this.toggleMusicPlayer();
-			this.closeDash();
-			this.closeScoreboard();
+		}
+
+		if (message === 'toggleSecretView') {
+			toggleSecretView();
 		}
 
 		if (message === 'toggleMetaPowers') {
@@ -1548,13 +1559,15 @@ export class UI {
 			}
 
 			this.closeDash();
-			this.closeMusicPlayer();
 			this.closeScoreboard();
 		}
 
 		if (message === 'closeInterfaceScreens') {
+			if (this.isViewOpen('secret')) {
+				toggleSecretView();
+			}
 			this.closeDash();
-			this.closeMusicPlayer();
+			this.toggleMusicPlayer(false);
 			this.closeScoreboard();
 		}
 	}
@@ -2262,21 +2275,69 @@ export class UI {
 			});
 	}
 
-	toggleMusicPlayer() {
+	toggleMusicPlayer(force?: boolean) {
 		const $musicPlayerWrapper = $j('#musicplayerwrapper');
-		$musicPlayerWrapper.toggleClass('hide');
+		const shouldOpen = force ?? $musicPlayerWrapper.hasClass('hide');
+		$musicPlayerWrapper.toggleClass('hide', !shouldOpen);
 
-		if ($musicPlayerWrapper.hasClass('hide')) {
-			this.musicPlayerOpenCollectiveBanner.onViewClose();
+		if (shouldOpen) {
+			this.musicPlayerOpenCollectiveBanner.onViewOpen();
 			return;
 		}
 
-		this.musicPlayerOpenCollectiveBanner.onViewOpen();
+		this.musicPlayerOpenCollectiveBanner.onViewClose();
 	}
 
-	closeMusicPlayer() {
-		this.musicPlayerOpenCollectiveBanner.onViewClose();
-		$j('#musicplayerwrapper').addClass('hide');
+	toggleView(view: InterfaceView) {
+		(Object.keys(interfaceViewSignals) as InterfaceView[]).forEach((candidate) => {
+			if (candidate !== view) {
+				this.closeView(candidate);
+			}
+		});
+		this.game.signals.ui.dispatch(interfaceViewSignals[view]);
+	}
+
+	closeOpenInterfaceViews() {
+		(Object.keys(interfaceViewSignals) as InterfaceView[]).forEach((view) => this.closeView(view));
+	}
+
+	closeView(view: InterfaceView) {
+		switch (view) {
+			case 'dash':
+				this.closeDash();
+				break;
+			case 'score':
+				this.closeScoreboard();
+				break;
+			case 'audio':
+				this.toggleMusicPlayer(false);
+				break;
+			case 'secret':
+				if (this.isViewOpen('secret')) {
+					toggleSecretView();
+				}
+				break;
+		}
+	}
+
+	isInterfaceViewOpen() {
+		return (
+			this.chat.isOpen ||
+			(Object.keys(interfaceViewSignals) as InterfaceView[]).some((view) => this.isViewOpen(view))
+		);
+	}
+
+	isViewOpen(view: InterfaceView) {
+		switch (view) {
+			case 'dash':
+				return this.dashopen;
+			case 'score':
+				return !this.$scoreboard.hasClass('hide');
+			case 'audio':
+				return !$j('#musicplayerwrapper').hasClass('hide');
+			case 'secret':
+				return document.getElementById(SECRET_VIEW_ID)?.style.display === 'flex';
+		}
 	}
 
 	// Function to close scoreboard if pressing outside of it
@@ -3880,7 +3941,7 @@ export class UI {
 			onTurnEndClick: (turnNumber: number) =>
 				ui.game.signals.ui.dispatch(SIGNAL_TURN_END_CLICK, { turnNumber }),
 			onTurnEndMarkerMouseDown: () => {
-				showSecretView();
+				ui.toggleView('secret');
 			},
 			onTurnEndMouseEnter: (turnNumber: number) =>
 				ui.game.signals.ui.dispatch(SIGNAL_TURN_END_MOUSE_ENTER, { turnNumber }),

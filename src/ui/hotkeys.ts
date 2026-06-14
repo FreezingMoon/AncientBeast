@@ -45,7 +45,7 @@ export class Hotkeys {
 		}
 
 		if (event.shiftKey) {
-			this.ui.btnToggleScore.triggerClick();
+			this.ui.toggleView('score');
 		} else if (event.ctrlKey) {
 			this.ui.game.gamelog.save();
 		} else {
@@ -62,16 +62,12 @@ export class Hotkeys {
 	}
 
 	pressT() {
-		if (this.ui.dashopen) {
-			this.ui.closeDash();
-		} else {
-			this.ui.btnToggleScore.triggerClick();
-		}
+		this.ui.toggleView('score');
 	}
 
 	pressD(event) {
 		if (event.shiftKey) {
-			this.ui.btnToggleDash.triggerClick();
+			this.ui.toggleView('dash');
 		} else {
 			if (this.ui.dashopen) {
 				this.ui.gridSelectRight();
@@ -171,7 +167,7 @@ export class Hotkeys {
 
 	pressA(event) {
 		if (event.shiftKey) {
-			this.ui.btnAudio.triggerClick();
+			this.ui.toggleView('audio');
 		} else if (this.ui.dashopen) {
 			this.ui.gridSelectLeft();
 		} else {
@@ -268,7 +264,7 @@ export class Hotkeys {
 			}
 		}, 100);
 
-		this.ui.game.signals.ui.dispatch('closeInterfaceScreens');
+		this.ui.closeOpenInterfaceViews();
 	}
 
 	pressControlKeyDown() {
@@ -402,22 +398,22 @@ export function getHotKeys(hk) {
 				hk.pressEscape();
 			},
 		},
-	ControlLeft: {
-		onkeydown() {
-			hk.pressControlKeyDown();
+		ControlLeft: {
+			onkeydown() {
+				hk.pressControlKeyDown();
+			},
+			onkeyup() {
+				hk.pressControlKeyUp();
+			},
 		},
-		onkeyup() {
-			hk.pressControlKeyUp();
+		ControlRight: {
+			onkeydown() {
+				hk.pressControlKeyDown();
+			},
+			onkeyup() {
+				hk.pressControlKeyUp();
+			},
 		},
-	},
-	ControlRight: {
-		onkeydown() {
-			hk.pressControlKeyDown();
-		},
-		onkeyup() {
-			hk.pressControlKeyUp();
-		},
-	},
 		Space: {
 			onkeydown() {
 				hk.pressSpace();
