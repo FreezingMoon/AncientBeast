@@ -271,7 +271,7 @@ export class Hotkeys {
 		this.ui.game.signals.ui.dispatch('closeInterfaceScreens');
 	}
 
-	pressShiftKeyDown(_event) {
+	pressControlKeyDown() {
 		if (!this.ui.dashopen) {
 			this.ui.brandlogo.alpha = 1;
 			this.ui.game.grid.showGrid(true);
@@ -279,7 +279,7 @@ export class Hotkeys {
 		}
 	}
 
-	pressShiftKeyUp() {
+	pressControlKeyUp() {
 		if (!this.ui.dashopen) {
 			this.ui.brandlogo.alpha = 0;
 			this.ui.game.grid.showGrid(false);
@@ -288,13 +288,6 @@ export class Hotkeys {
 			});
 			this.ui.game.grid.redoLastQuery();
 		}
-	}
-	pressControlKeyDown() {
-		this.ui.brandlogo.alpha = 0;
-	}
-
-	pressControlKeyUp() {
-		this.ui.brandlogo.alpha = 0;
 	}
 
 	pressSpace() {
@@ -409,38 +402,22 @@ export function getHotKeys(hk) {
 				hk.pressEscape();
 			},
 		},
-		ShiftLeft: {
-			onkeydown() {
-				hk.pressShiftKeyDown();
-			},
-			onkeyup() {
-				hk.pressShiftKeyUp();
-			},
+	ControlLeft: {
+		onkeydown() {
+			hk.pressControlKeyDown();
 		},
-		ShiftRight: {
-			onkeydown() {
-				hk.pressShiftKeyDown();
-			},
-			onkeyup() {
-				hk.pressShiftKeyUp();
-			},
+		onkeyup() {
+			hk.pressControlKeyUp();
 		},
-		ControlLeft: {
-			onkeydown() {
-				hk.pressControlKeyDown();
-			},
-			onkeyup() {
-				hk.pressControlKeyUp();
-			},
+	},
+	ControlRight: {
+		onkeydown() {
+			hk.pressControlKeyDown();
 		},
-		ControlRight: {
-			onkeydown() {
-				hk.pressControlKeyDown();
-			},
-			onkeyup() {
-				hk.pressControlKeyUp();
-			},
+		onkeyup() {
+			hk.pressControlKeyUp();
 		},
+	},
 		Space: {
 			onkeydown() {
 				hk.pressSpace();
