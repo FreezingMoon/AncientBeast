@@ -9,7 +9,8 @@ export const minor = semver.minor(full);
 export const patch = semver.patch(full);
 export const release = DEBUG ? 'alpha' : 'gold';
 export const major_minor = [major, minor].join('.');
-export const pretty = `v${major_minor}` + (release === 'alpha' ? '-α' : '');
+export const pretty =
+	`v${major_minor}${patch ? `.${patch}` : ''}` + (release === 'alpha' ? '-α' : '');
 
 export function isValid(a: string) {
 	return semver.valid(a) !== null;
