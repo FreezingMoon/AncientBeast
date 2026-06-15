@@ -29,6 +29,7 @@ import { Drop } from './drop';
 import { CreatureType, Realm, UnitData } from './data/types';
 import { setAudioMode } from './sound/soundsys';
 import BotController from './bot';
+
 /* eslint-disable prefer-rest-params */
 
 /* NOTES/TODOS
@@ -51,6 +52,12 @@ import BotController from './bot';
  */
 
 type AnimationID = number;
+
+const webKitGtkUserAgent = /(X11|Linux).*AppleWebKit\/.*Version\/.*Safari\//i;
+
+function shouldUseCanvasRenderer() {
+	return webKitGtkUserAgent.test(navigator.userAgent);
+}
 
 export type MetaPowersState = {
 	executeMonster: boolean;
@@ -216,7 +223,8 @@ export default class Game {
 		};
 
 		// Phaser
-		this.Phaser = new Phaser.Game(1920, 1080, Phaser.AUTO, 'combatwrapper', {
+		const renderer = shouldUseCanvasRenderer() ? Phaser.CANVAS : Phaser.AUTO;
+		this.Phaser = new Phaser.Game(1920, 1080, renderer, 'combatwrapper', {
 			update: this.phaserUpdate.bind(this),
 			render: this.phaserRender.bind(this),
 		});
