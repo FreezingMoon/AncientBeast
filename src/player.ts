@@ -45,6 +45,25 @@ export type PlayerColor = 'red' | 'blue' | 'orange' | 'green';
 export type PlayerID = 0 | 1 | 2 | 3;
 export type PlayerController = 'human' | 'bot';
 
+type DarkPriestOwner = {
+	controller: PlayerController;
+	color: PlayerColor;
+};
+
+export function getDarkPriestCardboardKey(owner: DarkPriestOwner): string {
+	const variant = owner.controller === 'bot' ? 'clone' : 'player';
+	return `Dark Priest ${variant} ${owner.color}`;
+}
+
+export function getDarkPriestAvatarUrl(owner: DarkPriestOwner): string {
+	const variant = owner.controller === 'bot' ? 'clone' : 'player';
+	return getUrl(`units/avatars/Dark Priest ${variant} ${owner.color}`);
+}
+
+export function getDarkPriestDisplayOffsetX(owner: DarkPriestOwner): number {
+	return owner.controller === 'bot' ? 0 : -10;
+}
+
 type PlayerName = `Player${1 | 2 | 3 | 4}`;
 
 type TotalScore = Record<ScoreType, number> & { total: number };
@@ -95,7 +114,7 @@ export class Player {
 				this.color = 'green';
 				break;
 		}
-		this.avatar = getUrl('units/avatars/Dark Priest ' + this.color);
+		this.avatar = getDarkPriestAvatarUrl({ controller: 'human', color: this.color });
 		this.score = [];
 		// @ts-expect-error ts(2339)
 		this.plasma = game.plasma_amount;

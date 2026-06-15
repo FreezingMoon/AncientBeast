@@ -474,8 +474,9 @@ class CreatureVignette extends Vignette {
 	getHTML() {
 		const c = this.creature;
 		const set = getAvatarSet(c.type);
+		const controllerClass = c.player.controller === 'bot' ? ' bot' : '';
 		const classes = ['vignette', 'creature', 'type' + c.type, 'p' + c.team].join(' ');
-		return `<div creatureid="${c.id}" class="${classes}" data-set="${set}">
+		return `<div creatureid="${c.id}" class="${classes}${controllerClass}" data-set="${set}">
 				<div class="frame"></div>
 				<div class="overlay_frame"></div>
 				<div class="delay_frame"></div>

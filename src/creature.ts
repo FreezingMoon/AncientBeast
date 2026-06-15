@@ -7,7 +7,7 @@ import * as arrayUtils from './utility/arrayUtils';
 import { Drop, DropDefinition } from './drop';
 import { Point, getPointFacade } from './utility/pointfacade';
 import { Effect } from './effect';
-import { Player, PlayerID } from './player';
+import { Player, PlayerID, getDarkPriestCardboardKey, getDarkPriestDisplayOffsetX } from './player';
 import { Damage, DamageResult } from './damage';
 import { AugmentedMatrix } from './utility/matrices';
 import { Trap } from './utility/trap';
@@ -2150,17 +2150,16 @@ class CreatureSprite {
 		group.alpha = 0;
 
 		const isDarkPriest = type === '--';
-		const darkPriestColorOrEmpty = isDarkPriest ? ' ' + creature.player.color : '';
+		const darkPriestOffsetX = isDarkPriest ? getDarkPriestDisplayOffsetX(creature.player) : 0;
+		const originX = display['offset-x'] + darkPriestOffsetX;
 
 		// Adding sprite
-		const spriteKey = creature.name + darkPriestColorOrEmpty;
+		const spriteKey = isDarkPriest ? getDarkPriestCardboardKey(creature.player) : creature.name;
 		const sprite = group.create(0, 0, spriteKey);
 		sprite.anchor.setTo(0.5, 1);
 		// Placing sprite
 		sprite.x =
-			(!player.flipped
-				? display['offset-x']
-				: HEX_WIDTH_PX * size - sprite.texture.width - display['offset-x']) +
+			(!player.flipped ? originX : HEX_WIDTH_PX * size - sprite.texture.width - originX) +
 			sprite.texture.width / 2;
 		sprite.y = display['offset-y'] + sprite.texture.height;
 
@@ -2319,12 +2318,11 @@ class CreatureSprite {
 	setDir(dir: 1 | -1) {
 		this._sprite.scale.setTo(dir, 1);
 
+		const originX = this._frameInfo.originX + getDarkPriestDisplayOffsetX(this._creature.player);
 		this._sprite.x =
 			(dir === 1
-				? this._frameInfo.originX
-				: HEX_WIDTH_PX * this._creatureSize -
-				  this._sprite.texture.width -
-				  this._frameInfo.originX) +
+				? originX
+				: HEX_WIDTH_PX * this._creatureSize - this._sprite.texture.width - originX) +
 			this._sprite.texture.width / 2;
 		this._healthIndicatorSprite.x = dir === -1 ? 19 : 19 + HEX_WIDTH_PX * (this._creatureSize - 1);
 		this._healthIndicatorText.x =

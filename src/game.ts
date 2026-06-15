@@ -6,7 +6,7 @@ import { SoundSys, SoundSysAudioBufferSourceNode } from './sound/soundsys';
 import { Hex } from './utility/hex';
 import { HexGrid } from './utility/hexgrid';
 import { getUrl, use as assetsUse, soundPaths } from './assets';
-import { Player, PlayerColor, PlayerID } from './player';
+import { Player, PlayerColor, PlayerID, getDarkPriestAvatarUrl } from './player';
 import { UI } from './ui/interface';
 import { Creature, CreatureHintType } from './creature';
 import { unitData } from './data/units';
@@ -324,7 +324,8 @@ export default class Game {
 
 			if (name == 'Dark Priest') {
 				for (i = 0, count = dpcolor.length; i < count; i++) {
-					this.getImage(getUrl('units/avatars/' + name + ' ' + dpcolor[i]));
+					this.getImage(getUrl('units/avatars/' + name + ' player ' + dpcolor[i]));
+					this.getImage(getUrl('units/avatars/' + name + ' clone ' + dpcolor[i]));
 				}
 			} else {
 				this.getImage(getUrl('units/avatars/' + name));
@@ -373,7 +374,8 @@ export default class Game {
 		this.musicPlayer = this.soundsys.musicPlayer;
 
 		this.Phaser.load.onFileComplete.add(this.loadFinish, this);
-		this.Phaser.load.onLoadComplete.add(onLoadCompleteFn);
+		this.Phaser.load.onLoadComplete.add(this.finishLoading, this);
+		this.Phaser.load.onLoadComplete.add(onLoadCompleteFn, this);
 
 		const assetsRaw = assetsUse(this.Phaser);
 		const assets = Array.isArray(assetsRaw) ? assetsRaw : [];
@@ -422,19 +424,16 @@ export default class Game {
 			progressWidth = progress + '%';
 
 		$j('#barLoader .progress').css('width', progressWidth);
+	}
 
-		if (progress == 100) {
-			setTimeout(() => {
-				this.gameState = 'loaded';
-				$j('#combatwrapper').show();
+	finishLoading() {
+		this.gameState = 'loaded';
+		$j('#combatwrapper').show();
+		$j('body').css('cursor', 'default');
 
-				$j('body').css('cursor', 'default');
-
-				// Do not call setup if we are not active.
-				if (!this.preventSetup) {
-					this.setup(this.gameMode);
-				}
-			}, 100);
+		// Do not call setup if we are not active.
+		if (!this.preventSetup) {
+			this.setup(this.gameMode);
 		}
 	}
 
@@ -564,6 +563,7 @@ export default class Game {
 			const player = new Player(i as PlayerID, this);
 			this.players.push(player);
 			player.controller = this.configData.players?.includes(player.id) ? 'human' : 'bot';
+			player.avatar = getDarkPriestAvatarUrl(player);
 			// Initialize players' starting positions
 			let pos: Point;
 

@@ -11,6 +11,7 @@ import { HEX_WIDTH_PX } from './const';
 import { Point } from './pointfacade';
 import { AugmentedMatrix } from './matrices';
 import { PierceThroughBehavior } from '../ability';
+import { getDarkPriestCardboardKey, getDarkPriestDisplayOffsetX } from '../player';
 
 const ROW_DEPTH_STRIDE = 100;
 
@@ -2355,8 +2356,11 @@ export class HexGrid {
 		}
 
 		const hex = this.hexes[pos.y][pos.x - (creatureData.size - 1)];
+		const originX =
+			creatureData.display['offset-x'] +
+			(creatureData.type == '--' ? getDarkPriestDisplayOffsetX(player) : 0);
 		const cardboard =
-			creatureData.type == '--' ? creatureData.name + ' ' + player.color : creatureData.name;
+			creatureData.type == '--' ? getDarkPriestCardboardKey(player) : creatureData.name;
 
 		if (!secondary) {
 			if (!this.materialize_overlay) {
@@ -2394,10 +2398,8 @@ export class HexGrid {
 		preview.x =
 			hex.displayPos.x +
 			(!player.flipped
-				? creatureData.display['offset-x']
-				: HEX_WIDTH_PX * creatureData.size -
-				  preview.texture.width -
-				  creatureData.display['offset-x']) +
+				? originX
+				: HEX_WIDTH_PX * creatureData.size - preview.texture.width - originX) +
 			preview.texture.width / 2;
 		preview.y = hex.displayPos.y + creatureData.display['offset-y'] + preview.texture.height;
 		preview.alpha = 0.5;

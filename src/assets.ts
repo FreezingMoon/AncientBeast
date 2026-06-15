@@ -46,10 +46,10 @@ function getBasename(path: string): string {
 	if (base.lastIndexOf('.') === -1) {
 		return base;
 	}
-	while (i > 0 && base[i] === '.') {
+	while (i > 0 && base[i - 1] === '.') {
 		i--;
 	}
-	return base.substring(0, i + 1);
+	return base.substring(0, i);
 }
 
 /**
