@@ -31,6 +31,20 @@ const meatSickleAllDirections = [
 	Direction.UpLeft,
 ];
 
+const getMeatSickleHexLineDirection = (direction: Direction, flipped: boolean) => {
+	if (flipped) {
+		switch (direction) {
+			case Direction.Left:
+				return Direction.Right;
+			case Direction.UpLeft:
+				return Direction.DownRight;
+			case Direction.DownLeft:
+				return Direction.UpRight;
+		}
+	}
+	return direction;
+};
+
 const getMeatSickleStartX = (creature: Creature, direction: Direction) => {
 	if (
 		(!creature.player.flipped && direction > Direction.DownRight) ||
@@ -42,27 +56,21 @@ const getMeatSickleStartX = (creature: Creature, direction: Direction) => {
 	return creature.x;
 };
 
-const getMeatSicklePath = (G: Game, creature: Creature, direction: Direction, distance: number) =>
-	G.grid
+const getMeatSicklePath = (G: Game, creature: Creature, direction: Direction, distance: number) => {
+	const hexLineDirection = getMeatSickleHexLineDirection(direction, creature.player.flipped);
+	return G.grid
 		.getHexLine(
 			getMeatSickleStartX(creature, direction),
 			creature.y,
-			direction,
+			hexLineDirection,
 			creature.player.flipped,
 		)
 		.slice(1, distance + 1);
+};
 
-const getMeatSickleLanding = (
-	line: Hex[],
-	target: Creature,
-	direction: Direction,
-	targetIndex: number,
-) => {
-	const dragsToRight =
-		direction === Direction.UpRight ||
-		direction === Direction.Right ||
-		direction === Direction.DownRight;
-	const landingStartIndex = dragsToRight ? target.size : 1;
+const getMeatSickleLanding = (line: Hex[], target: Creature, targetIndex: number) => {
+	// Search from index 1 to find closest walkable spot toward caster
+	const landingStartIndex = 1;
 
 	for (let index = landingStartIndex; index < targetIndex; index++) {
 		const hex = line[index];
@@ -588,10 +596,14 @@ export default (G: Game) => {
 					return;
 				}
 
+				const hexLineDirection = getMeatSickleHexLineDirection(
+					direction,
+					this.creature.player.flipped,
+				);
 				const line = G.grid.getHexLine(
 					getMeatSickleStartX(this.creature, direction),
 					this.creature.y,
-					direction,
+					hexLineDirection,
 					this.creature.player.flipped,
 				);
 				const targetIndex = line.findIndex(
@@ -606,7 +618,7 @@ export default (G: Game) => {
 
 				const { landingHex, landingIndex } =
 					targetIndex > 1
-						? getMeatSickleLanding(line, target, direction, targetIndex)
+						? getMeatSickleLanding(line, target, targetIndex)
 						: { landingHex: undefined, landingIndex: -1 };
 				const pulledHexes =
 					landingHex && landingIndex > -1 ? Math.max(0, targetIndex - landingIndex) : 0;
