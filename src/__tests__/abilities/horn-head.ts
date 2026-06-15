@@ -320,9 +320,9 @@ describe('Horn Head Meat Sickle landing validation', () => {
 
 		const line = [
 			{ x: 0, y: 0, creature: source, isWalkable: jest.fn(() => false) },
-			{ x: 1, y: 0, creature: null, isWalkable: jest.fn(() => true) },
+			{ x: 1, y: 0, creature: null, isWalkable: jest.fn(() => false) }, // Not walkable: isWalkable(2) checks x=0,x=1 but x=0 has caster
 			{ x: 2, y: 0, creature: { id: 99 }, isWalkable: jest.fn(() => false) },
-			{ x: 3, y: 0, creature: null, isWalkable: jest.fn(() => false) },
+			{ x: 3, y: 0, creature: null, isWalkable: jest.fn(() => false) }, // Not walkable: isWalkable(2) checks x=2,x=3 but x=2 has blocker
 			{ x: 4, y: 0, creature: null, isWalkable: jest.fn(() => true) },
 			{ x: 5, y: 0, creature: target, isWalkable: jest.fn(() => true) },
 			{ x: 6, y: 0, creature: target, isWalkable: jest.fn(() => true) },
@@ -390,7 +390,7 @@ describe('Horn Head Meat Sickle landing validation', () => {
 
 		const line = [
 			{ x: 0, y: 0, creature: source, isWalkable: jest.fn(() => false) },
-			{ x: 1, y: 0, creature: null, isWalkable: jest.fn(() => true) },
+			{ x: 1, y: 0, creature: null, isWalkable: jest.fn(() => false) }, // Not walkable: isWalkable(2) checks x=0,x=1 but x=0 has caster
 			{ x: 2, y: 0, creature: { id: 99 }, isWalkable: jest.fn(() => false) },
 			{ x: 3, y: 0, creature: null, isWalkable: jest.fn(() => false) },
 			{ x: 4, y: 0, creature: null, isWalkable: jest.fn(() => false) },
@@ -429,5 +429,78 @@ describe('Horn Head Meat Sickle landing validation', () => {
 
 		expect(target.moveTo).not.toHaveBeenCalled();
 		expect(game.activeCreature.queryMove).toHaveBeenCalledTimes(1);
+	});
+
+	test('pulls to the nearest legal landing hex for flipped player using Left direction', () => {
+		const target = {
+			id: 35,
+			size: 2,
+			stats: { movement: 3, moveable: true },
+			isDarkPriest: () => false,
+			hasCreaturePlayerGotPlasma: () => false,
+			replaceEffect: jest.fn(),
+			takeDamage: jest.fn(),
+			moveTo: jest.fn((hex, opts: { callback?: () => void }) => {
+				opts.callback?.();
+			}),
+		};
+
+		const source = {
+			id: 8,
+			x: 6,
+			y: 0,
+			size: 2,
+			player: { flipped: true },
+		};
+
+		// For flipped player, Left direction pulls toward lower x
+		// After getMeatSickleHexLineDirection, Left is converted to Right
+		// So line goes: x=6 (caster), x=5, x=4, x=3, x=2
+		const line = [
+			{ x: 6, y: 0, creature: source, isWalkable: jest.fn(() => false) },
+			{ x: 5, y: 0, creature: null, isWalkable: jest.fn(() => false) }, // Not walkable: checks x=5,x=4 but x=4 blocked
+			{ x: 4, y: 0, creature: { id: 99 }, isWalkable: jest.fn(() => false) },
+			{ x: 3, y: 0, creature: null, isWalkable: jest.fn(() => true) },
+			{ x: 2, y: 0, creature: target, isWalkable: jest.fn(() => true) },
+			{ x: 1, y: 0, creature: target, isWalkable: jest.fn(() => true) },
+		];
+
+		const game = {
+			abilities: {} as Record<number, unknown[]>,
+			grid: {
+				getHexLine: jest.fn(() => line),
+			},
+			activeCreature: {
+				queryMove: jest.fn(),
+			},
+			log: jest.fn(),
+		};
+
+		loadHornHeadAbilities(game as never);
+
+		const baseAbility = (game.abilities[8] as Record<string, unknown>[]).find(
+			(ability) => typeof ability._getMaxDistance === 'function',
+		) as {
+			activate: (path: unknown[], args: { direction: Direction }) => void;
+		};
+		const ability = {
+			...baseAbility,
+			creature: source,
+			isUpgraded: () => false,
+			end: jest.fn(),
+			title: 'Meat Sickle',
+			damages: { pierce: 1 },
+		};
+
+		ability.activate.call(ability, [{ creature: target }], { direction: Direction.Left });
+
+		expect(target.moveTo).toHaveBeenCalledTimes(1);
+		expect(target.moveTo).toHaveBeenCalledWith(
+			line[3],
+			expect.objectContaining({
+				ignoreMovementPoint: true,
+				ignorePath: true,
+			}),
+		);
 	});
 });
