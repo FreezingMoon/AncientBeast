@@ -24,6 +24,7 @@ const creature = ({ id, delayed = false, initiative = 10 }) =>
 		isDelayed: delayed,
 		isDelayedInNextQueue: false,
 		fatigueText: '',
+		player: { controller: 'human' },
 		getInitiative: () => initiative,
 	} as unknown as Creature);
 
