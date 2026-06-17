@@ -369,6 +369,7 @@ export default class Game {
 		}
 
 		this.gameState = 'loading';
+		this.preventSetup = false;
 		if (setupOpt) {
 			this.configData = setupOpt;
 			const setupData = { ...setupOpt };
@@ -459,7 +460,12 @@ export default class Game {
 
 	// Catch the browser being made inactive to prevent initial rendering bugs.
 	onBlur() {
-		this.preventSetup = true;
+		// Only prevent setup during the loading phase to avoid getting stuck on loading screen
+		// when the tab is not focused during asset loading. After loading completes,
+		// the preventSetup flag can be used to handle rendering issues on focus.
+		if (this.gameState !== 'loading') {
+			this.preventSetup = true;
+		}
 	}
 
 	// Catch the browser coming back into focus so we can render the game board.
