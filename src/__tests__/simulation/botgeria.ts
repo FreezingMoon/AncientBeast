@@ -543,9 +543,7 @@ export async function createGame(abilities: Array<(G: any) => void>): Promise<an
 	// Call setup bypassing loadGame
 	game.gameState = 'loading';
 
-	// setup() is synchronous; matchInit() at the end is async but fire-and-forget.
-	// We replace it with a no-op so there's no multiplayer network connection attempt.
-	game.matchInit = () => Promise.resolve();
+	// setup() is synchronous and no longer calls matchInit()
 	game.setup(2);
 	// game.setup() calls `this.animations = new Animations(this)` internally, which
 	// overwrites any pre-setup assignment. Re-install the mock here, after setup().

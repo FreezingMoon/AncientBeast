@@ -3142,6 +3142,8 @@ export class UI {
 			creature = game.activeCreature,
 			$abilitiesButtons = $j('#abilities .ability');
 
+		this.active = !game.multiplayer || !!game.lobby?.isMyTurn();
+
 		$abilitiesButtons.off('click');
 
 		const $abilities = this.$activebox.find('#abilities');

@@ -149,8 +149,6 @@ describe('Game reset lifecycle', () => {
 			animationQueue: [],
 			configData: {},
 			match: {},
-			gameplay: undefined,
-			matchInitialized: true,
 			firstKill: true,
 			freezedInput: true,
 			isReplayInProgress: true,

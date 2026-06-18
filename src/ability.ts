@@ -441,8 +441,7 @@ export class Ability {
 		if (game.triggers.onQuery.test(this.getTrigger())) {
 			if (args[0] instanceof Hex) {
 				const hex = args[0];
-				const argsObj = $j.extend({}, args);
-				delete argsObj[0];
+				const argsObj = args.slice(1);
 				game.gamelog.add({
 					action: 'ability',
 					target: {
@@ -454,7 +453,7 @@ export class Ability {
 					args: argsObj,
 				});
 				if (game.multiplayer) {
-					game.gameplay.useAbility({
+					game.sendMultiplayerAbility({
 						target: {
 							type: 'hex',
 							x: hex.x,
@@ -468,8 +467,7 @@ export class Ability {
 
 			if (args[0] instanceof Creature) {
 				const creature = args[0];
-				const argsObj = $j.extend({}, args);
-				delete argsObj[0];
+				const argsObj = args.slice(1);
 				game.gamelog.add({
 					action: 'ability',
 					target: {
@@ -480,7 +478,7 @@ export class Ability {
 					args: argsObj,
 				});
 				if (game.multiplayer) {
-					game.gameplay.useAbility({
+					game.sendMultiplayerAbility({
 						target: {
 							type: 'creature',
 							crea: creature.id,
@@ -492,8 +490,7 @@ export class Ability {
 			}
 
 			if (args[0] instanceof Array) {
-				const argsObj = $j.extend({}, args);
-				delete argsObj[0];
+				const argsObj = args.slice(1);
 
 				const array = args[0].map((item) => ({ x: item.x, y: item.y }));
 
@@ -507,7 +504,7 @@ export class Ability {
 					args: argsObj,
 				});
 				if (game.multiplayer) {
-					game.gameplay.useAbility({
+					game.sendMultiplayerAbility({
 						target: {
 							type: 'array',
 							array: array,
@@ -627,7 +624,11 @@ export class Ability {
 		} else {
 			activateAbility();
 			if (game.animationQueue.length === 0) {
-				game.freezedInput = false;
+				if (game.multiplayer) {
+					game.freezedInput = game.UI.active ? false : true;
+				} else {
+					game.freezedInput = false;
+				}
 				game.grid?.refreshHoverState();
 			}
 		}

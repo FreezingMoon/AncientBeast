@@ -6,9 +6,8 @@ import Game from './game';
 import { PreMatchAudioPlayer } from './sound/pre-match-audio';
 import { Fullscreen } from './ui/fullscreen';
 import { buttonSlide } from './ui/button';
-import { Locations } from './ui/locations';
+import { normalizeLobbyCode } from './multiplayer/types';
 
-import Connect from './multiplayer/connect';
 import { installAvatarStyles } from './style/avatar-styles';
 import {
 	DEBUG,
@@ -17,6 +16,12 @@ import {
 	DEBUG_GAME_LOG,
 	DEBUG_HAS_GAME_LOG,
 } from './debug';
+
+if (DEBUG && 'serviceWorker' in navigator) {
+	navigator.serviceWorker
+		.getRegistrations()
+		.then((registrations) => registrations.forEach((registration) => registration.unregister()));
+}
 
 // Load the stylesheet
 import './style/main.less';
@@ -39,9 +44,6 @@ AB.getLog = () => AB.currentGame.gamelog.stringify();
 AB.saveLog = () => AB.currentGame.gamelog.save();
 AB.restoreGame = (str) => AB.currentGame.gamelog.load(str);
 window.AB = AB;
-const connect = new Connect(G);
-G.connect = connect;
-
 // Load the abilities
 unitData.forEach(async (creature) => {
 	if (!creature.playable) {
@@ -61,11 +63,33 @@ $j(() => {
 	scrim.removeClass('loading');
 	renderGameModeType(G.multiplayer);
 
-	// For the location rendering. The logic is in src/ui/locations.ts
-	const locations: Locations = new Locations();
-	locations.renderLocations();
+	const joinCodeFromUrl = new URLSearchParams(window.location.search).get('join');
 
-	// Disable initial game setup until browser tab has focus
+	if (joinCodeFromUrl) {
+		G.multiplayer = true;
+		forceTwoPlayerMode();
+		renderGameModeType(G.multiplayer);
+		G.lobbyCode = parseLobbyCodeInput(joinCodeFromUrl);
+		$j('#lobbyCode').val(G.lobbyCode);
+		$j('#lobbyError').addClass('hide');
+		G.joinLobbyByCode(G.lobbyCode)
+			.then(() => {
+				$j('#lobbyError').addClass('hide');
+				updateLobbyUi();
+			})
+			.catch((error) => {
+				console.error(error);
+				G.lobby?.leaveMatch();
+				G.lobby = null;
+				G.lobbyState = null;
+				$j('#lobbyError')
+					.text(`Could not join lobby: ${error.message || error}`)
+					.removeClass('hide');
+				$j('#joinMatchButton').prop('disabled', false).removeClass('disabled').val('Paste Link');
+				updateLobbyUi();
+			});
+	}
+
 	window.addEventListener('blur', G.onBlur.bind(G), false);
 	window.addEventListener('focus', G.onFocus.bind(G), false);
 
@@ -326,44 +350,83 @@ $j(() => {
 	$j('input[name="players"]').on('change input click', updateStartPrompt);
 	updateStartPrompt();
 
+	if (!joinCodeFromUrl) {
+		$j('#lobbyCode').val('');
+	}
+
 	// Allow button game options to slide in prematch screen
 	buttonSlide();
 
 	// Create new Object to play audio in pre-match screen
 	const beastAudio = new PreMatchAudioPlayer();
 
+	const updateLobbyUi = (lobby = G.lobbyState) => {
+		const isHost = Boolean(G.lobby?.isHost());
+		const hasLobby = Boolean(G.lobby);
+		const playerCount = lobby?.players.length ?? 0;
+		const code = hasLobby ? G.lobbyCode || lobby?.code || '' : '';
+		const inputCode = parseLobbyCodeInput(($j('#lobbyCode').val() as string) || '');
+		const joinCode = code || (!hasLobby ? inputCode : '');
+
+		if (isHost && code) {
+			$j('#lobbyCode').val(code);
+		}
+
+		const $joinButton = $j('#joinMatchButton');
+		const hasValidJoinCode = Boolean(joinCode);
+		if (hasLobby && isHost && playerCount < 2) {
+			$joinButton.prop('disabled', true);
+			$joinButton.val('Paste Link');
+			$joinButton.toggleClass('disabled', true);
+		} else if (!hasLobby) {
+			$joinButton.prop('disabled', false);
+			$joinButton.val(hasValidJoinCode ? 'Join Match' : 'Paste Link');
+			$joinButton.toggleClass('disabled', false);
+		} else {
+			$joinButton.prop('disabled', hasLobby || !hasValidJoinCode);
+			$joinButton.val(hasLobby ? 'Joined Match' : hasValidJoinCode ? 'Join Match' : 'Paste Link');
+			$joinButton.toggleClass('disabled', hasLobby || !hasValidJoinCode);
+		}
+
+		const $createButton = $j('#createLobbyButton');
+		$createButton.prop('disabled', false);
+		$createButton.toggleClass('disabled', false);
+		if (!hasLobby) {
+			$createButton.val('Create Lobby');
+		} else if (isHost && playerCount < 2) {
+			$createButton.val('Copy Link');
+		} else if (isHost) {
+			$createButton.val('Start Match');
+		} else {
+			$createButton.val('Waiting Host');
+			$createButton.prop('disabled', true);
+			$createButton.toggleClass('disabled', true);
+		}
+	};
+
+	let previousPlayerCount = 0;
+
+	G.onLobbyUpdate = (lobby) => {
+		const isHost = Boolean(G.lobby?.isHost());
+		const playerCount = lobby?.players.length ?? 0;
+
+		let showPlayerJoined = false;
+		if (isHost && playerCount > previousPlayerCount && playerCount >= 2) {
+			showPlayerJoined = true;
+		}
+		previousPlayerCount = playerCount;
+
+		updateLobbyUi(lobby);
+
+		if (showPlayerJoined && isHost) {
+			const $createButton = $j('#createLobbyButton');
+			$createButton.val('Player joined');
+			window.setTimeout(() => updateLobbyUi(lobby), 1200);
+		}
+	};
+
 	$j('#gameTitle').on('click', () => {
 		beastAudio.playBeast();
-	});
-
-	// Hide singleplayer option initially
-	$j('#singleplayer').hide();
-
-	$j('#createMatchButton').on('click', () => {
-		$j('.match-frame').hide();
-		$j('#gameSetup').show();
-		renderGameModeType(G.multiplayer);
-		$j('#startMatchButton').show();
-		$j('#startButton').hide();
-
-		// TODO Remove after implementation 2 vs 2 in multiplayer mode
-		forceTwoPlayerMode();
-	});
-
-	$j('#singleplayer').hide();
-
-	$j('#multiplayer').on('click', async () => {
-		$j('#multiplayer').hide();
-		$j('#singleplayer').show();
-		$j('.setupFrame,.lobby').hide();
-		$j('.loginregFrame').show();
-	});
-
-	$j('#singleplayer').on('click', async () => {
-		$j('.setupFrame').show();
-		$j('.loginregFrame').hide();
-		$j('#multiplayer').show();
-		$j('#singleplayer').hide();
 	});
 
 	$j('#orientation-message .framed-modal__return').on('click', async () => {
@@ -383,6 +446,7 @@ $j(() => {
 	focusGameWindow();
 
 	const startGame = () => {
+		G.multiplayer = false;
 		G.loadGame(getGameConfig());
 	};
 
@@ -447,28 +511,158 @@ $j(() => {
 		return false;
 	});
 
-	$j('#startMatchButton').on('click', () => {
-		G.loadGame(getGameConfig(), true);
+	$j('#createLobbyButton').on('click', async () => {
+		if (!G.lobby) {
+			$j('#lobbyError').addClass('hide');
+			try {
+				G.multiplayer = true;
+				forceTwoPlayerMode();
+				renderGameModeType(G.multiplayer);
+				const config = getGameConfig() as unknown as import('./multiplayer').GameConfig;
+				await G.createLobby(config);
+				$j('#lobbyError').addClass('hide');
+				updateLobbyUi();
+			} catch (error) {
+				console.error(error);
+				$j('#lobbyError').text('Could not create lobby.').removeClass('hide');
+				updateLobbyUi();
+			}
+			return false;
+		}
+
+		if ($j('#createLobbyButton').val() === 'Copy Link') {
+			const $button = $j('#createLobbyButton');
+			try {
+				await G.lobby?.copyLobbyCode();
+				$button.val('Link copied');
+				window.setTimeout(() => updateLobbyUi(), 1200);
+			} catch (error) {
+				console.error(error);
+				$j('#lobbyError').text('Could not copy lobby link.').removeClass('hide');
+			}
+			return false;
+		}
+
+		if (!G.lobby.isHost()) {
+			$j('#lobbyError').text('Only the lobby host can start the match.').removeClass('hide');
+			return false;
+		}
+
+		$j('#lobbyError').text('Waiting for players...').removeClass('hide');
+		G.startMultiplayerMatch();
 		return false;
 	});
 
-	$j('#joinMatchButton').on('click', () => {
-		//TODO move to match data received
-		$j('.lobby').show();
-		$j('.setupFrame').hide();
-		G.matchJoin();
+	$j('#lobbyCode').on('input keyup', () => {
+		const $input = $j('#lobbyCode');
+		const $joinButton = $j('#joinMatchButton');
+		const parsedCode = parseLobbyCodeInput($input.val() as string);
+		if (parsedCode && parsedCode !== $input.val()) {
+			$input.val(parsedCode);
+		}
+		$input.removeClass('mandatory');
+		$joinButton.val(parsedCode ? 'Join Match' : 'Paste Link');
+		$joinButton.prop('disabled', !parsedCode);
+		$joinButton.toggleClass('disabled', !parsedCode);
+		updateLobbyUi();
+	});
+
+	$j('#lobbyCode').on('paste', async (event) => {
+		const clipboardText =
+			(event.originalEvent as ClipboardEvent).clipboardData?.getData('text') || '';
+		const parsedCode = parseLobbyCodeInput(clipboardText);
+		if (!parsedCode) {
+			return;
+		}
+
+		event.preventDefault();
+		const $input = $j('#lobbyCode');
+		const $joinButton = $j('#joinMatchButton');
+		$input.val(parsedCode);
+		$input.removeClass('mandatory');
+		$joinButton.val('Join Match');
+		$joinButton.prop('disabled', false);
+		$joinButton.toggleClass('disabled', false);
+		updateLobbyUi();
+	});
+
+	$j('#joinMatchButton').on('click', async () => {
+		const $input = $j('#lobbyCode');
+		const rawCode = $input.val() as string;
+		const code = parseLobbyCodeInput(rawCode);
+		const $joinButton = $j('#joinMatchButton');
+		const isPasteLinkState = $joinButton.val() === 'Paste Link';
+
+		$input.removeClass('mandatory');
+
+		// "Paste Link" state: try to read clipboard, then focus field if needed
+		if (isPasteLinkState || !code) {
+			try {
+				const clipboardText = await navigator.clipboard.readText();
+				const parsedCode = parseLobbyCodeInput(clipboardText);
+				if (parsedCode) {
+					$input.val(parsedCode);
+					$input.removeClass('mandatory');
+					$joinButton.val('Join Match');
+					$joinButton.prop('disabled', false);
+					$joinButton.toggleClass('disabled', false);
+					updateLobbyUi();
+					return false;
+				}
+			} catch (_e) {
+				// Clipboard access denied, fall through to focus
+			}
+			$input.addClass('mandatory').trigger('focus');
+			return false;
+		}
+
+		G.multiplayer = true;
+		forceTwoPlayerMode();
+		renderGameModeType(G.multiplayer);
+		G.lobbyCode = code;
+		$input.val(code);
+		$j('#lobbyError').text('Joining lobby...').removeClass('hide');
+		$joinButton.prop('disabled', true).addClass('disabled').val('Joining...');
+
+		try {
+			await G.joinLobbyByCode(code);
+			$j('#lobbyError').addClass('hide');
+			updateLobbyUi();
+		} catch (error) {
+			console.error(error);
+			G.lobby?.leaveMatch();
+			G.lobby = null;
+			G.lobbyState = null;
+			$j('#lobbyError')
+				.text(`Could not join lobby: ${error.message || error}`)
+				.removeClass('hide');
+			$joinButton.prop('disabled', false).removeClass('disabled').val('Paste Link');
+			updateLobbyUi();
+		}
+
 		return false;
-	});
-
-	$j('#backFromMatchButton').on('click', () => {
-		$j('.lobby').hide();
-		$j('.setupFrame,.welcome').show();
-	});
-
-	$j('#refreshMatchButton').on('click', () => {
-		G.updateLobby();
 	});
 });
+
+function parseLobbyCodeInput(value: string) {
+	const trimmed = value.trim();
+
+	if (!trimmed) {
+		return '';
+	}
+
+	const joinParam = trimmed.match(/[?&]join=([^&]+)/i)?.[1];
+	if (joinParam) {
+		return normalizeLobbyCode(joinParam);
+	}
+
+	try {
+		const url = new URL(trimmed);
+		return normalizeLobbyCode(url.searchParams.get('join') || trimmed);
+	} catch (_error) {
+		return normalizeLobbyCode(trimmed);
+	}
+}
 
 /**
  * force 1 vs 1 game mode
@@ -519,11 +713,14 @@ function renderGameModeType(isMultiPlayer) {
 	return isMultiPlayer ? gameModeType.text('[ Online ]') : gameModeType.text('[ Hotseat ]');
 }
 
+const LOCATIONS = ['Dark Forest', 'Frozen Wall', 'Shadow Cave', 'Dragon Bones'];
+
 /**
  * Generate game config from form and return it.
  * @return {Partial<GameConfig>} The game config.
  */
 export function getGameConfig() {
+	const combatLocation = LOCATIONS[Math.floor(Math.random() * LOCATIONS.length)];
 	const defaultConfig = {
 		gameMode: parseInt($j('input[name="gameMode"]:checked').val() as string, 10),
 		players: $j('input[name="players"]:checked')
@@ -535,8 +732,8 @@ export function getGameConfig() {
 		plasma_amount: parseInt($j('input[name="plasmaPoints"]:checked').val() as string, 10),
 		turnTimePool: parseInt($j('input[name="turnTime"]:checked').val() as string, 10),
 		timePool: parseInt($j('input[name="timePool"]:checked').val() as string, 10) * 60,
-		background_image: $j('input[name="combatLocation"]:checked').val(),
-		combatLocation: $j('input[name="combatLocation"]:checked').val(),
+		background_image: combatLocation,
+		combatLocation,
 		fullscreenMode: $j('#fullscreen').hasClass('fullscreenMode'),
 	};
 	return defaultConfig;

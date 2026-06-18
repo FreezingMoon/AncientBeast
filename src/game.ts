@@ -15,8 +15,13 @@ import 'p2';
 import 'p2';
 // @ts-expect-error: Phaser CE has no official type declarations
 import Phaser, { Signal } from 'phaser';
-import MatchI from './multiplayer/match';
-import Gameplay from './multiplayer/gameplay';
+import { LobbyClient } from './multiplayer';
+import type {
+	GameConfig as MultiplayerGameConfig,
+	GameMessage,
+	LobbySession,
+	LobbyState,
+} from './multiplayer';
 import { sleep } from './utility/time';
 import { DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG, DEBUG_DISABLE_MUSIC } from './debug';
 import { Point, configure as configurePointFacade } from './utility/pointfacade';
@@ -100,7 +105,7 @@ export default class Game {
 	drops: Drop[];
 	effects: Effect[];
 	activeCreature: Creature | undefined;
-	matchid: number;
+	matchid: string;
 	playersReady: boolean;
 	preventSetup: boolean;
 	animations: Animations;
@@ -116,13 +121,12 @@ export default class Game {
 	checkTimeFrequency: number;
 	gamelog: GameLog;
 	configData: Partial<GameConfig>;
-	match: MatchI | object;
-	gameplay: Gameplay;
-	session = null;
-	client = null;
-	connect = null;
+	match: object;
 	multiplayer: boolean;
-	matchInitialized: boolean;
+	lobby: LobbyClient | null;
+	lobbyCode: string;
+	lobbyState: LobbyState | null;
+	onLobbyUpdate: ((lobby: LobbyState) => void) | null;
 	realms: Realm[];
 	availableMusic = [];
 	inputMethod = 'Mouse';
@@ -199,12 +203,11 @@ export default class Game {
 		);
 		this.configData = {};
 		this.match = {};
-		this.gameplay = undefined;
-		this.session = null;
-		this.client = null;
-		this.connect = null;
 		this.multiplayer = false;
-		this.matchInitialized = false;
+		this.lobby = null;
+		this.lobbyCode = '';
+		this.lobbyState = null;
+		this.onLobbyUpdate = null;
 		this.realms = ['-', 'A', 'E', 'G', 'L', 'P', 'S', 'W'];
 		this.availableMusic = [];
 		this.inputMethod = 'Mouse';
@@ -353,7 +356,7 @@ export default class Game {
 	loadGame(
 		setupOpt: Partial<GameConfig>,
 		matchInitialized?: boolean,
-		matchid?: number,
+		matchid?: string,
 		// eslint-disable-next-line @typescript-eslint/no-empty-function
 		onLoadCompleteFn = () => {},
 	) {
@@ -361,9 +364,6 @@ export default class Game {
 		// to prevent memory leak and mixing hotkeys between start screen and game
 		$j(document).off('keydown');
 
-		if (this.multiplayer && !matchid) {
-			this.matchInitialized = matchInitialized;
-		}
 		if (matchid) {
 			this.matchid = matchid;
 		}
@@ -410,11 +410,8 @@ export default class Game {
 	}
 
 	get activePlayer() {
-		if (this.multiplayer) {
-			if (this.players && this.match instanceof MatchI && this.match.userTurn) {
-				return this.players[this.match.userTurn];
-			}
-			return undefined;
+		if (this.multiplayer && this.activeCreature && this.activeCreature.player) {
+			return this.activeCreature.player;
 		}
 		if (this.activeCreature && this.activeCreature.player) {
 			return this.activeCreature.player;
@@ -426,6 +423,9 @@ export default class Game {
 		$j('#gameSetupContainer').hide();
 		$j('#loader').removeClass('hide');
 		$j('body').css('cursor', 'wait');
+		if (this.Phaser?.stage) {
+			this.Phaser.stage.disableVisibilityChange = true;
+		}
 	}
 
 	loadFinish() {
@@ -506,7 +506,6 @@ export default class Game {
 		this.Phaser.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
 		this.Phaser.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
 		this.Phaser.scale.refresh();
-		this.Phaser.stage.disableVisibilityChange = true;
 
 		if (!this.Phaser.device.desktop) {
 			this.Phaser.stage.forcePortrait = true;
@@ -576,7 +575,11 @@ export default class Game {
 		for (let i = 0; i < gameMode; i++) {
 			const player = new Player(i as PlayerID, this);
 			this.players.push(player);
-			player.controller = this.configData.players?.includes(player.id) ? 'human' : 'bot';
+			if (this.multiplayer) {
+				player.controller = 'human';
+			} else {
+				player.controller = this.configData.players?.includes(player.id) ? 'human' : 'bot';
+			}
 			player.avatar = getDarkPriestAvatarUrl(player);
 			// Initialize players' starting positions
 			let pos: Point;
@@ -675,101 +678,159 @@ export default class Game {
 		if (DEBUG_DISABLE_MUSIC) {
 			this.musicPlayer.audio.pause();
 		}
-
-		this.matchInit();
 	}
 
-	async matchInit() {
-		if (this.multiplayer) {
-			if (Object.keys(this.match).length === 0) {
-				await this.connect.serverConnect(this.session);
-				const match = new MatchI(this.connect, this, this.session);
-				const gameplay = new Gameplay(this, match);
-				// @ts-expect-error 2339
-				match.gameplay = gameplay;
-				this.gameplay = gameplay;
-				this.match = match;
-
-				// Only host
-				if (this.matchInitialized && this.match instanceof MatchI) {
-					const n = await this.match.matchCreate();
-
-					console.log('created match', n);
-					await match.matchMaker(n, this.configData);
-				}
-			}
-			// Non-host
-			if (this.matchid && this.match instanceof MatchI) {
-				const n = await this.match.matchJoin(this.matchid);
-				console.log('joined match', n);
-			}
+	async createLobby(config: MultiplayerGameConfig): Promise<LobbySession> {
+		if (!this.lobby) {
+			this.lobby = new LobbyClient(this);
 		}
+		const session = await this.lobby.createMatch(config);
+		this.lobbyCode = session.code;
+		this.lobbyState = this.lobby.getLobbyState();
+		return session;
 	}
-	async matchJoin() {
-		await this.matchInit();
-		// @ts-expect-error 2339
-		await this.match.matchMaker();
+
+	async joinLobbyByCode(code: string): Promise<LobbySession> {
+		if (!this.lobby) {
+			this.lobby = new LobbyClient(this);
+		}
+		const session = await this.lobby.joinMatch(code);
+		this.lobbyCode = code;
+		this.lobbyState = this.lobby.getLobbyState();
+		return session;
 	}
-	async updateLobby() {
-		if (this.matchInitialized) return;
 
-		$j('.lobby-match-list').html('').addClass('refreshing');
-		$j('#refreshMatchButton').addClass('disabled');
-		$j('.lobby-loader').removeClass('hide');
-		$j('.lobby-no-matches').addClass('hide');
-
-		// Short delay to let the user know something has happened.
-		await sleep(Phaser.Timer.SECOND * 2);
-
-		$j('.lobby-match-list').removeClass('refreshing');
-		$j('#refreshMatchButton').removeClass('disabled');
-		$j('.lobby-loader').addClass('hide');
-
-		if (this.match && this.match instanceof MatchI && !this.match.matchUsers.length) {
-			$j('.lobby-no-matches').removeClass('hide');
+	startMultiplayerMatch(): void {
+		if (!this.lobby || !this.lobby.isHost()) {
 			return;
 		}
+		const lobbyState = this.lobby.getLobbyState();
+		const config = lobbyState.config;
+		this.lobby.markMatchStarted();
+		this.lobby.sendAction({
+			type: 'match-start',
+			config,
+			players: lobbyState.players,
+			host: lobbyState.host,
+			hostPeerId: lobbyState.hostPeerId,
+		});
+		this.multiplayer = true;
+		this.loadGame(config as Partial<GameConfig>, true);
+	}
 
-		// @ts-expect-error 2339
-		this.match.matchUsers.forEach((v) => {
-			const isAvailableMatch = v.string_properties && v.string_properties.match_id;
-
-			if (!isAvailableMatch) {
-				return;
+	handleLobbyMessage(message: GameMessage): void {
+		if (message.type === 'match-start') {
+			this.multiplayer = true;
+			this.loadGame(message.config as Partial<GameConfig>, true);
+			return;
+		}
+		if (message.type === 'match-loaded') {
+			return;
+		}
+		if (message.type === 'turn-update') {
+			const creature = this.creatures[message.creatureId];
+			if (creature) {
+				this.activeCreature = creature;
+				creature.activate();
+				this.UI.updateActivebox();
+				this.updateQueueDisplay();
 			}
+			return;
+		}
+		if (message.type === 'action-end') {
+			const creature = this.creatures[message.creatureId];
+			if (creature) {
+				if (message.action === 'skip') {
+					this.activeCreature = creature;
+					this.skipTurn();
+				} else if (message.action === 'delay') {
+					this.activeCreature = creature;
+					this.delayCreature();
+				}
+			}
+			return;
+		}
+		if (message.type === 'action-move') {
+			const creature = this.creatures[message.creatureId];
+			if (creature) {
+				this.activeCreature = creature;
+				const hex = this.grid.hexes[message.target.y][message.target.x];
+				creature.moveTo(hex, {
+					callback: () => {
+						creature.queryMove();
+					},
+				});
+			}
+			return;
+		}
+		if (message.type === 'action-ability') {
+			const creature = this.creatures[message.creatureId];
+			if (creature) {
+				this.activeCreature = creature;
+				const ability = creature.abilities[message.id];
+				if (ability) {
+					const args = Array.isArray(message.args) ? [...message.args] : [];
+					if (message.target.type === 'hex') {
+						const hex = this.grid.hexes[message.target.y][message.target.x];
+						args.unshift(hex);
+						ability.animation2({ arg: args });
+					} else if (message.target.type === 'creature') {
+						const targetCreature = this.creatures[message.target.crea];
+						if (targetCreature) {
+							args.unshift(targetCreature);
+							ability.animation2({ arg: args });
+						}
+					} else if (message.target.type === 'array') {
+						const hexArray = message.target.array.map((item) => this.grid.hexes[item.y][item.x]);
+						args.unshift(hexArray);
+						ability.animation2({ arg: args });
+					}
+				}
+			}
+			return;
+		}
+		if (message.type === 'player-left') {
+			if (this.gameState === 'playing') {
+				alert('Opponent disconnected. Match ended.');
+				this.endGame();
+			}
+			return;
+		}
+	}
 
-			const gameConfig = {
-				background_image: v.string_properties.background_image,
-				abilityUpgrades: v.numeric_properties.abilityUpgrades,
-				creaLimitNbr: v.numeric_properties.creaLimitNbr,
-				plasma_amount: v.numeric_properties.plasma_amount,
-				gameMode: v.numeric_properties.gameMode,
-				timePool: v.numeric_properties.timePool,
-				turnTimePool: v.numeric_properties.turnTimePool,
-				unitDrops: v.numeric_properties.unitDrops,
-			};
-			const turntimepool =
-				v.numeric_properties.turnTimePool < 0 ? '∞' : v.numeric_properties.timePool;
-			const timepool = v.numeric_properties.timePool < 0 ? '∞' : v.numeric_properties.timePool;
-			const unitdrops = v.numeric_properties.unitDrops < 0 ? 'off' : 'on';
-			this.unitDrops = v.numeric_properties.unitDrops;
-			const _matchBtn =
-				$j(`<a class="user-match"><div class="avatar"></div><div class="user-match__col">
-        Host: ${v.presence.username}<br />
-        Game Mode: ${v.numeric_properties.gameMode}<br />
-        Active Units: ${v.numeric_properties.creaLimitNbr}<br />
-        Ability Upgrades: ${v.numeric_properties.abilityUpgrades}<br />
-        </div><div class="user-match__col">
-        Plasma Points: ${v.numeric_properties.plasma_amount}<br />
-        Turn Time(seconds): ${turntimepool}<br />
-        Turn Pools(minutes): ${timepool}<br />
-        Unit Drops: ${unitdrops}<br /></div></a>
-        `);
-			_matchBtn.on('click', () => {
-				$j('.lobby').hide();
-				this.loadGame(gameConfig, false, v.string_properties.match_id);
-			});
-			$j('.lobby-match-list').append(_matchBtn);
+	sendMultiplayerMove(target: { x: number; y: number }): void {
+		if (!this.multiplayer || !this.lobby || !this.activeCreature) {
+			return;
+		}
+		this.lobby.sendAction({
+			type: 'action-move',
+			target,
+			playerId: this.lobby.getLocalPlayer()?.playerId || '',
+			creatureId: this.activeCreature.id,
+		});
+	}
+
+	sendMultiplayerAbility(params: {
+		target: {
+			type: string;
+			x?: number;
+			y?: number;
+			crea?: number;
+			array?: Array<{ x: number; y: number }>;
+		};
+		id: number;
+		args: unknown[];
+	}): void {
+		if (!this.multiplayer || !this.lobby || !this.activeCreature) {
+			return;
+		}
+		this.lobby.sendAction({
+			type: 'action-ability',
+			id: params.id,
+			target: params.target as any,
+			args: params.args,
+			playerId: this.lobby.getLocalPlayer()?.playerId || '',
+			creatureId: this.activeCreature.id,
 		});
 	}
 	/**
@@ -861,8 +922,12 @@ export default class Game {
 				this.UI.updateActivebox();
 				this.updateQueueDisplay();
 				this.signals.creature.dispatch('activate', { creature: this.activeCreature });
-				if (this.multiplayer && this.playersReady && this.gameplay instanceof Gameplay) {
-					this.gameplay.updateTurn();
+				if (this.multiplayer && this.playersReady && this.lobby) {
+					this.lobby.sendAction({
+						type: 'turn-update',
+						playerId: this.lobby.getLocalPlayer()?.playerId || '',
+						creatureId: this.activeCreature.id,
+					});
 				} else {
 					this.playersReady = true;
 				}
@@ -932,7 +997,14 @@ export default class Game {
 		// NOTE: If skipping a turn and there is a temp creature, destroy it.
 		this.creatures.filter((c) => c?.temp).forEach((c) => c.destroy());
 
-		// Send skip turn to server
+		if (this.multiplayer && this.lobby) {
+			this.lobby.sendAction({
+				type: 'action-end',
+				action: 'skip',
+				playerId: this.lobby.getLocalPlayer()?.playerId || '',
+				creatureId: this.activeCreature?.id || 0,
+			});
+		}
 
 		if (this.turnThrottle) {
 			return;
@@ -997,9 +1069,13 @@ export default class Game {
 	 */
 
 	delayCreature(o?) {
-		// Send skip turn to server
-		if (this.multiplayer && this.gameplay instanceof Gameplay) {
-			this.gameplay.delay();
+		if (this.multiplayer && this.lobby) {
+			this.lobby.sendAction({
+				type: 'action-end',
+				action: 'delay',
+				playerId: this.lobby.getLocalPlayer()?.playerId || '',
+				creatureId: this.activeCreature?.id || 0,
+			});
 		}
 
 		if (this.turnThrottle) {
@@ -1643,8 +1719,9 @@ export default class Game {
 		this.animationQueue = [];
 		this.configData = {};
 		this.match = {};
-		this.gameplay = undefined;
-		this.matchInitialized = false;
+		this.lobby = null;
+		this.lobbyCode = '';
+		this.lobbyState = null;
 		this.firstKill = false;
 		this.freezedInput = false;
 		this.isReplayInProgress = false;

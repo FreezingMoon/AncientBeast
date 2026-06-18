@@ -1,4 +1,19 @@
+				
 				<div id="pre-match">
+					<div class="lobby">
+						<div id="createdLobby">
+							<div class="lobby-row">
+								<div class="button-wrapper">
+									<input class="crimson-button" id="joinMatchButton" type="button" value="Paste Link">
+								</div>
+								<input id="lobbyCode" type="text" placeholder="AB-XXXX" class="lobby-code-input" />
+								<div class="button-wrapper">
+									<input class="crimson-button" id="createLobbyButton" type="button" value="Create Lobby">
+								</div>
+							</div>
+							<div id="lobbyError" class="hide lobby-error"></div>
+						</div>
+					</div>
 					<div class="setupFrame">
 						<div class="welcome border-frame">Welcome <span class="user"></span></div>
 						<div class="match-frame border-frame">
@@ -113,11 +128,6 @@
 										<input type="radio" id="timePoolOpt5" name="timePool" value="-1" checked><label for="timePoolOpt5" class="dragIt">&#8734;</label>
 									</div>
 								</div>
-								<div class="gameOption">
-									<h2>Combat Location [ no influence to the actual gameplay ]</h2>
-									<div id="combatLocation" class="typeRadio">
-									</div>
-								</div>
 							</div>
 							<div class="button-wrapper" id="start-btn">
 								<span class="blink">PRESS </span>
@@ -128,47 +138,8 @@
 							<div id="start"><button type="submit"></button><span>Start</span></div>
 						</form>
 					</div>
-					<div class="loginregFrame">
-						<div class="multiplayer-announcement">
-							<h3>Multiplayer Status</h3>
-							<p>
-								<a href="https://github.com/FreezingMoon/AncientBeast/issues/2632" target="_blank" rel="noopener">
-									https://github.com/FreezingMoon/AncientBeast/issues/2632
-								</a>
-							</p>
-							<p class="announcement-text">ETA: v0.6</p>
-						</div>
-					</div>
-					<div class="lobby">
-						<h2>Open Matches (click to join)</h2>
-						<div class="lobby-match-list"></div>
-						<div class="lobby-no-matches">No matches available.</div>
-						<div class="lobby-loader hide">
-							<img src="data:," width="32" height="32" />
-						</div>
-						<div class="buttons-wrapper">
-							<div class="button-wrapper">
-								<input class="crimson-button" id="backFromMatchButton" type="button" value="Back">
-							</div>
-							<div class="button-wrapper">
-								<input class="crimson-button" id="refreshMatchButton" type="button" value="Refresh">
-							</div>
-						</div>
-					</div>
 				</div>
 				<div id="fullscreen">
 					<div></div>
 					<span class="fullscreen__title">Fullscreen</span>
-				</div>
-				<div id="multiplayer">
-					<a href="#" title="Play online versus others">
-						<div></div>
-						<span class="multiplayer__title">Multiplayer</span>
-					</a>
-				</div>
-				<div id="singleplayer">
-					<a href="#" title="Play offline in hotseat mode">
-						<div></div>
-						<span class="singleplayer__title">Singleplayer</span>
-					</a>
 				</div>

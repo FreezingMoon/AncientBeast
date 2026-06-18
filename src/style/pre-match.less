@@ -276,98 +276,48 @@ body {
 	width: 495px;
 }
 
-.loginregFrame {
-	border: 40px solid transparent;
-	border-image: url('~assets/interface/div.png') 40 fill stretch;
-	background: none;
-	position: relative;
-	overflow: visible;
-	margin: 0 0 10px;
-	padding: 20px;
-	width: 495px;
-	display: none;
-	h3 {
-		text-align: left;
-	}
-}
 
-.multiplayer-announcement {
-	text-align: left;
-
-	h3 {
-		margin-top: 0;
-	}
-
-	p {
-		line-height: 1.5;
-		margin: 0.75rem 0;
-	}
-
-	a {
-		word-break: break-word;
-	}
-}
 
 .lobby {
-	display: none;
-	border: 40px solid transparent;
-	border-image: url('~assets/interface/div.png') 40 fill stretch;
-	background: none;
-	position: relative;
-	overflow: visible;
 	margin: 0 0 10px;
 	padding: 0;
 	width: 495px;
-	h2 {
-		margin-top: 0;
-		margin-bottom: 30px;
-	}
 }
-.lobby-match-list {
-	margin: 0;
-	padding: 0;
-
-	li {
-		list-style-type: none;
-		text-align: left;
+#createdLobby {
+		.lobby-row {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 6px;
+			flex-wrap: nowrap;
+		}
+		.lobby-row .button-wrapper {
+			margin: 0;
+		}
+		.lobby-code-input {
+			flex: 0 1 160px;
+			min-width: 0;
+			padding: 8px 4px;
+			font-size: 14px;
+			background: rgba(26, 26, 26, 0.8);
+			border: 1px solid #7a7a7a;
+			border-radius: 6px;
+			color: #fff;
+			box-sizing: border-box;
+			text-align: center;
+			height: 54px;
+		}
+		.lobby-error {
+		color: #f55;
+		font-size: 14px;
+		margin-top: 10px;
+		padding: 8px;
+		background: rgba(255, 0, 0, 0.1);
+		border: 1px solid #f55;
+		&.hide {
+			display: none;
+		}
 	}
-	a {
-		font-size: 20px;
-		display: flex;
-		align-items: center;
-		line-height: 20px;
-		-moz-transition: all 1s ease-in;
-		-webkit-transition: all 0.2s ease-in;
-		-o-transition: all 0.2s ease-in;
-		transition: all 0.2s ease-in;
-		padding: 10px;
-	}
-	a:hover {
-		background-color: rgba(255, 255, 255, 0.2);
-	}
-	.user-match__col {
-		font-size: 15px;
-		text-align: left;
-		margin-right: 15px;
-	}
-	&.refreshing {
-		display: none;
-	}
-}
-.lobby-no-matches {
-	align-items: center;
-	display: flex;
-	justify-content: center;
-	// Match loading indicator height to prevent layout jump.
-	min-height: 32px;
-
-	&.hide {
-		display: none;
-	}
-}
-.lobby-loader {
-	line-height: 0;
-
 	&.hide {
 		display: none;
 	}
@@ -509,6 +459,7 @@ body {
 		font-size: 1.3rem;
 	}
 }
+
 .login {
 	padding-right: 20px;
 	border-right: 1px solid #fff;
@@ -596,31 +547,7 @@ body {
 
 #singleplayer,
 #multiplayer {
-	position: fixed;
-	top: 50%;
-	left: 0;
-	z-index: 100;
-	transform: translateY(-50%);
-	div {
-		display: block;
-		height: 100px;
-		width: 100px;
-		background-color: rgba(0, 0, 0, 0.55);
-		background-size: cover;
-		background-repeat: no-repeat;
-	}
-}
-
-#singleplayer {
-	div {
-		background-image: url('~assets/interface/frame.png'), url('~assets/icons/singleplayer.svg');
-	}
-}
-
-#multiplayer {
-	div {
-		background-image: url('~assets/interface/frame.png'), url('~assets/icons/multiplayer.svg');
-	}
+	display: none;
 }
 
 #fullscreen {
@@ -704,15 +631,6 @@ a {
 	#gameSetup {
 		padding-bottom: 120px;
 	}
-	#singleplayer,
-	#multiplayer {
-		top: auto;
-		bottom: 0;
-		transform: none;
-		left: 50%;
-		transform: translate(-50%);
-		right: auto;
-	}
 }
 
 @media (max-height: 555px) {
@@ -755,14 +673,6 @@ a {
 		display: none;
 	}
 
-	#singleplayer,
-	#multiplayer {
-		top: 50%;
-		left: 0;
-		bottom: auto;
-		right: auto;
-		transform: translateY(-50%);
-	}
 	#contribute {
 		display: block;
 		position: fixed;

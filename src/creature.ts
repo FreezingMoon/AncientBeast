@@ -753,8 +753,11 @@ export class Creature {
 			game._deferredQueryMovePending--;
 		}
 		if (game._deferredQueryMovePending === 0 && game.animationQueue.length === 0) {
-			game.freezedInput = false;
-			// refreshHoverState() fires at the end of queryHexes() below, after the new movement query handlers are in place.
+			if (game.multiplayer) {
+				game.freezedInput = game.UI.active ? false : true;
+			} else {
+				game.freezedInput = false;
+			}
 		}
 
 		// Once Per Damage Abilities recover
@@ -816,11 +819,9 @@ export class Creature {
 						},
 					});
 					if (game.multiplayer) {
-						game.gameplay.moveTo({
-							target: {
-								x: hex.x,
-								y: hex.y,
-							},
+						game.sendMultiplayerMove({
+							x: hex.x,
+							y: hex.y,
 						});
 					}
 					game.UI.btnDelay.changeState('disabled');
