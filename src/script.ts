@@ -63,31 +63,38 @@ $j(() => {
 	scrim.removeClass('loading');
 	renderGameModeType(G.multiplayer);
 
+	let isJoiningLobby = false;
+
 	const joinCodeFromUrl = new URLSearchParams(window.location.search).get('join');
 
 	if (joinCodeFromUrl) {
-		G.multiplayer = true;
-		forceTwoPlayerMode();
-		renderGameModeType(G.multiplayer);
-		G.lobbyCode = parseLobbyCodeInput(joinCodeFromUrl);
-		$j('#lobbyCode').val(G.lobbyCode);
-		$j('#lobbyError').addClass('hide');
-		G.joinLobbyByCode(G.lobbyCode)
-			.then(() => {
-				$j('#lobbyError').addClass('hide');
-				updateLobbyUi();
-			})
-			.catch((error) => {
-				console.error(error);
-				G.lobby?.leaveMatch();
-				G.lobby = null;
-				G.lobbyState = null;
-				$j('#lobbyError')
-					.text(`Could not join lobby: ${error.message || error}`)
-					.removeClass('hide');
-				$j('#joinMatchButton').prop('disabled', false).removeClass('disabled').val('Paste Link');
-				updateLobbyUi();
-			});
+		const parsedJoinCode = parseLobbyCodeInput(joinCodeFromUrl);
+		if (parsedJoinCode) {
+			G.multiplayer = true;
+			forceTwoPlayerMode();
+			renderGameModeType(G.multiplayer);
+			G.lobbyCode = parsedJoinCode;
+			$j('#lobbyCode').val(G.lobbyCode);
+			isJoiningLobby = true;
+			G.joinLobbyByCode(G.lobbyCode)
+				.then(() => {
+					isJoiningLobby = false;
+					updateLobbyUi();
+				})
+				.catch((error) => {
+					isJoiningLobby = false;
+					console.error(error);
+					G.lobby?.leaveMatch();
+					G.lobby = null;
+					G.lobbyState = null;
+					G.lobbyCode = '';
+					G.multiplayer = false;
+					$j('#p4').prop('disabled', false);
+					renderGameModeType(G.multiplayer);
+					$j('#lobbyCode').val('');
+					updateLobbyUi();
+				});
+		}
 	}
 
 	window.addEventListener('blur', G.onBlur.bind(G), false);
@@ -363,29 +370,31 @@ $j(() => {
 	const updateLobbyUi = (lobby = G.lobbyState) => {
 		const isHost = Boolean(G.lobby?.isHost());
 		const hasLobby = Boolean(G.lobby);
-		const playerCount = lobby?.players.length ?? 0;
 		const code = hasLobby ? G.lobbyCode || lobby?.code || '' : '';
 		const inputCode = parseLobbyCodeInput(($j('#lobbyCode').val() as string) || '');
-		const joinCode = code || (!hasLobby ? inputCode : '');
 
 		if (isHost && code) {
 			$j('#lobbyCode').val(code);
 		}
 
 		const $joinButton = $j('#joinMatchButton');
-		const hasValidJoinCode = Boolean(joinCode);
-		if (hasLobby && isHost && playerCount < 2) {
-			$joinButton.prop('disabled', true);
-			$joinButton.val('Paste Link');
-			$joinButton.toggleClass('disabled', true);
-		} else if (!hasLobby) {
+		if (hasLobby && isHost) {
 			$joinButton.prop('disabled', false);
-			$joinButton.val(hasValidJoinCode ? 'Join Match' : 'Paste Link');
+			$joinButton.val('Cancel Lobby');
 			$joinButton.toggleClass('disabled', false);
+		} else if (hasLobby) {
+			$joinButton.prop('disabled', true);
+			$joinButton.val('Waiting...');
+			$joinButton.toggleClass('disabled', true);
+		} else if (isJoiningLobby) {
+			$joinButton.prop('disabled', true);
+			$joinButton.val('Joining...');
+			$joinButton.toggleClass('disabled', true);
 		} else {
-			$joinButton.prop('disabled', hasLobby || !hasValidJoinCode);
-			$joinButton.val(hasLobby ? 'Joined Match' : hasValidJoinCode ? 'Join Match' : 'Paste Link');
-			$joinButton.toggleClass('disabled', hasLobby || !hasValidJoinCode);
+			const hasValidJoinCode = Boolean(inputCode);
+			$joinButton.prop('disabled', !hasValidJoinCode);
+			$joinButton.val('Join Match');
+			$joinButton.toggleClass('disabled', !hasValidJoinCode);
 		}
 
 		const $createButton = $j('#createLobbyButton');
@@ -393,10 +402,10 @@ $j(() => {
 		$createButton.toggleClass('disabled', false);
 		if (!hasLobby) {
 			$createButton.val('Create Lobby');
-		} else if (isHost && playerCount < 2) {
-			$createButton.val('Copy Link');
 		} else if (isHost) {
-			$createButton.val('Start Match');
+			$createButton.val('Waiting Player');
+			$createButton.prop('disabled', true);
+			$createButton.toggleClass('disabled', true);
 		} else {
 			$createButton.val('Waiting Host');
 			$createButton.prop('disabled', true);
@@ -404,25 +413,56 @@ $j(() => {
 		}
 	};
 
+	updateLobbyUi();
+
+	window.addEventListener('focus', async () => {
+		if (G.gameState !== 'initialized') {
+			return;
+		}
+		if (G.lobby) {
+			return;
+		}
+		if (!$j('#pre-match').is(':visible')) {
+			return;
+		}
+
+		try {
+			const clipboardText = await navigator.clipboard.readText();
+			const parsedCode = parseLobbyCodeInput(clipboardText);
+			if (!parsedCode) {
+				return;
+			}
+
+			const $input = $j('#lobbyCode');
+			const currentCode = parseLobbyCodeInput(($input.val() as string) || '');
+			if (parsedCode === currentCode) {
+				return;
+			}
+
+			$input.val(parsedCode);
+			updateLobbyUi();
+		} catch (_e) {
+			// Clipboard access unavailable
+		}
+	});
+
 	let previousPlayerCount = 0;
 
 	G.onLobbyUpdate = (lobby) => {
 		const isHost = Boolean(G.lobby?.isHost());
 		const playerCount = lobby?.players.length ?? 0;
 
-		let showPlayerJoined = false;
 		if (isHost && playerCount > previousPlayerCount && playerCount >= 2) {
-			showPlayerJoined = true;
+			previousPlayerCount = playerCount;
+			updateLobbyUi(lobby);
+			const $createButton = $j('#createLobbyButton');
+			$createButton.val('Starting match');
+			window.setTimeout(() => G.startMultiplayerMatch(), 800);
+			return;
 		}
 		previousPlayerCount = playerCount;
 
 		updateLobbyUi(lobby);
-
-		if (showPlayerJoined && isHost) {
-			const $createButton = $j('#createLobbyButton');
-			$createButton.val('Player joined');
-			window.setTimeout(() => updateLobbyUi(lobby), 1200);
-		}
 	};
 
 	$j('#gameTitle').on('click', () => {
@@ -513,61 +553,49 @@ $j(() => {
 
 	$j('#createLobbyButton').on('click', async () => {
 		if (!G.lobby) {
-			$j('#lobbyError').addClass('hide');
 			try {
 				G.multiplayer = true;
 				forceTwoPlayerMode();
 				renderGameModeType(G.multiplayer);
 				const config = getGameConfig() as unknown as import('./multiplayer').GameConfig;
 				await G.createLobby(config);
-				$j('#lobbyError').addClass('hide');
 				updateLobbyUi();
+
+				const $button = $j('#createLobbyButton');
+				try {
+					await G.lobby?.copyLobbyCode();
+					$button.val('Link copied');
+					$button.prop('disabled', true);
+					$button.toggleClass('disabled', true);
+					window.setTimeout(() => updateLobbyUi(), 1000);
+				} catch (_error) {
+					// Clipboard unavailable, silently continue
+				}
 			} catch (error) {
 				console.error(error);
-				$j('#lobbyError').text('Could not create lobby.').removeClass('hide');
-				updateLobbyUi();
-			}
-			return false;
-		}
-
-		if ($j('#createLobbyButton').val() === 'Copy Link') {
-			const $button = $j('#createLobbyButton');
-			try {
-				await G.lobby?.copyLobbyCode();
-				$button.val('Link copied');
+				const $button = $j('#createLobbyButton');
+				$button.val('Failed');
+				$button.prop('disabled', true);
+				$button.toggleClass('disabled', true);
 				window.setTimeout(() => updateLobbyUi(), 1200);
-			} catch (error) {
-				console.error(error);
-				$j('#lobbyError').text('Could not copy lobby link.').removeClass('hide');
 			}
 			return false;
 		}
 
-		if (!G.lobby.isHost()) {
-			$j('#lobbyError').text('Only the lobby host can start the match.').removeClass('hide');
-			return false;
-		}
-
-		$j('#lobbyError').text('Waiting for players...').removeClass('hide');
-		G.startMultiplayerMatch();
 		return false;
 	});
 
 	$j('#lobbyCode').on('input keyup', () => {
 		const $input = $j('#lobbyCode');
-		const $joinButton = $j('#joinMatchButton');
 		const parsedCode = parseLobbyCodeInput($input.val() as string);
 		if (parsedCode && parsedCode !== $input.val()) {
 			$input.val(parsedCode);
 		}
 		$input.removeClass('mandatory');
-		$joinButton.val(parsedCode ? 'Join Match' : 'Paste Link');
-		$joinButton.prop('disabled', !parsedCode);
-		$joinButton.toggleClass('disabled', !parsedCode);
 		updateLobbyUi();
 	});
 
-	$j('#lobbyCode').on('paste', async (event) => {
+	$j('#lobbyCode').on('paste', (event) => {
 		const clipboardText =
 			(event.originalEvent as ClipboardEvent).clipboardData?.getData('text') || '';
 		const parsedCode = parseLobbyCodeInput(clipboardText);
@@ -576,42 +604,47 @@ $j(() => {
 		}
 
 		event.preventDefault();
-		const $input = $j('#lobbyCode');
-		const $joinButton = $j('#joinMatchButton');
-		$input.val(parsedCode);
-		$input.removeClass('mandatory');
-		$joinButton.val('Join Match');
-		$joinButton.prop('disabled', false);
-		$joinButton.toggleClass('disabled', false);
+		$j('#lobbyCode').val(parsedCode);
 		updateLobbyUi();
+	});
+
+	$j('#lobbyCode').on('keydown', (event) => {
+		if (event.key === 'Enter') {
+			const $joinButton = $j('#joinMatchButton');
+			if (!$joinButton.prop('disabled')) {
+				$joinButton.trigger('click');
+			}
+			event.preventDefault();
+			event.stopPropagation();
+		}
 	});
 
 	$j('#joinMatchButton').on('click', async () => {
 		const $input = $j('#lobbyCode');
+
+		if (G.lobby && G.lobby.isHost()) {
+			try {
+				await navigator.clipboard.writeText('');
+			} catch (_e) {
+				// Clipboard API unavailable
+			}
+			G.lobby.leaveMatch();
+			G.lobby = null;
+			G.lobbyState = null;
+			G.lobbyCode = '';
+			G.multiplayer = false;
+			$j('#p4').prop('disabled', false);
+			renderGameModeType(G.multiplayer);
+			$input.val('');
+			updateLobbyUi();
+			return false;
+		}
+
+		const $joinButton = $j('#joinMatchButton');
 		const rawCode = $input.val() as string;
 		const code = parseLobbyCodeInput(rawCode);
-		const $joinButton = $j('#joinMatchButton');
-		const isPasteLinkState = $joinButton.val() === 'Paste Link';
 
-		$input.removeClass('mandatory');
-
-		// "Paste Link" state: try to read clipboard, then focus field if needed
-		if (isPasteLinkState || !code) {
-			try {
-				const clipboardText = await navigator.clipboard.readText();
-				const parsedCode = parseLobbyCodeInput(clipboardText);
-				if (parsedCode) {
-					$input.val(parsedCode);
-					$input.removeClass('mandatory');
-					$joinButton.val('Join Match');
-					$joinButton.prop('disabled', false);
-					$joinButton.toggleClass('disabled', false);
-					updateLobbyUi();
-					return false;
-				}
-			} catch (_e) {
-				// Clipboard access denied, fall through to focus
-			}
+		if (!code) {
 			$input.addClass('mandatory').trigger('focus');
 			return false;
 		}
@@ -621,23 +654,41 @@ $j(() => {
 		renderGameModeType(G.multiplayer);
 		G.lobbyCode = code;
 		$input.val(code);
-		$j('#lobbyError').text('Joining lobby...').removeClass('hide');
+		isJoiningLobby = true;
 		$joinButton.prop('disabled', true).addClass('disabled').val('Joining...');
+		const joinStartTime = Date.now();
 
 		try {
 			await G.joinLobbyByCode(code);
-			$j('#lobbyError').addClass('hide');
+			const elapsed = Date.now() - joinStartTime;
+			if (elapsed < 800) {
+				await new Promise((resolve) => setTimeout(resolve, 800 - elapsed));
+			}
+			isJoiningLobby = false;
 			updateLobbyUi();
 		} catch (error) {
+			isJoiningLobby = false;
 			console.error(error);
+			try {
+				await navigator.clipboard.writeText('');
+			} catch (_e) {
+				// Clipboard unavailable
+			}
 			G.lobby?.leaveMatch();
 			G.lobby = null;
 			G.lobbyState = null;
-			$j('#lobbyError')
-				.text(`Could not join lobby: ${error.message || error}`)
-				.removeClass('hide');
-			$joinButton.prop('disabled', false).removeClass('disabled').val('Paste Link');
-			updateLobbyUi();
+			G.lobbyCode = '';
+			G.multiplayer = false;
+			$j('#p4').prop('disabled', false);
+			renderGameModeType(G.multiplayer);
+			$j('#lobbyCode').val('');
+			const elapsed = Date.now() - joinStartTime;
+			if (elapsed < 800) {
+				await new Promise((resolve) => setTimeout(resolve, 800 - elapsed));
+			}
+			$joinButton.val('Can\'t Join');
+			$joinButton.prop('disabled', true);
+			$joinButton.toggleClass('disabled', true);
 		}
 
 		return false;
@@ -652,16 +703,24 @@ function parseLobbyCodeInput(value: string) {
 	}
 
 	const joinParam = trimmed.match(/[?&]join=([^&]+)/i)?.[1];
-	if (joinParam) {
-		return normalizeLobbyCode(joinParam);
+	const normalized = normalizeLobbyCode(
+		joinParam
+			? joinParam
+			: (() => {
+					try {
+						const url = new URL(trimmed);
+						return url.searchParams.get('join') || trimmed;
+					} catch (_error) {
+						return trimmed;
+					}
+			  })(),
+	);
+
+	if (!/^AB-[A-Z0-9]{4}$/.test(normalized)) {
+		return '';
 	}
 
-	try {
-		const url = new URL(trimmed);
-		return normalizeLobbyCode(url.searchParams.get('join') || trimmed);
-	} catch (_error) {
-		return normalizeLobbyCode(trimmed);
-	}
+	return normalized;
 }
 
 /**

@@ -43,7 +43,7 @@ export class PeerTransport implements ITransport {
 		return new Promise((resolve, reject) => {
 			const timeout = window.setTimeout(() => {
 				reject(new Error('Timed out connecting to multiplayer lobby'));
-			}, 10000);
+			}, 3000);
 
 			let connectionReady: Promise<void> | null = null;
 

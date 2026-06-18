@@ -375,7 +375,7 @@ export class PeerLobbyProvider implements ILobbyProvider {
 				this.pendingJoinResolve = undefined;
 				this.pendingJoinReject = undefined;
 				reject(new Error('Timed out waiting for lobby host'));
-			}, 10000);
+			}, 3000);
 
 			this.pendingJoinResolve = (session) => {
 				window.clearTimeout(timeout);

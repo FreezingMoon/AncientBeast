@@ -306,22 +306,14 @@ body {
 			box-sizing: border-box;
 			text-align: center;
 			height: 54px;
-		}
-		.lobby-error {
-		color: #f55;
-		font-size: 14px;
-		margin-top: 10px;
-		padding: 8px;
-		background: rgba(255, 0, 0, 0.1);
-		border: 1px solid #f55;
-		&.hide {
-			display: none;
+
+			&:focus {
+				outline: none;
+				border-color: rgb(214, 98, 94);
+				box-shadow: 0 0 3px 1px rgb(214, 98, 94);
+			}
 		}
 	}
-	&.hide {
-		display: none;
-	}
-}
 .avatar {
 	background-image: url('~assets/units/avatars/Dark Priest player red.jpg');
 	height: 75px;
