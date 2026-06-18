@@ -16,6 +16,9 @@ assets/index.js
 logs
 *.log
 
+# Mega.io
+.megaignore
+
 # Runtime data
 pids
 *.pid
