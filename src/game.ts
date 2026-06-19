@@ -176,6 +176,10 @@ export default class Game {
 	disconnectReason?: string;
 
 	createPhaser() {
+		// Always destroy existing Phaser first to prevent duplicate canvas elements
+		if (this.Phaser) {
+			this.destroyPhaser();
+		}
 		const renderer = shouldUseCanvasRenderer() ? Phaser.CANVAS : Phaser.AUTO;
 		this.Phaser = new Phaser.Game(1920, 1080, renderer, 'combatwrapper', {
 			update: this.phaserUpdate.bind(this),
@@ -186,8 +190,15 @@ export default class Game {
 
 	destroyPhaser() {
 		if (this.Phaser) {
-			// Destroy Phaser with cleanup to avoid memory leaks and duplicate canvas elements
-			// Parameters: clearWorld=true (remove all game objects), clearCache=false (keep loaded assets)
+			// IMPORTANT: Remove the canvas element from the DOM before destroying Phaser
+			// Phaser.destroy() does NOT remove the canvas, so we'd end up duplicated canvases
+			const canvas = this.Phaser.canvas;
+			if (canvas && canvas.parentNode) {
+				canvas.parentNode.removeChild(canvas);
+			}
+
+			// Destroy Phaser with cleanup to avoid memory leaks
+			// Parameters: clearWorld=true (remove game objects), clearCache=false
 			this.Phaser.destroy(true, false);
 			this.Phaser = null;
 
@@ -380,15 +391,8 @@ export default class Game {
 		// eslint-disable-next-line @typescript-eslint/no-empty-function
 		onLoadCompleteFn = () => {},
 	) {
-		// If Phaser already exists (from a previous game), destroy it completely
-		// This is necessary for multiplayer which re-initializes the game
-		if (
-			this.Phaser &&
-			(this.gameState === 'loaded' || this.gameState === 'playing' || this.gameState === 'ended')
-		) {
-			this.destroyPhaser();
-		}
 		// Create a fresh Phaser instance for this game session
+		// (createPhaser safely destroys any existing Phaser first to prevent duplicates)
 		this.createPhaser();
 
 		// Need to remove keydown listener before new game start
