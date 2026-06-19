@@ -173,6 +173,7 @@ export default class Game {
 	turnTimePool?: number;
 
 	endGameSound?: SoundSysAudioBufferSourceNode;
+	disconnectReason?: string;
 	isAcceptingInput: () => boolean;
 	constructor() {
 		this.abilities = [];
@@ -742,10 +743,10 @@ export default class Game {
 			if (creature) {
 				if (message.action === 'skip') {
 					this.activeCreature = creature;
-					this.skipTurn();
+					this.skipTurn(undefined, true);
 				} else if (message.action === 'delay') {
 					this.activeCreature = creature;
-					this.delayCreature();
+					this.delayCreature(undefined, true);
 				}
 			}
 			return;
@@ -791,8 +792,14 @@ export default class Game {
 		}
 		if (message.type === 'player-left') {
 			if (this.gameState === 'playing') {
-				alert('Opponent disconnected. Match ended.');
-				this.endGame();
+				const leavingPlayer = message.player;
+				const hostPeerId = this.lobby?.getLobbyState()?.hostPeerId;
+				const leavingWasHost = leavingPlayer?.peerId === hostPeerId;
+				const reason = leavingWasHost
+					? 'Host disconnected. Match ended.'
+					: 'Opponent disconnected. Match ended.';
+				alert(reason);
+				this.endGame(reason);
 			}
 			return;
 		}
@@ -845,17 +852,17 @@ export default class Game {
 	/**
 	 * Replace the current queue with the next queue
 	 */
-	nextRound() {
+	nextRound(remote?: boolean) {
 		this.turn++;
 		this.log(`Round ${this.turn}`, 'roundmarker', true);
 		this.onStartOfRound();
-		this.nextCreature();
+		this.nextCreature(remote);
 	}
 
 	/**
 	 * Activate the next creature in queue
 	 */
-	nextCreature() {
+	nextCreature(remote?: boolean) {
 		this.UI.closeDash();
 		this.UI.btnToggleDash.changeState('normal');
 		this.grid.clearAllXray(); // Clear Xray without re-triggering ghostOverlap
@@ -873,7 +880,7 @@ export default class Game {
 				let differentPlayer = false;
 
 				if (this.queue.isCurrentEmpty() || this.turn === 0) {
-					this.nextRound(); // Switch to the next Round
+					this.nextRound(remote); // Switch to the next Round
 					return;
 				} else {
 					const next = this.queue.queue[0];
@@ -993,11 +1000,11 @@ export default class Game {
 	/**
 	 * End turn for the current unit
 	 */
-	skipTurn(o?) {
+	skipTurn(o?, remote?: boolean) {
 		// NOTE: If skipping a turn and there is a temp creature, destroy it.
 		this.creatures.filter((c) => c?.temp).forEach((c) => c.destroy());
 
-		if (this.multiplayer && this.lobby) {
+		if (!remote && this.multiplayer && this.lobby) {
 			this.lobby.sendAction({
 				type: 'action-end',
 				action: 'skip',
@@ -1006,7 +1013,7 @@ export default class Game {
 			});
 		}
 
-		if (this.turnThrottle) {
+		if (this.turnThrottle && !remote) {
 			return;
 		}
 
@@ -1053,7 +1060,7 @@ export default class Game {
 
 			this.activeCreature.deactivate('turn-end');
 			const activeCreature = this.activeCreature;
-			this.nextCreature();
+			this.nextCreature(remote);
 
 			setTimeout(() => {
 				if (!o.noTooltip) {
@@ -1068,8 +1075,8 @@ export default class Game {
 	 * o - object containing a callback function
 	 */
 
-	delayCreature(o?) {
-		if (this.multiplayer && this.lobby) {
+	delayCreature(o?, remote?: boolean) {
+		if (!remote && this.multiplayer && this.lobby) {
 			this.lobby.sendAction({
 				type: 'action-end',
 				action: 'delay',
@@ -1078,7 +1085,7 @@ export default class Game {
 			});
 		}
 
-		if (this.turnThrottle) {
+		if (this.turnThrottle && !remote) {
 			return;
 		}
 
@@ -1113,7 +1120,7 @@ export default class Game {
 
 		p.totalTimePool = p.totalTimePool - (skipTurn.valueOf() - p.startTime.valueOf());
 		this.activeCreature.wait();
-		this.nextCreature();
+		this.nextCreature(remote);
 	}
 
 	startTimer() {
@@ -1581,8 +1588,9 @@ export default class Game {
 	/* endGame()
 	 *
 	 * End the game and print stats
+	 * reason - optional disconnect reason (e.g. "Host disconnected...")
 	 */
-	endGame() {
+	endGame(reason?: string) {
 		if (this.gameState === 'ended') {
 			return;
 		}
@@ -1593,6 +1601,13 @@ export default class Game {
 		this.stopTimer();
 		this.activeCreature = undefined;
 		this.gameState = 'ended';
+		this.disconnectReason = reason;
+
+		// On disconnect, skip score calculation and go straight to UI
+		if (reason) {
+			this.UI.endGame(reason);
+			return;
+		}
 
 		//-------End bonuses--------//
 		for (let i = 0; i < this.gameMode; i++) {

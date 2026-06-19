@@ -117,7 +117,14 @@ export class PeerLobbyProvider implements ILobbyProvider {
 	}
 
 	isHost(): boolean {
-		return this.state.status !== 'idle' && this.state.host === this.identity.getId();
+		// Must use peerId, not playerId/identity, because playerId is shared
+		// across browser tabs in the same browser (same localStorage UUID).
+		// peerId is unique per browser context (PeerJS connection ID).
+		if (this.state.status === 'idle') {
+			return false;
+		}
+		const myPeerId = this.transport.getMyId();
+		return this.state.hostPeerId === myPeerId;
 	}
 
 	getLobbyState(): LobbyState {
@@ -126,14 +133,7 @@ export class PeerLobbyProvider implements ILobbyProvider {
 
 	getLocalPlayer(): LobbyPlayer | undefined {
 		const myPeerId = this.transport.getMyId();
-		const byPeerId = this.state.players.find((player) => player.peerId === myPeerId);
-
-		if (byPeerId) {
-			return byPeerId;
-		}
-
-		const playerId = this.identity.getId();
-		return this.state.players.find((player) => player.playerId === playerId);
+		return this.state.players.find((player) => player.peerId === myPeerId);
 	}
 
 	markMatchStarted(): void {
@@ -185,6 +185,7 @@ export class PeerLobbyProvider implements ILobbyProvider {
 
 		if (message.type === 'lobby-joined' && !this.isHost()) {
 			if (this.state.status !== 'waiting' && this.state.status !== 'idle') {
+				console.warn('[lobby-joined] Ignored: state is', this.state.status);
 				return;
 			}
 
@@ -234,9 +235,23 @@ export class PeerLobbyProvider implements ILobbyProvider {
 		if (message.type === 'match-start') {
 			const myPeerId = this.transport.getMyId();
 			const myPlayerId = this.identity.getId();
-			const players = message.players.map((player) =>
-				player.playerId === myPlayerId ? { ...player, peerId: myPeerId } : player,
-			);
+			const players = message.players.map((player) => {
+				if (player.peerId === myPeerId) {
+					return { ...player, playerId: myPlayerId, peerId: myPeerId };
+				}
+				return player;
+			});
+			const selfByPeerId = players.find((p) => p.peerId === myPeerId);
+			if (!selfByPeerId) {
+				console.error(
+					'[Match-Start] FAILED to find self by peerId. players:',
+					players.map((p) => ({
+						peerId: p.peerId,
+						playerId: p.playerId,
+						playerIndex: p.playerIndex,
+					})),
+				);
+			}
 			this.state = {
 				code: this.state.code || '',
 				host: message.host,

@@ -2352,11 +2352,15 @@ export class UI {
 		}
 	}
 
-	renderScoreboard(gameOver) {
+	renderScoreboard(gameOver, disconnectReason?: string) {
 		const game = this.game;
 
 		// Configure scoreboard data
-		this.$scoreboard.find('#scoreboardTitle').text('Score');
+		if (disconnectReason) {
+			this.$scoreboard.find('#scoreboardTitle').text(disconnectReason);
+		} else {
+			this.$scoreboard.find('#scoreboardTitle').text('Score');
+		}
 		$j('#winnerMessage').text('');
 
 		const date = new Date().valueOf() - game.pauseTime;
@@ -2597,36 +2601,38 @@ export class UI {
 			// Hide close button on game over screen
 			this.$scoreboard.find('.framed-modal__return').hide();
 
-			// Declare winner
-			if (game.gameMode > 2) {
-				// 2 vs 2
-				const score1 = game.players[0].getScore().total + game.players[2].getScore().total,
-					score2 = game.players[1].getScore().total + game.players[3].getScore().total;
+			if (!disconnectReason) {
+				// Declare winner
+				if (game.gameMode > 2) {
+					// 2 vs 2
+					const score1 = game.players[0].getScore().total + game.players[2].getScore().total,
+						score2 = game.players[1].getScore().total + game.players[3].getScore().total;
 
-				if (score1 > score2) {
-					// Left side wins
-					appendWinnerMessage([game.players[0], game.players[2]]);
-				} else if (score1 < score2) {
-					// Right side wins
-					appendWinnerMessage([game.players[1], game.players[3]]);
-				} else if (score1 == score2) {
-					// Draw
-					this.$scoreboard.find('#scoreboardTitle').text('Draw!');
-				}
-			} else {
-				// 1 vs 1
-				const score1 = game.players[0].getScore().total,
-					score2 = game.players[1].getScore().total;
+					if (score1 > score2) {
+						// Left side wins
+						appendWinnerMessage([game.players[0], game.players[2]]);
+					} else if (score1 < score2) {
+						// Right side wins
+						appendWinnerMessage([game.players[1], game.players[3]]);
+					} else if (score1 == score2) {
+						// Draw
+						this.$scoreboard.find('#scoreboardTitle').text('Draw!');
+					}
+				} else {
+					// 1 vs 1
+					const score1 = game.players[0].getScore().total,
+						score2 = game.players[1].getScore().total;
 
-				if (score1 > score2) {
-					// Left side wins
-					appendWinnerMessage([game.players[0]]);
-				} else if (score1 < score2) {
-					// Right side wins
-					appendWinnerMessage([game.players[1]]);
-				} else if (score1 == score2) {
-					// Draw
-					this.$scoreboard.find('#scoreboardTitle').text('Draw!');
+					if (score1 > score2) {
+						// Left side wins
+						appendWinnerMessage([game.players[0]]);
+					} else if (score1 < score2) {
+						// Right side wins
+						appendWinnerMessage([game.players[1]]);
+					} else if (score1 == score2) {
+						// Draw
+						this.$scoreboard.find('#scoreboardTitle').text('Draw!');
+					}
 				}
 			}
 		} else {
@@ -2638,7 +2644,7 @@ export class UI {
 		}
 	}
 
-	toggleScoreboard(gameOver) {
+	toggleScoreboard(gameOver, disconnectReason?: string) {
 		// If the scoreboard is already displayed, hide it and return
 		if (!this.$scoreboard.hasClass('hide')) {
 			this.closeScoreboard();
@@ -2654,7 +2660,7 @@ export class UI {
 		// Binding the click outside of the scoreboard to close the view
 		this.$scoreboard.off('click', this.easyScoreClose).on('click', this.easyScoreClose);
 
-		this.renderScoreboard(gameOver);
+		this.renderScoreboard(gameOver, disconnectReason);
 
 		// Finally, show the scoreboard
 		this.$scoreboard.removeClass('hide');
@@ -2670,7 +2676,7 @@ export class UI {
 		const $table = $j('#scoreboard table tbody');
 
 		if ($table.children('tr.player_name').children('td').length <= 1) {
-			this.renderScoreboard(this.scoreboardGameOver);
+			this.renderScoreboard(this.scoreboardGameOver, game.disconnectReason);
 			return;
 		}
 
@@ -2729,7 +2735,7 @@ export class UI {
 			const $fills = $playerHeaderCell.find('.score-header-bar-fill');
 
 			if ($fills.length !== statRatios.length) {
-				this.renderScoreboard(this.scoreboardGameOver);
+				this.renderScoreboard(this.scoreboardGameOver, game.disconnectReason);
 				return;
 			}
 
@@ -3560,8 +3566,8 @@ export class UI {
 		this.queue.refresh();
 	}
 
-	endGame() {
-		this.toggleScoreboard(true);
+	endGame(reason?: string) {
+		this.toggleScoreboard(true, reason);
 		this.btnFlee?.changeState(ButtonStateEnum.hidden);
 		this.btnSaveLog.changeState(ButtonStateEnum.normal);
 		this.btnRestartMatch.changeState(ButtonStateEnum.normal);

@@ -36,6 +36,7 @@ export type GameConfig = ReturnType<typeof getGameConfig>;
 const AB = {} as any;
 // Create the game
 const G = new Game();
+(window as any).G = G;
 const LAST_MATCH_LOG_STORAGE_KEY = 'ab:last-match-log';
 // Helper properties and methods for retrieving and playing back game logs.
 // TODO: Expose these in a less hacky way too.
@@ -686,7 +687,7 @@ $j(() => {
 			if (elapsed < 800) {
 				await new Promise((resolve) => setTimeout(resolve, 800 - elapsed));
 			}
-			$joinButton.val('Can\'t Join');
+			$joinButton.val("Can't Join");
 			$joinButton.prop('disabled', true);
 			$joinButton.toggleClass('disabled', true);
 		}

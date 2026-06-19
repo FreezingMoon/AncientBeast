@@ -19,6 +19,8 @@ export class LobbyClient {
 		this.game = game;
 		this.provider = provider;
 
+		this.game.lobby = this;
+
 		this.provider.onLobbyUpdate((lobby) => {
 			this.game.lobbyState = lobby;
 			this.game.onLobbyUpdate?.(lobby);

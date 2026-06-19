@@ -274,6 +274,9 @@ export default (G: Game) => {
 				// Show temporary Creature in queue
 				G.updateQueueDisplay();
 
+				// Close the dash so hex clicks work
+				G.UI?.closeDash();
+
 				G.grid.forEachHex(function (hex: Hex) {
 					hex.unsetReachable();
 				});
