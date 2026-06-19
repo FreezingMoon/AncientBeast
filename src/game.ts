@@ -500,6 +500,13 @@ export default class Game {
 	 * Launch the game with the given number of player.
 	 */
 	setup(gameMode: number) {
+		// Clear existing Phaser objects if setup() was already called once
+		// This prevents duplicate input handlers in multiplayer scenarios
+		if (this.grid) {
+			this.Phaser.world.removeAll(true);
+			this.grid = undefined;
+		}
+
 		// Phaser
 		this.Phaser.scale.parentIsWindow = true;
 		this.Phaser.scale.pageAlignHorizontally = true;

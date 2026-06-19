@@ -472,6 +472,21 @@
 	cursor: not-allowed !important;
 }
 
+// During opponent's turn in multiplayer, show not-allowed cursor
+#rightpanel.opponent-turn .button#skip:hover,
+#rightpanel.opponent-turn .button#delay:hover {
+	cursor: not-allowed !important;
+}
+
+#abilities.opponent-turn .ability-slot .button:hover {
+	cursor: not-allowed !important;
+}
+
+// Show wait cursor on the canvas during opponent's turn
+#rightpanel.opponent-turn ~ #combatwrapper canvas {
+	cursor: wait !important;
+}
+
 .button#flee {
 	background-image: url('~assets/icons/flee.svg');
 }

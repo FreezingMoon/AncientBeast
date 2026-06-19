@@ -3150,6 +3150,17 @@ export class UI {
 
 		this.active = !game.multiplayer || !!game.lobby?.isMyTurn();
 
+		// Set/reset cursor based on turn state
+		if (!this.active) {
+			// Opponent's turn in multiplayer or bot turn
+			$j('canvas').css('cursor', 'wait');
+			$j('body').css('cursor', 'wait');
+		} else if (!game.botController?.isBotTurn()) {
+			// Player's turn (not bot)
+			$j('canvas').css('cursor', '');
+			$j('body').css('cursor', '');
+		}
+
 		$abilitiesButtons.off('click');
 
 		const $abilities = this.$activebox.find('#abilities');
@@ -3202,6 +3213,22 @@ export class UI {
 				const isBotTurn = game.botController.isBotTurn();
 				$j('#rightpanel').toggleClass('bot-turn', isBotTurn);
 				$j('#abilities').toggleClass('bot-turn', isBotTurn);
+
+				// Show not-allowed cursor during opponent's turn in multiplayer
+				const isOpponentTurn = game.multiplayer && !game.lobby?.isMyTurn();
+				$j('#rightpanel').toggleClass('opponent-turn', isOpponentTurn);
+				$j('#abilities').toggleClass('opponent-turn', isOpponentTurn);
+
+				// Update hex cursors based on current turn
+				if (game.grid) {
+					game.grid.forEachHex((hex) => {
+						if (isOpponentTurn) {
+							hex.hitBox.input.useHandCursor = false;
+						} else if (hex.reachable) {
+							hex.hitBox.input.useHandCursor = true;
+						}
+					});
+				}
 			}, 300);
 		};
 

@@ -190,6 +190,17 @@ export class HexGrid {
 	_flickerTween: Phaser.Tween | undefined;
 	_flickerTweenSecondary: Phaser.Tween | undefined;
 
+	/**
+	 * Helper to determine cursor style for multiplayer games.
+	 * When it's not the local player's turn, returns 'wait' instead of the normal cursor.
+	 * @param normalCursor The cursor to show when it's the local player's turn
+	 * @returns 'wait' if opponent's turn, otherwise the normal cursor
+	 */
+	private getCursorForMultiplayer(normalCursor: string): string {
+		const isLocalPlayerTurn = !this.game.multiplayer || this.game.lobby?.isMyTurn();
+		return isLocalPlayerTurn ? normalCursor : 'wait';
+	}
+
 	get allhexes(): Hex[] {
 		return this.hexes.flat(1);
 	}
@@ -1214,13 +1225,13 @@ export class HexGrid {
 			});
 			if (creature !== game.activeCreature) {
 				if (!hex.reachable) {
-					$j('canvas').css('cursor', 'n-resize');
+					$j('canvas').css('cursor', this.getCursorForMultiplayer('n-resize'));
 				} else {
 					// Filled hex with color
 					hex.displayVisualState('creature player' + hex.creature.team);
 				}
 			} else if (game.activeCreature.noActionPossible) {
-				$j('canvas').css('cursor', 'progress');
+				$j('canvas').css('cursor', this.getCursorForMultiplayer('progress'));
 			}
 			queueEffect(creature.id);
 		};
@@ -1240,7 +1251,7 @@ export class HexGrid {
 			let x = hex.x;
 
 			// Clear display and overlay
-			$j('canvas').css('cursor', 'pointer');
+			$j('canvas').css('cursor', this.getCursorForMultiplayer('pointer'));
 
 			if (this._executionMode && hex.creature instanceof Creature) {
 				hex.creature.die({ player: game.players[0] });
@@ -1366,7 +1377,7 @@ export class HexGrid {
 				}
 			}
 			game.UI.chat.hideExpanded();
-			$j('canvas').css('cursor', 'default');
+			$j('canvas').css('cursor', this.getCursorForMultiplayer('default'));
 		};
 
 		// ONMOUSEOVER
@@ -1383,7 +1394,7 @@ export class HexGrid {
 
 			// Clear display and overlay
 			game.UI.xrayQueue(-1);
-			$j('canvas').css('cursor', 'pointer');
+			$j('canvas').css('cursor', this.getCursorForMultiplayer('pointer'));
 			$j('body').css('cursor', 'default');
 
 			if (hex.creature instanceof Creature) {
@@ -1408,7 +1419,7 @@ export class HexGrid {
 			if (hex.reachable) {
 				if (o.fillOnlyHoveredCreature && !(hex.creature instanceof Creature)) {
 					if (!emptyHexBeforeCreature(hex)) {
-						$j('canvas').css('cursor', 'not-allowed');
+						$j('canvas').css('cursor', this.getCursorForMultiplayer('not-allowed'));
 						hex.overlayVisualState('hover');
 					} else {
 						const index = o.hexes.indexOf(hex);
@@ -1466,7 +1477,7 @@ export class HexGrid {
 
 				// If creature and inactive
 				if (hex.creature instanceof Creature && hex.creature !== game.activeCreature) {
-					$j('canvas').css('cursor', 's-resize');
+					$j('canvas').css('cursor', this.getCursorForMultiplayer('s-resize'));
 				}
 			}
 		};

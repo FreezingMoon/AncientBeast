@@ -208,14 +208,15 @@ export class Hex {
 				// Always track pointer position so refreshHoverState() knows which hex
 				// to re-evaluate once freezedInput is cleared after an ability animation.
 				grid.lastMouseHex = this;
-				if (
-					game.freezedInput ||
-					!game.UI ||
-					game.UI.dashopen ||
-					shouldUseDirectTouchInput() ||
-					game.botController?.isBotTurn()
-				)
+
+				// Check if it's not the player's turn (bot or remote opponent)
+				const isNotPlayerTurn = game.freezedInput || game.botController?.isBotTurn();
+				if (isNotPlayerTurn) {
+					$j('canvas').css('cursor', 'wait');
 					return;
+				}
+
+				if (!game.UI || game.UI.dashopen || shouldUseDirectTouchInput()) return;
 
 				//  Show dashed overlay on current hexes of active creature
 				if (this.reachable && game.activeCreature) {
@@ -228,14 +229,14 @@ export class Hex {
 			}, this);
 
 			this.hitBox.events.onInputOut.add((_, pointer) => {
-				if (
-					game.freezedInput ||
-					!game.UI ||
-					game.UI.dashopen ||
-					shouldUseDirectTouchInput() ||
-					game.botController?.isBotTurn()
-				)
+				// Check if it's not the player's turn (bot or remote opponent)
+				const isNotPlayerTurn = game.freezedInput || game.botController?.isBotTurn();
+				if (isNotPlayerTurn) {
+					$j('canvas').css('cursor', 'wait');
 					return;
+				}
+
+				if (!game.UI || game.UI.dashopen || shouldUseDirectTouchInput()) return;
 
 				// When cursor leaves the game canvas entirely, still reset hover state
 				// (e.g. stop the health indicator bounce animation) but skip overlay/signal work.
@@ -266,9 +267,14 @@ export class Hex {
 			}, this);
 
 			this.hitBox.events.onInputUp.add((Sprite, Pointer) => {
-				if (game.freezedInput || !game.UI || game.UI.dashopen || game.botController?.isBotTurn()) {
+				// Check if it's not the player's turn (bot or remote opponent)
+				const isNotPlayerTurn = game.freezedInput || game.botController?.isBotTurn();
+				if (isNotPlayerTurn) {
+					$j('canvas').css('cursor', 'wait');
 					return;
 				}
+
+				if (!game.UI || game.UI.dashopen) return;
 
 				const confirmSelectedHex = () => {
 					this.onConfirmFn(this);
@@ -603,7 +609,9 @@ export class Hex {
 	 */
 	setReachable() {
 		this.reachable = true;
-		this.hitBox.input.useHandCursor = true;
+		// Only show hand cursor if it's the local player's turn
+		const isMyTurn = !this.game?.multiplayer || this.game?.lobby?.isMyTurn?.() !== false;
+		this.hitBox.input.useHandCursor = isMyTurn;
 		this.updateStyle();
 	}
 
