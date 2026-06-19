@@ -174,6 +174,29 @@ export default class Game {
 
 	endGameSound?: SoundSysAudioBufferSourceNode;
 	disconnectReason?: string;
+
+	createPhaser() {
+		const renderer = shouldUseCanvasRenderer() ? Phaser.CANVAS : Phaser.AUTO;
+		this.Phaser = new Phaser.Game(1920, 1080, renderer, 'combatwrapper', {
+			update: this.phaserUpdate.bind(this),
+			render: this.phaserRender.bind(this),
+		});
+		// Note: Scale manager configuration happens in setup() after Phaser is ready
+	}
+
+	destroyPhaser() {
+		if (this.Phaser) {
+			// Destroy Phaser with cleanup to avoid memory leaks and duplicate canvas elements
+			// Parameters: clearWorld=true (remove all game objects), clearCache=false (keep loaded assets)
+			this.Phaser.destroy(true, false);
+			this.Phaser = null;
+
+			// Reset game state
+			this.grid = null;
+			this.UI = null;
+			this.gameState = 'initialized';
+		}
+	}
 	isAcceptingInput: () => boolean;
 	constructor() {
 		this.abilities = [];
@@ -227,11 +250,7 @@ export default class Game {
 		};
 
 		// Phaser
-		const renderer = shouldUseCanvasRenderer() ? Phaser.CANVAS : Phaser.AUTO;
-		this.Phaser = new Phaser.Game(1920, 1080, renderer, 'combatwrapper', {
-			update: this.phaserUpdate.bind(this),
-			render: this.phaserRender.bind(this),
-		});
+		this.createPhaser();
 
 		// Messages
 		// TODO: Move strings to external file in order to be able to support translations
@@ -361,6 +380,17 @@ export default class Game {
 		// eslint-disable-next-line @typescript-eslint/no-empty-function
 		onLoadCompleteFn = () => {},
 	) {
+		// If Phaser already exists (from a previous game), destroy it completely
+		// This is necessary for multiplayer which re-initializes the game
+		if (
+			this.Phaser &&
+			(this.gameState === 'loaded' || this.gameState === 'playing' || this.gameState === 'ended')
+		) {
+			this.destroyPhaser();
+		}
+		// Create a fresh Phaser instance for this game session
+		this.createPhaser();
+
 		// Need to remove keydown listener before new game start
 		// to prevent memory leak and mixing hotkeys between start screen and game
 		$j(document).off('keydown');
@@ -441,8 +471,10 @@ export default class Game {
 		$j('#combatwrapper').show();
 		$j('body').css('cursor', 'default');
 
-		// Do not call setup if we are not active.
-		if (!this.preventSetup) {
+		// In multiplayer, always start setup regardless of focus state
+		// Headless browsers and tab-switching shouldn't block multiplayer initialization
+		if (this.multiplayer || !this.preventSetup) {
+			this.preventSetup = false;
 			this.setup(this.gameMode);
 		}
 	}
@@ -680,6 +712,10 @@ export default class Game {
 		$j(window).resize(() => {
 			// Throttle down to 1 event every 100ms of inactivity
 			resizeGame();
+			// Refresh Phaser scale to fit the resized window
+			if (this.Phaser && this.Phaser.scale) {
+				this.Phaser.scale.refresh();
+			}
 		});
 
 		this.soundsys.playMusic();
@@ -812,7 +848,7 @@ export default class Game {
 				const leavingWasHost = leavingPlayer?.peerId === hostPeerId;
 				const reason = leavingWasHost
 					? 'Host disconnected. Match ended.'
-					: 'Opponent disconnected. Match ended.';
+					: 'Player disconnected. Match ended.';
 				this.endGame(reason);
 			}
 			return;
