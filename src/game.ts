@@ -791,6 +791,14 @@ export default class Game {
 			return;
 		}
 		if (message.type === 'player-left') {
+			console.warn(
+				'[Game.handleLobbyMessage] Received player-left:',
+				message.player?.playerId,
+				'gameState:',
+				this.gameState,
+				'isPlaying:',
+				this.gameState === 'playing',
+			);
 			if (this.gameState === 'playing') {
 				const leavingPlayer = message.player;
 				const hostPeerId = this.lobby?.getLobbyState()?.hostPeerId;
@@ -798,7 +806,6 @@ export default class Game {
 				const reason = leavingWasHost
 					? 'Host disconnected. Match ended.'
 					: 'Opponent disconnected. Match ended.';
-				alert(reason);
 				this.endGame(reason);
 			}
 			return;

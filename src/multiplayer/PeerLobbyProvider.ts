@@ -25,6 +25,12 @@ export class PeerLobbyProvider implements ILobbyProvider {
 	private pendingJoinReject?: (error: Error) => void;
 	private matchStartGraceUntil = 0;
 
+	private heartbeatInterval: number | null = null;
+	private heartbeatTimeout: number | null = null;
+	private lastHeartbeatReceived = 0;
+	private heartbeatIntervalMs = 3000;
+	private heartbeatTimeoutMs = 10000;
+
 	constructor(transport: ITransport = new PeerTransport()) {
 		this.transport = transport;
 		this.wireTransport();
@@ -108,6 +114,7 @@ export class PeerLobbyProvider implements ILobbyProvider {
 
 	leaveLobby(): void {
 		this.pendingJoinResolve = undefined;
+		this.stopHeartbeat();
 		this.transport.disconnect();
 
 		if (this.state.status !== 'ended') {
@@ -138,6 +145,11 @@ export class PeerLobbyProvider implements ILobbyProvider {
 
 	markMatchStarted(): void {
 		this.matchStartGraceUntil = Date.now() + 10000;
+		if (this.state.status !== 'playing') {
+			this.state = { ...this.state, status: 'playing' };
+			this.emitLobbyUpdate();
+			this.startHeartbeat();
+		}
 	}
 
 	sendGameMessage(message: GameMessage): void {
@@ -263,6 +275,7 @@ export class PeerLobbyProvider implements ILobbyProvider {
 			this.emitLobbyUpdate();
 			this.resolveJoin();
 			this.gameMessageHandlers.forEach((handler) => handler(message));
+			this.startHeartbeat();
 			return;
 		}
 
@@ -277,6 +290,11 @@ export class PeerLobbyProvider implements ILobbyProvider {
 			this.gameMessageHandlers.forEach((handler) =>
 				handler({ type: 'player-left', playerId: message.playerId, player: message.player }),
 			);
+			return;
+		}
+
+		if (message.type === 'heartbeat') {
+			this.onHeartbeatReceived();
 			return;
 		}
 
@@ -379,9 +397,91 @@ export class PeerLobbyProvider implements ILobbyProvider {
 		this.state = { ...this.state, status: 'ended' };
 		this.rejectJoin(new Error('Lobby host disconnected'));
 		this.emitLobbyUpdate();
-		this.gameMessageHandlers.forEach((handler) =>
-			handler({ type: 'player-left', playerId: leavingPlayer.playerId, player: leavingPlayer }),
+		const playerLeftMsg = {
+			type: 'player-left' as const,
+			playerId: leavingPlayer.playerId,
+			player: leavingPlayer,
+		};
+		console.warn(
+			'[PeerLobbyProvider] Emitting player-left via gameMessageHandlers:',
+			playerLeftMsg.playerId,
+			'handlers count:',
+			this.gameMessageHandlers.length,
 		);
+		this.gameMessageHandlers.forEach((handler) => handler(playerLeftMsg));
+	}
+
+	private onHeartbeatReceived(): void {
+		this.lastHeartbeatReceived = Date.now();
+		if (this.heartbeatTimeout !== null) {
+			window.clearTimeout(this.heartbeatTimeout);
+			this.heartbeatTimeout = null;
+		}
+	}
+
+	private handlePeerLeaveByTimeout(): void {
+		if (this.state.status !== 'playing') {
+			console.warn(
+				'[Heartbeat handlePeerLeaveByTimeout] status is',
+				this.state.status,
+				'- aborting',
+			);
+			return;
+		}
+		const myPeerId = this.transport.getMyId();
+		const remotePlayer = this.state.players.find((player) => player.peerId !== myPeerId);
+		if (!remotePlayer) {
+			console.warn('[Heartbeat handlePeerLeaveByTimeout] no remote player found');
+			return;
+		}
+		console.warn(
+			'[Heartbeat] Remote player timed out:',
+			remotePlayer.peerId,
+			'- calling handlePeerLeave',
+		);
+		this.handlePeerLeave(remotePlayer.peerId);
+	}
+
+	private startHeartbeat(): void {
+		if (this.state.players.length < 2) {
+			return;
+		}
+		this.stopHeartbeat();
+		this.lastHeartbeatReceived = Date.now();
+
+		this.heartbeatInterval = window.setInterval(() => {
+			const localPlayer = this.getLocalPlayer();
+			if (!localPlayer) {
+				return;
+			}
+			this.transport.send({
+				type: 'heartbeat',
+				timestamp: Date.now(),
+				playerId: localPlayer.playerId,
+			});
+
+			const elapsed = Date.now() - this.lastHeartbeatReceived;
+			if (elapsed > this.heartbeatTimeoutMs && this.heartbeatTimeout === null) {
+				console.warn('[Heartbeat] No response received in', elapsed, 'ms, starting timeout');
+				this.heartbeatTimeout = window.setTimeout(() => {
+					console.warn('[Heartbeat] Connection timed out');
+					this.stopHeartbeat();
+					this.handlePeerLeaveByTimeout();
+				}, this.heartbeatTimeoutMs - elapsed);
+			}
+		}, this.heartbeatIntervalMs);
+	}
+
+	private stopHeartbeat(): void {
+		if (this.heartbeatInterval !== null) {
+			window.clearInterval(this.heartbeatInterval);
+			this.heartbeatInterval = null;
+		}
+		if (this.heartbeatTimeout !== null) {
+			window.clearTimeout(this.heartbeatTimeout);
+			this.heartbeatTimeout = null;
+		}
+		this.lastHeartbeatReceived = 0;
 	}
 
 	private createJoinPromise(): Promise<LobbySession> {

@@ -45,7 +45,8 @@ export type GameMessage =
 			args: unknown[];
 			playerId: PlayerId;
 			creatureId: number;
-	  };
+	  }
+	| { type: 'heartbeat'; timestamp: number; playerId: PlayerId };
 
 export interface TransportConnectOptions {
 	isHost?: boolean;
