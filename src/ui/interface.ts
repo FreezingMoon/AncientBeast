@@ -1894,6 +1894,10 @@ export class UI {
 				applyBuffDebuffStyle($stat, this.selectedCreatureObj, key, value, isBrowsing);
 			});
 			$j.each(game.abilities[stats.id], (key) => {
+				// Skip if ability_info for this slot doesn't exist (e.g., non-playable units with incomplete data)
+				if (!stats.ability_info || !stats.ability_info[key]) {
+					return;
+				}
 				const $ability = $j('#card .sideB .abilities .ability:eq(' + key + ')');
 				const abilityIndex = Number(key);
 				const isUpgraded = Boolean(
@@ -1907,35 +1911,37 @@ export class UI {
 					.children('.wrapper')
 					.children('.info')
 					.children('h3')
-					.text(stats.ability_info[key].title);
+					.text(stats.ability_info[key].title || '');
 				$ability
 					.children('.wrapper')
 					.children('.info')
 					.children('#desc')
-					.text(stats.ability_info[key].desc);
+					.text(stats.ability_info[key].desc || '');
 				$ability
 					.children('.wrapper')
 					.children('.info')
 					.children('#info')
-					.text(stats.ability_info[key].info);
-				$ability
-					.children('.wrapper')
-					.children('.info')
-					.children('#upgrade')
-					.text('Upgrade: ' + stats.ability_info[key].upgrade);
+					.text(stats.ability_info[key].info || '');
+
+				if (stats.ability_info[key].upgrade) {
+					$ability
+						.children('.wrapper')
+						.children('.info')
+						.children('#upgrade')
+						.text('Upgrade: ' + stats.ability_info[key].upgrade);
+				} else {
+					$ability.children('.wrapper').children('.info').children('#upgrade').text('');
+				}
 
 				if (stats.ability_info[key].costs !== undefined && key !== 0) {
+					const energyCost = stats.ability_info[key].costs.energy;
 					$ability
 						.children('.wrapper')
 						.children('.info')
 						.children('#cost')
-						.text(' - costs ' + stats.ability_info[key].costs.energy + ' energy pts.');
+						.text(energyCost !== undefined ? ' - costs ' + energyCost + ' energy pts.' : '');
 				} else {
-					$ability
-						.children('.wrapper')
-						.children('.info')
-						.children('#cost')
-						.text(' - this ability is passive.');
+					$ability.children('.wrapper').children('.info').children('#cost').text('');
 				}
 			});
 
@@ -2117,17 +2123,14 @@ export class UI {
 				}
 
 				if (stats.ability_info[key].costs !== undefined && key !== 0) {
+					const energyCost = stats.ability_info[key].costs.energy;
 					$ability
 						.children('.wrapper')
 						.children('.info')
 						.children('#cost')
-						.text(' - costs ' + stats.ability_info[key].costs.energy + ' energy pts.');
+						.text(energyCost !== undefined ? ' - costs ' + energyCost + ' energy pts.' : '');
 				} else {
-					$ability
-						.children('.wrapper')
-						.children('.info')
-						.children('#cost')
-						.text(' - this ability is passive.');
+					$ability.children('.wrapper').children('.info').children('#cost').text('');
 				}
 			});
 
