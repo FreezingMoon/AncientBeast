@@ -1414,6 +1414,15 @@ export class HexGrid {
 					hex.creature.hint('Skip turn', 'no_action');
 				}
 				game.UI.chat.isOverCreature = true;
+			} else if (!game.botController?.isBotTurn()) {
+				// Issue #2206: top widgets for drops/traps when hex has no unit hover panel
+				const dropsOnHex = (game.drops ?? []).filter(
+					(d) => d.x === hex.x && d.y === hex.y && !d.pickedUp,
+				);
+				const trapsOnHex = (game.traps ?? []).filter((t) => t.x === hex.x && t.y === hex.y);
+				if (dropsOnHex.length > 0 || trapsOnHex.length > 0) {
+					game.UI.chat.showDropTrapPanel(dropsOnHex, trapsOnHex);
+				}
 			}
 
 			if (hex.reachable) {

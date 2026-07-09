@@ -2,6 +2,8 @@ import $j from 'jquery';
 import * as str from '../utility/string';
 import { PRIMARY_STATS, MASTERY_STATS } from '../utility/const';
 import { Creature } from '../creature';
+import { Drop } from '../drop';
+import { Trap } from '../utility/trap';
 import Game from '../game';
 
 type Message = {
@@ -19,6 +21,9 @@ type MessageToSupress = {
 
 type HoverableCreature = Creature & { hideUnitStatsOnHover?: boolean };
 
+/** Key used so re-hovering same hex does not rebuild the panel every frame. */
+type DropTrapPanelKey = string;
+
 export class Chat {
 	game: Game;
 	$chat: JQuery<HTMLElement>; //eslint-disable-line no-undef
@@ -30,6 +35,8 @@ export class Chat {
 	isOverCreature: boolean;
 	currentExpandedCreature: Creature;
 	messagesToSuppress: MessageToSupress[];
+	/** When showing drop/trap widgets (not a creature), track key to avoid flicker. */
+	currentDropTrapKey: DropTrapPanelKey | null = null;
 
 	/**
 	 * Chat/Log Functions
@@ -140,6 +147,7 @@ export class Chat {
 			return;
 		}
 		this.isOverCreature = true;
+		this.currentDropTrapKey = null;
 		this.currentExpandedCreature = creature;
 		this.isExpanded = true;
 
@@ -166,6 +174,109 @@ export class Chat {
 		}
 	}
 
+	/**
+	 * Top hover widgets for drops/traps on a hex (issue #2206).
+	 * Drop: modified stats with +/- and green/red.
+	 * Trap: ability/trap name in player-colored frame + short description.
+	 */
+	showDropTrapPanel(drops: Drop[], traps: Trap[]) {
+		if ((!drops || drops.length === 0) && (!traps || traps.length === 0)) {
+			return;
+		}
+
+		const key = [
+			...drops.map((d) => `d${d.id}`),
+			...traps.map((t) => `t${t.id}`),
+		]
+			.sort()
+			.join('|');
+
+		if (key === this.currentDropTrapKey) {
+			this.isOverCreature = true;
+			return;
+		}
+
+		this.isOverCreature = true;
+		this.currentExpandedCreature = null;
+		this.currentDropTrapKey = key;
+		this.isExpanded = true;
+
+		const dropBlocks = drops.map((drop) => this._createDropPanelHtml(drop)).join('');
+		const trapBlocks = traps.map((trap) => this._createTrapPanelHtml(trap)).join('');
+		const expandedHTML = `
+			<div class="hover-panel-rows drop-trap-hover-panel">
+				${dropBlocks}
+				${trapBlocks}
+			</div>
+		`;
+
+		if (this.$expandedContent.children().length > 0) {
+			this.$expandedContent.stop().animate({ opacity: 0 }, 120, () => {
+				this.$expandedContent.html(expandedHTML);
+				this.$expandedContent.animate({ opacity: 1 }, 180);
+			});
+		} else {
+			this.$expandedContent.html(expandedHTML);
+			this.$expandedContent.css({ opacity: 0 }).animate({ opacity: 1 }, 250);
+		}
+	}
+
+	_createDropPanelHtml(drop: Drop): string {
+		const alts = drop.alterations || {};
+		const rows = Object.keys(alts)
+			.filter((k) => typeof (alts as Record<string, number>)[k] === 'number')
+			.map((stat) => {
+				const n = (alts as Record<string, number>)[stat];
+				const sign = n > 0 ? '+' : '';
+				const color = n > 0 ? '#3dd68c' : n < 0 ? '#ff6b6b' : '#e8eefc';
+				return `
+					<div class="stat-item">
+						<div class="icon ${stat}"></div>
+						<div class="stat-value" style="color:${color}">${sign}${n}</div>
+					</div>
+				`;
+			})
+			.join('');
+
+		return `
+			<div class="hover-panel-row drop-hover-block">
+				<div class="stat-item" style="width:100%;margin-bottom:4px">
+					<strong style="color:#e8eefc">Drop: ${String(drop.name).replace(/[<>&]/g, '')}</strong>
+				</div>
+				${rows || '<div class="stat-value">—</div>'}
+			</div>
+		`;
+	}
+
+	_createTrapPanelHtml(trap: Trap): string {
+		const team = trap.owner?.id ?? trap.ownerCreature?.team ?? 0;
+		const title = trap.name || trap.type || 'Trap';
+		// Prefer effect specials / names as the "card B" description slice.
+		const effectBits = (trap.effects || [])
+			.map((e) => {
+				const anyE = e as { name?: string; special?: string; _logMsg?: string };
+				return anyE.special || anyE.name || anyE._logMsg || '';
+			})
+			.filter(Boolean);
+		const desc =
+			effectBits.join(' · ') ||
+			`Trap placed by player ${team + 1}` +
+				(trap.ownerCreature ? ` (${trap.ownerCreature.name})` : '');
+
+		const frameColor =
+			team === 0 ? '#5b9dff' : team === 1 ? '#ff6b6b' : team === 2 ? '#3dd68c' : '#f0c14b';
+
+		return `
+			<div class="hover-panel-row trap-hover-block" style="border:2px solid ${frameColor};border-radius:8px;padding:6px 8px;margin:2px 0">
+				<div class="stat-item" style="width:100%">
+					<div class="icon ${trap.type || 'offense'}" title="${title}"></div>
+					<div class="stat-value" style="color:${frameColor};font-weight:700">${title}</div>
+				</div>
+				<div style="color:#c5d0e6;font-size:0.85rem;margin-top:4px;max-width:42ch">${desc}</div>
+			</div>
+		`;
+	}
+
 	hideExpanded() {
 		this.isOverCreature = false;
 		setTimeout(() => {
@@ -174,6 +285,7 @@ export class Chat {
 			}
 			this.isExpanded = false;
 			this.currentExpandedCreature = null;
+			this.currentDropTrapKey = null;
 			this.$expandedContent.stop().animate({ opacity: 0 }, 200, () => {
 				this.$expandedContent.empty();
 			});
