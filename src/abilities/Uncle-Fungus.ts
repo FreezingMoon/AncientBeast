@@ -57,7 +57,7 @@ export default (G: Game) => {
 					turnLifetime: -1,
 				};
 
-				this.end();
+				this.end(true); // suppress passive ability-use log (#2171)
 
 				// Spore Contamination
 				const effect = new Effect(
@@ -118,7 +118,7 @@ export default (G: Game) => {
 
 			// activate() :
 			activate: function (target) {
-				this.end();
+				this.end(true); // suppress passive ability-use log (#2171)
 				G.Phaser.camera.shake(0.01, 65, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				const damage = new Damage(
@@ -380,7 +380,7 @@ export default (G: Game) => {
 
 			// activate() :
 			activate: function (target) {
-				this.end();
+				this.end(true); // suppress passive ability-use log (#2171)
 				G.Phaser.camera.shake(0.03, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				const damage = new Damage(
