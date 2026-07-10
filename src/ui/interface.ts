@@ -2158,17 +2158,34 @@ export class UI {
 			excludeTypes: deadOrSummonedTypes,
 		});
 
-		// Randomize array to grab a random creature
-		for (let i = availableTypes.length - 1; i > 0; i--) {
+		// #1773: prefer units not on field, not dead, and not just materialized by anyone
+		const onFieldOrDead = new Set(
+			activePlayer.creatures
+				.filter((c) => !c.temp)
+				.map((c) => c.type),
+		);
+		const lastType = game.lastMaterializedType;
+		const preferred = availableTypes.filter(
+			(t) => t !== lastType && !onFieldOrDead.has(t),
+		);
+		// Fall back: exclude only last materialized; then full available list
+		const preferredOrAlt =
+			preferred.length > 0
+				? preferred
+				: availableTypes.filter((t) => t !== lastType);
+		const pool = preferredOrAlt.length > 0 ? preferredOrAlt : availableTypes;
+
+		// Randomize pool
+		for (let i = pool.length - 1; i > 0; i--) {
 			const j = Math.floor(Math.random() * (i + 1));
-			const temp = availableTypes[i];
-			availableTypes[i] = availableTypes[j];
-			availableTypes[j] = temp;
+			const temp = pool[i];
+			pool[i] = pool[j];
+			pool[j] = temp;
 		}
 
 		// Grab the first creature we can afford (if none, default to priest)
 		let typeToPass = '--';
-		availableTypes.some((creature) => {
+		pool.some((creature) => {
 			const lvl = parseInt(creature.substring(1, 2)) - 0;
 			const size = game.retrieveCreatureStats(creature).size - 0;
 			const plasmaCost = lvl + size;

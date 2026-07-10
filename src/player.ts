@@ -188,6 +188,10 @@ export class Player {
 
 		this.creatures.push(creature);
 		creature.summon(!this._summonCreaturesWithMaterializationSickness);
+		// Track last summon for Godlet Printer random variety (#1773)
+		if (type !== '--') {
+			game.lastMaterializedType = type;
+		}
 		// @ts-expect-error 2554
 		game.onCreatureSummon(creature);
 	}

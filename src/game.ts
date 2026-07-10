@@ -144,6 +144,8 @@ export default class Game {
 	triggers: Record<string, RegExp>;
 	signals: Record<string, Signal>;
 	botController: BotController;
+	/** Last unit type materialized by any player (Godlet Printer variety, #1773). */
+	lastMaterializedType?: CreatureType | string;
 
 	// The optionals below are created by the various methods of `Game`, mainly by `setup` and `loadGame`
 
