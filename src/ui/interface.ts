@@ -2159,20 +2159,11 @@ export class UI {
 		});
 
 		// #1773: prefer units not on field, not dead, and not just materialized by anyone
-		const onFieldOrDead = new Set(
-			activePlayer.creatures
-				.filter((c) => !c.temp)
-				.map((c) => c.type),
-		);
+		const onFieldOrDead = new Set(activePlayer.creatures.filter((c) => !c.temp).map((c) => c.type));
 		const lastType = game.lastMaterializedType;
-		const preferred = availableTypes.filter(
-			(t) => t !== lastType && !onFieldOrDead.has(t),
-		);
+		const preferred = availableTypes.filter((t) => t !== lastType && !onFieldOrDead.has(t));
 		// Fall back: exclude only last materialized; then full available list
-		const preferredOrAlt =
-			preferred.length > 0
-				? preferred
-				: availableTypes.filter((t) => t !== lastType);
+		const preferredOrAlt = preferred.length > 0 ? preferred : availableTypes.filter((t) => t !== lastType);
 		const pool = preferredOrAlt.length > 0 ? preferredOrAlt : availableTypes;
 
 		// Randomize pool
