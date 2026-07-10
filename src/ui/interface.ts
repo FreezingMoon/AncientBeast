@@ -1900,7 +1900,13 @@ export class UI {
 					this.selectedCreatureObj?.abilities?.[abilityIndex]?.isUpgraded(),
 				);
 				// #1996: tolerate incomplete ability_info (WIP units like Kraken)
-				const info = stats.ability_info?.[key] || {};
+				const info = (stats.ability_info?.[key] || {}) as {
+					title?: string;
+					desc?: string;
+					info?: string;
+					upgrade?: string;
+					costs?: { energy?: number };
+				};
 				const title = info.title ?? `Ability ${abilityIndex}`;
 				const desc = info.desc ?? '';
 				const infoText = info.info ?? '';
@@ -2081,7 +2087,13 @@ export class UI {
 			// Abilities — #1996: skip / default missing fields instead of throwing
 			$j.each(stats.ability_info || {}, (key) => {
 				const $ability = $j('#card .sideB .abilities .ability:eq(' + key + ')');
-				const info = stats.ability_info[key] || {};
+				const info = (stats.ability_info[key] || {}) as {
+					title?: string;
+					desc?: string;
+					info?: string;
+					upgrade?: string;
+					costs?: { energy?: number };
+				};
 				const title = info.title ?? `Ability ${key}`;
 				const desc = info.desc ?? '';
 				const infoText = info.info ?? '';
