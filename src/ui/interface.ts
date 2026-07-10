@@ -2163,7 +2163,8 @@ export class UI {
 		const lastType = game.lastMaterializedType;
 		const preferred = availableTypes.filter((t) => t !== lastType && !onFieldOrDead.has(t));
 		// Fall back: exclude only last materialized; then full available list
-		const preferredOrAlt = preferred.length > 0 ? preferred : availableTypes.filter((t) => t !== lastType);
+		const preferredOrAlt =
+			preferred.length > 0 ? preferred : availableTypes.filter((t) => t !== lastType);
 		const pool = preferredOrAlt.length > 0 ? preferredOrAlt : availableTypes;
 
 		// Randomize pool
