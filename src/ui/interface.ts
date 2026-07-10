@@ -732,7 +732,12 @@ export class UI {
 						});
 
 						// Prevents upgrade animation from carrying on into opponent's turn and disabling their button
+						// Issue #2016: also strip upgrade CSS classes so icons don't snap next turns.
 						clearTimeout(this.animationUpgradeTimeOutID);
+						this.abilitiesButtons.forEach((btn) => {
+							btn.$button.removeClass('upgradeIcon');
+							btn.$button.removeClass('upgradeTransition');
+						});
 
 						game.skipTurn();
 						this.lastViewedCreature = '';
