@@ -57,7 +57,9 @@ export default (G: Game) => {
 					turnLifetime: -1,
 				};
 
-				this.end();
+				// Passive log "uses Toxic Spores" on passive melee trigger (issue #2171).
+				// Keep the contamination effect message below; only silence the ability-use line.
+				this.end(true);
 
 				// Spore Contamination
 				const effect = new Effect(

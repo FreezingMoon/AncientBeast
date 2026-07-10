@@ -98,6 +98,9 @@ export class Drop {
 		const game = this.game;
 		const alterations = this.alterations;
 
+		// Issue #1099: play a short SFX when collecting a drop.
+		game.soundsys?.playSFX('sounds/upgrade');
+
 		game.log('%CreatureName' + creature.id + '% picks up ' + this.name + ':');
 		creature.hint(this.name, 'msg_effects');
 
