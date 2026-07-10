@@ -555,9 +555,24 @@ class CreatureVignette extends Vignette {
 
 	animateUpdate(queuePosition: number, x: number) {
 		const scale = this.isActiveCreature ? 1.25 : 1.0;
-		const keyframes = [{ transform: `translateX(${x}px) translateY(0px) scale(${scale})` }];
+		// #441: when delayed, leap (arc) into the new queue slot instead of a flat slide
+		const leap = this.creature?.isDelayed;
+		const keyframes = leap
+			? [
+					{
+						transform: `translateX(${x}px) translateY(-55px) scale(${scale})`,
+						offset: 0.4,
+						easing: 'ease-out',
+					},
+					{
+						transform: `translateX(${x}px) translateY(0px) scale(${scale})`,
+						offset: 1,
+						easing: 'ease-in',
+					},
+			  ]
+			: [{ transform: `translateX(${x}px) translateY(0px) scale(${scale})` }];
 		const animation = this.el.animate(keyframes, {
-			duration: CONST.animDurationMS,
+			duration: leap ? CONST.animDurationMS * 1.15 : CONST.animDurationMS,
 			fill: 'forwards',
 		});
 		animation.commitStyles();
