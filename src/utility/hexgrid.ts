@@ -1230,8 +1230,13 @@ export class HexGrid {
 					// Filled hex with color
 					hex.displayVisualState('creature player' + hex.creature.team);
 				}
-			} else if (game.activeCreature.noActionPossible) {
-				$j('canvas').css('cursor', this.getCursorForMultiplayer('progress'));
+			} else {
+				// #2246: progress cursor on active unit when no ability selected
+				// or the unit cannot act (already used / no action possible)
+				const noAbilitySelected = !(game.UI && game.UI.selectedAbility >= 0);
+				if (noAbilitySelected || game.activeCreature.noActionPossible) {
+					$j('canvas').css('cursor', this.getCursorForMultiplayer('progress'));
+				}
 			}
 			queueEffect(creature.id);
 		};
@@ -1406,12 +1411,19 @@ export class HexGrid {
 
 				hex.creature.startBounce();
 
-				if (game.activeCreature === hex.creature && hex.creature.noActionPossible) {
-					game.UI.hoveringNoActionCreature = true;
-					game.UI.btnSkipTurn.$button.removeClass('bounce');
-					game.UI.btnSkipTurn.$button.removeClass('hidden');
-					// Show "Skip Turn" icon
-					hex.creature.hint('Skip turn', 'no_action');
+				if (game.activeCreature === hex.creature) {
+					// #2246: progress cursor when no ability selected or cannot act
+					const noAbilitySelected = !(game.UI && game.UI.selectedAbility >= 0);
+					if (noAbilitySelected || hex.creature.noActionPossible) {
+						$j('canvas').css('cursor', this.getCursorForMultiplayer('progress'));
+					}
+					if (hex.creature.noActionPossible) {
+						game.UI.hoveringNoActionCreature = true;
+						game.UI.btnSkipTurn.$button.removeClass('bounce');
+						game.UI.btnSkipTurn.$button.removeClass('hidden');
+						// Show "Skip Turn" icon
+						hex.creature.hint('Skip turn', 'no_action');
+					}
 				}
 				game.UI.chat.isOverCreature = true;
 			}
