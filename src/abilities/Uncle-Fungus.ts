@@ -1,4 +1,4 @@
-import { Damage } from '../damage';
+﻿import { Damage } from '../damage';
 import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
@@ -118,7 +118,7 @@ export default (G: Game) => {
 
 			// activate() :
 			activate: function (target) {
-				this.end(true); // suppress passive ability-use log (#2171)
+				this.end();
 				G.Phaser.camera.shake(0.01, 65, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				const damage = new Damage(
@@ -380,7 +380,7 @@ export default (G: Game) => {
 
 			// activate() :
 			activate: function (target) {
-				this.end(true); // suppress passive ability-use log (#2171)
+				this.end();
 				G.Phaser.camera.shake(0.03, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				const damage = new Damage(
