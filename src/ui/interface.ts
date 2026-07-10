@@ -1899,43 +1899,38 @@ export class UI {
 				const isUpgraded = Boolean(
 					this.selectedCreatureObj?.abilities?.[abilityIndex]?.isUpgraded(),
 				);
+				// #1996: tolerate incomplete ability_info (WIP units like Kraken)
+				const info = stats.ability_info?.[key] || {};
+				const title = info.title ?? `Ability ${abilityIndex}`;
+				const desc = info.desc ?? '';
+				const infoText = info.info ?? '';
+				const upgrade = info.upgrade ?? '';
+				const energyCost = info.costs?.energy;
 				$ability.children('.icon').css({
 					'background-image': `url('${getUrl('units/abilities/' + stats.name + ' ' + key)}')`,
 				});
 				$ability.toggleClass('upgraded', isUpgraded);
-				$ability
-					.children('.wrapper')
-					.children('.info')
-					.children('h3')
-					.text(stats.ability_info[key].title);
-				$ability
-					.children('.wrapper')
-					.children('.info')
-					.children('#desc')
-					.text(stats.ability_info[key].desc);
-				$ability
-					.children('.wrapper')
-					.children('.info')
-					.children('#info')
-					.text(stats.ability_info[key].info);
+				$ability.children('.wrapper').children('.info').children('h3').text(title);
+				$ability.children('.wrapper').children('.info').children('#desc').text(desc);
+				$ability.children('.wrapper').children('.info').children('#info').text(infoText);
 				$ability
 					.children('.wrapper')
 					.children('.info')
 					.children('#upgrade')
-					.text('Upgrade: ' + stats.ability_info[key].upgrade);
+					.text(upgrade ? 'Upgrade: ' + upgrade : ' ');
 
-				if (stats.ability_info[key].costs !== undefined && key !== 0) {
+				if (energyCost !== undefined && key !== 0) {
 					$ability
 						.children('.wrapper')
 						.children('.info')
 						.children('#cost')
-						.text(' - costs ' + stats.ability_info[key].costs.energy + ' energy pts.');
+						.text(' - costs ' + energyCost + ' energy pts.');
 				} else {
 					$ability
 						.children('.wrapper')
 						.children('.info')
 						.children('#cost')
-						.text(' - this ability is passive.');
+						.text(key === 0 || energyCost === undefined ? ' - this ability is passive.' : ' ');
 				}
 			});
 
@@ -2083,45 +2078,38 @@ export class UI {
 				$stat.text(value);
 			});
 
-			// Abilities
-			$j.each(stats.ability_info, (key) => {
+			// Abilities — #1996: skip / default missing fields instead of throwing
+			$j.each(stats.ability_info || {}, (key) => {
 				const $ability = $j('#card .sideB .abilities .ability:eq(' + key + ')');
+				const info = stats.ability_info[key] || {};
+				const title = info.title ?? `Ability ${key}`;
+				const desc = info.desc ?? '';
+				const infoText = info.info ?? '';
+				const upgrade = info.upgrade ?? '';
+				const energyCost = info.costs?.energy;
 				$ability.children('.icon').css({
 					'background-image': `url('${getUrl('units/abilities/' + stats.name + ' ' + key)}')`,
 				});
 				$ability.removeClass('upgraded');
-				$ability
-					.children('.wrapper')
-					.children('.info')
-					.children('h3')
-					.text(stats.ability_info[key].title);
-				$ability
-					.children('.wrapper')
-					.children('.info')
-					.children('#desc')
-					.html(stats.ability_info[key].desc);
-				$ability
-					.children('.wrapper')
-					.children('.info')
-					.children('#info')
-					.html(stats.ability_info[key].info);
-				// Check for an upgrade
-				if (stats.ability_info[key].upgrade) {
+				$ability.children('.wrapper').children('.info').children('h3').text(title);
+				$ability.children('.wrapper').children('.info').children('#desc').html(desc);
+				$ability.children('.wrapper').children('.info').children('#info').html(infoText);
+				if (upgrade) {
 					$ability
 						.children('.wrapper')
 						.children('.info')
 						.children('#upgrade')
-						.text('Upgrade: ' + stats.ability_info[key].upgrade);
+						.text('Upgrade: ' + upgrade);
 				} else {
 					$ability.children('.wrapper').children('.info').children('#upgrade').text(' ');
 				}
 
-				if (stats.ability_info[key].costs !== undefined && key !== 0) {
+				if (energyCost !== undefined && Number(key) !== 0) {
 					$ability
 						.children('.wrapper')
 						.children('.info')
 						.children('#cost')
-						.text(' - costs ' + stats.ability_info[key].costs.energy + ' energy pts.');
+						.text(' - costs ' + energyCost + ' energy pts.');
 				} else {
 					$ability
 						.children('.wrapper')
