@@ -1951,20 +1951,26 @@ export class HexGrid {
 		return hexes;
 	}
 
+	/**
+	 * Hexagon coordinate view (shift / round-marker hover).
+	 * Spec #2250:
+	 * - no unit x-ray
+	 * - coordinates on top of units
+	 * - dashed hex grid on top of units
+	 * - dashed hexes at 25% opacity where no unit
+	 */
 	showGrid(val) {
 		this.forEachHex((hex) => {
+			// #2250: never x-ray units in coordinate view (was tedious)
 			if (hex.creature) {
-				hex.creature.xray(val);
-			}
-
-			if (hex.drop) {
-				return;
+				hex.creature.xray(false);
 			}
 
 			if (val) {
-				hex.displayVisualState('showGrid');
+				hex.displayVisualState('showGrid dashed');
 			} else {
 				hex.cleanDisplayVisualState('showGrid');
+				hex.cleanDisplayVisualState('dashed');
 			}
 		});
 	}

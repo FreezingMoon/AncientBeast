@@ -738,7 +738,7 @@ export class Hex {
 			this.overlay.alignIn(this.hitBox, Phaser.CENTER);
 		}
 
-		// Display Coord
+		// Display Coord (#2250: always visible on top of units when showGrid)
 		if (this.displayClasses.match(/showGrid/g)) {
 			if (!(this.coordText && this.coordText.exists)) {
 				this.coordText = this.game.Phaser.add.text(
@@ -751,12 +751,19 @@ export class Hex {
 						align: 'center',
 					},
 				);
-				if (this.creature || this.trap || this.drop) {
-					this.coordText.stroke = '#ffffff';
-					this.coordText.strokeThickness = 5;
-				}
+				// White stroke so coords stay readable over units/sprites
+				this.coordText.stroke = '#ffffff';
+				this.coordText.strokeThickness = 5;
 				this.coordText.anchor.setTo(0.5);
+				// Use overlay group so text sits above units
 				this.grid.overlayHexesGroup.add(this.coordText);
+			}
+			if (this.coordText && this.grid.overlayHexesGroup.bringToTop) {
+				this.grid.overlayHexesGroup.bringToTop(this.coordText);
+			}
+			// #2250: dashed hex at 25% opacity when hex has no unit; full when occupied
+			if (this.displayClasses.match(/\bdashed\b/) && !this.creature) {
+				this.display.alpha = Math.min(this.display.alpha, 0.25);
 			}
 		} else if (this.coordText && this.coordText.exists) {
 			this.coordText.destroy();
