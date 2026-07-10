@@ -102,6 +102,11 @@ export class Ability {
 	showHoverPreviewRange?: boolean;
 	activate?: (target?: any, hex?: any, path?: Hex[]) => unknown;
 	getAnimationData?: (...args: unknown[]) => unknown;
+	/**
+	 * When true, casting animation keeps the unit facing its default player
+	 * direction instead of turning toward the target (e.g. Golden Wyrm #1965).
+	 */
+	doNotFaceTarget?: boolean;
 	damages?: Partial<CreatureMasteries> & { pure?: number };
 	effects?: AbilityEffect[];
 	message?: string;
@@ -560,8 +565,8 @@ export class Ability {
 
 		this.creature.facePlayerDefault();
 
-		// Force creatures to face towards their target
-		if (args[0]) {
+		// Force creatures to face towards their target (unless ability opts out)
+		if (args[0] && !this.doNotFaceTarget) {
 			if (args[0] instanceof Creature) {
 				this.creature.faceHex(args[0]);
 			} else if (args[0] instanceof Array) {

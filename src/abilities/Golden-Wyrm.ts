@@ -320,6 +320,10 @@ export default (G: Game) => {
 		{
 			trigger: 'onQuery',
 
+			// #1965: do not turn to face allies when casting Visible Stigmata
+			// (especially frontal-diagonal adjacent targets).
+			doNotFaceTarget: true,
+
 			_targetTeam: Team.Ally,
 
 			_maxTransferAmount: 50,
