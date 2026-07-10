@@ -795,10 +795,19 @@ export class Hex {
 				this.grid.overlayHexesGroup.bringToTop(this.overlay);
 			}
 		} else {
-			loadTextureIfChanged(this.overlay, 'input');
-			this.overlay.anchor.set(0.5, 0.5);
-			if (!this.isSpinning) {
-				this.startSpinning();
+			// #2004: when targeting a unit hex, use non-spinning path cursor over
+			// the filled outline — spinning "input" is for empty/out-of-range hexes only.
+			if (this.creature instanceof Creature) {
+				this.stopSpinning();
+				loadTextureIfChanged(this.overlay, 'hex_path');
+				this.overlay.anchor.set(0.5, 0.5);
+				this.grid.overlayHexesGroup.bringToTop(this.overlay);
+			} else {
+				loadTextureIfChanged(this.overlay, 'input');
+				this.overlay.anchor.set(0.5, 0.5);
+				if (!this.isSpinning) {
+					this.startSpinning();
+				}
 			}
 		}
 
