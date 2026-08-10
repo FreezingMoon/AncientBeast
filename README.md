@@ -27,7 +27,7 @@ The game is designed to be lightweight and run on most devices out there as it a
 You can help out the project by hitting that ★ from the [upper right corner](#) & you can also pin it to your profile.  
 Here's a chart showing the project's growing popularity over time compared to some of the main competition:
 
-[![Star History Chart](https://api.star-history.com/svg?repos=FreezingMoon/AncientBeast,vcmi/vcmi,wesnoth/wesnoth,0ad/0ad,warzone2100/warzone2100,freeciv/freeciv-web&type=Timeline)](https://star-history.com/#FreezingMoon/AncientBeast&vcmi/vcmi&wesnoth/wesnoth&0ad/0ad&warzone2100/warzone2100&freeciv/freeciv-web&Timeline)
+[![Star History Chart](https://star-history.dera.page/svg?repos=FreezingMoon/AncientBeast,vcmi/vcmi,wesnoth/wesnoth,0ad/0ad,warzone2100/warzone2100,freeciv/freeciv-web&type=Timeline)](https://star-history.dera.page/#FreezingMoon/AncientBeast&vcmi/vcmi&wesnoth/wesnoth&0ad/0ad&warzone2100/warzone2100&freeciv/freeciv-web&Timeline)
 
 ### 🏮 [Contribute](CONTRIBUTING.md)
 
