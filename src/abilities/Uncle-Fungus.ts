@@ -57,7 +57,7 @@ export default (G: Game) => {
 					turnLifetime: -1,
 				};
 
-				this.end();
+				this.end(true);
 
 				// Spore Contamination
 				const effect = new Effect(
