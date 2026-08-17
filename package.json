@@ -25,7 +25,7 @@
   "dependencies": {
     "@babel/runtime": "^7.29.7",
     "@devvit/web": "0.13.7",
-    "@hono/node-server": "2.0.8",
+    "@hono/node-server": "2.0.10",
     "compression": "^1.8.1",
     "devvit": "0.13.7",
     "hono": "4.12.28",
