@@ -4236,3 +4236,21 @@ body.devvit-mode .scrim {
 		object-fit: contain;
 	}
 }
+
+
+/* Showcase Icons Hover Flicker Animation (#2539) */
+@keyframes showcaseIconFlicker {
+	0%, 100% {
+		opacity: 0.25;
+	}
+	50% {
+		opacity: 1.0;
+	}
+}
+
+.showcase-icon:hover,
+.showcased-icon:hover,
+.showcase_icon:hover,
+[data-showcase]:hover {
+	animation: showcaseIconFlicker 1.2s infinite ease-in-out;
+}
