@@ -1285,3 +1285,21 @@ export function isEmpty(obj) {
 
 	return true;
 }
+
+
+// Landscape orientation lock by default (#2711)
+function lockLandscapeOrientation(): void {
+	if (typeof window !== "undefined" && window.screen && "orientation" in window.screen) {
+		const orientation = (window.screen as any).orientation;
+		if (orientation && typeof orientation.lock === "function") {
+			orientation.lock("landscape").catch(() => {
+				// Non-fullscreen or unsupported device fallback
+			});
+		}
+	}
+}
+
+if (typeof window !== "undefined") {
+	window.addEventListener("DOMContentLoaded", lockLandscapeOrientation);
+	window.addEventListener("fullscreenchange", lockLandscapeOrientation);
+}
