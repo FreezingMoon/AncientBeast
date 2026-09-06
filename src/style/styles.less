@@ -291,6 +291,33 @@
 	pointer-events: none;
 }
 
+/*
+ * While a full screen view is open the HUD is just clutter sitting behind it,
+ * so fade it well back. This keys off each view's own open state rather than a
+ * class we would have to set and clear from JS, so no close path can leave the
+ * HUD stuck dim.
+ */
+#unit-hover-panel,
+#bottompanel {
+	transition: opacity 0.3s ease-in-out;
+}
+
+#ui:has(#dash.active),
+#ui:has(#scoreboard:not(.hide)),
+#ui:has(#musicplayerwrapper:not(.hide)) {
+	#unit-hover-panel,
+	#bottompanel {
+		opacity: 0.12;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	#unit-hover-panel,
+	#bottompanel {
+		transition: none;
+	}
+}
+
 #rightpanel {
 	position: fixed;
 	right: 0;
