@@ -1,6 +1,7 @@
 import * as $j from 'jquery';
 import skin from './skin';
 import beastAudioFile from 'assets/sounds/AncientBeast.ogg';
+import { GESTURE_EVENTS } from './audio-context';
 
 export class MusicPlayer {
 	constructor() {
@@ -9,6 +10,7 @@ export class MusicPlayer {
 		this.tracks = this.playlist.find('li.epic');
 
 		this.repeat = true;
+		this._gestureRetry = null;
 
 		this.audio.volume = 0.25;
 		this.audio.pause();
@@ -161,15 +163,54 @@ export class MusicPlayer {
 		}
 
 		// Play audio
+		this.cancelGestureRetry();
 		this.audio.play().catch((error) => {
 			if (error?.name === 'AbortError') {
+				return;
+			}
+			if (error?.name === 'NotAllowedError') {
+				// Safari and iOS refuse playback that didn't start from a user
+				// gesture. Retry on the next one instead of staying silent.
+				this.playOnNextGesture();
 				return;
 			}
 			console.error('Error playing audio:', error);
 		});
 	}
 
+	/**
+	 * Arms a one-shot retry so a track blocked by the autoplay policy starts
+	 * on the next user interaction.
+	 */
+	playOnNextGesture() {
+		if (this._gestureRetry) {
+			return;
+		}
+
+		const retry = () => {
+			this.audio.play().then(
+				() => this.cancelGestureRetry(),
+				() => {
+					// Still refused - stay armed for the next gesture.
+				},
+			);
+		};
+
+		this._gestureRetry = retry;
+		GESTURE_EVENTS.forEach((event) => document.addEventListener(event, retry));
+	}
+
+	cancelGestureRetry() {
+		if (!this._gestureRetry) {
+			return;
+		}
+
+		GESTURE_EVENTS.forEach((event) => document.removeEventListener(event, this._gestureRetry));
+		this._gestureRetry = null;
+	}
+
 	stopMusic() {
+		this.cancelGestureRetry();
 		this.audio.pause();
 	}
 }
