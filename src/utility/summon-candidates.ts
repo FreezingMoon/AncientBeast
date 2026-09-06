@@ -53,3 +53,38 @@ export function getSummonCandidates(
 		return true;
 	});
 }
+
+function getPlasmaCost(game: Game, type: CreatureType) {
+	const level = Number.parseInt(type.substring(1, 2), 10);
+	const stats = game.retrieveCreatureStats(type);
+
+	return level + Number(stats?.size ?? 0);
+}
+
+/**
+ * Narrows a set of summon candidates for a *random* materialization so that the
+ * unit materialized immediately before isn't handed straight back, which is what
+ * produces copy-catting: one player materializes a unit and the next random pick
+ * offers the very same type again.
+ *
+ * The exclusion is a preference rather than a rule. If dropping that type would
+ * leave nothing the player can actually afford, the untouched candidate list is
+ * returned so a random pick is still possible.
+ */
+export function getRandomSummonCandidates(
+	game: Game,
+	candidates: readonly CreatureType[],
+	plasma: number,
+	lastSummonedType?: CreatureType | null,
+): CreatureType[] {
+	const allCandidates = [...candidates];
+
+	if (!lastSummonedType) {
+		return allCandidates;
+	}
+
+	const preferred = allCandidates.filter((type) => type !== lastSummonedType);
+	const canAffordPreferred = preferred.some((type) => getPlasmaCost(game, type) <= plasma);
+
+	return canAffordPreferred ? preferred : allCandidates;
+}

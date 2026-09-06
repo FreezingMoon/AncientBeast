@@ -24,7 +24,7 @@ import Game from '../game';
 import { CreatureType } from '../data/types';
 import { getAvatarSet } from '../style/avatar-styles';
 import { applyBuffDebuffStyle } from './buffs-debuffs';
-import { getSummonCandidates } from '../utility/summon-candidates';
+import { getRandomSummonCandidates, getSummonCandidates } from '../utility/summon-candidates';
 import { OpenCollectiveBanner, isThirdPartyContentBlocked } from './open-collective-banner';
 
 const SECRET_VIEW_ID = 'ab-secret-view';
@@ -2204,9 +2204,17 @@ export class UI {
 		// Figure out what the active player can summon
 		const activePlayer = game.players[this.game.activeCreature.player.id];
 		const deadOrSummonedTypes = new Set(activePlayer.creatures.map((creature) => creature.type));
-		const availableTypes = getSummonCandidates(game, activePlayer.availableCreatures, {
+		const summonableTypes = getSummonCandidates(game, activePlayer.availableCreatures, {
 			excludeTypes: deadOrSummonedTypes,
 		});
+		// Skip the unit that was materialized right before, so the random pick
+		// encourages some variety instead of copy-catting it.
+		const availableTypes = getRandomSummonCandidates(
+			game,
+			summonableTypes,
+			activePlayer.plasma,
+			game.lastSummonedType,
+		);
 
 		// Randomize array to grab a random creature
 		for (let i = availableTypes.length - 1; i > 0; i--) {

@@ -188,6 +188,9 @@ export class Player {
 
 		this.creatures.push(creature);
 		creature.summon(!this._summonCreaturesWithMaterializationSickness);
+		// Remember what was materialized last so a random materialization can
+		// offer something else instead of copy-catting this one.
+		game.lastSummonedType = type;
 		// @ts-expect-error 2554
 		game.onCreatureSummon(creature);
 	}
