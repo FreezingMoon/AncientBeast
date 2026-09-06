@@ -5,6 +5,7 @@ import { getAvatarSet } from '../style/avatar-styles';
 
 const CONST = {
 	animDurationMS: 500,
+	delayLeapHeightPx: 60,
 };
 
 export class Queue {
@@ -235,6 +236,9 @@ export class Queue {
 			const hash = newV.getHash();
 			if (oldVDict.hasOwnProperty(hash)) {
 				newV.el = oldVDict[hash].el;
+				// Keep where this vignette used to sit so an update can tell a
+				// backwards move (a delay) from an ordinary shuffle forwards.
+				newV.previousQueuePosition = oldVDict[hash].queuePosition;
 			}
 		}
 
@@ -295,6 +299,7 @@ export class Queue {
 
 class Vignette {
 	queuePosition = -1;
+	previousQueuePosition = -1;
 	turnNumber = -1;
 	el: HTMLElement;
 	eventHandlers: QueueEventHandlers = {};
@@ -555,7 +560,48 @@ class CreatureVignette extends Vignette {
 
 	animateUpdate(queuePosition: number, x: number) {
 		const scale = this.isActiveCreature ? 1.25 : 1.0;
+
+		if (this.isMovingBackFromDelay(queuePosition)) {
+			return this.animateDelayLeap(x, scale);
+		}
+
 		const keyframes = [{ transform: `translateX(${x}px) translateY(0px) scale(${scale})` }];
+		const animation = this.el.animate(keyframes, {
+			duration: CONST.animDurationMS,
+			fill: 'forwards',
+		});
+		animation.commitStyles();
+		return animation;
+	}
+
+	/**
+	 * Delaying is the only thing that sends a unit backwards through the
+	 * current turn's queue - everything else shuffles it forwards as units
+	 * ahead of it act or die. So a backwards move here is the delay landing.
+	 */
+	private isMovingBackFromDelay(queuePosition: number) {
+		return (
+			this.creature.isDelayed &&
+			this.turnNumberIsCurrentTurn &&
+			this.previousQueuePosition >= 0 &&
+			queuePosition > this.previousQueuePosition
+		);
+	}
+
+	/**
+	 * Hop into the new slot instead of sliding along the row. A flat slide
+	 * reads as the whole queue shuffling; the arc reads as this one unit
+	 * taking itself to the back.
+	 */
+	private animateDelayLeap(x: number, scale: number) {
+		const keyframes = [
+			{
+				transform: `translateX(${x}px) translateY(${-CONST.delayLeapHeightPx}px) scale(${scale})`,
+				easing: 'ease-out',
+				offset: 0.5,
+			},
+			{ transform: `translateX(${x}px) translateY(0px) scale(${scale})`, easing: 'ease-in' },
+		];
 		const animation = this.el.animate(keyframes, {
 			duration: CONST.animDurationMS,
 			fill: 'forwards',

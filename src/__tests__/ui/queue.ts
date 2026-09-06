@@ -112,4 +112,70 @@ describe('Queue', () => {
 
 		expect(div.querySelector('.delay-preview')).toBeNull();
 	});
+
+	test('leaps into its new slot when a unit is delayed', () => {
+		const div = document.createElement('div');
+		const queue = new Queue(div);
+		const animate = Element.prototype.animate as unknown as jest.Mock;
+
+		queue.setQueue(
+			{
+				queue: [creature({ id: 1 }), creature({ id: 2 }), creature({ id: 3 })],
+				nextQueue: [],
+			} as unknown as CreatureQueue,
+			1,
+		);
+
+		animate.mockClear();
+
+		queue.setQueue(
+			{
+				queue: [creature({ id: 1, delayed: true }), creature({ id: 2 }), creature({ id: 3 })],
+				nextQueue: [],
+			} as unknown as CreatureQueue,
+			1,
+		);
+
+		// The leap is the only animation with a raised midpoint at offset 0.5.
+		const leaps = animate.mock.calls
+			.map((call) => call[0] as Keyframe[])
+			.filter((frames) =>
+				frames.some(
+					(frame) =>
+						frame.offset === 0.5 && /translateY\(-\d+px\)/.test(String(frame.transform)),
+				),
+			);
+
+		expect(leaps).toHaveLength(1);
+	});
+
+	test('slides without leaping when the queue merely shuffles forward', () => {
+		const div = document.createElement('div');
+		const queue = new Queue(div);
+		const animate = Element.prototype.animate as unknown as jest.Mock;
+
+		queue.setQueue(
+			{
+				queue: [creature({ id: 1 }), creature({ id: 2 }), creature({ id: 3 })],
+				nextQueue: [],
+			} as unknown as CreatureQueue,
+			1,
+		);
+
+		animate.mockClear();
+
+		queue.setQueue(
+			{
+				queue: [creature({ id: 2 }), creature({ id: 3 })],
+				nextQueue: [],
+			} as unknown as CreatureQueue,
+			1,
+		);
+
+		const leaps = animate.mock.calls
+			.map((call) => call[0] as Keyframe[])
+			.filter((frames) => frames.some((frame) => frame.offset === 0.5));
+
+		expect(leaps).toHaveLength(0);
+	});
 });
