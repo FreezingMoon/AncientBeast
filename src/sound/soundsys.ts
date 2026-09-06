@@ -2,6 +2,7 @@ import { BufferLoader } from './bufferloader';
 import { getUrl } from '../assets';
 import { MusicPlayer } from './musicplayer';
 import { clamp } from '../utility/math';
+import { resolveAudioContextCtor, unlockAudioContextOnGesture } from './audio-context';
 
 export type AudioMode = 'full' | 'sfx' | 'muted';
 let currentAudioMode: AudioMode = 'full';
@@ -21,7 +22,7 @@ type SoundSysConfig = {
 export class SoundSys {
 	musicPlayer: MusicPlayer;
 
-	private envHasSound = window && ('AudioContext' in window || 'webkitAudioContext' in window);
+	private envHasSound = resolveAudioContextCtor() !== null;
 	private context: AudioContext;
 	private loadedPaths: Record<string, AudioBuffer> = {};
 
@@ -39,9 +40,13 @@ export class SoundSys {
 	constructor(config: SoundSysConfig) {
 		this.musicPlayer = new MusicPlayer();
 
-		if (this.envHasSound) {
-			this.context = new (AudioContext ||
-				(window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+		const AudioContextCtor = resolveAudioContextCtor();
+
+		if (this.envHasSound && AudioContextCtor) {
+			this.context = new AudioContextCtor();
+			// WebKit suspends a context that wasn't created inside a user gesture,
+			// so resume it on the first interaction or every effect stays silent.
+			unlockAudioContextOnGesture(this.context);
 			this.musicGainNode = this.context.createGain();
 			this.musicGainNode.connect(this.context.destination);
 			if ('musicVolume' in config) {
