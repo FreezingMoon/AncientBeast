@@ -322,6 +322,12 @@ export default (G: Game) => {
 
 			_targetTeam: Team.Ally,
 
+			/* Reaching out to heal an ally standing next to the Golden Wyrm should
+			not spin it around. Its own hexes span three columns, so an ally on a
+			frontal diagonal hex can compare as being behind it and make it turn its
+			back on the unit it is healing. */
+			_facesTarget: false,
+
 			_maxTransferAmount: 50,
 
 			require: function () {

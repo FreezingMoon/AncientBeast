@@ -10,6 +10,7 @@ import Game from './game';
 import { Player, ScoreEvent } from './player';
 import { Point } from './utility/pointfacade';
 import { getVisibilityAwareDelay } from './utility/time';
+import { shouldFaceTargetDuringCast } from './utility/ability-facing';
 
 /**
  * Ability Class
@@ -142,6 +143,7 @@ export class Ability {
 	_targets: Hex[];
 	_addOffenseBuff: () => void;
 	_maxTransferAmount: number;
+	_facesTarget?: boolean;
 	_confirmTarget: (c: Creature) => boolean;
 	_damaged: boolean;
 	_executeHealthThreshold: number;
@@ -562,8 +564,9 @@ export class Ability {
 
 		this.creature.facePlayerDefault();
 
-		// Force creatures to face towards their target
-		if (args[0]) {
+		// Force creatures to face towards their target, unless the ability opts
+		// out because turning the caster around would be wrong for it.
+		if (args[0] && shouldFaceTargetDuringCast(this)) {
 			if (args[0] instanceof Creature) {
 				this.creature.faceHex(args[0]);
 			} else if (args[0] instanceof Array) {
