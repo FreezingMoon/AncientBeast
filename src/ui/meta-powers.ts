@@ -3,6 +3,7 @@ import Cookies from 'js-cookie';
 import { capitalize } from '../utility/string';
 import { Button, ButtonStateEnum } from './button';
 import Game, { MetaPowersState } from '../game';
+import { syncFullscreenViewHud } from './hud-visibility';
 
 const COOKIE_KEY = 'ab-meta-powers';
 
@@ -269,6 +270,7 @@ export class MetaPowers {
 		this.panelVisible = !this.panelVisible;
 		this.$els.modal.toggleClass('hide', !this.panelVisible);
 		this._persistPowers();
+		syncFullscreenViewHud();
 	}
 
 	/**
@@ -278,6 +280,7 @@ export class MetaPowers {
 		this.panelVisible = false;
 		this.$els.modal.addClass('hide');
 		this._persistPowers();
+		syncFullscreenViewHud();
 	}
 
 	/**

@@ -32,6 +32,18 @@ describe('syncFullscreenViewHud', () => {
 		}
 	});
 
+	test('tracks a view when its open state changes after the root is rendered', () => {
+		const ui = renderUi('<div id="dash"></div>');
+		const dash = document.getElementById('dash') as HTMLElement;
+
+		expect(syncFullscreenViewHud()).toBe(false);
+		dash.classList.add('active');
+		expect(syncFullscreenViewHud()).toBe(true);
+		dash.classList.remove('active');
+		expect(syncFullscreenViewHud()).toBe(false);
+		expect(ui.classList.contains('interface-view-open')).toBe(false);
+	});
+
 	test('restores the HUD when every full-screen view is hidden', () => {
 		const ui = renderUi(`
 			<div id="musicplayerwrapper" class="hide"></div>

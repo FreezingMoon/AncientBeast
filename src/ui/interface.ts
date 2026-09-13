@@ -1799,7 +1799,6 @@ export class UI {
 		}
 
 		this.dashopen = true;
-		syncFullscreenViewHud();
 
 		if (player === undefined) {
 			player = game.activeCreature.player.id;
@@ -1807,6 +1806,7 @@ export class UI {
 
 		// Set dash active
 		this.$dash.addClass('active');
+		syncFullscreenViewHud();
 		this.$dash.children('#tooltip').removeClass('active');
 		this.$dash.children('#playertabswrapper').addClass('active');
 		this.changePlayerTab(game.activeCreature.team);
@@ -2866,6 +2866,7 @@ export class UI {
 					if (!this.dashopen) {
 						this.$dash.hide();
 					}
+					syncFullscreenViewHud();
 				},
 			);
 		} else {
