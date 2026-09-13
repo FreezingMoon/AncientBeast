@@ -2357,6 +2357,9 @@ export class UI {
 
 	closeOpenInterfaceViews() {
 		(Object.keys(interfaceViewSignals) as InterfaceView[]).forEach((view) => this.closeView(view));
+		if (this.metaPowers?.panelVisible) {
+			this.metaPowers._closeModal();
+		}
 	}
 
 	closeView(view: InterfaceView) {
@@ -2381,6 +2384,7 @@ export class UI {
 	isInterfaceViewOpen() {
 		return (
 			this.chat.isOpen ||
+			this.metaPowers?.panelVisible ||
 			(Object.keys(interfaceViewSignals) as InterfaceView[]).some((view) => this.isViewOpen(view))
 		);
 	}

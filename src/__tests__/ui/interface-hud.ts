@@ -21,6 +21,26 @@ import { UI } from '../../ui/interface';
 import { syncFullscreenViewHud } from '../../ui/hud-visibility';
 
 describe('interface HUD visibility', () => {
+	test('treats Meta Powers as an open interface view and closes it with the others', () => {
+		const closeView = jest.fn();
+		const closeMetaPowers = jest.fn();
+		const ui = {
+			chat: { isOpen: false },
+			metaPowers: {
+				panelVisible: true,
+				_closeModal: closeMetaPowers,
+			},
+			closeView,
+			isViewOpen: jest.fn(() => false),
+		} as unknown as UI;
+
+		expect(UI.prototype.isInterfaceViewOpen.call(ui)).toBe(true);
+		UI.prototype.closeOpenInterfaceViews.call(ui);
+
+		expect(closeView).toHaveBeenCalledTimes(4);
+		expect(closeMetaPowers).toHaveBeenCalledTimes(1);
+	});
+
 	test('an obsolete narrow-screen close callback does not close a reopened dash', () => {
 		document.body.innerHTML = '<div id="ui"><div id="dash" class="active"></div></div>';
 		Object.defineProperty(window, 'innerWidth', { configurable: true, value: 600 });
