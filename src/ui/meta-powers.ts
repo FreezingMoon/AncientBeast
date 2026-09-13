@@ -244,6 +244,7 @@ export class MetaPowers {
 		this.panelVisible = panelVisible;
 		this.$els.modal.toggleClass('hide', !panelVisible);
 		this._persistPowers();
+		syncFullscreenViewHud();
 	}
 
 	/**

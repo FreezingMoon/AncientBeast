@@ -2862,8 +2862,8 @@ export class UI {
 				this.dashAnimSpeed,
 				'linear',
 				() => {
-					this.$dash.removeClass('active');
 					if (!this.dashopen) {
+						this.$dash.removeClass('active');
 						this.$dash.hide();
 					}
 					syncFullscreenViewHud();
