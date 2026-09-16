@@ -61,15 +61,35 @@ function getPlasmaCost(game: Game, type: CreatureType) {
 	return level + Number(stats?.size ?? 0);
 }
 
+function hasAffordableCandidate(game: Game, candidates: readonly CreatureType[], plasma: number) {
+	return candidates.some((type) => getPlasmaCost(game, type) <= plasma);
+}
+
+function getUsedCreatureTypes(game: Game) {
+	const usedTypes = new Set<CreatureType>();
+
+	for (const player of game.players) {
+		for (const creature of player.creatures) {
+			usedTypes.add(creature.type);
+		}
+	}
+
+	return usedTypes;
+}
+
 /**
- * Narrows a set of summon candidates for a *random* materialization so that the
- * unit materialized immediately before isn't handed straight back, which is what
- * produces copy-catting: one player materializes a unit and the next random pick
- * offers the very same type again.
+ * Narrows a set of summon candidates for a *random* materialization.
  *
- * The exclusion is a preference rather than a rule. If dropping that type would
- * leave nothing the player can actually afford, the untouched candidate list is
- * returned so a random pick is still possible.
+ * Prefer unit types that no player has already materialized. This matters in
+ * multiplayer games: the caller already removes the active player's own units,
+ * but without the cross-player pass P4 can still be offered a type P1 has on
+ * the field (or in that player's creature history). If every globally-unused
+ * option is unaffordable, fall back to the original candidates so the dash can
+ * still make a suggestion.
+ *
+ * Within that pool, also avoid handing the immediately previous materialization
+ * straight back when another affordable option exists. Both filters are
+ * preferences rather than rules.
  */
 export function getRandomSummonCandidates(
 	game: Game,
@@ -78,13 +98,17 @@ export function getRandomSummonCandidates(
 	lastSummonedType?: CreatureType | null,
 ): CreatureType[] {
 	const allCandidates = [...candidates];
+	const usedTypes = getUsedCreatureTypes(game);
+	const globallyUnused = allCandidates.filter((type) => !usedTypes.has(type));
+	const globallyPreferred = hasAffordableCandidate(game, globallyUnused, plasma)
+		? globallyUnused
+		: allCandidates;
 
 	if (!lastSummonedType) {
-		return allCandidates;
+		return globallyPreferred;
 	}
 
-	const preferred = allCandidates.filter((type) => type !== lastSummonedType);
-	const canAffordPreferred = preferred.some((type) => getPlasmaCost(game, type) <= plasma);
+	const preferred = globallyPreferred.filter((type) => type !== lastSummonedType);
 
-	return canAffordPreferred ? preferred : allCandidates;
+	return hasAffordableCandidate(game, preferred, plasma) ? preferred : globallyPreferred;
 }
