@@ -122,6 +122,7 @@ export default class Game {
 	unitDrops: number;
 	minimumTurnBeforeFleeing: number;
 	availableCreatures: CreatureType[];
+	lastSummonedType: CreatureType | null;
 	animationQueue: (Animation | AnimationID)[];
 	checkTimeFrequency: number;
 	gamelog: GameLog;
@@ -326,6 +327,7 @@ export default class Game {
 		this.unitDrops = 0;
 		this.minimumTurnBeforeFleeing = 12;
 		this.availableCreatures = [];
+		this.lastSummonedType = null;
 		this.animationQueue = [];
 		this.checkTimeFrequency = 1000;
 		this._deferredQueryMovePending = 0;
@@ -2198,6 +2200,7 @@ export default class Game {
 		this.pause = false;
 		this.gameState = 'initialized';
 		this.availableCreatures = [];
+		this.lastSummonedType = null;
 		this.animationQueue = [];
 		this.configData = {};
 		this.match = {};
