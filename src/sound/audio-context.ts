@@ -33,7 +33,11 @@ export const GESTURE_EVENTS = ['pointerdown', 'touchend', 'keydown'];
  * undefined and falling through to the prefixed constructor.
  */
 export function resolveAudioContextCtor(win?: AudioContextWindow): AudioContextCtor | null {
-	const target = win ?? (typeof window === 'undefined' ? undefined : window);
+	// The DOM Window type does not declare WebKit's prefixed constructor. Keep the
+	// browser fallback inside the narrow shape this helper actually consumes so
+	// TypeScript can type-check the same Safari property lookup we need at runtime.
+	const target: AudioContextWindow | undefined =
+		win ?? (typeof window === 'undefined' ? undefined : window);
 
 	if (!target) {
 		return null;
