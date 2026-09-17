@@ -70,7 +70,7 @@ export default (G: Game) => {
 
 				this.end(true); // Disable message
 
-				G.log('%CreatureName' + this.creature.id + '% is protected by Plasma Field');
+				G.log('%CreatureName' + this.creature.id + '% is shielded by Plasma Field');
 				return damage; // Return Damage
 			},
 		},
