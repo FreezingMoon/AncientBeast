@@ -28,6 +28,15 @@ const creature = ({ id, delayed = false, initiative = 10 }) =>
 		getInitiative: () => initiative,
 	} as unknown as Creature);
 
+const leapAnimations = (animate: jest.Mock) =>
+	animate.mock.calls
+		.map((call) => call[0] as Keyframe[])
+		.filter(
+			(frames) =>
+				frames.length > 2 &&
+				frames.some((frame) => /translateY\(-\d+px\)/.test(String(frame.transform))),
+		);
+
 describe('Queue', () => {
 	test('empties the HTML element argument', () => {
 		const div = document.createElement('div');
@@ -136,17 +145,49 @@ describe('Queue', () => {
 			1,
 		);
 
-		// The leap is the only animation with a raised midpoint at offset 0.5.
-		const leaps = animate.mock.calls
-			.map((call) => call[0] as Keyframe[])
-			.filter((frames) =>
-				frames.some(
-					(frame) =>
-						frame.offset === 0.5 && /translateY\(-\d+px\)/.test(String(frame.transform)),
-				),
-			);
+		const leaps = leapAnimations(animate);
 
 		expect(leaps).toHaveLength(1);
+		expect(leaps[0]).toHaveLength(9);
+		expect(leaps[0][0].offset).toBe(0);
+		expect(leaps[0][4].offset).toBe(0.5);
+		expect(String(leaps[0][4].transform)).toContain('translateY(-60px)');
+		expect(leaps[0][8].offset).toBe(1);
+
+		// X changes at every sample as Y rises/falls, so the geometry is an arc
+		// rather than the old triangle that reached destination X at the apex.
+		const xPositions = leaps[0].map((frame) =>
+			Number(/translateX\(([-\d.]+)px\)/.exec(String(frame.transform))?.[1]),
+		);
+		expect(new Set(xPositions).size).toBeGreaterThan(4);
+	});
+
+	test('leaps when an ability forces an undelayed avatar backwards', () => {
+		const div = document.createElement('div');
+		const queue = new Queue(div);
+		const animate = Element.prototype.animate as unknown as jest.Mock;
+
+		queue.setQueue(
+			{
+				queue: [creature({ id: 1 }), creature({ id: 2 }), creature({ id: 3 })],
+				nextQueue: [],
+			} as unknown as CreatureQueue,
+			1,
+		);
+
+		animate.mockClear();
+
+		// Model a force/reorder mechanic directly: id 1 moves behind the other
+		// current-turn units without relying on the voluntary-delay flag.
+		queue.setQueue(
+			{
+				queue: [creature({ id: 2 }), creature({ id: 3 }), creature({ id: 1 })],
+				nextQueue: [],
+			} as unknown as CreatureQueue,
+			1,
+		);
+
+		expect(leapAnimations(animate)).toHaveLength(1);
 	});
 
 	test('slides without leaping when the queue merely shuffles forward', () => {
@@ -172,10 +213,6 @@ describe('Queue', () => {
 			1,
 		);
 
-		const leaps = animate.mock.calls
-			.map((call) => call[0] as Keyframe[])
-			.filter((frames) => frames.some((frame) => frame.offset === 0.5));
-
-		expect(leaps).toHaveLength(0);
+		expect(leapAnimations(animate)).toHaveLength(0);
 	});
 });
