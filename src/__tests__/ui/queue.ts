@@ -33,7 +33,10 @@ const leapAnimations = (animate: jest.Mock) =>
 		.map((call) => call[0] as Keyframe[])
 		.filter(
 			(frames) =>
-				frames.length > 2 &&
+				frames.length === 9 &&
+				frames[0]?.offset === 0 &&
+				frames[4]?.offset === 0.5 &&
+				frames[8]?.offset === 1 &&
 				frames.some((frame) => /translateY\(-\d+px\)/.test(String(frame.transform))),
 		);
 
