@@ -1901,6 +1901,14 @@ export class UI {
 		];
 
 		const updateCardContent = () => {
+			const materializedCreature = game.players[player].creatures.find(
+				(creature) => creature.type === creatureType,
+			);
+			$j('#card .sideA').css(
+				'cursor',
+				materializedCreature && !materializedCreature.dead ? 'progress' : 'not-allowed',
+			);
+
 			if (
 				$j.inArray(creatureType, game.players[player].availableCreatures) > 0 ||
 				creatureType == '--'
@@ -2020,6 +2028,7 @@ export class UI {
 				const activeCreature = game.activeCreature;
 
 				if (activeCreature.player.getNbrOfCreatures() > game.configData.creaLimitNbr) {
+					$j('#card .sideA').css('cursor', 'no-drop');
 					$j('#materialize_button p').text(game.msg.ui.dash.materializeOverload);
 				}
 				// Check if the player is viewing the wrong tab
@@ -2029,6 +2038,7 @@ export class UI {
 					activeCreature.abilities[3].testRequirements() &&
 					activeCreature.abilities[3].used === false
 				) {
+					$j('#card .sideA').css('cursor', 'alias');
 					$j('#materialize_button p').text(game.msg.ui.dash.wrongPlayer);
 
 					// Switch to turn player's dark priest
@@ -2052,6 +2062,7 @@ export class UI {
 
 					// Messages (TODO: text strings in a new language file)
 					if (plasmaCost > activeCreature.player.plasma) {
+						$j('#card .sideA').css('cursor', 'help');
 						$j('#materialize_button p').text(game.msg.ui.dash.lowPlasma);
 					} else {
 						if (creatureType == '--') {
@@ -2060,6 +2071,7 @@ export class UI {
 							$j('#materialize_button p').text(
 								game.msg.ui.dash.materializeUnit(plasmaCost.toString()),
 							);
+							$j('#card .sideA').css('cursor', 'pointer');
 
 							// Bind button
 							this.materializeButton.click = () => {
