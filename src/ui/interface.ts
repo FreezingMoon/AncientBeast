@@ -577,6 +577,8 @@ export class UI {
 	selectedPlayer: number;
 	queueAnimSpeed: number;
 	dashAnimSpeed: number;
+	cardAssetCache: Map<string, HTMLImageElement>;
+	cardFlipTimeoutId: ReturnType<typeof setTimeout> | null;
 	materializeToggled: boolean;
 	glowInterval: ReturnType<typeof setInterval>;
 	hoveringNoActionCreature: boolean;
@@ -1452,6 +1454,8 @@ export class UI {
 		this.hoveringNoActionCreature = false;
 		this.queueAnimSpeed = 500; // ms
 		this.dashAnimSpeed = 250; // ms
+		this.cardAssetCache = new Map();
+		this.cardFlipTimeoutId = null;
 
 		this.materializeToggled = false;
 		this.lastTurnWarningSecond = null;
@@ -1781,6 +1785,7 @@ export class UI {
 		};
 
 		const wasDashClosed = !this.dashopen;
+		const oldCreatureType = this.selectedCreature;
 
 		if (wasDashClosed) {
 			this.$dash.show().css('opacity', 0);
@@ -1883,310 +1888,369 @@ export class UI {
 			$j('#card .sideA .hexes').html(no_of_hexes);
 		}
 
-		// TODO card animation
-		if (
-			$j.inArray(creatureType, game.players[player].availableCreatures) > 0 ||
-			creatureType == '--'
-		) {
-			this.selectedCreatureObj = undefined;
+		// Card flip animation when switching creatures
+		const isSwitchingCreature =
+			!wasDashClosed && oldCreatureType !== '' && oldCreatureType !== creatureType;
+		const cardAssetUrls = [
+			getUrl('cards/margin'),
+			getCardArtworkUrl(stats.name),
+			getUrl('cards/' + stats.type.substring(0, 1)),
+			...Object.keys(stats.ability_info).map((key) =>
+				getUrl('units/abilities/' + stats.name + ' ' + key),
+			),
+		];
 
-			// retrieve the selected unit
-			game.players[player].creatures.forEach((creature) => {
-				if (creature.type == creatureType) {
-					this.selectedCreatureObj = creature;
-				}
-			});
+		const updateCardContent = () => {
+			if (
+				$j.inArray(creatureType, game.players[player].availableCreatures) > 0 ||
+				creatureType == '--'
+			) {
+				this.selectedCreatureObj = undefined;
 
-			// Card A
-			$j('#card .sideA').css({
-				'background-image': `url('${getUrl('cards/margin')}'), url('${getUrlWithFallback(
-					'units/artwork/' + stats.name,
-					'units/artwork/Dark Priest',
-				)}')`,
-			});
-			$j('#card .sideA .section.info')
-				.removeClass('sin- sinA sinE sinG sinL sinP sinS sinW')
-				.addClass('sin' + stats.type.substring(0, 1));
-			addCardCharacterInfo();
-
-			// Card B
-			$j('#card .sideB').css({
-				'background-image': `url('${getUrl('cards/margin')}'), url('${getUrl(
-					'cards/' + stats.type.substring(0, 1),
-				)}')`,
-			});
-
-			const isBrowsing = !this.selectedCreatureObj;
-
-			$j.each(stats.stats, (key, value) => {
-				const $stat = $j('#card .sideB .' + key + ' .value');
-
-				if (this.selectedCreatureObj) {
-					if (key == 'health') {
-						$stat.text(this.selectedCreatureObj.health + '/' + this.selectedCreatureObj.stats[key]);
-					} else if (key == 'movement') {
-						$stat.text(
-							this.selectedCreatureObj.remainingMove + '/' + this.selectedCreatureObj.stats[key],
-						);
-					} else if (key == 'energy') {
-						$stat.text(this.selectedCreatureObj.energy + '/' + this.selectedCreatureObj.stats[key]);
-					} else if (key == 'endurance') {
-						$stat.text(
-							this.selectedCreatureObj.endurance + '/' + this.selectedCreatureObj.stats[key],
-						);
-					} else {
-						$stat.text(this.selectedCreatureObj.stats[key]);
+				// retrieve the selected unit
+				game.players[player].creatures.forEach((creature) => {
+					if (creature.type == creatureType) {
+						this.selectedCreatureObj = creature;
 					}
-				} else {
-					$stat.text(value);
-				}
-
-				applyBuffDebuffStyle($stat, this.selectedCreatureObj, key, value, isBrowsing);
-			});
-			$j.each(game.abilities[stats.id], (key) => {
-				const $ability = $j('#card .sideB .abilities .ability:eq(' + key + ')');
-				const abilityIndex = Number(key);
-				const isUpgraded = Boolean(
-					this.selectedCreatureObj?.abilities?.[abilityIndex]?.isUpgraded(),
-				);
-				$ability.children('.icon').css({
-					'background-image': `url('${getUrl('units/abilities/' + stats.name + ' ' + key)}')`,
 				});
-				$ability.toggleClass('upgraded', isUpgraded);
-				$ability
-					.children('.wrapper')
-					.children('.info')
-					.children('h3')
-					.text(stats.ability_info[key].title);
-				$ability
-					.children('.wrapper')
-					.children('.info')
-					.children('#desc')
-					.text(stats.ability_info[key].desc);
-				$ability
-					.children('.wrapper')
-					.children('.info')
-					.children('#info')
-					.text(stats.ability_info[key].info);
-				$ability
-					.children('.wrapper')
-					.children('.info')
-					.children('#upgrade')
-					.text('Upgrade: ' + stats.ability_info[key].upgrade);
 
-				if (stats.ability_info[key].costs !== undefined && key !== 0) {
-					$ability
-						.children('.wrapper')
-						.children('.info')
-						.children('#cost')
-						.text(' - costs ' + stats.ability_info[key].costs.energy + ' energy pts.');
-				} else {
-					$ability
-						.children('.wrapper')
-						.children('.info')
-						.children('#cost')
-						.text(' - this ability is passive.');
-				}
-			});
+				// Card A
+				$j('#card .sideA').css({
+					'background-image': `url('${getUrl('cards/margin')}'), url('${getUrlWithFallback(
+						'units/artwork/' + stats.name,
+						'units/artwork/Dark Priest',
+					)}')`,
+				});
+				$j('#card .sideA .section.info')
+					.removeClass('sin- sinA sinE sinG sinL sinP sinS sinW')
+					.addClass('sin' + stats.type.substring(0, 1));
+				addCardCharacterInfo();
 
-			const summonedOrDead = game.players[player].creatures.some(
-				(creature) => creature.type == creatureType,
-			);
+				// Card B
+				$j('#card .sideB').css({
+					'background-image': `url('${getUrl('cards/margin')}'), url('${getUrl(
+						'cards/' + stats.type.substring(0, 1),
+					)}')`,
+				});
 
-			this.materializeButton.changeState(ButtonStateEnum.disabled);
-			$j('#card .sideA').addClass('disabled').off('click');
+				const isBrowsing = !this.selectedCreatureObj;
 
-			const activeCreature = game.activeCreature;
+				$j.each(stats.stats, (key, value) => {
+					const $stat = $j('#card .sideB .' + key + ' .value');
 
-			if (activeCreature.player.getNbrOfCreatures() > game.configData.creaLimitNbr) {
-				$j('#materialize_button p').text(game.msg.ui.dash.materializeOverload);
-			}
-			// Check if the player is viewing the wrong tab
-			else if (
-				activeCreature.player.id !== player &&
-				activeCreature.isDarkPriest() &&
-				activeCreature.abilities[3].testRequirements() &&
-				activeCreature.abilities[3].used === false
-			) {
-				$j('#materialize_button p').text(game.msg.ui.dash.wrongPlayer);
-
-				// Switch to turn player's dark priest
-				this.materializeButton.click = () => {
-					this.showCreature('--', activeCreature.player.id);
-				};
-
-				$j('#card .sideA').on('click', this.materializeButton.click);
-				$j('#card .sideA').removeClass('disabled');
-				this.materializeButton.changeState(ButtonStateEnum.glowing);
-				$j('#materialize_button').show();
-			} else if (
-				!summonedOrDead &&
-				activeCreature.player.id === player &&
-				activeCreature.type === '--' &&
-				activeCreature.abilities[3].used === false
-			) {
-				const lvl = parseInt(creatureType.substring(1, 2)) - 0,
-					size = game.retrieveCreatureStats(creatureType).size - 0,
-					plasmaCost = lvl + size;
-
-				// Messages (TODO: text strings in a new language file)
-				if (plasmaCost > activeCreature.player.plasma) {
-					$j('#materialize_button p').text(game.msg.ui.dash.lowPlasma);
-				} else {
-					if (creatureType == '--') {
-						$j('#materialize_button p').text(game.msg.ui.dash.selectUnit);
-					} else {
-						$j('#materialize_button p').text(
-							game.msg.ui.dash.materializeUnit(plasmaCost.toString()),
-						);
-
-						// Bind button
-						this.materializeButton.click = () => {
-							this.materializeToggled = false;
-							this.selectAbility(3);
-							this.closeDash();
-							if (this.lastViewedCreature) {
-								activeCreature.abilities[3].materialize(this.lastViewedCreature);
-							} else {
-								activeCreature.abilities[3].materialize(this.selectedCreature);
-								this.lastViewedCreature = this.selectedCreature;
-							}
-						};
-						$j('#card .sideA').on('click', this.materializeButton.click);
-						$j('#card .sideA').removeClass('disabled');
-						this.materializeButton.changeState(ButtonStateEnum.glowing);
-						$j('#materialize_button').show();
-					}
-				}
-			} else {
-				if (creatureType == '--' && !activeCreature.abilities[3].used) {
-					// Figure out if the player has enough plasma to summon any available creatures
-					const activePlayer = game.players[game.activeCreature.player.id];
-					const deadOrSummonedTypes = new Set(
-						activePlayer.creatures.map((creature) => creature.type),
-					);
-					const availableTypes = getSummonCandidates(game, activePlayer.availableCreatures, {
-						excludeTypes: deadOrSummonedTypes,
-					});
-					// Assume we can't afford anything
-					// Check one available creature at a time until we see something we can afford
-					let can_afford_a_unit = false;
-					availableTypes.forEach((type) => {
-						const lvl = parseInt(type.substring(1, 2)) - 0;
-						const size = game.retrieveCreatureStats(type).size - 0;
-						const plasmaCost = lvl + size;
-						if (plasmaCost <= activePlayer.plasma) {
-							can_afford_a_unit = true;
+					if (this.selectedCreatureObj) {
+						if (key == 'health') {
+							$stat.text(
+								this.selectedCreatureObj.health + '/' + this.selectedCreatureObj.stats[key],
+							);
+						} else if (key == 'movement') {
+							$stat.text(
+								this.selectedCreatureObj.remainingMove + '/' + this.selectedCreatureObj.stats[key],
+							);
+						} else if (key == 'energy') {
+							$stat.text(
+								this.selectedCreatureObj.energy + '/' + this.selectedCreatureObj.stats[key],
+							);
+						} else if (key == 'endurance') {
+							$stat.text(
+								this.selectedCreatureObj.endurance + '/' + this.selectedCreatureObj.stats[key],
+							);
+						} else {
+							$stat.text(this.selectedCreatureObj.stats[key]);
 						}
-					});
-					// If we can't afford anything, tell the player and disable the materialize button
-					if (!can_afford_a_unit) {
-						$j('#materialize_button p').text(game.msg.abilities.noPlasma);
-						this.materializeButton.changeState(ButtonStateEnum.disabled);
-					}
-					// Otherwise, let's have it show a random creature on click
-					else {
-						$j('#materialize_button p').text(game.msg.ui.dash.selectUnit);
-						// Bind button for random unit selection
-						this.materializeButton.click = () => {
-							this.lastViewedCreature = this.showRandomCreature();
-						};
-						// Apply the changes
-						$j('#card .sideA').on('click', this.materializeButton.click);
-						$j('#card .sideA').removeClass('disabled');
-						this.materializeButton.changeState(ButtonStateEnum.glowing);
-					}
-				} else if (
-					activeCreature.abilities[3].used &&
-					game.activeCreature.isDarkPriest() &&
-					player == game.activeCreature.player.id &&
-					(clickMethod === 'emptyHex' || clickMethod === 'portrait' || clickMethod === 'grid')
-				) {
-					if (summonedOrDead) {
-						$j('#materialize_button').hide();
-					} else if (clickMethod === 'portrait' && creatureType !== '--') {
-						$j('#materialize_button').hide();
 					} else {
-						$j('#materialize_button p').text(game.msg.ui.dash.materializeUsed);
-						$j('#materialize_button').show();
+						$stat.text(value);
 					}
-				} else {
-					$j('#materialize_button').hide();
-				}
-			}
-		} else {
-			// Card A
-			$j('#card .sideA').css({
-				'background-image': `url('${getUrl('cards/margin')}'), url('${getCardArtworkUrl(
-					stats.name,
-				)}')`,
-			});
-			$j('#card .sideA .section.info')
-				.removeClass('sin- sinA sinE sinG sinL sinP sinS sinW')
-				.addClass('sin' + stats.type.substring(0, 1));
-			addCardCharacterInfo();
 
-			// Card B
-			$j.each(stats.stats, (key, value) => {
-				const $stat = $j('#card .sideB .' + key + ' .value');
-				$stat.removeClass('buff debuff');
-				$stat.text(value);
-			});
-
-			// Abilities
-			$j.each(stats.ability_info, (key) => {
-				const $ability = $j('#card .sideB .abilities .ability:eq(' + key + ')');
-				$ability.children('.icon').css({
-					'background-image': `url('${getUrl('units/abilities/' + stats.name + ' ' + key)}')`,
+					applyBuffDebuffStyle($stat, this.selectedCreatureObj, key, value, isBrowsing);
 				});
-				$ability.removeClass('upgraded');
-				$ability
-					.children('.wrapper')
-					.children('.info')
-					.children('h3')
-					.text(stats.ability_info[key].title);
-				$ability
-					.children('.wrapper')
-					.children('.info')
-					.children('#desc')
-					.html(stats.ability_info[key].desc);
-				$ability
-					.children('.wrapper')
-					.children('.info')
-					.children('#info')
-					.html(stats.ability_info[key].info);
-				// Check for an upgrade
-				if (stats.ability_info[key].upgrade) {
+				$j.each(game.abilities[stats.id], (key) => {
+					const $ability = $j('#card .sideB .abilities .ability:eq(' + key + ')');
+					const abilityIndex = Number(key);
+					const isUpgraded = Boolean(
+						this.selectedCreatureObj?.abilities?.[abilityIndex]?.isUpgraded(),
+					);
+					$ability.children('.icon').css({
+						'background-image': `url('${getUrl('units/abilities/' + stats.name + ' ' + key)}')`,
+					});
+					$ability.toggleClass('upgraded', isUpgraded);
+					$ability
+						.children('.wrapper')
+						.children('.info')
+						.children('h3')
+						.text(stats.ability_info[key].title);
+					$ability
+						.children('.wrapper')
+						.children('.info')
+						.children('#desc')
+						.text(stats.ability_info[key].desc);
+					$ability
+						.children('.wrapper')
+						.children('.info')
+						.children('#info')
+						.text(stats.ability_info[key].info);
 					$ability
 						.children('.wrapper')
 						.children('.info')
 						.children('#upgrade')
 						.text('Upgrade: ' + stats.ability_info[key].upgrade);
-				} else {
-					$ability.children('.wrapper').children('.info').children('#upgrade').text(' ');
-				}
 
-				if (stats.ability_info[key].costs !== undefined && key !== 0) {
+					if (stats.ability_info[key].costs !== undefined && key !== 0) {
+						$ability
+							.children('.wrapper')
+							.children('.info')
+							.children('#cost')
+							.text(' - costs ' + stats.ability_info[key].costs.energy + ' energy pts.');
+					} else {
+						$ability
+							.children('.wrapper')
+							.children('.info')
+							.children('#cost')
+							.text(' - this ability is passive.');
+					}
+				});
+
+				const summonedOrDead = game.players[player].creatures.some(
+					(creature) => creature.type == creatureType,
+				);
+
+				this.materializeButton.changeState(ButtonStateEnum.disabled);
+				$j('#card .sideA').addClass('disabled').off('click');
+
+				const activeCreature = game.activeCreature;
+
+				if (activeCreature.player.getNbrOfCreatures() > game.configData.creaLimitNbr) {
+					$j('#materialize_button p').text(game.msg.ui.dash.materializeOverload);
+				}
+				// Check if the player is viewing the wrong tab
+				else if (
+					activeCreature.player.id !== player &&
+					activeCreature.isDarkPriest() &&
+					activeCreature.abilities[3].testRequirements() &&
+					activeCreature.abilities[3].used === false
+				) {
+					$j('#materialize_button p').text(game.msg.ui.dash.wrongPlayer);
+
+					// Switch to turn player's dark priest
+					this.materializeButton.click = () => {
+						this.showCreature('--', activeCreature.player.id);
+					};
+
+					$j('#card .sideA').on('click', this.materializeButton.click);
+					$j('#card .sideA').removeClass('disabled');
+					this.materializeButton.changeState(ButtonStateEnum.glowing);
+					$j('#materialize_button').show();
+				} else if (
+					!summonedOrDead &&
+					activeCreature.player.id === player &&
+					activeCreature.type === '--' &&
+					activeCreature.abilities[3].used === false
+				) {
+					const lvl = parseInt(creatureType.substring(1, 2)) - 0,
+						size = game.retrieveCreatureStats(creatureType).size - 0,
+						plasmaCost = lvl + size;
+
+					// Messages (TODO: text strings in a new language file)
+					if (plasmaCost > activeCreature.player.plasma) {
+						$j('#materialize_button p').text(game.msg.ui.dash.lowPlasma);
+					} else {
+						if (creatureType == '--') {
+							$j('#materialize_button p').text(game.msg.ui.dash.selectUnit);
+						} else {
+							$j('#materialize_button p').text(
+								game.msg.ui.dash.materializeUnit(plasmaCost.toString()),
+							);
+
+							// Bind button
+							this.materializeButton.click = () => {
+								this.materializeToggled = false;
+								this.selectAbility(3);
+								this.closeDash();
+								if (this.lastViewedCreature) {
+									activeCreature.abilities[3].materialize(this.lastViewedCreature);
+								} else {
+									activeCreature.abilities[3].materialize(this.selectedCreature);
+									this.lastViewedCreature = this.selectedCreature;
+								}
+							};
+							$j('#card .sideA').on('click', this.materializeButton.click);
+							$j('#card .sideA').removeClass('disabled');
+							this.materializeButton.changeState(ButtonStateEnum.glowing);
+							$j('#materialize_button').show();
+						}
+					}
+				} else {
+					if (creatureType == '--' && !activeCreature.abilities[3].used) {
+						// Figure out if the player has enough plasma to summon any available creatures
+						const activePlayer = game.players[game.activeCreature.player.id];
+						const deadOrSummonedTypes = new Set(
+							activePlayer.creatures.map((creature) => creature.type),
+						);
+						const availableTypes = getSummonCandidates(game, activePlayer.availableCreatures, {
+							excludeTypes: deadOrSummonedTypes,
+						});
+						// Assume we can't afford anything
+						// Check one available creature at a time until we see something we can afford
+						let can_afford_a_unit = false;
+						availableTypes.forEach((type) => {
+							const lvl = parseInt(type.substring(1, 2)) - 0;
+							const size = game.retrieveCreatureStats(type).size - 0;
+							const plasmaCost = lvl + size;
+							if (plasmaCost <= activePlayer.plasma) {
+								can_afford_a_unit = true;
+							}
+						});
+						// If we can't afford anything, tell the player and disable the materialize button
+						if (!can_afford_a_unit) {
+							$j('#materialize_button p').text(game.msg.abilities.noPlasma);
+							this.materializeButton.changeState(ButtonStateEnum.disabled);
+						}
+						// Otherwise, let's have it show a random creature on click
+						else {
+							$j('#materialize_button p').text(game.msg.ui.dash.selectUnit);
+							// Bind button for random unit selection
+							this.materializeButton.click = () => {
+								this.lastViewedCreature = this.showRandomCreature();
+							};
+							// Apply the changes
+							$j('#card .sideA').on('click', this.materializeButton.click);
+							$j('#card .sideA').removeClass('disabled');
+							this.materializeButton.changeState(ButtonStateEnum.glowing);
+						}
+					} else if (
+						activeCreature.abilities[3].used &&
+						game.activeCreature.isDarkPriest() &&
+						player == game.activeCreature.player.id &&
+						(clickMethod === 'emptyHex' || clickMethod === 'portrait' || clickMethod === 'grid')
+					) {
+						if (summonedOrDead) {
+							$j('#materialize_button').hide();
+						} else if (clickMethod === 'portrait' && creatureType !== '--') {
+							$j('#materialize_button').hide();
+						} else {
+							$j('#materialize_button p').text(game.msg.ui.dash.materializeUsed);
+							$j('#materialize_button').show();
+						}
+					} else {
+						$j('#materialize_button').hide();
+					}
+				}
+			} else {
+				// Card A
+				$j('#card .sideA').css({
+					'background-image': `url('${getUrl('cards/margin')}'), url('${getCardArtworkUrl(
+						stats.name,
+					)}')`,
+				});
+				$j('#card .sideA .section.info')
+					.removeClass('sin- sinA sinE sinG sinL sinP sinS sinW')
+					.addClass('sin' + stats.type.substring(0, 1));
+				addCardCharacterInfo();
+
+				// Card B
+				$j.each(stats.stats, (key, value) => {
+					const $stat = $j('#card .sideB .' + key + ' .value');
+					$stat.removeClass('buff debuff');
+					$stat.text(value);
+				});
+
+				// Abilities
+				$j.each(stats.ability_info, (key) => {
+					const $ability = $j('#card .sideB .abilities .ability:eq(' + key + ')');
+					$ability.children('.icon').css({
+						'background-image': `url('${getUrl('units/abilities/' + stats.name + ' ' + key)}')`,
+					});
+					$ability.removeClass('upgraded');
 					$ability
 						.children('.wrapper')
 						.children('.info')
-						.children('#cost')
-						.text(' - costs ' + stats.ability_info[key].costs.energy + ' energy pts.');
-				} else {
+						.children('h3')
+						.text(stats.ability_info[key].title);
 					$ability
 						.children('.wrapper')
 						.children('.info')
-						.children('#cost')
-						.text(' - this ability is passive.');
-				}
-			});
+						.children('#desc')
+						.html(stats.ability_info[key].desc);
+					$ability
+						.children('.wrapper')
+						.children('.info')
+						.children('#info')
+						.html(stats.ability_info[key].info);
+					// Check for an upgrade
+					if (stats.ability_info[key].upgrade) {
+						$ability
+							.children('.wrapper')
+							.children('.info')
+							.children('#upgrade')
+							.text('Upgrade: ' + stats.ability_info[key].upgrade);
+					} else {
+						$ability.children('.wrapper').children('.info').children('#upgrade').text(' ');
+					}
 
-			// Materialize button
-			this.materializeButton.changeState(ButtonStateEnum.disabled);
-			$j('#materialize_button p').text(game.msg.ui.dash.heavyDev);
-			$j('#materialize_button').show();
-			$j('#card .sideA').addClass('disabled').off('click');
+					if (stats.ability_info[key].costs !== undefined && key !== 0) {
+						$ability
+							.children('.wrapper')
+							.children('.info')
+							.children('#cost')
+							.text(' - costs ' + stats.ability_info[key].costs.energy + ' energy pts.');
+					} else {
+						$ability
+							.children('.wrapper')
+							.children('.info')
+							.children('#cost')
+							.text(' - this ability is passive.');
+					}
+				});
+
+				// Materialize button
+				this.materializeButton.changeState(ButtonStateEnum.disabled);
+				$j('#materialize_button p').text(game.msg.ui.dash.heavyDev);
+				$j('#materialize_button').show();
+				$j('#card .sideA').addClass('disabled').off('click');
+			}
+		};
+
+		if (isSwitchingCreature) {
+			this.flipCard(cardAssetUrls, updateCardContent);
+		} else {
+			updateCardContent();
 		}
+	}
+
+	/**
+	 * Fake a full card flip with one container: rotate to the edge, swap content,
+	 * reset invisibly to the opposite edge, and rotate back to the front.
+	 *
+	 * @param assetUrls - Images needed by the incoming card face.
+	 * @param onMidpoint - Callback invoked when the card is at 90 degrees (edge at screen).
+	 */
+	flipCard(assetUrls: string[], onMidpoint: () => void) {
+		const $cards = $j('#card .sideA, #card .sideB');
+		assetUrls.forEach((url) => {
+			if (!this.cardAssetCache.has(url)) {
+				const image = new Image();
+				image.src = url;
+				this.cardAssetCache.set(url, image);
+			}
+		});
+
+		if (this.cardFlipTimeoutId !== null) {
+			clearTimeout(this.cardFlipTimeoutId);
+		}
+
+		this.game.soundsys.playSFX('sounds/flip');
+		$cards.removeClass('flipping flip-reset').addClass('flipping');
+
+		// At 90 degrees, swap content and reset to -90 degrees without a transition.
+		this.cardFlipTimeoutId = setTimeout(() => {
+			onMidpoint();
+			$cards.removeClass('flipping').addClass('flip-reset');
+			$cards.each((_, card) => void (card as HTMLElement).offsetWidth);
+			window.requestAnimationFrame(() => {
+				$cards.removeClass('flip-reset');
+			});
+			this.cardFlipTimeoutId = null;
+		}, this.dashAnimSpeed / 2);
 	}
 
 	/**
@@ -2845,6 +2909,11 @@ export class UI {
 
 	closeDash() {
 		const game = this.game;
+		if (this.cardFlipTimeoutId !== null) {
+			clearTimeout(this.cardFlipTimeoutId);
+			this.cardFlipTimeoutId = null;
+		}
+		$j('#card .sideA, #card .sideB').removeClass('flipping flip-reset');
 		this.dashOpenCollectiveBanner.onViewClose();
 
 		game.signals.ui.dispatch('onCloseDash');

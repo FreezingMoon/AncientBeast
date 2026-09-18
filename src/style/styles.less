@@ -959,7 +959,7 @@ div.section.info {
 #card {
 	width: 870px;
 	margin: auto;
-	padding-bottom: 20px;
+	padding-bottom: 10px;
 }
 
 #materialize_button {
@@ -997,7 +997,7 @@ div.section.info {
 .opencollective_banner_slot--dash {
 	width: 860px;
 	max-width: calc(100% - 10px);
-	margin: 0 5px;
+	margin: 0 5px 10px;
 }
 
 .opencollective_banner_slot--fullscreen {
@@ -4125,26 +4125,33 @@ body.devvit-mode .scrim {
 		overflow: visible !important;
 	}
 
-	#dash.active #card {
-		width: 870px !important;
+#dash.active #card {
+		width: 400px !important;
 		height: 520px !important;
 		margin: 0 auto !important;
 		display: block !important;
+		position: relative !important;
 		padding: 0 !important;
 		box-sizing: border-box !important;
 	}
 
 	#dash.active #card .center {
-		display: inline-block !important;
-		vertical-align: top !important;
+		position: absolute !important;
+		top: 0 !important;
+		left: 0 !important;
+		width: 400px !important;
+		height: 520px !important;
 	}
 
 	#dash.active #card .card.sideA,
 	#dash.active #card .card.sideB {
+		position: absolute !important;
+		top: 0 !important;
+		left: 0 !important;
 		width: 400px !important;
 		height: 520px !important;
 		margin: 0 !important;
-		display: inline-block !important;
+		display: block !important;
 		vertical-align: top !important;
 		background-size: 100% 100% !important;
 		background-position: center !important;
@@ -4152,10 +4159,7 @@ body.devvit-mode .scrim {
 		box-sizing: border-box !important;
 		border-radius: 0 !important;
 		overflow: visible !important;
-	}
-
-	#dash.active #card .card.sideA {
-		margin-right: -18px !important;
+		backface-visibility: hidden !important;
 	}
 
 	#dash.active .opencollective_banner_slot--dash {
@@ -4235,4 +4239,45 @@ body.devvit-mode .scrim {
 		max-height: 60vh !important;
 		object-fit: contain;
 	}
+}
+
+/* Unit-card switching is shared by the desktop and portrait dash layouts. */
+#dash.active #cardwrapper_inner {
+	perspective: 1000px !important;
+	transform-style: preserve-3d !important;
+}
+
+#dash.active #playertabswrapper {
+	z-index: 1 !important;
+}
+
+#dash.active #tabwrapper {
+	z-index: 2 !important;
+	overflow: visible !important;
+}
+
+#dash.active #card,
+#dash.active #card .center {
+	transform-style: preserve-3d !important;
+}
+
+#dash.active #card .card.sideA,
+#dash.active #card .card.sideB {
+	transform: none !important;
+	transform-style: preserve-3d !important;
+	transition: transform 125ms ease-in-out !important;
+	transform-origin: center center !important;
+	backface-visibility: hidden !important;
+	-webkit-backface-visibility: hidden !important;
+}
+
+#dash.active #card .card.sideA.flipping,
+#dash.active #card .card.sideB.flipping {
+	transform: rotateY(90deg) !important;
+}
+
+#dash.active #card .card.sideA.flip-reset,
+#dash.active #card .card.sideB.flip-reset {
+	transform: rotateY(-90deg) !important;
+	transition: none !important;
 }
