@@ -240,7 +240,7 @@ export class OpenCollectiveBanner {
 
 		this.lastMarqueeTickTs = window.performance.now();
 
-		this.marqueeIntervalId = window.setInterval(() => {
+		const tick = () => {
 			if (!this.isViewOpen()) {
 				this.stopMarquee();
 				return;
@@ -248,7 +248,7 @@ export class OpenCollectiveBanner {
 
 			const now = window.performance.now();
 			const previousTickTs = this.lastMarqueeTickTs ?? now;
-			const deltaMs = now - previousTickTs;
+			const deltaMs = Math.min(now - previousTickTs, 100);
 			this.lastMarqueeTickTs = now;
 
 			if (this.loopWidthPx <= 0) {
@@ -259,12 +259,16 @@ export class OpenCollectiveBanner {
 				(this.scrollOffsetPx + (deltaMs / 1000) * OpenCollectiveBanner.SPEED_PX_PER_SECOND) %
 				this.loopWidthPx;
 			this.applyMarqueeOffset();
-		}, 16);
+
+			this.marqueeIntervalId = window.requestAnimationFrame(tick);
+		};
+
+		this.marqueeIntervalId = window.requestAnimationFrame(tick);
 	}
 
 	stopMarquee() {
 		if (this.marqueeIntervalId !== null) {
-			window.clearInterval(this.marqueeIntervalId);
+			window.cancelAnimationFrame(this.marqueeIntervalId);
 			this.marqueeIntervalId = null;
 		}
 
@@ -290,7 +294,7 @@ export class OpenCollectiveBanner {
 				}
 			}
 
-			(element as HTMLElement).style.transform = `translate3d(${memberX}px, -50%, 0)`;
+			(element as HTMLElement).style.transform = `translate3d(${Math.round(memberX)}px, -50%, 0)`;
 		});
 	}
 
