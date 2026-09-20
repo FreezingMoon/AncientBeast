@@ -47,12 +47,18 @@ export class SerializableLog {
 export class GameLog {
 	onSave: (log: SerializableLog) => void;
 	onLoad: (log: SerializableLog) => void;
+	onAdd: (action: any) => void;
 	actions: any[];
 
 	// eslint-disable-next-line @typescript-eslint/no-empty-function
-	constructor(onSave = (_log: SerializableLog) => {}, onLoad = (_log: SerializableLog) => {}) {
+	constructor(
+		onSave = (_log: SerializableLog) => {},
+		onLoad = (_log: SerializableLog) => {},
+		onAdd = (_action: any) => {},
+	) {
 		this.onSave = onSave;
 		this.onLoad = onLoad;
+		this.onAdd = onAdd;
 		this.actions = [];
 	}
 
@@ -62,6 +68,7 @@ export class GameLog {
 
 	add(action: any) {
 		this.actions.push(action);
+		this.onAdd(action);
 	}
 
 	load(logOrStr: string | SerializableLog) {
