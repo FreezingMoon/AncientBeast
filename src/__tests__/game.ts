@@ -880,3 +880,81 @@ describe('Game.applyMoveRecord — shared by action() replay and live multiplaye
 		expect(optsArg.path).toBeUndefined();
 	});
 });
+
+describe('Game Undo Move', () => {
+	const makeUndoMockGame = (overrides: Record<string, unknown> = {}): Game =>
+		({
+			gameState: 'playing',
+			multiplayer: false,
+			isReplayInProgress: false,
+			undoReplayPending: false,
+			undoUsedTurn: null,
+			turnThrottle: false,
+			freezedInput: false,
+			pause: false,
+			turn: 4,
+			gamelog: {
+				actions: [{ action: 'move' }, { action: 'ability' }],
+				load: jest.fn(),
+				reset: jest.fn(),
+			},
+			configData: { gameMode: 2, players: [{ name: 'A' }, { name: 'B' }] },
+			botController: { isBotTurn: jest.fn(() => false) },
+			UI: { updateUndoButton: jest.fn() },
+			resetGame: jest.fn(),
+			hasUndoMove: Game.prototype.hasUndoMove,
+			canUndoLastAction: Game.prototype.canUndoLastAction,
+			...overrides,
+		} as unknown as Game);
+
+	test('offers undo for a recorded local action until it is used in that round', () => {
+		const game = makeUndoMockGame();
+
+		expect(Game.prototype.hasUndoMove.call(game)).toBe(true);
+		game.undoUsedTurn = 4;
+		expect(Game.prototype.hasUndoMove.call(game)).toBe(false);
+	});
+
+	test('does not offer client-local undo during multiplayer matches', () => {
+		const game = makeUndoMockGame({ multiplayer: true });
+
+		expect(Game.prototype.hasUndoMove.call(game)).toBe(false);
+	});
+
+	test('rebuilds the match from every recorded action except the latest one', () => {
+		const game = makeUndoMockGame();
+
+		const undone = Game.prototype.undoLastAction.call(game);
+
+		expect(undone).toBe(true);
+		expect(game.undoReplayPending).toBe(true);
+		expect(game.resetGame as jest.Mock).toHaveBeenCalledTimes(1);
+		expect(game.gamelog.load as jest.Mock).toHaveBeenCalledTimes(1);
+		const rollbackLog = (game.gamelog.load as jest.Mock).mock.calls[0][0] as {
+			actions: unknown[];
+			custom: { configData: unknown };
+		};
+		expect(rollbackLog.actions).toEqual([{ action: 'move' }]);
+		expect(rollbackLog.custom.configData).toEqual(game.configData);
+	});
+
+	test('consumes undo in the round restored by replay', () => {
+		const game = makeUndoMockGame({
+			turn: 3,
+			isReplayInProgress: true,
+			undoReplayPending: true,
+		});
+
+		(
+			Game.prototype as unknown as {
+				finishLogReplay: () => void;
+			}
+		).finishLogReplay.call(game);
+
+		expect(game.isReplayInProgress).toBe(false);
+		expect(game.undoReplayPending).toBe(false);
+		expect(game.undoUsedTurn).toBe(3);
+		expect(game.UI.updateUndoButton as jest.Mock).toHaveBeenCalledTimes(1);
+	});
+});
+
