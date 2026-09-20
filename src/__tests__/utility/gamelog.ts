@@ -14,6 +14,17 @@ describe('GameLog', () => {
 			expect(onSave).toBeCalledTimes(2);
 		});
 
+		test('onAdd is called when an action is recorded', () => {
+			const onAdd = jest.fn();
+			const gl = new GameLog(() => undefined, () => undefined, onAdd);
+			const action = { action: 'move', target: { x: 1, y: 2 } };
+
+			gl.add(action);
+
+			expect(onAdd).toBeCalledTimes(1);
+			expect(onAdd).toBeCalledWith(action);
+		});
+
 		test('onLoad is called when log is loaded', () => {
 			const onLoad = jest.fn();
 			const gl = new GameLog(() => undefined, onLoad);
