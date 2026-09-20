@@ -72,12 +72,35 @@ export class Hotkeys {
 			if (this.ui.dashopen) {
 				this.ui.gridSelectRight();
 			} else {
+				if (this.ui.game.hasUndoMove()) {
+					return;
+				}
 				if (this.ui.game.botController?.isBotTurn()) {
 					this.ui.showCancelIconOnButton(this.ui.btnDelay.$button);
 					return;
 				}
 				this.ui.btnDelay.triggerClick();
 			}
+		}
+	}
+
+	pressZ(event: KeyboardEvent) {
+		const target = event.target as HTMLElement | null;
+		const isEditable =
+			target?.isContentEditable || target?.tagName === 'INPUT' || target?.tagName === 'TEXTAREA';
+
+		if (
+			!(event.ctrlKey || event.metaKey) ||
+			event.shiftKey ||
+			event.altKey ||
+			isEditable ||
+			this.ui.chat?.isOpen
+		) {
+			return;
+		}
+
+		if (this.ui.game.undoLastAction()) {
+			event.preventDefault();
 		}
 	}
 
@@ -316,6 +339,11 @@ export function getHotKeys(hk) {
 		KeyD: {
 			onkeydown(event) {
 				hk.pressD(event);
+			},
+		},
+		KeyZ: {
+			onkeydown(event) {
+				hk.pressZ(event);
 			},
 		},
 		KeyQ: {
