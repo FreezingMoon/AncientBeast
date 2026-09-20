@@ -1,7 +1,7 @@
 import $j from 'jquery';
 import { Animations } from './animations';
 import { CreatureQueue } from './creature_queue';
-import { GameLog } from './utility/gamelog';
+import { GameLog, SerializableLog } from './utility/gamelog';
 import { SoundSys, SoundSysAudioBufferSourceNode } from './sound/soundsys';
 import { Hex } from './utility/hex';
 import { HexGrid } from './utility/hexgrid';
@@ -152,6 +152,8 @@ export default class Game {
 	isReplayInProgress: boolean;
 	turnThrottle: boolean;
 	turn: number;
+	undoUsedTurn: number | null;
+	undoReplayPending: boolean;
 	metaPowersState: MetaPowersState;
 	/** Counts abilities that called end(false,true) but haven't yet invoked queryMove(). */
 	_deferredQueryMovePending: number;
@@ -334,6 +336,7 @@ export default class Game {
 		this.gamelog = new GameLog(
 			(log) => this.onLogSave(log),
 			(log) => this.onLogLoad(log),
+			() => this.UI?.updateUndoButton(),
 		);
 		this.configData = {};
 		this.match = {};
@@ -354,6 +357,8 @@ export default class Game {
 		this.isReplayInProgress = false;
 		this.turnThrottle = false;
 		this.turn = 0;
+		this.undoUsedTurn = null;
+		this.undoReplayPending = false;
 		this.metaPowersState = {
 			executeMonster: false,
 			resetCooldowns: false,
@@ -2183,7 +2188,60 @@ export default class Game {
 		};
 	}
 
+	hasUndoMove(): boolean {
+		return (
+			!this.multiplayer &&
+			this.gameState === 'playing' &&
+			!this.isReplayInProgress &&
+			!this.undoReplayPending &&
+			this.gamelog.actions.length > 0 &&
+			this.undoUsedTurn !== this.turn
+		);
+	}
+
+	canUndoLastAction(): boolean {
+		return (
+			this.hasUndoMove() &&
+			!this.pause &&
+			!this.turnThrottle &&
+			!this.freezedInput &&
+			!this.botController?.isBotTurn()
+		);
+	}
+
+	undoLastAction(): boolean {
+		if (!this.canUndoLastAction()) {
+			return false;
+		}
+
+		const rollbackLog = new SerializableLog(this.gamelog.actions.slice(0, -1));
+		rollbackLog.custom.configData = {
+			...this.configData,
+			players: Array.isArray(this.configData.players)
+				? [...this.configData.players]
+				: this.configData.players,
+		};
+
+		this.undoReplayPending = true;
+		this.UI?.updateUndoButton();
+		this.resetGame();
+		this.gamelog.load(rollbackLog);
+		return true;
+	}
+
+	private finishLogReplay(): void {
+		this.isReplayInProgress = false;
+		if (this.undoReplayPending) {
+			this.undoUsedTurn = this.turn;
+			this.undoReplayPending = false;
+		}
+		this.UI?.updateUndoButton();
+	}
+
 	resetGame() {
+		if (!this.undoReplayPending) {
+			this.undoUsedTurn = null;
+		}
 		this.UI?.metaPowers?._clearPowers();
 		this.UI.showGameSetup();
 		this.stopTimer();
@@ -2314,7 +2372,7 @@ export default class Game {
 
 		const nextAction = () => {
 			if (actions.length === 0) {
-				this.isReplayInProgress = false;
+				this.finishLogReplay();
 				// Replay finishes between turns for some logs; explicitly re-arm the
 				// active creature query to restore live input controls.
 				setTimeout(() => restoreInteractiveState(), 0);
