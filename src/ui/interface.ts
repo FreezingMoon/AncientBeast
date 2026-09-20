@@ -756,6 +756,7 @@ export class UI {
 		// Delay Unit Button
 		const canPreviewDelay = () =>
 			!this.dashopen &&
+			!game.hasUndoMove() &&
 			!game.turnThrottle &&
 			!game.botController.isBotTurn() &&
 			Boolean(game.activeCreature?.canWait) &&
@@ -774,6 +775,12 @@ export class UI {
 				},
 				click: () => {
 					if (!this.dashopen) {
+						if (game.hasUndoMove()) {
+							this.queue.clearDelayPreview();
+							game.undoLastAction();
+							return;
+						}
+
 						if (
 							game.turnThrottle ||
 							game.botController.isBotTurn() ||
@@ -796,6 +803,7 @@ export class UI {
 			{ isAcceptingInput: this.configuration.isAcceptingInput },
 		);
 		this.buttons.push(this.btnDelay);
+		this.updateUndoButton();
 
 		this.btnSaveLog = new Button(
 			{
@@ -3218,6 +3226,30 @@ export class UI {
 				});
 			}
 		});
+	}
+
+	updateUndoButton() {
+		if (!this.btnDelay) {
+			return;
+		}
+
+		const undoAvailable = this.game.hasUndoMove();
+		const $control = this.btnDelay.$button.closest('.delay-control');
+
+		this.btnDelay.$button.toggleClass('undo-available', undoAvailable);
+		$control.find('.shortcut').text(undoAvailable ? 'hotkey Ctrl+Z' : 'hotkey D');
+		$control.find('.desc > span').text(undoAvailable ? 'Undo Move' : 'Delay Unit');
+		$control
+			.find('.desc > p')
+			.text(
+				undoAvailable
+					? 'Turn back time to immediately before the last action. Available once per round.'
+					: 'Delayed creatures will act at the end of the round, if alive and still able to.',
+			);
+
+		if (undoAvailable && !this.game.turnThrottle) {
+			this.btnDelay.changeState('normal');
+		}
 	}
 
 	/**
