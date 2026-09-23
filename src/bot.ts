@@ -148,6 +148,7 @@ export default class BotController {
 	moveAttempted = false;
 	failedAbilityIds = new Set<number>();
 	isResolvingQuery = false;
+	private queryGeneration = 0;
 	stalePendingActionMs = 2200;
 	/** Delay before the onSelect callback fires in resolveQuery (ms). */
 	selectDelayMs = 50;
@@ -193,6 +194,7 @@ export default class BotController {
 	startTurn(creature?: Creature) {
 		this.clearDecisionTimeout();
 		this.clearPendingAction();
+		this.queryGeneration += 1;
 		this.isResolvingQuery = false;
 		this.activeCreatureId = creature?.id ?? null;
 		this.decisionCount = 0;
@@ -397,7 +399,8 @@ export default class BotController {
 	isBotTurn() {
 		const activeCreature = this.game.activeCreature;
 		return Boolean(
-			activeCreature &&
+			this.game.botController === this &&
+				activeCreature &&
 				activeCreature.player.controller === 'bot' &&
 				this.game.gameState === 'playing',
 		);
@@ -416,6 +419,14 @@ export default class BotController {
 
 	takeTurn() {
 		if (!this.isBotTurn()) {
+			return;
+		}
+
+		// Replay owns action production until the retained log has been consumed.
+		// Keep one decision timer so a replay ending on a bot resumes naturally,
+		// without spending its decision budget or inventing new replay actions.
+		if (this.game.isReplayInProgress || this.game.undoReplayPending) {
+			this.queueDecision(200);
 			return;
 		}
 
@@ -679,7 +690,12 @@ export default class BotController {
 	}
 
 	shouldAutoResolveQuery() {
-		return this.isBotTurn() && this.pendingAction !== null;
+		return (
+			this.isBotTurn() &&
+			!this.game.isReplayInProgress &&
+			!this.game.undoReplayPending &&
+			this.pendingAction !== null
+		);
 	}
 
 	resolveQuery(queryOptions: { hexes: Hex[] }, handlers: QueryHandlers) {
@@ -699,9 +715,19 @@ export default class BotController {
 		}
 
 		this.isResolvingQuery = true;
+		// A timeout can outlive its turn, query, or entire controller after undo.
+		// Never let it confirm against a replacement creature with the same ID.
+		const generation = ++this.queryGeneration;
+		const creature = this.game.activeCreature;
+		const action = this.pendingAction;
+		const isCurrentQuery = () =>
+			this.queryGeneration === generation &&
+			this.game.activeCreature === creature &&
+			this.pendingAction === action &&
+			this.shouldAutoResolveQuery();
 
 		setTimeout(() => {
-			if (!this.isBotTurn()) {
+			if (!isCurrentQuery()) {
 				return;
 			}
 			try {
@@ -713,8 +739,11 @@ export default class BotController {
 		}, this.selectDelayMs);
 
 		setTimeout(() => {
-			if (!this.isBotTurn()) {
-				this.isResolvingQuery = false;
+			if (!isCurrentQuery()) {
+				if (this.queryGeneration === generation) {
+					this.isResolvingQuery = false;
+					this.queueDecision(200);
+				}
 				return;
 			}
 			this.isResolvingQuery = false;
