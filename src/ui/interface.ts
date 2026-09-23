@@ -3049,69 +3049,32 @@ export class UI {
 				excludeTypes: game.players[this.selectedPlayer].creatures.map((creature) => creature.type),
 			}),
 		);
-		let valid: boolean;
-		let nextCreature: string;
+		const creatures = game.players[this.selectedPlayer].creatures;
+		let realmIndex = game.realms.indexOf(creatureType[0]);
+		let column = parseInt(creatureType[1]) + 1;
 
-		if (parseInt(creatureType[1]) - 0 + 1 > 7) {
-			// End of row
-			if (game.realms.indexOf(creatureType[0]) + 1 < game.realms.length) {
-				const realm = game.realms[game.realms.indexOf(creatureType[0]) + 1];
+		while (realmIndex < game.realms.length) {
+			if (column > 7) {
+				realmIndex++;
+				column = 1;
+				continue;
+			}
 
-				// Test If Valid Creature
-				if (candidateTypes.has((realm + '1') as CreatureType)) {
-					valid = true;
+			const nextCreature = (game.realms[realmIndex] + column) as CreatureType;
+			column++;
 
-					for (let i = 0, len = game.players[this.selectedPlayer].creatures.length; i < len; i++) {
-						const creature = game.players[this.selectedPlayer].creatures[i];
-
-						if (creature instanceof Creature && creature.type == realm + '1' && creature.dead) {
-							valid = false;
-						}
-					}
-
-					if (valid) {
-						nextCreature = realm + '1';
-						this.lastViewedCreature = nextCreature;
-						this.showCreature(nextCreature, this.selectedPlayer);
-						return;
-					}
-				}
-
-				this.selectedCreature = realm + '1';
-			} else {
+			if (
+				candidateTypes.has(nextCreature) &&
+				!creatures.some(
+					(creature) =>
+						creature instanceof Creature && creature.type === nextCreature && creature.dead,
+				)
+			) {
+				this.lastViewedCreature = nextCreature;
+				this.showCreature(nextCreature, this.selectedPlayer);
 				return;
 			}
-		} else {
-			// Test If Valid Creature
-			if (
-				candidateTypes.has((creatureType[0] + (parseInt(creatureType[1]) - 0 + 1)) as CreatureType)
-			) {
-				valid = true;
-
-				for (let i = 0, len = game.players[this.selectedPlayer].creatures.length; i < len; i++) {
-					const creature = game.players[this.selectedPlayer].creatures[i];
-
-					if (
-						creature instanceof Creature &&
-						creature.type == creatureType[0] + (parseInt(creatureType[1]) - 0 + 1) &&
-						creature.dead
-					) {
-						valid = false;
-					}
-				}
-
-				if (valid) {
-					nextCreature = creatureType[0] + (parseInt(creatureType[1]) - 0 + 1);
-					this.lastViewedCreature = nextCreature;
-					this.showCreature(nextCreature, this.selectedPlayer);
-					return;
-				}
-			}
-
-			this.selectedCreature = creatureType[0] + (parseInt(creatureType[1]) - 0 + 1);
 		}
-
-		this.gridSelectNext();
 	}
 
 	gridSelectPrevious() {
@@ -3122,67 +3085,32 @@ export class UI {
 				excludeTypes: game.players[this.selectedPlayer].creatures.map((creature) => creature.type),
 			}),
 		);
-		let valid: boolean;
-		let nextCreature: string;
+		const creatures = game.players[this.selectedPlayer].creatures;
+		let realmIndex = game.realms.indexOf(creatureType[0]);
+		let column = parseInt(creatureType[1]) - 1;
 
-		if (parseInt(creatureType[1]) - 1 < 1) {
-			// End of row
-			if (game.realms.indexOf(creatureType[0]) - 1 > -1) {
-				const realm = game.realms[game.realms.indexOf(creatureType[0]) - 1];
+		while (realmIndex >= 0) {
+			if (column < 1) {
+				realmIndex--;
+				column = 7;
+				continue;
+			}
 
-				// Test if valid creature
-				if (candidateTypes.has((realm + '7') as CreatureType)) {
-					valid = true;
+			const previousCreature = (game.realms[realmIndex] + column) as CreatureType;
+			column--;
 
-					for (let i = 0, len = game.players[this.selectedPlayer].creatures.length; i < len; i++) {
-						const creature = game.players[this.selectedPlayer].creatures[i];
-
-						if (creature instanceof Creature && creature.type == realm + '7' && creature.dead) {
-							valid = false;
-						}
-					}
-
-					if (valid) {
-						nextCreature = realm + '7';
-						this.lastViewedCreature = nextCreature;
-						this.showCreature(nextCreature, this.selectedPlayer);
-						return;
-					}
-				}
-
-				this.selectedCreature = realm + '7';
-			} else {
+			if (
+				candidateTypes.has(previousCreature) &&
+				!creatures.some(
+					(creature) =>
+						creature instanceof Creature && creature.type === previousCreature && creature.dead,
+				)
+			) {
+				this.lastViewedCreature = previousCreature;
+				this.showCreature(previousCreature, this.selectedPlayer);
 				return;
 			}
-		} else {
-			// Test if valid creature
-			if (candidateTypes.has((creatureType[0] + (parseInt(creatureType[1]) - 1)) as CreatureType)) {
-				valid = true;
-
-				for (let i = 0, len = game.players[this.selectedPlayer].creatures.length; i < len; i++) {
-					const creature = game.players[this.selectedPlayer].creatures[i];
-
-					if (
-						creature instanceof Creature &&
-						creature.type == creatureType[0] + (parseInt(creatureType[1]) - 1) &&
-						creature.dead
-					) {
-						valid = false;
-					}
-				}
-
-				if (valid) {
-					nextCreature = creatureType[0] + (parseInt(creatureType[1]) - 1);
-					this.lastViewedCreature = nextCreature;
-					this.showCreature(nextCreature, this.selectedPlayer);
-					return;
-				}
-			}
-
-			this.selectedCreature = creatureType[0] + (parseInt(creatureType[1]) - 1);
 		}
-
-		this.gridSelectPrevious();
 	}
 	animateNoTargetAbilityRanges() {
 		const creature = this.game.activeCreature;
