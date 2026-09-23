@@ -30,7 +30,7 @@ const creature = ({ id, delayed = false, initiative = 10 }) =>
 
 const leapAnimations = (animate: jest.Mock) =>
 	animate.mock.calls
-		.map((call) => call[0] as Keyframe[])
+		.map((call) => call[0] as Array<{ offset?: number; transform?: string }>)
 		.filter(
 			(frames) =>
 				frames.length === 9 &&

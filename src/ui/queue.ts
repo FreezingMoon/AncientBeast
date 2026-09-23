@@ -586,7 +586,9 @@ class CreatureVignette extends Vignette {
 	 * same-turn mechanic that pushes an avatar backwards should read the same.
 	 */
 	private isMovingBackInCurrentTurn(x: number) {
-		return this.turnNumberIsCurrentTurn && this.previousXPosition >= 0 && x > this.previousXPosition;
+		return (
+			this.turnNumberIsCurrentTurn && this.previousXPosition >= 0 && x > this.previousXPosition
+		);
 	}
 
 	/**
