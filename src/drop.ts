@@ -80,7 +80,7 @@ export class Drop {
 		this.display.anchor.setTo(0.5, 0.5);
 		this.display.scale.setTo(1.5, 1.5);
 
-		game.Phaser.add
+		game.gameEngine
 			.tween(this.display)
 			.to(
 				{
@@ -143,7 +143,7 @@ export class Drop {
 		dropGroup.remove(this.display, false);
 		creatureGroup.add(this.display);
 
-		const tween = this.game.Phaser.add
+		const tween = this.game.gameEngine
 			.tween(this.display)
 			.to({ alpha: 0, y: this.display.y - 100 }, 500, Phaser.Easing.Linear.None)
 			.start();

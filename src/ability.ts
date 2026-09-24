@@ -608,13 +608,13 @@ export class Ability {
 				animationData = $j.extend(animationData, this.getAnimationData(...[args]));
 			}
 
-			if (animationData.activateAnimation) {
-				game.Phaser.add
-					.tween(this.creature.sprite)
-					.to({ x: p1 }, 250, Phaser.Easing.Linear.None)
-					.to({ x: p2 }, 100, Phaser.Easing.Linear.None)
-					.to({ x: p0 }, 150, Phaser.Easing.Linear.None)
-					.start();
+if (animationData.activateAnimation) {
+			 game.gameEngine
+				.tween(this.creature.sprite)
+				.to({ x: p1 }, 250, Phaser.Easing.Linear.None)
+				.to({ x: p2 }, 100, Phaser.Easing.Linear.None)
+				.to({ x: p0 }, 150, Phaser.Easing.Linear.None)
+				.start();
 			}
 
 			setTimeout(() => {

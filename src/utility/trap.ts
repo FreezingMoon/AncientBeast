@@ -56,7 +56,7 @@ export class Trap {
 		const worldPos = sourceGroup.toGlobal(sprite.position.clone());
 		sourceGroup.remove(sprite, false);
 		targetGroup.add(sprite);
-		const localPos = targetGroup.toLocal(worldPos, this.game.Phaser.world);
+		const localPos = targetGroup.toLocal(worldPos, this.game.gameEngine.world);
 		sprite.position.set(localPos.x, localPos.y);
 	}
 
