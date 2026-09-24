@@ -34,6 +34,7 @@
     "js-cookie": "^3.0.1",
     "node-emoji": "^1.10.0",
     "peerjs": "^1.5.4",
+    "phaser": "^4.2.1",
     "phaser-ce": "2.16.0",
     "semver": "^7.5.2"
   },
