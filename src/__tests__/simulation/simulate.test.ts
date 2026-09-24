@@ -4,7 +4,7 @@
 /**
  * simulate.test.ts
  *
- * Single entry point for `npm run simulate`.
+ * Single entry point for `bun run simulate`.
  *
  * Phase 1: SIM_BASELINE matches (default 20) → saves simulation-baseline.json
  * Phase 2: SIM_VARIANT matches per variant (default 10) → compares against baseline
@@ -12,8 +12,8 @@
  *
  * Each game takes roughly 20–40 s of wall time.
  * Default run (20 + 7×10 = 90 games) takes about 30–60 minutes.
- * For a quick smoke-test:  SIM_BASELINE=3 SIM_VARIANT=2 npm run simulate
- * For higher confidence:   SIM_BASELINE=100 SIM_VARIANT=50 npm run simulate
+ * For a quick smoke-test:  SIM_BASELINE=3 SIM_VARIANT=2 bun run simulate
+ * For higher confidence:   SIM_BASELINE=100 SIM_VARIANT=50 bun run simulate
  *
  * Mock order matters: jest.mock() calls are hoisted before any imports.
  */
@@ -188,7 +188,7 @@ async function runBatch(
 const BASELINE_PATH = path.resolve(process.cwd(), 'simulation-baseline.json');
 // Default counts are intentionally small (~20–37 s per game).
 // For tighter statistical confidence, increase via env vars:
-//   SIM_BASELINE=100 SIM_VARIANT=50 npm run simulate
+//   SIM_BASELINE=100 SIM_VARIANT=50 bun run simulate
 const BASELINE_COUNT = parseInt(process.env.SIM_BASELINE || '20', 10);
 const VARIANT_COUNT = parseInt(process.env.SIM_VARIANT || '10', 10);
 

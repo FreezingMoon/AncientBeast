@@ -7,8 +7,8 @@
 // metadata via SVGO and converts any leftover inline `style` into presentation
 // attributes (which Devvit accepts). Gradients/filters are preserved.
 //
-// Usage: node scripts/optimize-svgs.mjs [relative/dir ...]
-//   e.g. node scripts/optimize-svgs.mjs assets/stats assets/icons
+// Usage: bun scripts/optimize-svgs.mjs [relative/dir ...]
+//   e.g. bun scripts/optimize-svgs.mjs assets/stats assets/icons
 //   (defaults to assets/stats when no args are given)
 import { execFileSync } from 'child_process';
 import { readdirSync, readFileSync, writeFileSync, statSync } from 'fs';

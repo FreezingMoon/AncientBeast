@@ -15,8 +15,8 @@
 
 ### Playing Locally
 1. Clone the repository
-2. Install dependencies: `npm install`
-3. Start the game: `npm run start:dev`
+2. Install dependencies: `bun install`
+3. Start the game: `bun run start:dev`
 
 ## Basic Concepts
 

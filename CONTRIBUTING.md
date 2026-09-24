@@ -5,7 +5,7 @@ You can help out the project by just ★ starring this repository from the upper
 ## Getting Started
 
 It's very easy to set-up a local server in order to test and contribute to the development version of this game project.  
-It uses web languages like HTML, CSS, Javascript and Node.js. The game engine used is free open source, [Phaser](https://phaser.io).
+It uses web languages like HTML and CSS, with TypeScript tooling powered by [Bun](https://bun.sh). The game engine used is free open source, [Phaser](https://phaser.io).
 Nowadays you can skip setting up a local server and just start developing on the project right away: [![Open in Gitpod](https://img.shields.io/badge/setup-automated-blue?logo=gitpod)](https://gitpod.io/#https://github.com/FreezingMoon/AncientBeast)
 
 ### Recommended Tool
@@ -31,26 +31,23 @@ https://github.com/FreezingMoon/AncientBeast.git
 
 ### Package Requirements
 
-First install (or make sure you have) the latest LTS version of [Node.js](https://nodejs.org). In case you need to have different versions of it for other projects as well, you should definitely use `nvm` (Node version manager), which is a tool that makes it easy to manage multiple local Node installations. You can [find installation instructions here](https://github.com/nvm-sh/nvm#install--update-script), and then use it like:
+Install [Bun](https://bun.sh/docs/installation), which provides the JavaScript runtime and package manager used by this project. The repository pins the expected Bun version in `package.json`.
 
 ```sh
-nvm install --lts  # This will always install the latest LTS release.
-nvm use --lts  # Use latest LTS now.
-nvm alias default  # Make latest LTS your default.
+bun --version
 ```
 
-`LTS` stands for `Long Term Support`, meaning it's a rather stable and hopefully non-problematic version.
+The project may still produce Node-targeted bundles for Devvit, but local development commands should be run through Bun.
 
 ### Installing Dependencies
 
 In the terminal (`Ctrl + ~` in [VCS](https://code.visualstudio.com/download)), use the following command in order to easily install all the project dependencies:
 
 ```sh
-npm install
+bun install
 ```
 
-This will read `package.json` and install all of the gameplay established npm package dependencies.  
-The `npm install` command will also update any required dependencies if the `package.json` file changes. If you have not worked on the project in a while, make sure you update your fork and also run that command again, which will also compile the project, same as the `npm run build:dev` command.
+This reads `package.json` and installs the project dependencies from `bun.lock`. If `package.json` changes, run `bun install` again. If you have not worked on the project in a while, update your fork and run it again before building.
 
 ### Setup environment variables
 
@@ -62,10 +59,10 @@ cp .env.example .env
 
 ### Compile Project
 
-In order to build the development version of the game (also done by `npm install`), run the following command:
+In order to build the development version of the game, run the following command:
 
 ```sh
-npm run build:dev
+bun run build:dev
 ```
 
 ### Docker Setup
@@ -89,7 +86,7 @@ If there's something already running on port 80 or it's being blocked, try the n
 To have the game up and running on your local machine, simply run this command in the terminal:
 
 ```sh
-npm run start
+bun run start
 ```
 
 Then access it using [Chromium](https://chromium.org) or [Google Chrome](https://google.com/chrome), as support for other browsers is not guaranteed:
@@ -134,7 +131,7 @@ You should look around on the GitHub Issue tracker for open issues, priority bei
 In order to patch the game and constantly test it, run it using this command, which will keep track of any file changes:
 
 ```sh
-npm run start:dev
+bun run start:dev
 ```
 
 Then access it using [Chromium](https://chromium.org) or [Google Chrome](https://google.com/chrome), as support for other browsers is not guaranteed:
@@ -158,12 +155,12 @@ See `/src/__tests__/utility/string.js` for an example.
 
 #### Running Tests
 
-The test runner was added to the existing `npm run test`.
+The test runner is included in the existing `bun run test` command.
 
 In addition, the following commands were added to `package.json`:
 
-- `npm run jest` – Run tests
-- `npm run start:jest` – Watch test files and rerun when modified
+- `bun run jest` – Run tests
+- `bun run start:jest` – Watch test files and rerun when modified
 
 ### Next Step
 

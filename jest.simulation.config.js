@@ -1,6 +1,6 @@
 /*
  * Jest config for bot simulation tests.
- * Run via: npm run simulate
+ * Run via: bun run simulate
  */
 
 import base from './jest.config.js';
