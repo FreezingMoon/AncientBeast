@@ -184,6 +184,14 @@ export interface GameEngine {
 		bitmapData(w: number, h: number): BitmapDataHandle;
 	};
 
+	// Loader
+	load: {
+		start(): void;
+		progress: number;
+		onFileComplete: SignalHandle;
+		onLoadComplete: SignalHandle;
+	};
+
 	// Time
 	time: {
 		now: number;

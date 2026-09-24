@@ -12,13 +12,13 @@
 
 import type {
 	BitmapDataHandle,
-.CameraHandle,
-.GameEngine,
-.GroupHandle,
-.SignalHandle,
-.SpriteHandle,
-.ScaleHandle,
-.TimerHandle,
+ CameraHandle,
+ GameEngine,
+ GroupHandle,
+ SignalHandle,
+ SpriteHandle,
+ ScaleHandle,
+ TimerHandle,
 } from './types';
 
 // ─── Signal wrapper ───────────────────────────────────────────────────────────
@@ -144,6 +144,24 @@ class TimerAdapter implements TimerHandle {
 	constructor(public timer: any) {}
 }
 
+// ─── Loader adapter ────────────────────────────────────────────────────────────
+
+class LoaderAdapter implements GameEngine['load'] {
+	constructor(private load: any) {}
+
+	start() { this.load.start(); }
+
+	get progress() { return this.load.progress; }
+
+	get onFileComplete() {
+		return new SignalAdapter(this.load.onFileComplete);
+	}
+
+	get onLoadComplete() {
+		return new SignalAdapter(this.load.onLoadComplete);
+	}
+}
+
 // ─── The Phaser2Engine class ───────────────────────────────────────────────────
 
 export class Phaser2Engine implements GameEngine {
@@ -154,6 +172,7 @@ export class Phaser2Engine implements GameEngine {
 	public readonly device: { desktop: boolean };
 	public readonly stage: { disableVisibilityChange: boolean; forcePortrait: boolean };
 	public readonly signals: Record<string, SignalHandle>;
+	public readonly load: GameEngine['load'];
 	public readonly time: {
 		now: number;
 		add(delay: number, cb: () => void): TimerHandle;
@@ -186,6 +205,7 @@ export class Phaser2Engine implements GameEngine {
 			forcePortrait: phaser.stage.forcePortrait,
 		};
 		this.signals = {};
+		this.load = new LoaderAdapter(phaser.load);
 		this.time = {
 			get now() { return phaser.time.now; },
 			add: (delay: number, cb: () => void) =>

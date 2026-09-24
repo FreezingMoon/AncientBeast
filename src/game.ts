@@ -499,7 +499,7 @@ export default class Game {
 			this.availableCreatures[creatureId] = type;
 		});
 
-		this.Phaser.load.start();
+		this.gameEngine.load.start();
 	}
 
 	/**
@@ -617,12 +617,12 @@ export default class Game {
 		$j('#loader').removeClass('hide');
 		$j('body').css('cursor', 'wait');
 		if (this.Phaser?.stage) {
-			this.Phaser.stage.disableVisibilityChange = true;
+			this.gameEngine.stage.disableVisibilityChange = true;
 		}
 	}
 
 	loadFinish() {
-		const progress = this.Phaser.load.progress,
+		const progress = this.gameEngine.load.progress,
 			progressWidth = progress + '%';
 
 		$j('#barLoader .progress').css('width', progressWidth);
