@@ -39,6 +39,8 @@ import { CreatureType, Realm, UnitData } from './data/types';
 import { setAudioMode } from './sound/soundsys';
 import BotController from './bot';
 import { locationPaths } from '../assets/index';
+import { Phaser2Engine } from './engine/Phaser2Engine';
+import type { GameEngine } from './engine/types';
 
 /* eslint-disable prefer-rest-params */
 
@@ -161,6 +163,14 @@ export default class Game {
 	triggers: Record<string, RegExp>;
 	signals: Record<string, Signal>;
 	botController: BotController;
+	/** Engine adapter abstraction layer — gameplay code should use this instead of `this.Phaser` directly. */
+	private _gameEngine?: GameEngine;
+	get gameEngine(): GameEngine {
+		if (!this._gameEngine) {
+			throw new Error('gameEngine not initialized — createPhaser() must be called first');
+		}
+		return this._gameEngine;
+	}
 
 	// The optionals below are created by the various methods of `Game`, mainly by `setup` and `loadGame`
 
@@ -213,10 +223,19 @@ export default class Game {
 			// instead of fully stopping while backgrounded.
 			forceSetTimeOut: this.multiplayer,
 		});
+		// Wrap the raw Phaser instance in the engine adapter so gameplay code
+		// talks to a stable GameEngine interface instead of raw Phaser APIs.
+		this._gameEngine = new Phaser2Engine(this.Phaser);
+		// Expose the existing signal channels (created in the constructor) through
+		// the adapter. We do NOT recreate them here — the BotController and other
+		// listeners registered on the original signals during construction.
+		for (const ch of Object.keys(this.signals)) {
+			(this._gameEngine.signals as Record<string, any>)[ch] = this.signals[ch];
+		}
 		// Note: Scale manager configuration happens in setup() after Phaser is ready
 	}
 
-	whenPhaserBooted(phaser: Phaser.Game | null, onBooted: (phaser: Phaser.Game) => void) {
+	whenPhaserBooted(phaser: any, onBooted: (phaser: any) => void) {
 		if (!phaser) {
 			return;
 		}
@@ -678,23 +697,24 @@ export default class Game {
 		// Clear existing Phaser objects if setup() was already called once
 		// This prevents duplicate input handlers in multiplayer scenarios
 		if (this.grid) {
-			this.Phaser.world.removeAll(true);
+			this.gameEngine.world.removeAll(true);
 			this.grid = undefined;
 		}
 
-		// Phaser
-		this.Phaser.scale.parentIsWindow = window.innerWidth > 600 || window.innerHeight > 700;
-		this.Phaser.scale.pageAlignHorizontally = true;
-		this.Phaser.scale.pageAlignVertically = window.innerWidth > 600 || window.innerHeight > 700;
-		this.Phaser.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-		this.Phaser.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
-		this.Phaser.scale.refresh();
+		// Phaser — use the engine adapter for scale/camera/world operations
+		const engine = this.gameEngine;
+		engine.scale.parentIsWindow = window.innerWidth > 600 || window.innerHeight > 700;
+		engine.scale.pageAlignHorizontally = true;
+		engine.scale.pageAlignVertically = window.innerWidth > 600 || window.innerHeight > 700;
+		engine.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+		engine.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
+		engine.scale.refresh();
 
-		if (!this.Phaser.device.desktop) {
-			this.Phaser.stage.forcePortrait = true;
+		if (!engine.device.desktop) {
+			engine.stage.forcePortrait = true;
 		}
 
-		const bg = this.Phaser.add.sprite(0, 0, 'background');
+		const bg = engine.add.sprite(0, 0, 'background');
 
 		bg.inputEnabled = true;
 		bg.events.onInputUp.add((Sprite, Pointer) => {
@@ -874,7 +894,7 @@ export default class Game {
 			resizeGame();
 			// Refresh Phaser scale to fit the resized window
 			if (this.Phaser && this.Phaser.scale) {
-				this.Phaser.scale.refresh();
+				this.gameEngine.scale.refresh();
 			}
 			refreshPlasmaRenderScales();
 		});
