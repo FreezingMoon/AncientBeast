@@ -218,15 +218,13 @@ export class Trap {
 	}
 
 	hide(duration = 0) {
-		this.game.Phaser.add
-			.tween(this.display)
+		this.game.gameEngine.tween(this.display)
 			.to({ alpha: 0 }, duration, Phaser.Easing.Linear.None)
 			.start();
 	}
 
 	show(duration = 0) {
-		this.game.Phaser.add
-			.tween(this.display)
+		this.game.gameEngine.tween(this.display)
 			.to({ alpha: 1 }, duration, Phaser.Easing.Linear.None)
 			.start();
 	}

@@ -237,23 +237,23 @@ export class HexGrid {
 		this.hexes = []; // Hex Array
 		this.lastClickedHex = undefined;
 
-		this.display = game.Phaser.add.group(undefined, 'displayGroup');
+		this.display = game.gameEngine.add.group(undefined, 'displayGroup');
 		this.display.x = 230;
 		this.display.y = 380;
 
-		this.gridGroup = game.Phaser.add.group(this.display, 'gridGroup');
+		this.gridGroup = game.gameEngine.add.group(this.display, 'gridGroup');
 		this.gridGroup.scale.set(1, 0.75);
 
-		this.trapGroup = game.Phaser.add.group(this.gridGroup, 'trapGrp');
-		this.hexesGroup = game.Phaser.add.group(this.gridGroup, 'hexesGroup');
-		this.displayHexesGroup = game.Phaser.add.group(this.gridGroup, 'displayHexesGroup');
-		this.overlayHexesGroup = game.Phaser.add.group(this.gridGroup, 'overlayHexesGroup');
-		this.dropGroup = game.Phaser.add.group(this.display, 'dropGrp');
-		this.creatureGroup = game.Phaser.add.group(this.display, 'creaturesGrp');
+		this.trapGroup = game.gameEngine.add.group(this.gridGroup, 'trapGrp');
+		this.hexesGroup = game.gameEngine.add.group(this.gridGroup, 'hexesGroup');
+		this.displayHexesGroup = game.gameEngine.add.group(this.gridGroup, 'displayHexesGroup');
+		this.overlayHexesGroup = game.gameEngine.add.group(this.gridGroup, 'overlayHexesGroup');
+		this.dropGroup = game.gameEngine.add.group(this.display, 'dropGrp');
+		this.creatureGroup = game.gameEngine.add.group(this.display, 'creaturesGrp');
 		// Health indicators sit above all creature sprites so they're never occluded
-		this.healthIndicatorUiGroup = game.Phaser.add.group(this.display, 'healthIndicatorUiGrp');
+		this.healthIndicatorUiGroup = game.gameEngine.add.group(this.display, 'healthIndicatorUiGrp');
 		// Parts of traps displayed over creatures
-		this.trapOverGroup = game.Phaser.add.group(this.display, 'trapOverGrp');
+		this.trapOverGroup = game.gameEngine.add.group(this.display, 'trapOverGrp');
 		this.trapOverGroup.scale.set(1, 0.75);
 
 		// Populate grid
@@ -2423,8 +2423,7 @@ export class HexGrid {
 			preview.scale.setTo(1, 1);
 		}
 
-		const flickering = game.Phaser.add
-			.tween(preview)
+		const flickering = game.gameEngine.tween(preview)
 			.to(
 				{
 					alpha: 0.15,
@@ -2493,8 +2492,7 @@ export class HexGrid {
 		// or the existing temp creature created by /src/abilities/Dark-Priest.js
 		if (target) {
 			target.alpha = 0.5;
-			this.game.Phaser.add
-				.tween(target)
+			this.game.gameEngine.tween(target)
 				.to(
 					{
 						alpha: 0,

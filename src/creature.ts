@@ -882,8 +882,7 @@ export class Creature {
 
 					if (game.grid.materialize_overlay) {
 						const creature = game.retrieveCreatureStats(game.activeCreature.type);
-						game.Phaser.add
-							.tween(game.grid.materialize_overlay)
+						game.gameEngine.tween(game.grid.materialize_overlay)
 							.to(
 								{
 									alpha: 0,

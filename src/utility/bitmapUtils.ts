@@ -42,7 +42,7 @@ export function createBitmapDataFromTexture(
 	flipHorizontally?: boolean,
 ): Phaser.BitmapData {
 	const { frame, source, width, height } = textureFrameInfo;
-	const bmd = game.Phaser.add.bitmapData(width, height);
+	const bmd = game.gameEngine.add.bitmapData(width, height);
 	const { ctx } = bmd;
 
 	ctx.clearRect(0, 0, width, height);

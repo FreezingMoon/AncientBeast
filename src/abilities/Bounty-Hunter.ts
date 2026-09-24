@@ -153,7 +153,7 @@ export default (G: Game) => {
 				);
 				target.takeDamage(damage);
 				ability.end();
-				G.Phaser.camera.shake(0.01, 150, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				G.gameEngine.cameras.main.shake(0.01, 150, true, Phaser.camera.SHAKE_HORIZONTAL, true);
 				/** damage dealt is original health - current health
 				 * if current health is lower than damage dealt,
 				 * and the ability is upgraded,
@@ -166,7 +166,7 @@ export default (G: Game) => {
 				) {
 					// Added a delay for the second attack with a custom game log
 					setTimeout(() => {
-						G.Phaser.camera.shake(0.01, 150, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+						G.gameEngine.cameras.main.shake(0.01, 150, true, Phaser.camera.SHAKE_HORIZONTAL, true);
 						ability.end(true);
 						game.soundsys.playSFX('sounds/swing2');
 						target.takeDamage(damage);
@@ -249,7 +249,7 @@ export default (G: Game) => {
 				if (!tgt) return;
 
 				// 1) Screen shake + deal damage
-				G.Phaser.camera.shake(0.01, 150, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				G.gameEngine.cameras.main.shake(0.01, 150, true, Phaser.camera.SHAKE_HORIZONTAL, true);
 				G.soundsys.playSFX('units/sfx/Bounty Hunter 2');
 				tgt.takeDamage(new Damage(this.creature, this.damages, 1, [], G));
 
@@ -346,7 +346,7 @@ export default (G: Game) => {
 				const cre = ability.creature;
 				const dir = args.direction;
 				ability.end();
-				G.Phaser.camera.shake(0.01, 150, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				G.gameEngine.cameras.main.shake(0.01, 150, true, Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				const full = ability.damages.pierce; // 40
 				const half = Math.floor(full / 2); // 20

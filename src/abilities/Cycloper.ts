@@ -187,7 +187,7 @@ function createOpticBurstLaserEffect(
 		return;
 	}
 
-	if (!G.Phaser.make?.graphics || typeof G.grid?.creatureGroup?.create !== 'function') {
+	if (!G.gameEngine.add.graphics || typeof G.grid?.creatureGroup?.create !== 'function') {
 		if (onComplete) {
 			onComplete();
 		}
@@ -227,7 +227,7 @@ function createOpticBurstLaserEffect(
 	impactSprite.alpha = 0;
 	impactSprite.scale.setTo(1.4, 1.4);
 
-	const beamGraphics = G.Phaser.make.graphics(0, 0);
+	const beamGraphics = G.gameEngine.add.graphics(0, 0);
 	G.grid.creatureGroup.addChild(beamGraphics);
 
 	const travelSteps = baseDist <= 0 ? 1 : baseDist;
@@ -286,8 +286,7 @@ function createOpticBurstLaserEffect(
 
 		beamGraphics.destroy();
 
-		G.Phaser.add
-			.tween(impactSprite.scale)
+		G.gameEngine.tween(impactSprite.scale)
 			.to(
 				{
 					x: 2.5,
@@ -298,8 +297,7 @@ function createOpticBurstLaserEffect(
 			)
 			.start();
 
-		G.Phaser.add
-			.tween(impactSprite)
+		G.gameEngine.tween(impactSprite)
 			.to(
 				{
 					alpha: 0,
@@ -359,7 +357,7 @@ function createPowerApertureTiles(
 		for (let sx = 0; sx < targetTexW; sx += tileSize) {
 			const sw = Math.min(tileSize, targetTexW - sx);
 			const sh = Math.min(tileSize, targetTexH - sy);
-			const bitmapData = G.Phaser.add.bitmapData(sw, sh);
+			const bitmapData = G.gameEngine.add.bitmapData(sw, sh);
 			bitmapData.ctx.clearRect(0, 0, sw, sh);
 			bitmapData.ctx.drawImage(orientedBitmapData.canvas, sx, sy, sw, sh, 0, 0, sw, sh);
 			bitmapData.dirty = true;
@@ -399,7 +397,7 @@ function createPowerAperturePhase1Effect(
 	G: Game,
 	onComplete?: () => void,
 ) {
-	if (typeof G.Phaser === 'undefined' || !G.Phaser.add || !G.Phaser.make?.graphics) {
+	if (!G.gameEngine.add.graphics) {
 		if (onComplete) {
 			onComplete();
 		}
@@ -486,7 +484,7 @@ function createPowerAperturePhase1Effect(
 		tile.sprite.angle = 0;
 	});
 
-	const beamGraphics = G.Phaser.make.graphics(0, 0);
+	const beamGraphics = G.gameEngine.add.graphics(0, 0);
 	G.grid.creatureGroup.addChild(beamGraphics);
 
 	let startTime: number;
@@ -565,7 +563,7 @@ function createPowerAperturePhase2Effect(
 	G: Game,
 	onComplete?: () => void,
 ) {
-	if (typeof G.Phaser === 'undefined' || !G.Phaser.add || !G.Phaser.make?.graphics) {
+	if (!G.gameEngine.add.graphics) {
 		if (onComplete) {
 			onComplete();
 		}
@@ -676,7 +674,7 @@ function createPowerAperturePhase2Effect(
 		tile.sprite.angle = 0;
 	});
 
-	const beamGraphics = G.Phaser.make.graphics(0, 0);
+	const beamGraphics = G.gameEngine.add.graphics(0, 0);
 	G.grid.creatureGroup.addChild(beamGraphics);
 
 	let startTime: number;
@@ -1079,7 +1077,7 @@ function createAcrylicWall3DPrintEffect(
 	const wallHeight = Math.abs(wallSprite.height);
 	const wallWidth = Math.abs(wallSprite.width);
 
-	if (typeof G.Phaser === 'undefined' || !G.Phaser.add || !G.Phaser.make?.graphics) {
+	if (!G.gameEngine.add.graphics) {
 		if (onComplete) {
 			onComplete();
 		}
@@ -1087,14 +1085,14 @@ function createAcrylicWall3DPrintEffect(
 	}
 
 	// Use an invisible graphics mask to reveal the wall bottom-to-top without stretching.
-	const maskGraphics = G.Phaser.make.graphics(0, 0);
+	const maskGraphics = G.gameEngine.add.graphics(0, 0);
 	maskGraphics.alpha = 0;
 	G.grid.creatureGroup.addChild(maskGraphics);
 	wallSprite.mask = maskGraphics;
 	wall.creatureSprite.setAlpha(1, 0);
 
 	// Create beam graphics for laser line
-	const beamGraphics = G.Phaser.make.graphics(0, 0);
+	const beamGraphics = G.gameEngine.add.graphics(0, 0);
 	G.grid.creatureGroup.addChild(beamGraphics);
 
 	// Create horizontal green flash

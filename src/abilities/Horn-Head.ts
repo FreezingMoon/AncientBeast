@@ -500,12 +500,12 @@ const playMeatSickleHookEffect = (
 	// Render the chain and hook in their own group appended after the creature
 	// group, so they always draw on top of Horn Head and the (dragged) target
 	// regardless of depth re-sorting during movement.
-	const fxGroup = G.Phaser.add.group(G.grid.display, 'meatSickleFxGrp');
+	const fxGroup = G.gameEngine.add.group(G.grid.display, 'meatSickleFxGrp');
 
 	// Chain: a single tileable sprite that *emits* from the wrist. Its length grows
 	// from the emission point toward the hook and its texture scrolls every frame so
 	// the links keep flowing outward (loopable) instead of popping out in chunks.
-	const chain = G.Phaser.add.tileSprite(
+	const chain = G.gameEngine.add.tileSprite(
 		launchPoint.x,
 		launchPoint.y,
 		0,
@@ -781,7 +781,7 @@ export default (G: Game) => {
 				const pushHex = pushPath[pushPath.length - 1];
 
 				ability.end(false, !!pushHex);
-				G.Phaser.camera.shake(0.01, 80, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				G.gameEngine.cameras.main.shake(0.01, 80, true, Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				const result = target.takeDamage(new Damage(ability.creature, ability.damages, 1, [], G));
 
@@ -1329,7 +1329,7 @@ export default (G: Game) => {
 					}
 				};
 
-				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				G.gameEngine.cameras.main.shake(0.01, 100, true, Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				for (let hit = 0; hit < 2; hit++) {
 					const meleeTargets = getUniqueEnemyTargets(laneHexes);

@@ -196,8 +196,7 @@ export class Animations {
 		ease: (k: number) => number,
 		maxPhase = duration,
 	) {
-		return this.game.Phaser.add
-			.tween(obj)
+		return this.game.gameEngine.tween(obj)
 			.to(props, duration, ease, true, Math.floor(Math.random() * maxPhase), -1, true);
 	}
 
@@ -459,11 +458,11 @@ export class Animations {
 			}
 
 			if (attemptsLeft > 0) {
-				this.game.Phaser.time.events.add(intervalMs, tryClear);
+				this.game.gameEngine.time.add(intervalMs, tryClear);
 			}
 		};
 
-		this.game.Phaser.time.events.add(options.minDelayMs ?? 0, tryClear);
+		this.game.gameEngine.time.add(options.minDelayMs ?? 0, tryClear);
 	}
 
 	private _scheduleHexVisualCleanupOnNextInput(hexes: Hex[], timeoutMs = 2500) {
@@ -1319,8 +1318,7 @@ export class Animations {
 
 		sprite.anchor.setTo(0.5);
 		sprite.rotation = -Math.PI / 3 + (args.direction * Math.PI) / 3;
-		const tween = game.Phaser.add
-			.tween(sprite)
+		const tween = game.gameEngine.tween(sprite)
 			.to(
 				{
 					x: targetPoint.x,
@@ -1392,8 +1390,7 @@ export class Animations {
 		creature.creatureSprite.setAngle(0, 0);
 
 		// Squash and fade the sprite as it melts into the puddle
-		this.game.Phaser.add
-			.tween(sprite.scale)
+		this.game.gameEngine.tween(sprite.scale)
 			.to(
 				{
 					x: startScaleX * 1.1,
@@ -1425,8 +1422,7 @@ export class Animations {
 		creature.creatureSprite.setAlpha(0, 0);
 
 		// Unsquash and fade back in as Gumble reshapes himself
-		this.game.Phaser.add
-			.tween(sprite.scale)
+		this.game.gameEngine.tween(sprite.scale)
 			.to(
 				{
 					x: startScaleX,
@@ -1509,7 +1505,7 @@ export class Animations {
 					continue;
 				}
 
-				const bmd = game.Phaser.add.bitmapData(sw, sh);
+				const bmd = game.gameEngine.add.bitmapData(sw, sh);
 				const srcX = isFlipped ? frame.x + frame.width - sx - sw : frame.x + sx;
 				const srcY = frame.y + sy;
 				bmd.ctx.clearRect(0, 0, sw, sh);
@@ -1530,7 +1526,7 @@ export class Animations {
 				const shardDuration = Math.round(shardFadeMs * (0.9 + Math.random() * 0.35));
 				const shardFadeDuration = Math.max(90, Math.round(shardDuration * 0.22));
 				longestShardLifetime = Math.max(longestShardLifetime, shardDuration + shardFadeDuration);
-				const travelTween = game.Phaser.add.tween(shard).to(
+				const travelTween = game.gameEngine.tween(shard).to(
 					{
 						x: x + driftX,
 						y: targetY,
@@ -1542,8 +1538,7 @@ export class Animations {
 				);
 
 				travelTween.onComplete.add(() => {
-					game.Phaser.add
-						.tween(shard)
+					game.gameEngine.tween(shard)
 						.to(
 							{
 								alpha: 0,
@@ -1568,7 +1563,7 @@ export class Animations {
 
 		const baseSh = Math.max(0, texH);
 		if (baseSh > 0) {
-			const baseBmd = game.Phaser.add.bitmapData(texW, baseSh);
+			const baseBmd = game.gameEngine.add.bitmapData(texW, baseSh);
 			baseBmd.ctx.clearRect(0, 0, texW, baseSh);
 			for (let copyX = 0; copyX < texW; copyX++) {
 				const seamY = seamProfile[Math.min(copyX, texW - 1)];
@@ -1593,8 +1588,7 @@ export class Animations {
 
 			creature.creatureSprite.setAlpha(0, 0);
 			const baseFadeDelay = Math.max(0, longestShardLifetime - speed);
-			game.Phaser.add
-				.tween(baseSprite)
+			game.gameEngine.tween(baseSprite)
 				.to(
 					{
 						alpha: 0,
@@ -1658,8 +1652,8 @@ export class Animations {
 			...(heatShader?.defaultUniforms ?? {}),
 		};
 		const state: InfernalCardboardEffectState = {
-			trailNextAt: this.game.Phaser.time.now,
-			heatNextAt: this.game.Phaser.time.now,
+			trailNextAt: this.game.gameEngine.time.now,
+			heatNextAt: this.game.gameEngine.time.now,
 			glowOffsetY: sprite.texture.height * 0.02,
 			hazePulsePhaseMs: randInt(2000),
 			hazePulsePeriodMs: 260 + randInt(180),
@@ -1791,8 +1785,7 @@ export class Animations {
 		this._spawnInfernalCardboardTrail(creature, state, true);
 
 		state.tweens.push(
-			this.game.Phaser.add
-				.tween(sprite)
+			this.game.gameEngine.tween(sprite)
 				.to(
 					{ alpha: 0.86 },
 					1160 + randInt(300),
@@ -1874,7 +1867,7 @@ export class Animations {
 	) {
 		const rand = (n: number) => Math.random() * n;
 		const randInt = (n: number) => Math.floor(rand(n));
-		const now = this.game.Phaser.time.now;
+		const now = this.game.gameEngine.time.now;
 
 		const sprite = state.sprite;
 		if (!sprite) {
@@ -1920,16 +1913,14 @@ export class Animations {
 			const driftX = (randInt(2) === 0 ? -1 : 1) * (2 + rand(4));
 			const riseY = 22 + rand(18);
 			const duration = 1900 + randInt(700);
-			const moveTween = this.game.Phaser.add
-				.tween(wisp)
+			const moveTween = this.game.gameEngine.tween(wisp)
 				.to(
 					{ x: wisp.x + driftX, y: wisp.y - riseY, alpha: 0 },
 					duration,
 					Phaser.Easing.Sinusoidal.Out,
 					true,
 				);
-			const scaleTween = this.game.Phaser.add
-				.tween(wisp.scale)
+			const scaleTween = this.game.gameEngine.tween(wisp.scale)
 				.to(
 					{ x: dir * (1.02 + rand(0.08)), y: 1.5 + rand(0.12) },
 					duration,

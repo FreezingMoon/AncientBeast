@@ -611,7 +611,7 @@ export class UI {
 		this.$grid = $j(this.makeCreatureGrid(document.getElementById('creaturerasterwrapper')));
 		this.$activebox = $j('#activebox');
 		this.$scoreboard = $j('#scoreboard');
-		this.brandlogo = game.Phaser.add.image(670, 200, 'AncientBeastLogo');
+		this.brandlogo = game.gameEngine.add.image(670, 200, 'AncientBeastLogo');
 		this.brandlogo.alpha = 0;
 		this.active = false;
 
@@ -925,18 +925,16 @@ export class UI {
 											hex.displayVisualState('abilityRange');
 										}
 										// Kill any in-flight tweens so spamming doesn't stack animations.
-										game.Phaser.tweens.removeFrom(hex.display.scale);
+										game.gameEngine.removeTweensFrom(hex.display.scale);
 										// Hover path: return to 0.5 so circles remain as they were.
 										// Hotkey path: end at 0 and clean up since no hover is active.
 										const finalScale = isHovered ? 0.5 : 0;
 										hex.display.scale.setTo(0.5);
 										hex.display.anchor.setTo(0.5, 0.5);
-										game.Phaser.add
-											.tween(hex.display.scale)
+										game.gameEngine.tween(hex.display.scale)
 											.to({ x: 1.0, y: 1.0 }, 180, Phaser.Easing.Quadratic.Out, true, idx * 20)
 											.onComplete.addOnce(() => {
-												game.Phaser.add
-													.tween(hex.display.scale)
+												game.gameEngine.tween(hex.display.scale)
 													.to(
 														{ x: finalScale, y: finalScale },
 														180,
@@ -1012,7 +1010,7 @@ export class UI {
 							if (ability.require() == true && i != 0) {
 								if (ability._abilityRangeHexes?.length) {
 									ability._abilityRangeHexes.forEach((hex) => {
-										this.game.Phaser.tweens.removeFrom(hex.display.scale);
+										this.game.gameEngine.removeTweensFrom(hex.display.scale);
 										hex.display.scale.setTo(0);
 										hex.display.anchor.setTo(0, 0);
 										hex.cleanDisplayVisualState('abilityRange');
@@ -1085,7 +1083,7 @@ export class UI {
 								if (ab._abilityRangeHexes?.length) {
 									ab._abilityRangeHexes.forEach((hex) => {
 										// Kill any running tween (including ones that would restore to 0.5).
-										this.game.Phaser.tweens.removeFrom(hex.display.scale);
+										this.game.gameEngine.removeTweensFrom(hex.display.scale);
 										hex.display.scale.setTo(0);
 										hex.display.anchor.setTo(0, 0);
 										hex.cleanDisplayVisualState('abilityRange');
@@ -3128,15 +3126,13 @@ export class UI {
 					if (!hex.displayClasses.includes('abilityRange')) {
 						hex.displayVisualState('abilityRange');
 					}
-					this.game.Phaser.tweens.removeFrom(hex.display.scale);
+					this.game.gameEngine.removeTweensFrom(hex.display.scale);
 					hex.display.scale.setTo(0.5);
 					hex.display.anchor.setTo(0.5, 0.5);
-					this.game.Phaser.add
-						.tween(hex.display.scale)
+					this.game.gameEngine.tween(hex.display.scale)
 						.to({ x: 1.0, y: 1.0 }, 180, Phaser.Easing.Quadratic.Out, true, idx * 20)
 						.onComplete.addOnce(() => {
-							this.game.Phaser.add
-								.tween(hex.display.scale)
+							this.game.gameEngine.tween(hex.display.scale)
 								.to({ x: 0, y: 0 }, 180, Phaser.Easing.Quadratic.In, true)
 								.onComplete.addOnce(() => {
 									hex.display.anchor.setTo(0, 0);

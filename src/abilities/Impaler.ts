@@ -97,7 +97,7 @@ export default (G: Game) => {
 			//	activate() :
 			activate: function (target) {
 				const ability = this;
-				G.Phaser.camera.shake(0.01, 120, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				G.gameEngine.cameras.main.shake(0.01, 120, true, Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				const finalDmg: DamageStats = {
 					pierce: 30,
@@ -415,7 +415,7 @@ export default (G: Game) => {
 
 					if (bestTarget instanceof Creature) {
 						targets.push(bestTarget);
-						G.Phaser.camera.shake(0.03, 220, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+						G.gameEngine.cameras.main.shake(0.03, 220, true, Phaser.camera.SHAKE_HORIZONTAL, true);
 					} else {
 						break;
 					}

@@ -156,7 +156,7 @@ export default (G: Game) => {
 			activate: function (path, args) {
 				const ability = this;
 				ability.end();
-				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				G.gameEngine.cameras.main.shake(0.01, 100, true, Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				const target = arrayUtils.last(path).creature;
 				if (!target) return;
@@ -328,7 +328,7 @@ export default (G: Game) => {
 			activate: function (path) {
 				const ability = this;
 				ability.end();
-				G.Phaser.camera.shake(0.01, 60, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				G.gameEngine.cameras.main.shake(0.01, 60, true, Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				const target = arrayUtils.last(path).creature;
 				if (!target) return;

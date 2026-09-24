@@ -152,7 +152,7 @@ export class Hex {
 		this.tween = null;
 
 		if (grid) {
-			const shouldUseDirectTouchInput = () => !game.Phaser.device.desktop;
+			const shouldUseDirectTouchInput = () => !game.gameEngine.device.desktop;
 
 			// NOTE: Set up hex hitBox and display/overlay elements.
 
@@ -741,7 +741,7 @@ export class Hex {
 		// Display Coord
 		if (this.displayClasses.match(/showGrid/g)) {
 			if (!(this.coordText && this.coordText.exists)) {
-				this.coordText = this.game.Phaser.add.text(
+				this.coordText = this.game.gameEngine.add.text(
 					this.originalDisplayPos.x + 45,
 					this.originalDisplayPos.y + 63,
 					this.coord,

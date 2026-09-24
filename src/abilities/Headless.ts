@@ -151,7 +151,7 @@ export default (G: Game) => {
 			activate: function (target) {
 				const ability = this;
 				ability.end();
-				G.Phaser.camera.shake(0.01, 90, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				G.gameEngine.cameras.main.shake(0.01, 90, true, Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				const d = {
 					pierce: 11,
@@ -412,7 +412,7 @@ export default (G: Game) => {
 
 				const ability = this;
 				ability.end();
-				G.Phaser.camera.shake(0.02, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				G.gameEngine.cameras.main.shake(0.02, 100, true, Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				ability.areaDamage(
 					ability.creature, //Attacker

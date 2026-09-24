@@ -284,7 +284,7 @@ export default (G: Game) => {
 			activate: function (path, args) {
 				const ability = this;
 				this.end();
-				G.Phaser.camera.shake(0.02, 300, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				G.gameEngine.cameras.main.shake(0.02, 300, true, Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				const knockback = (_target, _crush, _range) => {
 					if (!_target) {

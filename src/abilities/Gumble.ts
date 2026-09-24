@@ -287,7 +287,7 @@ export default (G: Game) => {
 				const ability = this;
 				ability.end();
 
-				G.Phaser.camera.shake(0.02, 333, true, G.Phaser.camera.SHAKE_VERTICAL, true);
+				G.gameEngine.cameras.main.shake(0.02, 333, true, Phaser.camera.SHAKE_VERTICAL, true);
 
 				const targets = ability.getTargets(hexes);
 				// Deal double damage to enemies if upgraded
@@ -371,7 +371,7 @@ export default (G: Game) => {
 			// activate() :
 			activate: function (target: Creature) {
 				this.end();
-				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_VERTICAL, true);
+				G.gameEngine.cameras.main.shake(0.01, 100, true, Phaser.camera.SHAKE_VERTICAL, true);
 
 				if (!target) {
 					G.activeCreature.queryMove();
@@ -435,7 +435,7 @@ export default (G: Game) => {
 			activate: function (path, args) {
 				const ability = this;
 				ability.end();
-				G.Phaser.camera.shake(0.02, 300, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				G.gameEngine.cameras.main.shake(0.02, 300, true, Phaser.camera.SHAKE_HORIZONTAL, true);
 
 				let target = arrayUtils.last(path).creature;
 				{
