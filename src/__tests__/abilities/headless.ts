@@ -71,6 +71,7 @@ jest.mock('../../creature', () => {
 });
 
 import loadHeadlessAbilities from '../../abilities/Headless';
+import { Ability } from '../../ability';
 import { Creature } from '../../creature';
 
 describe('Headless abilities', () => {
@@ -459,7 +460,7 @@ describe('Headless abilities', () => {
 		expect(priest.moveTo).not.toHaveBeenCalled();
 	});
 
-	test('Boomerang Tool applies area damage twice, suppressing retaliation only on the first pass', () => {
+	test('Boomerang Tool applies area damage twice', () => {
 		const headless = new (Creature as any)({
 			id: 39,
 			team: 0,
@@ -472,17 +473,18 @@ describe('Headless abilities', () => {
 		const boomerang = {
 			...game.abilities[39][3],
 			creature: headless,
+			game: game,
 			isUpgraded: () => false,
 			end: jest.fn(),
 			getTargets: jest.fn(() => [{ target: enemy, hexesHit: 1 }]),
-			areaDamage: jest.fn(),
+			areaDamage: Ability.prototype.areaDamage,
 		};
 
 		boomerang.activate([{ x: 4, y: 3, creature: enemy }]);
 
-		expect(boomerang.areaDamage).toHaveBeenCalledTimes(2);
-		expect(boomerang.areaDamage.mock.calls[0][4]).toBe(true);
-		expect(boomerang.areaDamage.mock.calls[1][4]).toBe(false);
-		expect(boomerang.areaDamage.mock.calls[0][1]).toEqual({ slash: 10 });
+		expect(enemy.takeDamage).toHaveBeenCalledTimes(2);
+		expect(enemy.takeDamage.mock.calls[0][0].damages).toEqual({ slash: 10 });
+		expect(enemy.takeDamage.mock.calls[0][1]).toEqual({ ignoreRetaliation: true });
+		expect(enemy.takeDamage.mock.calls[1][1]).toEqual({ ignoreRetaliation: false });
 	});
 });

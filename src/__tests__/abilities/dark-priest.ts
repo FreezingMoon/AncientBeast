@@ -138,3 +138,60 @@ describe('Dark Priest materialize query preview guards', () => {
 		expect(previewCreature).not.toHaveBeenCalled();
 	});
 });
+
+describe('Dark Priest Plasma Field reactions', () => {
+	test('consumes one plasma point and counters each adjacent hit while shielded', () => {
+		const runHits = (initialPlasma: number, hitCount: number) => {
+			const counterTarget = {
+				id: 39,
+				takeDamage: jest.fn(),
+			};
+			const priest = {
+				id: 0,
+				player: { plasma: initialPlasma },
+				protectedFromFatigue: false,
+				burstPlasmaField: jest.fn(),
+				updateHealth: jest.fn(),
+			};
+			const game = {
+				abilities: {} as Record<number, unknown[]>,
+				activeCreature: counterTarget,
+				Phaser: { camera: { shake: jest.fn(), SHAKE_HORIZONTAL: 0 } },
+				log: jest.fn(),
+			};
+
+			loadDarkPriestAbilities(game as never);
+
+			type AbilityHook = (this: unknown, ...args: unknown[]) => unknown;
+			const baseAbility = game.abilities[0][0] as {
+				require: AbilityHook;
+				activate: AbilityHook;
+			};
+			const plasmaField = {
+				...baseAbility,
+				creature: priest,
+				game,
+				isUpgraded: () => true,
+				testRequirements: () => priest.player.plasma > 0,
+				end: jest.fn(),
+			};
+
+			for (let hit = 0; hit < hitCount; hit++) {
+				const damage = {
+					melee: true,
+					counter: false,
+					damages: { slash: 10 },
+					effects: [],
+				};
+				if (baseAbility.require.call(plasmaField)) {
+					baseAbility.activate.call(plasmaField, damage);
+				}
+			}
+
+			return { plasma: priest.player.plasma, counters: counterTarget.takeDamage.mock.calls.length };
+		};
+
+		expect(runHits(2, 2)).toEqual({ plasma: 0, counters: 2 });
+		expect(runHits(1, 2)).toEqual({ plasma: 0, counters: 1 });
+	});
+});
