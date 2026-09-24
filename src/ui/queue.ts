@@ -5,6 +5,8 @@ import { getAvatarSet } from '../style/avatar-styles';
 
 const CONST = {
 	animDurationMS: 500,
+	queueLeapHeightPx: 60,
+	queueLeapSegments: 8,
 };
 
 export class Queue {
@@ -235,6 +237,10 @@ export class Queue {
 			const hash = newV.getHash();
 			if (oldVDict.hasOwnProperty(hash)) {
 				newV.el = oldVDict[hash].el;
+				// Keep the rendered X coordinate, not a gameplay-specific delay flag.
+				// Anything that actually moves this avatar backwards in the current
+				// turn should take the same visual path, including forced abilities.
+				newV.previousXPosition = oldVDict[hash].xPosition;
 			}
 		}
 
@@ -295,6 +301,8 @@ export class Queue {
 
 class Vignette {
 	queuePosition = -1;
+	xPosition = -1;
+	previousXPosition = -1;
 	turnNumber = -1;
 	el: HTMLElement;
 	eventHandlers: QueueEventHandlers = {};
@@ -309,6 +317,7 @@ class Vignette {
 
 	insert(containerElement: HTMLElement, queuePosition: number, x: number) {
 		this.queuePosition = queuePosition;
+		this.xPosition = x;
 		if (this.el) {
 			this.el.remove();
 		}
@@ -325,6 +334,7 @@ class Vignette {
 
 	update(queuePosition: number, x: number) {
 		this.queuePosition = queuePosition;
+		this.xPosition = x;
 		this.animateUpdate(queuePosition, x);
 		return this;
 	}
@@ -496,6 +506,7 @@ class CreatureVignette extends Vignette {
 
 	update(queuePosition: number, x: number) {
 		this.queuePosition = queuePosition;
+		this.xPosition = x;
 		this.updateDOM();
 		this.animateUpdate(queuePosition, x);
 		return this;
@@ -555,9 +566,50 @@ class CreatureVignette extends Vignette {
 
 	animateUpdate(queuePosition: number, x: number) {
 		const scale = this.isActiveCreature ? 1.25 : 1.0;
+
+		if (this.isMovingBackInCurrentTurn(x)) {
+			return this.animateQueueLeap(x, scale);
+		}
+
 		const keyframes = [{ transform: `translateX(${x}px) translateY(0px) scale(${scale})` }];
 		const animation = this.el.animate(keyframes, {
 			duration: CONST.animDurationMS,
+			fill: 'forwards',
+		});
+		animation.commitStyles();
+		return animation;
+	}
+
+	/**
+	 * Detect the visual transition itself rather than how gameplay caused it.
+	 * Voluntary delay, Knightmare/Stomper-style forced delay, and any future
+	 * same-turn mechanic that pushes an avatar backwards should read the same.
+	 */
+	private isMovingBackInCurrentTurn(x: number) {
+		return (
+			this.turnNumberIsCurrentTurn && this.previousXPosition >= 0 && x > this.previousXPosition
+		);
+	}
+
+	/**
+	 * Follow a sampled half-sine arc from the previous rendered slot to the
+	 * new one. Explicit X progress across the whole animation avoids the old
+	 * two-segment "up to the destination, then straight down" triangle.
+	 */
+	private animateQueueLeap(x: number, scale: number) {
+		const startX = this.previousXPosition;
+		const keyframes = Array.from({ length: CONST.queueLeapSegments + 1 }, (_, index) => {
+			const progress = index / CONST.queueLeapSegments;
+			const frameX = startX + (x - startX) * progress;
+			const frameY = -Math.round(Math.sin(Math.PI * progress) * CONST.queueLeapHeightPx);
+			return {
+				transform: `translateX(${frameX}px) translateY(${frameY}px) scale(${scale})`,
+				offset: progress,
+			};
+		});
+		const animation = this.el.animate(keyframes, {
+			duration: CONST.animDurationMS,
+			easing: 'ease-in-out',
 			fill: 'forwards',
 		});
 		animation.commitStyles();
