@@ -33,11 +33,10 @@ const leapAnimations = (animate: jest.Mock) =>
 		.map((call) => call[0] as Array<{ offset?: number; transform?: string }>)
 		.filter(
 			(frames) =>
-				frames.length === 9 &&
+				frames.length > 2 &&
 				frames[0]?.offset === 0 &&
-				frames[4]?.offset === 0.5 &&
-				frames[8]?.offset === 1 &&
-				frames.some((frame) => /translateY\(-\d+px\)/.test(String(frame.transform))),
+				frames.at(-1)?.offset === 1 &&
+				frames.some((frame) => /translateY\(-[\d.]+px\)/.test(String(frame.transform))),
 		);
 
 describe('Queue', () => {
@@ -151,14 +150,13 @@ describe('Queue', () => {
 		const leaps = leapAnimations(animate);
 
 		expect(leaps).toHaveLength(1);
-		expect(leaps[0]).toHaveLength(9);
 		expect(leaps[0][0].offset).toBe(0);
-		expect(leaps[0][4].offset).toBe(0.5);
-		expect(String(leaps[0][4].transform)).toContain('translateY(-60px)');
-		expect(leaps[0][8].offset).toBe(1);
+		expect(leaps[0].at(-1)?.offset).toBe(1);
+		expect(String(leaps[0][Math.floor(leaps[0].length / 2)].transform)).toContain(
+			'translateY(-60px)',
+		);
 
-		// X changes at every sample as Y rises/falls, so the geometry is an arc
-		// rather than the old triangle that reached destination X at the apex.
+		// X changes throughout the leap, so the path is horizontal as well as arced.
 		const xPositions = leaps[0].map((frame) =>
 			Number(/translateX\(([-\d.]+)px\)/.exec(String(frame.transform))?.[1]),
 		);

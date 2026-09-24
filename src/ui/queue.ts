@@ -240,7 +240,7 @@ export class Queue {
 				// Keep the rendered X coordinate, not a gameplay-specific delay flag.
 				// Anything that actually moves this avatar backwards in the current
 				// turn should take the same visual path, including forced abilities.
-				newV.previousXPosition = oldVDict[hash].xPosition;
+				newV.previousQueueX = oldVDict[hash].xPosition;
 			}
 		}
 
@@ -302,7 +302,7 @@ export class Queue {
 class Vignette {
 	queuePosition = -1;
 	xPosition = -1;
-	previousXPosition = -1;
+	previousQueueX = -1;
 	turnNumber = -1;
 	el: HTMLElement;
 	eventHandlers: QueueEventHandlers = {};
@@ -586,22 +586,20 @@ class CreatureVignette extends Vignette {
 	 * same-turn mechanic that pushes an avatar backwards should read the same.
 	 */
 	private isMovingBackInCurrentTurn(x: number) {
-		return (
-			this.turnNumberIsCurrentTurn && this.previousXPosition >= 0 && x > this.previousXPosition
-		);
+		return this.turnNumberIsCurrentTurn && this.previousQueueX >= 0 && x > this.previousQueueX;
 	}
 
 	/**
-	 * Follow a sampled half-sine arc from the previous rendered slot to the
-	 * new one. Explicit X progress across the whole animation avoids the old
-	 * two-segment "up to the destination, then straight down" triangle.
+	 * Follow a horizontal parabola from the previous queue slot to the new one.
+	 * X progresses across the whole animation, while Y reaches its apex at the
+	 * midpoint instead of forming the old two-segment triangle.
 	 */
 	private animateQueueLeap(x: number, scale: number) {
-		const startX = this.previousXPosition;
+		const startX = this.previousQueueX;
 		const keyframes = Array.from({ length: CONST.queueLeapSegments + 1 }, (_, index) => {
 			const progress = index / CONST.queueLeapSegments;
 			const frameX = startX + (x - startX) * progress;
-			const frameY = -Math.round(Math.sin(Math.PI * progress) * CONST.queueLeapHeightPx);
+			const frameY = -4 * CONST.queueLeapHeightPx * progress * (1 - progress);
 			return {
 				transform: `translateX(${frameX}px) translateY(${frameY}px) scale(${scale})`,
 				offset: progress,
@@ -609,7 +607,7 @@ class CreatureVignette extends Vignette {
 		});
 		const animation = this.el.animate(keyframes, {
 			duration: CONST.animDurationMS,
-			easing: 'ease-in-out',
+			easing: 'linear',
 			fill: 'forwards',
 		});
 		animation.commitStyles();
