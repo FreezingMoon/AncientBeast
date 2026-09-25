@@ -289,6 +289,7 @@
 	inset: 0;
 	z-index: 3;
 	pointer-events: none;
+	transition: opacity 200ms ease-out;
 }
 
 #rightpanel {
@@ -1714,8 +1715,22 @@ div.section.info {
 	padding: 5px;
 	border-radius: 20px;
 	overflow: hidden;
-	transition: all 500ms;
+	transition: all 500ms, opacity 200ms ease-out;
 	z-index: 1;
+}
+
+/* Full-screen views (dash, score, audio, and meta powers) share #ui with the
+   fixed gameplay HUD. Keep those panels visible enough for orientation, but
+   quiet and non-interactive while the view is in focus. */
+#ui.interface-view-open #unit-hover-panel,
+#ui.interface-view-open #bottompanel,
+#ui.interface-view-open #chat {
+	opacity: 0.15;
+	pointer-events: none;
+}
+
+#ui.interface-view-open #bottompanel > * {
+	pointer-events: none !important;
 }
 
 #chat.expanded {
