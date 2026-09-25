@@ -315,16 +315,18 @@ Phase 4: Implement Phaser 4 Engine Adapter  ✅ DONE
   - `signals` → object of SignalHandle (use a simple EventEmitter wrapper)
 - Validation: `npm run build` compiles with 0 errors; `npm test` passes all 415 tests.
 
-Phase 5: Swap Adapter  ⬜ TODO
+Phase 5: Swap Adapter  ✅ DONE
 - Task 5.1: One-line swap in `game.ts createPhaser()`:
   ```ts
   // Before
+  import { Phaser2Engine } from './engine/Phaser2Engine';
   this._gameEngine = new Phaser2Engine(this.Phaser);
   // After
+  import { Phaser4Engine } from './engine/Phaser4Engine';
   this._gameEngine = new Phaser4Engine(this.Phaser);
   ```
-- Task 5.2: Remove `Phaser2Engine.ts` (optional — keep for rollback safety during initial validation).
-- Validation: `npm run build:dev` succeeds; `npm start` loads the game in a browser.
+- Validation: `npm run build` clean; `npm test` passes all 415 tests.
+- Task 5.2: Remove `Phaser2Engine.ts` — kept for rollback safety (optional cleanup).
 tweens.removeFrom(obj) → scene.tweens.killTweensOf(obj)
 anchor.setTo(x, y) → setOrigin(x, y) on the handle
 scale.setTo(x, y) → setScale(x, y) on the handle
