@@ -85,17 +85,17 @@ $j(() => {
 			$j('#bottompanel').show();
 		}
 
-		if (G.gameEngine && G.gameEngine.scale) {
+		if (G.Phaser && G.gameEngine && G.gameEngine.scale) {
 			G.gameEngine.scale.parentIsWindow = !isPortrait;
 			G.gameEngine.scale.pageAlignVertically = !isPortrait;
 			G.gameEngine.scale.refresh();
 			window.setTimeout(() => {
-				if (G.gameEngine && G.gameEngine.scale) {
+				if (G.Phaser && G.gameEngine && G.gameEngine.scale) {
 					G.gameEngine.scale.refresh();
 				}
 			}, 100);
 			window.setTimeout(() => {
-				if (G.gameEngine && G.gameEngine.scale) {
+				if (G.Phaser && G.gameEngine && G.gameEngine.scale) {
 					window.dispatchEvent(new Event('resize'));
 				}
 			}, 250);
