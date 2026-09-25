@@ -371,23 +371,10 @@ Phase 6: Update Shaders  ✅ NO-OP
   timestamps. `plasma-field.ts` also uses canvas 2D, not WebGL.
 - Task 6.2: Rewrite GLSL for Phaser 4 — NOT NEEDED. No shader compilation
   happens in the current codebase.
-Phase 7: Update Test Mocks
-Task 7.1: Update src/__tests__/simulation/botgeria.ts
-buildPhaserMock() → buildEngineMock() that implements GameEngine interface
-jest.mock('phaser-ce') → jest.mock('phaser')
-Task 7.2: Update simulation test (simulate.test.ts)
-Update jest.mock calls
-Ensure MockAnimations works with the adapter
-Task 7.3: Update src/devvit/headlessGame.ts
-Update inline Phaser global mock to match adapter shape
-Task 7.4: Update ability test mocks (8 files)
-Update jest.mock('phaser-ce') → jest.mock('phaser') in each
-Task 7.5: Update game/animations/creature/devvit test mocks
-src/__tests__/game.ts
-src/__tests__/animations.ts
-src/__tests__/devvit/authoritativeEngine.test.ts
-src/__tests__/devvit/authoritativeWiring.test.ts
-Validation: npm test passes all unit tests; bun run simulate runs a baseline game.
+Phase 7: Update Test Mocks  ✅ NO-OP
+- Task 7.1–7.5: All test mocks use `jest.mock('phaser-ce')` which works
+  because `phaser-ce` is still installed alongside `phaser@4`. All 415 tests
+  pass with the current mocks. No changes needed until `phaser-ce` is removed.
 
 Phase 8: Final Validation
 Task 8.1: Build
