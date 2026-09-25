@@ -170,25 +170,23 @@ export class HexGrid {
 	 */
 	activeHexDashedClearTimeout: ReturnType<typeof setTimeout> | null = null;
 
-	display: Phaser.Group;
-	gridGroup: Phaser.Group;
-	trapGroup: Phaser.Group;
-	hexesGroup: Phaser.Group;
-	displayHexesGroup: Phaser.Group;
-	overlayHexesGroup: Phaser.Group;
-	inputHexesGroup: Phaser.Group;
-	dropGroup: Phaser.Group;
-	creatureGroup: Phaser.Group;
-	// Health indicators rendered above all creature sprites so they are never occluded
-	healthIndicatorUiGroup: Phaser.Group;
-	trapOverGroup: Phaser.Group;
+	display: any;
+gridGroup: any;
+	trapGroup: any;
+	hexesGroup: any;
+	displayHexesGroup: any;
+	overlayHexesGroup: any;
+	dropGroup: any;
+	creatureGroup: any;
+	healthIndicatorUiGroup: any;
+	trapOverGroup: any;
 	selectedHex: Hex;
 	_executionMode: boolean;
 	materialize_overlay: any;
 	secondary_overlay: any;
 	lastQueryOpt: any;
-	_flickerTween: Phaser.Tween | undefined;
-	_flickerTweenSecondary: Phaser.Tween | undefined;
+	_flickerTween: any;
+	_flickerTweenSecondary: any | undefined;
 
 	/**
 	 * Helper to determine cursor style for multiplayer games.

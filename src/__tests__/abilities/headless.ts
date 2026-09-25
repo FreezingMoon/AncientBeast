@@ -3,12 +3,12 @@ import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 jest.mock('phaser-ce', () => ({
-	Point: class PointMock {},
-	Polygon: class PolygonMock {},
+		Point: class PointMock {},
+		Polygon: class PolygonMock {},
 }));
 
 jest.mock('../../damage', () => ({
-	Damage: class DamageMock {
+		Damage: class DamageMock {
 		damages: unknown;
 		constructor(_attacker: unknown, damages: unknown) {
 			this.damages = damages;
@@ -43,9 +43,9 @@ jest.mock('../../creature', () => {
 		isDarkPriest = jest.fn(() => false);
 		hasCreaturePlayerGotPlasma = jest.fn(() => false);
 		creatureSprite = {
-			setDir: jest.fn(),
-			setAlpha: jest.fn(),
-			getPos: jest.fn(() => ({ x: 0, y: 0 })),
+		setDir: jest.fn(),
+		setAlpha: jest.fn(),
+		getPos: jest.fn(() => ({ x: 0, y: 0 })),
 		};
 		sprite = { alpha: 1, x: 0, y: 0 };
 		grp = { x: 0, y: 0 };
@@ -74,44 +74,63 @@ import loadHeadlessAbilities from '../../abilities/Headless';
 import { Ability } from '../../ability';
 import { Creature } from '../../creature';
 
+(globalThis as { Phaser?: unknown }).Phaser = {
+		camera: { SHAKE_HORIZONTAL: 0, SHAKE_VERTICAL: 0, SHAKE_BOTH: 0 },
+	};
+
 describe('Headless abilities', () => {
 	let game: any;
 
 	beforeEach(() => {
 		game = {
-			abilities: [],
-			creatureData: [],
-			effects: [],
-			turn: 4,
-			activeCreature: null,
-			freezedInput: false,
-			log: jest.fn(),
-			grid: {
-				hexAt: jest.fn(() => ({ x: 4, y: 3 })),
-				forEachHex: jest.fn(),
-				updateDisplay: jest.fn(),
-				hexes: [],
-				queryChoice: jest.fn(),
-				queryDirection: jest.fn(),
-				queryHexes: jest.fn(),
-				queryCreature: jest.fn(),
+		abilities: [],
+		creatureData: [],
+		effects: [],
+		turn: 4,
+		activeCreature: null,
+		freezedInput: false,
+		log: jest.fn(),
+grid: {
+		hexAt: jest.fn(() => ({ x: 4, y: 3 })),
+		forEachHex: jest.fn(),
+		updateDisplay: jest.fn(),
+		hexes: [],
+		queryChoice: jest.fn(),
+		queryDirection: jest.fn(),
+		queryHexes: jest.fn(),
+		queryCreature: jest.fn(),
 			},
-			UI: {
-				updateFatigue: jest.fn(),
-				energyBar: { animSize: jest.fn(), setSize: jest.fn(), previewSize: jest.fn() },
+		UI: {
+		updateFatigue: jest.fn(),
+		energyBar: { animSize: jest.fn(), setSize: jest.fn(), previewSize: jest.fn() },
 			},
-			Phaser: {
-				camera: { shake: jest.fn(), SHAKE_VERTICAL: 'V', SHAKE_HORIZONTAL: 'H' },
+		Phaser: {
+		camera: { shake: jest.fn(), SHAKE_VERTICAL: 'V', SHAKE_HORIZONTAL: 'H' },
 			},
-			animations: { projectile: jest.fn() },
-			updateQueueDisplay: jest.fn(),
-			retrieveCreatureStats: jest.fn(),
-			msg: {
-				abilities: {
-					notEnough: 'Not enough %stat%.',
-					noTarget: 'No target.',
-					notMoveable: 'Not moveable.',
+		animations: { projectile: jest.fn() },
+		updateQueueDisplay: jest.fn(),
+		retrieveCreatureStats: jest.fn(),
+		msg: {
+		abilities: {
+		notEnough: 'Not enough %stat%.',
+		noTarget: 'No target.',
+		notMoveable: 'Not moveable.',
 				},
+			},
+		gameEngine: {
+		cameras: { main: { shake: () => {} } },
+		add: {
+		graphics: () => ({}),
+		bitmapData: () => ({}),
+		group: () => ({ children: [], add: () => {}, addAt: () => {}, remove: () => {} }),
+		tileSprite: () => ({}),
+				},
+		tween: () => ({
+		to: () => ({ start: () => ({ stop: () => ({}), onComplete: { add: () => {}, addOnce: () => {} } }), stop: () => ({}), onComplete: { add: () => {}, addOnce: () => {} } }),
+		start: () => ({ stop: () => ({}), onComplete: { add: () => {}, addOnce: () => {} } }),
+		stop: () => ({}),
+		onComplete: { add: () => {}, addOnce: () => {} },
+				}),
 			},
 		};
 
@@ -123,27 +142,28 @@ describe('Headless abilities', () => {
 		game.grid.hexes = [];
 		game.grid.hexes[3] = row;
 
+		globalThis.G = game as never;
 		loadHeadlessAbilities(game as never);
 	});
 
 	test('Larva Infest subtracts 5 maximum endurance when the target has headroom', () => {
 		const headless = new (Creature as any)({
-			id: 39,
-			team: 0,
-			x: 3,
-			y: 3,
-			player: { id: 0, flipped: false, creatures: [] },
+		id: 39,
+		team: 0,
+		x: 3,
+		y: 3,
+		player: { id: 0, flipped: false, creatures: [] },
 		});
 		const enemy = new (Creature as any)({ id: 200, team: 1, stats: { health: 80, endurance: 10 } });
 
 		const infest = {
 			...game.abilities[39][0],
-			creature: headless,
-			game: game,
-			title: 'Larva Infest',
-			isUpgraded: () => false,
-			end: jest.fn(),
-			_getHexes: () => [{ x: 4, y: 3, creature: enemy }],
+		creature: headless,
+		game: game,
+		title: 'Larva Infest',
+		isUpgraded: () => false,
+		end: jest.fn(),
+		_getHexes: () => [{ x: 4, y: 3, creature: enemy }],
 		};
 
 		infest.activate();
@@ -158,22 +178,22 @@ describe('Headless abilities', () => {
 
 	test('Larva Infest caps the maximum endurance loss at 1 below the current maximum', () => {
 		const headless = new (Creature as any)({
-			id: 39,
-			team: 0,
-			x: 3,
-			y: 3,
-			player: { id: 0, flipped: false, creatures: [] },
+		id: 39,
+		team: 0,
+		x: 3,
+		y: 3,
+		player: { id: 0, flipped: false, creatures: [] },
 		});
 		const enemy = new (Creature as any)({ id: 201, team: 1, stats: { health: 80, endurance: 3 } });
 
 		const infest = {
 			...game.abilities[39][0],
-			creature: headless,
-			game: game,
-			title: 'Larva Infest',
-			isUpgraded: () => false,
-			end: jest.fn(),
-			_getHexes: () => [{ x: 4, y: 3, creature: enemy }],
+		creature: headless,
+		game: game,
+		title: 'Larva Infest',
+		isUpgraded: () => false,
+		end: jest.fn(),
+		_getHexes: () => [{ x: 4, y: 3, creature: enemy }],
 		};
 
 		infest.activate();
@@ -186,22 +206,22 @@ describe('Headless abilities', () => {
 
 	test('Larva Infest logs an already-fragile target and applies the effect silently', () => {
 		const headless = new (Creature as any)({
-			id: 39,
-			team: 0,
-			x: 3,
-			y: 3,
-			player: { id: 0, flipped: false, creatures: [] },
+		id: 39,
+		team: 0,
+		x: 3,
+		y: 3,
+		player: { id: 0, flipped: false, creatures: [] },
 		});
 		const enemy = new (Creature as any)({ id: 202, team: 1, stats: { health: 80, endurance: 1 } });
 
 		const infest = {
 			...game.abilities[39][0],
-			creature: headless,
-			game: game,
-			title: 'Larva Infest',
-			isUpgraded: () => false,
-			end: jest.fn(),
-			_getHexes: () => [{ x: 4, y: 3, creature: enemy }],
+		creature: headless,
+		game: game,
+		title: 'Larva Infest',
+		isUpgraded: () => false,
+		end: jest.fn(),
+		_getHexes: () => [{ x: 4, y: 3, creature: enemy }],
 		};
 
 		infest.activate();
@@ -213,27 +233,27 @@ describe('Headless abilities', () => {
 
 	test('Larva Infest upgraded fatigues the target by draining its remaining endurance', () => {
 		const headless = new (Creature as any)({
-			id: 39,
-			team: 0,
-			x: 3,
-			y: 3,
-			player: { id: 0, flipped: false, creatures: [] },
+		id: 39,
+		team: 0,
+		x: 3,
+		y: 3,
+		player: { id: 0, flipped: false, creatures: [] },
 		});
 		const enemy = new (Creature as any)({
-			id: 203,
-			team: 1,
-			stats: { health: 80, endurance: 10 },
-			endurance: 3,
+		id: 203,
+		team: 1,
+		stats: { health: 80, endurance: 10 },
+		endurance: 3,
 		});
 
 		const infest = {
 			...game.abilities[39][0],
-			creature: headless,
-			game: game,
-			title: 'Larva Infest',
-			isUpgraded: () => true,
-			end: jest.fn(),
-			_getHexes: () => [{ x: 4, y: 3, creature: enemy }],
+		creature: headless,
+		game: game,
+		title: 'Larva Infest',
+		isUpgraded: () => true,
+		end: jest.fn(),
+		_getHexes: () => [{ x: 4, y: 3, creature: enemy }],
 		};
 
 		infest.activate();
@@ -243,22 +263,22 @@ describe('Headless abilities', () => {
 
 	test('Cartilage Dagger deals base pierce damage to a healthy target', () => {
 		const headless = new (Creature as any)({
-			id: 39,
-			team: 0,
-			stats: { health: 60, endurance: 5 },
+		id: 39,
+		team: 0,
+		stats: { health: 60, endurance: 5 },
 		});
 		const enemy = new (Creature as any)({
-			id: 204,
-			team: 1,
-			stats: { health: 80, endurance: 5 },
-			endurance: 3,
+		id: 204,
+		team: 1,
+		stats: { health: 80, endurance: 5 },
+		endurance: 3,
 		});
 
 		const dagger = {
 			...game.abilities[39][1],
-			creature: headless,
-			isUpgraded: () => false,
-			end: jest.fn(),
+		creature: headless,
+		isUpgraded: () => false,
+		end: jest.fn(),
 		};
 		dagger.activate(enemy);
 
@@ -267,22 +287,22 @@ describe('Headless abilities', () => {
 
 	test('Cartilage Dagger doubles damage against a fatigued target', () => {
 		const headless = new (Creature as any)({
-			id: 39,
-			team: 0,
-			stats: { health: 60, endurance: 5 },
+		id: 39,
+		team: 0,
+		stats: { health: 60, endurance: 5 },
 		});
 		const enemy = new (Creature as any)({
-			id: 205,
-			team: 1,
-			stats: { health: 80, endurance: 5 },
-			endurance: 0,
+		id: 205,
+		team: 1,
+		stats: { health: 80, endurance: 5 },
+		endurance: 0,
 		});
 
 		const dagger = {
 			...game.abilities[39][1],
-			creature: headless,
-			isUpgraded: () => false,
-			end: jest.fn(),
+		creature: headless,
+		isUpgraded: () => false,
+		end: jest.fn(),
 		};
 		dagger.activate(enemy);
 
@@ -291,22 +311,22 @@ describe('Headless abilities', () => {
 
 	test('Cartilage Dagger upgraded adds the positive endurance difference', () => {
 		const headless = new (Creature as any)({
-			id: 39,
-			team: 0,
-			stats: { health: 60, endurance: 10 },
+		id: 39,
+		team: 0,
+		stats: { health: 60, endurance: 10 },
 		});
 		const enemy = new (Creature as any)({
-			id: 206,
-			team: 1,
-			stats: { health: 80, endurance: 6 },
-			endurance: 4,
+		id: 206,
+		team: 1,
+		stats: { health: 80, endurance: 6 },
+		endurance: 4,
 		});
 
 		const dagger = {
 			...game.abilities[39][1],
-			creature: headless,
-			isUpgraded: () => true,
-			end: jest.fn(),
+		creature: headless,
+		isUpgraded: () => true,
+		end: jest.fn(),
 		};
 		dagger.activate(enemy);
 
@@ -316,22 +336,22 @@ describe('Headless abilities', () => {
 
 	test('Cartilage Dagger upgraded ignores a negative endurance difference', () => {
 		const headless = new (Creature as any)({
-			id: 39,
-			team: 0,
-			stats: { health: 60, endurance: 4 },
+		id: 39,
+		team: 0,
+		stats: { health: 60, endurance: 4 },
 		});
 		const enemy = new (Creature as any)({
-			id: 207,
-			team: 1,
-			stats: { health: 80, endurance: 9 },
-			endurance: 4,
+		id: 207,
+		team: 1,
+		stats: { health: 80, endurance: 9 },
+		endurance: 4,
 		});
 
 		const dagger = {
 			...game.abilities[39][1],
-			creature: headless,
-			isUpgraded: () => true,
-			end: jest.fn(),
+		creature: headless,
+		isUpgraded: () => true,
+		end: jest.fn(),
 		};
 		dagger.activate(enemy);
 
@@ -340,26 +360,26 @@ describe('Headless abilities', () => {
 
 	test('Whip Move pulls a size 1 target into the hex in front of the Headless', () => {
 		const headless = new (Creature as any)({
-			id: 39,
-			team: 0,
-			x: 3,
-			y: 3,
-			player: { id: 0, flipped: false, creatures: [] },
+		id: 39,
+		team: 0,
+		x: 3,
+		y: 3,
+		player: { id: 0, flipped: false, creatures: [] },
 		});
 		const enemy = new (Creature as any)({
-			id: 208,
-			team: 1,
-			size: 1,
-			x: 6,
-			y: 3,
-			stats: { health: 80, endurance: 5, moveable: true },
+		id: 208,
+		team: 1,
+		size: 1,
+		x: 6,
+		y: 3,
+		stats: { health: 80, endurance: 5, moveable: true },
 		});
 
 		const whip = {
 			...game.abilities[39][2],
-			creature: headless,
-			isUpgraded: () => false,
-			end: jest.fn(),
+		creature: headless,
+		isUpgraded: () => false,
+		end: jest.fn(),
 		};
 		whip.activate([{ x: 6, y: 3, creature: enemy }]);
 
@@ -369,26 +389,26 @@ describe('Headless abilities', () => {
 
 	test('Whip Move drags the Headless towards a size 3 target', () => {
 		const headless = new (Creature as any)({
-			id: 39,
-			team: 0,
-			x: 3,
-			y: 3,
-			player: { id: 0, flipped: false, creatures: [] },
+		id: 39,
+		team: 0,
+		x: 3,
+		y: 3,
+		player: { id: 0, flipped: false, creatures: [] },
 		});
 		const enemy = new (Creature as any)({
-			id: 209,
-			team: 1,
-			size: 3,
-			x: 8,
-			y: 3,
-			stats: { health: 80, endurance: 5, moveable: true },
+		id: 209,
+		team: 1,
+		size: 3,
+		x: 8,
+		y: 3,
+		stats: { health: 80, endurance: 5, moveable: true },
 		});
 
 		const whip = {
 			...game.abilities[39][2],
-			creature: headless,
-			isUpgraded: () => false,
-			end: jest.fn(),
+		creature: headless,
+		isUpgraded: () => false,
+		end: jest.fn(),
 		};
 		whip.activate([{ x: 8, y: 3, creature: enemy }]);
 
@@ -399,26 +419,26 @@ describe('Headless abilities', () => {
 
 	test('Whip Move pulls a size 2 target and the Headless to a halfway meeting point', () => {
 		const headless = new (Creature as any)({
-			id: 39,
-			team: 0,
-			x: 3,
-			y: 3,
-			player: { id: 0, flipped: false, creatures: [] },
+		id: 39,
+		team: 0,
+		x: 3,
+		y: 3,
+		player: { id: 0, flipped: false, creatures: [] },
 		});
 		const enemy = new (Creature as any)({
-			id: 210,
-			team: 1,
-			size: 2,
-			x: 8,
-			y: 3,
-			stats: { health: 80, endurance: 5, moveable: true },
+		id: 210,
+		team: 1,
+		size: 2,
+		x: 8,
+		y: 3,
+		stats: { health: 80, endurance: 5, moveable: true },
 		});
 
 		const whip = {
 			...game.abilities[39][2],
-			creature: headless,
-			isUpgraded: () => false,
-			end: jest.fn(),
+		creature: headless,
+		isUpgraded: () => false,
+		end: jest.fn(),
 		};
 		whip.activate([{ x: 8, y: 3, creature: enemy }]);
 
@@ -428,29 +448,29 @@ describe('Headless abilities', () => {
 
 	test('Whip Move damages a plasma-shielded enemy Dark Priest instead of pulling it', () => {
 		const headless = new (Creature as any)({
-			id: 39,
-			team: 0,
-			x: 3,
-			y: 3,
-			player: { id: 0, flipped: false, creatures: [] },
+		id: 39,
+		team: 0,
+		x: 3,
+		y: 3,
+		player: { id: 0, flipped: false, creatures: [] },
 		});
 		const priest = new (Creature as any)({
-			id: 211,
-			team: 1,
-			size: 1,
-			x: 6,
-			y: 3,
-			player: { id: 1, flipped: false, creatures: [] },
-			stats: { health: 80, endurance: 5, moveable: true },
+		id: 211,
+		team: 1,
+		size: 1,
+		x: 6,
+		y: 3,
+		player: { id: 1, flipped: false, creatures: [] },
+		stats: { health: 80, endurance: 5, moveable: true },
 		});
 		priest.isDarkPriest = jest.fn(() => true);
 		priest.hasCreaturePlayerGotPlasma = jest.fn(() => true);
 
 		const whip = {
 			...game.abilities[39][2],
-			creature: headless,
-			isUpgraded: () => false,
-			end: jest.fn(),
+		creature: headless,
+		isUpgraded: () => false,
+		end: jest.fn(),
 		};
 		whip.activate([{ x: 6, y: 3, creature: priest }]);
 
@@ -462,22 +482,22 @@ describe('Headless abilities', () => {
 
 	test('Boomerang Tool applies area damage twice', () => {
 		const headless = new (Creature as any)({
-			id: 39,
-			team: 0,
-			x: 3,
-			y: 3,
-			player: { id: 0, flipped: false, creatures: [] },
+		id: 39,
+		team: 0,
+		x: 3,
+		y: 3,
+		player: { id: 0, flipped: false, creatures: [] },
 		});
 		const enemy = new (Creature as any)({ id: 212, team: 1, stats: { health: 80, endurance: 5 } });
 
 		const boomerang = {
 			...game.abilities[39][3],
-			creature: headless,
-			game: game,
-			isUpgraded: () => false,
-			end: jest.fn(),
-			getTargets: jest.fn(() => [{ target: enemy, hexesHit: 1 }]),
-			areaDamage: Ability.prototype.areaDamage,
+		creature: headless,
+		game: game,
+		isUpgraded: () => false,
+		end: jest.fn(),
+		getTargets: jest.fn(() => [{ target: enemy, hexesHit: 1 }]),
+		areaDamage: Ability.prototype.areaDamage,
 		};
 
 		boomerang.activate([{ x: 4, y: 3, creature: enemy }]);

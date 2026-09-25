@@ -14,7 +14,6 @@ import { unitData } from './data/units';
 import 'pixi';
 import 'p2';
 import 'p2';
-// @ts-expect-error: Phaser CE has no official type declarations
 import Phaser, { Signal } from 'phaser';
 import { LobbyClient } from './multiplayer';
 import { createLobbyProvider } from './multiplayer/provider';
@@ -157,7 +156,7 @@ export default class Game {
 	metaPowersState: MetaPowersState;
 	/** Counts abilities that called end(false,true) but haven't yet invoked queryMove(). */
 	_deferredQueryMovePending: number;
-	Phaser: Phaser;
+	Phaser: any;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	msg: any; // type this properly
 	triggers: Record<string, RegExp>;

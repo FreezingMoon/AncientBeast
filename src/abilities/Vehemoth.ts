@@ -188,7 +188,7 @@ export default (G: Game) => {
 
 					vehemoth.queryMove();
 				};
-				G.gameEngine.cameras.main.shake(0.02, 333, true, Phaser.camera.SHAKE_HORIZONTAL, true);
+				G.gameEngine.cameras.main.shake(0.02, 333, true, G.gameEngine.cameras.main.SHAKE_HORIZONTAL, true);
 
 				path = arrayUtils.sortByDirection(path, args.direction);
 				const target = arrayUtils.last(path).creature;
@@ -400,7 +400,7 @@ export default (G: Game) => {
 				const target = getPointFacade().getCreaturesAt(hexWithTarget.x, hexWithTarget.y)[0];
 
 				ability.end();
-				G.gameEngine.cameras.main.shake(0.01, 50, true, Phaser.camera.SHAKE_HORIZONTAL, true);
+				G.gameEngine.cameras.main.shake(0.01, 50, true, G.gameEngine.cameras.main.SHAKE_HORIZONTAL, true);
 
 				const [tween, sprite] = G.animations.projectile(
 					// @ts-expect-error `this.creature` exists once this file is extended into `ability.ts`
@@ -530,7 +530,7 @@ export default (G: Game) => {
 				const vehemoth = this.creature;
 
 				ability.end();
-				G.gameEngine.cameras.main.shake(0.02, 123, true, Phaser.camera.SHAKE_VERTICAL, true);
+				G.gameEngine.cameras.main.shake(0.02, 123, true, G.gameEngine.cameras.main.SHAKE_VERTICAL, true);
 
 				const vehemothLevel = Number(vehemoth.level);
 				const targetLevel = Number(target.level);

@@ -18,7 +18,7 @@ export interface SignalHandle {
 // ─── Tween ────────────────────────────────────────────────────────────────────
 
 export interface TweenHandle {
-	to(props: Record<string, any>, duration: number, easing?: string, autoStart?: boolean): TweenHandle;
+	to(props: Record<string, any>, duration: number, easing?: string | ((k: number) => number), autoStart?: boolean, delay?: number, repeat?: number, yoyo?: boolean): TweenHandle;
 	start(): TweenHandle;
 	stop(): TweenHandle;
 	yoyo(enable?: boolean): TweenHandle;
@@ -33,6 +33,7 @@ export interface TweenHandle {
 // ─── Sprite / Game Object ─────────────────────────────────────────────────────
 
 export interface SpriteHandle {
+	[key: string]: any;
 	x: number;
 	y: number;
 	alpha: number;
@@ -46,7 +47,7 @@ export interface SpriteHandle {
 	blendMode: number;
 	inputEnabled: boolean;
 	input: {
-		useHandCursor: boolean;
+		useHandcursor: boolean;
 		priorityID: number;
 	};
 	events: {
@@ -96,6 +97,7 @@ export interface SpriteHandle {
 // ─── Group ────────────────────────────────────────────────────────────────────
 
 export interface GroupHandle {
+	[key: string]: any;
 	x: number;
 	y: number;
 	alpha: number;
@@ -132,6 +134,7 @@ export interface GroupHandle {
 // ─── BitmapData ───────────────────────────────────────────────────────────────
 
 export interface BitmapDataHandle {
+	[key: string]: any;
 	width: number;
 	height: number;
 	ctx: CanvasRenderingContext2D;
@@ -145,6 +148,9 @@ export interface BitmapDataHandle {
 
 export interface CameraHandle {
 	shake(duration: number, amplitude: number, force?: boolean, direction?: number | string, snap?: boolean): void;
+	SHAKE_HORIZONTAL: number;
+	SHAKE_VERTICAL: number;
+	SHAKE_BOTH: number;
 }
 
 // ─── Scale ────────────────────────────────────────────────────────────────────
@@ -173,14 +179,19 @@ export interface GameEngine {
 	tween(target: object): TweenHandle;
 	removeTweensFrom(target: object): void;
 
-	// Game object factories
+// Game object factories
 	add: {
 		socket(x: number, y: number, key: string, frame?: string): SpriteHandle;
 		image(x: number, y: number, key: string, frame?: string): SpriteHandle;
+		sprite(x: number, y: number, key: string, frame?: string): SpriteHandle;
 		text(x: number, y: number, text: string, style?: any): SpriteHandle;
 		graphics(x?: number, y?: number, parent?: GroupHandle): SpriteHandle;
 		group(parent?: GroupHandle, name?: string): GroupHandle;
 		tileSprite(x: number, y: number, w: number, h: number, key: string, frame?: string): SpriteHandle;
+		bitmapData(w: number, h: number): BitmapDataHandle;
+	};
+
+	make: {
 		bitmapData(w: number, h: number): BitmapDataHandle;
 	};
 
@@ -195,6 +206,7 @@ export interface GameEngine {
 	// Time
 	time: {
 		now: number;
+		elapsedMS: number;
 		add(delay: number, cb: () => void): TimerHandle;
 		loop(delay: number, cb: () => void): TimerHandle;
 		remove(timer: TimerHandle): void;
@@ -207,7 +219,7 @@ export interface GameEngine {
 	cameras: { main: CameraHandle };
 
 	// World / Display
-	world: { removeAll(destroy?: boolean): void };
+	world: any;
 
 	// Cache / Textures
 	cache: { getImage(key: string): any };

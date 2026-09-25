@@ -8,7 +8,7 @@
 // Mock heavy DOM/Phaser dependencies before any imports
 jest.mock('../../../node_modules/phaser-ce/build/phaser.js', () => ({}));
 jest.mock('../../utility/hex', () => ({
-	Hex: class Hex {
+		Hex: class Hex {
 		x: number;
 		y: number;
 		pos: { x: number; y: number };
@@ -45,9 +45,9 @@ function buildHexGrid(width: number, height: number, blockedSet = new Set<string
 			row.push({
 				x,
 				y,
-				pos: { x, y },
-				blocked: blockedSet.has(`${x},${y}`),
-				reachable: true,
+		pos: { x, y },
+		blocked: blockedSet.has(`${x},${y}`),
+		reachable: true,
 				// hex.creature is a getter in production; we track it via PointFacade
 				get creature() {
 					// Resolved dynamically by PointFacade in production.
@@ -79,12 +79,12 @@ function buildHexGrid(width: number, height: number, blockedSet = new Set<string
  * Replicates the logic in creature.getHexMap + hexgrid.getHexMap.
  */
 function getHexMap(
-	hexes: any[][],
-	creatureX: number,
-	creatureY: number,
-	flipped: boolean,
-	invertFlipped: boolean,
-	mapDef: { origin: number[]; [key: string]: any },
+		hexes: any[][],
+		creatureX: number,
+		creatureY: number,
+		flipped: boolean,
+		invertFlipped: boolean,
+		mapDef: { origin: number[]; [key: string]: any },
 ) {
 	const array = (mapDef as any).slice(0).map((row: number[]) => [...row]);
 	const size = 1; // Snow Bunny is size 1
@@ -213,9 +213,9 @@ function buildAbility(bunny: any, activeCreature: any) {
 				const hexHasEnemy = creatureOnHex && creatureOnHex.team % 2 !== this.creature.team % 2; // isTeam Enemy
 				if (hexHasEnemy) {
 					acc.push({
-						direction: idx,
-						hex: curr,
-						enemyPos: creatureOnHex.pos,
+		direction: idx,
+		hex: curr,
+		enemyPos: creatureOnHex.pos,
 					});
 				}
 				return acc;
@@ -546,30 +546,30 @@ describe('Snow Bunny sequencing', () => {
 
 	function makeProjectileHarness() {
 		const complete: TweenCompleteHandler = {
-			cb: null,
-			ctx: undefined,
+		cb: null,
+		ctx: undefined,
 		};
 
 		const projectile = jest.fn(() => {
 			const tween = {
-				duration: 120,
-				onComplete: {
-					add: (cb: () => void, ctx: unknown) => {
+		duration: 120,
+		onComplete: {
+		add: (cb: () => void, ctx: unknown) => {
 						complete.cb = cb;
 						complete.ctx = ctx;
 					},
 				},
 			};
 			const sprite = {
-				alpha: 1,
-				destroy: jest.fn(),
+		alpha: 1,
+		destroy: jest.fn(),
 			};
 			return [tween, sprite] as const;
 		});
 
 		return {
 			projectile,
-			triggerComplete: () => {
+		triggerComplete: () => {
 				if (!complete.cb) {
 					throw new Error('Projectile completion callback was not registered');
 				}
@@ -584,32 +584,47 @@ describe('Snow Bunny sequencing', () => {
 		const projectileHarness = makeProjectileHarness();
 
 		const game = {
-			abilities: [] as unknown[],
-			activeCreature: {
+		abilities: [] as unknown[],
+		activeCreature: {
 				queryMove,
 			},
-			animations: {
-				projectile: projectileHarness.projectile,
+		animations: {
+		projectile: projectileHarness.projectile,
 			},
-			grid: {
-				queryDirection: jest.fn(),
+		grid: {
+		queryDirection: jest.fn(),
 				getHexMap,
 			},
-			Phaser: {
-				camera: {
-					shake: jest.fn(),
-					SHAKE_HORIZONTAL: 'horizontal',
+		Phaser: {
+		camera: {
+		shake: jest.fn(),
+		SHAKE_HORIZONTAL: 'horizontal',
 				},
-				add: {
-					tween: () => ({
-						to: jest.fn(),
+		add: {
+		tween: () => ({
+		to: jest.fn(),
 					}),
 				},
+},
+		soundsys: {
+		 playSFX: jest.fn(),
+		},
+		gameEngine: {
+		cameras: { main: { shake: () => {} } },
+		add: {
+		graphics: () => ({}),
+		bitmapData: () => ({}),
+		group: () => ({ children: [], add: () => {}, addAt: () => {}, remove: () => {} }),
+		tileSprite: () => ({}),
+				},
+		tween: () => ({
+		to: () => ({ start: () => ({ stop: () => ({}), onComplete: { add: () => {}, addOnce: () => {} } }), stop: () => ({}), onComplete: { add: () => {}, addOnce: () => {} } }),
+		start: () => ({ stop: () => ({}), onComplete: { add: () => {}, addOnce: () => {} } }),
+		stop: () => ({}),
+		onComplete: { add: () => {}, addOnce: () => {} },
+				}),
 			},
-			soundsys: {
-				playSFX: jest.fn(),
-			},
-		};
+	};
 
 		return {
 			game,
@@ -621,16 +636,21 @@ describe('Snow Bunny sequencing', () => {
 
 	beforeEach(() => {
 		(global as unknown as { Phaser: unknown }).Phaser = {
-			Easing: {
-				Linear: {
-					None: {},
+		Easing: {
+		Linear: {
+		None: {},
 				},
 			},
+		camera: {
+			SHAKE_HORIZONTAL: 0,
+			SHAKE_VERTICAL: 1,
+		},
 		};
 	});
 
 	test('Blowing Wind defers turn handoff until push movement callback resolves', () => {
 		const { game, queryMove, getHexMap, projectileHarness } = makeAbilityGame();
+		globalThis.G = game as any;
 		createSnowBunnyAbilities(game as any);
 
 		const ability = (game.abilities as any[])[12][2];
@@ -638,26 +658,26 @@ describe('Snow Bunny sequencing', () => {
 		getHexMap.mockReturnValue([pushHex]);
 
 		const target = {
-			x: 7,
-			y: 3,
-			size: 1,
-			id: 100,
-			dead: false,
-			temp: false,
-			_brbState: null,
-			hexagons: [{ x: 7, y: 3 }],
-			isFrozen: () => false,
-			moveTo: jest.fn((_hex: unknown, opts: { callback: () => void }) => {
+		x: 7,
+		y: 3,
+		size: 1,
+		id: 100,
+		dead: false,
+		temp: false,
+		_brbState: null,
+		hexagons: [{ x: 7, y: 3 }],
+		isFrozen: () => false,
+		moveTo: jest.fn((_hex: unknown, opts: { callback: () => void }) => {
 				opts.callback();
 			}),
 		};
 		creatures = [target as any];
 
 		const context = {
-			creature: { x: 5, y: 3, id: 12 },
-			_maxPushDistance: 6,
-			isUpgraded: () => false,
-			end: jest.fn(),
+		creature: { x: 5, y: 3, id: 12 },
+		_maxPushDistance: 6,
+		isUpgraded: () => false,
+		end: jest.fn(),
 		};
 
 		ability.activate.call(context, [{ x: 7, y: 3 }], { direction: 1 });
@@ -671,6 +691,7 @@ describe('Snow Bunny sequencing', () => {
 
 	test('Blowing Wind resumes turn when target cannot be pushed', () => {
 		const { game, queryMove, getHexMap, projectileHarness } = makeAbilityGame();
+		globalThis.G = game as any;
 		createSnowBunnyAbilities(game as any);
 
 		const ability = (game.abilities as any[])[12][2];
@@ -678,25 +699,25 @@ describe('Snow Bunny sequencing', () => {
 		getHexMap.mockReturnValue([pushHex]);
 
 		const target = {
-			x: 7,
-			y: 3,
-			size: 2,
-			id: 100,
-			dead: false,
-			temp: false,
-			_brbState: null,
-			hexagons: [{ x: 7, y: 3 }],
-			stats: { moveable: false },
-			isFrozen: () => false,
-			moveTo: jest.fn(),
+		x: 7,
+		y: 3,
+		size: 2,
+		id: 100,
+		dead: false,
+		temp: false,
+		_brbState: null,
+		hexagons: [{ x: 7, y: 3 }],
+		stats: { moveable: false },
+		isFrozen: () => false,
+		moveTo: jest.fn(),
 		};
 		creatures = [target as any];
 
 		const context = {
-			creature: { x: 5, y: 3, id: 12 },
-			_maxPushDistance: 6,
-			isUpgraded: () => false,
-			end: jest.fn(),
+		creature: { x: 5, y: 3, id: 12 },
+		_maxPushDistance: 6,
+		isUpgraded: () => false,
+		end: jest.fn(),
 		};
 
 		ability.activate.call(context, [{ x: 7, y: 3 }], { direction: 1 });
@@ -711,28 +732,29 @@ describe('Snow Bunny sequencing', () => {
 
 	test('Freezing Spit defers and resumes on projectile impact', () => {
 		const { game, queryMove, projectileHarness } = makeAbilityGame();
+		globalThis.G = game as any;
 		createSnowBunnyAbilities(game as any);
 
 		const ability = (game.abilities as any[])[12][3];
 		const target = {
-			x: 8,
-			y: 3,
-			size: 1,
-			id: 101,
-			dead: false,
-			temp: false,
-			_brbState: null,
-			hexagons: [{ x: 8, y: 3 }],
-			takeDamage: jest.fn(() => ({ damageObj: { melee: false } })),
-			freeze: jest.fn(),
+		x: 8,
+		y: 3,
+		size: 1,
+		id: 101,
+		dead: false,
+		temp: false,
+		_brbState: null,
+		hexagons: [{ x: 8, y: 3 }],
+		takeDamage: jest.fn(() => ({ damageObj: { melee: false } })),
+		freeze: jest.fn(),
 		};
 		creatures = [target as any];
 
 		const context = {
-			creature: { id: 12 },
-			damages: { frost: 5, crush: 4 },
-			isUpgraded: () => false,
-			end: jest.fn(),
+		creature: { id: 12 },
+		damages: { frost: 5, crush: 4 },
+		isUpgraded: () => false,
+		end: jest.fn(),
 		};
 
 		ability.activate.call(context, [{ x: 8, y: 3 }], { direction: 1 });

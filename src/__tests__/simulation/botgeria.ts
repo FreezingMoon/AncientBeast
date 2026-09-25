@@ -481,6 +481,15 @@ export async function createGame(abilities: Array<(G: any) => void>): Promise<an
 	// (setup, HexGrid construction, Creature sprites, etc.) use a consistent mock
 	// with proper sprite/group/tween support.
 	game.Phaser = buildPhaserMock();
+	// Wrap the mock in the engine adapter so gameplay code uses gameEngine
+	// instead of game.Phaser directly.
+	const { Phaser2Engine } = await import('../../engine/Phaser2Engine');
+	const engine = new Phaser2Engine(game.Phaser);
+	// Expose the existing signal channels through the adapter
+	for (const ch of Object.keys(game.signals)) {
+		engine.signals[ch] = game.signals[ch];
+	}
+	game._gameEngine = engine;
 
 	// Swap out the Animations instance with our synchronous mock
 	game.animations = new MockAnimations(game);

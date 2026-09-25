@@ -51,7 +51,7 @@ export default (G: Game) => {
 				const creature = this.creature;
 				const damage = new Damage(creature, { sonic: 30 }, this._targets.length, [], G);
 				const hits: Set<Creature> = new Set();
-				G.gameEngine.cameras.main.shake(0.02, 300, true, Phaser.camera.SHAKE_HORIZONTAL, true);
+				G.gameEngine.cameras.main.shake(0.02, 300, true, G.gameEngine.cameras.main.SHAKE_HORIZONTAL, true);
 
 				this._targets.forEach((target) => {
 					if (target.creature === undefined || hits.has(target.creature)) {
@@ -127,7 +127,7 @@ export default (G: Game) => {
 
 			activate: function (target: Creature) {
 				this.end();
-				G.gameEngine.cameras.main.shake(0.02, 200, true, Phaser.camera.SHAKE_BOTH, true);
+				G.gameEngine.cameras.main.shake(0.02, 200, true, G.gameEngine.cameras.main.SHAKE_BOTH, true);
 				// Removes bounce after use
 				G.UI.abilitiesButtons[1].$button.removeClass('bounce');
 
@@ -248,7 +248,7 @@ export default (G: Game) => {
 					ignorePath: true,
 					callback: function () {
 						G.activeCreature.queryMove();
-						G.gameEngine.cameras.main.shake(0.04, 100, true, Phaser.camera.SHAKE_VERTICAL, true);
+						G.gameEngine.cameras.main.shake(0.04, 100, true, G.gameEngine.cameras.main.SHAKE_VERTICAL, true);
 
 						if (ability.isUpgraded()) {
 							// Add offense buff after landing

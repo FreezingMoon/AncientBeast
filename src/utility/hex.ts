@@ -105,7 +105,7 @@ export class Hex {
 	hitBox: Phaser.Sprite;
 	display: Phaser.Sprite;
 	overlay: Phaser.Sprite;
-	coordText: Phaser.Text;
+	coordText: any;
 
 	/**
 	 *

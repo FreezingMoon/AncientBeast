@@ -44,7 +44,7 @@ export default (G: Game) => {
 					);
 					counter.counter = true;
 					G.activeCreature.takeDamage(counter);
-					G.gameEngine.cameras.main.shake(0.03, 220, true, Phaser.camera.SHAKE_HORIZONTAL, true);
+					G.gameEngine.cameras.main.shake(0.03, 220, true, G.gameEngine.cameras.main.SHAKE_HORIZONTAL, true);
 				}
 
 				this.creature.player.plasma -= 1;
@@ -117,7 +117,7 @@ export default (G: Game) => {
 			activate: function (target) {
 				const ability = this;
 				ability.end();
-				G.gameEngine.cameras.main.shake(0.02, 200, true, Phaser.camera.SHAKE_HORIZONTAL, true);
+				G.gameEngine.cameras.main.shake(0.02, 200, true, G.gameEngine.cameras.main.SHAKE_HORIZONTAL, true);
 
 				const damageAmount = {
 					shock: 12 * target.size,
@@ -202,7 +202,7 @@ export default (G: Game) => {
 			activate: function (target: Creature) {
 				const ability = this;
 				ability.end();
-				G.gameEngine.cameras.main.shake(0.04, 111, true, Phaser.camera.SHAKE_HORIZONTAL, true);
+				G.gameEngine.cameras.main.shake(0.04, 111, true, G.gameEngine.cameras.main.SHAKE_HORIZONTAL, true);
 
 				const plasmaCost = target.size;
 				let damageAmount = target.baseStats.health - target.health;

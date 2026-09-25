@@ -228,7 +228,7 @@ export default (G: Game) => {
 			activate: function (target: Creature) {
 				const ability = this;
 				ability.end();
-				G.gameEngine.cameras.main.shake(0.01, 80, true, Phaser.camera.SHAKE_HORIZONTAL, true);
+				G.gameEngine.cameras.main.shake(0.01, 80, true, G.gameEngine.cameras.main.SHAKE_HORIZONTAL, true);
 
 				// Upgraded ability does pierce damage to smaller size targets
 				const damages = ability.damages;
@@ -308,7 +308,7 @@ export default (G: Game) => {
 			activate: function (target: Creature) {
 				const ability = this;
 				ability.end();
-				G.gameEngine.cameras.main.shake(0.02, 222, true, Phaser.camera.SHAKE_VERTICAL, true);
+				G.gameEngine.cameras.main.shake(0.02, 222, true, G.gameEngine.cameras.main.SHAKE_VERTICAL, true);
 
 				const effects = [];
 				// Upgraded ability adds a -10 defense debuff
@@ -517,7 +517,7 @@ export default (G: Game) => {
 							);
 
 							const result = trg.takeDamage(damage);
-							G.gameEngine.cameras.main.shake(0.02, 80, true, Phaser.camera.SHAKE_HORIZONTAL, true);
+							G.gameEngine.cameras.main.shake(0.02, 80, true, G.gameEngine.cameras.main.SHAKE_HORIZONTAL, true);
 
 							// Stop propagating if no damage dealt
 							if (

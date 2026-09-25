@@ -34,8 +34,8 @@ type ShatterTexture = {
 	baseTexture?: { source?: CanvasImageSource };
 };
 type PowerApertureTile = {
-	sprite: Phaser.Sprite;
-	bitmapData: Phaser.BitmapData;
+	sprite: any;
+	bitmapData: any;
 	angle: number;
 	dissolveSeed: number;
 	spinDirection: 1 | -1;
@@ -129,7 +129,7 @@ function blendTint(fromColor: number, toColor: number, progress: number) {
 }
 
 function drawCycloperBeamLayered(
-	beamGraphics: Phaser.Graphics,
+	beamGraphics: any,
 	startX: number,
 	startY: number,
 	baseAngle: number,
@@ -180,7 +180,7 @@ function createOpticBurstLaserEffect(
 	G: Game,
 	onComplete?: () => void,
 ) {
-	if (typeof G.Phaser === 'undefined' || !G.Phaser.add) {
+	if (typeof G.gameEngine === 'undefined' || !G.gameEngine.add) {
 		if (onComplete) {
 			onComplete();
 		}
@@ -227,7 +227,7 @@ function createOpticBurstLaserEffect(
 	impactSprite.alpha = 0;
 	impactSprite.scale.setTo(1.4, 1.4);
 
-	const beamGraphics = G.gameEngine.add.graphics(0, 0);
+	const beamGraphics: any = G.gameEngine.add.graphics(0, 0);
 	G.grid.creatureGroup.addChild(beamGraphics);
 
 	const travelSteps = baseDist <= 0 ? 1 : baseDist;
@@ -320,7 +320,7 @@ function createOpticBurstLaserEffect(
 
 function createPowerApertureTiles(
 	G: Game,
-	targetSprite: Phaser.Sprite,
+	targetSprite: any,
 	spriteLeft: number,
 	spriteTop: number,
 	displayWidth: number,
@@ -368,7 +368,7 @@ function createPowerApertureTiles(
 			const destinationY = spriteTop + tileCenterY * scaleY;
 
 			tiles.push({
-				sprite: null as unknown as Phaser.Sprite,
+				sprite: null as unknown as any,
 				bitmapData,
 				angle: -18 + Math.random() * 36,
 				dissolveSeed: Math.random(),
@@ -484,7 +484,7 @@ function createPowerAperturePhase1Effect(
 		tile.sprite.angle = 0;
 	});
 
-	const beamGraphics = G.gameEngine.add.graphics(0, 0);
+	const beamGraphics: any = G.gameEngine.add.graphics(0, 0);
 	G.grid.creatureGroup.addChild(beamGraphics);
 
 	let startTime: number;
@@ -674,7 +674,7 @@ function createPowerAperturePhase2Effect(
 		tile.sprite.angle = 0;
 	});
 
-	const beamGraphics = G.gameEngine.add.graphics(0, 0);
+	const beamGraphics: any = G.gameEngine.add.graphics(0, 0);
 	G.grid.creatureGroup.addChild(beamGraphics);
 
 	let startTime: number;
@@ -1085,14 +1085,14 @@ function createAcrylicWall3DPrintEffect(
 	}
 
 	// Use an invisible graphics mask to reveal the wall bottom-to-top without stretching.
-	const maskGraphics = G.gameEngine.add.graphics(0, 0);
+	const maskGraphics: any = G.gameEngine.add.graphics(0, 0);
 	maskGraphics.alpha = 0;
 	G.grid.creatureGroup.addChild(maskGraphics);
 	wallSprite.mask = maskGraphics;
 	wall.creatureSprite.setAlpha(1, 0);
 
 	// Create beam graphics for laser line
-	const beamGraphics = G.gameEngine.add.graphics(0, 0);
+	const beamGraphics: any = G.gameEngine.add.graphics(0, 0);
 	G.grid.creatureGroup.addChild(beamGraphics);
 
 	// Create horizontal green flash
@@ -1562,7 +1562,7 @@ export default (G: Game) => {
 				let wallPlacementConfirmed = false;
 				const hideWallPreviewInstantly = () => {
 					const gridAny = G.grid as unknown as {
-						_flickerTween?: Phaser.Tween;
+						_flickerTween?: any;
 						materialize_overlay?: { alpha: number } | null;
 					};
 					if (gridAny._flickerTween) {
@@ -1644,10 +1644,10 @@ export default (G: Game) => {
 				wallFlags.hideFromCreatureCount = true;
 
 				const gridAny = G.grid as unknown as {
-					_flickerTween?: Phaser.Tween;
+					_flickerTween?: any;
 					materialize_overlay?: { alpha: number } | null;
 					secondary_overlay?: { alpha: number } | null;
-					_flickerTweenSecondary?: Phaser.Tween;
+					_flickerTweenSecondary?: any;
 				};
 				const previewOverlay = gridAny.materialize_overlay;
 				if (gridAny._flickerTween) {
@@ -1875,7 +1875,7 @@ export default (G: Game) => {
 					};
 
 					const targetStats = G.retrieveCreatureStats(target.type);
-					let activeTweens: Phaser.Tween[] = [];
+					let activeTweens: any[] = [];
 
 					const cleanupTweens = () => {
 						activeTweens.forEach((tween) => {

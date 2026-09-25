@@ -4,6 +4,7 @@ import { Hex } from './hex';
 import { Player } from '../player';
 import { Creature } from '../creature';
 import { capitalize } from './string';
+import { SpriteHandle } from '../engine/types';
 import { getPointFacade } from './pointfacade';
 import { HEX_WIDTH_PX, offsetCoordsToPx } from './const';
 
@@ -39,13 +40,13 @@ export class Trap {
 	onDestroyFn?: (destroyer?: Creature) => void;
 
 	//
-	display: Phaser.Sprite;
-	displayOver: Phaser.Sprite;
+display: any;
+	displayOver: any;
 
 	/** Tweens running the idle sprite animation (e.g. flame flicker). Stopped on destroy. */
-	private _idleTweens: Phaser.Tween[] = [];
+	private _idleTweens: any[] = [];
 	/** Extra sprites created by the idle animation (e.g. flame layers). Destroyed with the trap. */
-	private _overlaySprites: Phaser.Sprite[] = [];
+	private _overlaySprites: any[] = [];
 
 	private _moveSpriteToGroup(sprite: Phaser.Sprite, targetGroup: Phaser.Group) {
 		const sourceGroup = sprite.parent as Phaser.Group | null;
@@ -181,14 +182,13 @@ export class Trap {
 
 	destroy(destroyer?: Creature) {
 		const game = this.game;
-		const phaser: Phaser.Game = game.Phaser;
 		const tweenDuration = 500;
 
 		// Stop idle animations so they don't interfere with the destroy tween.
 		this._idleTweens.forEach((t) => t.stop());
 		this._idleTweens = [];
 
-		const destroySprite = (sprite: Phaser.Sprite, animation: string) => {
+		const destroySprite = (sprite: SpriteHandle, animation: string) => {
 			if (animation === 'shrinkDown') {
 				// Flame animation may have already set anchor to bottom; only compensate once.
 				if (sprite.anchor.y !== 1) {
@@ -196,9 +196,9 @@ export class Trap {
 					sprite.y += sprite.height / 2;
 				}
 
-				const tween = phaser.add
+				const tween = game.gameEngine
 					.tween(sprite.scale)
-					.to({ y: 0 }, tweenDuration, Phaser.Easing.Linear.None)
+					.to({ y: 0 }, tweenDuration)
 					.start();
 				tween.onComplete.add(() => sprite.destroy());
 			} else {

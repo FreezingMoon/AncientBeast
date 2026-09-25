@@ -5,28 +5,28 @@ type EffectTarget = {
 };
 
 type MockEffect = {
-	name: string;
-	trigger: string;
-	effectFn: (effect: MockEffect, arg: unknown) => void;
+		name: string;
+		trigger: string;
+		effectFn: (effect: MockEffect, arg: unknown) => void;
 	alterations?: { endurance?: number };
 	target?: unknown;
 };
 
 type HornHeadMock = {
-	id: number;
-	team: number;
-	health: number;
-	endurance: number;
-	stats: {
+		id: number;
+		team: number;
+		health: number;
+		endurance: number;
+		stats: {
 		health: number;
 		endurance: number;
 	};
-	effects: MockEffect[];
-	addEffect: (effect: MockEffect) => void;
-	removeEffect: (effectName: string) => void;
-	restoreEndurance: (amount: number) => void;
-	hint: ReturnType<typeof jest.fn>;
-	updateHealth: ReturnType<typeof jest.fn>;
+		effects: MockEffect[];
+		addEffect: (effect: MockEffect) => void;
+		removeEffect: (effectName: string) => void;
+		restoreEndurance: (amount: number) => void;
+		hint: ReturnType<typeof jest.fn>;
+		updateHealth: ReturnType<typeof jest.fn>;
 };
 
 type DamageWithTarget = Damage & {
@@ -34,29 +34,39 @@ type DamageWithTarget = Damage & {
 };
 
 type AbilityLike = {
-	activate: (damage: DamageWithTarget) => void;
-	interceptDeath: () => boolean;
-	isUpgraded: () => boolean;
-	require: () => boolean;
-	creature: HornHeadMock;
-	title: string;
+		activate: (damage: DamageWithTarget) => void;
+		interceptDeath: () => boolean;
+		isUpgraded: () => boolean;
+		require: () => boolean;
+		creature: HornHeadMock;
+		title: string;
 };
 
 type GameMock = {
-	abilities: Record<number, AbilityLike[]>;
-	effectId: number;
-	effects: unknown[];
-	turn: number;
-	log: ReturnType<typeof jest.fn>;
-};
+		abilities: Record<number, AbilityLike[]>;
+		effectId: number;
+		effects: unknown[];
+		turn: number;
+		log: ReturnType<typeof jest.fn>;
+	 gameEngine: {
+		cameras: { main: { shake: () => void } };
+		add: {
+			graphics: () => Record<string, unknown>;
+			bitmapData: () => Record<string, unknown>;
+			group: () => Record<string, unknown>;
+			tileSprite: () => Record<string, unknown>;
+		};
+		tween: () => Record<string, unknown>;
+	};
+	};
 
 jest.mock('phaser-ce', () => ({
-	Point: class PointMock {},
-	Polygon: class PolygonMock {},
+		Point: class PointMock {},
+		Polygon: class PolygonMock {},
 }));
 
 jest.mock('../../utility/hex', () => ({
-	Direction: {
+		Direction: {
 		None: -1,
 		UpRight: 0,
 		Right: 1,
@@ -65,7 +75,7 @@ jest.mock('../../utility/hex', () => ({
 		Left: 4,
 		UpLeft: 5,
 	},
-	Hex: class HexMock {
+		Hex: class HexMock {
 		x: number;
 		y: number;
 		pos: { x: number; y: number };
@@ -78,11 +88,11 @@ jest.mock('../../utility/hex', () => ({
 }));
 
 jest.mock('../../creature', () => ({
-	Creature: class CreatureMock {},
+		Creature: class CreatureMock {},
 }));
 
 jest.mock('../../effect', () => ({
-	Effect: class EffectMock {
+		Effect: class EffectMock {
 		name: string;
 		owner: unknown;
 		target: unknown;
@@ -93,17 +103,17 @@ jest.mock('../../effect', () => ({
 		turnLifetime: number;
 		game: unknown;
 		constructor(
-			name: string,
-			owner: unknown,
-			target: unknown,
-			trigger: string,
-			optArgs: {
+		name: string,
+		owner: unknown,
+		target: unknown,
+		trigger: string,
+		optArgs: {
 				effectFn?: (effect: unknown, arg: unknown) => void;
 				alterations?: Record<string, number>;
 				stackable?: boolean;
 				turnLifetime?: number;
 			},
-			game: unknown,
+		game: unknown,
 		) {
 			this.name = name;
 			this.owner = owner;
@@ -125,16 +135,16 @@ jest.mock('../../effect', () => ({
 }));
 
 jest.mock('../../damage', () => ({
-	Damage: class DamageMock {
+		Damage: class DamageMock {
 		attacker: unknown;
 		damages: Record<string, number>;
 		target: unknown;
 		constructor(
-			attacker: unknown,
-			damages: Record<string, number>,
-			_area: number,
-			_effects: unknown[],
-			_game: unknown,
+		attacker: unknown,
+		damages: Record<string, number>,
+		_area: number,
+		_effects: unknown[],
+		_game: unknown,
 		) {
 			this.attacker = attacker;
 			this.damages = damages;
@@ -157,8 +167,8 @@ function createHornHead() {
 		health: 20,
 		endurance: 1,
 		stats: {
-			health: 200,
-			endurance: 1,
+		health: 200,
+		endurance: 1,
 		},
 		effects: [] as MockEffect[],
 		addEffect(this: HornHeadMock, effect: MockEffect) {
@@ -188,21 +198,37 @@ describe('Horn Head Life Support passive revamp', () => {
 
 	beforeEach(() => {
 		game = {
-			abilities: {},
-			effectId: 0,
-			effects: [],
-			turn: 1,
-			log: jest.fn(),
+		abilities: {},
+		effectId: 0,
+		effects: [],
+		turn: 1,
+		log: jest.fn(),
+		gameEngine: {
+		cameras: { main: { shake: () => {} } },
+		add: {
+		graphics: () => ({}),
+		bitmapData: () => ({}),
+		group: () => ({ children: [], add: () => {}, addAt: () => {}, remove: () => {} }),
+		tileSprite: () => ({}),
+				},
+		tween: () => ({
+		to: () => ({ start: () => ({ stop: () => ({}), onComplete: { add: () => {}, addOnce: () => {} } }), stop: () => ({}), onComplete: { add: () => {}, addOnce: () => {} } }),
+		start: () => ({ stop: () => ({}), onComplete: { add: () => {}, addOnce: () => {} } }),
+		stop: () => ({}),
+		onComplete: { add: () => {}, addOnce: () => {} },
+				}),
+			},
 		};
+		globalThis.G = game as never;
 		loadHornHeadAbilities(game as never);
 
 		hornHead = createHornHead();
 		ability = {
 			...game.abilities[8][0],
-			creature: hornHead,
-			title: 'Life Support',
-			isUpgraded: () => false,
-			require: () => true,
+		creature: hornHead,
+		title: 'Life Support',
+		isUpgraded: () => false,
+		require: () => true,
 		};
 	});
 
@@ -298,24 +324,24 @@ describe('Horn Head Life Support passive revamp', () => {
 describe('Horn Head Meat Sickle landing validation', () => {
 	test('pulls to the nearest legal landing hex when the default landing footprint is blocked', () => {
 		const target = {
-			id: 33,
-			size: 2,
-			stats: { movement: 3, moveable: true },
-			isDarkPriest: () => false,
-			hasCreaturePlayerGotPlasma: () => false,
-			replaceEffect: jest.fn(),
-			takeDamage: jest.fn(),
-			moveTo: jest.fn((hex, opts: { callback?: () => void }) => {
+		id: 33,
+		size: 2,
+		stats: { movement: 3, moveable: true },
+		isDarkPriest: () => false,
+		hasCreaturePlayerGotPlasma: () => false,
+		replaceEffect: jest.fn(),
+		takeDamage: jest.fn(),
+		moveTo: jest.fn((hex, opts: { callback?: () => void }) => {
 				opts.callback?.();
 			}),
 		};
 
 		const source = {
-			id: 8,
-			x: 0,
-			y: 0,
-			size: 2,
-			player: { flipped: false },
+		id: 8,
+		x: 0,
+		y: 0,
+		size: 2,
+		player: { flipped: false },
 		};
 
 		const line = [
@@ -329,30 +355,46 @@ describe('Horn Head Meat Sickle landing validation', () => {
 		];
 
 		const game = {
-			abilities: {} as Record<number, unknown[]>,
-			grid: {
-				getHexLine: jest.fn(() => line),
+		abilities: {} as Record<number, unknown[]>,
+		grid: {
+		getHexLine: jest.fn(() => line),
 			},
-			activeCreature: {
-				queryMove: jest.fn(),
+		activeCreature: {
+		queryMove: jest.fn(),
 			},
-			log: jest.fn(),
+		log: jest.fn(),
+		gameEngine: {
+		cameras: { main: { shake: () => {} } },
+		add: {
+		graphics: () => ({}),
+		bitmapData: () => ({}),
+		group: () => ({ children: [], add: () => {}, addAt: () => {}, remove: () => {} }),
+		tileSprite: () => ({}),
+				},
+		tween: () => ({
+		to: () => ({ start: () => ({ stop: () => ({}), onComplete: { add: () => {}, addOnce: () => {} } }), stop: () => ({}), onComplete: { add: () => {}, addOnce: () => {} } }),
+		start: () => ({ stop: () => ({}), onComplete: { add: () => {}, addOnce: () => {} } }),
+		stop: () => ({}),
+		onComplete: { add: () => {}, addOnce: () => {} },
+				}),
+			},
 		};
 
+		globalThis.G = game as never;
 		loadHornHeadAbilities(game as never);
 
 		const baseAbility = (game.abilities[8] as Record<string, unknown>[]).find(
 			(ability) => typeof ability._getMaxDistance === 'function',
 		) as {
-			activate: (path: unknown[], args: { direction: Direction }) => void;
+		activate: (path: unknown[], args: { direction: Direction }) => void;
 		};
 		const ability = {
 			...baseAbility,
-			creature: source,
-			isUpgraded: () => false,
-			end: jest.fn(),
-			title: 'Meat Sickle',
-			damages: { pierce: 1 },
+		creature: source,
+		isUpgraded: () => false,
+		end: jest.fn(),
+		title: 'Meat Sickle',
+		damages: { pierce: 1 },
 		};
 
 		ability.activate.call(ability, [{ creature: target }], { direction: Direction.Right });
@@ -361,8 +403,8 @@ describe('Horn Head Meat Sickle landing validation', () => {
 		expect(target.moveTo).toHaveBeenCalledWith(
 			line[4],
 			expect.objectContaining({
-				ignoreMovementPoint: true,
-				ignorePath: true,
+		ignoreMovementPoint: true,
+		ignorePath: true,
 			}),
 		);
 		expect(game.activeCreature.queryMove).toHaveBeenCalledTimes(1);
@@ -370,22 +412,22 @@ describe('Horn Head Meat Sickle landing validation', () => {
 
 	test('does not move when every intermediate landing hex is blocked', () => {
 		const target = {
-			id: 34,
-			size: 2,
-			stats: { movement: 3, moveable: true },
-			isDarkPriest: () => false,
-			hasCreaturePlayerGotPlasma: () => false,
-			replaceEffect: jest.fn(),
-			takeDamage: jest.fn(),
-			moveTo: jest.fn(),
+		id: 34,
+		size: 2,
+		stats: { movement: 3, moveable: true },
+		isDarkPriest: () => false,
+		hasCreaturePlayerGotPlasma: () => false,
+		replaceEffect: jest.fn(),
+		takeDamage: jest.fn(),
+		moveTo: jest.fn(),
 		};
 
 		const source = {
-			id: 8,
-			x: 0,
-			y: 0,
-			size: 2,
-			player: { flipped: false },
+		id: 8,
+		x: 0,
+		y: 0,
+		size: 2,
+		player: { flipped: false },
 		};
 
 		const line = [
@@ -399,30 +441,46 @@ describe('Horn Head Meat Sickle landing validation', () => {
 		];
 
 		const game = {
-			abilities: {} as Record<number, unknown[]>,
-			grid: {
-				getHexLine: jest.fn(() => line),
+		abilities: {} as Record<number, unknown[]>,
+		grid: {
+		getHexLine: jest.fn(() => line),
 			},
-			activeCreature: {
-				queryMove: jest.fn(),
+		activeCreature: {
+		queryMove: jest.fn(),
 			},
-			log: jest.fn(),
+		log: jest.fn(),
+		gameEngine: {
+		cameras: { main: { shake: () => {} } },
+		add: {
+		graphics: () => ({}),
+		bitmapData: () => ({}),
+		group: () => ({ children: [], add: () => {}, addAt: () => {}, remove: () => {} }),
+		tileSprite: () => ({}),
+				},
+		tween: () => ({
+		to: () => ({ start: () => ({ stop: () => ({}), onComplete: { add: () => {}, addOnce: () => {} } }), stop: () => ({}), onComplete: { add: () => {}, addOnce: () => {} } }),
+		start: () => ({ stop: () => ({}), onComplete: { add: () => {}, addOnce: () => {} } }),
+		stop: () => ({}),
+		onComplete: { add: () => {}, addOnce: () => {} },
+				}),
+			},
 		};
 
+		globalThis.G = game as never;
 		loadHornHeadAbilities(game as never);
 
 		const baseAbility = (game.abilities[8] as Record<string, unknown>[]).find(
 			(ability) => typeof ability._getMaxDistance === 'function',
 		) as {
-			activate: (path: unknown[], args: { direction: Direction }) => void;
+		activate: (path: unknown[], args: { direction: Direction }) => void;
 		};
 		const ability = {
 			...baseAbility,
-			creature: source,
-			isUpgraded: () => false,
-			end: jest.fn(),
-			title: 'Meat Sickle',
-			damages: { pierce: 1 },
+		creature: source,
+		isUpgraded: () => false,
+		end: jest.fn(),
+		title: 'Meat Sickle',
+		damages: { pierce: 1 },
 		};
 
 		ability.activate.call(ability, [{ creature: target }], { direction: Direction.Right });
@@ -433,24 +491,24 @@ describe('Horn Head Meat Sickle landing validation', () => {
 
 	test('pulls to the nearest legal landing hex for flipped player using Left direction', () => {
 		const target = {
-			id: 35,
-			size: 2,
-			stats: { movement: 3, moveable: true },
-			isDarkPriest: () => false,
-			hasCreaturePlayerGotPlasma: () => false,
-			replaceEffect: jest.fn(),
-			takeDamage: jest.fn(),
-			moveTo: jest.fn((hex, opts: { callback?: () => void }) => {
+		id: 35,
+		size: 2,
+		stats: { movement: 3, moveable: true },
+		isDarkPriest: () => false,
+		hasCreaturePlayerGotPlasma: () => false,
+		replaceEffect: jest.fn(),
+		takeDamage: jest.fn(),
+		moveTo: jest.fn((hex, opts: { callback?: () => void }) => {
 				opts.callback?.();
 			}),
 		};
 
 		const source = {
-			id: 8,
-			x: 6,
-			y: 0,
-			size: 2,
-			player: { flipped: true },
+		id: 8,
+		x: 6,
+		y: 0,
+		size: 2,
+		player: { flipped: true },
 		};
 
 		// For flipped player, Left direction pulls toward lower x
@@ -466,30 +524,46 @@ describe('Horn Head Meat Sickle landing validation', () => {
 		];
 
 		const game = {
-			abilities: {} as Record<number, unknown[]>,
-			grid: {
-				getHexLine: jest.fn(() => line),
+		abilities: {} as Record<number, unknown[]>,
+		grid: {
+		getHexLine: jest.fn(() => line),
 			},
-			activeCreature: {
-				queryMove: jest.fn(),
+		activeCreature: {
+		queryMove: jest.fn(),
 			},
-			log: jest.fn(),
+		log: jest.fn(),
+		gameEngine: {
+		cameras: { main: { shake: () => {} } },
+		add: {
+		graphics: () => ({}),
+		bitmapData: () => ({}),
+		group: () => ({ children: [], add: () => {}, addAt: () => {}, remove: () => {} }),
+		tileSprite: () => ({}),
+				},
+		tween: () => ({
+		to: () => ({ start: () => ({ stop: () => ({}), onComplete: { add: () => {}, addOnce: () => {} } }), stop: () => ({}), onComplete: { add: () => {}, addOnce: () => {} } }),
+		start: () => ({ stop: () => ({}), onComplete: { add: () => {}, addOnce: () => {} } }),
+		stop: () => ({}),
+		onComplete: { add: () => {}, addOnce: () => {} },
+				}),
+			},
 		};
 
+		globalThis.G = game as never;
 		loadHornHeadAbilities(game as never);
 
 		const baseAbility = (game.abilities[8] as Record<string, unknown>[]).find(
 			(ability) => typeof ability._getMaxDistance === 'function',
 		) as {
-			activate: (path: unknown[], args: { direction: Direction }) => void;
+		activate: (path: unknown[], args: { direction: Direction }) => void;
 		};
 		const ability = {
 			...baseAbility,
-			creature: source,
-			isUpgraded: () => false,
-			end: jest.fn(),
-			title: 'Meat Sickle',
-			damages: { pierce: 1 },
+		creature: source,
+		isUpgraded: () => false,
+		end: jest.fn(),
+		title: 'Meat Sickle',
+		damages: { pierce: 1 },
 		};
 
 		ability.activate.call(ability, [{ creature: target }], { direction: Direction.Left });
@@ -498,8 +572,8 @@ describe('Horn Head Meat Sickle landing validation', () => {
 		expect(target.moveTo).toHaveBeenCalledWith(
 			line[3],
 			expect.objectContaining({
-				ignoreMovementPoint: true,
-				ignorePath: true,
+		ignoreMovementPoint: true,
+		ignorePath: true,
 			}),
 		);
 	});
@@ -513,10 +587,10 @@ const makeGame = () => {
 			hexesByKey.set(key, {
 				x,
 				y,
-				pos: { x, y },
-				direction: Direction.None,
-				creature: null,
-				isWalkable: jest.fn(() => true),
+		pos: { x, y },
+		direction: Direction.None,
+		creature: null,
+		isWalkable: jest.fn(() => true),
 			});
 		}
 		return hexesByKey.get(key);
@@ -525,7 +599,7 @@ const makeGame = () => {
 	const game: any = {
 		abilities: {},
 		grid: {
-			getHexLine: jest.fn((startX: number, y: number, dir: Direction, flipped?: boolean) => {
+		getHexLine: jest.fn((startX: number, y: number, dir: Direction, flipped?: boolean) => {
 				if ((dir === Direction.Right || dir === Direction.Left) && y === 5) {
 					const step = dir === Direction.Right ? (flipped ? -1 : 1) : flipped ? 1 : -1;
 					const xs = [
@@ -543,8 +617,8 @@ const makeGame = () => {
 				}
 				return [];
 			}),
-			queryChoice: jest.fn(),
-			queryDirection: jest.fn(),
+		queryChoice: jest.fn(),
+		queryDirection: jest.fn(),
 		},
 		activeCreature: { queryMove: jest.fn() },
 		log: jest.fn(),
@@ -552,7 +626,8 @@ const makeGame = () => {
 		msg: { abilities: { noTarget: 'No target.' } },
 	};
 
-	loadHornHeadAbilities(game as never);
+	globalThis.G = game as never;
+		loadHornHeadAbilities(game as never);
 	return { game, getHex };
 };
 
@@ -561,17 +636,17 @@ const makeCreature = (id: number, x: number, y: number, size: number) => ({
 	x,
 	y,
 	size,
-	player: { flipped: false },
-	hexagons: Array.from({ length: size }, (_, i) => ({ x: x - i, y })),
-	stats: { moveable: true, movement: 3 },
-	isDarkPriest: () => false,
-	hasCreaturePlayerGotPlasma: () => false,
-	takeDamage: jest.fn(),
-	moveTo: jest.fn((hex: any, opts: { callback?: () => void }) => opts?.callback?.()),
-	replaceEffect: jest.fn(),
-	addEffect: jest.fn(),
-	removeEffect: jest.fn(),
-	endurance: 5,
+		player: { flipped: false },
+		hexagons: Array.from({ length: size }, (_, i) => ({ x: x - i, y })),
+		stats: { moveable: true, movement: 3 },
+		isDarkPriest: () => false,
+		hasCreaturePlayerGotPlasma: () => false,
+		takeDamage: jest.fn(),
+		moveTo: jest.fn((hex: any, opts: { callback?: () => void }) => opts?.callback?.()),
+		replaceEffect: jest.fn(),
+		addEffect: jest.fn(),
+		removeEffect: jest.fn(),
+		endurance: 5,
 });
 
 describe('Meat Sickle clicking the first hexagon of a path', () => {
@@ -595,11 +670,11 @@ describe('Meat Sickle clicking the first hexagon of a path', () => {
 		return {
 			...meatSickleDef,
 			creature,
-			isUpgraded: () => true,
-			end: jest.fn(),
-			title: 'Meat Sickle',
-			damages: { pierce: 1 },
-			animation: function (...args: unknown[]) {
+		isUpgraded: () => true,
+		end: jest.fn(),
+		title: 'Meat Sickle',
+		damages: { pierce: 1 },
+		animation: function (...args: unknown[]) {
 				return (this.activate as (...a: unknown[]) => unknown).apply(this, args);
 			},
 		};
@@ -616,11 +691,11 @@ describe('Meat Sickle clicking the first hexagon of a path', () => {
 		return {
 			...meatSickleDef,
 			creature,
-			isUpgraded: () => false,
-			end: jest.fn(),
-			title: 'Meat Sickle',
-			damages: { pierce: 1 },
-			animation: function (...args: unknown[]) {
+		isUpgraded: () => false,
+		end: jest.fn(),
+		title: 'Meat Sickle',
+		damages: { pierce: 1 },
+		animation: function (...args: unknown[]) {
 				return (this.activate as (...a: unknown[]) => unknown).apply(this, args);
 			},
 		};
@@ -690,8 +765,8 @@ describe('Meat Sickle clicking the first hexagon of a path', () => {
 		}
 
 		queryOpt.fnOnConfirm(backChoices[0], {
-			direction: Direction.Left,
-			hex: backChoices[0][0],
+		direction: Direction.Left,
+		hex: backChoices[0][0],
 		});
 		expect(ability.end).toHaveBeenCalled();
 	});
@@ -739,10 +814,10 @@ describe('Meat Sickle clicking the first hexagon of a path', () => {
 		expect(leftChoice).toBeDefined();
 
 		const detachedClickedHex = {
-			x: leftChoice[0].x,
-			y: leftChoice[0].y,
-			pos: { x: leftChoice[0].x, y: leftChoice[0].y },
-			direction: Direction.Right,
+		x: leftChoice[0].x,
+		y: leftChoice[0].y,
+		pos: { x: leftChoice[0].x, y: leftChoice[0].y },
+		direction: Direction.Right,
 		};
 
 		queryOpt.fnOnConfirm(leftChoice, { direction: Direction.Right, hex: detachedClickedHex });

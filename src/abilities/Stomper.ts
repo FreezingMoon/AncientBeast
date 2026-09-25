@@ -175,7 +175,7 @@ export default (G: Game) => {
 				if (!this.isUpgraded()) {
 					const targetCreature = target.find((hex) => hex.creature).creature;
 
-					G.gameEngine.cameras.main.shake(0.03, 400, true, Phaser.camera.SHAKE_VERTICAL, true);
+					G.gameEngine.cameras.main.shake(0.03, 400, true, G.gameEngine.cameras.main.SHAKE_VERTICAL, true);
 					targetCreature.takeDamage(damage);
 				} else {
 					const set: Set<Creature> = new Set();
@@ -185,7 +185,7 @@ export default (G: Game) => {
 						}
 					});
 					set.forEach((creature) => {
-						G.gameEngine.cameras.main.shake(0.03, 400, true, Phaser.camera.SHAKE_VERTICAL, true);
+						G.gameEngine.cameras.main.shake(0.03, 400, true, G.gameEngine.cameras.main.SHAKE_VERTICAL, true);
 						creature.takeDamage(damage);
 					});
 				}
@@ -395,7 +395,7 @@ export default (G: Game) => {
 				const stomper = this.creature;
 				let i = 0;
 				ability.end();
-				G.gameEngine.cameras.main.shake(0.03, 400, true, Phaser.camera.SHAKE_VERTICAL, true);
+				G.gameEngine.cameras.main.shake(0.03, 400, true, G.gameEngine.cameras.main.SHAKE_VERTICAL, true);
 
 				const targets = ability.getTargets(hexes);
 
@@ -448,7 +448,7 @@ export default (G: Game) => {
 					ignorePath: true,
 					callback: function () {
 						// Shake the screen upon landing to simulate the jump
-						G.gameEngine.cameras.main.shake(0.02, 100, true, Phaser.camera.SHAKE_VERTICAL, true);
+						G.gameEngine.cameras.main.shake(0.02, 100, true, G.gameEngine.cameras.main.SHAKE_VERTICAL, true);
 
 						G.onStepIn(ability.creature, ability.creature.hexagons[0], false);
 
@@ -500,7 +500,7 @@ export default (G: Game) => {
 			activate: function (hexes) {
 				const ability = this;
 				ability.end(); // Deferred ending
-				G.gameEngine.cameras.main.shake(0.03, 400, true, Phaser.camera.SHAKE_VERTICAL, true);
+				G.gameEngine.cameras.main.shake(0.03, 400, true, G.gameEngine.cameras.main.SHAKE_VERTICAL, true);
 
 				// Delay all creatures in area
 				const targets = ability.getTargets(hexes);

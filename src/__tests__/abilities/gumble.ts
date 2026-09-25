@@ -3,12 +3,12 @@ import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 jest.mock('phaser-ce', () => ({
-	Point: class PointMock {},
-	Polygon: class PolygonMock {},
+		Point: class PointMock {},
+		Polygon: class PolygonMock {},
 }));
 
 jest.mock('../../damage', () => ({
-	Damage: class DamageMock {
+		Damage: class DamageMock {
 		damages: unknown;
 		constructor(_attacker: unknown, damages: unknown) {
 			this.damages = damages;
@@ -17,7 +17,7 @@ jest.mock('../../damage', () => ({
 }));
 
 jest.mock('../../utility/hex', () => ({
-	Hex: class HexMock {
+		Hex: class HexMock {
 		x: number;
 		y: number;
 		creature?: unknown;
@@ -30,7 +30,7 @@ jest.mock('../../utility/hex', () => ({
 }));
 
 jest.mock('../../utility/trap', () => ({
-	Trap: class TrapMock {
+		Trap: class TrapMock {
 		static created: any[] = [];
 		x: number;
 		y: number;
@@ -80,20 +80,20 @@ jest.mock('../../creature', () => {
 		hasCreaturePlayerGotPlasma = jest.fn(() => false);
 		adjacentHexes = jest.fn(() => []);
 		creatureSprite = {
-			setDir: jest.fn(),
-			setAlpha: jest.fn(),
-			setHex: jest.fn(() => Promise.resolve()),
-			getPos: jest.fn(() => ({ x: 0, y: 0 })),
+		setDir: jest.fn(),
+		setAlpha: jest.fn(),
+		setHex: jest.fn(() => Promise.resolve()),
+		getPos: jest.fn(() => ({ x: 0, y: 0 })),
 		};
 		sprite = {
-			alpha: 1,
-			x: 0,
-			y: 0,
-			anchor: { x: 0.5, y: 1 },
-			scale: { x: 1, y: 1 },
-			angle: 0,
-			key: 'unit',
-			frame: 0,
+		alpha: 1,
+		x: 0,
+		y: 0,
+		anchor: { x: 0.5, y: 1 },
+		scale: { x: 1, y: 1 },
+		angle: 0,
+		key: 'unit',
+		frame: 0,
 		};
 		grp = { x: 0, y: 0 };
 
@@ -122,6 +122,10 @@ jest.mock('../../creature', () => {
 import loadGumbleAbilities from '../../abilities/Gumble';
 import { Creature } from '../../creature';
 
+(globalThis as { Phaser?: unknown }).Phaser = {
+		camera: { SHAKE_HORIZONTAL: 0, SHAKE_VERTICAL: 0, SHAKE_BOTH: 0 },
+	};
+
 describe('Gumble abilities', () => {
 	let game: any;
 
@@ -129,66 +133,66 @@ describe('Gumble abilities', () => {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		(jest.requireMock('../../utility/trap') as any).Trap.created.length = 0;
 		game = {
-			abilities: [],
-			creatureData: [],
-			effects: [],
-			activeCreature: null,
-			log: jest.fn(),
-			grid: {
-				hexAt: jest.fn(() => ({ x: 4, y: 4 })),
-				forEachHex: jest.fn(),
-				updateDisplay: jest.fn(),
-				hexes: [],
-				queryChoice: jest.fn(),
-				queryDirection: jest.fn(),
-				queryHexes: jest.fn(),
-				previewCreature: jest.fn(),
-				orderCreatureZ: jest.fn(),
-				materialize_overlay: { alpha: 0, destroy: jest.fn() },
-				secondary_overlay: { alpha: 0, destroy: jest.fn() },
-				_flickerTween: null,
-				_flickerTweenSecondary: null,
-				creatureGroup: { add: jest.fn(), addAt: jest.fn(), remove: jest.fn() },
+		abilities: [],
+		creatureData: [],
+		effects: [],
+		activeCreature: null,
+		log: jest.fn(),
+grid: {
+		hexAt: jest.fn(() => ({ x: 4, y: 4 })),
+		forEachHex: jest.fn(),
+		updateDisplay: jest.fn(),
+		hexes: [],
+		queryChoice: jest.fn(),
+		queryDirection: jest.fn(),
+		queryHexes: jest.fn(),
+		previewCreature: jest.fn(),
+		orderCreatureZ: jest.fn(),
+		materialize_overlay: { alpha: 0, destroy: jest.fn() },
+		secondary_overlay: { alpha: 0, destroy: jest.fn() },
+		_flickerTween: null,
+		_flickerTweenSecondary: null,
+		creatureGroup: { add: jest.fn(), addAt: jest.fn(), remove: jest.fn() },
 			},
-			UI: {
-				energyBar: {
-					animSize: jest.fn(),
-					setSize: jest.fn(),
-					previewSize: jest.fn(),
-					setAvailableStyle: jest.fn(),
-					setUnavailableStyle: jest.fn(),
+		UI: {
+		energyBar: {
+		animSize: jest.fn(),
+		setSize: jest.fn(),
+		previewSize: jest.fn(),
+		setAvailableStyle: jest.fn(),
+		setUnavailableStyle: jest.fn(),
 				},
 			},
-			Phaser: {
-				camera: {
-					shake: jest.fn(),
-					SHAKE_VERTICAL: 'SHAKE_VERTICAL',
-					SHAKE_HORIZONTAL: 'SHAKE_HORIZONTAL',
+		Phaser: {
+		camera: {
+		shake: jest.fn(),
+		SHAKE_VERTICAL: 'SHAKE_VERTICAL',
+		SHAKE_HORIZONTAL: 'SHAKE_HORIZONTAL',
 				},
-				add: {
-					group: jest.fn(() => ({ x: 0, y: 0, alpha: 1, destroy: jest.fn() })),
-					sprite: jest.fn(() => ({
-						anchor: { setTo: jest.fn() },
-						scale: { setTo: jest.fn() },
-						angle: 0,
+		add: {
+		group: jest.fn(() => ({ x: 0, y: 0, alpha: 1, destroy: jest.fn() })),
+		sprite: jest.fn(() => ({
+		anchor: { setTo: jest.fn() },
+		scale: { setTo: jest.fn() },
+		angle: 0,
 					})),
-					tween: jest.fn(() => ({
-						to: jest.fn(() => ({
-							onComplete: { addOnce: jest.fn() },
-							start: jest.fn(),
+		tween: jest.fn(() => ({
+		to: jest.fn(() => ({
+		onComplete: { addOnce: jest.fn() },
+		start: jest.fn(),
 						})),
 					})),
 				},
-				tweens: {
-					removeFrom: jest.fn(),
+		tweens: {
+		removeFrom: jest.fn(),
 				},
 			},
-			animations: {
-				projectile: jest.fn(() => {
+		animations: {
+		projectile: jest.fn(() => {
 					const sprite = { destroy: jest.fn() };
 					const tween = {
-						onComplete: {
-							add: (fn: () => void, context?: unknown) => {
+		onComplete: {
+		add: (fn: () => void, context?: unknown) => {
 								fn.call(context);
 							},
 						},
@@ -196,60 +200,76 @@ describe('Gumble abilities', () => {
 					return [tween, sprite];
 				}),
 			},
-			onStepOut: jest.fn(),
-			onStepIn: jest.fn(),
-			onCreatureMove: jest.fn(),
-			updateQueueDisplay: jest.fn(),
-			turn: 4,
-			retrieveCreatureStats: jest.fn(),
-			msg: {
-				abilities: {
-					notEnough: 'Not enough %stat%.',
-					noTarget: 'No target.',
+		onStepOut: jest.fn(),
+		onStepIn: jest.fn(),
+		onCreatureMove: jest.fn(),
+		updateQueueDisplay: jest.fn(),
+		turn: 4,
+		retrieveCreatureStats: jest.fn(),
+		msg: {
+		abilities: {
+		notEnough: 'Not enough %stat%.',
+		noTarget: 'No target.',
 				},
+			},
+		gameEngine: {
+		cameras: { main: { shake: () => {} } },
+		add: {
+		graphics: () => ({}),
+		bitmapData: () => ({}),
+		group: () => ({ children: [], add: () => {}, addAt: () => {}, remove: () => {} }),
+		tileSprite: () => ({}),
+				},
+		tween: () => ({
+		to: () => ({ start: () => ({ stop: () => ({}), onComplete: { add: () => {}, addOnce: () => {} } }), stop: () => ({}), onComplete: { add: () => {}, addOnce: () => {} } }),
+		start: () => ({ stop: () => ({}), onComplete: { add: () => {}, addOnce: () => {} } }),
+		stop: () => ({}),
+		onComplete: { add: () => {}, addOnce: () => {} },
+				}),
 			},
 		};
 
+		globalThis.G = game as never;
 		loadGumbleAbilities(game as never);
 	});
 
 	test('Gummy Mallet deals double damage to enemies when upgraded', () => {
 		const gumble = new (Creature as any)({
-			id: 14,
-			team: 0,
-			type: 'S1',
-			x: 3,
-			y: 3,
-			hexagons: [{ x: 3, y: 3 }],
-			player: { id: 0, flipped: false, creatures: [] },
+		id: 14,
+		team: 0,
+		type: 'S1',
+		x: 3,
+		y: 3,
+		hexagons: [{ x: 3, y: 3 }],
+		player: { id: 0, flipped: false, creatures: [] },
 		});
 
 		const ally = new (Creature as any)({
-			id: 100,
-			team: 0,
-			type: 'S2',
-			health: 50,
-			stats: { health: 60 },
-			hexagons: [{ x: 4, y: 3 }],
+		id: 100,
+		team: 0,
+		type: 'S2',
+		health: 50,
+		stats: { health: 60 },
+		hexagons: [{ x: 4, y: 3 }],
 		});
 
 		const enemy = new (Creature as any)({
-			id: 200,
-			team: 1,
-			type: 'A1',
-			health: 80,
-			stats: { health: 80 },
-			hexagons: [{ x: 5, y: 3 }],
+		id: 200,
+		team: 1,
+		type: 'A1',
+		health: 80,
+		stats: { health: 80 },
+		hexagons: [{ x: 5, y: 3 }],
 		});
 
 		const abilityDef = game.abilities[14][1];
 		const mallet = {
 			...abilityDef,
-			creature: gumble,
-			damages: { crush: 20 },
-			isUpgraded: () => true,
-			end: jest.fn(),
-			getTargets: jest.fn(() => [
+		creature: gumble,
+		damages: { crush: 20 },
+		isUpgraded: () => true,
+		end: jest.fn(),
+		getTargets: jest.fn(() => [
 				{ target: ally, hexesHit: 1 },
 				{ target: enemy, hexesHit: 1 },
 			]),
@@ -271,32 +291,32 @@ describe('Gumble abilities', () => {
 
 	test('Gummy Mallet scores a combo when multiple targets die', () => {
 		const gumble = new (Creature as any)({
-			id: 14,
-			team: 0,
-			type: 'S1',
-			x: 3,
-			y: 3,
-			hexagons: [{ x: 3, y: 3 }],
-			player: { id: 0, flipped: false, creatures: [] },
+		id: 14,
+		team: 0,
+		type: 'S1',
+		x: 3,
+		y: 3,
+		hexagons: [{ x: 3, y: 3 }],
+		player: { id: 0, flipped: false, creatures: [] },
 		});
 
 		gumble.player.score = { push: jest.fn() };
 
 		const enemyA = new (Creature as any)({
-			id: 200,
-			team: 1,
-			type: 'A1',
-			health: 1,
-			stats: { health: 1 },
-			hexagons: [{ x: 4, y: 3 }],
+		id: 200,
+		team: 1,
+		type: 'A1',
+		health: 1,
+		stats: { health: 1 },
+		hexagons: [{ x: 4, y: 3 }],
 		});
 		const enemyB = new (Creature as any)({
-			id: 201,
-			team: 1,
-			type: 'A2',
-			health: 1,
-			stats: { health: 1 },
-			hexagons: [{ x: 5, y: 3 }],
+		id: 201,
+		team: 1,
+		type: 'A2',
+		health: 1,
+		stats: { health: 1 },
+		hexagons: [{ x: 5, y: 3 }],
 		});
 		enemyA.takeDamage = jest.fn(() => ({ kill: true }));
 		enemyB.takeDamage = jest.fn(() => ({ kill: true }));
@@ -304,11 +324,11 @@ describe('Gumble abilities', () => {
 		const abilityDef = game.abilities[14][1];
 		const mallet = {
 			...abilityDef,
-			creature: gumble,
-			damages: { crush: 20 },
-			isUpgraded: () => false,
-			end: jest.fn(),
-			getTargets: jest.fn(() => [
+		creature: gumble,
+		damages: { crush: 20 },
+		isUpgraded: () => false,
+		end: jest.fn(),
+		getTargets: jest.fn(() => [
 				{ target: enemyA, hexesHit: 1 },
 				{ target: enemyB, hexesHit: 1 },
 			]),
@@ -321,31 +341,31 @@ describe('Gumble abilities', () => {
 
 	test('Pretty Ribbon heals wounded ally and applies regrowth and endurance buff', () => {
 		const gumble = new (Creature as any)({
-			id: 14,
-			team: 0,
-			type: 'S1',
-			x: 3,
-			y: 3,
-			hexagons: [{ x: 3, y: 3 }],
-			player: { id: 0, flipped: false, creatures: [] },
+		id: 14,
+		team: 0,
+		type: 'S1',
+		x: 3,
+		y: 3,
+		hexagons: [{ x: 3, y: 3 }],
+		player: { id: 0, flipped: false, creatures: [] },
 		});
 
 		const ally = new (Creature as any)({
-			id: 100,
-			team: 0,
-			type: 'S2',
-			health: 30,
-			stats: { health: 60 },
-			hexagons: [{ x: 4, y: 3 }],
+		id: 100,
+		team: 0,
+		type: 'S2',
+		health: 30,
+		stats: { health: 60 },
+		hexagons: [{ x: 4, y: 3 }],
 		});
 
 		const abilityDef = game.abilities[14][2];
 		const ribbon = {
 			...abilityDef,
-			title: 'Pretty Ribbon',
-			creature: gumble,
-			isUpgraded: () => false,
-			end: jest.fn(),
+		title: 'Pretty Ribbon',
+		creature: gumble,
+		isUpgraded: () => false,
+		end: jest.fn(),
 		};
 
 		ribbon.activate(ally);
@@ -358,31 +378,31 @@ describe('Gumble abilities', () => {
 
 	test('Pretty Ribbon on upgraded Gumble debuffs an enemy instead of healing', () => {
 		const gumble = new (Creature as any)({
-			id: 14,
-			team: 0,
-			type: 'S1',
-			x: 3,
-			y: 3,
-			hexagons: [{ x: 3, y: 3 }],
-			player: { id: 0, flipped: false, creatures: [] },
+		id: 14,
+		team: 0,
+		type: 'S1',
+		x: 3,
+		y: 3,
+		hexagons: [{ x: 3, y: 3 }],
+		player: { id: 0, flipped: false, creatures: [] },
 		});
 
 		const enemy = new (Creature as any)({
-			id: 200,
-			team: 1,
-			type: 'A1',
-			health: 80,
-			stats: { health: 80 },
-			hexagons: [{ x: 5, y: 3 }],
+		id: 200,
+		team: 1,
+		type: 'A1',
+		health: 80,
+		stats: { health: 80 },
+		hexagons: [{ x: 5, y: 3 }],
 		});
 
 		const abilityDef = game.abilities[14][2];
 		const ribbon = {
 			...abilityDef,
-			title: 'Pretty Ribbon',
-			creature: gumble,
-			isUpgraded: () => true,
-			end: jest.fn(),
+		title: 'Pretty Ribbon',
+		creature: gumble,
+		isUpgraded: () => true,
+		end: jest.fn(),
 		};
 
 		ribbon.activate(enemy);
@@ -398,22 +418,22 @@ describe('Gumble abilities', () => {
 
 	test('Pretty Ribbon hits a plasma-shielded Dark Priest for damage instead of debuff', () => {
 		const gumble = new (Creature as any)({
-			id: 14,
-			team: 0,
-			type: 'S1',
-			x: 3,
-			y: 3,
-			hexagons: [{ x: 3, y: 3 }],
-			player: { id: 0, flipped: false, creatures: [] },
+		id: 14,
+		team: 0,
+		type: 'S1',
+		x: 3,
+		y: 3,
+		hexagons: [{ x: 3, y: 3 }],
+		player: { id: 0, flipped: false, creatures: [] },
 		});
 
 		const darkPriest = new (Creature as any)({
-			id: 300,
-			team: 1,
-			type: '--',
-			health: 80,
-			stats: { health: 80 },
-			hexagons: [{ x: 5, y: 3 }],
+		id: 300,
+		team: 1,
+		type: '--',
+		health: 80,
+		stats: { health: 80 },
+		hexagons: [{ x: 5, y: 3 }],
 		});
 		darkPriest.isDarkPriest = jest.fn(() => true);
 		darkPriest.hasCreaturePlayerGotPlasma = jest.fn(() => true);
@@ -421,10 +441,10 @@ describe('Gumble abilities', () => {
 		const abilityDef = game.abilities[14][2];
 		const ribbon = {
 			...abilityDef,
-			title: 'Pretty Ribbon',
-			creature: gumble,
-			isUpgraded: () => true,
-			end: jest.fn(),
+		title: 'Pretty Ribbon',
+		creature: gumble,
+		isUpgraded: () => true,
+		end: jest.fn(),
 		};
 
 		ribbon.activate(darkPriest);
@@ -435,22 +455,22 @@ describe('Gumble abilities', () => {
 
 	test('Boom Box deals melee crush bonus damage when target is adjacent', () => {
 		const gumble = new (Creature as any)({
-			id: 14,
-			team: 0,
-			type: 'S1',
-			x: 3,
-			y: 3,
-			hexagons: [{ x: 3, y: 3 }],
-			player: { id: 0, flipped: false, creatures: [] },
+		id: 14,
+		team: 0,
+		type: 'S1',
+		x: 3,
+		y: 3,
+		hexagons: [{ x: 3, y: 3 }],
+		player: { id: 0, flipped: false, creatures: [] },
 		});
 
 		const enemy = new (Creature as any)({
-			id: 200,
-			team: 1,
-			type: 'A1',
-			health: 80,
-			stats: { health: 80, moveable: true },
-			hexagons: [{ x: 4, y: 3 }],
+		id: 200,
+		team: 1,
+		type: 'A1',
+		health: 80,
+		stats: { health: 80, moveable: true },
+		hexagons: [{ x: 4, y: 3 }],
 		});
 
 		game.grid.getHexMap = jest.fn(() => [
@@ -461,9 +481,9 @@ describe('Gumble abilities', () => {
 		const abilityDef = game.abilities[14][3];
 		const boomBox = {
 			...abilityDef,
-			creature: gumble,
-			isUpgraded: () => false,
-			end: jest.fn(),
+		creature: gumble,
+		isUpgraded: () => false,
+		end: jest.fn(),
 		};
 
 		boomBox.activate([{ x: 4, y: 3, creature: enemy }], { direction: 1 });
@@ -476,22 +496,22 @@ describe('Gumble abilities', () => {
 
 	test('Boom Box upgraded adds sonic damage when target cannot be knocked back', () => {
 		const gumble = new (Creature as any)({
-			id: 14,
-			team: 0,
-			type: 'S1',
-			x: 3,
-			y: 3,
-			hexagons: [{ x: 3, y: 3 }],
-			player: { id: 0, flipped: false, creatures: [] },
+		id: 14,
+		team: 0,
+		type: 'S1',
+		x: 3,
+		y: 3,
+		hexagons: [{ x: 3, y: 3 }],
+		player: { id: 0, flipped: false, creatures: [] },
 		});
 
 		const enemy = new (Creature as any)({
-			id: 200,
-			team: 1,
-			type: 'A1',
-			health: 80,
-			stats: { health: 80, moveable: false },
-			hexagons: [{ x: 4, y: 3 }],
+		id: 200,
+		team: 1,
+		type: 'A1',
+		health: 80,
+		stats: { health: 80, moveable: false },
+		hexagons: [{ x: 4, y: 3 }],
 		});
 
 		game.grid.getHexMap = jest.fn(() => [
@@ -502,9 +522,9 @@ describe('Gumble abilities', () => {
 		const abilityDef = game.abilities[14][3];
 		const boomBox = {
 			...abilityDef,
-			creature: gumble,
-			isUpgraded: () => true,
-			end: jest.fn(),
+		creature: gumble,
+		isUpgraded: () => true,
+		end: jest.fn(),
 		};
 
 		// Target at the end of the path (not in path[0]) means not melee-adjacent.
@@ -523,29 +543,29 @@ describe('Gumble abilities', () => {
 
 	test('Gooey Body creates a goo trap at the death location on death', () => {
 		const gumble = new (Creature as any)({
-			id: 14,
-			team: 0,
-			type: 'S1',
-			x: 4,
-			y: 4,
-			hexagons: [{ x: 4, y: 4 }],
-			player: { id: 0, flipped: false, creatures: [] },
+		id: 14,
+		team: 0,
+		type: 'S1',
+		x: 4,
+		y: 4,
+		hexagons: [{ x: 4, y: 4 }],
+		player: { id: 0, flipped: false, creatures: [] },
 		});
 
 		const dead = new (Creature as any)({
-			id: 200,
-			team: 1,
-			type: 'A1',
-			health: 0,
-			stats: { health: 10 },
-			hexagons: [{ x: 4, y: 4 }],
+		id: 200,
+		team: 1,
+		type: 'A1',
+		health: 0,
+		stats: { health: 10 },
+		hexagons: [{ x: 4, y: 4 }],
 		});
 
 		const abilityDef = game.abilities[14][0];
 		const gooey = {
 			...abilityDef,
-			creature: gumble,
-			isUpgraded: () => false,
+		creature: gumble,
+		isUpgraded: () => false,
 		};
 
 		gooey.activate(dead);
@@ -564,29 +584,29 @@ describe('Gumble abilities', () => {
 
 	test('Gooey Body upgraded sets up BRB revival state on death', () => {
 		const gumble = new (Creature as any)({
-			id: 14,
-			team: 0,
-			type: 'S1',
-			x: 4,
-			y: 4,
-			hexagons: [{ x: 4, y: 4 }],
-			player: { id: 0, flipped: false, creatures: [] },
+		id: 14,
+		team: 0,
+		type: 'S1',
+		x: 4,
+		y: 4,
+		hexagons: [{ x: 4, y: 4 }],
+		player: { id: 0, flipped: false, creatures: [] },
 		});
 
 		const dead = new (Creature as any)({
-			id: 200,
-			team: 1,
-			type: 'A1',
-			health: 0,
-			stats: { health: 10 },
-			hexagons: [{ x: 4, y: 4 }],
+		id: 200,
+		team: 1,
+		type: 'A1',
+		health: 0,
+		stats: { health: 10 },
+		hexagons: [{ x: 4, y: 4 }],
 		});
 
 		const abilityDef = game.abilities[14][0];
 		const gooey = {
 			...abilityDef,
-			creature: gumble,
-			isUpgraded: () => true,
+		creature: gumble,
+		isUpgraded: () => true,
 		};
 
 		gooey.activate(dead);

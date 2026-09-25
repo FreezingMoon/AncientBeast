@@ -100,7 +100,7 @@ export default (G: Game) => {
 				const ability = this;
 
 				ability.end();
-				G.gameEngine.cameras.main.shake(0.01, 55, true, Phaser.camera.SHAKE_VERTICAL, true);
+				G.gameEngine.cameras.main.shake(0.01, 55, true, G.gameEngine.cameras.main.SHAKE_VERTICAL, true);
 
 				this.creature.moveTo(this._getHopHex(), {
 					callback: function () {
@@ -288,7 +288,7 @@ export default (G: Game) => {
 			activate: function (target) {
 				const ability = this;
 				ability.end();
-				G.gameEngine.cameras.main.shake(0.01, 100, true, Phaser.camera.SHAKE_HORIZONTAL, true);
+				G.gameEngine.cameras.main.shake(0.01, 100, true, G.gameEngine.cameras.main.SHAKE_HORIZONTAL, true);
 
 				const damages = ability.damages;
 				const pureDamage = {
@@ -451,7 +451,7 @@ export default (G: Game) => {
 						return;
 					}
 
-					G.gameEngine.cameras.main.shake(0.01, 400, true, Phaser.camera.SHAKE_HORIZONTAL, true);
+					G.gameEngine.cameras.main.shake(0.01, 400, true, G.gameEngine.cameras.main.SHAKE_HORIZONTAL, true);
 
 					const cannotBePushed = target.stats?.moveable === false;
 					const landsInPlace = pushHex.x === target.x && pushHex.y === target.y;
@@ -551,7 +551,7 @@ export default (G: Game) => {
 					// @ts-expect-error 'this' refers to the animation object, _not_ the ability
 					this.destroy();
 
-					G.gameEngine.cameras.main.shake(0.01, 90, true, Phaser.camera.SHAKE_HORIZONTAL, true);
+					G.gameEngine.cameras.main.shake(0.01, 90, true, G.gameEngine.cameras.main.SHAKE_HORIZONTAL, true);
 
 					// Play hit sound when projectile reaches target
 					G.soundsys.playSFX('units/sfx/Snow Bunny 3');

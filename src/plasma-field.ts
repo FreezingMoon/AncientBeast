@@ -12,6 +12,7 @@
  */
 
 import type { Creature } from './creature';
+import type { GameEngine, BitmapDataHandle, SpriteHandle, GroupHandle } from './engine/types';
 
 export interface PlasmaFieldSettings {
 	transparency: number;
@@ -41,7 +42,7 @@ export interface PlasmaFieldOptions extends Partial<PlasmaFieldSettings> {
 	fps?: number;
 	renderScale?: number;
 	staticMode?: boolean;
-	parent?: Phaser.Group;
+	parent?: GroupHandle;
 	creature?: Creature;
 }
 
@@ -166,8 +167,8 @@ function hueRotateRgb(
 // All Plasma Fields share a single Phaser timer so the cost of animating
 // several shields at once (e.g. a 2v2 where each side hovers the active
 // Dark Priest) stays bounded instead of multiplying per-field timers.
-let _sharedTimer: Phaser.TimerEvent | null = null;
-let _sharedPhaser: Phaser.Game | null = null;
+let _sharedTimer: any = null;
+let _sharedEngine: GameEngine | null = null;
 const _activeFields = new Set<PlasmaField>();
 
 // Fixed cadence for the shared ticker. We never mutate a running TimerEvent's
@@ -185,34 +186,34 @@ function _tickAllFields(): void {
 }
 
 function _ensureTicker(): void {
-	if (_sharedTimer || !_sharedPhaser) return;
-	_sharedTimer = _sharedPhaser.time.events.loop(
-		Phaser.Timer.SECOND / SHARED_TICK_FPS,
+	if (_sharedTimer || !_sharedEngine) return;
+	_sharedTimer = _sharedEngine.time.loop(
+		1000 / SHARED_TICK_FPS,
 		_tickAllFields,
 	);
 }
 
 function _resetSharedState(): void {
 	// Clear all module-level shared state so a new match can register fields
-	// against a fresh Phaser instance. Called automatically on phaser mismatch.
-	if (_sharedTimer && _sharedPhaser) {
+	// against a fresh engine instance. Called automatically on engine mismatch.
+	if (_sharedTimer && _sharedEngine) {
 		try {
-			_sharedPhaser.time.events.remove(_sharedTimer);
+			_sharedEngine.time.remove(_sharedTimer);
 		} catch {
-			// Old Phaser instance is already destroyed; ignore.
+			// Old engine instance is already destroyed; ignore.
 		}
 	}
 	_sharedTimer = null;
-	_sharedPhaser = null;
+	_sharedEngine = null;
 	_activeFields.clear();
 }
 
 function _registerField(field: PlasmaField): void {
-	// If our cached phaser is stale (match was restarted), reset everything.
-	if (_sharedPhaser && _sharedPhaser !== field.phaser) {
+	// If our cached engine is stale (match was restarted), reset everything.
+	if (_sharedEngine && _sharedEngine !== field._engine) {
 		_resetSharedState();
 	}
-	_sharedPhaser = field.phaser;
+	_sharedEngine = field._engine;
 	_activeFields.add(field);
 	_ensureTicker();
 }
@@ -220,11 +221,11 @@ function _registerField(field: PlasmaField): void {
 function _unregisterField(field: PlasmaField): void {
 	_activeFields.delete(field);
 	if (_activeFields.size === 0 && _sharedTimer) {
-		if (_sharedPhaser) {
+		if (_sharedEngine) {
 			try {
-				_sharedPhaser.time.events.remove(_sharedTimer);
+				_sharedEngine.time.remove(_sharedTimer);
 			} catch {
-				// Old Phaser instance is already destroyed; ignore.
+				// Old engine instance is already destroyed; ignore.
 			}
 		}
 		_sharedTimer = null;
@@ -232,7 +233,7 @@ function _unregisterField(field: PlasmaField): void {
 }
 
 export class PlasmaField {
-	readonly phaser: Phaser.Game;
+	readonly _engine: GameEngine;
 	private w: number;
 	private h: number;
 	private cx: number;
@@ -253,19 +254,19 @@ export class PlasmaField {
 	private outlinePower: number;
 	private settings: PlasmaFieldSettings;
 	private lowCtx: CanvasRenderingContext2D;
-	private bmd: Phaser.BitmapData;
+	private bmd: BitmapDataHandle;
 	private low: HTMLCanvasElement;
 	private _imgData: ImageData;
-	private parent: Phaser.Group;
-	readonly sprite: Phaser.Sprite;
+	private parent: GroupHandle;
+	readonly sprite: SpriteHandle;
 	private creature: Creature | null;
 	onBurstEnd: (() => void) | null;
 	private fps: number;
 	private _staticMode: boolean;
 	private _noCanvas = false;
 
-	constructor(phaser: Phaser.Game, x: number, y: number, opt: PlasmaFieldOptions = {}) {
-		this.phaser = phaser;
+	constructor(engine: GameEngine, x: number, y: number, opt: PlasmaFieldOptions = {}) {
+		this._engine = engine;
 		this.w = opt.width || 192;
 		this.h = opt.height || 256;
 		this.cx = this.w / 2;
@@ -289,7 +290,7 @@ export class PlasmaField {
 
 		this.settings = { ...DEFAULT_SETTINGS, ...opt };
 
-		this.parent = opt.parent || phaser.world;
+		this.parent = opt.parent || engine.world;
 		this.creature = opt.creature || null;
 		this.onBurstEnd = null;
 
@@ -307,14 +308,14 @@ export class PlasmaField {
 			this._imgData = ctx.createImageData(this.rw, this.rh);
 		}
 
-		this.bmd = phaser.add.bitmapData(this.w, this.h);
+		this.bmd = engine.add.bitmapData(this.w, this.h);
 		this.sprite = this.parent.create
-			? (this.parent.create(x, y, this.bmd) as Phaser.Sprite)
-			: phaser.add.sprite(x, y, this.bmd);
-		this.sprite.anchor.set(0.5);
+			? (this.parent.create(x, y, this.bmd as any) as SpriteHandle)
+			: engine.add.sprite(x, y, this.bmd as any as string);
+		this.sprite.anchor.set(0.5, 0.5);
 		this.sprite.scale.set(this.settings.scaleX, this.settings.scaleY);
 		this.sprite.alpha = this.alpha;
-		this.sprite.blendMode = Phaser.blendModes.ADD;
+		this.sprite.blendMode = 20;
 
 		if (this._staticMode) {
 			this.draw();
@@ -605,7 +606,7 @@ export class PlasmaField {
 	};
 
 	/** Position the field relative to the Dark Priest cardboard sprite. */
-	positionTo(target: Phaser.Sprite, offsetX: number, offsetY: number): void {
+	positionTo(target: SpriteHandle, offsetX: number, offsetY: number): void {
 		this.sprite.x = target.x + offsetX;
 		this.sprite.y = target.y - offsetY;
 	}

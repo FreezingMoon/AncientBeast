@@ -56,9 +56,9 @@ type InfernalCardboardEffectState = {
 	heatBmd?: Phaser.BitmapData;
 	heatFrame?: { x: number; y: number; width: number; height: number };
 	heatSource?: CanvasImageSource;
-	heatLayerSprite?: Phaser.Sprite;
-	tweens: Phaser.Tween[];
-	trailSprites: Phaser.Sprite[];
+heatLayerSprite?: any;
+	tweens: any[];
+	trailSprites: any[];
 };
 
 const BONFIRE_BASELINE_Y_COMPENSATION_PX = -15;
@@ -360,7 +360,6 @@ export class Animations {
 		duration: number,
 		clearOverrideOnComplete = false,
 	): Promise<void[]> {
-		const phaser = this.game.Phaser;
 		return Promise.all(
 			hexes.map((hexagon) => {
 				const hasDisplay = Boolean(hexagon.display?.exists);
@@ -382,9 +381,9 @@ export class Animations {
 				hexagon.forcedDisplayAlpha = tweenState.alpha;
 				hexagon.forcedCreatureOverlayAlpha = tweenState.alpha;
 
-				const alphaTween = phaser.add
+				const alphaTween = this.game.gameEngine
 					.tween(tweenState)
-					.to({ alpha }, duration, Phaser.Easing.Quadratic.InOut, true);
+					.to({ alpha }, duration, 'Quadratic.InOut', true);
 				alphaTween.onUpdateCallback(() => {
 					hexagon.forcedDisplayAlpha = tweenState.alpha;
 					hexagon.forcedCreatureOverlayAlpha = tweenState.alpha;
@@ -483,9 +482,9 @@ export class Animations {
 
 	startBonfireSpringTrapAnimation(
 		display: Phaser.Sprite,
-		trapGroup: Phaser.Group,
-		idleTweens: Phaser.Tween[],
-		overlaySprites: Phaser.Sprite[],
+		trapGroup: any,
+		idleTweens: any[],
+		overlaySprites: any[],
 	) {
 		const base = display;
 
@@ -742,9 +741,9 @@ export class Animations {
 
 	startScorchedGroundTrapAnimation(
 		display: Phaser.Sprite,
-		trapGroup: Phaser.Group,
-		idleTweens: Phaser.Tween[],
-		overlaySprites: Phaser.Sprite[],
+		trapGroup: any,
+		idleTweens: any[],
+		overlaySprites: any[],
 	) {
 		display.alpha = 1;
 		const bx = display.x;
@@ -929,7 +928,7 @@ export class Animations {
 		game.animationQueue.push(animId);
 
 		if (opts.teleportEffect === 'abolishedBonfire') {
-			const phaser = game.Phaser;
+			const gameEngine = game.gameEngine;
 			const transition = this._createMovementHexTransition(creature, hex);
 			const originHexes = transition.originHexes;
 			this._setHexForcedHidden(transition.originOnlyHexes, true);
@@ -1003,9 +1002,9 @@ export class Animations {
 											y: baseScale.y,
 									  };
 
-							const scaleTween = phaser.add
-								.tween(sprite.scale)
-								.to(targetScale, duration, ease, true);
+const scaleTween = gameEngine
+				.tween(sprite.scale)
+				.to(targetScale, duration, ease, true);
 							return new Promise<void>((resolve) => {
 								scaleTween.onComplete.addOnce(() => resolve());
 							});
@@ -1515,7 +1514,7 @@ export class Animations {
 				const shardScreenX = isFlipped ? texW - sx - sw : sx;
 				const x = spriteLeft + shardScreenX + sw / 2;
 				const y = spriteTop + sy + sh / 2;
-				const shard = game.grid.creatureGroup.create(x, y, bmd);
+				const shard = game.grid.creatureGroup.create(x, y, bmd as any as string);
 				shard.anchor.setTo(0.5, 0.5);
 				shard.angle = -18 + Math.random() * 36;
 
@@ -1580,7 +1579,7 @@ export class Animations {
 
 			const baseX = spriteLeft + texW / 2;
 			const baseY = spriteTop + texH / 2;
-			const baseSprite = game.grid.creatureGroup.create(baseX, baseY, baseBmd);
+			const baseSprite = game.grid.creatureGroup.create(baseX, baseY, baseBmd as any as string);
 			baseSprite.anchor.setTo(0.5, 0.5);
 			if (isFlipped) {
 				baseSprite.scale.x = -1;
@@ -1879,7 +1878,7 @@ export class Animations {
 			state.hazeSprite.x = sprite.x;
 			state.hazeSprite.y = sprite.y - state.glowOffsetY;
 			state.hazeSprite.scale.setTo(dir, 1);
-			const deltaSeconds = Math.min((this.game.Phaser?.time?.elapsedMS ?? 0) / 1000, 0.1);
+			const deltaSeconds = Math.min((this.game.gameEngine.time.elapsedMS ?? 0) / 1000, 0.1);
 			state.luminescenceUniforms = advanceShaderTime(state.luminescenceUniforms, deltaSeconds);
 			const uTime = state.luminescenceUniforms.uTime as number;
 			const pulseSpeed = (state.luminescenceUniforms.uPulseSpeed as number) ?? 4.2;
@@ -1895,7 +1894,7 @@ export class Animations {
 
 		if (state.heatReady && (forceHeatSpawn || now >= state.heatNextAt)) {
 			const group = state.group;
-			const deltaSeconds = Math.min((this.game.Phaser?.time?.elapsedMS ?? 0) / 1000, 0.1);
+			const deltaSeconds = Math.min((this.game.gameEngine.time.elapsedMS ?? 0) / 1000, 0.1);
 			state.heatUniforms = advanceShaderTime(state.heatUniforms, deltaSeconds);
 			const wisp = group.create(sprite.x, sprite.y - state.glowOffsetY, sprite.key);
 			wisp.anchor.setTo(0.5, 1);

@@ -542,7 +542,7 @@ export class UI {
 	$grid: JQuery<HTMLElement>; //eslint-disable-line no-undef
 	$activebox: JQuery<HTMLElement>; //eslint-disable-line no-undef
 	$scoreboard: JQuery<HTMLElement>; //eslint-disable-line no-undef
-	brandlogo: Phaser.Image;
+	brandlogo: any;
 	active: boolean;
 	queue: Queue;
 	quickInfo: QuickInfo;

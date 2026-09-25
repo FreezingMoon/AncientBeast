@@ -151,6 +151,46 @@ describe('Vehemoth Falling Arrow damage fallback', () => {
 
 		loadVehemothAbilities(game as never);
 
+		// Expose a gameEngine adapter mock so gameplay code that calls
+		// G.gameEngine.* (e.g. cameras.main.shake, add.graphics, tween)
+		// has a stable surface to talk to.
+		(game as any).gameEngine = {
+			cameras: { main: { shake: jest.fn() } },
+			add: {
+				graphics: jest.fn(() => ({
+					beginFill: jest.fn(),
+					drawRect: jest.fn(),
+					endFill: jest.fn(),
+					destroy: jest.fn(),
+				})),
+				bitmapData: jest.fn(() => ({
+					width: 100,
+					height: 100,
+					ctx: { clearRect: jest.fn(), save: jest.fn(), restore: jest.fn(), translate: jest.fn(), scale: jest.fn(), drawImage: jest.fn() },
+					context: { clearRect: jest.fn(), save: jest.fn(), restore: jest.fn(), translate: jest.fn(), scale: jest.fn(), drawImage: jest.fn() },
+					dirty: false,
+					update: jest.fn(),
+					destroy: jest.fn(),
+				})),
+				group: jest.fn(() => ({ children: [], add: jest.fn(), addAt: jest.fn(), remove: jest.fn() })),
+				tileSprite: jest.fn(() => ({})),
+				socket: jest.fn(() => ({ anchor: { setTo: jest.fn() }, scale: { setTo: jest.fn() }, angle: 0, destroy: jest.fn() })),
+				image: jest.fn(() => ({})),
+				text: jest.fn(() => ({})),
+			},
+			tween: jest.fn(() => {
+				const tween = {
+					onComplete: { add: (fn: () => void) => fn(), addOnce: (fn: () => void) => fn() },
+					to: () => tween,
+					start: () => tween,
+					stop: () => tween,
+					yoyo: () => tween,
+					repeat: () => tween,
+				};
+				return tween;
+			}),
+		};
+
 		const baseAbility = game.abilities[6][3] as typeof ability;
 		ability = {
 			...baseAbility,
@@ -254,6 +294,19 @@ describe('Vehemoth Flat Frons deferred query resume', () => {
 		};
 
 		loadVehemothAbilities(game as never);
+
+		// Expose a gameEngine adapter mock so gameplay code that calls
+		// G.gameEngine.* (e.g. cameras.main.shake) has a stable surface.
+		(game as any).gameEngine = {
+			cameras: {
+				main: {
+					shake: jest.fn(),
+					SHAKE_HORIZONTAL: 'horizontal',
+					SHAKE_VERTICAL: 'vertical',
+					SHAKE_BOTH: 'both',
+				},
+			},
+		};
 	});
 
 	test('resumes query when knockback target is unmoveable', () => {

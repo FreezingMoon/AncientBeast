@@ -567,9 +567,17 @@ export async function createHeadlessGame(
 
 	const GameModule = await import('../game');
 	const Game = GameModule.default;
-	const game: any = new Game();
+const game: any = new Game();
 
-	game.Phaser = buildPhaserMock();
+ game.Phaser = buildPhaserMock();
+	// Wrap the mock in the engine adapter so gameplay code uses gameEngine
+	// instead of game.Phaser directly.
+	const { Phaser2Engine } = await import('../engine/Phaser2Engine');
+	const engine = new Phaser2Engine(game.Phaser);
+	for (const ch of Object.keys(game.signals)) {
+		engine.signals[ch] = game.signals[ch];
+	}
+ game._gameEngine = engine;
 	game.animations = new MockAnimations(game);
 
 	const signalChannels = ['ui', 'metaPowers', 'creature', 'hex'];

@@ -3,12 +3,12 @@ import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 jest.mock('phaser-ce', () => ({
-	Point: class PointMock {},
-	Polygon: class PolygonMock {},
+		Point: class PointMock {},
+		Polygon: class PolygonMock {},
 }));
 
 jest.mock('../../damage', () => ({
-	Damage: class DamageMock {
+		Damage: class DamageMock {
 		damages: unknown;
 		constructor(_attacker: unknown, damages: unknown) {
 			this.damages = damages;
@@ -17,7 +17,7 @@ jest.mock('../../damage', () => ({
 }));
 
 jest.mock('../../utility/hex', () => ({
-	Hex: class HexMock {
+		Hex: class HexMock {
 		x: number;
 		y: number;
 		creature?: unknown;
@@ -59,20 +59,20 @@ jest.mock('../../creature', () => {
 		tracePosition = jest.fn();
 		faceHex = jest.fn();
 		creatureSprite = {
-			setDir: jest.fn(),
-			setAlpha: jest.fn(),
-			setHex: jest.fn(() => Promise.resolve()),
-			getPos: jest.fn(() => ({ x: 0, y: 0 })),
+		setDir: jest.fn(),
+		setAlpha: jest.fn(),
+		setHex: jest.fn(() => Promise.resolve()),
+		getPos: jest.fn(() => ({ x: 0, y: 0 })),
 		};
 		sprite = {
-			alpha: 1,
-			x: 0,
-			y: 0,
-			anchor: { x: 0.5, y: 1 },
-			scale: { x: 1, y: 1 },
-			angle: 0,
-			key: 'unit',
-			frame: 0,
+		alpha: 1,
+		x: 0,
+		y: 0,
+		anchor: { x: 0.5, y: 1 },
+		scale: { x: 1, y: 1 },
+		angle: 0,
+		key: 'unit',
+		frame: 0,
 		};
 		grp = { x: 0, y: 0 };
 
@@ -100,20 +100,28 @@ jest.mock('../../creature', () => {
 import loadCycloperAbilities from '../../abilities/Cycloper';
 import { Creature } from '../../creature';
 
+(globalThis as { Phaser?: unknown }).Phaser = {
+	Easing: {
+		Linear: { None: 0 },
+		Cubic: { Out: 0 },
+	},
+};
+
 describe('Cycloper abilities', () => {
 	let game: any;
 
 	beforeEach(() => {
-		game = {
-			abilities: [],
-			creatureData: [],
-			activeCreature: null,
-			animations: {
-				projectile: jest.fn(() => {
-					const sprite = { destroy: jest.fn() };
+		jest.useFakeTimers();
+	 game = {
+		abilities: [],
+		creatureData: [],
+		activeCreature: null,
+		animations: {
+		projectile: jest.fn(() => {
+					const sprite = { destroy: jest.fn() }
 					const tween = {
-						onComplete: {
-							add: (fn: () => void, context?: unknown) => {
+		onComplete: {
+		add: (fn: () => void, context?: unknown) => {
 								fn.call(context);
 							},
 						},
@@ -121,97 +129,172 @@ describe('Cycloper abilities', () => {
 					return [tween, sprite];
 				}),
 			},
-			grid: {
-				getHexLine: jest.fn(),
-				getDirectionChoices: jest.fn(),
-				forEachHex: jest.fn(),
-				updateDisplay: jest.fn(),
-				hexes: [],
-				queryDirection: jest.fn(),
-				queryChoice: jest.fn(),
-				queryHexes: jest.fn(),
-				previewCreature: jest.fn(),
-				orderCreatureZ: jest.fn(),
-				materialize_overlay: { alpha: 0, destroy: jest.fn() },
-				secondary_overlay: { alpha: 0, destroy: jest.fn() },
-				_flickerTween: null,
-				_flickerTweenSecondary: null,
-				creatureGroup: { add: jest.fn(), addAt: jest.fn(), remove: jest.fn() },
+		grid: {
+		getHexLine: jest.fn(),
+		getDirectionChoices: jest.fn(),
+		forEachHex: jest.fn(),
+		updateDisplay: jest.fn(),
+		hexes: [],
+		queryDirection: jest.fn(),
+		queryChoice: jest.fn(),
+		queryHexes: jest.fn(),
+		previewCreature: jest.fn(),
+		orderCreatureZ: jest.fn(),
+		materialize_overlay: { alpha: 0, destroy: jest.fn() },
+		secondary_overlay: { alpha: 0, destroy: jest.fn() },
+		_flickerTween: null,
+		_flickerTweenSecondary: null,
+		creatureGroup: { add: jest.fn(), addAt: jest.fn(), remove: jest.fn(), addChild: jest.fn(), create: jest.fn(() => ({
+			anchor: { setTo: jest.fn() },
+			scale: { setTo: jest.fn() },
+			angle: 0,
+			tint: 0,
+			alpha: 0,
+			x: 0,
+			y: 0,
+			destroy: jest.fn(),
+		})) },
 			},
-			UI: {
-				energyBar: {
-					animSize: jest.fn(),
-					setSize: jest.fn(),
-					previewSize: jest.fn(),
-					setAvailableStyle: jest.fn(),
-					setUnavailableStyle: jest.fn(),
+		UI: {
+		energyBar: {
+		animSize: jest.fn(),
+		setSize: jest.fn(),
+		previewSize: jest.fn(),
+		setAvailableStyle: jest.fn(),
+		setUnavailableStyle: jest.fn(),
 				},
 			},
-			Phaser: {
-				add: {
-					group: jest.fn(() => ({ x: 0, y: 0, alpha: 1, destroy: jest.fn() })),
-					sprite: jest.fn(() => ({
-						anchor: { setTo: jest.fn() },
-						scale: { setTo: jest.fn() },
-						angle: 0,
+		Phaser: {
+		add: {
+		group: jest.fn(() => ({ x: 0, y: 0, alpha: 1, destroy: jest.fn() })),
+		sprite: jest.fn(() => ({
+		anchor: { setTo: jest.fn() },
+		scale: { setTo: jest.fn() },
+		angle: 0,
 					})),
-					tween: jest.fn(() => ({
-						to: jest.fn(() => ({
-							onComplete: { addOnce: jest.fn() },
-							start: jest.fn(),
+		tween: jest.fn(() => ({
+		to: jest.fn(() => ({
+		onComplete: { addOnce: jest.fn() },
+		start: jest.fn(),
 						})),
 					})),
 				},
-				tweens: {
-					removeFrom: jest.fn(),
+		tweens: {
+		removeFrom: jest.fn(),
 				},
 			},
-			onStepOut: jest.fn(),
-			onStepIn: jest.fn(),
-			onCreatureMove: jest.fn(),
-			updateQueueDisplay: jest.fn(),
-			turn: 4,
-			retrieveCreatureStats: jest.fn(),
-			msg: {
-				abilities: {
-					notEnough: 'Not enough %stat%.',
-					noTarget: 'No target.',
+		onStepOut: jest.fn(),
+		onStepIn: jest.fn(),
+		onCreatureMove: jest.fn(),
+		updateQueueDisplay: jest.fn(),
+		turn: 4,
+		retrieveCreatureStats: jest.fn(),
+		msg: {
+		abilities: {
+		notEnough: 'Not enough %stat%.',
+		noTarget: 'No target.',
 				},
+			},
+gameEngine: {
+		cameras: { main: { shake: () => {} } },
+		add: {
+		graphics: () => ({
+				beginFill: jest.fn(),
+				drawRect: jest.fn(),
+				endFill: jest.fn(),
+				clear: jest.fn(),
+				lineStyle: jest.fn(),
+				moveTo: jest.fn(),
+				lineTo: jest.fn(),
+				drawCircle: jest.fn(),
+				mask: null,
+				destroy: jest.fn(),
+			}),
+		bitmapData: () => ({
+				width: 100,
+				height: 100,
+				ctx: {
+					clearRect: jest.fn(),
+					save: jest.fn(),
+					restore: jest.fn(),
+					translate: jest.fn(),
+					scale: jest.fn(),
+					drawImage: jest.fn(),
+				},
+				context: {
+					clearRect: jest.fn(),
+					save: jest.fn(),
+					restore: jest.fn(),
+					translate: jest.fn(),
+					scale: jest.fn(),
+					drawImage: jest.fn(),
+				},
+				dirty: false,
+				update: jest.fn(),
+				destroy: jest.fn(),
+			}),
+		group: () => ({ children: [], add: () => {}, addAt: () => {}, remove: () => {} }),
+		tileSprite: () => ({}),
+		socket: () => ({
+				anchor: { setTo: jest.fn() },
+				scale: { setTo: jest.fn() },
+				angle: 0,
+				destroy: jest.fn(),
+			}),
+		image: () => ({}),
+		text: () => ({}),
+		},
+		tween: () => {
+			const onComplete = {
+				add: (fn: (this: unknown) => void, context?: unknown) => fn.call(context ?? {}),
+				addOnce: (fn: (this: unknown) => void, context?: unknown) => fn.call(context ?? {}),
+			};
+			const afterStart = { stop: () => ({}), onComplete };
+			const afterTo = { start: () => afterStart, stop: () => ({}), onComplete };
+			return { to: () => afterTo, start: () => afterStart, stop: () => ({}), onComplete };
+		},
+		time: {
+			now: 0,
+			add: jest.fn(),
+			loop: jest.fn(),
+			remove: jest.fn(),
+		},
 			},
 		};
 
+		globalThis.G = game as never;
 		loadCycloperAbilities(game as never);
 	});
 
 	test('Optic Burst upgraded prioritizes enemy damage over inline damaged wall', () => {
 		const cycloper = new (Creature as any)({
-			id: 15,
-			team: 0,
-			type: 'W0',
-			x: 3,
-			y: 3,
-			hexagons: [{ x: 3, y: 3 }],
-			player: { id: 0, flipped: false, creatures: [] },
-			health: 60,
-			stats: { health: 60, energy: 100 },
+		id: 15,
+		team: 0,
+		type: 'W0',
+		x: 3,
+		y: 3,
+		hexagons: [{ x: 3, y: 3 }],
+		player: { id: 0, flipped: false, creatures: [] },
+		health: 60,
+		stats: { health: 60, energy: 100 },
 		});
 
 		const wall = new (Creature as any)({
-			id: 100,
-			team: 0,
-			type: 'O0',
-			health: 10,
-			stats: { health: 30 },
-			hexagons: [{ x: 4, y: 3 }],
+		id: 100,
+		team: 0,
+		type: 'O0',
+		health: 10,
+		stats: { health: 30 },
+		hexagons: [{ x: 4, y: 3 }],
 		});
 
 		const enemy = new (Creature as any)({
-			id: 200,
-			team: 1,
-			type: 'A1',
-			health: 80,
-			stats: { health: 80 },
-			hexagons: [{ x: 5, y: 3 }],
+		id: 200,
+		team: 1,
+		type: 'A1',
+		health: 80,
+		stats: { health: 80 },
+		hexagons: [{ x: 5, y: 3 }],
 		});
 
 		game.grid.getHexLine.mockReturnValue([
@@ -225,10 +308,10 @@ describe('Cycloper abilities', () => {
 		const abilityDef = game.abilities[15][1];
 		const opticBurst = {
 			...abilityDef,
-			creature: cycloper,
-			damages: { burn: 30 },
-			isUpgraded: () => true,
-			end: jest.fn(),
+		creature: cycloper,
+		damages: { burn: 30 },
+		isUpgraded: () => true,
+		end: jest.fn(),
 		};
 
 		opticBurst.activate(
@@ -238,6 +321,7 @@ describe('Cycloper abilities', () => {
 			],
 			{ direction: 1 },
 		);
+		jest.runAllTimers();
 
 		expect(enemy.takeDamage).toHaveBeenCalledTimes(1);
 		expect(wall.heal).not.toHaveBeenCalled();
@@ -245,33 +329,33 @@ describe('Cycloper abilities', () => {
 
 	test('Optic Burst upgraded repairs selected damaged wall even with enemy inline', () => {
 		const cycloper = new (Creature as any)({
-			id: 15,
-			team: 0,
-			type: 'W0',
-			x: 3,
-			y: 3,
-			hexagons: [{ x: 3, y: 3 }],
-			player: { id: 0, flipped: false, creatures: [] },
-			health: 60,
-			stats: { health: 60, energy: 100 },
+		id: 15,
+		team: 0,
+		type: 'W0',
+		x: 3,
+		y: 3,
+		hexagons: [{ x: 3, y: 3 }],
+		player: { id: 0, flipped: false, creatures: [] },
+		health: 60,
+		stats: { health: 60, energy: 100 },
 		});
 
 		const wall = new (Creature as any)({
-			id: 100,
-			team: 0,
-			type: 'O0',
-			health: 10,
-			stats: { health: 30 },
-			hexagons: [{ x: 4, y: 3 }],
+		id: 100,
+		team: 0,
+		type: 'O0',
+		health: 10,
+		stats: { health: 30 },
+		hexagons: [{ x: 4, y: 3 }],
 		});
 
 		const enemy = new (Creature as any)({
-			id: 200,
-			team: 1,
-			type: 'A1',
-			health: 80,
-			stats: { health: 80 },
-			hexagons: [{ x: 5, y: 3 }],
+		id: 200,
+		team: 1,
+		type: 'A1',
+		health: 80,
+		stats: { health: 80 },
+		hexagons: [{ x: 5, y: 3 }],
 		});
 
 		game.grid.getHexLine.mockReturnValue([
@@ -283,10 +367,10 @@ describe('Cycloper abilities', () => {
 		const abilityDef = game.abilities[15][1];
 		const opticBurst = {
 			...abilityDef,
-			creature: cycloper,
-			damages: { burn: 30 },
-			isUpgraded: () => true,
-			end: jest.fn(),
+		creature: cycloper,
+		damages: { burn: 30 },
+		isUpgraded: () => true,
+		end: jest.fn(),
 		};
 
 		opticBurst.activate(
@@ -303,24 +387,24 @@ describe('Cycloper abilities', () => {
 
 	test('Optic Burst wall heal uses full burn value instead of distance-reduced amount', () => {
 		const cycloper = new (Creature as any)({
-			id: 15,
-			team: 0,
-			type: 'W0',
-			x: 3,
-			y: 3,
-			hexagons: [{ x: 3, y: 3 }],
-			player: { id: 0, flipped: false, creatures: [] },
-			health: 60,
-			stats: { health: 60, energy: 100 },
+		id: 15,
+		team: 0,
+		type: 'W0',
+		x: 3,
+		y: 3,
+		hexagons: [{ x: 3, y: 3 }],
+		player: { id: 0, flipped: false, creatures: [] },
+		health: 60,
+		stats: { health: 60, energy: 100 },
 		});
 
 		const wall = new (Creature as any)({
-			id: 100,
-			team: 0,
-			type: 'O0',
-			health: 1,
-			stats: { health: 100 },
-			hexagons: [{ x: 4, y: 3 }],
+		id: 100,
+		team: 0,
+		type: 'O0',
+		health: 1,
+		stats: { health: 100 },
+		hexagons: [{ x: 4, y: 3 }],
 		});
 
 		game.grid.getHexLine.mockReturnValue([
@@ -331,15 +415,15 @@ describe('Cycloper abilities', () => {
 		const abilityDef = game.abilities[15][1];
 		const opticBurst = {
 			...abilityDef,
-			creature: cycloper,
-			damages: { burn: 30 },
-			isUpgraded: () => true,
-			end: jest.fn(),
+		creature: cycloper,
+		damages: { burn: 30 },
+		isUpgraded: () => true,
+		end: jest.fn(),
 		};
 
 		opticBurst.activate([{ x: 4, y: 3, creature: wall }], {
-			direction: 1,
-			hex: { x: 4, y: 3, creature: wall },
+		direction: 1,
+		hex: { x: 4, y: 3, creature: wall },
 		});
 
 		expect(wall.heal).toHaveBeenCalledWith(30);
@@ -347,24 +431,24 @@ describe('Cycloper abilities', () => {
 
 	test('Optic Burst upgraded heals selected wounded allied creature', () => {
 		const cycloper = new (Creature as any)({
-			id: 15,
-			team: 0,
-			type: 'W0',
-			x: 3,
-			y: 3,
-			hexagons: [{ x: 3, y: 3 }],
-			player: { id: 0, flipped: false, creatures: [] },
-			health: 60,
-			stats: { health: 60, energy: 100 },
+		id: 15,
+		team: 0,
+		type: 'W0',
+		x: 3,
+		y: 3,
+		hexagons: [{ x: 3, y: 3 }],
+		player: { id: 0, flipped: false, creatures: [] },
+		health: 60,
+		stats: { health: 60, energy: 100 },
 		});
 
 		const ally = new (Creature as any)({
-			id: 101,
-			team: 0,
-			type: 'B0',
-			health: 20,
-			stats: { health: 50 },
-			hexagons: [{ x: 4, y: 3 }],
+		id: 101,
+		team: 0,
+		type: 'B0',
+		health: 20,
+		stats: { health: 50 },
+		hexagons: [{ x: 4, y: 3 }],
 		});
 
 		game.grid.getHexLine.mockReturnValue([
@@ -375,15 +459,15 @@ describe('Cycloper abilities', () => {
 		const abilityDef = game.abilities[15][1];
 		const opticBurst = {
 			...abilityDef,
-			creature: cycloper,
-			damages: { burn: 30 },
-			isUpgraded: () => true,
-			end: jest.fn(),
+		creature: cycloper,
+		damages: { burn: 30 },
+		isUpgraded: () => true,
+		end: jest.fn(),
 		};
 
 		opticBurst.activate([{ x: 4, y: 3, creature: ally }], {
-			direction: 1,
-			hex: { x: 4, y: 3, creature: ally },
+		direction: 1,
+		hex: { x: 4, y: 3, creature: ally },
 		});
 
 		expect(ally.heal).toHaveBeenCalledWith(30);
@@ -391,34 +475,35 @@ describe('Cycloper abilities', () => {
 
 	test('Optic Burst upgraded heals nearest wounded ally when ally and enemy are inline', () => {
 		const cycloper = new (Creature as any)({
-			id: 15,
-			team: 0,
-			type: 'W0',
-			x: 3,
-			y: 3,
-			hexagons: [{ x: 3, y: 3 }],
-			player: { id: 0, flipped: false, creatures: [] },
-			health: 60,
-			stats: { health: 60, energy: 100 },
+		id: 15,
+		team: 0,
+		type: 'W0',
+		x: 3,
+		y: 3,
+		hexagons: [{ x: 3, y: 3 }],
+		player: { id: 0, flipped: false, creatures: [] },
+		health: 60,
+		stats: { health: 60, energy: 100 },
 		});
 
 		const ally = new (Creature as any)({
-			id: 104,
-			team: 0,
-			type: 'B0',
-			health: 25,
-			stats: { health: 50 },
-			hexagons: [{ x: 4, y: 3 }],
+		id: 104,
+		team: 0,
+		type: 'B0',
+		health: 25,
+		stats: { health: 50 },
+		hexagons: [{ x: 4, y: 3 }],
 		});
 
-		const enemy = new (Creature as any)({
-			id: 204,
-			team: 1,
-			type: 'A1',
-			health: 80,
-			stats: { health: 80 },
-			hexagons: [{ x: 5, y: 3 }],
-		});
+const enemy = new (Creature as any)({
+		id: 200,
+		team: 1,
+		type: 'A1',
+		health: 80,
+		stats: { health: 80 },
+		hexagons: [{ x: 5, y: 3 }],
+		takeDamage: jest.fn(),
+	});
 
 		game.grid.getHexLine.mockReturnValue([
 			{ x: 3, y: 3, creature: cycloper },
@@ -429,10 +514,10 @@ describe('Cycloper abilities', () => {
 		const abilityDef = game.abilities[15][1];
 		const opticBurst = {
 			...abilityDef,
-			creature: cycloper,
-			damages: { burn: 30 },
-			isUpgraded: () => true,
-			end: jest.fn(),
+		creature: cycloper,
+		damages: { burn: 30 },
+		isUpgraded: () => true,
+		end: jest.fn(),
 		};
 
 		opticBurst.activate(
@@ -449,49 +534,50 @@ describe('Cycloper abilities', () => {
 
 	test('Optic Burst upgraded query dashes path beyond wounded ally blocker', () => {
 		const cycloper = new (Creature as any)({
-			id: 15,
-			team: 0,
-			type: 'W0',
-			x: 3,
-			y: 3,
-			hexagons: [{ x: 3, y: 3 }],
-			player: { id: 0, flipped: false, creatures: [] },
-			health: 60,
-			stats: { health: 60, energy: 100 },
+		id: 15,
+		team: 0,
+		type: 'W0',
+		x: 3,
+		y: 3,
+		hexagons: [{ x: 3, y: 3 }],
+		player: { id: 0, flipped: false, creatures: [] },
+		health: 60,
+		stats: { health: 60, energy: 100 },
 		});
 
 		const ally = new (Creature as any)({
-			id: 105,
-			team: 0,
-			type: 'B0',
-			health: 20,
-			stats: { health: 50 },
-			hexagons: [{ x: 4, y: 3 }],
+		id: 105,
+		team: 0,
+		type: 'B0',
+		health: 20,
+		stats: { health: 50 },
+		hexagons: [{ x: 4, y: 3 }],
 		});
 
-		const enemy = new (Creature as any)({
-			id: 205,
-			team: 1,
-			type: 'A1',
-			health: 80,
-			stats: { health: 80 },
-			hexagons: [{ x: 5, y: 3 }],
-		});
+const enemy = new (Creature as any)({
+		id: 200,
+		team: 1,
+		type: 'A1',
+		health: 80,
+		stats: { health: 80 },
+		hexagons: [{ x: 5, y: 3 }],
+		takeDamage: jest.fn(),
+	});
 
 		const allyHex = { x: 4, y: 3, creature: ally } as any;
 		const enemyHex = { x: 5, y: 3, creature: enemy } as any;
 
 		game.grid.getDirectionChoices.mockReturnValue({
-			choices: [[allyHex, enemyHex]],
-			hexesDashed: [],
+		choices: [[allyHex, enemyHex]],
+		hexesDashed: [],
 		});
 
 		const abilityDef = game.abilities[15][1];
 		const opticBurst = {
 			...abilityDef,
-			creature: cycloper,
-			isUpgraded: () => true,
-			animation: jest.fn(),
+		creature: cycloper,
+		isUpgraded: () => true,
+		animation: jest.fn(),
 		};
 
 		opticBurst.query();
@@ -504,30 +590,30 @@ describe('Cycloper abilities', () => {
 
 	test('Power Aperture require sets no-energy-in-range message/flag when targets are in range but unaffordable', () => {
 		const cycloper = new (Creature as any)({
-			id: 15,
-			team: 0,
-			type: 'W0',
-			x: 3,
-			y: 3,
-			hexagons: [{ x: 3, y: 3 }],
-			player: { id: 0, flipped: false, creatures: [] },
-			health: 60,
-			energy: 5,
-			stats: { health: 60, energy: 100 },
+		id: 15,
+		team: 0,
+		type: 'W0',
+		x: 3,
+		y: 3,
+		hexagons: [{ x: 3, y: 3 }],
+		player: { id: 0, flipped: false, creatures: [] },
+		health: 60,
+		energy: 5,
+		stats: { health: 60, energy: 100 },
 		});
 
 		const priceyEnemy = new (Creature as any)({
-			id: 201,
-			team: 1,
-			type: 'A1',
-			health: 12,
-			stats: { health: 12 },
-			hexagons: [{ x: 5, y: 3 }],
+		id: 201,
+		team: 1,
+		type: 'A1',
+		health: 12,
+		stats: { health: 12 },
+		hexagons: [{ x: 5, y: 3 }],
 		});
 
 		game.grid.getDirectionChoices.mockReturnValue({
-			choices: [[{ x: 5, y: 3, creature: priceyEnemy, direction: 1 }]],
-			hexesDashed: [],
+		choices: [[{ x: 5, y: 3, creature: priceyEnemy, direction: 1 }]],
+		hexesDashed: [],
 		});
 		game.grid.getHexLine.mockReturnValue([
 			{ x: 3, y: 3, creature: cycloper },
@@ -538,10 +624,10 @@ describe('Cycloper abilities', () => {
 		const abilityDef = game.abilities[15][3];
 		const powerAperture = {
 			...abilityDef,
-			creature: cycloper,
-			isUpgraded: () => false,
-			testRequirements: () => true,
-			message: '',
+		creature: cycloper,
+		isUpgraded: () => false,
+		testRequirements: () => true,
+		message: '',
 		};
 
 		expect(powerAperture.require()).toBe(false);
@@ -551,35 +637,35 @@ describe('Cycloper abilities', () => {
 
 	test('Power Aperture keeps the selected target visible when no destination hex is available', () => {
 		const cycloper = new (Creature as any)({
-			id: 15,
-			team: 0,
-			type: 'W0',
-			x: 3,
-			y: 3,
-			hexagons: [{ x: 3, y: 3 }],
-			player: { id: 0, flipped: false, creatures: [] },
-			health: 60,
-			energy: 100,
-			stats: { health: 60, energy: 100 },
+		id: 15,
+		team: 0,
+		type: 'W0',
+		x: 3,
+		y: 3,
+		hexagons: [{ x: 3, y: 3 }],
+		player: { id: 0, flipped: false, creatures: [] },
+		health: 60,
+		energy: 100,
+		stats: { health: 60, energy: 100 },
 		});
 		game.activeCreature = cycloper;
 
 		const target = new (Creature as any)({
-			id: 203,
-			team: 1,
-			type: 'A1',
-			x: 5,
-			y: 3,
-			hexagons: [{ x: 5, y: 3 }],
-			player: { id: 1, flipped: true, creatures: [] },
-			health: 20,
-			stats: { health: 20, energy: 50 },
+		id: 203,
+		team: 1,
+		type: 'A1',
+		x: 5,
+		y: 3,
+		hexagons: [{ x: 5, y: 3 }],
+		player: { id: 1, flipped: true, creatures: [] },
+		health: 20,
+		stats: { health: 20, energy: 50 },
 		});
 
 		game.grid.getDirectionChoices
 			.mockReturnValueOnce({
-				choices: [[{ x: 5, y: 3, creature: target, direction: 1 }]],
-				hexesDashed: [],
+		choices: [[{ x: 5, y: 3, creature: target, direction: 1 }]],
+		hexesDashed: [],
 			})
 			.mockReturnValueOnce({ choices: [[]], hexesDashed: [] });
 		game.grid.getHexLine.mockReturnValue([
@@ -591,10 +677,10 @@ describe('Cycloper abilities', () => {
 		const abilityDef = game.abilities[15][3];
 		const powerAperture = {
 			...abilityDef,
-			creature: cycloper,
-			isUpgraded: () => false,
-			testRequirements: () => true,
-			message: '',
+		creature: cycloper,
+		isUpgraded: () => false,
+		testRequirements: () => true,
+		message: '',
 		};
 
 		powerAperture.query();
@@ -614,30 +700,30 @@ describe('Cycloper abilities', () => {
 
 	test('Power Aperture uses max health by default and current health when upgraded', () => {
 		const cycloper = new (Creature as any)({
-			id: 15,
-			team: 0,
-			type: 'W0',
-			x: 3,
-			y: 3,
-			hexagons: [{ x: 3, y: 3 }],
-			player: { id: 0, flipped: false, creatures: [] },
-			health: 60,
-			energy: 10,
-			stats: { health: 60, energy: 100 },
+		id: 15,
+		team: 0,
+		type: 'W0',
+		x: 3,
+		y: 3,
+		hexagons: [{ x: 3, y: 3 }],
+		player: { id: 0, flipped: false, creatures: [] },
+		health: 60,
+		energy: 10,
+		stats: { health: 60, energy: 100 },
 		});
 
 		const damagedEnemy = new (Creature as any)({
-			id: 202,
-			team: 1,
-			type: 'A1',
-			health: 8,
-			stats: { health: 20 },
-			hexagons: [{ x: 5, y: 3 }],
+		id: 202,
+		team: 1,
+		type: 'A1',
+		health: 8,
+		stats: { health: 20 },
+		hexagons: [{ x: 5, y: 3 }],
 		});
 
 		game.grid.getDirectionChoices.mockReturnValue({
-			choices: [[{ x: 5, y: 3, creature: damagedEnemy, direction: 1 }]],
-			hexesDashed: [],
+		choices: [[{ x: 5, y: 3, creature: damagedEnemy, direction: 1 }]],
+		hexesDashed: [],
 		});
 		game.grid.getHexLine.mockReturnValue([
 			{ x: 3, y: 3, creature: cycloper },
@@ -649,10 +735,10 @@ describe('Cycloper abilities', () => {
 
 		const defaultPowerAperture = {
 			...abilityDef,
-			creature: cycloper,
-			isUpgraded: () => false,
-			testRequirements: () => true,
-			message: '',
+		creature: cycloper,
+		isUpgraded: () => false,
+		testRequirements: () => true,
+		message: '',
 		};
 
 		expect(defaultPowerAperture.require()).toBe(false);
@@ -660,10 +746,10 @@ describe('Cycloper abilities', () => {
 
 		const upgradedPowerAperture = {
 			...abilityDef,
-			creature: cycloper,
-			isUpgraded: () => true,
-			testRequirements: () => true,
-			message: '',
+		creature: cycloper,
+		isUpgraded: () => true,
+		testRequirements: () => true,
+		message: '',
 		};
 
 		expect(upgradedPowerAperture.require()).toBe(true);
@@ -672,28 +758,28 @@ describe('Cycloper abilities', () => {
 
 	test('Power Aperture restores target visibility when activation aborts on energy check', () => {
 		const cycloper = new (Creature as any)({
-			id: 15,
-			team: 0,
-			type: 'W0',
-			x: 3,
-			y: 3,
-			hexagons: [{ x: 3, y: 3 }],
-			player: { id: 0, flipped: false, creatures: [] },
-			health: 60,
-			energy: 5,
-			stats: { health: 60, energy: 100 },
+		id: 15,
+		team: 0,
+		type: 'W0',
+		x: 3,
+		y: 3,
+		hexagons: [{ x: 3, y: 3 }],
+		player: { id: 0, flipped: false, creatures: [] },
+		health: 60,
+		energy: 5,
+		stats: { health: 60, energy: 100 },
 		});
 
 		const target = new (Creature as any)({
-			id: 204,
-			team: 1,
-			type: 'A1',
-			x: 5,
-			y: 3,
-			hexagons: [{ x: 5, y: 3 }],
-			player: { id: 1, flipped: true, creatures: [] },
-			health: 20,
-			stats: { health: 20, energy: 50 },
+		id: 204,
+		team: 1,
+		type: 'A1',
+		x: 5,
+		y: 3,
+		hexagons: [{ x: 5, y: 3 }],
+		player: { id: 1, flipped: true, creatures: [] },
+		health: 20,
+		stats: { health: 20, energy: 50 },
 		});
 
 		target.grp.alpha = 0;
@@ -706,9 +792,9 @@ describe('Cycloper abilities', () => {
 		const abilityDef = game.abilities[15][3];
 		const powerAperture = {
 			...abilityDef,
-			creature: cycloper,
-			_energySelfUpgraded: 20,
-			message: '',
+		creature: cycloper,
+		_energySelfUpgraded: 20,
+		message: '',
 		};
 
 		powerAperture.activate(target, { x: 6, y: 3, pos: { x: 6, y: 3 } });
@@ -725,28 +811,28 @@ describe('Cycloper abilities', () => {
 
 	test('Power Aperture guards against hidden target from previous failed attempt', () => {
 		const cycloper = new (Creature as any)({
-			id: 15,
-			team: 0,
-			type: 'W0',
-			x: 3,
-			y: 3,
-			hexagons: [{ x: 3, y: 3 }],
-			player: { id: 0, flipped: false, creatures: [] },
-			health: 60,
-			energy: 5,
-			stats: { health: 60, energy: 100 },
+		id: 15,
+		team: 0,
+		type: 'W0',
+		x: 3,
+		y: 3,
+		hexagons: [{ x: 3, y: 3 }],
+		player: { id: 0, flipped: false, creatures: [] },
+		health: 60,
+		energy: 5,
+		stats: { health: 60, energy: 100 },
 		});
 
 		const target = new (Creature as any)({
-			id: 205,
-			team: 1,
-			type: 'A1',
-			x: 5,
-			y: 3,
-			hexagons: [{ x: 5, y: 3 }],
-			player: { id: 1, flipped: true, creatures: [] },
-			health: 20,
-			stats: { health: 20, energy: 50 },
+		id: 205,
+		team: 1,
+		type: 'A1',
+		x: 5,
+		y: 3,
+		hexagons: [{ x: 5, y: 3 }],
+		player: { id: 1, flipped: true, creatures: [] },
+		health: 20,
+		stats: { health: 20, energy: 50 },
 		});
 
 		target.grp.alpha = 0;
@@ -759,9 +845,9 @@ describe('Cycloper abilities', () => {
 		const abilityDef = game.abilities[15][3];
 		const powerAperture = {
 			...abilityDef,
-			creature: cycloper,
-			_energySelfUpgraded: 100,
-			message: '',
+		creature: cycloper,
+		_energySelfUpgraded: 100,
+		message: '',
 		};
 
 		powerAperture.activate(target, { x: 6, y: 3, pos: { x: 6, y: 3 } });
@@ -776,35 +862,51 @@ describe('Cycloper abilities', () => {
 
 	test('Power Aperture applies materialization sickness to target after teleport', async () => {
 		const cycloper = new (Creature as any)({
-			id: 15,
-			team: 0,
-			type: 'W0',
-			x: 3,
-			y: 3,
-			hexagons: [{ x: 3, y: 3 }],
-			player: { id: 0, flipped: false, creatures: [] },
-			health: 60,
-			energy: 100,
-			stats: { health: 60, energy: 100 },
+		id: 15,
+		team: 0,
+		type: 'W0',
+		x: 3,
+		y: 3,
+		hexagons: [{ x: 3, y: 3 }],
+		player: { id: 0, flipped: false, creatures: [] },
+		health: 60,
+		energy: 100,
+		stats: { health: 60, energy: 100 },
 		});
 		game.activeCreature = cycloper;
 
 		const target = new (Creature as any)({
-			id: 202,
-			team: 1,
-			type: 'A1',
-			x: 5,
-			y: 3,
-			hexagons: [{ x: 5, y: 3 }],
-			player: { id: 1, flipped: true, creatures: [] },
-			health: 20,
-			stats: { health: 20, energy: 50 },
+		id: 202,
+		team: 1,
+		type: 'A1',
+		x: 5,
+		y: 3,
+		hexagons: [{ x: 5, y: 3 }],
+		player: { id: 1, flipped: true, creatures: [] },
+		health: 20,
+		stats: { health: 20, energy: 50 },
 		});
 
 		target.materializationSickness = false;
 		target._nextGameTurnActive = 4;
 		target.pos = { x: 5, y: 3 };
 		target.hexagons = [{ x: 5, y: 3 }];
+		target.takeDamage = jest.fn();
+		target.sprite = {
+			texture: { crop: { x: 0, y: 0, width: 100, height: 100 }, frame: { x: 0, y: 0, width: 100, height: 100 }, baseTexture: { source: {} }, width: 100, height: 100 },
+			scale: { x: 1 },
+			anchor: { y: 0 },
+			width: 100,
+			height: 100,
+			x: 0,
+			y: 0,
+		};
+		target.creatureSprite = {
+			getPos: () => ({ x: 0, y: 0 }),
+			setDir: jest.fn(),
+			setAlpha: jest.fn(),
+			setHex: jest.fn(() => Promise.resolve()),
+		};
 
 		game.Phaser = undefined;
 		game.grid.hexes = [
@@ -824,14 +926,16 @@ describe('Cycloper abilities', () => {
 		const abilityDef = game.abilities[15][3];
 		const powerAperture = {
 			...abilityDef,
-			creature: cycloper,
-			_energySelfUpgraded: 5,
-			costs: { energy: 0 },
-			end: jest.fn(),
+		creature: cycloper,
+		_energySelfUpgraded: 5,
+		costs: { energy: 0 },
+		end: jest.fn(),
 		};
 
 		powerAperture.activate(target, { x: 5, y: 3, pos: { x: 5, y: 3 } });
+		jest.runAllTimers();
 		await Promise.resolve();
+		jest.runAllTimers();
 		await Promise.resolve();
 
 		expect(target.materializationSickness).toBe(true);

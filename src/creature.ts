@@ -14,6 +14,7 @@ import { Trap } from './utility/trap';
 import { HEX_WIDTH_PX, hashOffsetCoords, offsetNeighbors } from './utility/const';
 import { CreatureType, Level, Realm, Unit, UnitName } from './data/types';
 import { PlasmaField, detectWeakHardware, detectVeryWeakHardware } from './plasma-field';
+import type { GameEngine } from './engine/types';
 
 /** Vertical distance (in pixels) between the Dark Priest's feet and the Plasma Field center. */
 const PLASMA_FIELD_OFFSET_Y = 90;
@@ -35,10 +36,10 @@ const PLASMA_FIELD_HUE_BY_COLOR: Record<string, number> = {
  *
  * Returns 0 when the texture cannot be read (e.g. mocked environment).
  */
-function computeCardboardCenterOffset(phaser: Phaser.Game, sprite: Phaser.Sprite): number {
+function computeCardboardCenterOffset(gameEngine: GameEngine, sprite: any): number {
 	const key = sprite.key;
 	if (typeof key !== 'string') return 0;
-	const src = phaser.cache.getImage(key) as HTMLImageElement | HTMLCanvasElement | null;
+	const src = gameEngine.cache.getImage(key) as HTMLImageElement | HTMLCanvasElement | null;
 	if (!src || !(src.width > 0) || !(src.height > 0)) return 0;
 
 	const w = src.width;
@@ -1728,8 +1729,8 @@ export class Creature {
 
 	/** Ensures the procedural Plasma Field visual exists and is visible. */
 	private showPlasmaShield() {
-		const phaser = this.game.Phaser;
-		if (!phaser || typeof phaser.add?.bitmapData !== 'function' || !this.creatureSprite.grp) {
+		const gameEngine = this.game.gameEngine;
+		if (!gameEngine || typeof gameEngine.add?.bitmapData !== 'function' || !this.creatureSprite.grp) {
 			return;
 		}
 
@@ -1739,7 +1740,7 @@ export class Creature {
 
 			// On lower-end machines, reduce the plasma field rendering cost by
 			// lowering its internal render resolution.
-			this._plasmaFieldBaseOffsetX = computeCardboardCenterOffset(phaser, cardboard);
+			this._plasmaFieldBaseOffsetX = computeCardboardCenterOffset(gameEngine, cardboard);
 			const offsetXMirror = (cardboard.scale.x < 0 ? -1 : 1) * this._plasmaFieldBaseOffsetX;
 
 			const opts: Record<string, unknown> = {
@@ -1756,11 +1757,11 @@ export class Creature {
 				opts.renderScale = detectVeryWeakHardware() ? 4 : 2;
 			}
 
-			this.plasmaField = new PlasmaField(
-				phaser,
-				cardboard.x + offsetXMirror,
-				cardboard.y - PLASMA_FIELD_OFFSET_Y,
-				opts,
+this.plasmaField = new PlasmaField(
+			 gameEngine,
+			 cardboard.x + offsetXMirror,
+			 cardboard.y - PLASMA_FIELD_OFFSET_Y,
+			 opts,
 			);
 			this.creatureSprite.addPostUpdateHook(() => {
 				if (this.plasmaField) {
@@ -2369,22 +2370,22 @@ export class Creature {
 
 class CreatureSprite {
 	private _creature: Creature;
-	private _group: Phaser.Group;
-	private _sprite: Phaser.Sprite;
-	private _hintGrp: Phaser.Group;
+	private _group: any;
+	private _sprite: any;
+	private _hintGrp: any;
 
-	private _healthIndicatorGroup: Phaser.Group;
-	private _healthIndicatorSprite: Phaser.Sprite;
-	private _healthIndicatorText: Phaser.Text;
-	private _healthIndicatorTween: Phaser.Tween | null;
-	private _noActionHintElements: Array<Phaser.Text | Phaser.Sprite> = [];
-	private _noActionHintGroup: Phaser.Group | null = null;
-	private _noActionHintTween: Phaser.Tween | null = null;
+	private _healthIndicatorGroup: any;
+	private _healthIndicatorSprite: any;
+	private _healthIndicatorText: any;
+	private _healthIndicatorTween: any | null;
+	private _noActionHintElements: any[] = [];
+	private _noActionHintGroup: any | null = null;
+	private _noActionHintTween: any | null = null;
 	private _healthBounceOffset = 0; // y-offset driven by the bounce tween
-	private _healthUiGroup: Phaser.Group; // elevated layer for active/hovered indicators
+	private _healthUiGroup: any; // elevated layer for active/hovered indicators
 	private _healthInUiGroup = false; // whether the indicator is currently elevated
 
-	private _phaser: Phaser.Game;
+	private _gameEngine: GameEngine;
 	private _frameInfo: { originX: number; originY: number };
 	private _creatureSize: number;
 	private _creatureTeam: PlayerID;
@@ -2398,7 +2399,7 @@ class CreatureSprite {
 		return this._xrayAlpha;
 	}
 	private _xrayTargetAlpha = 0; // target intensity for fade animation
-	private _xrayBmd: Phaser.BitmapData | null = null;
+	private _xrayBmd: any | null = null;
 	private _originalTextureKey: string;
 	private _xrayOriginalSrc: CanvasImageSource | null = null;
 	private _xrayRefCreatures: Creature[] = []; // all ref creatures whose shape we cut out
@@ -2410,15 +2411,15 @@ class CreatureSprite {
 	constructor(creature: Creature) {
 		const { game, player, type, team, display, size, id, health } = creature;
 		const dir = player.flipped ? -1 : 1;
-		const phaser = game.Phaser;
+		const gameEngine = game.gameEngine;
 
 		this._creature = creature;
-		this._phaser = phaser;
+		this._gameEngine = gameEngine;
 		this._creatureSize = size;
 		this._creatureTeam = team;
 		this._frameInfo = { originX: display['offset-x'], originY: display['offset-y'] };
 
-		const group: Phaser.Group = phaser.add.group(game.grid.creatureGroup, 'creatureGrp_' + id);
+		const group: any = gameEngine.add.group(game.grid.creatureGroup, 'creatureGrp_' + id);
 		group.alpha = 0;
 
 		const isDarkPriest = type === '--';
@@ -2440,11 +2441,11 @@ class CreatureSprite {
 		}
 
 		// Hint Group
-		const hintGrp = phaser.add.group(group, 'creatureHintGrp_' + id);
+		const hintGrp = gameEngine.add.group(group, 'creatureHintGrp_' + id);
 		hintGrp.x = 0.5 * HEX_WIDTH_PX * size;
 		hintGrp.y = -sprite.texture.height + 5;
 
-		const healthIndicatorGroup = phaser.add.group(group, 'creatureHealthGrp_' + id);
+		const healthIndicatorGroup = gameEngine.add.group(group, 'creatureHealthGrp_' + id);
 
 		const healthIndicatorSprite = healthIndicatorGroup.create(
 			player.flipped ? 19 : 19 + HEX_WIDTH_PX * (size - 1),
@@ -2452,10 +2453,10 @@ class CreatureSprite {
 			'p' + team + '_health',
 		);
 
-		const healthIndicatorText = phaser.add.text(
+		const healthIndicatorText = gameEngine.add.text(
 			player.flipped ? HEX_WIDTH_PX * 0.5 : HEX_WIDTH_PX * (size - 0.5),
 			63,
-			health,
+			health as any as string,
 			{
 				font: 'bold 15pt Play',
 				fill: '#fff',
@@ -2554,7 +2555,7 @@ class CreatureSprite {
 		durationMS = 1000,
 		easing = Phaser.Easing.Linear.None,
 	): Promise<CreatureSprite> {
-		const tween = this._phaser.add.tween(target).to(tweenProperties, durationMS, easing);
+		const tween = this._gameEngine.tween(target).to(tweenProperties, durationMS, easing);
 		const promise: Promise<CreatureSprite> = new Promise((resolve) => {
 			tween.onComplete.add(() => resolve(this));
 		});
@@ -2729,7 +2730,7 @@ class CreatureSprite {
 			if (bmd) {
 				bmd.destroy();
 			}
-			bmd = this._phaser.add.bitmapData(otw, oth);
+			bmd = this._gameEngine.add.bitmapData(otw, oth);
 		}
 		this._xrayBmd = bmd;
 
@@ -2745,7 +2746,7 @@ class CreatureSprite {
 	 */
 	private _drawSpriteFrame(
 		ctx: CanvasRenderingContext2D,
-		sprite: Phaser.Sprite,
+		sprite: any,
 		src: CanvasImageSource,
 		dx: number,
 		dy: number,
@@ -2809,7 +2810,7 @@ class CreatureSprite {
 		return false;
 	}
 
-	private _resolveSpriteDrawSource(sprite: Phaser.Sprite): CanvasImageSource | null {
+	private _resolveSpriteDrawSource(sprite: any): CanvasImageSource | null {
 		const src = sprite?.texture?.baseTexture?.source;
 		return this._isDrawableImageSource(src) ? src : null;
 	}
@@ -2822,7 +2823,7 @@ class CreatureSprite {
 	 *   - Pixels covered by any ref creature : XRAY_OVERLAP_OPACITY alpha (see-through)
 	 *   - All other pixels                   : 1.0 alpha (fully opaque)
 	 */
-	private _drawXrayBmd(refCreatures: Creature[], bmd: Phaser.BitmapData) {
+	private _drawXrayBmd(refCreatures: Creature[], bmd: any) {
 		const oSprite = this._sprite;
 		const otw = bmd.width;
 		const oth = bmd.height;
@@ -2970,7 +2971,7 @@ class CreatureSprite {
 				const bounceSrc = { offset: 0 };
 				this._healthBounceOffset = 0;
 
-				this._healthIndicatorTween = this._phaser.add
+				this._healthIndicatorTween = this._gameEngine
 					.tween(bounceSrc)
 					.to(bounceTgt, durationMS, Phaser.Easing.Quadratic.InOut, true)
 					.yoyo(true)
@@ -2991,7 +2992,7 @@ class CreatureSprite {
 		return this._group.position;
 	}
 
-	private _enableSkipTurnInput(sprite: Phaser.Sprite) {
+	private _enableSkipTurnInput(sprite: any) {
 		sprite.inputEnabled = true;
 		sprite.input.priorityID = 10;
 		sprite.input.useHandCursor = true;
@@ -3029,7 +3030,7 @@ class CreatureSprite {
 				const bounceSrc = { offset: 0 };
 				const bounceTgt = { offset: -10 };
 				hint.y = hint.data.baseY;
-				hint.data.tweenBounce = this._phaser.add
+				hint.data.tweenBounce = this._gameEngine
 					.tween(bounceSrc)
 					.to(bounceTgt, 350, Phaser.Easing.Quadratic.InOut, true)
 					.yoyo(true)
@@ -3058,7 +3059,7 @@ class CreatureSprite {
 		const bounceTgt = { offset: -bounceHeight };
 		this._noActionHintGroup.y = 0;
 
-		this._noActionHintTween = this._phaser.add
+		this._noActionHintTween = this._gameEngine
 			.tween(bounceSrc)
 			.to(bounceTgt, durationMS, Phaser.Easing.Quadratic.InOut, true)
 			.yoyo(true)
@@ -3090,7 +3091,7 @@ class CreatureSprite {
 		// Keep no-action hint bounce synced with the health indicator bounce feel.
 		const noActionBounceHeight = 10;
 		const noActionBounceSpeed = 350;
-		const startNoActionBounce = (hintElement: Phaser.Text | Phaser.Sprite) => {
+		const startNoActionBounce = (hintElement: any) => {
 			if (hintElement.data.tweenBounce && hintElement.data.tweenBounce.isRunning) {
 				return;
 			}
@@ -3103,7 +3104,7 @@ class CreatureSprite {
 			const bounceSrc = { offset: 0 };
 			const bounceTgt = { offset: -noActionBounceHeight };
 
-			hintElement.data.tweenBounce = this._phaser.add
+			hintElement.data.tweenBounce = this._gameEngine
 				.tween(bounceSrc)
 				.to(bounceTgt, noActionBounceSpeed, Phaser.Easing.Quadratic.InOut, true)
 				.yoyo(true)
@@ -3157,10 +3158,10 @@ class CreatureSprite {
 
 		const isSkipTurnConfirm = hintType === 'confirm' && text === 'Skip turn';
 		if (isSkipTurnConfirm) {
-			const existingSkipHints: Array<Phaser.Text | Phaser.Sprite> = [];
+			const existingSkipHints: any[] = [];
 			let hasSkipTurnLabel = false;
 			this._hintGrp.forEach(
-				(hint: Phaser.Text | Phaser.Sprite) => {
+				(hint: any) => {
 					if (!hint.exists || !hint.data) {
 						return;
 					}
@@ -3202,9 +3203,9 @@ class CreatureSprite {
 		}
 
 		if (hintType === 'no_action') {
-			const existingConfirmHints: Array<Phaser.Text | Phaser.Sprite> = [];
+			const existingConfirmHints: any[] = [];
 			this._hintGrp.forEach(
-				(hint: Phaser.Text | Phaser.Sprite) => {
+				(hint: any) => {
 					if (!hint.exists || hint.data?.hintType !== 'confirm') {
 						return;
 					}
@@ -3253,14 +3254,14 @@ class CreatureSprite {
 			this.clearHints(['confirm', 'no_action']);
 			this.destroyNoActionHintGroup();
 
-			const frame = this._phaser.add.sprite(0, 50, 'frame');
-			const frameBackground = this._phaser.make.bitmapData(frame.width, frame.height);
+			const frame = this._gameEngine.add.sprite(0, 50, 'frame');
+			const frameBackground = this._gameEngine.make.bitmapData(frame.width, frame.height);
 			frameBackground.ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
 			frameBackground.ctx.fillRect(0, 0, frameBackground.width, frameBackground.height);
 			frameBackground.draw('frame', 0, 0);
 			frame.destroy();
 
-			const noActionFrame = this._phaser.add.sprite(0, 50, frameBackground);
+			const noActionFrame = this._gameEngine.add.sprite(0, 50, frameBackground as any as string);
 			noActionFrame.anchor.setTo(0.5, 0.175);
 			noActionFrame.setScaleMinMax(0.75, 0.75, 0.75, 0.75);
 			noActionFrame.alpha = 0;
@@ -3269,13 +3270,13 @@ class CreatureSprite {
 			noActionFrame.data.tweenAlpha = null;
 			noActionFrame.data.tweenPos = null;
 			noActionFrame.data.tweenBounce = null;
-			this._phaser.add
+			this._gameEngine
 				.tween(noActionFrame)
 				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
 				.start();
 			this._enableSkipTurnInput(noActionFrame);
 
-			const noActionIcon = this._phaser.add.sprite(0, 29, 'skip');
+			const noActionIcon = this._gameEngine.add.sprite(0, 29, 'skip');
 			noActionIcon.anchor.setTo(0.5, 0.745);
 			noActionIcon.setScaleMinMax(0.15, 0.15, 0.15, 0.15);
 			noActionIcon.alpha = 0;
@@ -3284,20 +3285,20 @@ class CreatureSprite {
 			noActionIcon.data.tweenAlpha = null;
 			noActionIcon.data.tweenPos = null;
 			noActionIcon.data.tweenBounce = null;
-			this._phaser.add
+			this._gameEngine
 				.tween(noActionIcon)
 				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
 				.start();
 			this._enableSkipTurnInput(noActionIcon);
 
-			const noActionText = this._phaser.add.text(0, 50, text, style);
+			const noActionText = this._gameEngine.add.text(0, 50, text, style);
 			noActionText.anchor.setTo(0.5, 0.5);
 			noActionText.alpha = 0;
 			noActionText.data.hintType = 'no_action';
 			noActionText.data.tweenAlpha = null;
 			noActionText.data.tweenPos = null;
 			noActionText.data.tweenBounce = null;
-			this._phaser.add
+			this._gameEngine
 				.tween(noActionText)
 				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
 				.start();
@@ -3308,7 +3309,7 @@ class CreatureSprite {
 			this._noActionHintElements = [noActionFrame, noActionIcon, noActionText];
 
 			this._hintGrp.forEach(
-				(hint: Phaser.Text | Phaser.Sprite) => {
+				(hint: any) => {
 					const index = this._hintGrp.total - this._hintGrp.getIndex(hint) - 1;
 					const offset = -50 * index;
 
@@ -3328,7 +3329,7 @@ class CreatureSprite {
 						return;
 					}
 
-					hint.data.tweenPos = this._phaser.add
+					hint.data.tweenPos = this._gameEngine
 						.tween(hint)
 						.to({ y: offset }, tooltipSpeed, tooltipTransition)
 						.start();
@@ -3343,7 +3344,7 @@ class CreatureSprite {
 		// Remove constant element
 		// Animation length reduced from 250 to 100 to prevent animation overlap
 		this._hintGrp.forEach(
-			(hint: Phaser.Text | Phaser.Sprite) => {
+			(hint: any) => {
 				if (hint.data.hintType === 'confirm' || this.isNoActionHintType(hint.data.hintType)) {
 					if (hint.data.tweenBounce) {
 						hint.data.tweenBounce.stop();
@@ -3351,7 +3352,7 @@ class CreatureSprite {
 					}
 
 					hint.data.hintType = 'confirm_deleted';
-					hint.data.tweenAlpha = this._phaser.add
+					hint.data.tweenAlpha = this._gameEngine
 						.tween(hint)
 						.to({ alpha: 0 }, 100, tooltipTransition)
 						.start();
@@ -3362,7 +3363,7 @@ class CreatureSprite {
 			true,
 		);
 
-		const hint = this._phaser.add.text(0, 50, text, style);
+		const hint = this._gameEngine.add.text(0, 50, text, style);
 		hint.anchor.setTo(0.5, 0.5);
 
 		hint.alpha = isSkipTurnConfirm ? 1 : 0;
@@ -3374,13 +3375,13 @@ class CreatureSprite {
 
 		if (hintType === 'confirm') {
 			if (!isSkipTurnConfirm) {
-				hint.data.tweenAlpha = this._phaser.add
+				hint.data.tweenAlpha = this._gameEngine
 					.tween(hint)
 					.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
 					.start();
 			}
 		} else {
-			hint.data.tweenAlpha = this._phaser.add
+			hint.data.tweenAlpha = this._gameEngine
 				.tween(hint)
 				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
 				.to({ alpha: 1 }, tooltipDisplaySpeed, tooltipTransition)
@@ -3391,15 +3392,15 @@ class CreatureSprite {
 
 		if (hintType === 'confirm') {
 			// Add "Skip turn" frame
-			const frame = this._phaser.add.sprite(0, 50, 'frame');
-			const frameBackground = this._phaser.make.bitmapData(frame.width, frame.height);
+			const frame = this._gameEngine.add.sprite(0, 50, 'frame');
+			const frameBackground = this._gameEngine.make.bitmapData(frame.width, frame.height);
 			frameBackground.ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
 			frameBackground.ctx.fillRect(0, 0, frameBackground.width, frameBackground.height);
 			frameBackground.draw('frame', 0, 0);
 			// Destroy the temporary frame sprite after using it as a texture source
 			// to prevent it from lingering in the upper-left corner of the canvas
 			frame.destroy();
-			const combinedSprite = this._phaser.add.sprite(0, 50, frameBackground);
+			const combinedSprite = this._gameEngine.add.sprite(0, 50, frameBackground as any as string);
 			combinedSprite.anchor.setTo(0.5, 0.175);
 			combinedSprite.setScaleMinMax(0.75, 0.75, 0.75, 0.75);
 			combinedSprite.alpha = isSkipTurnConfirm ? 1 : 0;
@@ -3410,7 +3411,7 @@ class CreatureSprite {
 			combinedSprite.data.tweenBounce = null;
 			combinedSprite.data.skipTurnStatic = isSkipTurnConfirm;
 			if (!isSkipTurnConfirm) {
-				this._phaser.add
+				this._gameEngine
 					.tween(combinedSprite)
 					.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
 					.start();
@@ -3419,7 +3420,7 @@ class CreatureSprite {
 			this._hintGrp.add(combinedSprite);
 
 			// Add "Skip turn" icon
-			const skipTurnIcon = this._phaser.add.sprite(0, 29, 'skip');
+			const skipTurnIcon = this._gameEngine.add.sprite(0, 29, 'skip');
 			skipTurnIcon.anchor.setTo(0.5, 0.745);
 			skipTurnIcon.setScaleMinMax(0.15, 0.15, 0.15, 0.15);
 			skipTurnIcon.alpha = isSkipTurnConfirm ? 1 : 0;
@@ -3430,7 +3431,7 @@ class CreatureSprite {
 			skipTurnIcon.data.tweenBounce = null;
 			skipTurnIcon.data.skipTurnStatic = isSkipTurnConfirm;
 			if (!isSkipTurnConfirm) {
-				this._phaser.add
+				this._gameEngine
 					.tween(skipTurnIcon)
 					.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
 					.start();
@@ -3443,7 +3444,7 @@ class CreatureSprite {
 
 		// Stacking
 		this._hintGrp.forEach(
-			(hint: Phaser.Text | Phaser.Sprite) => {
+			(hint: any) => {
 				const index = this._hintGrp.total - this._hintGrp.getIndex(hint) - 1;
 				const offset = -50 * index;
 
@@ -3470,7 +3471,7 @@ class CreatureSprite {
 					return;
 				}
 
-				hint.data.tweenPos = this._phaser.add
+				hint.data.tweenPos = this._gameEngine
 					.tween(hint)
 					.to({ y: offset }, tooltipSpeed, tooltipTransition)
 					.start();
@@ -3540,12 +3541,12 @@ class CreatureSprite {
 			}
 
 			const targetY = hint.y - 30;
-			hint.data.tweenPos = this._phaser.add
+			hint.data.tweenPos = this._gameEngine
 				.tween(hint)
 				.to({ y: targetY }, tooltipSpeed, tooltipTransition)
 				.start();
 
-			hint.data.tweenAlpha = this._phaser.add
+			hint.data.tweenAlpha = this._gameEngine
 				.tween(hint)
 				.to({ alpha: 0 }, tooltipSpeed, tooltipTransition)
 				.start();
@@ -3564,11 +3565,11 @@ class CreatureSprite {
 			const group = this._noActionHintGroup;
 			this._noActionHintGroup = null;
 
-			this._phaser.add
+			this._gameEngine
 				.tween(group)
 				.to({ y: group.y - 30 }, tooltipSpeed, tooltipTransition)
 				.start();
-			const fadeTween = this._phaser.add
+			const fadeTween = this._gameEngine
 				.tween(group)
 				.to({ alpha: 0 }, tooltipSpeed, tooltipTransition)
 				.start();
@@ -3584,7 +3585,7 @@ class CreatureSprite {
 		}
 
 		this._hintGrp.forEach(
-			(hint: Phaser.Text | Phaser.Sprite) => {
+			(hint: any) => {
 				if (!hint.data || typeof hint.data.hintType !== 'string') {
 					return;
 				}
@@ -3605,7 +3606,7 @@ class CreatureSprite {
 				if (hint.data.tweenAlpha) {
 					hint.data.tweenAlpha.stop();
 				}
-				hint.data.tweenAlpha = this._phaser.add
+				hint.data.tweenAlpha = this._gameEngine
 					.tween(hint)
 					.to({ alpha: 0 }, 100, tooltipTransition)
 					.start();

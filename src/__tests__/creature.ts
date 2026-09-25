@@ -503,6 +503,10 @@ const getGameMock = () => {
 			healthIndicatorUiGroup: { add: jest.fn(), remove: jest.fn() },
 		},
 		Phaser: getPhaserMock(),
+		engine: getPhaserMock(),
+		get gameEngine() {
+			return this.engine;
+		},
 		retrieveCreatureStats: (type: number) => {
 			for (const d of unitData) {
 				if (d.id === type) {
@@ -595,6 +599,9 @@ const getPhaserMock = () => {
 
 	return {
 		add: self,
+		cache: { getImage: () => null },
+		make: self,
+		tween: () => makeTween(),
 	};
 };
 

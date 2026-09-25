@@ -19,12 +19,17 @@ import type {
  SpriteHandle,
  ScaleHandle,
  TimerHandle,
+ TweenHandle,
 } from './types';
 
 // ─── Signal wrapper ───────────────────────────────────────────────────────────
 
 class SignalAdapter implements SignalHandle {
-	constructor(private signal: any) {}
+	readonly signal: any;
+
+	constructor(signal: any) {
+		this.signal = signal;
+	}
 
 	add(fn: (...args: any[]) => void, context?: any) {
 		this.signal.add(fn, context);
@@ -50,7 +55,11 @@ class SignalAdapter implements SignalHandle {
 // ─── Tween adapter ────────────────────────────────────────────────────────────
 
 class TweenAdapter implements TweenHandle {
-	constructor(private tween: any) {}
+	readonly tween: any;
+
+	constructor(tween: any) {
+		this.tween = tween;
+	}
 
 	to(props: Record<string, any>, duration: number, easing?: string, autoStart?: boolean) {
 		this.tween.to(props, duration, easing as any, autoStart);
@@ -95,7 +104,11 @@ class TweenAdapter implements TweenHandle {
 // ─── BitmapData adapter ───────────────────────────────────────────────────────
 
 class BitmapDataAdapter implements BitmapDataHandle {
-	constructor(private bmd: any) {}
+	readonly bmd: any;
+
+	constructor(bmd: any) {
+		this.bmd = bmd;
+	}
 
 	get width() { return this.bmd.width; }
 	get height() { return this.bmd.height; }
@@ -110,7 +123,11 @@ class BitmapDataAdapter implements BitmapDataHandle {
 // ─── Scale adapter ─────────────────────────────────────────────────────────────
 
 class ScaleAdapter implements ScaleHandle {
-	constructor(private scale: any) {}
+	readonly scale: any;
+
+	constructor(scale: any) {
+		this.scale = scale;
+	}
 
 	get parentIsWindow() { return this.scale.parentIsWindow; }
 	set parentIsWindow(v: boolean) { this.scale.parentIsWindow = v; }
@@ -129,7 +146,14 @@ class ScaleAdapter implements ScaleHandle {
 // ─── Camera adapter ────────────────────────────────────────────────────────────
 
 class CameraAdapter implements CameraHandle {
-	constructor(private camera: any) {}
+	readonly camera: any;
+	readonly SHAKE_HORIZONTAL = 1;
+	readonly SHAKE_VERTICAL = 2;
+	readonly SHAKE_BOTH = 3;
+
+	constructor(camera: any) {
+		this.camera = camera;
+	}
 
 	shake(duration: number, amplitude: number, force?: boolean, direction?: number | string, snap?: boolean) {
 		// Phaser 2 signature: shake(amplitude, duration, force, direction, snap)
@@ -141,13 +165,21 @@ class CameraAdapter implements CameraHandle {
 // ─── Timer adapter ─────────────────────────────────────────────────────────────
 
 class TimerAdapter implements TimerHandle {
-	constructor(public timer: any) {}
+	readonly timer: any;
+
+	constructor(timer: any) {
+		this.timer = timer;
+	}
 }
 
 // ─── Loader adapter ────────────────────────────────────────────────────────────
 
-class LoaderAdapter implements GameEngine['load'] {
-	constructor(private load: any) {}
+class LoaderAdapter {
+	readonly load: any;
+
+	constructor(load: any) {
+		this.load = load;
+	}
 
 	start() { this.load.start(); }
 
@@ -175,6 +207,7 @@ export class Phaser2Engine implements GameEngine {
 	public readonly load: GameEngine['load'];
 	public readonly time: {
 		now: number;
+		elapsedMS: number;
 		add(delay: number, cb: () => void): TimerHandle;
 		loop(delay: number, cb: () => void): TimerHandle;
 		remove(timer: TimerHandle): void;
@@ -183,6 +216,7 @@ export class Phaser2Engine implements GameEngine {
 	public add: {
 		socket(x: number, y: number, key: string, frame?: string): SpriteHandle;
 		image(x: number, y: number, key: string, frame?: string): SpriteHandle;
+		sprite(x: number, y: number, key: string, frame?: string): SpriteHandle;
 		text(x: number, y: number, text: string, style?: any): SpriteHandle;
 		graphics(x?: number, y?: number, parent?: GroupHandle): SpriteHandle;
 		group(parent?: GroupHandle, name?: string): GroupHandle;
@@ -190,7 +224,14 @@ export class Phaser2Engine implements GameEngine {
 		bitmapData(w: number, h: number): BitmapDataHandle;
 	};
 
-	constructor(public readonly phaser: any) {
+	public make: {
+		bitmapData(w: number, h: number): BitmapDataHandle;
+	};
+
+	public readonly phaser: any;
+
+	constructor(phaser: any) {
+		this.phaser = phaser;
 		this.scale = new ScaleAdapter(phaser.scale);
 		this.cameras = { main: new CameraAdapter(phaser.camera) };
 		this.world = {
@@ -208,6 +249,7 @@ export class Phaser2Engine implements GameEngine {
 		this.load = new LoaderAdapter(phaser.load);
 		this.time = {
 			get now() { return phaser.time.now; },
+			get elapsedMS() { return phaser.time.elapsedMS; },
 			add: (delay: number, cb: () => void) =>
 				new TimerAdapter(phaser.time.events.add(delay, cb)),
 			loop: (delay: number, cb: () => void) =>
@@ -223,6 +265,8 @@ export class Phaser2Engine implements GameEngine {
 				phaser.add.sprite(x, y, key, frame) as unknown as SpriteHandle,
 			image: (x: number, y: number, key: string, frame?: string) =>
 				phaser.add.image(x, y, key, frame) as unknown as SpriteHandle,
+			sprite: (x: number, y: number, key: string, frame?: string) =>
+				phaser.add.sprite(x, y, key, frame) as unknown as SpriteHandle,
 			text: (x: number, y: number, text: string, style?: any) =>
 				phaser.add.text(x, y, text, style) as unknown as SpriteHandle,
 			graphics: (x?: number, y?: number, parent?: GroupHandle) =>
@@ -231,10 +275,16 @@ export class Phaser2Engine implements GameEngine {
 				phaser.add.group(parent as any, name) as unknown as GroupHandle,
 			tileSprite: (x: number, y: number, w: number, h: number, key: string, frame?: string) =>
 				phaser.add.tileSprite(x, y, w, h, key, frame) as unknown as SpriteHandle,
+		bitmapData: (w: number, h: number) =>
+			new BitmapDataAdapter(phaser.add.bitmapData(w, h)),
+	};
+
+		// make.* factories — pass through to phaser.make
+		this.make = {
 			bitmapData: (w: number, h: number) =>
-				new BitmapDataAdapter(phaser.add.bitmapData(w, h)),
-		};
-	}
+				new BitmapDataAdapter(phaser.make.bitmapData(w, h)),
+	};
+}
 
 	destroy() {
 		this.phaser.destroy(true, false);
