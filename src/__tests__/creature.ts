@@ -370,6 +370,53 @@ describe('Creature', () => {
 			jest.useRealTimers();
 		});
 	});
+
+	describe('creature.fatigueText', () => {
+		/**
+		 * The shared creature mock does not declare endurance (creature.ts reads
+		 * it straight from the object under test), so set it through a widening
+		 * cast instead of widening the shared fixture for every other suite.
+		 */
+		const getCreatureObjMockWithEndurance = (endurance: number) => {
+			const obj = getCreatureObjMock();
+			obj.materializationSickness = false;
+			(obj.stats as { health: number; movement: number; endurance?: number }).endurance = endurance;
+			return obj;
+		};
+
+		test('shows Fatigued over Fragile when endurance pool is minimal and depleted', () => {
+			const game = getGameMock();
+			const obj = getCreatureObjMockWithEndurance(1);
+			// @ts-ignore
+			const creature = new Creature(obj, game);
+			creature.endurance = 0;
+			expect(creature.fatigueText).toBe('Fatigued');
+			// Depleting the last endurance point must not log a misleading
+			// "has become fragile" message. @see https://github.com/FreezingMoon/AncientBeast/issues/1986
+			expect(game.log).not.toHaveBeenCalledWith(
+				'%CreatureName' + creature.id + '% has become fragile',
+			);
+		});
+
+		test('shows Fragile when endurance pool is minimal but not depleted', () => {
+			const game = getGameMock();
+			const obj = getCreatureObjMockWithEndurance(1);
+			// @ts-ignore
+			const creature = new Creature(obj, game);
+			creature.endurance = 1;
+			expect(creature.fatigueText).toBe('Fragile');
+			expect(game.log).toHaveBeenCalledWith('%CreatureName' + creature.id + '% has become fragile');
+		});
+
+		test('shows remaining endurance pool normally', () => {
+			const game = getGameMock();
+			const obj = getCreatureObjMockWithEndurance(5);
+			// @ts-ignore
+			const creature = new Creature(obj, game);
+			creature.endurance = 3;
+			expect(creature.fatigueText).toBe('3/5');
+		});
+	});
 });
 
 jest.mock('../ability');
