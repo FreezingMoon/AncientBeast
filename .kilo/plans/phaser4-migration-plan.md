@@ -362,17 +362,15 @@ Delete src/engine/Phaser2Engine.ts (optional — keep for rollback safety during
 
 Validation: npm run build:dev succeeds; npm start loads the game in a browser.
 
-Phase 6: Update Shaders
-Task 6.1: Audit shader usage
-src/shader.ts defines GLSL ES 1.0 shader sources (attribute, varying, texture2D, gl_FragColor)
-Check if these shaders are actually used in the current Phaser 2 codebase
-The plasma field (plasma-field.ts) uses canvas 2D drawing, NOT WebGL shaders — so it's unaffected
-Task 6.2: Rewrite GLSL for Phaser 4 (if used)
-attribute vec2 → in vec2
-varying vec2 → out vec2 (vertex) / in vec2 (fragment)
-texture2D() → texture()
-gl_FragColor → user-defined out variable
-Follow the 3→4 guide: "Custom shaders will need to be updated to use new ShaderQuadConfig constructor"
+Phase 6: Update Shaders  ✅ NO-OP
+- Task 6.1: Audit shader usage — `src/shader.ts` defines GLSL ES 1.0 sources
+  (attribute, varying, texture2D, gl_FragColor) but they are NEVER compiled
+  or used as WebGL shaders. The Infernal Cardboard effect in `animations.ts`
+  only reads `getEffectShader(...)` for its `defaultUniforms` map — the
+  actual rendering is canvas 2D drawing driven by `trailNextAt`/`heatNextAt`
+  timestamps. `plasma-field.ts` also uses canvas 2D, not WebGL.
+- Task 6.2: Rewrite GLSL for Phaser 4 — NOT NEEDED. No shader compilation
+  happens in the current codebase.
 Phase 7: Update Test Mocks
 Task 7.1: Update src/__tests__/simulation/botgeria.ts
 buildPhaserMock() → buildEngineMock() that implements GameEngine interface
