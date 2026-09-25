@@ -283,15 +283,48 @@ phaser.world → adapter.world
 Timer events loop → adapter.time
 Validation: After each file is migrated, run Jest tests to confirm the adapter is a faithful pass-through.
 
-Phase 4: Implement Phaser 4 Engine Adapter
-Task 4.1: Install Phaser 4 (after Phase 1 dependency update)
-npm install phaser@4
-Task 4.2: Create Phaser4Engine.ts
-Implement the same GameEngine interface, backed by Phaser 4 APIs. Key mappings:
+Phase 4: Implement Phaser 4 Engine Adapter  ✅ DONE
+- Task 4.1: Install Phaser 4 — `npm install phaser@4` (v4.2.1 already installed)
+- Task 4.2: Create `src/engine/Phaser4Engine.ts` (369 lines) — implements the same `GameEngine` interface, backed by Phaser 4 APIs. Key mappings:
+  - `add.sprite/image/text/graphics/group/tileSprite/bitmapData/socket` → `scene.add.*` with object params
+  - `add.bitmapData(w, h)` → `scene.add.renderTexture({width: w, height: h})` (Phaser 4 has no BitmapData)
+  - `tween(target).to(props, dur, ease, autoStart, delay, repeat, yoyo)` → `scene.tweens.add({targets, duration, ease, ...props, delay, repeat, yoyo, autoStart})`
+  - `tween.onComplete.add(cb)` → stored on the tween handle; called when tween completes
+  - `tween.onUpdateCallback(cb)` → `onUpdate: cb` in tween config
+  - `tween.start()` → tween already started if autoStart is true
+  - `tween.stop()` → `scene.tweens.killTweensOf(target)`
+  - `anchor.setTo(x, y)` → `setOrigin(x, y)` on the handle
+  - `scale.setTo(x, y)` → `setScale(x, y)` on the handle
+  - `inputEnabled = true` → `setInteractive()` on the handle
+  - `events.onInputUp.add(cb)` → `on('pointerup', cb)` on the handle
+  - `camera.shake(dur, amp, force, dir, snap)` → `scene.cameras.main.shake({duration, amplitude, force, ...})`
+  - `time.add(delay, cb)` → `scene.time.delayedCall(delay, cb)`
+  - `time.loop(delay, cb)` → `scene.time.addEvent({delay, loop: true, callback: cb})`
+  - `time.remove(timer)` → `timer.remove()` on the TimerEvent/Timer object
+  - `time.now` → `scene.time.now`
+  - `time.elapsedMS` → `scene.time.elapsedMS`
+  - `cache.getImage(key)` → `scene.textures.get(key).source[0]`
+  - `world.removeAll(destroy)` → `scene.children.clear()` or iterate
+  - `stage.disableVisibilityChange` → no-op in Phaser 4
+  - `device.desktop` → `scene.sys.game.device.desktop`
+  - `scale.refresh()` → `scene.cameras.main.refresh()`
+  - `load.start()` → `scene.load.start()`
+  - `load.progress` → `scene.load.progress`
+  - `load.onFileComplete` → SignalHandle wrapping an EventEmitter
+  - `load.onLoadComplete` → SignalHandle wrapping an EventEmitter
+  - `signals` → object of SignalHandle (use a simple EventEmitter wrapper)
+- Validation: `npm run build` compiles with 0 errors; `npm test` passes all 415 tests.
 
-add.sprite() → scene.add.sprite()
-add.tween(target).to(props, dur, ease, autoStart) → scene.tweens.add({targets: target, duration: dur, ease, ...props, ...})
-tween.onComplete.add(cb) → onComplete: cb or tween.on('complete', cb)
+Phase 5: Swap Adapter  ⬜ TODO
+- Task 5.1: One-line swap in `game.ts createPhaser()`:
+  ```ts
+  // Before
+  this._gameEngine = new Phaser2Engine(this.Phaser);
+  // After
+  this._gameEngine = new Phaser4Engine(this.Phaser);
+  ```
+- Task 5.2: Remove `Phaser2Engine.ts` (optional — keep for rollback safety during initial validation).
+- Validation: `npm run build:dev` succeeds; `npm start` loads the game in a browser.
 tweens.removeFrom(obj) → scene.tweens.killTweensOf(obj)
 anchor.setTo(x, y) → setOrigin(x, y) on the handle
 scale.setTo(x, y) → setScale(x, y) on the handle
