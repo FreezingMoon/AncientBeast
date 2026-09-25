@@ -114,6 +114,7 @@ class BitmapDataAdapter implements BitmapDataHandle {
 	get height() { return this.bmd.height; }
 	get ctx() { return this.bmd.ctx; }
 	get context() { return this.bmd.context; }
+	get canvas() { return this.bmd.canvas; }
 	get dirty() { return this.bmd.dirty; }
 	set dirty(v: boolean) { this.bmd.dirty = v; }
 	update() { this.bmd.update(); }
@@ -123,42 +124,61 @@ class BitmapDataAdapter implements BitmapDataHandle {
 // ─── Scale adapter ─────────────────────────────────────────────────────────────
 
 class ScaleAdapter implements ScaleHandle {
-	readonly scale: any;
+	readonly phaser: any;
+	private _scale: any;
 
-	constructor(scale: any) {
-		this.scale = scale;
+	constructor(phaser: any) {
+		this.phaser = phaser;
 	}
 
-	get parentIsWindow() { return this.scale.parentIsWindow; }
-	set parentIsWindow(v: boolean) { this.scale.parentIsWindow = v; }
-	get pageAlignHorizontally() { return this.scale.pageAlignHorizontally; }
-	set pageAlignHorizontally(v: boolean) { this.scale.pageAlignHorizontally = v; }
-	get pageAlignVertically() { return this.scale.pageAlignVertically; }
-	set pageAlignVertically(v: boolean) { this.scale.pageAlignVertically = v; }
-	get scaleMode() { return this.scale.scaleMode; }
-	set scaleMode(v: number) { this.scale.scaleMode = v; }
-	get fullScreenScaleMode() { return this.scale.fullScreenScaleMode; }
-	set fullScreenScaleMode(v: number) { this.scale.fullScreenScaleMode = v; }
-	refresh() { this.scale.refresh(); }
-	resize() { this.scale.refresh(); }
+	private get scale() {
+		if (!this._scale) {
+			this._scale = this.phaser.scale;
+		}
+		return this._scale;
+	}
+
+	get parentIsWindow() { return this.scale?.parentIsWindow ?? false; }
+	set parentIsWindow(v: boolean) { if (this.scale) this.scale.parentIsWindow = v; }
+	get pageAlignHorizontally() { return this.scale?.pageAlignHorizontally ?? false; }
+	set pageAlignHorizontally(v: boolean) { if (this.scale) this.scale.pageAlignHorizontally = v; }
+	get pageAlignVertically() { return this.scale?.pageAlignVertically ?? false; }
+	set pageAlignVertically(v: boolean) { if (this.scale) this.scale.pageAlignVertically = v; }
+	get scaleMode() { return this.scale?.scaleMode ?? 0; }
+	set scaleMode(v: number) { if (this.scale) this.scale.scaleMode = v; }
+	get fullScreenScaleMode() { return this.scale?.fullScreenScaleMode ?? 0; }
+	set fullScreenScaleMode(v: number) { if (this.scale) this.scale.fullScreenScaleMode = v; }
+	refresh() { if (this.scale) this.scale.refresh(); }
+	resize() { if (this.scale) this.scale.refresh(); }
 }
 
 // ─── Camera adapter ────────────────────────────────────────────────────────────
 
 class CameraAdapter implements CameraHandle {
-	readonly camera: any;
+	readonly phaser: any;
 	readonly SHAKE_HORIZONTAL = 1;
 	readonly SHAKE_VERTICAL = 2;
 	readonly SHAKE_BOTH = 3;
+	private _camera: any;
 
-	constructor(camera: any) {
-		this.camera = camera;
+	constructor(phaser: any) {
+		this.phaser = phaser;
+	}
+
+	private get camera() {
+		if (!this._camera) {
+			this._camera = this.phaser.camera;
+		}
+		return this._camera;
 	}
 
 	shake(duration: number, amplitude: number, force?: boolean, direction?: number | string, snap?: boolean) {
 		// Phaser 2 signature: shake(amplitude, duration, force, direction, snap)
 		// Adapter normalizes to: shake(duration, amplitude, force, direction, snap)
-		this.camera.shake(amplitude, duration, force, direction as any, snap);
+		const camera = this.camera;
+		if (camera && typeof camera.shake === 'function') {
+			camera.shake(amplitude, duration, force, direction as any, snap);
+		}
 	}
 }
 
@@ -175,10 +195,18 @@ class TimerAdapter implements TimerHandle {
 // ─── Loader adapter ────────────────────────────────────────────────────────────
 
 class LoaderAdapter {
-	readonly load: any;
+	readonly phaser: any;
+	private _load: any;
 
-	constructor(load: any) {
-		this.load = load;
+	constructor(phaser: any) {
+		this.phaser = phaser;
+	}
+
+	private get load() {
+		if (!this._load) {
+			this._load = this.phaser.load;
+		}
+		return this._load;
 	}
 
 	start() { this.load.start(); }
@@ -232,8 +260,8 @@ export class Phaser2Engine implements GameEngine {
 
 	constructor(phaser: any) {
 		this.phaser = phaser;
-		this.scale = new ScaleAdapter(phaser.scale);
-		this.cameras = { main: new CameraAdapter(phaser.camera) };
+		this.scale = new ScaleAdapter(phaser);
+		this.cameras = { main: new CameraAdapter(phaser) };
 		this.world = {
 			removeAll: (destroy?: boolean) => phaser.world.removeAll(destroy),
 		};
@@ -242,11 +270,21 @@ export class Phaser2Engine implements GameEngine {
 		};
 		this.device = { desktop: phaser.device.desktop };
 		this.stage = {
-			disableVisibilityChange: phaser.stage.disableVisibilityChange,
-			forcePortrait: phaser.stage.forcePortrait,
+			get disableVisibilityChange() { return phaser.stage?.disableVisibilityChange ?? false; },
+			set disableVisibilityChange(v: boolean) {
+				if (phaser.stage) {
+					phaser.stage.disableVisibilityChange = v;
+				}
+			},
+			get forcePortrait() { return phaser.stage?.forcePortrait ?? false; },
+			set forcePortrait(v: boolean) {
+				if (phaser.stage) {
+					phaser.stage.forcePortrait = v;
+				}
+			},
 		};
 		this.signals = {};
-		this.load = new LoaderAdapter(phaser.load);
+		this.load = new LoaderAdapter(phaser);
 		this.time = {
 			get now() { return phaser.time.now; },
 			get elapsedMS() { return phaser.time.elapsedMS; },

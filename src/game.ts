@@ -38,7 +38,7 @@ import { CreatureType, Realm, UnitData } from './data/types';
 import { setAudioMode } from './sound/soundsys';
 import BotController from './bot';
 import { locationPaths } from '../assets/index';
-import { Phaser4Engine } from './engine/Phaser4Engine';
+import { Phaser2Engine } from './engine/Phaser2Engine';
 import type { GameEngine } from './engine/types';
 
 /* eslint-disable prefer-rest-params */
@@ -224,7 +224,7 @@ export default class Game {
 		});
 		// Wrap the raw Phaser instance in the engine adapter so gameplay code
 		// talks to a stable GameEngine interface instead of raw Phaser APIs.
-		this._gameEngine = new Phaser4Engine(this.Phaser);
+		this._gameEngine = new Phaser2Engine(this.Phaser);
 		// Expose the existing signal channels (created in the constructor) through
 		// the adapter. We do NOT recreate them here — the BotController and other
 		// listeners registered on the original signals during construction.
