@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-import jest from 'jest-mock';
+
 // ─── SimSignal mock (minimal Signal replacement for simulation) ─────────────
 class SimSignal {
 	private listeners: Array<{ fn: (...args: any[]) => void; ctx?: any }> = [];
