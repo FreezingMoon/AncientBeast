@@ -9,11 +9,8 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 
-// Phaser webpack config
-const phaserModule = path.join(__dirname, '/node_modules/phaser-ce/');
-const phaser = path.join(phaserModule, 'build/custom/phaser-split.js');
-const pixi = path.join(phaserModule, 'build/custom/pixi.js');
-const p2 = path.join(phaserModule, 'build/custom/p2.js');
+// Phaser 4 webpack config - single file, no PIXI/p2 needed
+const phaser = path.join(__dirname, '/node_modules/phaser/dist/phaser.js');
 const Dotenv = require('dotenv-webpack');
 
 {
@@ -78,7 +75,7 @@ module.exports = (env, argv) => {
 
 	return {
 		entry: {
-			vendor: ['pixi', 'p2', 'phaser'],
+			vendor: ['phaser'],
 			app: ['babel-polyfill', path.resolve(__dirname, 'src', 'script.ts')],
 			...(isDevvitTarget && {
 				// Splash screen (Devvit `default` entrypoint): Bot Practice / Join Queue.
@@ -102,7 +99,7 @@ module.exports = (env, argv) => {
 			},
 		},
 		devtool: production ? 'source-map' : 'inline-source-map',
-		module: {
+module: {
 			rules: [
 				{ test: /\.js$/, use: ['babel-loader'], exclude: /node_modules/ },
 				{
@@ -110,46 +107,22 @@ module.exports = (env, argv) => {
 					use: isDevvitTarget
 						? { loader: 'ts-loader', options: { configFile: 'tsconfig.devvit-client.json' } }
 						: 'ts-loader',
-					exclude: /node_modules/,
+					exclude: [/node_modules/, /[\\/]__tests__[\\/]/],
 				},
-				{
-					test: /pixi\.js/,
-					loader: 'expose-loader',
-					options: {
-						exposes: [
-							{
-								globalName: 'PIXI',
-								override: true,
-							},
-						],
-					},
+			{
+				test: /phaser\.js$/,
+				loader: 'expose-loader',
+				options: {
+					exposes: [
+						{
+							globalName: 'Phaser',
+							override: true,
+						},
+					],
 				},
-				{
-					test: /p2\.js/,
-					loader: 'expose-loader',
-					options: {
-						exposes: [
-							{
-								globalName: 'p2',
-								override: true,
-							},
-						],
-					},
-				},
-				{
-					test: /phaser-split\.js$/,
-					loader: 'expose-loader',
-					options: {
-						exposes: [
-							{
-								globalName: 'Phaser',
-								override: true,
-							},
-						],
-					},
-				},
-				{
-					test: /\.html$/,
+			},
+			{
+				test: /\.html$/,
 					use: ['html-loader'],
 				},
 				{
@@ -168,8 +141,6 @@ module.exports = (env, argv) => {
 		},
 		resolve: {
 			alias: {
-				pixi: pixi,
-				p2: p2,
 				phaser: phaser,
 				assets: path.resolve(__dirname, 'assets/'),
 				modules: path.join(__dirname, 'node_modules'),

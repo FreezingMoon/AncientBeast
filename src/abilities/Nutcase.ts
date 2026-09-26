@@ -174,7 +174,13 @@ export default (G: Game) => {
 			activate: function (targetOrChoice, args) {
 				const ability = this;
 				ability.end();
-				G.gameEngine.cameras.main.shake(0.02, 100, true, G.gameEngine.cameras.main.SHAKE_VERTICAL, true);
+				G.gameEngine.cameras.main.shake(
+					0.02,
+					100,
+					true,
+					G.gameEngine.cameras.main.SHAKE_VERTICAL,
+					true,
+				);
 
 				if (!this.isUpgraded()) {
 					this._activateOnTarget(targetOrChoice);
@@ -385,7 +391,13 @@ export default (G: Game) => {
 						callback: function () {
 							// Damage before any other creature movement is complete and before push.
 							ability._damage(target, runPath);
-							G.gameEngine.cameras.main.shake(0.01, 250, true, G.gameEngine.cameras.main.SHAKE_HORIZONTAL, true);
+							G.gameEngine.cameras.main.shake(
+								0.01,
+								250,
+								true,
+								G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
+								true,
+							);
 
 							const interval = setInterval(function () {
 								if (!G.freezedInput) {
@@ -586,7 +598,13 @@ export default (G: Game) => {
 				const ability = this;
 				const crea = ability.creature;
 				ability.end();
-				G.gameEngine.cameras.main.shake(0.02, 200, true, G.gameEngine.cameras.main.SHAKE_BOTH, true);
+				G.gameEngine.cameras.main.shake(
+					0.02,
+					200,
+					true,
+					G.gameEngine.cameras.main.SHAKE_BOTH,
+					true,
+				);
 
 				const damage = new Damage(
 					crea, // Attacker

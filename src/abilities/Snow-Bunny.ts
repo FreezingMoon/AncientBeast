@@ -100,7 +100,13 @@ export default (G: Game) => {
 				const ability = this;
 
 				ability.end();
-				G.gameEngine.cameras.main.shake(0.01, 55, true, G.gameEngine.cameras.main.SHAKE_VERTICAL, true);
+				G.gameEngine.cameras.main.shake(
+					0.01,
+					55,
+					true,
+					G.gameEngine.cameras.main.SHAKE_VERTICAL,
+					true,
+				);
 
 				this.creature.moveTo(this._getHopHex(), {
 					callback: function () {
@@ -288,7 +294,13 @@ export default (G: Game) => {
 			activate: function (target) {
 				const ability = this;
 				ability.end();
-				G.gameEngine.cameras.main.shake(0.01, 100, true, G.gameEngine.cameras.main.SHAKE_HORIZONTAL, true);
+				G.gameEngine.cameras.main.shake(
+					0.01,
+					100,
+					true,
+					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
+					true,
+				);
 
 				const damages = ability.damages;
 				const pureDamage = {
@@ -451,7 +463,13 @@ export default (G: Game) => {
 						return;
 					}
 
-					G.gameEngine.cameras.main.shake(0.01, 400, true, G.gameEngine.cameras.main.SHAKE_HORIZONTAL, true);
+					G.gameEngine.cameras.main.shake(
+						0.01,
+						400,
+						true,
+						G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
+						true,
+					);
 
 					const cannotBePushed = target.stats?.moveable === false;
 					const landsInPlace = pushHex.x === target.x && pushHex.y === target.y;
@@ -544,14 +562,21 @@ export default (G: Game) => {
 				const emptyHexDist = arrayUtils.filterCreature(path.slice(0), false, false).length;
 
 				sprite.alpha = 0.4;
-				G.gameEngine.tween(sprite)
+				G.gameEngine
+					.tween(sprite)
 					.to({ alpha: 1 }, tween.duration, Phaser.Easing.Linear.None, true);
 
 				tween.onComplete.add(function () {
 					// @ts-expect-error 'this' refers to the animation object, _not_ the ability
 					this.destroy();
 
-					G.gameEngine.cameras.main.shake(0.01, 90, true, G.gameEngine.cameras.main.SHAKE_HORIZONTAL, true);
+					G.gameEngine.cameras.main.shake(
+						0.01,
+						90,
+						true,
+						G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
+						true,
+					);
 
 					// Play hit sound when projectile reaches target
 					G.soundsys.playSFX('units/sfx/Snow Bunny 3');

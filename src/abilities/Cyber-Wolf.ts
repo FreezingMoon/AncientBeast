@@ -53,7 +53,13 @@ export default (G: Game) => {
 					G,
 				);
 				target.takeDamage(damage);
-				G.gameEngine.cameras.main.shake(0.01, 123, true, G.gameEngine.cameras.main.SHAKE_HORIZONTAL, true);
+				G.gameEngine.cameras.main.shake(
+					0.01,
+					123,
+					true,
+					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
+					true,
+				);
 
 				// Keep highlighted in UI
 				this.setUsed(false);
@@ -99,7 +105,13 @@ export default (G: Game) => {
 			activate: function (target: Creature) {
 				const ability = this;
 				ability.end();
-				G.gameEngine.cameras.main.shake(0.01, 150, true, G.gameEngine.cameras.main.SHAKE_HORIZONTAL, true);
+				G.gameEngine.cameras.main.shake(
+					0.01,
+					150,
+					true,
+					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
+					true,
+				);
 
 				const damage = new Damage(
 					ability.creature, // Attacker
@@ -227,7 +239,13 @@ export default (G: Game) => {
 			activate: function (choice: Hex[]) {
 				const ability = this;
 				ability.end();
-				G.gameEngine.cameras.main.shake(0.02, 350, true, G.gameEngine.cameras.main.SHAKE_HORIZONTAL, true);
+				G.gameEngine.cameras.main.shake(
+					0.02,
+					350,
+					true,
+					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
+					true,
+				);
 
 				const crea = this.creature;
 
@@ -357,7 +375,13 @@ export default (G: Game) => {
 			activate: function (crea: Creature) {
 				const ability = this;
 				ability.end();
-				G.gameEngine.cameras.main.shake(0.03, 333, true, G.gameEngine.cameras.main.SHAKE_VERTICAL, true);
+				G.gameEngine.cameras.main.shake(
+					0.03,
+					333,
+					true,
+					G.gameEngine.cameras.main.SHAKE_VERTICAL,
+					true,
+				);
 
 				const target = crea;
 

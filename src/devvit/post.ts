@@ -1,4 +1,4 @@
-import { reddit } from '@devvit/web/server';
+import { reddit } from '@devvit/reddit';
 
 export async function createPost() {
 	return await reddit.submitCustomPost({

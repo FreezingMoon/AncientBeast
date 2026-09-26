@@ -4,7 +4,9 @@ import { Drop } from '../drop';
 import { Creature } from '../creature';
 import { HexGrid } from './hexgrid';
 import Game from '../game';
-import Phaser, { Point, Polygon } from 'phaser-ce';
+import { Vector2 } from 'phaser';
+import { Polygon } from 'phaser';
+import { TweenHandle, SpriteHandle } from '../engine/types';
 import { DEBUG } from '../debug';
 import { getPointFacade } from './pointfacade';
 import * as Const from './const';
@@ -101,10 +103,10 @@ export class Hex {
 	spinRequest: number;
 
 	originalDisplayPos: { x: number; y: number };
-	tween: Phaser.Tween;
-	hitBox: Phaser.Sprite;
-	display: Phaser.Sprite;
-	overlay: Phaser.Sprite;
+	tween: TweenHandle | null;
+	hitBox: SpriteHandle;
+	display: SpriteHandle;
+	overlay: SpriteHandle;
 	coordText: any;
 
 	/**
@@ -176,7 +178,10 @@ export class Hex {
 				const [offset_x, offset_y] = [radius_w + 2, radius_h + 9];
 				const points = angles.map(
 					(angle) =>
-						new Point(Math.cos(angle) * radius_w + offset_x, Math.sin(angle) * radius_h + offset_y),
+						new Vector2(
+							Math.cos(angle) * radius_w + offset_x,
+							Math.sin(angle) * radius_h + offset_y,
+						),
 				);
 				this.hitBox.hitArea = new Polygon(points);
 			}
@@ -663,7 +668,7 @@ export class Hex {
 	}
 
 	updateStyle() {
-		const loadTextureIfChanged = (sprite: Phaser.Sprite, key: string) => {
+		const loadTextureIfChanged = (sprite: SpriteHandle, key: string) => {
 			if (sprite.key !== key) {
 				sprite.loadTexture(key);
 			}
@@ -724,18 +729,18 @@ export class Hex {
 
 		if (this.displayClasses.match(/\babilityRange\b/)) {
 			// Scale is managed externally by tweens; only ensure positioning.
-			this.display.alignIn(this.hitBox, Phaser.CENTER);
-			this.overlay.alignIn(this.hitBox, Phaser.CENTER);
+			this.display.alignIn(this.hitBox, 4);
+			this.overlay.alignIn(this.hitBox, 4);
 		} else if (this.displayClasses.match(/shrunken/)) {
 			this.display.scale.setTo(shrinkScale);
 			this.overlay.scale.setTo(shrinkScale);
-			this.display.alignIn(this.hitBox, Phaser.CENTER);
-			this.overlay.alignIn(this.hitBox, Phaser.CENTER);
+			this.display.alignIn(this.hitBox, 4);
+			this.overlay.alignIn(this.hitBox, 4);
 		} else {
 			this.display.scale.setTo(1);
 			this.overlay.scale.setTo(1);
-			this.display.alignIn(this.hitBox, Phaser.CENTER);
-			this.overlay.alignIn(this.hitBox, Phaser.CENTER);
+			this.display.alignIn(this.hitBox, 4);
+			this.overlay.alignIn(this.hitBox, 4);
 		}
 
 		// Display Coord

@@ -40,7 +40,7 @@ export class Trap {
 	onDestroyFn?: (destroyer?: Creature) => void;
 
 	//
-display: any;
+	display: any;
 	displayOver: any;
 
 	/** Tweens running the idle sprite animation (e.g. flame flicker). Stopped on destroy. */
@@ -196,10 +196,7 @@ display: any;
 					sprite.y += sprite.height / 2;
 				}
 
-				const tween = game.gameEngine
-					.tween(sprite.scale)
-					.to({ y: 0 }, tweenDuration)
-					.start();
+				const tween = game.gameEngine.tween(sprite.scale).to({ y: 0 }, tweenDuration).start();
 				tween.onComplete.add(() => sprite.destroy());
 			} else {
 				sprite.destroy();
@@ -218,13 +215,15 @@ display: any;
 	}
 
 	hide(duration = 0) {
-		this.game.gameEngine.tween(this.display)
+		this.game.gameEngine
+			.tween(this.display)
 			.to({ alpha: 0 }, duration, Phaser.Easing.Linear.None)
 			.start();
 	}
 
 	show(duration = 0) {
-		this.game.gameEngine.tween(this.display)
+		this.game.gameEngine
+			.tween(this.display)
 			.to({ alpha: 1 }, duration, Phaser.Easing.Linear.None)
 			.start();
 	}

@@ -781,7 +781,13 @@ export default (G: Game) => {
 				const pushHex = pushPath[pushPath.length - 1];
 
 				ability.end(false, !!pushHex);
-				G.gameEngine.cameras.main.shake(0.01, 80, true, G.gameEngine.cameras.main.SHAKE_HORIZONTAL, true);
+				G.gameEngine.cameras.main.shake(
+					0.01,
+					80,
+					true,
+					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
+					true,
+				);
 
 				const result = target.takeDamage(new Damage(ability.creature, ability.damages, 1, [], G));
 
@@ -1329,7 +1335,13 @@ export default (G: Game) => {
 					}
 				};
 
-				G.gameEngine.cameras.main.shake(0.01, 100, true, G.gameEngine.cameras.main.SHAKE_HORIZONTAL, true);
+				G.gameEngine.cameras.main.shake(
+					0.01,
+					100,
+					true,
+					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
+					true,
+				);
 
 				for (let hit = 0; hit < 2; hit++) {
 					const meleeTargets = getUniqueEnemyTargets(laneHexes);

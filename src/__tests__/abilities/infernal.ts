@@ -1,58 +1,175 @@
+// Global Phaser mock for code that accesses Phaser globally (e.g., animations.ts)
+// Must be set before any imports that use Phaser
+globalThis.Phaser = {
+	blendModes: { ADD: 1, NORMAL: 0, MULTIPLY: 2, SCREEN: 3 },
+	Easing: {
+		Linear: { None: (k: number) => k },
+		Sinusoidal: {
+			In: (k: number) => Math.sin((k * Math.PI) / 2),
+			Out: (k: number) => Math.sin(((k + 1) * Math.PI) / 2),
+			InOut: (k: number) => (Math.sin(k * Math.PI) + 1) / 2,
+		},
+	},
+};
+
 import { afterEach, beforeAll, beforeEach, describe, expect, jest, test } from '@jest/globals';
 
-jest.mock('phaser-ce', () => ({
-		Point: class PointMock {},
-		Polygon: class PolygonMock {},
+jest.mock('phaser', () => ({
+	Point: class PointMock {},
+	Polygon: class PolygonMock {},
+	Vector2: class Vector2Mock {
+		x = 0;
+		y = 0;
+		constructor(x = 0, y = 0) {
+			this.x = x;
+			this.y = y;
+		}
+	},
+	blendModes: { ADD: 1, NORMAL: 0, MULTIPLY: 2, SCREEN: 3 },
+	Easing: {
+		Linear: { None: (k: number) => k },
+		Sinusoidal: {
+			In: (k: number) => Math.sin((k * Math.PI) / 2),
+			Out: (k: number) => Math.sin(((k + 1) * Math.PI) / 2),
+			InOut: (k: number) => (Math.sin(k * Math.PI) + 1) / 2,
+		},
+		Quadratic: {
+			In: (k: number) => k * k,
+			Out: (k: number) => k * (2 - k),
+			InOut: (k: number) => (k < 0.5 ? 2 * k * k : -1 + (4 - 2 * k) * k),
+		},
+		Cubic: {
+			In: (k: number) => k * k * k,
+			Out: (k: number) => --k * k * k + 1,
+			InOut: (k: number) => (k < 0.5 ? 4 * k * k * k : (k - 1) * (2 * k - 2) * (2 * k - 2) + 1),
+		},
+		Quartic: {
+			In: (k: number) => k * k * k * k,
+			Out: (k: number) => 1 - --k * k * k * k,
+			InOut: (k: number) => (k < 0.5 ? 8 * k * k * k * k : 1 - 8 * --k * k * k * k),
+		},
+		Quintic: {
+			In: (k: number) => k * k * k * k * k,
+			Out: (k: number) => --k * k * k * k * k + 1,
+			InOut: (k: number) => (k < 0.5 ? 16 * k * k * k * k * k : 1 + 16 * --k * k * k * k * k),
+		},
+		Exponential: {
+			In: (k: number) => (k === 0 ? 0 : Math.pow(2, 10 * (k - 1))),
+			Out: (k: number) => (k === 1 ? 1 : 1 - Math.pow(2, -10 * k)),
+			InOut: (k: number) =>
+				k === 0
+					? 0
+					: k === 1
+					? 1
+					: k < 0.5
+					? Math.pow(2, 20 * k - 10) / 2
+					: (2 - Math.pow(2, -20 * k + 10)) / 2,
+		},
+		Circular: {
+			In: (k: number) => 1 - Math.sqrt(1 - k * k),
+			Out: (k: number) => Math.sqrt(1 - --k * k),
+			InOut: (k: number) =>
+				k < 0.5
+					? (1 - Math.sqrt(1 - 4 * k * k)) / 2
+					: (Math.sqrt(1 - (-2 * k + 2) * (-2 * k + 2)) + 1) / 2,
+		},
+		Elastic: {
+			In: (k: number) =>
+				k === 0 ? 0 : k === 1 ? 1 : -Math.pow(2, 10 * (k - 1)) * Math.sin((k - 1.1) * 5 * Math.PI),
+			Out: (k: number) =>
+				k === 0 ? 0 : k === 1 ? 1 : Math.pow(2, -10 * k) * Math.sin((k - 0.1) * 5 * Math.PI) + 1,
+			InOut: (k: number) =>
+				k === 0
+					? 0
+					: k === 1
+					? 1
+					: k < 0.5
+					? (-Math.pow(2, 20 * k - 10) * Math.sin(((20 * k - 11.125) * 5 * Math.PI) / 3)) / 2
+					: (Math.pow(2, -20 * k + 10) * Math.sin(((20 * k - 11.125) * 5 * Math.PI) / 3)) / 2 + 1,
+		},
+		Back: {
+			In: (k: number) => k * k * (2.70158 * k - 1.70158),
+			Out: (k: number) => --k * k * (2.70158 * k + 1.70158) + 1,
+			InOut: (k: number) =>
+				k < 0.5 ? k * k * (7 * k - 2.5) * 2 : (k - 1) * (2 * k - 2) * (7 * (k - 1) + 2.5) * 2 + 1,
+		},
+		Bounce: {
+			In: (k: number) => {
+				const out = (k: number) => {
+					if (k < 1 / 2.75) return 7.5625 * k * k;
+					if (k < 2 / 2.75) return 7.5625 * (k -= 1.5 / 2.75) * k + 0.75;
+					if (k < 2.5 / 2.75) return 7.5625 * (k -= 2.25 / 2.75) * k + 0.9375;
+					return 7.5625 * (k -= 2.625 / 2.75) * k + 0.984375;
+				};
+				return 1 - out(1 - k);
+			},
+			Out: (k: number) => {
+				if (k < 1 / 2.75) return 7.5625 * k * k;
+				if (k < 2 / 2.75) return 7.5625 * (k -= 1.5 / 2.75) * k + 0.75;
+				if (k < 2.5 / 2.75) return 7.5625 * (k -= 2.25 / 2.75) * k + 0.9375;
+				return 7.5625 * (k -= 2.625 / 2.75) * k + 0.984375;
+			},
+			InOut: (k: number) =>
+				k < 0.5
+					? (() => {
+							const out = (k: number) => {
+								if (k < 1 / 2.75) return 7.5625 * k * k;
+								if (k < 2 / 2.75) return 7.5625 * (k -= 1.5 / 2.75) * k + 0.75;
+								if (k < 2.5 / 2.75) return 7.5625 * (k -= 2.25 / 2.75) * k + 0.9375;
+								return 7.5625 * (k -= 2.625 / 2.75) * k + 0.984375;
+							};
+							return 1 - out(1 - k * 2);
+					  })() * 0.5
+					: (() => {
+							const out = (k: number) => {
+								if (k < 1 / 2.75) return 7.5625 * k * k;
+								if (k < 2 / 2.75) return 7.5625 * (k -= 1.5 / 2.75) * k + 0.75;
+								if (k < 2.5 / 2.75) return 7.5625 * (k -= 2.25 / 2.75) * k + 0.9375;
+								return 7.5625 * (k -= 2.625 / 2.75) * k + 0.984375;
+							};
+							return out(k * 2 - 1);
+					  })() *
+							0.5 +
+					  0.5,
+		},
+	},
 }));
 
 jest.mock('../../damage', () => ({
-		Damage: class DamageMock {},
+	Damage: class DamageMock {},
 }));
 
 jest.mock('../../utility/pointfacade', () => ({
-		getPointFacade: () => ({
+	getPointFacade: () => ({
 		getTrapsAt: () => [],
 	}),
 }));
+
+// Global Phaser mock for code that accesses Phaser globally (e.g., animations.ts)
+globalThis.Phaser = {
+	blendModes: { ADD: 1, NORMAL: 0, MULTIPLY: 2, SCREEN: 3 },
+	Easing: {
+		Linear: { None: (k: number) => k },
+		Sinusoidal: {
+			In: (k: number) => Math.sin((k * Math.PI) / 2),
+			Out: (k: number) => Math.sin(((k + 1) * Math.PI) / 2),
+			InOut: (k: number) => (Math.sin(k * Math.PI) + 1) / 2,
+		},
+	},
+};
 
 import loadInfernalAbilities from '../../abilities/Infernal';
 import { Animations } from '../../animations';
 import type { Creature } from '../../creature';
 import { Creature as CreatureClass } from '../../creature';
 
-beforeAll(() => {
-		Object.defineProperty(window, 'Phaser', {
-			get() {
-				return {
-				blendModes: { ADD: 1 },
-				Easing: {
-				Linear: { None: 1 },
-				Sinusoidal: {
-				InOut: jest.fn((t) => t),
-				Out: jest.fn((t) => t),
-							},
-						},
-				camera: {
-					SHAKE_HORIZONTAL: 0,
-					SHAKE_VERTICAL: 1,
-					SHAKE_BOTH: 2,
-				},
-				};
-			},
-		});
-	});
-
 type MockHex = {
-		x: number;
-		y: number;
+	x: number;
+	y: number;
 	creature?: unknown;
 	trap?: { destroy: () => void };
 	destroyTrap?: () => void;
-		isWalkable: (size: number, id: number, ignoreReachable?: boolean) => boolean;
-};
-
-(globalThis as { Phaser?: unknown }).Phaser = {
-	 camera: { SHAKE_HORIZONTAL: 0, SHAKE_VERTICAL: 1, SHAKE_BOTH: 2 },
+	isWalkable: (size: number, id: number, ignoreReachable?: boolean) => boolean;
 };
 
 describe('Infernal Molten Hurl movement safety', () => {
@@ -74,8 +191,8 @@ describe('Infernal Molten Hurl movement safety', () => {
 		for (let x = 0; x <= 10; x++) {
 			row[x] = {
 				x,
-		y: 2,
-		isWalkable: () => true,
+				y: 2,
+				isWalkable: () => true,
 			};
 		}
 
@@ -88,74 +205,74 @@ describe('Infernal Molten Hurl movement safety', () => {
 		});
 
 		const magmaSpawn = {
-		id: 4,
-		size: 3,
-		player: { flipped: false },
-		hexagons: [row[4], row[3], row[2]],
+			id: 4,
+			size: 3,
+			player: { flipped: false },
+			hexagons: [row[4], row[3], row[2]],
 			moveTo,
 		};
 
-const game = {
-		abilities: [] as unknown[],
-		grid: {
-		hexes: [[], [], row],
-		getHexLine: jest.fn(),
+		const game = {
+			abilities: [] as unknown[],
+			grid: {
+				hexes: [[], [], row],
+				getHexLine: jest.fn(),
 			},
-UI: { selectAbility },
-		activeCreature: { queryMove },
-		freezedInput: false,
-		Phaser: {
-		camera: {
-		shake: cameraShake,
-		SHAKE_BOTH: 0,
+			UI: { selectAbility },
+			activeCreature: { queryMove },
+			freezedInput: false,
+			Phaser: {
+				camera: {
+					shake: cameraShake,
+					SHAKE_BOTH: 0,
 				},
 			},
-	 gameEngine: {
-		cameras: { main: { shake: cameraShake } },
-		add: {
-		graphics: () => ({
-				beginFill: jest.fn(),
-				drawRect: jest.fn(),
-				endFill: jest.fn(),
-				clear: jest.fn(),
-				lineStyle: jest.fn(),
-				moveTo: jest.fn(),
-				lineTo: jest.fn(),
-				drawCircle: jest.fn(),
-				mask: null,
-			}),
-		bitmapData: () => ({
-				width: 100,
-				height: 100,
-				ctx: {
-					clearRect: jest.fn(),
-					save: jest.fn(),
-					restore: jest.fn(),
-					translate: jest.fn(),
-					scale: jest.fn(),
-					drawImage: jest.fn(),
+			gameEngine: {
+				cameras: { main: { shake: cameraShake } },
+				add: {
+					graphics: () => ({
+						beginFill: jest.fn(),
+						drawRect: jest.fn(),
+						endFill: jest.fn(),
+						clear: jest.fn(),
+						lineStyle: jest.fn(),
+						moveTo: jest.fn(),
+						lineTo: jest.fn(),
+						drawCircle: jest.fn(),
+						mask: null,
+					}),
+					bitmapData: () => ({
+						width: 100,
+						height: 100,
+						ctx: {
+							clearRect: jest.fn(),
+							save: jest.fn(),
+							restore: jest.fn(),
+							translate: jest.fn(),
+							scale: jest.fn(),
+							drawImage: jest.fn(),
+						},
+						context: {
+							clearRect: jest.fn(),
+							save: jest.fn(),
+							restore: jest.fn(),
+							translate: jest.fn(),
+							scale: jest.fn(),
+							drawImage: jest.fn(),
+						},
+						dirty: false,
+						update: jest.fn(),
+						destroy: jest.fn(),
+					}),
+					group: () => ({ children: [], add: () => {}, addAt: () => {}, remove: () => {} }),
+					tileSprite: () => ({}),
 				},
-				context: {
-					clearRect: jest.fn(),
-					save: jest.fn(),
-					restore: jest.fn(),
-					translate: jest.fn(),
-					scale: jest.fn(),
-					drawImage: jest.fn(),
+				tween: () => {
+					const onComplete = { add: (fn: () => void) => fn() };
+					const afterStart = { stop: () => ({}), onComplete };
+					const afterTo = { start: () => afterStart, stop: () => ({}), onComplete };
+					return { to: () => afterTo, start: () => afterStart, stop: () => ({}), onComplete };
 				},
-				dirty: false,
-				update: jest.fn(),
-				destroy: jest.fn(),
-			}),
-		group: () => ({ children: [], add: () => {}, addAt: () => {}, remove: () => {} }),
-		tileSprite: () => ({}),
-				},
-		tween: () => {
-			const onComplete = { add: (fn: () => void) => fn() };
-			const afterStart = { stop: () => ({}), onComplete };
-			const afterTo = { start: () => afterStart, stop: () => ({}), onComplete };
-			return { to: () => afterTo, start: () => afterStart, stop: () => ({}), onComplete };
-		},
 			},
 		};
 
@@ -165,10 +282,10 @@ UI: { selectAbility },
 		const abilityDef = (game.abilities[4] as Array<Record<string, unknown>>)[3];
 		const moltenHurl = {
 			...(abilityDef as object),
-		creature: magmaSpawn,
-		damages: { burn: 10, crush: 10 },
-		end: jest.fn(),
-		isUpgraded: () => false,
+			creature: magmaSpawn,
+			damages: { burn: 10, crush: 10 },
+			end: jest.fn(),
+			isUpgraded: () => false,
 		};
 
 		const path: MockHex[] = [
@@ -178,7 +295,7 @@ UI: { selectAbility },
 
 		(
 			moltenHurl as unknown as {
-		activate: (pathArg: MockHex[], args: { direction: number }) => void;
+				activate: (pathArg: MockHex[], args: { direction: number }) => void;
 			}
 		).activate(path, { direction: 1 });
 
@@ -198,81 +315,81 @@ UI: { selectAbility },
 		for (let x = 0; x <= 10; x++) {
 			row[x] = {
 				x,
-		y: 2,
-		isWalkable: () => false,
+				y: 2,
+				isWalkable: () => false,
 			};
 		}
 
 		const moveTo = jest.fn();
 		const magmaSpawn = {
-		id: 4,
-		size: 3,
-		player: { flipped: false },
-		hexagons: [row[4], row[3], row[2]],
+			id: 4,
+			size: 3,
+			player: { flipped: false },
+			hexagons: [row[4], row[3], row[2]],
 			moveTo,
 		};
 
 		const game = {
-		abilities: [] as unknown[],
-		grid: {
-		hexes: [[], [], row],
-		getHexLine: jest.fn(),
+			abilities: [] as unknown[],
+			grid: {
+				hexes: [[], [], row],
+				getHexLine: jest.fn(),
 			},
-UI: { selectAbility },
-		activeCreature: { queryMove },
-		freezedInput: false,
-		Phaser: {
-		camera: {
-		shake: cameraShake,
-		SHAKE_BOTH: 0,
+			UI: { selectAbility },
+			activeCreature: { queryMove },
+			freezedInput: false,
+			Phaser: {
+				camera: {
+					shake: cameraShake,
+					SHAKE_BOTH: 0,
 				},
 			},
-	 gameEngine: {
-		cameras: { main: { shake: cameraShake } },
-		add: {
-		graphics: () => ({
-				beginFill: jest.fn(),
-				drawRect: jest.fn(),
-				endFill: jest.fn(),
-				clear: jest.fn(),
-				lineStyle: jest.fn(),
-				moveTo: jest.fn(),
-				lineTo: jest.fn(),
-				drawCircle: jest.fn(),
-				mask: null,
-			}),
-		bitmapData: () => ({
-				width: 100,
-				height: 100,
-				ctx: {
-					clearRect: jest.fn(),
-					save: jest.fn(),
-					restore: jest.fn(),
-					translate: jest.fn(),
-					scale: jest.fn(),
-					drawImage: jest.fn(),
+			gameEngine: {
+				cameras: { main: { shake: cameraShake } },
+				add: {
+					graphics: () => ({
+						beginFill: jest.fn(),
+						drawRect: jest.fn(),
+						endFill: jest.fn(),
+						clear: jest.fn(),
+						lineStyle: jest.fn(),
+						moveTo: jest.fn(),
+						lineTo: jest.fn(),
+						drawCircle: jest.fn(),
+						mask: null,
+					}),
+					bitmapData: () => ({
+						width: 100,
+						height: 100,
+						ctx: {
+							clearRect: jest.fn(),
+							save: jest.fn(),
+							restore: jest.fn(),
+							translate: jest.fn(),
+							scale: jest.fn(),
+							drawImage: jest.fn(),
+						},
+						context: {
+							clearRect: jest.fn(),
+							save: jest.fn(),
+							restore: jest.fn(),
+							translate: jest.fn(),
+							scale: jest.fn(),
+							drawImage: jest.fn(),
+						},
+						dirty: false,
+						update: jest.fn(),
+						destroy: jest.fn(),
+					}),
+					group: () => ({ children: [], add: () => {}, addAt: () => {}, remove: () => {} }),
+					tileSprite: () => ({}),
 				},
-				context: {
-					clearRect: jest.fn(),
-					save: jest.fn(),
-					restore: jest.fn(),
-					translate: jest.fn(),
-					scale: jest.fn(),
-					drawImage: jest.fn(),
+				tween: () => {
+					const onComplete = { add: (fn: () => void) => fn() };
+					const afterStart = { stop: () => ({}), onComplete };
+					const afterTo = { start: () => afterStart, stop: () => ({}), onComplete };
+					return { to: () => afterTo, start: () => afterStart, stop: () => ({}), onComplete };
 				},
-				dirty: false,
-				update: jest.fn(),
-				destroy: jest.fn(),
-			}),
-		group: () => ({ children: [], add: () => {}, addAt: () => {}, remove: () => {} }),
-		tileSprite: () => ({}),
-				},
-		tween: () => {
-			const onComplete = { add: (fn: () => void) => fn() };
-			const afterStart = { stop: () => ({}), onComplete };
-			const afterTo = { start: () => afterStart, stop: () => ({}), onComplete };
-			return { to: () => afterTo, start: () => afterStart, stop: () => ({}), onComplete };
-		},
 			},
 		};
 
@@ -282,10 +399,10 @@ UI: { selectAbility },
 		const abilityDef = (game.abilities[4] as Array<Record<string, unknown>>)[3];
 		const moltenHurl = {
 			...(abilityDef as object),
-		creature: magmaSpawn,
-		damages: { burn: 10, crush: 10 },
-		end: jest.fn(),
-		isUpgraded: () => false,
+			creature: magmaSpawn,
+			damages: { burn: 10, crush: 10 },
+			end: jest.fn(),
+			isUpgraded: () => false,
 		};
 
 		const path: MockHex[] = [
@@ -295,7 +412,7 @@ UI: { selectAbility },
 
 		(
 			moltenHurl as unknown as {
-		activate: (pathArg: MockHex[], args: { direction: number }) => void;
+				activate: (pathArg: MockHex[], args: { direction: number }) => void;
 			}
 		).activate(path, { direction: 1 });
 
@@ -314,61 +431,61 @@ describe('Infernal trap damage safety', () => {
 		const createdEffects: unknown[] = [];
 
 		const game = {
-		abilities: [] as unknown[],
-		effects: [] as unknown[],
-		turn: 0,
-		grid: {
-		hexes: [],
+			abilities: [] as unknown[],
+			effects: [] as unknown[],
+			turn: 0,
+			grid: {
+				hexes: [],
 			},
-		soundsys: {
-		playSFX: jest.fn(),
+			soundsys: {
+				playSFX: jest.fn(),
 			},
-		gameEngine: {
-		cameras: { main: { shake: () => {} } },
-		add: {
-		graphics: () => ({
-				beginFill: jest.fn(),
-				drawRect: jest.fn(),
-				endFill: jest.fn(),
-				clear: jest.fn(),
-				lineStyle: jest.fn(),
-				moveTo: jest.fn(),
-				lineTo: jest.fn(),
-				drawCircle: jest.fn(),
-				mask: null,
-			}),
-		bitmapData: () => ({
-				width: 100,
-				height: 100,
-				ctx: {
-					clearRect: jest.fn(),
-					save: jest.fn(),
-					restore: jest.fn(),
-					translate: jest.fn(),
-					scale: jest.fn(),
-					drawImage: jest.fn(),
+			gameEngine: {
+				cameras: { main: { shake: () => {} } },
+				add: {
+					graphics: () => ({
+						beginFill: jest.fn(),
+						drawRect: jest.fn(),
+						endFill: jest.fn(),
+						clear: jest.fn(),
+						lineStyle: jest.fn(),
+						moveTo: jest.fn(),
+						lineTo: jest.fn(),
+						drawCircle: jest.fn(),
+						mask: null,
+					}),
+					bitmapData: () => ({
+						width: 100,
+						height: 100,
+						ctx: {
+							clearRect: jest.fn(),
+							save: jest.fn(),
+							restore: jest.fn(),
+							translate: jest.fn(),
+							scale: jest.fn(),
+							drawImage: jest.fn(),
+						},
+						context: {
+							clearRect: jest.fn(),
+							save: jest.fn(),
+							restore: jest.fn(),
+							translate: jest.fn(),
+							scale: jest.fn(),
+							drawImage: jest.fn(),
+						},
+						dirty: false,
+						update: jest.fn(),
+						destroy: jest.fn(),
+					}),
+					group: () => ({ children: [], add: () => {}, addAt: () => {}, remove: () => {} }),
+					tileSprite: () => ({}),
 				},
-				context: {
-					clearRect: jest.fn(),
-					save: jest.fn(),
-					restore: jest.fn(),
-					translate: jest.fn(),
-					scale: jest.fn(),
-					drawImage: jest.fn(),
+				tween: () => {
+					const onComplete = { add: (fn: () => void) => fn() };
+					const afterStart = { stop: () => ({}), onComplete };
+					const afterTo = { start: () => afterStart, stop: () => ({}), onComplete };
+					return { to: () => afterTo, start: () => afterStart, stop: () => ({}), onComplete };
 				},
-				dirty: false,
-				update: jest.fn(),
-				destroy: jest.fn(),
-			}),
-		group: () => ({ children: [], add: () => {}, addAt: () => {}, remove: () => {} }),
-		tileSprite: () => ({}),
-				},
-		tween: () => {
-			const onComplete = { add: (fn: () => void) => fn() };
-			const afterStart = { stop: () => ({}), onComplete };
-			const afterTo = { start: () => afterStart, stop: () => ({}), onComplete };
-			return { to: () => afterTo, start: () => afterStart, stop: () => ({}), onComplete };
-		},
 			},
 		};
 
@@ -378,18 +495,18 @@ describe('Infernal trap damage safety', () => {
 		const abilityDef = (game.abilities[4] as Array<Record<string, unknown>>)[0];
 		const infernalAbility = {
 			...(abilityDef as object),
-		creature: {
-		id: 4,
-		player: { flipped: false },
-		hexagons: [{}, {}, {}],
+			creature: {
+				id: 4,
+				player: { flipped: false },
+				hexagons: [{}, {}, {}],
 			},
-		damages: { burn: 10, crush: 5 },
-		title: 'Boiling Point',
-		isUpgraded: () => false,
+			damages: { burn: 10, crush: 5 },
+			title: 'Boiling Point',
+			isUpgraded: () => false,
 		};
 
 		const trapHex = {
-		createTrap: jest.fn((_type: string, effects: unknown[]) => {
+			createTrap: jest.fn((_type: string, effects: unknown[]) => {
 				createdEffects.push(...effects);
 			}),
 		};
@@ -400,18 +517,18 @@ describe('Infernal trap damage safety', () => {
 		);
 
 		const effect = createdEffects[0] as {
-		trap: { destroy: () => void; hex: { creature?: Creature } };
-		deleteEffect: () => void;
-		effectFn: (effectArg: unknown, targetArg: unknown) => void;
+			trap: { destroy: () => void; hex: { creature?: Creature } };
+			deleteEffect: () => void;
+			effectFn: (effectArg: unknown, targetArg: unknown) => void;
 		};
 		const targetCreature = Object.create(CreatureClass.prototype) as Creature & {
-		takeDamage: typeof takeDamage;
+			takeDamage: typeof takeDamage;
 		};
 		targetCreature.takeDamage = takeDamage as any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 		effect.trap = {
-		destroy: trapDestroy,
-		hex: { creature: targetCreature },
+			destroy: trapDestroy,
+			hex: { creature: targetCreature },
 		};
 		effect.deleteEffect = jest.fn();
 
@@ -428,10 +545,10 @@ describe('Infernal cardboard FX regression', () => {
 		const animations = new Animations(game as never);
 		const { group, sprite } = createInfernalSpriteMock({ x: 24, y: 60, scaleX: -1 });
 		const creature = {
-		name: 'Infernal',
-		team: 1,
-		id: 9,
-		creatureSprite: { sprite, grp: group },
+			name: 'Infernal',
+			team: 1,
+			id: 9,
+			creatureSprite: { sprite, grp: group },
 		} as unknown as Creature;
 
 		animations.initInfernalCardboardEffect(creature, sprite as never);
@@ -457,10 +574,10 @@ describe('Infernal cardboard FX regression', () => {
 		const animations = new Animations(game as never);
 		const { group, sprite } = createInfernalSpriteMock({ x: 24, y: 60, scaleX: -1 });
 		const creature = {
-		name: 'Infernal',
-		team: 1,
-		id: 10,
-		creatureSprite: { sprite, grp: group },
+			name: 'Infernal',
+			team: 1,
+			id: 10,
+			creatureSprite: { sprite, grp: group },
 		} as unknown as Creature;
 
 		animations.initInfernalCardboardEffect(creature, sprite as never);
@@ -471,7 +588,7 @@ describe('Infernal cardboard FX regression', () => {
 		expect(heatLayer?.alpha).toBe(0);
 
 		sprite.texture.baseTexture = {
-		source: { width: 120, height: 180 } as unknown as CanvasImageSource,
+			source: { width: 120, height: 180 } as unknown as CanvasImageSource,
 		};
 		game.Phaser.time.now = 30;
 		game.Phaser.time.elapsedMS = 16;
@@ -488,10 +605,10 @@ describe('Infernal cardboard FX regression', () => {
 		const animations = new Animations(game as never);
 		const first = createInfernalSpriteMock({ x: 12, y: 44, scaleX: -1 });
 		const creature = {
-		name: 'Infernal',
-		team: 0,
-		id: 3,
-		creatureSprite: { sprite: first.sprite, grp: first.group },
+			name: 'Infernal',
+			team: 0,
+			id: 3,
+			creatureSprite: { sprite: first.sprite, grp: first.group },
 		} as unknown as Creature;
 
 		animations.initInfernalCardboardEffect(creature, first.sprite as never);
@@ -499,8 +616,8 @@ describe('Infernal cardboard FX regression', () => {
 
 		const second = createInfernalSpriteMock({ x: 80, y: 92, scaleX: 1 });
 		creature.creatureSprite = {
-		sprite: second.sprite,
-		grp: second.group,
+			sprite: second.sprite,
+			grp: second.group,
 		} as unknown as Creature['creatureSprite'];
 		animations.initInfernalCardboardEffect(creature, second.sprite as never);
 
@@ -532,10 +649,10 @@ describe('Infernal cardboard FX regression', () => {
 		const animations = new Animations(game as never);
 		const first = createInfernalSpriteMock({ x: 24, y: 60, scaleX: -1 });
 		const creature = {
-		name: 'Infernal',
-		team: 1,
-		id: 11,
-		creatureSprite: { sprite: first.sprite, grp: first.group },
+			name: 'Infernal',
+			team: 1,
+			id: 11,
+			creatureSprite: { sprite: first.sprite, grp: first.group },
 		} as unknown as Creature;
 
 		animations.initInfernalCardboardEffect(creature, first.sprite as never);
@@ -543,8 +660,8 @@ describe('Infernal cardboard FX regression', () => {
 
 		const live = createInfernalSpriteMock({ x: 88, y: 95, scaleX: -1 });
 		creature.creatureSprite = {
-		sprite: live.sprite,
-		grp: live.group,
+			sprite: live.sprite,
+			grp: live.group,
 		} as unknown as Creature['creatureSprite'];
 
 		game.Phaser.time.now = 64;
@@ -566,15 +683,15 @@ describe('Infernal cardboard FX regression', () => {
 		const game = getInfernalAnimationsGameMock();
 		const animations = new Animations(game as never);
 		const { group: originalGroup, sprite } = createInfernalSpriteMock({
-		x: 32,
-		y: 70,
-		scaleX: 1,
+			x: 32,
+			y: 70,
+			scaleX: 1,
 		});
 		const creature = {
-		name: 'Infernal',
-		team: 1,
-		id: 7,
-		creatureSprite: { sprite, grp: originalGroup },
+			name: 'Infernal',
+			team: 1,
+			id: 7,
+			creatureSprite: { sprite, grp: originalGroup },
 		} as unknown as Creature;
 
 		animations.initInfernalCardboardEffect(creature, sprite as never);
@@ -586,7 +703,7 @@ describe('Infernal cardboard FX regression', () => {
 		sprite.parent = replacement;
 		creature.creatureSprite = {
 			sprite,
-		grp: replacement,
+			grp: replacement,
 		} as unknown as Creature['creatureSprite'];
 
 		game.Phaser.time.now = 48;
@@ -606,31 +723,31 @@ describe('Infernal cardboard FX regression', () => {
 });
 
 type InfernalSpriteMock = {
-		x: number;
-		y: number;
-		key: string;
-		alpha: number;
-		tint: number;
-		blendMode: number | null;
-		exists: boolean;
-		parent: InfernalGroupMock;
-		anchor: { setTo: (x: number, y: number) => void; x: number; y: number };
-		scale: { setTo: (x: number, y: number) => void; x: number; y: number };
-		texture: {
+	x: number;
+	y: number;
+	key: string;
+	alpha: number;
+	tint: number;
+	blendMode: number | null;
+	exists: boolean;
+	parent: InfernalGroupMock;
+	anchor: { setTo: (x: number, y: number) => void; x: number; y: number };
+	scale: { setTo: (x: number, y: number) => void; x: number; y: number };
+	texture: {
 		width: number;
 		height: number;
 		baseTexture?: { source?: CanvasImageSource };
 	};
-		loadTexture: jest.Mock;
-		destroy: jest.Mock;
+	loadTexture: jest.Mock;
+	destroy: jest.Mock;
 };
 
 type InfernalGroupMock = {
-		children: InfernalSpriteMock[];
-		exists: boolean;
-		create: (x: number, y: number, key: string) => InfernalSpriteMock;
-		addAt: (sprite: InfernalSpriteMock, index: number) => InfernalSpriteMock;
-		getChildIndex: (sprite: InfernalSpriteMock) => number;
+	children: InfernalSpriteMock[];
+	exists: boolean;
+	create: (x: number, y: number, key: string) => InfernalSpriteMock;
+	addAt: (sprite: InfernalSpriteMock, index: number) => InfernalSpriteMock;
+	getChildIndex: (sprite: InfernalSpriteMock) => number;
 };
 
 const createInfernalSpriteMock = ({ x, y, scaleX }: { x: number; y: number; scaleX: -1 | 1 }) => {
@@ -639,10 +756,10 @@ const createInfernalSpriteMock = ({ x, y, scaleX }: { x: number; y: number; scal
 		exists: true,
 		create(createX: number, createY: number, key: string) {
 			const sprite = createInfernalOverlayMock(this, {
-		x: createX,
-		y: createY,
+				x: createX,
+				y: createY,
 				key,
-		scaleX: 1,
+				scaleX: 1,
 			});
 			this.children.push(sprite);
 			return sprite;
@@ -671,7 +788,7 @@ const createInfernalSpriteMock = ({ x, y, scaleX }: { x: number; y: number; scal
 };
 
 const createInfernalOverlayMock = (
-		group: InfernalGroupMock,
+	group: InfernalGroupMock,
 	{
 		x,
 		y,
@@ -713,10 +830,10 @@ const createInfernalOverlayMock = (
 		anchor,
 		scale,
 		texture: {
-		frame: { x: 0, y: 0, width: 120, height: 180 },
-		width: 120,
-		height: 180,
-		baseTexture: undefined,
+			frame: { x: 0, y: 0, width: 120, height: 180 },
+			width: 120,
+			height: 180,
+			baseTexture: undefined,
 		},
 		loadTexture: jest.fn(),
 		destroy: jest.fn(function (this: InfernalSpriteMock) {
@@ -731,7 +848,7 @@ const createInfernalOverlayMock = (
 const getInfernalAnimationsGameMock = () => {
 	const createBitmapData = (width: number, height: number) => {
 		const imageData = {
-		data: new Uint8ClampedArray(width * height * 4).fill(0),
+			data: new Uint8ClampedArray(width * height * 4).fill(0),
 		};
 		for (let index = 0; index < imageData.data.length; index += 4) {
 			imageData.data[index] = 255;
@@ -740,59 +857,59 @@ const getInfernalAnimationsGameMock = () => {
 			imageData.data[index + 3] = 255;
 		}
 		const ctx = {
-		clearRect: jest.fn(),
-		drawImage: jest.fn(),
-		getImageData: jest.fn(() => imageData),
-		putImageData: jest.fn(),
-		save: jest.fn(),
-		restore: jest.fn(),
-		translate: jest.fn(),
-		scale: jest.fn(),
+			clearRect: jest.fn(),
+			drawImage: jest.fn(),
+			getImageData: jest.fn(() => imageData),
+			putImageData: jest.fn(),
+			save: jest.fn(),
+			restore: jest.fn(),
+			translate: jest.fn(),
+			scale: jest.fn(),
 		};
 		return {
 			width,
 			height,
 			ctx,
-		context: ctx,
-		canvas: {} as CanvasImageSource,
-		dirty: false,
-		update: jest.fn(),
-		destroy: jest.fn(),
+			context: ctx,
+			canvas: {} as CanvasImageSource,
+			dirty: false,
+			update: jest.fn(),
+			destroy: jest.fn(),
 		};
 	};
 
 	const makeTween = () => {
 		const tween = {
-		to: jest.fn().mockReturnThis(),
-		onComplete: { add: jest.fn() },
-		stop: jest.fn(),
+			to: jest.fn().mockReturnThis(),
+			onComplete: { add: jest.fn() },
+			stop: jest.fn(),
 		};
 		return tween;
 	};
 
 	return {
 		Phaser: {
-		time: {
-		now: 0,
-		elapsedMS: 16,
+			time: {
+				now: 0,
+				elapsedMS: 16,
 			},
-		add: {
-		bitmapData: jest.fn((width: number, height: number) => createBitmapData(width, height)),
-		tween: jest.fn(() => makeTween()),
+			add: {
+				bitmapData: jest.fn((width: number, height: number) => createBitmapData(width, height)),
+				tween: jest.fn(() => makeTween()),
 			},
 		},
-	 gameEngine: {
-		time: {
-			now: 0,
-			elapsedMS: 16,
-			add: jest.fn(),
-			loop: jest.fn(),
-			remove: jest.fn(),
+		gameEngine: {
+			time: {
+				now: 0,
+				elapsedMS: 16,
+				add: jest.fn(),
+				loop: jest.fn(),
+				remove: jest.fn(),
+			},
+			tween: jest.fn(() => makeTween()),
+			add: {
+				bitmapData: jest.fn((width: number, height: number) => createBitmapData(width, height)),
+			},
 		},
-		tween: jest.fn(() => makeTween()),
-		add: {
-			bitmapData: jest.fn((width: number, height: number) => createBitmapData(width, height)),
-		},
-	},
 	};
 };

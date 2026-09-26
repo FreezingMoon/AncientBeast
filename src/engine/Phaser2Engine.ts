@@ -12,14 +12,14 @@
 
 import type {
 	BitmapDataHandle,
- CameraHandle,
- GameEngine,
- GroupHandle,
- SignalHandle,
- SpriteHandle,
- ScaleHandle,
- TimerHandle,
- TweenHandle,
+	CameraHandle,
+	GameEngine,
+	GroupHandle,
+	SignalHandle,
+	SpriteHandle,
+	ScaleHandle,
+	TimerHandle,
+	TweenHandle,
 } from './types';
 
 // ─── Signal wrapper ───────────────────────────────────────────────────────────
@@ -88,8 +88,7 @@ class TweenAdapter implements TweenHandle {
 
 	get onComplete() {
 		return {
-			add: (cb: (...args: any[]) => void, context?: any) =>
-				this.tween.onComplete.add(cb, context),
+			add: (cb: (...args: any[]) => void, context?: any) => this.tween.onComplete.add(cb, context),
 			addOnce: (cb: (...args: any[]) => void, context?: any) =>
 				this.tween.onComplete.addOnce(cb, context),
 		};
@@ -110,15 +109,33 @@ class BitmapDataAdapter implements BitmapDataHandle {
 		this.bmd = bmd;
 	}
 
-	get width() { return this.bmd.width; }
-	get height() { return this.bmd.height; }
-	get ctx() { return this.bmd.ctx; }
-	get context() { return this.bmd.context; }
-	get canvas() { return this.bmd.canvas; }
-	get dirty() { return this.bmd.dirty; }
-	set dirty(v: boolean) { this.bmd.dirty = v; }
-	update() { this.bmd.update(); }
-	destroy() { this.bmd.destroy(); }
+	get width() {
+		return this.bmd.width;
+	}
+	get height() {
+		return this.bmd.height;
+	}
+	get ctx() {
+		return this.bmd.ctx;
+	}
+	get context() {
+		return this.bmd.context;
+	}
+	get canvas() {
+		return this.bmd.canvas;
+	}
+	get dirty() {
+		return this.bmd.dirty;
+	}
+	set dirty(v: boolean) {
+		this.bmd.dirty = v;
+	}
+	update() {
+		this.bmd.update();
+	}
+	destroy() {
+		this.bmd.destroy();
+	}
 }
 
 // ─── Scale adapter ─────────────────────────────────────────────────────────────
@@ -138,18 +155,42 @@ class ScaleAdapter implements ScaleHandle {
 		return this._scale;
 	}
 
-	get parentIsWindow() { return this.scale?.parentIsWindow ?? false; }
-	set parentIsWindow(v: boolean) { if (this.scale) this.scale.parentIsWindow = v; }
-	get pageAlignHorizontally() { return this.scale?.pageAlignHorizontally ?? false; }
-	set pageAlignHorizontally(v: boolean) { if (this.scale) this.scale.pageAlignHorizontally = v; }
-	get pageAlignVertically() { return this.scale?.pageAlignVertically ?? false; }
-	set pageAlignVertically(v: boolean) { if (this.scale) this.scale.pageAlignVertically = v; }
-	get scaleMode() { return this.scale?.scaleMode ?? 0; }
-	set scaleMode(v: number) { if (this.scale) this.scale.scaleMode = v; }
-	get fullScreenScaleMode() { return this.scale?.fullScreenScaleMode ?? 0; }
-	set fullScreenScaleMode(v: number) { if (this.scale) this.scale.fullScreenScaleMode = v; }
-	refresh() { if (this.scale) this.scale.refresh(); }
-	resize() { if (this.scale) this.scale.refresh(); }
+	get parentIsWindow() {
+		return this.scale?.parentIsWindow ?? false;
+	}
+	set parentIsWindow(v: boolean) {
+		if (this.scale) this.scale.parentIsWindow = v;
+	}
+	get pageAlignHorizontally() {
+		return this.scale?.pageAlignHorizontally ?? false;
+	}
+	set pageAlignHorizontally(v: boolean) {
+		if (this.scale) this.scale.pageAlignHorizontally = v;
+	}
+	get pageAlignVertically() {
+		return this.scale?.pageAlignVertically ?? false;
+	}
+	set pageAlignVertically(v: boolean) {
+		if (this.scale) this.scale.pageAlignVertically = v;
+	}
+	get scaleMode() {
+		return this.scale?.scaleMode ?? 0;
+	}
+	set scaleMode(v: number) {
+		if (this.scale) this.scale.scaleMode = v;
+	}
+	get fullScreenScaleMode() {
+		return this.scale?.fullScreenScaleMode ?? 0;
+	}
+	set fullScreenScaleMode(v: number) {
+		if (this.scale) this.scale.fullScreenScaleMode = v;
+	}
+	refresh() {
+		if (this.scale) this.scale.refresh();
+	}
+	resize() {
+		if (this.scale) this.scale.refresh();
+	}
 }
 
 // ─── Camera adapter ────────────────────────────────────────────────────────────
@@ -172,7 +213,13 @@ class CameraAdapter implements CameraHandle {
 		return this._camera;
 	}
 
-	shake(duration: number, amplitude: number, force?: boolean, direction?: number | string, snap?: boolean) {
+	shake(
+		duration: number,
+		amplitude: number,
+		force?: boolean,
+		direction?: number | string,
+		snap?: boolean,
+	) {
 		// Phaser 2 signature: shake(amplitude, duration, force, direction, snap)
 		// Adapter normalizes to: shake(duration, amplitude, force, direction, snap)
 		const camera = this.camera;
@@ -189,6 +236,10 @@ class TimerAdapter implements TimerHandle {
 
 	constructor(timer: any) {
 		this.timer = timer;
+	}
+
+	destroy?(): void {
+		this.timer?.destroy?.();
 	}
 }
 
@@ -209,9 +260,13 @@ class LoaderAdapter {
 		return this._load;
 	}
 
-	start() { this.load.start(); }
+	start() {
+		this.load.start();
+	}
 
-	get progress() { return this.load.progress; }
+	get progress() {
+		return this.load.progress;
+	}
 
 	get onFileComplete() {
 		return new SignalAdapter(this.load.onFileComplete);
@@ -248,7 +303,14 @@ export class Phaser2Engine implements GameEngine {
 		text(x: number, y: number, text: string, style?: any): SpriteHandle;
 		graphics(x?: number, y?: number, parent?: GroupHandle): SpriteHandle;
 		group(parent?: GroupHandle, name?: string): GroupHandle;
-		tileSprite(x: number, y: number, w: number, h: number, key: string, frame?: string): SpriteHandle;
+		tileSprite(
+			x: number,
+			y: number,
+			w: number,
+			h: number,
+			key: string,
+			frame?: string,
+		): SpriteHandle;
 		bitmapData(w: number, h: number): BitmapDataHandle;
 	};
 
@@ -270,13 +332,17 @@ export class Phaser2Engine implements GameEngine {
 		};
 		this.device = { desktop: phaser.device.desktop };
 		this.stage = {
-			get disableVisibilityChange() { return phaser.stage?.disableVisibilityChange ?? false; },
+			get disableVisibilityChange() {
+				return phaser.stage?.disableVisibilityChange ?? false;
+			},
 			set disableVisibilityChange(v: boolean) {
 				if (phaser.stage) {
 					phaser.stage.disableVisibilityChange = v;
 				}
 			},
-			get forcePortrait() { return phaser.stage?.forcePortrait ?? false; },
+			get forcePortrait() {
+				return phaser.stage?.forcePortrait ?? false;
+			},
 			set forcePortrait(v: boolean) {
 				if (phaser.stage) {
 					phaser.stage.forcePortrait = v;
@@ -286,12 +352,14 @@ export class Phaser2Engine implements GameEngine {
 		this.signals = {};
 		this.load = new LoaderAdapter(phaser);
 		this.time = {
-			get now() { return phaser.time.now; },
-			get elapsedMS() { return phaser.time.elapsedMS; },
-			add: (delay: number, cb: () => void) =>
-				new TimerAdapter(phaser.time.events.add(delay, cb)),
-			loop: (delay: number, cb: () => void) =>
-				new TimerAdapter(phaser.time.events.loop(delay, cb)),
+			get now() {
+				return phaser.time.now;
+			},
+			get elapsedMS() {
+				return phaser.time.elapsedMS;
+			},
+			add: (delay: number, cb: () => void) => new TimerAdapter(phaser.time.events.add(delay, cb)),
+			loop: (delay: number, cb: () => void) => new TimerAdapter(phaser.time.events.loop(delay, cb)),
 			remove: (timer: TimerHandle) => {
 				phaser.time.events.remove((timer as TimerAdapter).timer);
 			},
@@ -313,16 +381,14 @@ export class Phaser2Engine implements GameEngine {
 				phaser.add.group(parent as any, name) as unknown as GroupHandle,
 			tileSprite: (x: number, y: number, w: number, h: number, key: string, frame?: string) =>
 				phaser.add.tileSprite(x, y, w, h, key, frame) as unknown as SpriteHandle,
-		bitmapData: (w: number, h: number) =>
-			new BitmapDataAdapter(phaser.add.bitmapData(w, h)),
-	};
+			bitmapData: (w: number, h: number) => new BitmapDataAdapter(phaser.add.bitmapData(w, h)),
+		};
 
 		// make.* factories — pass through to phaser.make
 		this.make = {
-			bitmapData: (w: number, h: number) =>
-				new BitmapDataAdapter(phaser.make.bitmapData(w, h)),
-	};
-}
+			bitmapData: (w: number, h: number) => new BitmapDataAdapter(phaser.make.bitmapData(w, h)),
+		};
+	}
 
 	destroy() {
 		this.phaser.destroy(true, false);

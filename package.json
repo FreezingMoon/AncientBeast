@@ -47,6 +47,7 @@
     "@types/jquery": "^3.5.34",
     "@types/jquery.transit": "^0.9.33",
     "@types/js-cookie": "^3.0.6",
+    "@types/node": "^26.6.3",
     "@types/underscore": "^1.11.5",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",

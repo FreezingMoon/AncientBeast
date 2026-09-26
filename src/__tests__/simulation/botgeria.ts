@@ -982,7 +982,7 @@ export async function runMatch(game: unknown): Promise<MatchResult> {
 		await Promise.resolve();
 		const _dtAwait = ((globalThis as any).realPerf?.now?.() ?? 0) - _t0 - _dtAdv;
 		if (_dbgTick < 20)
-			process.stderr.write(
+			(process.stderr as any).write(
 				`  [tick${_dbgTick} t=${(game as any).turn} adv=${_dtAdv.toFixed(
 					0,
 				)}ms await=${_dtAwait.toFixed(0)}ms]\n`,

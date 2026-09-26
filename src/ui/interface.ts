@@ -1,7 +1,7 @@
 // eslint-disable-next-line no-undef
 /* global JQuery */
 import $j from 'jquery';
-import Phaser from 'phaser-ce';
+import { Easing } from 'phaser';
 import * as time from '../utility/time';
 import * as emoji from 'node-emoji';
 import { Hotkeys, getHotKeys } from './hotkeys';
@@ -931,16 +931,13 @@ export class UI {
 										const finalScale = isHovered ? 0.5 : 0;
 										hex.display.scale.setTo(0.5);
 										hex.display.anchor.setTo(0.5, 0.5);
-										game.gameEngine.tween(hex.display.scale)
-											.to({ x: 1.0, y: 1.0 }, 180, Phaser.Easing.Quadratic.Out, true, idx * 20)
+										game.gameEngine
+											.tween(hex.display.scale)
+											.to({ x: 1.0, y: 1.0 }, 180, Easing.Quadratic.Out, true, idx * 20)
 											.onComplete.addOnce(() => {
-												game.gameEngine.tween(hex.display.scale)
-													.to(
-														{ x: finalScale, y: finalScale },
-														180,
-														Phaser.Easing.Quadratic.In,
-														true,
-													)
+												game.gameEngine
+													.tween(hex.display.scale)
+													.to({ x: finalScale, y: finalScale }, 180, Easing.Quadratic.In, true)
 													.onComplete.addOnce(() => {
 														if (!isHovered) {
 															hex.display.anchor.setTo(0, 0);
@@ -3129,11 +3126,13 @@ export class UI {
 					this.game.gameEngine.removeTweensFrom(hex.display.scale);
 					hex.display.scale.setTo(0.5);
 					hex.display.anchor.setTo(0.5, 0.5);
-					this.game.gameEngine.tween(hex.display.scale)
-						.to({ x: 1.0, y: 1.0 }, 180, Phaser.Easing.Quadratic.Out, true, idx * 20)
+					this.game.gameEngine
+						.tween(hex.display.scale)
+						.to({ x: 1.0, y: 1.0 }, 180, Easing.Quadratic.Out, true, idx * 20)
 						.onComplete.addOnce(() => {
-							this.game.gameEngine.tween(hex.display.scale)
-								.to({ x: 0, y: 0 }, 180, Phaser.Easing.Quadratic.In, true)
+							this.game.gameEngine
+								.tween(hex.display.scale)
+								.to({ x: 0, y: 0 }, 180, Easing.Quadratic.In, true)
 								.onComplete.addOnce(() => {
 									hex.display.anchor.setTo(0, 0);
 									hex.cleanDisplayVisualState('abilityRange');

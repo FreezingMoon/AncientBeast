@@ -768,7 +768,7 @@ describe('HexGrid display group layering', () => {
 					group: jest.fn((parent?: MockGroup, name?: string) => createGroup(parent, name)),
 				},
 			},
-		 gameEngine: {
+			gameEngine: {
 				add: {
 					group: jest.fn((parent?: MockGroup, name?: string) => createGroup(parent, name)),
 				},

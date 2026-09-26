@@ -286,7 +286,8 @@ function createOpticBurstLaserEffect(
 
 		beamGraphics.destroy();
 
-		G.gameEngine.tween(impactSprite.scale)
+		G.gameEngine
+			.tween(impactSprite.scale)
 			.to(
 				{
 					x: 2.5,
@@ -297,7 +298,8 @@ function createOpticBurstLaserEffect(
 			)
 			.start();
 
-		G.gameEngine.tween(impactSprite)
+		G.gameEngine
+			.tween(impactSprite)
 			.to(
 				{
 					alpha: 0,

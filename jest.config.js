@@ -94,10 +94,10 @@ module.exports = {
 	},
 
 	// Exclude simulation tests — run those via `bun run simulate` instead
-	testPathIgnorePatterns: ['/node_modules/', '/src/__tests__/simulation/'],
+	testPathIgnorePatterns: ['/node_modules/', '/src/__tests__/simulation/', '/.kilo/worktrees/'],
 
 	// An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
-	// modulePathIgnorePatterns: [],
+	modulePathIgnorePatterns: ['<rootDir>/.kilo/worktrees/'],
 
 	// Activates notifications for test results
 	// notify: false,

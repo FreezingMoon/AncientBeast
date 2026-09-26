@@ -16,6 +16,6 @@
 		"strict": false,
 		"types": ["jest", "jquery"]
 	},
-	"include": ["src", "types", "assets"],
-	"exclude": ["node_modules", "src/devvit/game-entry.ts", "src/devvit/splash.ts"]
+	"include": ["src", "types/global.d.ts", "types/phaser.d.ts", "assets"],
+	"exclude": ["node_modules", "src/devvit/game-entry.ts", "src/devvit/splash.ts", "types/phaser-ce.d.ts", "src/__tests__"]
 }

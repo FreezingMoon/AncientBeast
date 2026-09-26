@@ -20,25 +20,28 @@ import type {
 
 // ─── Simple EventEmitter for SignalHandle ───────────────────────────────────────
 
-class SimpleEmitter {
-	private listeners: Map<string, Array<{ fn: Function; context?: any; once: boolean }>> = new Map();
+type CallbackFn = (...args: any[]) => void;
 
-	on(event: string, fn: Function, context?: any) {
+class SimpleEmitter {
+	private listeners: Map<string, Array<{ fn: CallbackFn; context?: any; once: boolean }>> =
+		new Map();
+
+	on(event: string, fn: CallbackFn, context?: any) {
 		const arr = this.listeners.get(event) || [];
 		arr.push({ fn, context, once: false });
 		this.listeners.set(event, arr);
 	}
 
-	once(event: string, fn: Function, context?: any) {
+	once(event: string, fn: CallbackFn, context?: any) {
 		const arr = this.listeners.get(event) || [];
 		arr.push({ fn, context, once: true });
 		this.listeners.set(event, arr);
 	}
 
-	off(event: string, fn: Function, context?: any) {
+	off(event: string, fn: CallbackFn, context?: any) {
 		const arr = this.listeners.get(event);
 		if (!arr) return;
-		const idx = arr.findIndex(l => l.fn === fn && l.context === context);
+		const idx = arr.findIndex((l) => l.fn === fn && l.context === context);
 		if (idx >= 0) arr.splice(idx, 1);
 	}
 
@@ -105,7 +108,15 @@ class TweenAdapter implements TweenHandle {
 		});
 	}
 
-	to(props: Record<string, any>, duration: number, easing?: string | ((k: number) => number), autoStart?: boolean, delay?: number, repeat?: number, yoyo?: boolean): TweenHandle {
+	to(
+		props: Record<string, any>,
+		duration: number,
+		easing?: string | ((k: number) => number),
+		autoStart?: boolean,
+		delay?: number,
+		repeat?: number,
+		yoyo?: boolean,
+	): TweenHandle {
 		this.tween.stop();
 		this.scene?.tweens.killTweensOf(this.tween.targets);
 		const config: any = {
@@ -155,8 +166,10 @@ class TweenAdapter implements TweenHandle {
 
 	get onComplete() {
 		return {
-			add: (cb: (...args: any[]) => void, context?: any) => this.onCompleteEmitter.on('dispatch', cb, context),
-			addOnce: (cb: (...args: any[]) => void, context?: any) => this.onCompleteEmitter.once('dispatch', cb, context),
+			add: (cb: (...args: any[]) => void, context?: any) =>
+				this.onCompleteEmitter.on('dispatch', cb, context),
+			addOnce: (cb: (...args: any[]) => void, context?: any) =>
+				this.onCompleteEmitter.once('dispatch', cb, context),
 		};
 	}
 
@@ -180,57 +193,134 @@ class BitmapDataAdapter implements BitmapDataHandle {
 		this.ctx = this.canvas.getContext('2d')!;
 	}
 
-	get width() { return this.texture.width; }
-	get height() { return this.texture.height; }
-	get context() { return this.ctx; }
-	get dirty() { return true; }
-	set dirty(v: boolean) { }
-	update() { this.texture.update(); }
-	destroy() { this.texture.destroy(); }
+	get width() {
+		return this.texture.width;
+	}
+	get height() {
+		return this.texture.height;
+	}
+	get context() {
+		return this.ctx;
+	}
+	get dirty() {
+		return true;
+	}
+	set dirty(v: boolean) {}
+	update() {
+		this.texture.update();
+	}
+	destroy() {
+		this.texture.destroy();
+	}
 }
 
 // ─── Scale adapter ──────────────────────────────────────────────────────────────
 
 class ScaleAdapter implements ScaleHandle {
-	readonly scaleManager: any;
-	readonly camera: any;
+	private readonly phaser: any;
+	private _scaleManager: any | null = null;
+	private _camera: any | null = null;
 
-	constructor(game: any) {
-		this.scaleManager = game.scale;
-		this.camera = game.scene?.cameras?.main || game.cameras?.main;
+	constructor(phaser: any) {
+		this.phaser = phaser;
 	}
 
-	get parentIsWindow() { return this.scaleManager.parentIsWindow; }
-	set parentIsWindow(v: boolean) { this.scaleManager.parentIsWindow = v; }
-	get pageAlignHorizontally() { return this.scaleManager.autoCenter === 1 || this.scaleManager.autoCenter === 3; }
-	set pageAlignHorizontally(v: boolean) { this.scaleManager.autoCenter = v ? (this.pageAlignVertically ? 3 : 1) : (this.pageAlignVertically ? 2 : 0); }
-	get pageAlignVertically() { return this.scaleManager.autoCenter === 2 || this.scaleManager.autoCenter === 3; }
-	set pageAlignVertically(v: boolean) { this.scaleManager.autoCenter = v ? (this.pageAlignHorizontally ? 3 : 2) : (this.pageAlignHorizontally ? 1 : 0); }
-	get scaleMode() { return this.scaleManager.mode; }
-	set scaleMode(v: number) { this.scaleManager.mode = v; }
-	get fullScreenScaleMode() { return this.scaleManager.fullscreenTarget ? 1 : 0; }
-	set fullScreenScaleMode(v: number) { }
-	refresh() { this.camera?.refresh(); this.scaleManager.refresh(); }
-	resize() { this.scaleManager.resize(); }
+	private get scaleManager() {
+		if (!this._scaleManager) this._scaleManager = this.phaser?.scale;
+		return this._scaleManager;
+	}
+	private get camera() {
+		if (!this._camera)
+			this._camera = this.phaser?.scene?.cameras?.main || this.phaser?.cameras?.main;
+		return this._camera;
+	}
+
+	get parentIsWindow() {
+		return this.scaleManager?.parentIsWindow ?? false;
+	}
+	set parentIsWindow(v: boolean) {
+		if (this.scaleManager) this.scaleManager.parentIsWindow = v;
+	}
+	get pageAlignHorizontally() {
+		return this.scaleManager?.autoCenter === 1 || this.scaleManager?.autoCenter === 3;
+	}
+	set pageAlignHorizontally(v: boolean) {
+		if (this.scaleManager)
+			this.scaleManager.autoCenter = v
+				? this.pageAlignVertically
+					? 3
+					: 1
+				: this.pageAlignVertically
+				? 2
+				: 0;
+	}
+	get pageAlignVertically() {
+		return this.scaleManager?.autoCenter === 2 || this.scaleManager?.autoCenter === 3;
+	}
+	set pageAlignVertically(v: boolean) {
+		if (this.scaleManager)
+			this.scaleManager.autoCenter = v
+				? this.pageAlignHorizontally
+					? 3
+					: 2
+				: this.pageAlignHorizontally
+				? 1
+				: 0;
+	}
+	get scaleMode() {
+		return this.scaleManager?.mode ?? 0;
+	}
+	set scaleMode(v: number) {
+		if (this.scaleManager) this.scaleManager.mode = v;
+	}
+	get fullScreenScaleMode() {
+		return this.scaleManager?.fullscreenTarget ? 1 : 0;
+	}
+	set fullScreenScaleMode(v: number) {}
+	refresh() {
+		this.camera?.refresh();
+		this.scaleManager?.refresh();
+	}
+	resize() {
+		this.scaleManager?.resize();
+	}
 }
 
 // ─── Camera adapter ─────────────────────────────────────────────────────────────
 
 class CameraAdapter implements CameraHandle {
-	readonly camera: any;
+	private readonly phaser: any;
+	private _camera: any | null = null;
 	readonly SHAKE_HORIZONTAL = 1;
 	readonly SHAKE_VERTICAL = 2;
 	readonly SHAKE_BOTH = 3;
 
-	constructor(camera: any) {
-		this.camera = camera;
+	constructor(phaser: any) {
+		this.phaser = phaser;
 	}
 
-	shake(duration: number, amplitude: number, force?: boolean, direction?: number | string, snap?: boolean) {
-		const dir = direction === this.SHAKE_HORIZONTAL ? 'horizontal'
-			: direction === this.SHAKE_VERTICAL ? 'vertical'
-			: 'both';
-		this.camera.shake({ duration, intensity: amplitude, force, direction: dir });
+	private get camera() {
+		if (!this._camera)
+			this._camera = this.phaser?.scene?.cameras?.main || this.phaser?.cameras?.main;
+		return this._camera;
+	}
+
+	shake(
+		duration: number,
+		amplitude: number,
+		force?: boolean,
+		direction?: number | string,
+		snap?: boolean,
+	) {
+		const camera = this.camera;
+		if (!camera || typeof camera.shake !== 'function') return;
+		const dir =
+			direction === this.SHAKE_HORIZONTAL
+				? 'horizontal'
+				: direction === this.SHAKE_VERTICAL
+				? 'vertical'
+				: 'both';
+		camera.shake({ duration, intensity: amplitude, force, direction: dir });
 	}
 }
 
@@ -238,133 +328,209 @@ class CameraAdapter implements CameraHandle {
 
 class TimerAdapter implements TimerHandle {
 	readonly event: any;
-	constructor(event: any) { this.event = event; }
+	constructor(event: any) {
+		this.event = event;
+	}
+
+	destroy?(): void {
+		this.event?.destroy?.();
+	}
 }
 
 // ─── Loader adapter ─────────────────────────────────────────────────────────────
 
 class LoaderAdapter {
-	readonly load: any;
+	private readonly phaser: any;
+	private _load: any | null = null;
 	private fileCompleteEmitter = new SimpleEmitter();
 	private loadCompleteEmitter = new SimpleEmitter();
 
-	constructor(load: any) {
-		this.load = load;
-		load.on('filecomplete', (key: string, type: string, data: any) => this.fileCompleteEmitter.emit('dispatch', key, type, data));
-		load.on('complete', () => this.loadCompleteEmitter.emit('dispatch'));
+	constructor(phaser: any) {
+		this.phaser = phaser;
 	}
 
-	start() { this.load.start(); }
+	private get load() {
+		if (!this._load) this._load = this.phaser?.scene?.scenes?.[0]?.load || this.phaser?.scene?.load;
+		return this._load;
+	}
 
-	get progress() { return this.load.progress; }
+	start() {
+		this.load?.start();
+	}
 
-	get onFileComplete() { return new SignalAdapter(this.fileCompleteEmitter); }
-	get onLoadComplete() { return new SignalAdapter(this.loadCompleteEmitter); }
+	get progress() {
+		return this.load?.progress ?? 100;
+	}
+
+	get onFileComplete() {
+		if (this.load) {
+			console.log('[LoaderAdapter] Setting up filecomplete and complete listeners');
+			this.load.on('filecomplete', (key: string, type: string, data: any) => {
+				console.log('[LoaderAdapter] filecomplete:', key, type);
+				this.fileCompleteEmitter.emit('dispatch', key, type, data);
+			});
+			this.load.on('complete', () => {
+				console.log('[LoaderAdapter] complete event fired');
+				this.loadCompleteEmitter.emit('dispatch');
+			});
+		}
+		return new SignalAdapter(this.fileCompleteEmitter);
+	}
+	get onLoadComplete() {
+		return new SignalAdapter(this.loadCompleteEmitter);
+	}
 }
 
 // ─── Phaser4Engine class ────────────────────────────────────────────────────────
 
 export class Phaser4Engine implements GameEngine {
-	public readonly scale: ScaleHandle;
-	public readonly cameras: { main: CameraHandle };
-	public readonly world: { removeAll(destroy?: boolean): void };
-	public readonly cache: { getImage(key: string): any };
-	public readonly device: { desktop: boolean };
-	public readonly stage: { disableVisibilityChange: boolean; forcePortrait: boolean };
-	public readonly signals: Record<string, SignalHandle>;
-	public readonly load: GameEngine['load'];
-	public readonly time: {
-		now: number;
-		elapsedMS: number;
-		add(delay: number, cb: () => void): TimerHandle;
-		loop(delay: number, cb: () => void): TimerHandle;
-		remove(timer: TimerHandle): void;
-	};
-	public add: {
-		socket(x: number, y: number, key: string, frame?: string): SpriteHandle;
-		image(x: number, y: number, key: string, frame?: string): SpriteHandle;
-		sprite(x: number, y: number, key: string, frame?: string): SpriteHandle;
-		text(x: number, y: number, text: string, style?: any): SpriteHandle;
-		graphics(x?: number, y?: number, parent?: GroupHandle): SpriteHandle;
-		group(parent?: GroupHandle, name?: string): GroupHandle;
-		tileSprite(x: number, y: number, w: number, h: number, key: string, frame?: string): SpriteHandle;
-		bitmapData(w: number, h: number): BitmapDataHandle;
-	};
-	public make: {
-		bitmapData(w: number, h: number): BitmapDataHandle;
-	};
 	public readonly phaser: any;
-	private readonly scene: any;
 
 	constructor(phaser: any) {
 		this.phaser = phaser;
-		this.scene = phaser.scene?.active || phaser;
-		const scene = this.scene;
+	}
 
-		this.scale = new ScaleAdapter(phaser);
-		this.cameras = { main: new CameraAdapter(this.scene.cameras?.main || phaser.cameras?.main) };
-		this.world = {
-			removeAll: (destroy?: boolean) => this.scene.children.clear(destroy),
+	private get _scene() {
+		// In Phaser 4, phaser.scene.active returns the active Scene
+		// In mock, phaser.scene IS the scene (and .active is a boolean)
+		const sceneManager = this.phaser.scene;
+		if (sceneManager?.active && typeof sceneManager.active === 'object') {
+			return sceneManager.active;
+		}
+		if (sceneManager?.add) {
+			return sceneManager;
+		}
+		return this.phaser;
+	}
+
+	private get _scaleManager() {
+		return this.phaser.scale;
+	}
+
+	private get _camerasMain() {
+		return this._scene.cameras?.main || this.phaser.cameras?.main;
+	}
+
+	private get _load() {
+		return this._scene.load;
+	}
+
+	private get _time() {
+		return this._scene.time;
+	}
+
+	private get _add() {
+		return this._scene.add;
+	}
+
+	private get _textures() {
+		return this._scene.textures;
+	}
+
+	public get scale() {
+		return new ScaleAdapter(this.phaser);
+	}
+	public get cameras() {
+		return { main: new CameraAdapter(this.phaser) };
+	}
+	public get world() {
+		return {
+			removeAll: (destroy?: boolean) => this._scene.children.clear(destroy),
 		};
-		this.cache = {
+	}
+	public get cache() {
+		return {
 			getImage: (key: string) => {
-				const tex = this.scene.textures.get(key);
+				const tex = this._textures.get(key);
 				return tex?.source?.[0]?.image || tex;
 			},
 		};
-		this.device = { desktop: phaser.device?.desktop ?? this.scene.sys?.game?.device?.desktop ?? true };
-		this.stage = { disableVisibilityChange: false, forcePortrait: false };
-		this.signals = {};
-		this.load = new LoaderAdapter(this.scene.load);
-		this.time = {
-			get now() { return scene.time.now; },
-			get elapsedMS() { return scene.time.elapsedMS; },
-			add: (delay: number, cb: () => void) => new TimerAdapter(scene.time.delayedCall(delay, cb)),
-			loop: (delay: number, cb: () => void) => new TimerAdapter(scene.time.addEvent({ delay, loop: true, callback: cb })),
+	}
+	public get device() {
+		const self = this;
+		return {
+			get desktop() {
+				return self.phaser?.device?.desktop ?? self._scene?.sys?.game?.device?.desktop ?? true;
+			},
+		};
+	}
+	public get stage() {
+		const self = this;
+		return {
+			get disableVisibilityChange() {
+				return self.phaser.stage?.disableVisibilityChange ?? false;
+			},
+			set disableVisibilityChange(v: boolean) {
+				if (self.phaser.stage) self.phaser.stage.disableVisibilityChange = v;
+			},
+			get forcePortrait() {
+				return self.phaser.stage?.forcePortrait ?? false;
+			},
+			set forcePortrait(v: boolean) {
+				if (self.phaser.stage) self.phaser.stage.forcePortrait = v;
+			},
+		};
+	}
+	public readonly signals: Record<string, SignalHandle> = {};
+	public get load() {
+		return new LoaderAdapter(this.phaser);
+	}
+	public get time() {
+		const self = this;
+		return {
+			get now() {
+				return self._time?.now ?? 0;
+			},
+			get elapsedMS() {
+				return self._time?.elapsedMS ?? 0;
+			},
+			add: (delay: number, cb: () => void) => new TimerAdapter(self._time.delayedCall(delay, cb)),
+			loop: (delay: number, cb: () => void) =>
+				new TimerAdapter(self._time.addEvent({ delay, loop: true, callback: cb })),
 			remove: (timer: TimerHandle) => (timer as TimerAdapter).event?.remove?.(),
-		};
-
-		this.add = {
-			socket: (x: number, y: number, key: string, frame?: string) =>
-				this.scene.add.sprite({ x, y, key, frame }) as unknown as SpriteHandle,
-			image: (x: number, y: number, key: string, frame?: string) =>
-				this.scene.add.image({ x, y, key, frame }) as unknown as SpriteHandle,
-			sprite: (x: number, y: number, key: string, frame?: string) =>
-				this.scene.add.sprite({ x, y, key, frame }) as unknown as SpriteHandle,
-			text: (x: number, y: number, text: string, style?: any) =>
-				this.scene.add.text({ x, y, text, style }) as unknown as SpriteHandle,
-			graphics: (x?: number, y?: number, parent?: GroupHandle) => {
-				const g = this.scene.add.graphics({ x: x ?? 0, y: y ?? 0 });
-				if (parent) (parent as any).add?.(g);
-				return g as unknown as SpriteHandle;
-			},
-			group: (parent?: GroupHandle, name?: string) => {
-				const group = this.scene.add.group();
-				if (parent) (parent as any).add?.(group);
-				return group as unknown as GroupHandle;
-			},
-			tileSprite: (x: number, y: number, w: number, h: number, key: string, frame?: string) =>
-				this.scene.add.tileSprite({ x, y, width: w, height: h, key, frame }) as unknown as SpriteHandle,
-			bitmapData: (w: number, h: number) =>
-				new BitmapDataAdapter(this.scene.add.renderTexture({ width: w, height: h })),
-		};
-
-		this.make = {
-			bitmapData: (w: number, h: number) =>
-				new BitmapDataAdapter(this.scene.add.renderTexture({ width: w, height: h })),
 		};
 	}
 
+	public readonly add = {
+		socket: (x: number, y: number, key: string, frame?: string) =>
+			this._add.sprite({ x, y, key, frame }) as unknown as SpriteHandle,
+		image: (x: number, y: number, key: string, frame?: string) =>
+			this._add.image({ x, y, key, frame }) as unknown as SpriteHandle,
+		sprite: (x: number, y: number, key: string, frame?: string) =>
+			this._add.sprite({ x, y, key, frame }) as unknown as SpriteHandle,
+		text: (x: number, y: number, text: string, style?: any) =>
+			this._add.text({ x, y, text, style }) as unknown as SpriteHandle,
+		graphics: (x?: number, y?: number, parent?: GroupHandle) => {
+			const g = this._add.graphics({ x: x ?? 0, y: y ?? 0 });
+			if (parent) (parent as any).add?.(g);
+			return g as unknown as SpriteHandle;
+		},
+		group: (parent?: GroupHandle, name?: string) => {
+			const group = this._add.group();
+			if (parent) (parent as any).add?.(group);
+			return group as unknown as GroupHandle;
+		},
+		tileSprite: (x: number, y: number, w: number, h: number, key: string, frame?: string) =>
+			this._add.tileSprite({ x, y, width: w, height: h, key, frame }) as unknown as SpriteHandle,
+		bitmapData: (w: number, h: number) =>
+			new BitmapDataAdapter(this._add.renderTexture({ width: w, height: h })),
+	};
+
+	public readonly make = {
+		bitmapData: (w: number, h: number) =>
+			new BitmapDataAdapter(this._add.renderTexture({ width: w, height: h })),
+	};
+
 	destroy() {
-		this.phaser.destroy?.(true, false) ?? this.scene?.sys?.game?.destroy?.(true, false);
+		this.phaser.destroy?.(true, false) ?? this._scene?.sys?.game?.destroy?.(true, false);
 	}
 
 	tween(target: object): TweenHandle {
-		const tween = this.scene.tweens.add({ targets: target, duration: 0, paused: true });
+		const tween = this._scene.tweens.add({ targets: target, duration: 0, paused: true });
 		return new TweenAdapter(tween);
 	}
 
 	removeTweensFrom(target: object) {
-		this.scene.tweens.killTweensOf(target);
+		this._scene.tweens.killTweensOf(target);
 	}
 }

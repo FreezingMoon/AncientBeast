@@ -187,10 +187,7 @@ function _tickAllFields(): void {
 
 function _ensureTicker(): void {
 	if (_sharedTimer || !_sharedEngine) return;
-	_sharedTimer = _sharedEngine.time.loop(
-		1000 / SHARED_TICK_FPS,
-		_tickAllFields,
-	);
+	_sharedTimer = _sharedEngine.time.loop(1000 / SHARED_TICK_FPS, _tickAllFields);
 }
 
 function _resetSharedState(): void {

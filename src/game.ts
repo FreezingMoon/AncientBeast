@@ -11,10 +11,8 @@ import { UI } from './ui/interface';
 import { Creature, CreatureHintType } from './creature';
 import { refreshPlasmaRenderScales } from './plasma-field';
 import { unitData } from './data/units';
-import 'pixi';
-import 'p2';
-import 'p2';
-import Phaser, { Signal } from 'phaser';
+import { Signal } from './utility/signal';
+import Phaser from 'phaser';
 import { LobbyClient } from './multiplayer';
 import { createLobbyProvider } from './multiplayer/provider';
 import type {
@@ -38,7 +36,7 @@ import { CreatureType, Realm, UnitData } from './data/types';
 import { setAudioMode } from './sound/soundsys';
 import BotController from './bot';
 import { locationPaths } from '../assets/index';
-import { Phaser2Engine } from './engine/Phaser2Engine';
+import { Phaser4Engine } from './engine/Phaser4Engine';
 import type { GameEngine } from './engine/types';
 
 /* eslint-disable prefer-rest-params */
@@ -189,9 +187,8 @@ export default class Game {
 
 	startMatchTime?: Date;
 	$combatFrame?: JQuery<HTMLElement>; //eslint-disable-line no-undef
-	timeInterval?: NodeJS.Timeout; //eslint-disable-line no-undef
-
-	windowResizeTimeout?: string | number | NodeJS.Timeout; //eslint-disable-line no-undef
+	timeInterval?: ReturnType<typeof setTimeout>; //eslint-disable-line no-undef
+	windowResizeTimeout?: string | number | ReturnType<typeof setTimeout>; //eslint-disable-line no-undef
 
 	pauseStartTime?: Date;
 
@@ -207,24 +204,34 @@ export default class Game {
 			this.destroyPhaser();
 		}
 		const renderer = shouldUseCanvasRenderer() ? Phaser.CANVAS : Phaser.AUTO;
-		this.Phaser = new Phaser.Game(1920, 1080, renderer, 'combatwrapper', {
-			update: this.phaserUpdate.bind(this),
-			render: this.phaserRender.bind(this),
-			// Browsers fully suspend native requestAnimationFrame (not just throttle it)
-			// once a tab is hidden/backgrounded. Phaser's TweenManager (movement/ability
-			// animations) and its whole update loop run off that rAF, so a backgrounded
-			// client's creature moves/abilities would completely freeze mid-animation —
-			// never dispatching movementComplete/activateAbility, never advancing the
-			// turn — until the tab regains focus. That is the "moves desync between
-			// tabs" symptom seen when testing two clients side-by-side with one
-			// unfocused. Forcing Phaser onto a setTimeout-driven loop in multiplayer
-			// keeps it ticking (just throttled, like our other multiplayer timers)
-			// instead of fully stopping while backgrounded.
-			forceSetTimeOut: this.multiplayer,
-		});
+		const gameConfig: any = {
+			width: 1920,
+			height: 1080,
+			type: renderer,
+			parent: 'combatwrapper',
+			// Phaser 4 scene config - minimal bootstrap scene
+			scene: {
+				preload: function () {},
+				create: function () {
+					// Signal that scene is ready
+					if ((this as any).sys.game.GAME_INSTANCE) {
+						(this as any).sys.game.GAME_INSTANCE.phaserSceneCreated();
+					}
+				},
+				update: function (time: number, delta: number) {
+					// Call the Game's phaserUpdate - bound to Game instance
+					if ((this as any).sys.game.GAME_INSTANCE) {
+						(this as any).sys.game.GAME_INSTANCE.phaserUpdate();
+					}
+				},
+			},
+		};
+		this.Phaser = new Phaser.Game(gameConfig);
+		// Store reference to Game instance on Phaser for scene access
+		this.Phaser.GAME_INSTANCE = this;
 		// Wrap the raw Phaser instance in the engine adapter so gameplay code
 		// talks to a stable GameEngine interface instead of raw Phaser APIs.
-		this._gameEngine = new Phaser2Engine(this.Phaser);
+		this._gameEngine = new Phaser4Engine(this.Phaser);
 		// Expose the existing signal channels (created in the constructor) through
 		// the adapter. We do NOT recreate them here — the BotController and other
 		// listeners registered on the original signals during construction.
@@ -234,14 +241,32 @@ export default class Game {
 		// Note: Scale manager configuration happens in setup() after Phaser is ready
 	}
 
+	phaserSceneCreated() {
+		// Phaser scene created - boot complete, Phaser is ready for use
+	}
+
 	whenPhaserBooted(phaser: any, onBooted: (phaser: any) => void) {
 		if (!phaser) {
 			return;
 		}
 
-		if (phaser === this.Phaser && phaser.isBooted && phaser.load) {
+		// In Phaser 4, the loader is on the scene, not the game object directly
+		const load = this.getPhaserLoad(phaser);
+
+		if (phaser === this.Phaser && phaser.isBooted && load) {
+			console.log('[Game] Phaser booted and loader ready');
 			onBooted(phaser);
 			return;
+		}
+
+		// Debug: log state
+		if (phaser === this.Phaser) {
+			console.log('[Game] Waiting for Phaser boot:', {
+				isBooted: phaser.isBooted,
+				hasLoad: !!load,
+				scene: phaser.scene?.scenes?.length,
+				sceneLoad: phaser.scene?.scenes?.[0]?.load ? 'ready' : 'not ready',
+			});
 		}
 
 		window.setTimeout(() => {
@@ -250,7 +275,14 @@ export default class Game {
 			}
 
 			this.whenPhaserBooted(phaser, onBooted);
-		}, 0);
+		}, 50);
+	}
+
+	/** Get the Phaser loader (on the active scene in Phaser 4). */
+	private getPhaserLoad(phaser: Phaser.Game): any {
+		// phaser.scene is SceneManager in Phaser 4; access scenes array
+		const sceneManager = phaser.scene as any;
+		return phaser.load || sceneManager?.load || sceneManager?.scenes?.[0]?.load;
 	}
 
 	destroyPhaser() {
@@ -555,7 +587,8 @@ export default class Game {
 			// (`load`) is created during boot, so a stale/cached build can call this
 			// with `phaser.load` still null and throw "can't access property
 			// 'onFileComplete', this.Phaser.load is null". Re-wait rather than crash.
-			if (!phaser.load) {
+			const load = this.getPhaserLoad(phaser);
+			if (!load) {
 				this.whenPhaserBooted(phaser, () => this.startAssetLoad(phaser, onLoadCompleteFn));
 				return;
 			}
@@ -565,13 +598,17 @@ export default class Game {
 
 	/** Wire up loader completion hooks and queue the game's asset downloads. */
 	private startAssetLoad(phaser: Phaser.Game, onLoadCompleteFn: () => void): void {
-		if (!phaser.load) {
+		// Use the engine's load adapter which wraps Phaser 4 events into Signal-like API
+		const load = this.gameEngine.load;
+		if (!load) {
+			console.error('[Game] startAssetLoad: no load adapter');
 			return;
 		}
 
-		phaser.load.onFileComplete.add(this.loadFinish, this);
-		phaser.load.onLoadComplete.add(this.finishLoading, this);
-		phaser.load.onLoadComplete.add(onLoadCompleteFn, this);
+		console.log('[Game] Setting up loader events...');
+		load.onFileComplete.add(this.loadFinish, this);
+		load.onLoadComplete.add(this.finishLoading, this);
+		load.onLoadComplete.add(onLoadCompleteFn, this);
 
 		const assetsRaw = assetsUse(phaser);
 		const assets = Array.isArray(assetsRaw) ? assetsRaw : [];
@@ -588,13 +625,20 @@ export default class Game {
 			this.configData.background_image ||
 			this.configData.combatLocation ||
 			locationPaths[0];
-		phaser.load.image('background', getUrl('locations/' + backgroundImage));
-
-		// Branding
-		phaser.load.image('AncientBeastLogo', getUrl('interface/AncientBeast'));
+		// Use the raw Phaser loader for actual asset loading
+		const rawLoad = this.getPhaserLoad(phaser);
+		if (rawLoad) {
+			rawLoad.image('background', getUrl('locations/' + backgroundImage));
+			rawLoad.image('AncientBeastLogo', getUrl('interface/AncientBeast'));
+		}
 
 		// Load artwork, shout and avatar for each unit
 		this.loadUnitData(unitData);
+
+		// Start the loader in Phaser 4
+		console.log('[Game] Starting loader...');
+		load.start();
+		console.log('[Game] Loader started, progress:', load.progress);
 	}
 
 	hexAt(x: number, y: number): Hex | undefined {
@@ -705,8 +749,8 @@ export default class Game {
 		engine.scale.parentIsWindow = window.innerWidth > 600 || window.innerHeight > 700;
 		engine.scale.pageAlignHorizontally = true;
 		engine.scale.pageAlignVertically = window.innerWidth > 600 || window.innerHeight > 700;
-		engine.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-		engine.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
+		engine.scale.scaleMode = Phaser.Scale.FIT;
+		engine.scale.fullScreenScaleMode = Phaser.Scale.FIT;
 		engine.scale.refresh();
 
 		if (!engine.device.desktop) {

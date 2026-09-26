@@ -10,13 +10,21 @@ export { generatedSoundPaths as soundPaths };
  * Load all assets in phaserAutoloadAssetsPaths into Phaser Game instance, using URL basename as Phaser key.
  *
  * @param {Phaser.Game} e.g., units/shouts/Chimera
- * @returns {void}
+ * @returns {string[]} array of loaded asset keys
  * @throws Throws an error if two files have the same basename.
  */
-export function use(phaser: Phaser.Game): void {
+export function use(phaser: Phaser.Game): string[] {
+	// In Phaser 4, the loader is on the active scene
+	const sceneManager = phaser.scene as any;
+	const load = phaser.load || sceneManager?.load || sceneManager?.scenes?.[0]?.load;
+	if (!load) {
+		console.warn('[assets.ts] Phaser loader not ready');
+		return [];
+	}
 	const assets = Object.entries(phaserAutoloadAssetPaths ?? {});
 
 	const loadedKeys = new Set<string>();
+	const result: string[] = [];
 
 	for (const [path, url] of assets) {
 		if (!/\.(png|jpg|jpeg|svg)$/i.test(path)) continue; // Only load images
@@ -28,9 +36,11 @@ export function use(phaser: Phaser.Game): void {
 			continue;
 		}
 
-		phaser.load.image(key, url);
+		load.image(key, url);
 		loadedKeys.add(key);
+		result.push(key);
 	}
+	return result;
 }
 
 /**

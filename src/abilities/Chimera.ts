@@ -284,7 +284,13 @@ export default (G: Game) => {
 			activate: function (path, args) {
 				const ability = this;
 				this.end();
-				G.gameEngine.cameras.main.shake(0.02, 300, true, G.gameEngine.cameras.main.SHAKE_HORIZONTAL, true);
+				G.gameEngine.cameras.main.shake(
+					0.02,
+					300,
+					true,
+					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
+					true,
+				);
 
 				const knockback = (_target, _crush, _range) => {
 					if (!_target) {

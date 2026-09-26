@@ -130,7 +130,7 @@ async function ttyWrite(text: string) {
 		fs2.writeSync(fd, text);
 		fs2.closeSync(fd);
 	} catch {
-		process.stderr.write(text);
+		(process.stderr as any).write(text);
 	}
 }
 
@@ -166,7 +166,7 @@ async function runBatch(
 			.filter((c: { type?: string }) => c && c.type !== 'Dark Priest')
 			.map((c: { name?: string; type?: string }) => c.name ?? c.type ?? '?')
 			.join(',');
-		process.stderr.write(
+		(process.stderr as any).write(
 			`  [game${i} createGame=${_createMs.toFixed(0)}ms runMatch=${_matchMs.toFixed(0)}ms turns=${
 				result.turns
 			} ${creatureNames}]

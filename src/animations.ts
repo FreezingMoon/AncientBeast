@@ -56,7 +56,7 @@ type InfernalCardboardEffectState = {
 	heatBmd?: Phaser.BitmapData;
 	heatFrame?: { x: number; y: number; width: number; height: number };
 	heatSource?: CanvasImageSource;
-heatLayerSprite?: any;
+	heatLayerSprite?: any;
 	tweens: any[];
 	trailSprites: any[];
 };
@@ -196,7 +196,8 @@ export class Animations {
 		ease: (k: number) => number,
 		maxPhase = duration,
 	) {
-		return this.game.gameEngine.tween(obj)
+		return this.game.gameEngine
+			.tween(obj)
 			.to(props, duration, ease, true, Math.floor(Math.random() * maxPhase), -1, true);
 	}
 
@@ -1002,9 +1003,9 @@ export class Animations {
 											y: baseScale.y,
 									  };
 
-const scaleTween = gameEngine
-				.tween(sprite.scale)
-				.to(targetScale, duration, ease, true);
+							const scaleTween = gameEngine
+								.tween(sprite.scale)
+								.to(targetScale, duration, ease, true);
 							return new Promise<void>((resolve) => {
 								scaleTween.onComplete.addOnce(() => resolve());
 							});
@@ -1317,7 +1318,8 @@ const scaleTween = gameEngine
 
 		sprite.anchor.setTo(0.5);
 		sprite.rotation = -Math.PI / 3 + (args.direction * Math.PI) / 3;
-		const tween = game.gameEngine.tween(sprite)
+		const tween = game.gameEngine
+			.tween(sprite)
 			.to(
 				{
 					x: targetPoint.x,
@@ -1389,7 +1391,8 @@ const scaleTween = gameEngine
 		creature.creatureSprite.setAngle(0, 0);
 
 		// Squash and fade the sprite as it melts into the puddle
-		this.game.gameEngine.tween(sprite.scale)
+		this.game.gameEngine
+			.tween(sprite.scale)
 			.to(
 				{
 					x: startScaleX * 1.1,
@@ -1421,7 +1424,8 @@ const scaleTween = gameEngine
 		creature.creatureSprite.setAlpha(0, 0);
 
 		// Unsquash and fade back in as Gumble reshapes himself
-		this.game.gameEngine.tween(sprite.scale)
+		this.game.gameEngine
+			.tween(sprite.scale)
 			.to(
 				{
 					x: startScaleX,
@@ -1537,7 +1541,8 @@ const scaleTween = gameEngine
 				);
 
 				travelTween.onComplete.add(() => {
-					game.gameEngine.tween(shard)
+					game.gameEngine
+						.tween(shard)
 						.to(
 							{
 								alpha: 0,
@@ -1587,7 +1592,8 @@ const scaleTween = gameEngine
 
 			creature.creatureSprite.setAlpha(0, 0);
 			const baseFadeDelay = Math.max(0, longestShardLifetime - speed);
-			game.gameEngine.tween(baseSprite)
+			game.gameEngine
+				.tween(baseSprite)
 				.to(
 					{
 						alpha: 0,
@@ -1784,7 +1790,8 @@ const scaleTween = gameEngine
 		this._spawnInfernalCardboardTrail(creature, state, true);
 
 		state.tweens.push(
-			this.game.gameEngine.tween(sprite)
+			this.game.gameEngine
+				.tween(sprite)
 				.to(
 					{ alpha: 0.86 },
 					1160 + randInt(300),
@@ -1912,14 +1919,16 @@ const scaleTween = gameEngine
 			const driftX = (randInt(2) === 0 ? -1 : 1) * (2 + rand(4));
 			const riseY = 22 + rand(18);
 			const duration = 1900 + randInt(700);
-			const moveTween = this.game.gameEngine.tween(wisp)
+			const moveTween = this.game.gameEngine
+				.tween(wisp)
 				.to(
 					{ x: wisp.x + driftX, y: wisp.y - riseY, alpha: 0 },
 					duration,
 					Phaser.Easing.Sinusoidal.Out,
 					true,
 				);
-			const scaleTween = this.game.gameEngine.tween(wisp.scale)
+			const scaleTween = this.game.gameEngine
+				.tween(wisp.scale)
 				.to(
 					{ x: dir * (1.02 + rand(0.08)), y: 1.5 + rand(0.12) },
 					duration,

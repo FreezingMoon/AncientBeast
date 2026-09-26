@@ -14,6 +14,14 @@ jest.mock(
 		},
 		AUTO: 0,
 		CANVAS: 1,
+		Scale: {
+			NONE: 0,
+			FIT: 1,
+			ENVELOP: 2,
+			WIDTH_CONTROLS_HEIGHT: 3,
+			HEIGHT_CONTROLS_WIDTH: 4,
+			RESIZE: 5,
+		},
 		ScaleManager: { SHOW_ALL: 0 },
 		Easing: {
 			Linear: { None: 'Linear.None' },
@@ -21,6 +29,36 @@ jest.mock(
 			Back: { Out: 'Back.Out' },
 		},
 		blendModes: { ADD: 1, NORMAL: 0 },
+		Vector2: class Vector2Mock {
+			x: number;
+			y: number;
+			constructor(x?: number, y?: number) {
+				this.x = x ?? 0;
+				this.y = y ?? 0;
+			}
+			set(x: number, y?: number): this {
+				this.x = x;
+				this.y = y ?? x;
+				return this;
+			}
+			setTo(x: number, y?: number): this {
+				return this.set(x, y);
+			}
+			clone(): this {
+				return new (this.constructor as any)(this.x, this.y);
+			}
+			copy(src: any): this {
+				this.x = src.x;
+				this.y = src.y;
+				return this;
+			}
+		},
+		Polygon: class PolygonMock {
+			points: any[];
+			constructor(points?: any[]) {
+				this.points = points ?? [];
+			}
+		},
 		default: class PhaserMock {},
 	}),
 	{ virtual: true },

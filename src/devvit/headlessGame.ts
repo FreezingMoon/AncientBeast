@@ -35,6 +35,37 @@ try {
 // Phaser global — creature.ts / plasma-field.ts reference `Phaser` as a global.
 declare const globalThis: typeof global & { [key: string]: unknown };
 
+const mockScene = {
+	add: {
+		sprite: () => ({}),
+		image: () => ({}),
+		text: () => ({}),
+		graphics: () => ({}),
+		group: () => ({ children: { clear: () => {} }, add: () => {} }),
+		tileSprite: () => ({}),
+		renderTexture: () => ({}),
+	},
+	load: {
+		on: () => {},
+		start: () => {},
+		image: () => {},
+		audio: () => {},
+	},
+	time: {
+		addEvent: () => ({ remove: () => {} }),
+	},
+	textures: {},
+	cameras: {
+		main: { refresh: () => {} },
+	},
+	children: { clear: () => {} },
+	tweens: {
+		add: () => ({ pause: () => {}, play: () => {} }),
+		killTweensOf: () => {},
+	},
+	sys: { game: { device: { desktop: true }, destroy: () => {} } },
+};
+
 (globalThis as Record<string, unknown>).Phaser = {
 	Easing: {
 		Linear: { None: 'Linear.None' },
@@ -46,10 +77,26 @@ declare const globalThis: typeof global & { [key: string]: unknown };
 	CENTER: 11,
 	blendModes: { ADD: 1, NORMAL: 0 },
 	Timer: { SECOND: 1000 },
+	Scale: {
+		NONE: 0,
+		FIT: 1,
+		ENVELOP: 2,
+		WIDTH_CONTROLS_HEIGHT: 3,
+		HEIGHT_CONTROLS_WIDTH: 4,
+		RESIZE: 5,
+	},
 	Signal: class {
 		add() {}
 		dispatch() {}
 		remove() {}
+	},
+	Scene: mockScene,
+	Game: class {
+		scene = { active: mockScene, scenes: [mockScene] };
+		scale = { mode: 0, parentIsWindow: false, autoCenter: 0, fullscreenTarget: null, refresh: () => {}, resize: () => {} };
+		device = { desktop: true };
+		destroy = () => {};
+		cameras = { main: { refresh: () => {} } };
 	},
 };
 
@@ -127,10 +174,40 @@ function ensureHeadlessDom(): void {
 
 function makeTween() {
 	let completeCb: (() => void) | null = null;
+	const scene = {
+		tweens: {
+			add: (config: any) => {
+				if (!config.paused) {
+					if (config.delay) {
+						setTimeout(() => {
+							Object.assign(config.targets, config);
+							config.onComplete?.dispatch?.();
+						}, config.delay);
+					} else {
+						Object.assign(config.targets, config);
+						config.onComplete?.dispatch?.();
+					}
+				}
+				return {
+					targets: config.targets,
+					on: (event: string, cb: () => void) => {
+						if (event === 'complete') config.onComplete = { dispatch: cb };
+						if (event === 'update') config.onUpdate = cb;
+					},
+					stop: () => {},
+					play: () => {},
+					paused: config.paused || false,
+					scene,
+				};
+			},
+			killTweensOf: () => {},
+		},
+	};
 	const tween: any = {
 		isRunning: true,
 		_target: null,
 		_props: null,
+		scene,
 		to(props: Record<string, any>, _duration: number, _easing?: any, autoStart = false) {
 			this._props = props;
 			if (autoStart) {
@@ -303,7 +380,84 @@ function makePhaserBitmapData() {
 }
 
 export function buildPhaserMock(): any {
+	const scene = {
+		active: true,
+		time: {
+			now: 0,
+			elapsedMS: 0,
+			delayedCall: (delay: number, cb: () => void) => {
+				cb();
+				return { remove: () => undefined };
+			},
+			addEvent: (config: any) => {
+				if (config.loop) {
+					config.callback();
+					return { remove: () => undefined };
+				}
+				config.callback();
+				return { remove: () => undefined };
+			},
+		},
+		tweens: {
+			add: (config: any) => {
+				if (!config.paused) {
+					Object.assign(config.targets, config);
+					config.onComplete?.dispatch?.();
+				}
+				return {
+					targets: config.targets,
+					on: (event: string, cb: () => void) => {
+						if (event === 'complete') config.onComplete = { dispatch: cb };
+						if (event === 'update') config.onUpdate = cb;
+					},
+					stop: () => {},
+					play: () => {},
+					paused: config.paused || false,
+					scene,
+				};
+			},
+			killTweensOf: () => {},
+		},
+		add: {
+			sprite: (config: any) => makePhaserSprite(),
+			image: (config: any) => makePhaserSprite(),
+			text: (config: any) => makePhaserSprite(),
+			graphics: (config: any) => makePhaserSprite(),
+			group: () => makePhaserGroup(),
+			tileSprite: (config: any) => makePhaserSprite(),
+			renderTexture: (config: any) => ({
+				width: config.width,
+				height: config.height,
+				canvas: { getContext: () => ({ drawImage: () => {} }) },
+				update: () => {},
+				destroy: () => {},
+			}),
+		},
+		textures: {
+			get: (key: string) => null,
+		},
+		cameras: {
+			main: { shake: () => {}, refresh: () => {} },
+		},
+		children: {
+			clear: () => {},
+		},
+		sys: {
+			game: {
+				device: { desktop: true },
+				destroy: () => {},
+			},
+		},
+	};
+
 	return {
+		scene,
+		tweens: scene.tweens,
+		cameras: scene.cameras,
+		add: scene.add,
+		textures: scene.textures,
+		children: scene.children,
+		sys: scene.sys,
 		world: { width: 1920, height: 1080 },
 		cache: { getImage: () => null },
 		width: 1920,
@@ -314,30 +468,28 @@ export function buildPhaserMock(): any {
 			pageAlignVertically: false,
 			scaleMode: 0,
 			fullScreenScaleMode: 0,
+			autoCenter: 0,
+			fullscreenTarget: null,
 			refresh: () => undefined,
+			resize: () => undefined,
+			mode: 0,
 		},
 		stage: { disableVisibilityChange: false, forcePortrait: false },
 		device: { desktop: true },
-		time: { events: { loop: () => 0, remove: () => undefined } },
-		camera: { shake: () => undefined },
+		time: {
+			now: 0,
+			elapsedMS: 0,
+			events: {
+				loop: () => 0,
+				remove: () => undefined,
+				add: () => 0,
+			},
+		},
 		load: {
 			progress: 100,
 			onFileComplete: { add: () => undefined },
 			onLoadComplete: { add: () => undefined },
 			start: () => undefined,
-		},
-		add: {
-			group: () => makePhaserGroup(),
-			sprite: () => makePhaserSprite(),
-			image: () => makePhaserSprite(),
-			tween: (target: unknown) => {
-				const t = makeTween();
-				t._target = target;
-				return t;
-			},
-			text: () => makePhaserSprite(),
-			bitmapData: () => makePhaserBitmapData(),
-			graphics: () => makePhaserSprite(),
 		},
 	};
 }
@@ -567,17 +719,17 @@ export async function createHeadlessGame(
 
 	const GameModule = await import('../game');
 	const Game = GameModule.default;
-const game: any = new Game();
+	const game: any = new Game();
 
- game.Phaser = buildPhaserMock();
+	game.Phaser = buildPhaserMock();
 	// Wrap the mock in the engine adapter so gameplay code uses gameEngine
 	// instead of game.Phaser directly.
-	const { Phaser2Engine } = await import('../engine/Phaser2Engine');
-	const engine = new Phaser2Engine(game.Phaser);
+	const { Phaser4Engine } = await import('../engine/Phaser4Engine');
+	const engine = new Phaser4Engine(game.Phaser);
 	for (const ch of Object.keys(game.signals)) {
 		engine.signals[ch] = game.signals[ch];
 	}
- game._gameEngine = engine;
+	game._gameEngine = engine;
 	game.animations = new MockAnimations(game);
 
 	const signalChannels = ['ui', 'metaPowers', 'creature', 'hex'];

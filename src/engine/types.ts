@@ -18,7 +18,15 @@ export interface SignalHandle {
 // ─── Tween ────────────────────────────────────────────────────────────────────
 
 export interface TweenHandle {
-	to(props: Record<string, any>, duration: number, easing?: string | ((k: number) => number), autoStart?: boolean, delay?: number, repeat?: number, yoyo?: boolean): TweenHandle;
+	to(
+		props: Record<string, any>,
+		duration: number,
+		easing?: string | ((k: number) => number),
+		autoStart?: boolean,
+		delay?: number,
+		repeat?: number,
+		yoyo?: boolean,
+	): TweenHandle;
 	start(): TweenHandle;
 	stop(): TweenHandle;
 	yoyo(enable?: boolean): TweenHandle;
@@ -48,6 +56,7 @@ export interface SpriteHandle {
 	inputEnabled: boolean;
 	input: {
 		useHandcursor: boolean;
+		useHandCursor: boolean;
 		priorityID: number;
 	};
 	events: {
@@ -59,14 +68,14 @@ export interface SpriteHandle {
 	anchor: {
 		x: number;
 		y: number;
-		setTo(x: number, y: number): void;
-		set(x: number, y: number): void;
+		setTo(x: number, y?: number): void;
+		set(x: number, y?: number): void;
 	};
 	scale: {
 		x: number;
 		y: number;
-		setTo(x: number, y: number): void;
-		set(x: number, y: number): void;
+		setTo(x: number, y?: number): void;
+		set(x: number, y?: number): void;
 	};
 	position: {
 		x: number;
@@ -147,7 +156,13 @@ export interface BitmapDataHandle {
 // ─── Camera ───────────────────────────────────────────────────────────────────
 
 export interface CameraHandle {
-	shake(duration: number, amplitude: number, force?: boolean, direction?: number | string, snap?: boolean): void;
+	shake(
+		duration: number,
+		amplitude: number,
+		force?: boolean,
+		direction?: number | string,
+		snap?: boolean,
+	): void;
 	SHAKE_HORIZONTAL: number;
 	SHAKE_VERTICAL: number;
 	SHAKE_BOTH: number;
@@ -167,7 +182,7 @@ export interface ScaleHandle {
 
 // ─── Timer ────────────────────────────────────────────────────────────────────
 
-export interface TimerHandle {}
+export type TimerHandle = { destroy?: () => void };
 
 // ─── The GameEngine interface ──────────────────────────────────────────────────
 
@@ -179,7 +194,7 @@ export interface GameEngine {
 	tween(target: object): TweenHandle;
 	removeTweensFrom(target: object): void;
 
-// Game object factories
+	// Game object factories
 	add: {
 		socket(x: number, y: number, key: string, frame?: string): SpriteHandle;
 		image(x: number, y: number, key: string, frame?: string): SpriteHandle;
@@ -187,7 +202,14 @@ export interface GameEngine {
 		text(x: number, y: number, text: string, style?: any): SpriteHandle;
 		graphics(x?: number, y?: number, parent?: GroupHandle): SpriteHandle;
 		group(parent?: GroupHandle, name?: string): GroupHandle;
-		tileSprite(x: number, y: number, w: number, h: number, key: string, frame?: string): SpriteHandle;
+		tileSprite(
+			x: number,
+			y: number,
+			w: number,
+			h: number,
+			key: string,
+			frame?: string,
+		): SpriteHandle;
 		bitmapData(w: number, h: number): BitmapDataHandle;
 	};
 

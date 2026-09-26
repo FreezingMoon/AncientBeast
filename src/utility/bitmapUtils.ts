@@ -1,5 +1,5 @@
 import Game from '../game';
-import * as Phaser from 'phaser-ce';
+import type { RenderTexture } from 'phaser';
 
 export interface TextureFrameInfo {
 	frame: { x: number; y: number; width: number; height: number };
@@ -13,8 +13,7 @@ export interface TextureFrameInfo {
  * Handles missing/fallback values for crop, frame, and dimensions.
  */
 export function extractTextureFrameInfo(
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	texture: Phaser.RenderTexture | any,
+	texture: RenderTexture | any,
 	defaultFrame?: { x: number; y: number; width: number; height: number },
 ): TextureFrameInfo | null {
 	const frame = texture.crop ?? texture.frame ?? defaultFrame;

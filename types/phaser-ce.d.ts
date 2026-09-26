@@ -137,7 +137,3 @@ declare namespace Phaser {
 declare module 'phaser-ce' {
 	export = Phaser;
 }
-
-declare module 'phaser' {
-	export = Phaser;
-}

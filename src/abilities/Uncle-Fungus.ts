@@ -119,7 +119,13 @@ export default (G: Game) => {
 			// activate() :
 			activate: function (target) {
 				this.end();
-				G.gameEngine.cameras.main.shake(0.01, 65, true, G.gameEngine.cameras.main.SHAKE_HORIZONTAL, true);
+				G.gameEngine.cameras.main.shake(
+					0.01,
+					65,
+					true,
+					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
+					true,
+				);
 
 				const damage = new Damage(
 					this.creature, // Attacker
@@ -266,7 +272,13 @@ export default (G: Game) => {
 					ignorePath: true,
 					callback: () => {
 						// Shake the screen upon landing to simulate the jump
-						G.gameEngine.cameras.main.shake(0.03, 90, true, G.gameEngine.cameras.main.SHAKE_VERTICAL, true);
+						G.gameEngine.cameras.main.shake(
+							0.03,
+							90,
+							true,
+							G.gameEngine.cameras.main.SHAKE_VERTICAL,
+							true,
+						);
 
 						G.onStepIn(this.creature, this.creature.hexagons[0], false);
 
@@ -381,7 +393,13 @@ export default (G: Game) => {
 			// activate() :
 			activate: function (target) {
 				this.end();
-				G.gameEngine.cameras.main.shake(0.03, 100, true, G.gameEngine.cameras.main.SHAKE_HORIZONTAL, true);
+				G.gameEngine.cameras.main.shake(
+					0.03,
+					100,
+					true,
+					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
+					true,
+				);
 
 				const damage = new Damage(
 					this.creature, // Attacker

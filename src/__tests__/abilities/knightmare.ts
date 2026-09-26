@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 
 jest.mock('phaser-ce', () => ({
-		Point: class PointMock {},
-		Polygon: class PolygonMock {},
+	Point: class PointMock {},
+	Polygon: class PolygonMock {},
 }));
 
 jest.mock('../../utility/hex', () => ({
-		Direction: {
+	Direction: {
 		Right: 0,
 		DownRight: 1,
 		DownLeft: 2,
@@ -14,7 +14,7 @@ jest.mock('../../utility/hex', () => ({
 		UpLeft: 4,
 		UpRight: 5,
 	},
-		Hex: class HexMock {
+	Hex: class HexMock {
 		x: number;
 		y: number;
 		constructor(x: number, y: number) {
@@ -25,15 +25,15 @@ jest.mock('../../utility/hex', () => ({
 }));
 
 jest.mock('../../damage', () => ({
-		Damage: class DamageMock {
+	Damage: class DamageMock {
 		damages: unknown;
 		effects: unknown;
 		constructor(
-		_attacker: unknown,
-		damages: unknown,
-		_area: number,
-		effects: unknown,
-		_game: unknown,
+			_attacker: unknown,
+			damages: unknown,
+			_area: number,
+			effects: unknown,
+			_game: unknown,
 		) {
 			this.damages = damages;
 			this.effects = effects;
@@ -42,7 +42,7 @@ jest.mock('../../damage', () => ({
 }));
 
 jest.mock('../../effect', () => ({
-		Effect: class EffectMock {
+	Effect: class EffectMock {
 		name: string;
 		owner: unknown;
 		target: unknown;
@@ -51,11 +51,11 @@ jest.mock('../../effect', () => ({
 		stackable: boolean;
 		turnLifetime: number;
 		constructor(
-		name: string,
-		owner: unknown,
-		target: unknown,
-		trigger: string,
-		optArgs: {
+			name: string,
+			owner: unknown,
+			target: unknown,
+			trigger: string,
+			optArgs: {
 				alterations?: Record<string, number>;
 				stackable?: boolean;
 				turnLifetime?: number;
@@ -73,42 +73,42 @@ jest.mock('../../effect', () => ({
 }));
 
 jest.mock('../../creature', () => ({
-		Creature: class CreatureMock {},
+	Creature: class CreatureMock {},
 }));
 
 import loadKnightmareAbilities from '../../abilities/Knightmare';
 import { Creature } from '../../creature';
 
 (globalThis as { Phaser?: unknown }).Phaser = {
- camera: { SHAKE_HORIZONTAL: 0, SHAKE_VERTICAL: 0, SHAKE_BOTH: 0 },
+	camera: { SHAKE_HORIZONTAL: 0, SHAKE_VERTICAL: 0, SHAKE_BOTH: 0 },
 };
 
 type MockEffect = {
-		name: string;
-		alterations: Record<string, number>;
+	name: string;
+	alterations: Record<string, number>;
 	turnLifetime?: number;
 };
 
 type MockCreature = {
-		baseStats: Record<string, number>;
-		stats: Record<string, number>;
-		effects: MockEffect[];
-		travelDist: number;
-		addEffect: (effect: MockEffect) => void;
-		updateAlteration: () => void;
+	baseStats: Record<string, number>;
+	stats: Record<string, number>;
+	effects: MockEffect[];
+	travelDist: number;
+	addEffect: (effect: MockEffect) => void;
+	updateAlteration: () => void;
 };
 
 function createCreature(): MockCreature {
 	const creature: MockCreature = {
 		baseStats: {
-		offense: 10,
-		defense: 20,
-		frost: 30,
+			offense: 10,
+			defense: 20,
+			frost: 30,
 		},
 		stats: {
-		offense: 10,
-		defense: 20,
-		frost: 30,
+			offense: 10,
+			defense: 20,
+			frost: 30,
 		},
 		effects: [],
 		travelDist: 0,
@@ -132,8 +132,8 @@ function createCreature(): MockCreature {
 }
 
 describe('Knightmare Frigid Tower', () => {
-		let game: any;
-		let creature: MockCreature;
+	let game: any;
+	let creature: MockCreature;
 	let upgraded: boolean;
 	let frigidTower: {
 		_effectName: string;
@@ -144,12 +144,12 @@ describe('Knightmare Frigid Tower', () => {
 		creature: MockCreature;
 	};
 
-beforeEach(() => {
-	 game = {
+	beforeEach(() => {
+		game = {
 			abilities: [],
 			effectId: 0,
 			effects: [],
-		 gameEngine: {
+			gameEngine: {
 				cameras: { main: { shake: () => {} } },
 				add: {
 					graphics: () => ({}),
@@ -161,7 +161,12 @@ beforeEach(() => {
 					const onComplete = { add: () => {}, addOnce: () => {} };
 					const afterStart = { stop: () => ({}), onComplete };
 					const afterTo = { start: () => afterStart, stop: () => ({}), onComplete };
-					const chain = { to: () => afterTo, start: () => afterStart, stop: () => ({}), onComplete };
+					const chain = {
+						to: () => afterTo,
+						start: () => afterStart,
+						stop: () => ({}),
+						onComplete,
+					};
 					return chain;
 				},
 			},
@@ -176,8 +181,8 @@ beforeEach(() => {
 		frigidTower = {
 			...(abilityDef as object),
 			creature,
-		isUpgraded: () => upgraded,
-		testRequirements: () => true,
+			isUpgraded: () => upgraded,
+			testRequirements: () => true,
 		} as typeof frigidTower;
 	});
 
@@ -228,28 +233,33 @@ beforeEach(() => {
 describe('Knightmare Icy Talons', () => {
 	test('applies a stackable persistent frost debuff', () => {
 		const game = {
-		abilities: [],
-		effectId: 0,
-		effects: [],
-Phaser: {
-		camera: {
-		SHAKE_HORIZONTAL: 0,
-		shake: jest.fn(),
+			abilities: [],
+			effectId: 0,
+			effects: [],
+			Phaser: {
+				camera: {
+					SHAKE_HORIZONTAL: 0,
+					shake: jest.fn(),
 				},
 			},
-		 gameEngine: {
-		cameras: { main: { shake: () => {} } },
-		add: {
-		graphics: () => ({}),
-		bitmapData: () => ({}),
-		group: () => ({ children: [], add: () => {}, addAt: () => {}, remove: () => {} }),
-		tileSprite: () => ({}),
+			gameEngine: {
+				cameras: { main: { shake: () => {} } },
+				add: {
+					graphics: () => ({}),
+					bitmapData: () => ({}),
+					group: () => ({ children: [], add: () => {}, addAt: () => {}, remove: () => {} }),
+					tileSprite: () => ({}),
 				},
-tween: () => {
+				tween: () => {
 					const onComplete = { add: () => {}, addOnce: () => {} };
 					const afterStart = { stop: () => ({}), onComplete };
 					const afterTo = { start: () => afterStart, stop: () => ({}), onComplete };
-					const chain = { to: () => afterTo, start: () => afterStart, stop: () => ({}), onComplete };
+					const chain = {
+						to: () => afterTo,
+						start: () => afterStart,
+						stop: () => ({}),
+						onComplete,
+					};
 					return chain;
 				},
 			},
@@ -259,37 +269,37 @@ tween: () => {
 		loadKnightmareAbilities(game as never);
 
 		const attacker = {
-		id: 9,
-		size: 2,
+			id: 9,
+			size: 2,
 		};
 		const target = {
-		size: 1,
-		takeDamage: jest.fn(),
+			size: 1,
+			takeDamage: jest.fn(),
 		};
 
 		const icyTalons = {
 			...((game.abilities[9] as Array<Record<string, unknown>>)[1] as object),
-		creature: attacker,
-		damages: {
-		frost: 10,
-		pierce: 4,
+			creature: attacker,
+			damages: {
+				frost: 10,
+				pierce: 4,
 			},
-		isUpgraded: () => false,
-		end: jest.fn(),
+			isUpgraded: () => false,
+			end: jest.fn(),
 		};
 
 		(
 			icyTalons as unknown as {
-		activate: (targetArg: typeof target) => void;
+				activate: (targetArg: typeof target) => void;
 			}
 		).activate(target);
 
 		expect(target.takeDamage).toHaveBeenCalledTimes(1);
 		const damageArg = target.takeDamage.mock.calls[0][0] as {
-		effects: Array<{
-		alterations: Record<string, number>;
-		stackable: boolean;
-		turnLifetime: number;
+			effects: Array<{
+				alterations: Record<string, number>;
+				stackable: boolean;
+				turnLifetime: number;
 			}>;
 		};
 		expect(damageArg.effects).toHaveLength(1);
@@ -303,69 +313,69 @@ describe('Knightmare Icicle Spear', () => {
 	test('does not crash when takeDamage returns without damageObj', () => {
 		/* eslint-disable-next-line no-undef */
 		(globalThis as { Phaser?: unknown }).Phaser = {
-		Easing: {
-		Linear: {
-		None: 0,
+			Easing: {
+				Linear: {
+					None: 0,
 				},
 			},
-		camera: {
-		SHAKE_HORIZONTAL: 0,
+			camera: {
+				SHAKE_HORIZONTAL: 0,
 			},
 		};
 
 		const sprite = {
-		anchor: {
-		setTo: jest.fn(),
+			anchor: {
+				setTo: jest.fn(),
 			},
-		destroy: jest.fn(),
-		rotation: 0,
+			destroy: jest.fn(),
+			rotation: 0,
 		};
 
 		const tweenResult = {
-		onComplete: {
-		add: jest.fn(),
+			onComplete: {
+				add: jest.fn(),
 			},
 		};
 
 		const game = {
-		abilities: [],
-		effectId: 0,
-		effects: [],
-		log: jest.fn(),
-		activeCreature: {
-		queryMove: jest.fn(),
+			abilities: [],
+			effectId: 0,
+			effects: [],
+			log: jest.fn(),
+			activeCreature: {
+				queryMove: jest.fn(),
 			},
-		grid: {
-		creatureGroup: {
-		create: jest.fn(() => sprite),
+			grid: {
+				creatureGroup: {
+					create: jest.fn(() => sprite),
 				},
 			},
-		Phaser: {
-		Easing: {
-		Linear: {
-		None: 0,
+			Phaser: {
+				Easing: {
+					Linear: {
+						None: 0,
 					},
 				},
-		add: {
-		tween: jest.fn(() => ({
-		to: jest.fn().mockReturnThis(),
-		start: jest.fn(() => tweenResult),
+				add: {
+					tween: jest.fn(() => ({
+						to: jest.fn().mockReturnThis(),
+						start: jest.fn(() => tweenResult),
 					})),
 				},
-camera: {
-		SHAKE_HORIZONTAL: 0,
-		shake: jest.fn(),
+				camera: {
+					SHAKE_HORIZONTAL: 0,
+					shake: jest.fn(),
 				},
 			},
-		 gameEngine: {
-		cameras: { main: { shake: () => {} } },
-		add: {
-		graphics: () => ({}),
-		bitmapData: () => ({}),
-		group: () => ({ children: [], add: () => {}, addAt: () => {}, remove: () => {} }),
-		tileSprite: () => ({}),
+			gameEngine: {
+				cameras: { main: { shake: () => {} } },
+				add: {
+					graphics: () => ({}),
+					bitmapData: () => ({}),
+					group: () => ({ children: [], add: () => {}, addAt: () => {}, remove: () => {} }),
+					tileSprite: () => ({}),
 				},
-tween: () => {
+				tween: () => {
 					const onComplete = { add: () => {}, addOnce: () => {} };
 					const afterStart = { stop: () => ({}), onComplete };
 					const afterTo = { start: () => afterStart, stop: () => ({}), onComplete };
@@ -378,46 +388,46 @@ tween: () => {
 		loadKnightmareAbilities(game as never);
 
 		const target = Object.assign(Object.create(Creature.prototype), {
-		id: 99,
-		player: {
-		plasma: 0,
+			id: 99,
+			player: {
+				plasma: 0,
 			},
-		takeDamage: jest.fn(() => ({
-		kill: false,
+			takeDamage: jest.fn(() => ({
+				kill: false,
 			})),
-		isDarkPriest: jest.fn(() => false),
-		hasCreaturePlayerGotPlasma: jest.fn(() => false),
+			isDarkPriest: jest.fn(() => false),
+			hasCreaturePlayerGotPlasma: jest.fn(() => false),
 		});
 
 		const icicleSpear = {
 			...((game.abilities[9] as Array<Record<string, unknown>>)[3] as object),
-		creature: {
-		id: 9,
-		legacyProjectileEmissionPoint: {
-		x: 0,
-		y: 0,
+			creature: {
+				id: 9,
+				legacyProjectileEmissionPoint: {
+					x: 0,
+					y: 0,
 				},
-		player: {
-		flipped: false,
+				player: {
+					flipped: false,
 				},
-		facePlayerDefault: jest.fn(),
-		creatureSprite: {
-		setDir: jest.fn(),
+				facePlayerDefault: jest.fn(),
+				creatureSprite: {
+					setDir: jest.fn(),
 				},
 			},
-		damages: {
-		pierce: 4,
+			damages: {
+				pierce: 4,
 			},
-		isTargetingBackwards: jest.fn(() => false),
-		end: jest.fn(),
+			isTargetingBackwards: jest.fn(() => false),
+			end: jest.fn(),
 		};
 
 		const path = [
 			{
-		creature: target,
-		displayPos: {
-		x: 120,
-		y: 60,
+				creature: target,
+				displayPos: {
+					x: 120,
+					y: 60,
 				},
 			},
 		];
@@ -425,7 +435,7 @@ tween: () => {
 		expect(() => {
 			(
 				icicleSpear as unknown as {
-		activate: (pathArg: typeof path, argsArg: { direction: number }) => void;
+					activate: (pathArg: typeof path, argsArg: { direction: number }) => void;
 				}
 			).activate(path, { direction: 0 });
 		}).not.toThrow();

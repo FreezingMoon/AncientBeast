@@ -883,7 +883,8 @@ export class Creature {
 
 					if (game.grid.materialize_overlay) {
 						const creature = game.retrieveCreatureStats(game.activeCreature.type);
-						game.gameEngine.tween(game.grid.materialize_overlay)
+						game.gameEngine
+							.tween(game.grid.materialize_overlay)
 							.to(
 								{
 									alpha: 0,
@@ -1730,7 +1731,11 @@ export class Creature {
 	/** Ensures the procedural Plasma Field visual exists and is visible. */
 	private showPlasmaShield() {
 		const gameEngine = this.game.gameEngine;
-		if (!gameEngine || typeof gameEngine.add?.bitmapData !== 'function' || !this.creatureSprite.grp) {
+		if (
+			!gameEngine ||
+			typeof gameEngine.add?.bitmapData !== 'function' ||
+			!this.creatureSprite.grp
+		) {
 			return;
 		}
 
@@ -1757,11 +1762,11 @@ export class Creature {
 				opts.renderScale = detectVeryWeakHardware() ? 4 : 2;
 			}
 
-this.plasmaField = new PlasmaField(
-			 gameEngine,
-			 cardboard.x + offsetXMirror,
-			 cardboard.y - PLASMA_FIELD_OFFSET_Y,
-			 opts,
+			this.plasmaField = new PlasmaField(
+				gameEngine,
+				cardboard.x + offsetXMirror,
+				cardboard.y - PLASMA_FIELD_OFFSET_Y,
+				opts,
 			);
 			this.creatureSprite.addPostUpdateHook(() => {
 				if (this.plasmaField) {

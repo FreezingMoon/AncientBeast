@@ -14,6 +14,14 @@ jest.mock(
 		},
 		AUTO: 0,
 		CANVAS: 1,
+		Scale: {
+			NONE: 0,
+			FIT: 1,
+			ENVELOP: 2,
+			WIDTH_CONTROLS_HEIGHT: 3,
+			HEIGHT_CONTROLS_WIDTH: 4,
+			RESIZE: 5,
+		},
 		ScaleManager: { SHOW_ALL: 0 },
 		Easing: {
 			Linear: { None: 'Linear.None' },
@@ -21,6 +29,36 @@ jest.mock(
 			Back: { Out: 'Back.Out' },
 		},
 		blendModes: { ADD: 1, NORMAL: 0 },
+		Vector2: class Vector2Mock {
+			x: number;
+			y: number;
+			constructor(x?: number, y?: number) {
+				this.x = x ?? 0;
+				this.y = y ?? 0;
+			}
+			set(x: number, y?: number): this {
+				this.x = x;
+				this.y = y ?? x;
+				return this;
+			}
+			setTo(x: number, y?: number): this {
+				return this.set(x, y);
+			}
+			clone(): this {
+				return new (this.constructor as any)(this.x, this.y);
+			}
+			copy(src: any): this {
+				this.x = src.x;
+				this.y = src.y;
+				return this;
+			}
+		},
+		Polygon: class PolygonMock {
+			points: any[];
+			constructor(points?: any[]) {
+				this.points = points ?? [];
+			}
+		},
 		default: class PhaserMock {},
 	}),
 	{ virtual: true },
@@ -34,6 +72,7 @@ jest.mock('phaser-ce', () => ({
 	Easing: {
 		Linear: { None: 'Linear.None' },
 		Quadratic: { In: 'Quad.In', Out: 'Quad.Out', InOut: 'Quad.InOut' },
+		Back: { Out: 'Back.Out' },
 	},
 	Text: class PhaserText {},
 	Sprite: class PhaserSprite {},
@@ -168,6 +207,28 @@ function stopTimers(game: any) {
 const CONFIG: Partial<HeadlessConfig> = { players: [0, 1] };
 
 describe('Authoritative server engine', () => {
+	beforeAll(() => {
+		// Mock setTimeout globally to make tests deterministic
+		const timerMap = new Map<number, () => void>();
+		let timerId = 0;
+		globalThis.setTimeout = ((callback: (...args: unknown[]) => void, _delay?: number) => {
+			const id = ++timerId;
+			timerMap.set(id, callback as () => void);
+			// Execute immediately for determinism
+			Promise.resolve().then(() => {
+				const cb = timerMap.get(id);
+				if (cb) {
+					timerMap.delete(id);
+					cb();
+				}
+			});
+			return id as unknown as ReturnType<typeof setTimeout>;
+		}) as typeof setTimeout;
+		globalThis.clearTimeout = ((id: ReturnType<typeof setTimeout>) => {
+			timerMap.delete(id as unknown as number);
+		}) as typeof clearTimeout;
+	});
+
 	test('same ordered intents converge on independent engine instances', async () => {
 		const abilities = await loadAbilities();
 		const g1 = await createHeadlessGame(abilities, { config: CONFIG });

@@ -171,7 +171,7 @@ export class HexGrid {
 	activeHexDashedClearTimeout: ReturnType<typeof setTimeout> | null = null;
 
 	display: any;
-gridGroup: any;
+	gridGroup: any;
 	trapGroup: any;
 	hexesGroup: any;
 	displayHexesGroup: any;
@@ -2421,7 +2421,8 @@ gridGroup: any;
 			preview.scale.setTo(1, 1);
 		}
 
-		const flickering = game.gameEngine.tween(preview)
+		const flickering = game.gameEngine
+			.tween(preview)
 			.to(
 				{
 					alpha: 0.15,
@@ -2490,7 +2491,8 @@ gridGroup: any;
 		// or the existing temp creature created by /src/abilities/Dark-Priest.js
 		if (target) {
 			target.alpha = 0.5;
-			this.game.gameEngine.tween(target)
+			this.game.gameEngine
+				.tween(target)
 				.to(
 					{
 						alpha: 0,

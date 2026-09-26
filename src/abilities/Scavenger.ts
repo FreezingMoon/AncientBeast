@@ -111,7 +111,13 @@ export default (G: Game) => {
 			activate: function (target: Creature) {
 				const ability = this;
 				ability.end();
-				G.gameEngine.cameras.main.shake(0.01, 70, true, G.gameEngine.cameras.main.SHAKE_HORIZONTAL, true);
+				G.gameEngine.cameras.main.shake(
+					0.01,
+					70,
+					true,
+					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
+					true,
+				);
 
 				// If upgraded, hits will permanently debuff target with -1 offense (stackable)
 				if (this.isUpgraded()) {
@@ -321,7 +327,13 @@ export default (G: Game) => {
 			activate: function (hex, args) {
 				const ability = this;
 				ability.end();
-				G.gameEngine.cameras.main.shake(0.01, 66, true, G.gameEngine.cameras.main.SHAKE_HORIZONTAL, true);
+				G.gameEngine.cameras.main.shake(
+					0.01,
+					66,
+					true,
+					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
+					true,
+				);
 
 				const crea = this.creature;
 
@@ -417,7 +429,13 @@ export default (G: Game) => {
 			activate: function (target: Creature) {
 				const ability = this;
 				ability.end();
-				G.gameEngine.cameras.main.shake(0.01, 100, true, G.gameEngine.cameras.main.SHAKE_HORIZONTAL, true);
+				G.gameEngine.cameras.main.shake(
+					0.01,
+					100,
+					true,
+					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
+					true,
+				);
 
 				// Don't perform poison damage unless upgraded
 				const damages = $j.extend({}, ability.damages);
