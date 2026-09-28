@@ -1,8 +1,13 @@
 /**
  * Engine adapter types — the GameEngine abstraction that gameplay code
- * talks to instead of raw Phaser APIs. Both a Phaser 2 (phaser-ce) adapter
- * and a Phaser 4 adapter implement this interface, so the swap is a
- * one-line change in game.ts.
+ * talks to instead of raw Phaser APIs.
+ *
+ * The Phaser 4 adapter is a translation layer: Phaser 4 dropped most of the
+ * Phaser 2 CE convenience API (anchor/scale objects, `inputEnabled`,
+ * `events.onInput*`, group ordering, `BitmapData`, …), so those live here and
+ * are re-implemented on top of Phaser 4's own calls. Anything not listed is
+ * forwarded straight to the underlying Phaser 4 game object, which keeps the
+ * native API — `depth`, `setTint`, `setLighting`, filters — reachable.
  */
 
 // ─── Signal (Phaser.Signal replacement) ───────────────────────────────────────
@@ -39,6 +44,18 @@ export interface TweenHandle {
 }
 
 // ─── Sprite / Game Object ─────────────────────────────────────────────────────
+
+/** Phaser 4 returns a `Geom.Rectangle` from `getBounds()`. */
+export interface BoundsRect {
+	x: number;
+	y: number;
+	width: number;
+	height: number;
+	left: number;
+	right: number;
+	top: number;
+	bottom: number;
+}
 
 export interface SpriteHandle {
 	[key: string]: any;
@@ -81,16 +98,17 @@ export interface SpriteHandle {
 		x: number;
 		y: number;
 		set(x: number, y: number): void;
+		clone(): { x: number; y: number };
 	};
 	data: Record<string, any>;
 	parent: any;
 	trace: { width: number; height: number };
-	loadTexture(key: string | any, frame?: string): void;
+	loadTexture(key: TextureKeyLike, frame?: string): void;
 	alignIn(center: any, align?: number): void;
 	destroy(): void;
 	kill(): void;
 	revive(): void;
-	getBounds(): { x: number; y: number; width: number; height: number };
+	getBounds(): BoundsRect;
 	// Graphics methods (when used as Graphics object)
 	beginFill(color?: number, alpha?: number): void;
 	drawRect(x: number, y: number, w: number, h: number): void;
@@ -113,32 +131,48 @@ export interface GroupHandle {
 	angle: number;
 	exists: boolean;
 	children: any[];
+	length: number;
 	position: {
 		set(x: number, y: number): void;
 	};
 	scale: {
 		x: number;
 		y: number;
-		setTo(x: number, y: number): void;
-		set(x: number, y: number): void;
+		setTo(x: number, y?: number): void;
+		set(x: number, y?: number): void;
 	};
 	add(child: any): any;
 	addAt(child: any, index: number): any;
 	addChild(child: any): any;
-	remove(child: any): void;
-	removeChild(child: any): void;
+	remove(child: any, destroy?: boolean): void;
+	removeChild(child: any, destroy?: boolean): void;
 	removeAll(destroy?: boolean): void;
-	create(x: number, y: number, key: string, frame?: string, exists?: boolean): SpriteHandle;
+	create(x: number, y: number, key: TextureKeyLike, frame?: string, exists?: boolean): SpriteHandle;
 	forEach(callback: (child: any) => void, context?: any): void;
 	sendToBack(child: any): void;
 	bringToTop(child: any): void;
 	setChildIndex(child: any, index: number): void;
+	/** Render order key; Phaser 4 owns ordering through the native `depth`. */
 	getChildIndex(child: any): number;
-	sort(key?: string, order?: number): void;
+	sort(property?: string, order?: number): void;
 	update(): void;
-	alignIn(center: any, align?: number): void;
+	alignIn(center?: any, align?: number): void;
+	toLocal(point: any, output?: any): any;
+	toGlobal(point: any, output?: any): any;
 	destroy(): void;
 }
+
+// ─── Texture keys ─────────────────────────────────────────────────────────────
+
+/**
+ * Anything acceptable where a texture key is expected.
+ *
+ * Phaser 2 CE's texture-key parameters were loosely typed enough to take a
+ * `BitmapData`, and AB's per-pixel effects lean on that. `string` covers the
+ * normal loader keys; `BitmapDataHandle` covers the CPU-drawn surfaces; Phaser
+ * `Texture`/`Frame` instances are passed through untouched.
+ */
+export type TextureKeyLike = string | BitmapDataHandle | { key?: unknown } | undefined;
 
 // ─── BitmapData ───────────────────────────────────────────────────────────────
 
@@ -146,8 +180,20 @@ export interface BitmapDataHandle {
 	[key: string]: any;
 	width: number;
 	height: number;
+	/**
+	 * The key this surface is registered under in the texture manager, so the
+	 * handle can be used anywhere a texture key is expected. Phaser 2 CE
+	 * registered every `BitmapData` as a texture and accepted it directly in
+	 * `sprite.loadTexture(bmd)` / `group.create(x, y, bmd)`; the per-pixel
+	 * effects depend on that, and Phaser 4 has no such overload.
+	 */
+	textureKey: string;
 	ctx: CanvasRenderingContext2D;
 	context: CanvasRenderingContext2D;
+	/**
+	 * Phaser 4's DynamicTexture buffers drawing operations and only uploads
+	 * them on an explicit `render()`, so marking the surface dirty flushes.
+	 */
 	dirty: boolean;
 	update(): void;
 	destroy(): void;
@@ -156,9 +202,14 @@ export interface BitmapDataHandle {
 // ─── Camera ───────────────────────────────────────────────────────────────────
 
 export interface CameraHandle {
+	/**
+	 * Phaser 2 CE order: `shake(amplitude, duration, force, direction, snap)`.
+	 * Phaser 4 is `shake(duration, intensity, force)`; the adapter translates,
+	 * expressing `direction` as a per-axis `intensity` Vector2.
+	 */
 	shake(
-		duration: number,
 		amplitude: number,
+		duration: number,
 		force?: boolean,
 		direction?: number | string,
 		snap?: boolean,
@@ -196,9 +247,9 @@ export interface GameEngine {
 
 	// Game object factories
 	add: {
-		socket(x: number, y: number, key: string, frame?: string): SpriteHandle;
-		image(x: number, y: number, key: string, frame?: string): SpriteHandle;
-		sprite(x: number, y: number, key: string, frame?: string): SpriteHandle;
+		socket(x: number, y: number, key: TextureKeyLike, frame?: string): SpriteHandle;
+		image(x: number, y: number, key: TextureKeyLike, frame?: string): SpriteHandle;
+		sprite(x: number, y: number, key: TextureKeyLike, frame?: string): SpriteHandle;
 		text(x: number, y: number, text: string, style?: any): SpriteHandle;
 		graphics(x?: number, y?: number, parent?: GroupHandle): SpriteHandle;
 		group(parent?: GroupHandle, name?: string): GroupHandle;
@@ -207,7 +258,7 @@ export interface GameEngine {
 			y: number,
 			w: number,
 			h: number,
-			key: string,
+			key: TextureKeyLike,
 			frame?: string,
 		): SpriteHandle;
 		bitmapData(w: number, h: number): BitmapDataHandle;

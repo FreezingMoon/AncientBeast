@@ -1,151 +1,368 @@
-/**
- * Phaser 4 engine adapter.
- *
- * Wraps a Phaser 4 Game/Scene instance, delegating all calls to
- * Phaser 4 APIs. Implements the same GameEngine interface as
- * Phaser2Engine so gameplay code remains engine-agnostic.
- */
-
+import Phaser, { Math as PhaserMath, Scale } from 'phaser';
+import { Signal } from '../utility/signal';
+import { DynamicTextureAdapter, wrapGameObject, wrapGroup } from './Phaser4Handles';
+import { toTextureKey } from './textureKey';
 import type {
-	BitmapDataHandle,
 	CameraHandle,
 	GameEngine,
 	GroupHandle,
-	SignalHandle,
-	SpriteHandle,
 	ScaleHandle,
+	SpriteHandle,
+	TextureKeyLike,
 	TimerHandle,
 	TweenHandle,
 } from './types';
 
-// ─── Simple EventEmitter for SignalHandle ───────────────────────────────────────
+type AnyObject = Record<string, any>;
 
-type CallbackFn = (...args: any[]) => void;
+/**
+ * Phaser 2 CE removed `game.camera.SHAKE_*`; Phaser 4 expresses the shake
+ * direction through a per-axis `intensity` Vector2, so the adapter keeps the
+ * Phaser 2 direction flags and translates them on the way through.
+ */
+const SHAKE_HORIZONTAL = 1;
+const SHAKE_VERTICAL = 2;
+const SHAKE_BOTH = 3;
 
-class SimpleEmitter {
-	private listeners: Map<string, Array<{ fn: CallbackFn; context?: any; once: boolean }>> =
-		new Map();
+/**
+ * Phaser 4 engine adapter.
+ *
+ * Gameplay code never touches a raw Phaser object: it goes through this
+ * adapter, which is a thin translation layer over Phaser 4's own APIs. The
+ * scene is injected (rather than discovered through globals) so the adapter and
+ * the {@link GameScene} that owns it are decoupled from module state.
+ */
+export class Phaser4Engine implements GameEngine {
+	private readonly phaser: Phaser.Game;
+	private readonly scene: Phaser.Scene;
+	/** Tracked manually: Phaser 4's Clock exposes `now` but not `elapsedMS`. */
+	private _elapsedMS = 0;
+	private _loadWired = false;
 
-	on(event: string, fn: CallbackFn, context?: any) {
-		const arr = this.listeners.get(event) || [];
-		arr.push({ fn, context, once: false });
-		this.listeners.set(event, arr);
+	readonly signals: Record<string, Signal> = {};
+
+	constructor(phaser: Phaser.Game, scene: Phaser.Scene) {
+		this.phaser = phaser;
+		this.scene = scene;
 	}
 
-	once(event: string, fn: CallbackFn, context?: any) {
-		const arr = this.listeners.get(event) || [];
-		arr.push({ fn, context, once: true });
-		this.listeners.set(event, arr);
+	/** The live Phaser 4 scene backing this engine. */
+	getScene(): Phaser.Scene {
+		return this.scene;
 	}
 
-	off(event: string, fn: CallbackFn, context?: any) {
-		const arr = this.listeners.get(event);
-		if (!arr) return;
-		const idx = arr.findIndex((l) => l.fn === fn && l.context === context);
-		if (idx >= 0) arr.splice(idx, 1);
+	// ─── Tween ──────────────────────────────────────────────────────────────
+
+	tween(target: object): TweenHandle {
+		return new TweenAdapter(this.scene, this.scene.tweens.add({ targets: target }));
 	}
 
-	emit(event: string, ...args: any[]) {
-		const arr = this.listeners.get(event);
-		if (!arr) return;
-		const toRemove: number[] = [];
-		arr.forEach((l, i) => {
-			l.fn.apply(l.context, args);
-			if (l.once) toRemove.push(i);
-		});
-		for (let i = toRemove.length - 1; i >= 0; i--) arr.splice(toRemove[i], 1);
+	removeTweensFrom(target: object): void {
+		this.scene.tweens.killTweensOf(target);
 	}
 
-	removeAllListeners(event?: string) {
-		if (event) this.listeners.delete(event);
-		else this.listeners.clear();
+	// ─── Game object factories ──────────────────────────────────────────────
+	// Phaser 4 factories take positional arguments, unlike the Phaser 2 CE
+	// config objects, so the adapter owns the translation.
+
+	get add() {
+		return {
+			/** Phaser 2 `socket` had no Phaser 4 equivalent; it was a display object. */
+			socket: (x: number, y: number, key: TextureKeyLike, frame?: string): SpriteHandle =>
+				this.add.sprite(x, y, key, frame),
+			image: (x: number, y: number, key: TextureKeyLike, frame?: string): SpriteHandle =>
+				wrapGameObject(this.scene.add.image(x, y, toTextureKey(key), frame)),
+			sprite: (x: number, y: number, key: TextureKeyLike, frame?: string): SpriteHandle =>
+				wrapGameObject(this.scene.add.sprite(x, y, toTextureKey(key), frame)),
+			text: (x: number, y: number, text: string, style?: AnyObject): SpriteHandle =>
+				wrapGameObject(this.scene.add.text(x, y, text, style)),
+			graphics: (x?: number, y?: number, parent?: GroupHandle): SpriteHandle => {
+				const graphics = this.scene.add.graphics({ x, y });
+				if (parent) parent.add(graphics);
+				return wrapGameObject(graphics);
+			},
+			/**
+			 * Phaser 2 `Group` was a transformable, ordered display container.
+			 * Phaser 4's `Group` is only a membership set, so groups are backed
+			 * by the native `Container`, which does provide ordering + transform.
+			 */
+			group: (parent?: GroupHandle, name?: string): GroupHandle => {
+				const container = this.scene.add.container(0, 0);
+				if (name) container.setName(name);
+				if (parent) parent.add(container);
+				return wrapGroup(container);
+			},
+			tileSprite: (
+				x: number,
+				y: number,
+				w: number,
+				h: number,
+				key: TextureKeyLike,
+				frame?: string,
+			): SpriteHandle =>
+				wrapGameObject(this.scene.add.tileSprite(x, y, w, h, toTextureKey(key), frame)),
+			bitmapData: (w: number, h: number) => this.make.bitmapData(w, h),
+		};
+	}
+
+	get make() {
+		return {
+			/**
+			 * Phaser 2 `BitmapData` was an offscreen 2D canvas. Phaser 4 has no
+			 * equivalent: `RenderTexture`'s `DynamicTexture` has no 2D context
+			 * under WebGL, so the surface is a `CanvasTexture` instead — the one
+			 * Phaser 4 texture with a real `CanvasRenderingContext2D`.
+			 */
+			bitmapData: (w: number, h: number) => new DynamicTextureAdapter(this.scene.textures, w, h),
+		};
+	}
+
+	// ─── Loader ─────────────────────────────────────────────────────────────
+
+	get load() {
+		// The adapter's `load` getter is read several times while wiring the
+		// loader, so the Phaser 4 event listeners are attached exactly once.
+		if (!this._loadWired) {
+			this._loadWired = true;
+			const loader = this.scene.load;
+			loader.on('filecomplete', (key: string) => this.loadSignal('onFileComplete').dispatch(key));
+			loader.on('complete', () => this.loadSignal('onLoadComplete').dispatch());
+		}
+		const loader = this.scene.load as AnyObject;
+		return {
+			start: () => loader.start(),
+			// Phaser 2 reported 0-100; Phaser 4 reports a 0-1 ratio.
+			get progress() {
+				return Math.round((loader.progress ?? 1) * 100);
+			},
+			onFileComplete: this.loadSignal('onFileComplete'),
+			onLoadComplete: this.loadSignal('onLoadComplete'),
+		};
+	}
+
+	private readonly loadSignals: Record<string, Signal> = {};
+
+	private loadSignal(name: 'onFileComplete' | 'onLoadComplete'): Signal {
+		let signal = this.loadSignals[name];
+		if (!signal) {
+			signal = new Signal();
+			this.loadSignals[name] = signal;
+		}
+		return signal;
+	}
+
+	// ─── Time ───────────────────────────────────────────────────────────────
+
+	get time() {
+		const clock = this.scene.time;
+		const self = this;
+		return {
+			get now() {
+				return clock.now;
+			},
+			get elapsedMS() {
+				return self._elapsedMS;
+			},
+			add: (delay: number, cb: () => void): TimerHandle => clock.delayedCall(delay, cb),
+			loop: (delay: number, cb: () => void): TimerHandle =>
+				clock.addEvent({
+					delay,
+					loop: true,
+					callback: cb,
+				}),
+			remove: (timer: TimerHandle) => timer?.destroy?.(),
+		};
+	}
+
+	/** Called from the scene's `update()` so `time.elapsedMS` keeps working. */
+	advanceClock(delta: number): void {
+		this._elapsedMS += delta;
+	}
+
+	// ─── Scale ──────────────────────────────────────────────────────────────
+
+	get scale(): ScaleHandle {
+		const manager = this.phaser.scale;
+		const scale: ScaleHandle = {
+			get parentIsWindow() {
+				return manager.parentIsWindow;
+			},
+			set parentIsWindow(value: boolean) {
+				manager.parentIsWindow = value;
+			},
+			// Phaser 2's page alignment flags are Phaser 4's `autoCenter`.
+			get pageAlignHorizontally() {
+				return manager.autoCenter !== Scale.NO_CENTER;
+			},
+			set pageAlignHorizontally(value: boolean) {
+				manager.autoCenter = value ? Scale.CENTER_BOTH : Scale.NO_CENTER;
+			},
+			get pageAlignVertically() {
+				return manager.autoCenter !== Scale.NO_CENTER;
+			},
+			set pageAlignVertically(value: boolean) {
+				manager.autoCenter = value ? Scale.CENTER_BOTH : Scale.NO_CENTER;
+			},
+			get scaleMode() {
+				return manager.scaleMode;
+			},
+			set scaleMode(value: number) {
+				manager.scaleMode = value;
+			},
+			// Phaser 4 has a single scale mode; full screen uses the same one.
+			get fullScreenScaleMode() {
+				return manager.scaleMode;
+			},
+			set fullScreenScaleMode(value: number) {
+				manager.scaleMode = value;
+			},
+			refresh: () => manager.refresh(),
+			resize: (w?: number, h?: number) => manager.resize(w, h),
+		};
+		return scale;
+	}
+
+	// ─── Camera ─────────────────────────────────────────────────────────────
+
+	get cameras() {
+		const manager = this;
+		return {
+			main: {
+				/**
+				 * Phaser 4 signature: `shake(duration, intensity, force)`.
+				 *
+				 * Phaser 2 CE was `shake(amplitude, duration, force, direction,
+				 * snap)` and Ancient Beast still calls it that way, so the
+				 * amplitude/duration pair is swapped here and the direction flag
+				 * is turned into a per-axis `intensity` Vector2 — which is how
+				 * Phaser 4 expresses a one-axis shake.
+				 */
+				shake(
+					amplitude: number,
+					duration: number,
+					force?: boolean,
+					direction: number = SHAKE_BOTH,
+					snap?: boolean,
+				): void {
+					void snap;
+					const horizontal = direction === SHAKE_HORIZONTAL || direction === SHAKE_BOTH;
+					const vertical = direction === SHAKE_VERTICAL || direction === SHAKE_BOTH;
+					const intensity =
+						horizontal && vertical
+							? amplitude
+							: new PhaserMath.Vector2(horizontal ? amplitude : 0, vertical ? amplitude : 0);
+					manager.getScene().cameras.main.shake(duration, intensity, force);
+				},
+				SHAKE_HORIZONTAL,
+				SHAKE_VERTICAL,
+				SHAKE_BOTH,
+			} as CameraHandle,
+		};
+	}
+
+	// ─── World / display list ───────────────────────────────────────────────
+
+	get world() {
+		const displayList = this.scene.children;
+		const scene = this.scene;
+		return {
+			/** Phaser 2's `world.removeAll(destroy)` tore down every display object. */
+			removeAll: (destroy = true) => {
+				displayList.list.slice().forEach((child) => {
+					displayList.remove(child);
+					if (destroy) child.destroy();
+				});
+			},
+			get width() {
+				return scene.scale.width;
+			},
+			get height() {
+				return scene.scale.height;
+			},
+			add: (gameObject: AnyObject) => displayList.add(gameObject),
+		};
+	}
+
+	// ─── Cache / textures ───────────────────────────────────────────────────
+
+	get cache() {
+		const textures = this.scene.textures;
+		return {
+			getImage: (key: string) => {
+				const texture = textures.exists(key) ? textures.get(key) : null;
+				return texture ? texture.getSourceImage() : null;
+			},
+		};
+	}
+
+	// ─── Device ─────────────────────────────────────────────────────────────
+
+	get device() {
+		// Phaser 4 exposes device info through `Phaser.Device`; `os` carries the
+		// desktop/mobile split that Phaser 2 reported as `device.desktop`.
+		const os = this.phaser.device?.os as AnyObject | undefined;
+		return { desktop: Boolean(os?.desktop) };
+	}
+
+	/**
+	 * Phaser 2's `game.stage` flags were used for visibility/portrait handling.
+	 * Phaser 4 has no stage object; those behaviours moved to the ScaleManager
+	 * (`autoCenter`) and to the browser's own visibility events, so this is a
+	 * retained no-op rather than a global.
+	 */
+	get stage(): { disableVisibilityChange: boolean; forcePortrait: boolean } {
+		return { disableVisibilityChange: false, forcePortrait: false };
+	}
+
+	// ─── Lifecycle ──────────────────────────────────────────────────────────
+
+	destroy(): void {
+		// Phaser 4 `Game.destroy(removeCanvas, noReturn)`.
+		this.phaser.destroy(true, true);
 	}
 }
 
-// ─── Signal wrapper ─────────────────────────────────────────────────────────────
-
-class SignalAdapter implements SignalHandle {
-	private emitter: SimpleEmitter | any;
-
-	constructor(emitter?: any) {
-		this.emitter = emitter || new SimpleEmitter();
-	}
-
-	add(fn: (...args: any[]) => void, context?: any) {
-		this.emitter.on('dispatch', fn, context);
-	}
-
-	addOnce(fn: (...args: any[]) => void, context?: any) {
-		this.emitter.once('dispatch', fn, context);
-	}
-
-	remove(fn: (...args: any[]) => void, context?: any) {
-		this.emitter.off('dispatch', fn, context);
-	}
-
-	removeAll() {
-		this.emitter.removeAllListeners('dispatch');
-	}
-
-	dispatch(...args: any[]) {
-		this.emitter.emit('dispatch', ...args);
-	}
-}
-
-// ─── Tween adapter ──────────────────────────────────────────────────────────────
+// ─── Tween adapter ───────────────────────────────────────────────────────────
 
 class TweenAdapter implements TweenHandle {
-	private tween: any;
-	private onCompleteEmitter = new SimpleEmitter();
-	private updateCallback: ((...args: any[]) => void) | null = null;
-	private updateContext: any = null;
+	private tween: Phaser.Tweens.Tween;
+	private readonly scene: Phaser.Scene;
 
-	constructor(tween: any) {
+	constructor(scene: Phaser.Scene, tween: Phaser.Tweens.Tween) {
+		this.scene = scene;
 		this.tween = tween;
-		tween.on('complete', () => this.onCompleteEmitter.emit('dispatch'));
-		tween.on('update', (t: any, target: any) => {
-			if (this.updateCallback) this.updateCallback.call(this.updateContext, t, target);
-		});
+	}
+
+	private get liveScene(): Phaser.Scene {
+		// Phaser 4 tweens reach the scene through their owning TweenManager.
+		return (this.tween.parent as Phaser.Tweens.TweenManager | undefined)?.scene ?? this.scene;
 	}
 
 	to(
 		props: Record<string, any>,
 		duration: number,
 		easing?: string | ((k: number) => number),
-		autoStart?: boolean,
-		delay?: number,
-		repeat?: number,
-		yoyo?: boolean,
+		autoStart = true,
+		delay = 0,
+		repeat = 0,
+		yoyo = false,
 	): TweenHandle {
 		this.tween.stop();
-		this.scene?.tweens.killTweensOf(this.tween.targets);
-		const config: any = {
+		this.tween = this.liveScene.tweens.add({
 			targets: this.tween.targets,
 			duration,
-			ease: easing,
+			ease: easing as any,
 			delay,
-			repeat: repeat ?? 0,
-			yoyo: yoyo ?? false,
+			repeat,
+			yoyo,
+			paused: !autoStart,
 			...props,
-		};
-		if (autoStart !== false) {
-			this.tween = this.scene.tweens.add(config);
-			this.tween.on('complete', () => this.onCompleteEmitter.emit('dispatch'));
-			this.tween.on('update', (t: any, target: any) => {
-				if (this.updateCallback) this.updateCallback.call(this.updateContext, t, target);
-			});
-		} else {
-			this.tween = this.scene.tweens.add({ ...config, paused: true });
-		}
+		});
 		return this;
 	}
 
-	get scene() {
-		return (this.tween as any).scene || (this.tween as any).manager?.scene;
-	}
-
 	start(): TweenHandle {
-		if (this.tween.paused) this.tween.play();
+		this.tween.play();
 		return this;
 	}
 
@@ -154,383 +371,29 @@ class TweenAdapter implements TweenHandle {
 		return this;
 	}
 
-	yoyo(enable?: boolean): TweenHandle {
-		this.tween.yoyo = enable ?? true;
+	/** Phaser 4 moved `yoyo` onto each tween data entry rather than the tween. */
+	yoyo(enable = true): TweenHandle {
+		this.tween.data.forEach((entry) => {
+			entry.yoyo = enable;
+		});
 		return this;
 	}
 
-	repeat(count?: number): TweenHandle {
-		this.tween.repeat = count ?? 0;
+	/** Phaser 4 renamed the tween-level repeat count to `loop`. */
+	repeat(count = 1): TweenHandle {
+		this.tween.loop = count;
 		return this;
 	}
 
 	get onComplete() {
 		return {
-			add: (cb: (...args: any[]) => void, context?: any) =>
-				this.onCompleteEmitter.on('dispatch', cb, context),
-			addOnce: (cb: (...args: any[]) => void, context?: any) =>
-				this.onCompleteEmitter.once('dispatch', cb, context),
+			add: (cb: (...args: any[]) => void) => this.tween.on('complete', cb),
+			addOnce: (cb: (...args: any[]) => void) => this.tween.once('complete', cb),
 		};
 	}
 
-	onUpdateCallback(cb: (...args: any[]) => void, context?: any): TweenHandle {
-		this.updateCallback = cb;
-		this.updateContext = context;
+	onUpdateCallback(cb: (...args: any[]) => void): TweenHandle {
+		this.tween.on('update', cb);
 		return this;
-	}
-}
-
-// ─── BitmapData adapter (wraps RenderTexture) ───────────────────────────────────
-
-class BitmapDataAdapter implements BitmapDataHandle {
-	readonly texture: any;
-	readonly canvas: HTMLCanvasElement;
-	readonly ctx: CanvasRenderingContext2D;
-
-	constructor(texture: any) {
-		this.texture = texture;
-		this.canvas = texture.canvas;
-		this.ctx = this.canvas.getContext('2d')!;
-	}
-
-	get width() {
-		return this.texture.width;
-	}
-	get height() {
-		return this.texture.height;
-	}
-	get context() {
-		return this.ctx;
-	}
-	get dirty() {
-		return true;
-	}
-	set dirty(v: boolean) {}
-	update() {
-		this.texture.update();
-	}
-	destroy() {
-		this.texture.destroy();
-	}
-}
-
-// ─── Scale adapter ──────────────────────────────────────────────────────────────
-
-class ScaleAdapter implements ScaleHandle {
-	private readonly phaser: any;
-	private _scaleManager: any | null = null;
-	private _camera: any | null = null;
-
-	constructor(phaser: any) {
-		this.phaser = phaser;
-	}
-
-	private get scaleManager() {
-		if (!this._scaleManager) this._scaleManager = this.phaser?.scale;
-		return this._scaleManager;
-	}
-	private get camera() {
-		if (!this._camera)
-			this._camera = this.phaser?.scene?.cameras?.main || this.phaser?.cameras?.main;
-		return this._camera;
-	}
-
-	get parentIsWindow() {
-		return this.scaleManager?.parentIsWindow ?? false;
-	}
-	set parentIsWindow(v: boolean) {
-		if (this.scaleManager) this.scaleManager.parentIsWindow = v;
-	}
-	get pageAlignHorizontally() {
-		return this.scaleManager?.autoCenter === 1 || this.scaleManager?.autoCenter === 3;
-	}
-	set pageAlignHorizontally(v: boolean) {
-		if (this.scaleManager)
-			this.scaleManager.autoCenter = v
-				? this.pageAlignVertically
-					? 3
-					: 1
-				: this.pageAlignVertically
-				? 2
-				: 0;
-	}
-	get pageAlignVertically() {
-		return this.scaleManager?.autoCenter === 2 || this.scaleManager?.autoCenter === 3;
-	}
-	set pageAlignVertically(v: boolean) {
-		if (this.scaleManager)
-			this.scaleManager.autoCenter = v
-				? this.pageAlignHorizontally
-					? 3
-					: 2
-				: this.pageAlignHorizontally
-				? 1
-				: 0;
-	}
-	get scaleMode() {
-		return this.scaleManager?.mode ?? 0;
-	}
-	set scaleMode(v: number) {
-		if (this.scaleManager) this.scaleManager.mode = v;
-	}
-	get fullScreenScaleMode() {
-		return this.scaleManager?.fullscreenTarget ? 1 : 0;
-	}
-	set fullScreenScaleMode(v: number) {}
-	refresh() {
-		this.camera?.refresh();
-		this.scaleManager?.refresh();
-	}
-	resize() {
-		this.scaleManager?.resize();
-	}
-}
-
-// ─── Camera adapter ─────────────────────────────────────────────────────────────
-
-class CameraAdapter implements CameraHandle {
-	private readonly phaser: any;
-	private _camera: any | null = null;
-	readonly SHAKE_HORIZONTAL = 1;
-	readonly SHAKE_VERTICAL = 2;
-	readonly SHAKE_BOTH = 3;
-
-	constructor(phaser: any) {
-		this.phaser = phaser;
-	}
-
-	private get camera() {
-		if (!this._camera)
-			this._camera = this.phaser?.scene?.cameras?.main || this.phaser?.cameras?.main;
-		return this._camera;
-	}
-
-	shake(
-		duration: number,
-		amplitude: number,
-		force?: boolean,
-		direction?: number | string,
-		snap?: boolean,
-	) {
-		const camera = this.camera;
-		if (!camera || typeof camera.shake !== 'function') return;
-		const dir =
-			direction === this.SHAKE_HORIZONTAL
-				? 'horizontal'
-				: direction === this.SHAKE_VERTICAL
-				? 'vertical'
-				: 'both';
-		camera.shake({ duration, intensity: amplitude, force, direction: dir });
-	}
-}
-
-// ─── Timer adapter ──────────────────────────────────────────────────────────────
-
-class TimerAdapter implements TimerHandle {
-	readonly event: any;
-	constructor(event: any) {
-		this.event = event;
-	}
-
-	destroy?(): void {
-		this.event?.destroy?.();
-	}
-}
-
-// ─── Loader adapter ─────────────────────────────────────────────────────────────
-
-class LoaderAdapter {
-	private readonly phaser: any;
-	private _load: any | null = null;
-	private fileCompleteEmitter = new SimpleEmitter();
-	private loadCompleteEmitter = new SimpleEmitter();
-
-	constructor(phaser: any) {
-		this.phaser = phaser;
-	}
-
-	private get load() {
-		if (!this._load) this._load = this.phaser?.scene?.scenes?.[0]?.load || this.phaser?.scene?.load;
-		return this._load;
-	}
-
-	start() {
-		this.load?.start();
-	}
-
-	get progress() {
-		return this.load?.progress ?? 100;
-	}
-
-	get onFileComplete() {
-		if (this.load) {
-			console.log('[LoaderAdapter] Setting up filecomplete and complete listeners');
-			this.load.on('filecomplete', (key: string, type: string, data: any) => {
-				console.log('[LoaderAdapter] filecomplete:', key, type);
-				this.fileCompleteEmitter.emit('dispatch', key, type, data);
-			});
-			this.load.on('complete', () => {
-				console.log('[LoaderAdapter] complete event fired');
-				this.loadCompleteEmitter.emit('dispatch');
-			});
-		}
-		return new SignalAdapter(this.fileCompleteEmitter);
-	}
-	get onLoadComplete() {
-		return new SignalAdapter(this.loadCompleteEmitter);
-	}
-}
-
-// ─── Phaser4Engine class ────────────────────────────────────────────────────────
-
-export class Phaser4Engine implements GameEngine {
-	public readonly phaser: any;
-
-	constructor(phaser: any) {
-		this.phaser = phaser;
-	}
-
-	private get _scene() {
-		// In Phaser 4, phaser.scene.active returns the active Scene
-		// In mock, phaser.scene IS the scene (and .active is a boolean)
-		const sceneManager = this.phaser.scene;
-		if (sceneManager?.active && typeof sceneManager.active === 'object') {
-			return sceneManager.active;
-		}
-		if (sceneManager?.add) {
-			return sceneManager;
-		}
-		return this.phaser;
-	}
-
-	private get _scaleManager() {
-		return this.phaser.scale;
-	}
-
-	private get _camerasMain() {
-		return this._scene.cameras?.main || this.phaser.cameras?.main;
-	}
-
-	private get _load() {
-		return this._scene.load;
-	}
-
-	private get _time() {
-		return this._scene.time;
-	}
-
-	private get _add() {
-		return this._scene.add;
-	}
-
-	private get _textures() {
-		return this._scene.textures;
-	}
-
-	public get scale() {
-		return new ScaleAdapter(this.phaser);
-	}
-	public get cameras() {
-		return { main: new CameraAdapter(this.phaser) };
-	}
-	public get world() {
-		return {
-			removeAll: (destroy?: boolean) => this._scene.children.clear(destroy),
-		};
-	}
-	public get cache() {
-		return {
-			getImage: (key: string) => {
-				const tex = this._textures.get(key);
-				return tex?.source?.[0]?.image || tex;
-			},
-		};
-	}
-	public get device() {
-		const self = this;
-		return {
-			get desktop() {
-				return self.phaser?.device?.desktop ?? self._scene?.sys?.game?.device?.desktop ?? true;
-			},
-		};
-	}
-	public get stage() {
-		const self = this;
-		return {
-			get disableVisibilityChange() {
-				return self.phaser.stage?.disableVisibilityChange ?? false;
-			},
-			set disableVisibilityChange(v: boolean) {
-				if (self.phaser.stage) self.phaser.stage.disableVisibilityChange = v;
-			},
-			get forcePortrait() {
-				return self.phaser.stage?.forcePortrait ?? false;
-			},
-			set forcePortrait(v: boolean) {
-				if (self.phaser.stage) self.phaser.stage.forcePortrait = v;
-			},
-		};
-	}
-	public readonly signals: Record<string, SignalHandle> = {};
-	public get load() {
-		return new LoaderAdapter(this.phaser);
-	}
-	public get time() {
-		const self = this;
-		return {
-			get now() {
-				return self._time?.now ?? 0;
-			},
-			get elapsedMS() {
-				return self._time?.elapsedMS ?? 0;
-			},
-			add: (delay: number, cb: () => void) => new TimerAdapter(self._time.delayedCall(delay, cb)),
-			loop: (delay: number, cb: () => void) =>
-				new TimerAdapter(self._time.addEvent({ delay, loop: true, callback: cb })),
-			remove: (timer: TimerHandle) => (timer as TimerAdapter).event?.remove?.(),
-		};
-	}
-
-	public readonly add = {
-		socket: (x: number, y: number, key: string, frame?: string) =>
-			this._add.sprite({ x, y, key, frame }) as unknown as SpriteHandle,
-		image: (x: number, y: number, key: string, frame?: string) =>
-			this._add.image({ x, y, key, frame }) as unknown as SpriteHandle,
-		sprite: (x: number, y: number, key: string, frame?: string) =>
-			this._add.sprite({ x, y, key, frame }) as unknown as SpriteHandle,
-		text: (x: number, y: number, text: string, style?: any) =>
-			this._add.text({ x, y, text, style }) as unknown as SpriteHandle,
-		graphics: (x?: number, y?: number, parent?: GroupHandle) => {
-			const g = this._add.graphics({ x: x ?? 0, y: y ?? 0 });
-			if (parent) (parent as any).add?.(g);
-			return g as unknown as SpriteHandle;
-		},
-		group: (parent?: GroupHandle, name?: string) => {
-			const group = this._add.group();
-			if (parent) (parent as any).add?.(group);
-			return group as unknown as GroupHandle;
-		},
-		tileSprite: (x: number, y: number, w: number, h: number, key: string, frame?: string) =>
-			this._add.tileSprite({ x, y, width: w, height: h, key, frame }) as unknown as SpriteHandle,
-		bitmapData: (w: number, h: number) =>
-			new BitmapDataAdapter(this._add.renderTexture({ width: w, height: h })),
-	};
-
-	public readonly make = {
-		bitmapData: (w: number, h: number) =>
-			new BitmapDataAdapter(this._add.renderTexture({ width: w, height: h })),
-	};
-
-	destroy() {
-		this.phaser.destroy?.(true, false) ?? this._scene?.sys?.game?.destroy?.(true, false);
-	}
-
-	tween(target: object): TweenHandle {
-		const tween = this._scene.tweens.add({ targets: target, duration: 0, paused: true });
-		return new TweenAdapter(tween);
-	}
-
-	removeTweensFrom(target: object) {
-		this._scene.tweens.killTweensOf(target);
 	}
 }
