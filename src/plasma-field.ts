@@ -13,6 +13,7 @@
 
 import type { Creature } from './creature';
 import type { GameEngine, BitmapDataHandle, SpriteHandle, GroupHandle } from './engine/types';
+import { BlendModes } from 'phaser';
 
 export interface PlasmaFieldSettings {
 	transparency: number;
@@ -306,13 +307,18 @@ export class PlasmaField {
 		}
 
 		this.bmd = engine.add.bitmapData(this.w, this.h);
+		// The handle is a live texture, so the sprite samples the pixels written
+		// into it below rather than falling back to the missing-texture image.
 		this.sprite = this.parent.create
-			? (this.parent.create(x, y, this.bmd as any) as SpriteHandle)
-			: engine.add.sprite(x, y, this.bmd as any as string);
+			? (this.parent.create(x, y, this.bmd) as SpriteHandle)
+			: engine.add.sprite(x, y, this.bmd);
 		this.sprite.anchor.set(0.5, 0.5);
 		this.sprite.scale.set(this.settings.scaleX, this.settings.scaleY);
 		this.sprite.alpha = this.alpha;
-		this.sprite.blendMode = 20;
+		// Additive blending is what gives the shield its glow. `2` is MULTIPLY,
+		// not ADD (ADD is 1 in both Phaser 2 CE and Phaser 4), and multiplying
+		// muddies the highlight instead of blooming it — so use the constant.
+		this.sprite.blendMode = BlendModes.ADD;
 
 		if (this._staticMode) {
 			this.draw();

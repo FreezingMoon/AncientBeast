@@ -1,5 +1,17 @@
 import Game from '../game';
-import type { RenderTexture } from 'phaser';
+
+/**
+ * Structural view of a Phaser 4 render/dynamic texture: Phaser 4 dropped the
+ * Phaser 2 `BitmapData` class, so the drawing surface is read through these
+ * members instead.
+ */
+export interface DrawableTexture {
+	crop?: { x: number; y: number; width: number; height: number };
+	frame?: { x: number; y: number; width: number; height: number };
+	baseTexture?: { source?: CanvasImageSource };
+	width?: number;
+	height?: number;
+}
 
 export interface TextureFrameInfo {
 	frame: { x: number; y: number; width: number; height: number };
@@ -13,7 +25,7 @@ export interface TextureFrameInfo {
  * Handles missing/fallback values for crop, frame, and dimensions.
  */
 export function extractTextureFrameInfo(
-	texture: RenderTexture | any,
+	texture: DrawableTexture,
 	defaultFrame?: { x: number; y: number; width: number; height: number },
 ): TextureFrameInfo | null {
 	const frame = texture.crop ?? texture.frame ?? defaultFrame;

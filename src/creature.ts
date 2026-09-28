@@ -1,3 +1,4 @@
+import { Easing } from './utility/easing';
 import $j from 'jquery';
 import { Ability } from './ability';
 import { search } from './utility/pathfinding';
@@ -890,7 +891,7 @@ export class Creature {
 									alpha: 0,
 								},
 								creature.animation.walk_speed,
-								Phaser.Easing.Linear.None,
+								Easing.Linear.None,
 							)
 							.start();
 					}
@@ -1149,6 +1150,11 @@ export class Creature {
 				return;
 			}
 			faceto = faceto.size < 2 ? faceto.hexagons[0] : faceto.hexagons[1];
+		}
+
+		if (!faceto) {
+			this.facePlayerDefault();
+			return;
 		}
 
 		if (faceto.x == facefrom.x && faceto.y == facefrom.y) {
@@ -2062,7 +2068,8 @@ export class Creature {
 			!remote &&
 			game.multiplayer &&
 			game.lobby &&
-			game.activeCreature?.player?.controller !== 'bot' &&
+			game.activeCreature &&
+			game.activeCreature.player?.controller !== 'bot' &&
 			game.lobby.isMyTurn()
 		) {
 			game.lobby.sendAction({
@@ -2190,7 +2197,7 @@ export class Creature {
 		} // End turn if current active creature die
 
 		// As hex occupation changes, path must be recalculated for the current creature not the dying one
-		game.activeCreature.queryMove();
+		game.activeCreature?.queryMove();
 	}
 
 	isFatigued() {
@@ -2435,7 +2442,13 @@ class CreatureSprite {
 		const spriteKey = isDarkPriest ? getDarkPriestCardboardKey(creature.player) : creature.name;
 		const sprite = group.create(0, 0, spriteKey);
 		sprite.anchor.setTo(0.5, 1);
-		// Placing sprite
+		// Placing sprite.
+		// The hex artwork is *not* concentric with its hit area: the base `hex`
+		// texture is drawn with its top-left on the hit point (see
+		// Hex#pinTopLeft), so the visible centre of a hex sits half a
+		// hex-width east of `displayPos.x`. The creature group, by contrast, is
+		// placed on `displayPos.x`, hence the half-texture term below — it
+		// re-centres the unit on the hex *artwork*, it is not a double count.
 		sprite.x =
 			(!player.flipped ? originX : HEX_WIDTH_PX * size - sprite.texture.width - originX) +
 			sprite.texture.width / 2;
@@ -2452,15 +2465,30 @@ class CreatureSprite {
 
 		const healthIndicatorGroup = gameEngine.add.group(group, 'creatureHealthGrp_' + id);
 
+		const healthIndicatorX = player.flipped ? 19 : 19 + HEX_WIDTH_PX * (size - 1);
+		const healthIndicatorY = 49;
 		const healthIndicatorSprite = healthIndicatorGroup.create(
-			player.flipped ? 19 : 19 + HEX_WIDTH_PX * (size - 1),
-			49,
+			healthIndicatorX,
+			healthIndicatorY,
 			'p' + team + '_health',
 		);
+		// Phaser 4 sprites default to origin (0.5, 0.5) — centred on the
+		// coordinates — but the indicator positions below were tuned for
+		// Phaser 2's top-left (0, 0) default. Pin the sprite to top-left so
+		// the health/plasma text lands in the centre of the pill.
+		//
+		// Setting the anchor alone is not enough: Phaser 4 keeps the rendered
+		// top-left put and shifts x/y by half the texture, which would slide the
+		// pill half a pill-width (26px) west of the text centred on it. Re-apply
+		// the intended top-left. See Hex#pinTopLeft for the same fix
+		// on the hex artwork.
+		healthIndicatorSprite.anchor.setTo(0, 0);
+		healthIndicatorSprite.x = healthIndicatorX;
+		healthIndicatorSprite.y = healthIndicatorY;
 
 		const healthIndicatorText = gameEngine.add.text(
 			player.flipped ? HEX_WIDTH_PX * 0.5 : HEX_WIDTH_PX * (size - 0.5),
-			63,
+			60,
 			health as any as string,
 			{
 				font: 'bold 15pt Play',
@@ -2558,7 +2586,7 @@ class CreatureSprite {
 		target: object,
 		tweenProperties: Record<string, number>,
 		durationMS = 1000,
-		easing = Phaser.Easing.Linear.None,
+		easing = Easing.Linear.None,
 	): Promise<CreatureSprite> {
 		const tween = this._gameEngine.tween(target).to(tweenProperties, durationMS, easing);
 		const promise: Promise<CreatureSprite> = new Promise((resolve) => {
@@ -2610,6 +2638,7 @@ class CreatureSprite {
 		const originX =
 			this._frameInfo.originX +
 			(this._creature.isDarkPriest() ? getDarkPriestDisplayOffsetX(this._creature.player) : 0);
+		// See the constructor for why the half-texture term is needed.
 		this._sprite.x =
 			(dir === 1
 				? originX
@@ -2978,7 +3007,7 @@ class CreatureSprite {
 
 				this._healthIndicatorTween = this._gameEngine
 					.tween(bounceSrc)
-					.to(bounceTgt, durationMS, Phaser.Easing.Quadratic.InOut, true)
+					.to(bounceTgt, durationMS, Easing.Quadratic.InOut, true)
 					.yoyo(true)
 					.repeat(-1);
 				this._healthIndicatorTween.onUpdateCallback(() => {
@@ -3037,7 +3066,7 @@ class CreatureSprite {
 				hint.y = hint.data.baseY;
 				hint.data.tweenBounce = this._gameEngine
 					.tween(bounceSrc)
-					.to(bounceTgt, 350, Phaser.Easing.Quadratic.InOut, true)
+					.to(bounceTgt, 350, Easing.Quadratic.InOut, true)
 					.yoyo(true)
 					.repeat(-1);
 				hint.data.tweenBounce.onUpdateCallback(() => {
@@ -3066,7 +3095,7 @@ class CreatureSprite {
 
 		this._noActionHintTween = this._gameEngine
 			.tween(bounceSrc)
-			.to(bounceTgt, durationMS, Phaser.Easing.Quadratic.InOut, true)
+			.to(bounceTgt, durationMS, Easing.Quadratic.InOut, true)
 			.yoyo(true)
 			.repeat(-1);
 		this._noActionHintTween.onUpdateCallback(() => {
@@ -3092,7 +3121,7 @@ class CreatureSprite {
 	hint(text: string, hintType: CreatureHintType) {
 		const tooltipSpeed = 250;
 		const tooltipDisplaySpeed = 500;
-		const tooltipTransition = Phaser.Easing.Linear.None;
+		const tooltipTransition = Easing.Linear.None;
 		// Keep no-action hint bounce synced with the health indicator bounce feel.
 		const noActionBounceHeight = 10;
 		const noActionBounceSpeed = 350;
@@ -3111,7 +3140,7 @@ class CreatureSprite {
 
 			hintElement.data.tweenBounce = this._gameEngine
 				.tween(bounceSrc)
-				.to(bounceTgt, noActionBounceSpeed, Phaser.Easing.Quadratic.InOut, true)
+				.to(bounceTgt, noActionBounceSpeed, Easing.Quadratic.InOut, true)
 				.yoyo(true)
 				.repeat(-1);
 			hintElement.data.tweenBounce.onUpdateCallback(() => {
@@ -3176,7 +3205,7 @@ class CreatureSprite {
 					}
 
 					existingSkipHints.push(hint);
-					if (hint instanceof Phaser.Text && hint.text === 'Skip turn') {
+					if (hint.type === 'Text' && hint.text === 'Skip turn') {
 						hasSkipTurnLabel = true;
 					}
 				},
@@ -3236,9 +3265,11 @@ class CreatureSprite {
 					}
 					hint.alpha = 1;
 
-					if (hint instanceof Phaser.Text) {
+					// Phaser 4 replaced `instanceof Phaser.Text` with the native
+					// game object `type`, which the engine handle forwards.
+					if (hint.type === 'Text') {
 						hint.data.hintType = 'no_action';
-					} else if ((hint as Phaser.Sprite).key === 'skip') {
+					} else if (hint.key === 'skip') {
 						hint.data.hintType = 'no_action_icon';
 					} else {
 						hint.data.hintType = 'no_action_bg';
@@ -3514,7 +3545,7 @@ class CreatureSprite {
 
 	fadeOutNoActionHints() {
 		const tooltipSpeed = 250;
-		const tooltipTransition = Phaser.Easing.Linear.None;
+		const tooltipTransition = Easing.Linear.None;
 		const noActionHints = this._noActionHintElements.filter((hint) => hint.exists);
 		this._noActionHintElements = [];
 
@@ -3583,7 +3614,7 @@ class CreatureSprite {
 	}
 
 	clearHints(hintTypes: CreatureHintType[] = ['confirm', 'no_action']) {
-		const tooltipTransition = Phaser.Easing.Linear.None;
+		const tooltipTransition = Easing.Linear.None;
 		if (hintTypes.includes('no_action')) {
 			this._noActionHintElements = [];
 			this.destroyNoActionHintGroup();

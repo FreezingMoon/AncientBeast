@@ -16,7 +16,10 @@ export { generatedSoundPaths as soundPaths };
 export function use(phaser: Phaser.Game): string[] {
 	// In Phaser 4, the loader is on the active scene
 	const sceneManager = phaser.scene as any;
-	const load = phaser.load || sceneManager?.load || sceneManager?.scenes?.[0]?.load;
+	const load =
+		(phaser as { load?: Phaser.Loader.LoaderPlugin }).load ||
+		sceneManager?.load ||
+		sceneManager?.scenes?.[0]?.load;
 	if (!load) {
 		console.warn('[assets.ts] Phaser loader not ready');
 		return [];

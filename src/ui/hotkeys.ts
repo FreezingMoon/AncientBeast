@@ -1,5 +1,4 @@
 import { UI } from './interface';
-import { Fullscreen } from './fullscreen';
 
 export class Hotkeys {
 	ui: UI;
@@ -286,19 +285,17 @@ export class Hotkeys {
 		}
 	}
 
+	pressF11(event: KeyboardEvent) {
+		event.preventDefault();
+		this.ui.fullscreen.toggle();
+	}
+
 	pressSpace() {
 		if (this.ui.dashopen) {
 			this.ui.materializeButton.triggerClick();
 		} else {
 			this.ui.game.grid.confirmHex();
 		}
-	}
-
-	pressF11(event) {
-		event.preventDefault();
-		const fullscreen = new Fullscreen(document.getElementById('fullscreen'));
-
-		fullscreen.toggle();
 	}
 }
 export function getHotKeys(hk) {
@@ -421,6 +418,7 @@ export function getHotKeys(hk) {
 		},
 		F11: {
 			onkeydown(event) {
+				event.preventDefault();
 				hk.pressF11(event);
 			},
 		},

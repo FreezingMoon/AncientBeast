@@ -1,3 +1,6 @@
+import { BlendModes } from 'phaser';
+import type { SpriteHandle, GroupHandle, BitmapDataHandle } from './engine/types';
+import { Easing } from './utility/easing';
 import * as arrayUtils from './utility/arrayUtils';
 import { extractTextureFrameInfo, createBitmapDataFromTexture } from './utility/bitmapUtils';
 import { getEffectShader, advanceShaderTime, type ShaderUniformMap } from './shader';
@@ -47,13 +50,13 @@ type InfernalCardboardEffectState = {
 	heatUniforms: ShaderUniformMap;
 	hazeReady: boolean;
 	heatReady: boolean;
-	sprite: Phaser.Sprite;
-	group: Phaser.Group;
-	hazeSprite?: Phaser.Sprite;
-	hazeBmd?: Phaser.BitmapData;
+	sprite: SpriteHandle;
+	group: GroupHandle;
+	hazeSprite?: SpriteHandle;
+	hazeBmd?: BitmapDataHandle;
 	hazeFrame?: { x: number; y: number; width: number; height: number };
 	hazeSource?: CanvasImageSource;
-	heatBmd?: Phaser.BitmapData;
+	heatBmd?: BitmapDataHandle;
 	heatFrame?: { x: number; y: number; width: number; height: number };
 	heatSource?: CanvasImageSource;
 	heatLayerSprite?: any;
@@ -80,15 +83,15 @@ export class Animations {
 		return `${creature.team}:${creature.id}`;
 	}
 
-	private _getLiveInfernalCardboardTarget(creature: Creature, fallbackSprite?: Phaser.Sprite) {
+	private _getLiveInfernalCardboardTarget(creature: Creature, fallbackSprite?: SpriteHandle) {
 		const sprite = creature.creatureSprite?.sprite ?? fallbackSprite;
-		const group = (sprite?.parent as Phaser.Group | undefined) ?? creature.creatureSprite?.grp;
+		const group = (sprite?.parent as GroupHandle | undefined) ?? creature.creatureSprite?.grp;
 		return { sprite, group };
 	}
 
 	private _retryInfernalCardboardBitmaps(
 		state: InfernalCardboardEffectState,
-		sprite: Phaser.Sprite,
+		sprite: SpriteHandle,
 		dir: number,
 	) {
 		const texture = sprite.texture as unknown as ShatterTexture & {
@@ -482,7 +485,7 @@ export class Animations {
 	}
 
 	startBonfireSpringTrapAnimation(
-		display: Phaser.Sprite,
+		display: SpriteHandle,
 		trapGroup: any,
 		idleTweens: any[],
 		overlaySprites: any[],
@@ -501,56 +504,36 @@ export class Animations {
 		const rand = (n: number) => Math.random() * n;
 		const randInt = (n: number) => Math.floor(rand(n));
 
-		const baseGlow = trapGroup.create(bx, by, 'trap_bonfire-spring') as Phaser.Sprite;
+		const baseGlow = trapGroup.create(bx, by, 'trap_bonfire-spring') as SpriteHandle;
 		baseGlow.anchor.setTo(0.5, 1);
 		baseGlow.alpha = 0.4;
 		baseGlow.scale.setTo(1.08, 0.72);
 		idleTweens.push(
-			this._yoyo(
-				baseGlow.scale,
-				{ x: 1.14, y: 0.8 },
-				180 + randInt(120),
-				Phaser.Easing.Quadratic.InOut,
-			),
-			this._yoyo(baseGlow, { alpha: 0.34 }, 180 + randInt(120), Phaser.Easing.Linear.None),
+			this._yoyo(baseGlow.scale, { x: 1.14, y: 0.8 }, 180 + randInt(120), Easing.Quadratic.InOut),
+			this._yoyo(baseGlow, { alpha: 0.34 }, 180 + randInt(120), Easing.Linear.None),
 		);
 		overlaySprites.push(baseGlow);
 
-		const core = trapGroup.create(bx, by - 6, 'trap_bonfire-spring') as Phaser.Sprite;
+		const core = trapGroup.create(bx, by - 6, 'trap_bonfire-spring') as SpriteHandle;
 		core.anchor.setTo(0.5, 1);
 		core.alpha = 0.58;
 		core.scale.setTo(0.76, 0.98);
 		idleTweens.push(
-			this._yoyo(
-				core.scale,
-				{ x: 0.81, y: 1.1 },
-				220 + randInt(120),
-				Phaser.Easing.Quadratic.InOut,
-			),
-			this._yoyo(core, { alpha: 0.5 }, 220 + randInt(120), Phaser.Easing.Linear.None),
+			this._yoyo(core.scale, { x: 0.81, y: 1.1 }, 220 + randInt(120), Easing.Quadratic.InOut),
+			this._yoyo(core, { alpha: 0.5 }, 220 + randInt(120), Easing.Linear.None),
 		);
 		overlaySprites.push(core);
 
-		const bridge = trapGroup.create(bx, by - 10, 'trap_bonfire-spring') as Phaser.Sprite;
+		const bridge = trapGroup.create(bx, by - 10, 'trap_bonfire-spring') as SpriteHandle;
 		bridge.anchor.setTo(0.5, 1);
 		bridge.alpha = 0.34;
 		bridge.scale.setTo(0.56, 1.14);
 		const bridgeDrift = 0.8 + rand(0.8);
 		bridge.x = bx - bridgeDrift;
 		idleTweens.push(
-			this._yoyo(
-				bridge.scale,
-				{ x: 0.58, y: 1.2 },
-				230 + randInt(120),
-				Phaser.Easing.Quadratic.InOut,
-			),
-			this._yoyo(bridge, { alpha: 0.32 }, 230 + randInt(120), Phaser.Easing.Linear.None),
-			this._yoyo(
-				bridge,
-				{ x: bx + bridgeDrift },
-				240 + randInt(120),
-				Phaser.Easing.Sinusoidal.InOut,
-			),
+			this._yoyo(bridge.scale, { x: 0.58, y: 1.2 }, 230 + randInt(120), Easing.Quadratic.InOut),
+			this._yoyo(bridge, { alpha: 0.32 }, 230 + randInt(120), Easing.Linear.None),
+			this._yoyo(bridge, { x: bx + bridgeDrift }, 240 + randInt(120), Easing.Sinusoidal.InOut),
 		);
 		overlaySprites.push(bridge);
 
@@ -577,7 +560,7 @@ export class Animations {
 
 		for (const c of clusters) {
 			const emberX = bx + c.dx * 0.94;
-			const emberSkirt = trapGroup.create(emberX, by + 1, 'trap_bonfire-spring') as Phaser.Sprite;
+			const emberSkirt = trapGroup.create(emberX, by + 1, 'trap_bonfire-spring') as SpriteHandle;
 			emberSkirt.anchor.setTo(0.5, 1);
 			emberSkirt.alpha = 0.32;
 			emberSkirt.scale.setTo(1.02, 0.44 + c.bodyScaleY * 0.08);
@@ -586,9 +569,9 @@ export class Animations {
 					emberSkirt.scale,
 					{ x: emberSkirt.scale.x * 1.12, y: emberSkirt.scale.y * 1.08 },
 					260 + randInt(110),
-					Phaser.Easing.Quadratic.InOut,
+					Easing.Quadratic.InOut,
 				),
-				this._yoyo(emberSkirt, { alpha: 0.26 }, 220 + randInt(100), Phaser.Easing.Linear.None),
+				this._yoyo(emberSkirt, { alpha: 0.26 }, 220 + randInt(100), Easing.Linear.None),
 			);
 			overlaySprites.push(emberSkirt);
 		}
@@ -598,7 +581,7 @@ export class Animations {
 				const cx = bx + c.dx * row.dxScale;
 				const isFloorRow = row.dy >= -5;
 
-				const depthBody = trapGroup.create(cx, by + row.dy, 'trap_bonfire-spring') as Phaser.Sprite;
+				const depthBody = trapGroup.create(cx, by + row.dy, 'trap_bonfire-spring') as SpriteHandle;
 				depthBody.anchor.setTo(0.5, 1);
 				depthBody.alpha = 0.62 * row.alphaMul;
 				depthBody.scale.setTo(
@@ -612,19 +595,19 @@ export class Animations {
 						depthBody.scale,
 						{ y: c.bodyScaleY * row.scaleMul * 1.2 },
 						340 + randInt(110),
-						Phaser.Easing.Quadratic.InOut,
+						Easing.Quadratic.InOut,
 					),
 					this._yoyo(
 						depthBody,
 						{ alpha: depthBody.alpha * 0.74 },
 						300 + randInt(100),
-						Phaser.Easing.Linear.None,
+						Easing.Linear.None,
 					),
 					this._yoyo(
 						depthBody,
 						{ rotation: depthSway },
 						760 + randInt(280),
-						Phaser.Easing.Sinusoidal.InOut,
+						Easing.Sinusoidal.InOut,
 					),
 				);
 				overlaySprites.push(depthBody);
@@ -633,7 +616,7 @@ export class Animations {
 					cx,
 					by + row.dy - 4,
 					'trap_bonfire-spring',
-				) as Phaser.Sprite;
+				) as SpriteHandle;
 				depthTongue.anchor.setTo(0.5, 1);
 				depthTongue.alpha = 0.34 * row.alphaMul;
 				depthTongue.scale.setTo(
@@ -650,19 +633,19 @@ export class Animations {
 							x: c.tongueScaleX * 0.58 * row.scaleMul,
 						},
 						260 + randInt(100),
-						Phaser.Easing.Quadratic.InOut,
+						Easing.Quadratic.InOut,
 					),
 					this._yoyo(
 						depthTongue,
 						{ alpha: depthTongue.alpha * 0.76 },
 						220 + randInt(100),
-						Phaser.Easing.Linear.None,
+						Easing.Linear.None,
 					),
 					this._yoyo(
 						depthTongue,
 						{ rotation: depthTongueDrift },
 						680 + randInt(260),
-						Phaser.Easing.Sinusoidal.InOut,
+						Easing.Sinusoidal.InOut,
 					),
 				);
 				overlaySprites.push(depthTongue);
@@ -671,7 +654,7 @@ export class Animations {
 
 		for (const c of clusters) {
 			const cx = bx + c.dx;
-			const body = trapGroup.create(cx, by - 4, 'trap_bonfire-spring') as Phaser.Sprite;
+			const body = trapGroup.create(cx, by - 4, 'trap_bonfire-spring') as SpriteHandle;
 			body.anchor.setTo(0.5, 1);
 			body.alpha = 0.72;
 			body.scale.setTo(0.78, c.bodyScaleY);
@@ -682,19 +665,14 @@ export class Animations {
 					body.scale,
 					{ y: c.bodyScaleY * 1.18 },
 					380 + randInt(120),
-					Phaser.Easing.Quadratic.InOut,
+					Easing.Quadratic.InOut,
 				),
-				this._yoyo(body, { alpha: 0.52 }, 320 + randInt(100), Phaser.Easing.Linear.None),
-				this._yoyo(
-					body,
-					{ rotation: bodySway },
-					850 + randInt(300),
-					Phaser.Easing.Sinusoidal.InOut,
-				),
+				this._yoyo(body, { alpha: 0.52 }, 320 + randInt(100), Easing.Linear.None),
+				this._yoyo(body, { rotation: bodySway }, 850 + randInt(300), Easing.Sinusoidal.InOut),
 			);
 			overlaySprites.push(body);
 
-			const tongue = trapGroup.create(cx, by - 8, 'trap_bonfire-spring') as Phaser.Sprite;
+			const tongue = trapGroup.create(cx, by - 8, 'trap_bonfire-spring') as SpriteHandle;
 			tongue.anchor.setTo(0.5, 1);
 			tongue.alpha = 0.36;
 			tongue.scale.setTo(c.tongueScaleX, c.tongueScaleY);
@@ -705,19 +683,14 @@ export class Animations {
 					tongue.scale,
 					{ y: c.tongueScaleY * 1.32, x: c.tongueScaleX * 0.8 },
 					240 + randInt(120),
-					Phaser.Easing.Quadratic.InOut,
+					Easing.Quadratic.InOut,
 				),
-				this._yoyo(tongue, { alpha: 0.31 }, 220 + randInt(120), Phaser.Easing.Linear.None),
-				this._yoyo(
-					tongue,
-					{ rotation: tongueDrift },
-					760 + randInt(340),
-					Phaser.Easing.Sinusoidal.InOut,
-				),
+				this._yoyo(tongue, { alpha: 0.31 }, 220 + randInt(120), Easing.Linear.None),
+				this._yoyo(tongue, { rotation: tongueDrift }, 760 + randInt(340), Easing.Sinusoidal.InOut),
 			);
 			overlaySprites.push(tongue);
 
-			const tip = trapGroup.create(cx, by - 10, 'trap_bonfire-spring') as Phaser.Sprite;
+			const tip = trapGroup.create(cx, by - 10, 'trap_bonfire-spring') as SpriteHandle;
 			tip.anchor.setTo(0.5, 1);
 			tip.alpha = 0.48;
 			tip.scale.setTo(c.tongueScaleX * 0.55, c.tongueScaleY * 0.95);
@@ -730,18 +703,18 @@ export class Animations {
 					tip.scale,
 					{ y: c.tongueScaleY * 1.2, x: c.tongueScaleX * 0.46 },
 					210 + randInt(120),
-					Phaser.Easing.Quadratic.InOut,
+					Easing.Quadratic.InOut,
 				),
-				this._yoyo(tip, { alpha: 0.38 }, 180 + randInt(100), Phaser.Easing.Linear.None),
-				this._yoyo(tip, { rotation: tipSway }, 300 + randInt(140), Phaser.Easing.Sinusoidal.InOut),
-				this._yoyo(tip, { x: cx + tipDriftX }, 280 + randInt(140), Phaser.Easing.Sinusoidal.InOut),
+				this._yoyo(tip, { alpha: 0.38 }, 180 + randInt(100), Easing.Linear.None),
+				this._yoyo(tip, { rotation: tipSway }, 300 + randInt(140), Easing.Sinusoidal.InOut),
+				this._yoyo(tip, { x: cx + tipDriftX }, 280 + randInt(140), Easing.Sinusoidal.InOut),
 			);
 			overlaySprites.push(tip);
 		}
 	}
 
 	startScorchedGroundTrapAnimation(
-		display: Phaser.Sprite,
+		display: SpriteHandle,
 		trapGroup: any,
 		idleTweens: any[],
 		overlaySprites: any[],
@@ -751,36 +724,31 @@ export class Animations {
 		const by = display.y;
 		const randInt = (n: number) => Math.floor(Math.random() * n);
 
-		const innerGlow = trapGroup.create(bx, by, 'trap_scorched-ground') as Phaser.Sprite;
+		const innerGlow = trapGroup.create(bx, by, 'trap_scorched-ground') as SpriteHandle;
 		innerGlow.anchor.setTo(0.5);
 		innerGlow.alpha = 0.3;
 		innerGlow.tint = 0xffa347;
 		innerGlow.scale.setTo(1.07, 1.06);
-		innerGlow.blendMode = Phaser.blendModes.ADD;
+		innerGlow.blendMode = BlendModes.ADD;
 		idleTweens.push(
-			this._yoyo(innerGlow, { alpha: 0.43 }, 480 + randInt(200), Phaser.Easing.Linear.None),
-			this._yoyo(
-				innerGlow.scale,
-				{ x: 1.2, y: 1.17 },
-				520 + randInt(210),
-				Phaser.Easing.Quadratic.InOut,
-			),
+			this._yoyo(innerGlow, { alpha: 0.43 }, 480 + randInt(200), Easing.Linear.None),
+			this._yoyo(innerGlow.scale, { x: 1.2, y: 1.17 }, 520 + randInt(210), Easing.Quadratic.InOut),
 		);
 		overlaySprites.push(innerGlow);
 
-		const outerAura = trapGroup.create(bx, by, 'trap_scorched-ground') as Phaser.Sprite;
+		const outerAura = trapGroup.create(bx, by, 'trap_scorched-ground') as SpriteHandle;
 		outerAura.anchor.setTo(0.5);
 		outerAura.alpha = 0.19;
 		outerAura.tint = 0xff7a1f;
 		outerAura.scale.setTo(1.24, 1.22);
-		outerAura.blendMode = Phaser.blendModes.ADD;
+		outerAura.blendMode = BlendModes.ADD;
 		idleTweens.push(
-			this._yoyo(outerAura, { alpha: 0.3 }, 700 + randInt(260), Phaser.Easing.Linear.None),
+			this._yoyo(outerAura, { alpha: 0.3 }, 700 + randInt(260), Easing.Linear.None),
 			this._yoyo(
 				outerAura.scale,
 				{ x: 1.46, y: 1.38 },
 				780 + randInt(280),
-				Phaser.Easing.Sinusoidal.InOut,
+				Easing.Sinusoidal.InOut,
 			),
 		);
 		overlaySprites.push(outerAura);
@@ -1112,8 +1080,8 @@ export class Animations {
 			game.grid.clearAllXray(true);
 			Promise.resolve()
 				.then(() => fadePhaseAOriginHexes())
-				.then(() => originCurtains.tweenSprites('tower', 260, Phaser.Easing.Cubic.Out))
-				.then(() => originCurtains.tweenSprites('idle', 340, Phaser.Easing.Quadratic.InOut))
+				.then(() => originCurtains.tweenSprites('tower', 260, Easing.Cubic.Out))
+				.then(() => originCurtains.tweenSprites('idle', 340, Easing.Quadratic.InOut))
 				.then(() => {
 					restoreOriginLayer();
 					game.soundsys.playSFX('sounds/step');
@@ -1137,11 +1105,11 @@ export class Animations {
 					if (destinationTraps.length > 0) {
 						const destinationCurtains = liftBonfireCurtainFromTraps(destinationTraps);
 						return destinationCurtains
-							.tweenSprites('tower', 300, Phaser.Easing.Cubic.Out)
+							.tweenSprites('tower', 300, Easing.Cubic.Out)
 							.then(() =>
 								Promise.all([
 									creature.creatureSprite.setAlpha(1, 420),
-									destinationCurtains.tweenSprites('idle', 420, Phaser.Easing.Quadratic.InOut),
+									destinationCurtains.tweenSprites('idle', 420, Easing.Quadratic.InOut),
 								]),
 							)
 							.then(() => {
@@ -1326,7 +1294,7 @@ export class Animations {
 					y: targetPoint.y,
 				},
 				duration,
-				Phaser.Easing.Linear.None,
+				Easing.Linear.None,
 			)
 			.start();
 
@@ -1399,7 +1367,7 @@ export class Animations {
 					y: startScaleY * 0.2,
 				},
 				Math.round(speed * 0.7),
-				Phaser.Easing.Quadratic.In,
+				Easing.Quadratic.In,
 				true,
 			)
 			.start();
@@ -1432,7 +1400,7 @@ export class Animations {
 					y: startScaleY,
 				},
 				Math.round(speed * 0.7),
-				Phaser.Easing.Quadratic.Out,
+				Easing.Quadratic.Out,
 				true,
 			)
 			.start();
@@ -1518,7 +1486,7 @@ export class Animations {
 				const shardScreenX = isFlipped ? texW - sx - sw : sx;
 				const x = spriteLeft + shardScreenX + sw / 2;
 				const y = spriteTop + sy + sh / 2;
-				const shard = game.grid.creatureGroup.create(x, y, bmd as any as string);
+				const shard = game.grid.creatureGroup.create(x, y, bmd);
 				shard.anchor.setTo(0.5, 0.5);
 				shard.angle = -18 + Math.random() * 36;
 
@@ -1536,7 +1504,7 @@ export class Animations {
 						angle: shard.angle + (-90 + Math.random() * 180),
 					},
 					shardDuration,
-					Phaser.Easing.Cubic.In,
+					Easing.Cubic.In,
 					true,
 				);
 
@@ -1548,7 +1516,7 @@ export class Animations {
 								alpha: 0,
 							},
 							shardFadeDuration,
-							Phaser.Easing.Linear.None,
+							Easing.Linear.None,
 							true,
 						)
 						.onComplete.add(() => {
@@ -1584,7 +1552,7 @@ export class Animations {
 
 			const baseX = spriteLeft + texW / 2;
 			const baseY = spriteTop + texH / 2;
-			const baseSprite = game.grid.creatureGroup.create(baseX, baseY, baseBmd as any as string);
+			const baseSprite = game.grid.creatureGroup.create(baseX, baseY, baseBmd);
 			baseSprite.anchor.setTo(0.5, 0.5);
 			if (isFlipped) {
 				baseSprite.scale.x = -1;
@@ -1599,7 +1567,7 @@ export class Animations {
 						alpha: 0,
 					},
 					speed,
-					Phaser.Easing.Linear.None,
+					Easing.Linear.None,
 					true,
 					baseFadeDelay,
 				)
@@ -1616,7 +1584,7 @@ export class Animations {
 		});
 	}
 
-	initInfernalCardboardEffect(creature: Creature, spriteRef?: Phaser.Sprite) {
+	initInfernalCardboardEffect(creature: Creature, spriteRef?: SpriteHandle) {
 		if (creature.name !== 'Infernal') {
 			return;
 		}
@@ -1690,7 +1658,7 @@ export class Animations {
 		hazeSprite.scale.setTo(dir, 1);
 		hazeSprite.alpha = 0;
 		hazeSprite.tint = 0xff8f3a;
-		hazeSprite.blendMode = Phaser.blendModes.ADD;
+		hazeSprite.blendMode = BlendModes.ADD;
 		group.addAt(hazeSprite, Math.min(group.children.length - 1, spriteIndex + 1));
 		state.hazeSprite = hazeSprite;
 		state.trailSprites.push(hazeSprite);
@@ -1776,7 +1744,7 @@ export class Animations {
 		heatLayerSprite.scale.setTo(dir, 1.38);
 		heatLayerSprite.alpha = 0;
 		heatLayerSprite.tint = 0xffa15a;
-		heatLayerSprite.blendMode = Phaser.blendModes.ADD;
+		heatLayerSprite.blendMode = BlendModes.ADD;
 		// Keep expanded heat distortion behind the cardboard to prevent ghost overlays.
 		group.addAt(heatLayerSprite, Math.max(0, spriteIndex));
 		state.heatLayerSprite = heatLayerSprite;
@@ -1795,7 +1763,7 @@ export class Animations {
 				.to(
 					{ alpha: 0.86 },
 					1160 + randInt(300),
-					Phaser.Easing.Sinusoidal.InOut,
+					Easing.Sinusoidal.InOut,
 					true,
 					randInt(500),
 					-1,
@@ -1908,7 +1876,7 @@ export class Animations {
 			wisp.scale.setTo(dir * (1 + rand(0.06)), 0.96 + rand(0.1));
 			wisp.alpha = 0.26 + rand(0.12);
 			wisp.tint = 0xff9c52;
-			wisp.blendMode = Phaser.blendModes.ADD;
+			wisp.blendMode = BlendModes.ADD;
 			group.addAt(wisp, 0);
 			if (state.heatBmd) {
 				wisp.loadTexture(state.heatBmd);
@@ -1924,7 +1892,7 @@ export class Animations {
 				.to(
 					{ x: wisp.x + driftX, y: wisp.y - riseY, alpha: 0 },
 					duration,
-					Phaser.Easing.Sinusoidal.Out,
+					Easing.Sinusoidal.Out,
 					true,
 				);
 			const scaleTween = this.game.gameEngine
@@ -1932,7 +1900,7 @@ export class Animations {
 				.to(
 					{ x: dir * (1.02 + rand(0.08)), y: 1.5 + rand(0.12) },
 					duration,
-					Phaser.Easing.Sinusoidal.Out,
+					Easing.Sinusoidal.Out,
 					true,
 				);
 			moveTween.onComplete.add(() => {

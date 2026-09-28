@@ -1,3 +1,5 @@
+import type { SpriteHandle, GroupHandle, BitmapDataHandle } from './engine/types';
+import { Easing } from './utility/easing';
 import { Creature } from './creature';
 import Game from './game';
 import { Point, getPointFacade } from './utility/pointfacade';
@@ -54,7 +56,7 @@ export class Drop {
 	alterations: DropAlterations;
 	pickedUp: boolean;
 
-	display: Phaser.Sprite;
+	display: SpriteHandle;
 
 	constructor(name: string, alterations: DropAlterations, x: number, y: number, game: Game) {
 		this.id = game.dropId++;
@@ -87,7 +89,7 @@ export class Drop {
 					alpha: 1,
 				},
 				500,
-				Phaser.Easing.Linear.None,
+				Easing.Linear.None,
 			)
 			.start();
 
@@ -145,7 +147,7 @@ export class Drop {
 
 		const tween = this.game.gameEngine
 			.tween(this.display)
-			.to({ alpha: 0, y: this.display.y - 100 }, 500, Phaser.Easing.Linear.None)
+			.to({ alpha: 0, y: this.display.y - 100 }, 500, Easing.Linear.None)
 			.start();
 
 		tween.onComplete.add(() => {

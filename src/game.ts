@@ -37,6 +37,7 @@ import { setAudioMode } from './sound/soundsys';
 import BotController from './bot';
 import { locationPaths } from '../assets/index';
 import { Phaser4Engine } from './engine/Phaser4Engine';
+import { GameScene } from './engine/GameScene';
 import type { GameEngine } from './engine/types';
 
 /* eslint-disable prefer-rest-params */
@@ -154,7 +155,9 @@ export default class Game {
 	metaPowersState: MetaPowersState;
 	/** Counts abilities that called end(false,true) but haven't yet invoked queryMove(). */
 	_deferredQueryMovePending: number;
-	Phaser: any;
+	Phaser: Phaser.Game | null;
+	/** The single Phaser 4 scene that replaces Phaser 2 CE's `game.state`. */
+	private phaserScene: GameScene | null = null;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	msg: any; // type this properly
 	triggers: Record<string, RegExp>;
@@ -204,34 +207,27 @@ export default class Game {
 			this.destroyPhaser();
 		}
 		const renderer = shouldUseCanvasRenderer() ? Phaser.CANVAS : Phaser.AUTO;
-		const gameConfig: any = {
+		// The scene is handed its host explicitly instead of reaching for a
+		// global: Phaser 2 CE's `game.state` bag is gone, and so is the
+		// `sys.game.GAME_INSTANCE` back-reference that used to replace it.
+		this.phaserScene = new GameScene({
+			onSceneReady: () => this.phaserSceneCreated(),
+			onSceneUpdate: (time, delta) => this.phaserUpdate(time, delta),
+		});
+		this.Phaser = new Phaser.Game({
 			width: 1920,
 			height: 1080,
 			type: renderer,
 			parent: 'combatwrapper',
-			// Phaser 4 scene config - minimal bootstrap scene
-			scene: {
-				preload: function () {},
-				create: function () {
-					// Signal that scene is ready
-					if ((this as any).sys.game.GAME_INSTANCE) {
-						(this as any).sys.game.GAME_INSTANCE.phaserSceneCreated();
-					}
-				},
-				update: function (time: number, delta: number) {
-					// Call the Game's phaserUpdate - bound to Game instance
-					if ((this as any).sys.game.GAME_INSTANCE) {
-						(this as any).sys.game.GAME_INSTANCE.phaserUpdate();
-					}
-				},
+			scale: {
+				mode: Phaser.Scale.FIT,
+				autoCenter: Phaser.Scale.CENTER_BOTH,
 			},
-		};
-		this.Phaser = new Phaser.Game(gameConfig);
-		// Store reference to Game instance on Phaser for scene access
-		this.Phaser.GAME_INSTANCE = this;
+			scene: [this.phaserScene],
+		});
 		// Wrap the raw Phaser instance in the engine adapter so gameplay code
 		// talks to a stable GameEngine interface instead of raw Phaser APIs.
-		this._gameEngine = new Phaser4Engine(this.Phaser);
+		this._gameEngine = new Phaser4Engine(this.Phaser, this.phaserScene);
 		// Expose the existing signal channels (created in the constructor) through
 		// the adapter. We do NOT recreate them here — the BotController and other
 		// listeners registered on the original signals during construction.
@@ -250,7 +246,7 @@ export default class Game {
 			return;
 		}
 
-		// In Phaser 4, the loader is on the scene, not the game object directly
+		// In Phaser 4 the loader lives on the scene, not on the game object.
 		const load = this.getPhaserLoad(phaser);
 
 		if (phaser === this.Phaser && phaser.isBooted && load) {
@@ -264,8 +260,6 @@ export default class Game {
 			console.log('[Game] Waiting for Phaser boot:', {
 				isBooted: phaser.isBooted,
 				hasLoad: !!load,
-				scene: phaser.scene?.scenes?.length,
-				sceneLoad: phaser.scene?.scenes?.[0]?.load ? 'ready' : 'not ready',
 			});
 		}
 
@@ -278,11 +272,10 @@ export default class Game {
 		}, 50);
 	}
 
-	/** Get the Phaser loader (on the active scene in Phaser 4). */
-	private getPhaserLoad(phaser: Phaser.Game): any {
-		// phaser.scene is SceneManager in Phaser 4; access scenes array
-		const sceneManager = phaser.scene as any;
-		return phaser.load || sceneManager?.load || sceneManager?.scenes?.[0]?.load;
+	/** Get the Phaser 4 loader, which lives on the scene. */
+	private getPhaserLoad(phaser: Phaser.Game): Phaser.Loader.LoaderPlugin | null {
+		if (phaser !== this.Phaser) return null;
+		return this.phaserScene?.load ?? null;
 	}
 
 	destroyPhaser() {
@@ -311,43 +304,26 @@ export default class Game {
 			}
 
 			// Detach pending async callbacks before destroying.
-			// Phaser.Game.destroy() stops the rAF loop but leaves the Cache's
-			// `onReady` signal and the Loader's completion signals registered.
-			// If createPhaser() is called again before those async callbacks
-			// (default/missing texture decodes, asset loads) settle, they fire
-			// on the already-destroyed game, calling raf.start() -> Game.update()
-			// -> this.time.update() where `this.time` is now null. This throws
-			// "can't access property 'update', this.time is null" (phaser-split.js
-			// Game.update, line ~14835). Clearing them prevents a dead game from
-			// starting its loop or running finishLoading/loadFinish after death.
-			if (phaser.cache && phaser.cache.onReady && phaser.cache.onReady.removeAll) {
-				phaser.cache.onReady.removeAll();
-			}
-			if (phaser.load) {
-				if (phaser.load.onLoadComplete && phaser.load.onLoadComplete.removeAll) {
-					phaser.load.onLoadComplete.removeAll();
-				}
-				if (phaser.load.onFileComplete && phaser.load.onFileComplete.removeAll) {
-					phaser.load.onFileComplete.removeAll();
-				}
-			}
+			// Phaser 4 `Game.destroy()` tears the scene systems down, but any
+			// asset decode still in flight can settle afterwards and fire
+			// `finishLoading`/`loadFinish` on a dead game. Clearing the loader
+			// signals prevents a destroyed game from restarting its loop.
+			this._gameEngine?.load.onLoadComplete.removeAll();
+			this._gameEngine?.load.onFileComplete.removeAll();
 
 			// IMPORTANT: Remove the canvas element from the DOM before destroying Phaser
-			// Phaser.destroy() does NOT remove the canvas, so we'd end up duplicated canvases
+			// `Game.destroy(true)` removes the canvas itself; doing it first keeps
+			// the DOM clean even if destroy is interrupted.
 			const canvas = phaser.canvas;
 			if (canvas && canvas.parentNode) {
 				canvas.parentNode.removeChild(canvas);
 			}
 
-			// Destroy Phaser with cleanup to avoid memory leaks
-			// Parameters: clearWorld=true (remove game objects), clearCache=false
-			// Stop the rAF loop first so a pending frame can't fire Game.update()
-			// (this.time is null) on the dying instance after destroy() returns.
-			if (phaser.raf && typeof phaser.raf.stop === 'function') {
-				phaser.raf.stop();
-			}
-			phaser.destroy(true, false);
+			// Phaser 4 stops the rAF loop inside destroy(); `removeCanvas` is
+			// already handled above, `noReturn` keeps teardown synchronous.
+			phaser.destroy(false, true);
 			this.Phaser = null;
+			this.phaserScene = null;
 
 			// Reset game state (this.UI is already nulled above when its interval
 			// was cleared, kept here for clarity)
@@ -659,9 +635,8 @@ export default class Game {
 		$j('#gameSetupContainer').hide();
 		$j('#loader').removeClass('hide');
 		$j('body').css('cursor', 'wait');
-		if (this.Phaser?.stage) {
-			this.gameEngine.stage.disableVisibilityChange = true;
-		}
+		// Phaser 2 CE's `game.stage.disableVisibilityChange` had no Phaser 4
+		// counterpart; visibility is handled through the browser's own events.
 	}
 
 	loadFinish() {
@@ -684,7 +659,11 @@ export default class Game {
 		}
 	}
 
-	phaserUpdate() {
+	/** Called by {@link GameScene#update} once per Phaser frame. */
+	phaserUpdate(_time?: number, delta?: number) {
+		if (this._gameEngine instanceof Phaser4Engine && typeof delta === 'number') {
+			this._gameEngine.advanceClock(delta);
+		}
 		if (this.gameState != 'playing') {
 			return;
 		}
@@ -753,11 +732,15 @@ export default class Game {
 		engine.scale.fullScreenScaleMode = Phaser.Scale.FIT;
 		engine.scale.refresh();
 
-		if (!engine.device.desktop) {
-			engine.stage.forcePortrait = true;
-		}
-
 		const bg = engine.add.sprite(0, 0, 'background');
+		// Re-apply (0, 0) after anchoring: Phaser 4 keeps the rendered top-left
+		// and shifts x/y by half the texture, which would leave the backdrop
+		// hanging off the top-left corner of the viewport.
+		bg.anchor.setTo(0, 0);
+		bg.x = 0;
+		bg.y = 0;
+		bg.setDisplaySize(1920, 1080);
+		bg.setDepth(-1);
 
 		bg.inputEnabled = true;
 		bg.events.onInputUp.add((Sprite, Pointer) => {
@@ -936,7 +919,7 @@ export default class Game {
 			// Throttle down to 1 event every 100ms of inactivity
 			resizeGame();
 			// Refresh Phaser scale to fit the resized window
-			if (this.Phaser && this.Phaser.scale) {
+			if (this.Phaser) {
 				this.gameEngine.scale.refresh();
 			}
 			refreshPlasmaRenderScales();
@@ -1473,7 +1456,8 @@ export default class Game {
 		return (
 			this.multiplayer &&
 			!!this.lobby &&
-			this.activeCreature?.player?.controller !== 'bot' &&
+			this.activeCreature &&
+			this.activeCreature.player?.controller !== 'bot' &&
 			!this.lobby.isMyTurn()
 		);
 	}
@@ -1622,6 +1606,10 @@ export default class Game {
 
 	startTimer() {
 		clearInterval(this.timeInterval);
+
+		// The timer is restarted from async ability callbacks; the active creature
+		// can already be gone by the time one lands.
+		if (!this.activeCreature?.player) return;
 
 		const totalTime = new Date().valueOf();
 		this.activeCreature.player.startTime = new Date(totalTime - this.pauseTime);
@@ -2314,10 +2302,8 @@ export default class Game {
 	 * // ... another file
 	 * this.game.signals.ui.add((message, payload) => console.log(message, payload), this);
 	 *
-	 * @see https://photonstorm.github.io/phaser-ce/Phaser.Signal.html
-	 *
 	 * @param {array} channels List of channel names.
-	 * @returns {object} Phaser signals keyed by channel name.
+	 * @returns {object} signal channels keyed by channel name.
 	 */
 	setupSignalChannels(channels) {
 		const signals = channels.reduce((acc, curr) => {
