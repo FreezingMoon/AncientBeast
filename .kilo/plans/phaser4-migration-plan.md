@@ -371,22 +371,70 @@ Phase 6: Update Shaders  ✅ NO-OP
   timestamps. `plasma-field.ts` also uses canvas 2D, not WebGL.
 - Task 6.2: Rewrite GLSL for Phaser 4 — NOT NEEDED. No shader compilation
   happens in the current codebase.
-Phase 7: Update Test Mocks  ✅ NO-OP
-- Task 7.1–7.5: All test mocks use `jest.mock('phaser-ce')` which works
-  because `phaser-ce` is still installed alongside `phaser@4`. All 415 tests
-  pass with the current mocks. No changes needed until `phaser-ce` is removed.
+Phase 6.5: Remove Phaser 2 CE entirely  ✅ DONE
+- `phaser-ce` dropped from `package.json` and `package-lock.json`.
+- `jest.mock('phaser-ce', …)` removed from 9 suites. They were dead weight:
+  source stopped importing `phaser-ce` once the adapters landed, and the mocks
+  only kept the dependency installed.
+- `expose-loader` removed from `webpack.config.js` and `package.json`. Nothing
+  reads `window.Phaser` any more; Phaser 4 is only imported as a module. The
+  production bundle no longer assigns the global.
+- Fixed a Jest module-resolution trap: `jest.mock('phaser', factory, {virtual:
+  true})` and `jest.mock('phaser', factory)` register under *different* module
+  ids. Mixing the two forms across suites made the real Phaser 4 bundle load in
+  jsdom (`Cannot set properties of null (setting 'fillStyle')`) depending on
+  which suites ran together. `phaser` is a real installed package, so all
+  mocks are now non-virtual.
 
-Phase 8: Final Validation
+Phase 7: Update Test Mocks  ✅ DONE
+- Task 7.1: The original assumption that `jest.mock('phaser-ce')` covered the
+  Phaser namespace was wrong. Source now imports Phaser 4 values directly
+  (`Scene`, `Math.Vector2`, `GameObjects.Polygon`, `BlendModes`, `Scale`), so
+  every suite that loads those modules must mock `phaser` itself, not just
+  `phaser-ce`. The real Phaser 4 bundle boots a renderer at import time, which
+  jsdom cannot satisfy, so the module must always be mocked.
+- Task 7.2: `GameScene` now extends the named `Scene` export rather than
+  `Phaser.Scene`; devvit, game, infernal, headless, and animations suites were
+  updated with `Scene`/`Math`/`GameObjects` mocks.
+- Task 7.3: `whenPhaserBooted` reads the loader from the scene in Phaser 4
+  (`game.load` no longer exists); the boot-timing test and `getPhaserLoad` were
+  updated to match.
+- Task 7.4: The simulation harness mocks `../../ui/interface` instead of
+  scaffolding the full game DOM, and its Phaser mock gained `cache`, `time`,
+  `image`, group/sprite `depth` and `setDepth`, `scale.set`, the Phaser.Graphics
+  draw methods, and the Infernal cardboard effect hooks on `MockAnimations`.
+- Task 7.5: `types/phaser.d.ts` (439 lines of Phaser 2 ambient declarations) was
+  deleted along with its `tsconfig.json` entry. Real Phaser 4 module types are
+  now used directly; the only structural shim left is `DrawableTexture` in
+  `src/utility/bitmapUtils.ts` for the Phaser 4 render-texture surface.
+
+Phase 8: Final Validation  ✅ MOSTLY DONE
 Task 8.1: Build
-npm run build:dev — webpack development build
-npm run build — production build
+npx webpack --mode development — ✅ compiled successfully
 Task 8.2: Lint
-npm run lint
+npx eslint "src/**/*.{js,ts}" — ✅ 0 errors (182 pre-existing `any` warnings)
 Task 8.3: Unit tests
-npm test (includes lint + build + jest)
-Task 8.4: Simulation tests
-SIM_BASELINE=3 SIM_VARIANT=2 bun run simulate — quick smoke test
-Full run: bun run simulate — full simulation suite
+npx jest --testPathIgnorePatterns="/node_modules/" "/src/__tests__/simulation/"
+— ✅ 36/36 suites, 415/415 tests
+Task 8.4: Simulation tests  ✅ DONE
+- Fixed `jest.simulation.config.js`: it mixed ESM `import` with CJS
+  `module.exports`, and `package.json` has no `"type": "module"`, so Node
+  loaded it as ESM and threw on `module.exports`.
+- Replaced `Phaser2Engine` + the hand-rolled 300-line Phaser 2 mock in
+  `botgeria.ts` with `src/engine/NullEngine.ts`, a headless implementation of
+  the neutral `GameEngine` contract. Same for `src/devvit/headlessGame.ts`.
+  `src/engine/Phaser2Engine.ts` is deleted.
+- NullEngine is inert except where gameplay depends on it: tweens apply target
+  props synchronously and resolve `onComplete` on a microtask, and
+  `bitmapData()` returns a real 2D context. Engine timers are deliberately
+  inert — Phaser 2 CE's `game.time` was never the simulation's clock; all timed
+  effects go through host `setTimeout`/`setInterval` under jest fake timers.
+- Fixed a latent null-`activeCreature` sweep across async ability callbacks
+  (47 sites in 16 ability files) plus `Game.startTimer` and `Creature.faceHex`.
+- `bun run simulate` now passes. Sample run (n=20 baseline, n=10 per variant):
+  decisiveness 105.5, avgTurns 23.1, timeout 65%.
+- Added a `SIM_BASELINE=3 SIM_VARIANT=2 npm run simulate` step to CI so the
+  headless engine is smoke-tested on every push.
 Task 8.5: Manual browser testing
 Load http://localhost:8080
 Verify game loads, assets load, sprites render
@@ -419,5 +467,8 @@ After Phase 8: Production build + full simulation suite green
 Open Questions
 Phaser 4 version: Should we pin to a specific 4.x release (e.g., ^4.0.0) or use latest?
 "Phaser 4 has LLM": Confirm if this refers to a specific Phaser 4 feature (e.g., LLM-documented APIs, shader generation tools) or if it's just noting modern dev ergonomics.
-Phaser CE removal: Are pixi and p2 used directly anywhere outside Phaser CE, or only through Phaser CE?
+Phaser CE removal: RESOLVED — `phaser-ce` is removed. `pixi` and `p2` were only
+ever Phaser CE transitive deps and are not in `package.json`; the
+`jest.mock('pixi'/'p2', …, {virtual: true})` lines left in test suites are now
+purely defensive no-ops and can be dropped in a follow-up.
 Shader audit: Does src/shader.ts shaders actually connect to the rendering pipeline, or are they defined but unused?
