@@ -1,3 +1,5 @@
+import { Easing } from './easing';
+import type { SpriteHandle } from '../engine/types';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import $j from 'jquery';
 import { Direction, Hex } from './hex';
@@ -2104,6 +2106,8 @@ export class HexGrid {
 	private _rowDepthBaseIndex(y: number) {
 		// Leave room within each row for shared layer bands instead of forcing
 		// every renderable to compete in a single linear ordering.
+		// Rows further down the board (high y, nearer the viewer in the oblique
+		// perspective) get a higher depth and render in front of rows above them.
 		return y * ROW_DEPTH_STRIDE;
 	}
 
@@ -2111,12 +2115,16 @@ export class HexGrid {
 		return this._rowDepthBaseIndex(y) + DEPTH_BAND[band] + slot;
 	}
 
-	assignSpriteDepthBand(sprite: Phaser.Sprite | undefined, y: number, band: DepthBand, slot = 0) {
+	/**
+	 * Phaser 4 owns render order through the native `depth` property; `z` is
+	 * reserved for the height of a light in the lighting pipeline.
+	 */
+	assignSpriteDepthBand(sprite: SpriteHandle | undefined, y: number, band: DepthBand, slot = 0) {
 		if (!sprite) {
 			return;
 		}
 
-		sprite.z = this.getDepthAtBand(y, band, slot);
+		sprite.setDepth(this.getDepthAtBand(y, band, slot));
 	}
 
 	orderCreatureZ() {
@@ -2134,7 +2142,7 @@ export class HexGrid {
 
 			for (let i = 0, len = creatures.length; i < len; i++) {
 				if (creatures[i] && creatures[i].y == y) {
-					creatures[i].grp.z = this.getDepthAtBand(y, 'UNITS', unitIndex++);
+					creatures[i].grp.setDepth(this.getDepthAtBand(y, 'UNITS', unitIndex++));
 				}
 			}
 
@@ -2178,12 +2186,12 @@ export class HexGrid {
 							(occupyingCreature as Creature | undefined) ??
 							((trap.typeOver && trap.ownerCreature instanceof Creature && trap.ownerCreature) ||
 								undefined);
-						if (zReferenceCreature?.grp && typeof zReferenceCreature.grp.z === 'number') {
+						if (zReferenceCreature?.grp && typeof zReferenceCreature.grp.depth === 'number') {
 							// Keep feet-volumetric tightly coupled to the occupied creature instead of
 							// jumping to a global volumetric slot that can overlap unrelated units.
-							sprite.z = zReferenceCreature.grp.z + (0.5 + volumetricTrapIndex++ * 0.01);
+							sprite.setDepth(zReferenceCreature.grp.depth + (0.5 + volumetricTrapIndex++ * 0.01));
 						} else {
-							sprite.z = this.getDepthAtBand(y, 'TRAP_VOLUMETRIC', volumetricTrapIndex++);
+							sprite.setDepth(this.getDepthAtBand(y, 'TRAP_VOLUMETRIC', volumetricTrapIndex++));
 						}
 						continue;
 					}
@@ -2230,10 +2238,10 @@ export class HexGrid {
 			}
 		}
 
-		this.trapGroup.sort('z', -1);
-		this.creatureGroup.sort('z', -1);
-		this.dropGroup.sort('z', -1);
-		this.trapOverGroup.sort('z', -1);
+		this.trapGroup.sort('depth', -1);
+		this.creatureGroup.sort('depth', -1);
+		this.dropGroup.sort('depth', -1);
+		this.trapOverGroup.sort('depth', -1);
 	}
 
 	/**
@@ -2405,7 +2413,8 @@ export class HexGrid {
 
 		const preview = secondary ? this.secondary_overlay : this.materialize_overlay;
 
-		// Placing sprite
+		// Placing sprite. Mirrors CreatureSprite's placement so the ghost lines
+		// up with the unit it is previewing.
 		preview.x =
 			hex.displayPos.x +
 			(!player.flipped
@@ -2428,7 +2437,7 @@ export class HexGrid {
 					alpha: 0.15,
 				},
 				777,
-				Phaser.Easing.Linear.None,
+				Easing.Linear.None,
 			)
 			.yoyo(true)
 			.repeat(-1)
@@ -2498,7 +2507,7 @@ export class HexGrid {
 						alpha: 0,
 					},
 					durationMs,
-					Phaser.Easing.Linear.None,
+					Easing.Linear.None,
 				)
 				.start();
 		}

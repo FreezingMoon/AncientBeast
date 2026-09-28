@@ -1,7 +1,7 @@
 // eslint-disable-next-line no-undef
 /* global JQuery */
 import $j from 'jquery';
-import { Easing } from 'phaser';
+import { Easing } from '../utility/easing';
 import * as time from '../utility/time';
 import * as emoji from 'node-emoji';
 import { Hotkeys, getHotKeys } from './hotkeys';

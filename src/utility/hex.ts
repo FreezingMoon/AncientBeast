@@ -4,9 +4,12 @@ import { Drop } from '../drop';
 import { Creature } from '../creature';
 import { HexGrid } from './hexgrid';
 import Game from '../game';
-import { Vector2 } from 'phaser';
-import { Polygon } from 'phaser';
+import { Math as PhaserMath } from 'phaser';
+import { Geom } from 'phaser';
+
+const { Vector2 } = PhaserMath;
 import { TweenHandle, SpriteHandle } from '../engine/types';
+import { ALIGN_CENTER } from '../engine/Phaser4Handles';
 import { DEBUG } from '../debug';
 import { getPointFacade } from './pointfacade';
 import * as Const from './const';
@@ -24,6 +27,9 @@ export enum Direction {
 }
 
 const shrinkScale = 0.5;
+
+// Legacy leftward shift retained from the old version; see the constructor.
+const HEX_DISPLAY_X_HACK = 10;
 
 /**
  * Object containing hex information and positions.
@@ -159,14 +165,18 @@ export class Hex {
 			// NOTE: Set up hex hitBox and display/overlay elements.
 
 			// NOTE: (Hack) 10px is the offset from the old version.
-			const x = this.displayPos.x - 10;
-			const y = this.displayPos.y;
+			// Top-left of the hex artwork in grid space. The grid group carries a
+			// 0.75 vertical scale, so this uses the pre-rescale y
+			// (`originalDisplayPos`), not the squashed `displayPos`.
+			const x = this.originalDisplayPos.x - HEX_DISPLAY_X_HACK;
+			const y = this.originalDisplayPos.y;
 
 			this.hitBox = grid.hexesGroup.create(x, y, 'hex');
 			this.hitBox.alpha = 0;
 			this.hitBox.inputEnabled = true;
 			this.hitBox.ignoreChildInput = true;
 			this.hitBox.input.useHandCursor = false;
+			this.pinTopLeft(this.hitBox, x, y);
 
 			{
 				// NOTE: Set up hexagonal hitArea for hitBox
@@ -183,11 +193,14 @@ export class Hex {
 							Math.sin(angle) * radius_h + offset_y,
 						),
 				);
-				this.hitBox.hitArea = new Polygon(points);
+				this.hitBox.hitArea = new Geom.Polygon(points);
 			}
 
 			this.display = grid.displayHexesGroup.create(x, y, 'hex');
 			this.display.alpha = 0;
+			// Pin the artwork now rather than waiting for the first updateStyle(),
+			// otherwise the hex renders one frame high while centred on its origin.
+			this.pinTopLeft(this.display, x, y);
 
 			this.overlay = grid.overlayHexesGroup.create(x, y, 'hex');
 			this.overlay.alpha = 0;
@@ -667,6 +680,44 @@ export class Hex {
 		}
 	}
 
+	/**
+	 * Pin a hex sprite's top-left to the hex's draw point.
+	 *
+	 * These coordinates were authored against Phaser 2, where the hit area and
+	 * the hex artwork share the same top-left and `anchor.setTo(0, 0)` left
+	 * `x`/`y` alone, simply reinterpreting them as that top-left. Phaser 4
+	 * differs on both counts:
+	 *
+	 * 1. `anchor.setTo(0, 0)` keeps the sprite's *rendered* top-left fixed and
+	 *    shifts `x`/`y` by half the texture (55x62px for the base `hex`
+	 *    texture), sliding the artwork up and to the left.
+	 * 2. Sprites default to a centred origin here, where Phaser 2 placed these
+	 *    top-left.
+	 *
+	 * Getting the hit area wrong also misplaced the overlay, which is positioned
+	 * with `alignIn(this.hitBox, ...)` — that is the targeting cursor that spins
+	 * while choosing a target. Both therefore have to be pinned, and to the same
+	 * point, or the cursor and the hex it sits on drift apart.
+	 *
+	 * The `hitArea` polygon is unaffected: it is expressed in the sprite's own
+	 * frame space, so it stays centred on the frame whichever origin is set.
+	 */
+	private pinTopLeft(sprite: SpriteHandle, x: number, y: number) {
+		sprite.anchor.setTo(0, 0);
+		sprite.x = x;
+		sprite.y = y;
+	}
+
+	/**
+	 * The hex's draw point, shared by the hit area and the artwork.
+	 */
+	private get drawPoint() {
+		return {
+			x: this.originalDisplayPos.x - HEX_DISPLAY_X_HACK,
+			y: this.originalDisplayPos.y,
+		};
+	}
+
 	updateStyle() {
 		const loadTextureIfChanged = (sprite: SpriteHandle, key: string) => {
 			if (sprite.key !== key) {
@@ -699,7 +750,7 @@ export class Hex {
 			this.grid.displayHexesGroup.bringToTop(this.display);
 		} else if (this.displayClasses.match(/\badj\b/)) {
 			loadTextureIfChanged(this.display, 'hex_path');
-			this.display.anchor.setTo(0, 0);
+			this.pinTopLeft(this.display, this.drawPoint.x, this.drawPoint.y);
 		} else if (this.displayClasses.match(/dashed/)) {
 			// Check if this is a dashed hex with a creature (blocked target)
 			if (this.creature instanceof Creature) {
@@ -714,10 +765,10 @@ export class Hex {
 			}
 		} else if (this.displayClasses.match(/deadzone/)) {
 			loadTextureIfChanged(this.display, 'hex_deadzone');
-			this.display.anchor.setTo(0, 0);
+			this.pinTopLeft(this.display, this.drawPoint.x, this.drawPoint.y);
 		} else {
 			loadTextureIfChanged(this.display, 'hex');
-			this.display.anchor.setTo(0, 0);
+			this.pinTopLeft(this.display, this.drawPoint.x, this.drawPoint.y);
 		}
 
 		const computedDisplayAlpha = targetAlpha ? 1 : 0;
@@ -729,18 +780,18 @@ export class Hex {
 
 		if (this.displayClasses.match(/\babilityRange\b/)) {
 			// Scale is managed externally by tweens; only ensure positioning.
-			this.display.alignIn(this.hitBox, 4);
-			this.overlay.alignIn(this.hitBox, 4);
+			this.display.alignIn(this.hitBox, ALIGN_CENTER);
+			this.overlay.alignIn(this.hitBox, ALIGN_CENTER);
 		} else if (this.displayClasses.match(/shrunken/)) {
 			this.display.scale.setTo(shrinkScale);
 			this.overlay.scale.setTo(shrinkScale);
-			this.display.alignIn(this.hitBox, 4);
-			this.overlay.alignIn(this.hitBox, 4);
+			this.display.alignIn(this.hitBox, ALIGN_CENTER);
+			this.overlay.alignIn(this.hitBox, ALIGN_CENTER);
 		} else {
 			this.display.scale.setTo(1);
 			this.overlay.scale.setTo(1);
-			this.display.alignIn(this.hitBox, 4);
-			this.overlay.alignIn(this.hitBox, 4);
+			this.pinTopLeft(this.display, this.drawPoint.x, this.drawPoint.y);
+			this.overlay.alignIn(this.hitBox, ALIGN_CENTER);
 		}
 
 		// Display Coord
