@@ -127,7 +127,7 @@ export default (G: Game) => {
 				if (result.damages && result.damages.total > 0) {
 					this.creature.remainingMove = this.creature.stats.movement;
 					G.log('%CreatureName' + this.creature.id + "%'s movement recharged");
-					G.activeCreature.queryMove();
+					G.activeCreature?.queryMove();
 				}
 				ability.end();
 			},

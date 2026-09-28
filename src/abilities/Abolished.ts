@@ -321,7 +321,7 @@ export default (G: Game) => {
 					teleportEffect: 'abolishedBonfire',
 					createTeleportDestinationTraps: () => createBonfireSpringTraps(crea),
 					callback: function () {
-						G.activeCreature.queryMove();
+						G.activeCreature?.queryMove();
 					},
 				});
 			},

@@ -326,7 +326,7 @@ export default (G) => {
 							clearInterval(interval);
 							G.UI.selectAbility(-1);
 							if (G.activeCreature?.player?.controller !== 'bot') {
-								G.activeCreature.queryMove();
+								G.activeCreature?.queryMove();
 							}
 						}
 					}, 100);

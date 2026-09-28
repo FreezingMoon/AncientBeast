@@ -252,7 +252,7 @@ export default (G: Game) => {
 
 				G.grid.queryChoice({
 					fnOnCancel: function () {
-						G.activeCreature.queryMove();
+						G.activeCreature?.queryMove();
 					},
 					fnOnConfirm: function () {
 						// eslint-disable-next-line
@@ -268,7 +268,7 @@ export default (G: Game) => {
 							if (hex.creature instanceof Creature) {
 								hex.displayVisualState('creature selected player' + hex.creature.team);
 							} else {
-								hex.overlayVisualState('reachable h_player' + G.activeCreature.team);
+								hex.overlayVisualState('reachable h_player' + ability.creature.team);
 							}
 						});
 					},
@@ -364,7 +364,7 @@ export default (G: Game) => {
 						});
 					},
 					fnOnCancel: function () {
-						G.activeCreature.queryMove();
+						G.activeCreature?.queryMove();
 					},
 					flipped: creature.player.flipped,
 					id: creature.id,
@@ -386,7 +386,7 @@ export default (G: Game) => {
 				);
 
 				if (!target) {
-					G.activeCreature.queryMove();
+					G.activeCreature?.queryMove();
 					return;
 				}
 
@@ -560,7 +560,7 @@ export default (G: Game) => {
 							ignoreMovementPoint: true,
 							ignorePath: true,
 							callback: function () {
-								G.activeCreature.queryMove();
+								G.activeCreature?.queryMove();
 							},
 							animation: 'push',
 						});

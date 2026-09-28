@@ -259,7 +259,7 @@ export default (G: Game) => {
 					ignoreMovementPoint: true,
 					ignorePath: true,
 					callback: function () {
-						G.activeCreature.queryMove();
+						G.activeCreature?.queryMove();
 						G.gameEngine.cameras.main.shake(
 							0.04,
 							100,

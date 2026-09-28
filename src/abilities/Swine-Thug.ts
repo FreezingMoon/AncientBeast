@@ -215,7 +215,7 @@ export default (G: Game) => {
 					if (hex !== null) {
 						target.moveTo(hex, {
 							callback: function () {
-								G.activeCreature.queryMove();
+								G.activeCreature?.queryMove();
 							},
 							ignoreMovementPoint: true,
 							ignorePath: true,
@@ -429,7 +429,7 @@ export default (G: Game) => {
 
 				G.grid.queryHexes({
 					fnOnCancel: function () {
-						G.activeCreature.queryMove();
+						G.activeCreature?.queryMove();
 					},
 					fnOnConfirm: function () {
 						// eslint-disable-next-line

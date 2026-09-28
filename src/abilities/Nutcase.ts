@@ -157,8 +157,8 @@ export default (G: Game) => {
 					];
 					G.grid.queryChoice({
 						fnOnSelect: function (choice, args) {
-							G.activeCreature.faceHex(args.hex, undefined, true);
-							args.hex.overlayVisualState('creature selected player' + G.activeCreature.team);
+							G.activeCreature?.faceHex(args.hex, undefined, true);
+							args.hex.overlayVisualState('creature selected player' + ability.creature.team);
 						},
 						fnOnConfirm: function () {
 							// eslint-disable-next-line
@@ -367,7 +367,7 @@ export default (G: Game) => {
 
 				// If no creature found in path, abort gracefully.
 				if (runPath === undefined || target === undefined) {
-					G.activeCreature.queryMove();
+					G.activeCreature?.queryMove();
 					return;
 				}
 
@@ -406,7 +406,7 @@ export default (G: Game) => {
 									if (ability.isUpgraded()) {
 										ability._pushTarget(target, pushPath, args);
 									} else if (G.activeCreature?.player?.controller !== 'bot') {
-										G.activeCreature.queryMove();
+										G.activeCreature?.queryMove();
 									}
 								}
 							}, 100);
@@ -502,7 +502,7 @@ export default (G: Game) => {
 					if (!G.freezedInput) {
 						clearInterval(interval);
 						if (G.activeCreature?.player?.controller !== 'bot') {
-							G.activeCreature.queryMove();
+							G.activeCreature?.queryMove();
 						}
 					}
 				}, 100);

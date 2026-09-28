@@ -222,7 +222,7 @@ export default (G: Game) => {
 
 				G.grid.queryChoice({
 					fnOnCancel: function () {
-						G.activeCreature.queryMove();
+						G.activeCreature?.queryMove();
 					},
 					fnOnConfirm: function () {
 						// eslint-disable-next-line

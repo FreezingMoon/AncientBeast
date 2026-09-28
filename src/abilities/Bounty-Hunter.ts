@@ -336,7 +336,7 @@ export default (G: Game) => {
 					// eslint-disable-next-line @typescript-eslint/no-empty-function
 					fnOnSelect: () => {},
 					fnOnConfirm: (...args) => ability.animation(...args),
-					fnOnCancel: () => G.activeCreature.queryMove(),
+					fnOnCancel: () => G.activeCreature?.queryMove(),
 					team: this._targetTeam,
 					id: cre.id,
 					flipped: cre.player.flipped,

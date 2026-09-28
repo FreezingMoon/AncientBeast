@@ -1,3 +1,4 @@
+import { Easing } from './utility/easing';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import $j from 'jquery';
 import { Damage, DamageResult } from './damage';
@@ -611,9 +612,9 @@ export class Ability {
 			if (animationData.activateAnimation) {
 				game.gameEngine
 					.tween(this.creature.sprite)
-					.to({ x: p1 }, 250, Phaser.Easing.Linear.None)
-					.to({ x: p2 }, 100, Phaser.Easing.Linear.None)
-					.to({ x: p0 }, 150, Phaser.Easing.Linear.None)
+					.to({ x: p1 }, 250, Easing.Linear.None)
+					.to({ x: p2 }, 100, Easing.Linear.None)
+					.to({ x: p0 }, 150, Easing.Linear.None)
 					.start();
 			}
 

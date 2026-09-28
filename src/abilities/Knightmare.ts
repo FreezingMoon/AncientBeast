@@ -1,3 +1,4 @@
+import { Easing } from '../utility/easing';
 import { Damage } from '../damage';
 import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
@@ -556,7 +557,7 @@ export default (G: Game) => {
 					if (travelPath.length === 0) {
 						applyDamage();
 						ability.creature.facePlayerDefault();
-						G.activeCreature.queryMove();
+						G.activeCreature?.queryMove();
 						return;
 					}
 
@@ -566,7 +567,7 @@ export default (G: Game) => {
 					const endHex = wasBlocked && blockerHex ? blockerHex : travelPath[travelPath.length - 1];
 					if (!endHex || !pathEndHex) {
 						ability.creature.facePlayerDefault();
-						G.activeCreature.queryMove();
+						G.activeCreature?.queryMove();
 						return;
 					}
 					const startX = emissionPoint.x + (screenGoingRight ? 150 : 30);
@@ -593,14 +594,14 @@ export default (G: Game) => {
 					sprite.rotation = Math.atan2(dy, dx);
 					const tween = G.gameEngine
 						.tween(sprite)
-						.to({ x: impactPoint.x, y: impactPoint.y }, duration, Phaser.Easing.Linear.None)
+						.to({ x: impactPoint.x, y: impactPoint.y }, duration, Easing.Linear.None)
 						.start();
 
 					tween.onComplete.add(function () {
 						// @ts-expect-error 'this' refers to the animation sprite, not the ability.
 						this.destroy();
 						ability.creature.facePlayerDefault();
-						G.activeCreature.queryMove();
+						G.activeCreature?.queryMove();
 					}, sprite);
 				};
 

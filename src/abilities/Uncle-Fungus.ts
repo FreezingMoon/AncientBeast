@@ -287,7 +287,7 @@ export default (G: Game) => {
 								clearInterval(interval);
 								G.UI.selectAbility(-1);
 								if (G.activeCreature?.player?.controller !== 'bot') {
-									G.activeCreature.queryMove();
+									G.activeCreature?.queryMove();
 								}
 							}
 						}, 100);
@@ -421,7 +421,7 @@ export default (G: Game) => {
 					if (hexes.length >= 2 && hexes[1].isWalkable(target.size, target.id, true)) {
 						target.moveTo(hexes[1], {
 							callback: function () {
-								G.activeCreature.queryMove();
+								G.activeCreature?.queryMove();
 							},
 							ignoreMovementPoint: true,
 							ignorePath: true,

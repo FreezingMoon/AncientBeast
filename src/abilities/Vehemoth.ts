@@ -1,3 +1,4 @@
+import { Easing } from '../utility/easing';
 import { Damage } from '../damage';
 import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
@@ -630,7 +631,7 @@ export default (G: Game) => {
 					const duration = Math.max(180, Math.min(420, travelDistance * 0.6));
 					const tween = G.gameEngine
 						.tween(sprite)
-						.to({ x: impactPoint.x, y: impactPoint.y }, duration, Phaser.Easing.Linear.None)
+						.to({ x: impactPoint.x, y: impactPoint.y }, duration, Easing.Linear.None)
 						.start();
 
 					tween.onComplete.add(() => {

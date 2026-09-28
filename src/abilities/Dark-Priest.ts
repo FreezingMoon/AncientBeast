@@ -26,7 +26,7 @@ export default (G: Game) => {
 
 			//	activate() :
 			activate: function (damage: Damage) {
-				if (G.activeCreature.id == this.creature.id) {
+				if (G.activeCreature?.id == this.creature.id) {
 					/* only used when unit isn't active */
 					return damage; // Return Damage
 				}
@@ -43,7 +43,7 @@ export default (G: Game) => {
 						G,
 					);
 					counter.counter = true;
-					G.activeCreature.takeDamage(counter);
+					G.activeCreature?.takeDamage(counter);
 					G.gameEngine.cameras.main.shake(
 						0.03,
 						220,
@@ -329,7 +329,7 @@ export default (G: Game) => {
 						G.grid.previewCreature(hex.pos, crea, ability.creature.player);
 					},
 					fnOnCancel: function () {
-						G.activeCreature.queryMove();
+						G.activeCreature?.queryMove();
 					},
 					fnOnConfirm: function (...args) {
 						ability.animation(...args);

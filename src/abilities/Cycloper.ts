@@ -1,3 +1,4 @@
+import { Easing } from '../utility/easing';
 import { Damage } from '../damage';
 import { Creature } from '../creature';
 import { Hex } from '../utility/hex';
@@ -294,7 +295,7 @@ function createOpticBurstLaserEffect(
 					y: 2.5,
 				},
 				220,
-				Phaser.Easing.Cubic.Out,
+				Easing.Cubic.Out,
 			)
 			.start();
 
@@ -305,7 +306,7 @@ function createOpticBurstLaserEffect(
 					alpha: 0,
 				},
 				220,
-				Phaser.Easing.Cubic.Out,
+				Easing.Cubic.Out,
 				true,
 			)
 			.onComplete.add(function () {
@@ -2134,7 +2135,7 @@ export default (G: Game) => {
 					const extraCost = Math.max(0, energyCost - (this.costs?.energy || 0));
 					if (extraCost > 0) {
 						this.creature.energy = Math.max(0, this.creature.energy - extraCost);
-						if (this.creature.id === G.activeCreature.id) {
+						if (this.creature.id === G.activeCreature?.id) {
 							G.UI.energyBar.animSize(this.creature.energy / this.creature.stats.energy);
 						}
 					}

@@ -818,14 +818,14 @@ export default (G: Game) => {
 							ignorePath: true,
 							animation: 'push',
 							callback: function () {
-								G.activeCreature.queryMove();
+								G.activeCreature?.queryMove();
 							},
 						});
 						return;
 					}
 				}
 
-				G.activeCreature.queryMove();
+				G.activeCreature?.queryMove();
 			},
 		},
 		{
@@ -996,14 +996,14 @@ export default (G: Game) => {
 				}
 
 				if (targetIndex < 0) {
-					G.activeCreature.queryMove();
+					G.activeCreature?.queryMove();
 					return;
 				}
 
 				const target = line[targetIndex].creature;
 
 				if (!target) {
-					G.activeCreature.queryMove();
+					G.activeCreature?.queryMove();
 					return;
 				}
 
@@ -1076,7 +1076,7 @@ export default (G: Game) => {
 						applyMovementRestriction(ability.creature, target, G);
 					}
 
-					G.activeCreature.queryMove();
+					G.activeCreature?.queryMove();
 					return;
 				}
 
@@ -1154,7 +1154,7 @@ export default (G: Game) => {
 										applyMovementRestriction(ability.creature, target, G);
 									}
 
-									G.activeCreature.queryMove();
+									G.activeCreature?.queryMove();
 								},
 							});
 						},
@@ -1204,7 +1204,7 @@ export default (G: Game) => {
 					dualSwipeChoices,
 				);
 				if (!viableChoices.length) {
-					G.activeCreature.queryMove();
+					G.activeCreature?.queryMove();
 					return;
 				}
 				const showOutlinedChoices = (choices: Hex[][]) => {
@@ -1276,7 +1276,7 @@ export default (G: Game) => {
 				);
 
 				if (!laneHexes) {
-					G.activeCreature.queryMove();
+					G.activeCreature?.queryMove();
 					return;
 				}
 

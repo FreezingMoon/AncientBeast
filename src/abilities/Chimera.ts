@@ -294,7 +294,7 @@ export default (G: Game) => {
 
 				const knockback = (_target, _crush, _range) => {
 					if (!_target) {
-						G.activeCreature.queryMove();
+						G.activeCreature?.queryMove();
 						return;
 					}
 					const damage = new Damage(
@@ -350,7 +350,7 @@ export default (G: Game) => {
 							const range = ability.isUpgraded() ? _range : _range - 1;
 							knockback(nextHex.creature, crush, range);
 						} else {
-							G.activeCreature.queryMove();
+							G.activeCreature?.queryMove();
 						}
 					};
 

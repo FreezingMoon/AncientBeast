@@ -1,3 +1,4 @@
+import { Easing } from '../utility/easing';
 import { Damage } from '../damage';
 import { Team, isTeam } from '../utility/team';
 import * as matrices from '../utility/matrices';
@@ -110,7 +111,7 @@ export default (G: Game) => {
 
 				this.creature.moveTo(this._getHopHex(), {
 					callback: function () {
-						G.activeCreature.queryMove();
+						G.activeCreature?.queryMove();
 					},
 					ignorePath: true,
 					ignoreMovementPoint: true,
@@ -455,7 +456,7 @@ export default (G: Game) => {
 							return;
 						}
 						didResumeTurn = true;
-						G.activeCreature.queryMove();
+						G.activeCreature?.queryMove();
 					};
 
 					if (!target) {
@@ -562,9 +563,7 @@ export default (G: Game) => {
 				const emptyHexDist = arrayUtils.filterCreature(path.slice(0), false, false).length;
 
 				sprite.alpha = 0.4;
-				G.gameEngine
-					.tween(sprite)
-					.to({ alpha: 1 }, tween.duration, Phaser.Easing.Linear.None, true);
+				G.gameEngine.tween(sprite).to({ alpha: 1 }, tween.duration, Easing.Linear.None, true);
 
 				tween.onComplete.add(function () {
 					// @ts-expect-error 'this' refers to the animation object, _not_ the ability
@@ -600,7 +599,7 @@ export default (G: Game) => {
 					}
 
 					// Deferred end() requires explicit handoff when impact resolves.
-					G.activeCreature.queryMove();
+					G.activeCreature?.queryMove();
 				}, sprite); // End tween.onComplete
 			},
 		},
