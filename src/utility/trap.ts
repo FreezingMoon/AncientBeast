@@ -1,10 +1,11 @@
+import { Easing } from './easing';
 import Game from '../game';
 import { Effect } from '../effect';
 import { Hex } from './hex';
 import { Player } from '../player';
 import { Creature } from '../creature';
 import { capitalize } from './string';
-import { SpriteHandle } from '../engine/types';
+import type { GroupHandle, SpriteHandle } from '../engine/types';
 import { getPointFacade } from './pointfacade';
 import { HEX_WIDTH_PX, offsetCoordsToPx } from './const';
 
@@ -48,8 +49,8 @@ export class Trap {
 	/** Extra sprites created by the idle animation (e.g. flame layers). Destroyed with the trap. */
 	private _overlaySprites: any[] = [];
 
-	private _moveSpriteToGroup(sprite: Phaser.Sprite, targetGroup: Phaser.Group) {
-		const sourceGroup = sprite.parent as Phaser.Group | null;
+	private _moveSpriteToGroup(sprite: SpriteHandle, targetGroup: GroupHandle) {
+		const sourceGroup = sprite.parent as GroupHandle | null;
 		if (!sourceGroup || sourceGroup === targetGroup) {
 			return;
 		}
@@ -215,22 +216,16 @@ export class Trap {
 	}
 
 	hide(duration = 0) {
-		this.game.gameEngine
-			.tween(this.display)
-			.to({ alpha: 0 }, duration, Phaser.Easing.Linear.None)
-			.start();
+		this.game.gameEngine.tween(this.display).to({ alpha: 0 }, duration, Easing.Linear.None).start();
 	}
 
 	show(duration = 0) {
-		this.game.gameEngine
-			.tween(this.display)
-			.to({ alpha: 1 }, duration, Phaser.Easing.Linear.None)
-			.start();
+		this.game.gameEngine.tween(this.display).to({ alpha: 1 }, duration, Easing.Linear.None).start();
 	}
 
-	getVisualSprites(): Phaser.Sprite[] {
+	getVisualSprites(): SpriteHandle[] {
 		const sprites = [this.display, ...this._overlaySprites];
-		return sprites.filter((sprite): sprite is Phaser.Sprite => Boolean(sprite && sprite.exists));
+		return sprites.filter((sprite): sprite is SpriteHandle => Boolean(sprite && sprite.exists));
 	}
 
 	pauseIdleAnimation() {
@@ -254,7 +249,7 @@ export class Trap {
 		});
 		this._overlaySprites = [];
 
-		const group = this.display.parent as Phaser.Group | null;
+		const group = this.display.parent as GroupHandle | null;
 		if (!group) {
 			return;
 		}

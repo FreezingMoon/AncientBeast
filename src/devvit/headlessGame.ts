@@ -32,74 +32,6 @@ try {
 	// Server builds may relocate the template; the dummy shim still covers setup.
 }
 
-// Phaser global — creature.ts / plasma-field.ts reference `Phaser` as a global.
-declare const globalThis: typeof global & { [key: string]: unknown };
-
-const mockScene = {
-	add: {
-		sprite: () => ({}),
-		image: () => ({}),
-		text: () => ({}),
-		graphics: () => ({}),
-		group: () => ({ children: { clear: () => {} }, add: () => {} }),
-		tileSprite: () => ({}),
-		renderTexture: () => ({}),
-	},
-	load: {
-		on: () => {},
-		start: () => {},
-		image: () => {},
-		audio: () => {},
-	},
-	time: {
-		addEvent: () => ({ remove: () => {} }),
-	},
-	textures: {},
-	cameras: {
-		main: { refresh: () => {} },
-	},
-	children: { clear: () => {} },
-	tweens: {
-		add: () => ({ pause: () => {}, play: () => {} }),
-		killTweensOf: () => {},
-	},
-	sys: { game: { device: { desktop: true }, destroy: () => {} } },
-};
-
-(globalThis as Record<string, unknown>).Phaser = {
-	Easing: {
-		Linear: { None: 'Linear.None' },
-		Quadratic: { In: 'Quad.In', Out: 'Quad.Out', InOut: 'Quad.InOut' },
-		Back: { Out: 'Back.Out' },
-	},
-	AUTO: 0,
-	CANVAS: 1,
-	CENTER: 11,
-	blendModes: { ADD: 1, NORMAL: 0 },
-	Timer: { SECOND: 1000 },
-	Scale: {
-		NONE: 0,
-		FIT: 1,
-		ENVELOP: 2,
-		WIDTH_CONTROLS_HEIGHT: 3,
-		HEIGHT_CONTROLS_WIDTH: 4,
-		RESIZE: 5,
-	},
-	Signal: class {
-		add() {}
-		dispatch() {}
-		remove() {}
-	},
-	Scene: mockScene,
-	Game: class {
-		scene = { active: mockScene, scenes: [mockScene] };
-		scale = { mode: 0, parentIsWindow: false, autoCenter: 0, fullscreenTarget: null, refresh: () => {}, resize: () => {} };
-		device = { desktop: true };
-		destroy = () => {};
-		cameras = { main: { refresh: () => {} } };
-	},
-};
-
 // ─── DOM bootstrap (jsdom / server-with-jsdom only) ──────────────────────────
 
 /**
@@ -172,326 +104,331 @@ function ensureHeadlessDom(): void {
 
 // ─── Phaser mock ─────────────────────────────────────────────────────────────
 
-function makeTween() {
-	let completeCb: (() => void) | null = null;
-	const scene = {
-		tweens: {
-			add: (config: any) => {
-				if (!config.paused) {
-					if (config.delay) {
-						setTimeout(() => {
-							Object.assign(config.targets, config);
-							config.onComplete?.dispatch?.();
-						}, config.delay);
-					} else {
-						Object.assign(config.targets, config);
-						config.onComplete?.dispatch?.();
-					}
-				}
-				return {
-					targets: config.targets,
-					on: (event: string, cb: () => void) => {
-						if (event === 'complete') config.onComplete = { dispatch: cb };
-						if (event === 'update') config.onUpdate = cb;
-					},
-					stop: () => {},
-					play: () => {},
-					paused: config.paused || false,
-					scene,
-				};
-			},
-			killTweensOf: () => {},
-		},
-	};
-	const tween: any = {
-		isRunning: true,
-		_target: null,
-		_props: null,
-		scene,
-		to(props: Record<string, any>, _duration: number, _easing?: any, autoStart = false) {
-			this._props = props;
-			if (autoStart) {
-				if (this._target) Object.assign(this._target, props);
-				Promise.resolve().then(() => completeCb?.());
-			}
-			return this;
-		},
-		start() {
-			if (this._target && this._props) Object.assign(this._target, this._props);
-			Promise.resolve().then(() => completeCb?.());
-			return this;
-		},
-		stop() {
-			this.isRunning = false;
-			return this;
-		},
-		yoyo: () => tween,
-		repeat: () => tween,
-		onUpdateCallback: () => tween,
-		onComplete: {
-			add(cb: (...args: any[]) => void, context?: any) {
-				completeCb = context ? cb.bind(context) : cb;
-			},
-			addOnce(cb: (...args: any[]) => void, context?: any) {
-				completeCb = context ? cb.bind(context) : cb;
-			},
-		},
-	};
-	return tween;
-}
-
-function makePhaserGroup() {
-	const grp: any = {
-		x: 0,
-		y: 0,
-		alpha: 1,
-		angle: 0,
-		exists: true,
-		children: [] as any[],
-		position: {
-			set(x: number, y: number) {
-				grp.x = x;
-				grp.y = y;
-			},
-		},
-		scale: {
-			x: 1,
-			y: 1,
-			setTo(x: number, y: number) {
-				grp.x = x;
-				grp.y = y;
-			},
-			set(x: number, y: number) {
-				grp.x = x;
-				grp.y = y;
-			},
-		},
-		add: (child: any) => {
-			grp.children.push(child);
-			return child;
-		},
-		remove: () => undefined,
-		removeChild: () => undefined,
-		addChild: () => undefined,
-		create: () => makePhaserSprite(),
-		forEach: () => undefined,
-		sendToBack: () => undefined,
-		bringToTop: () => undefined,
-		setChildIndex: () => undefined,
-		getChildIndex: () => 0,
-		sort: () => undefined,
-		update: () => undefined,
-		alignIn: () => undefined,
-		destroy: () => undefined,
-	};
-	return grp;
-}
-
-function makePhaserSprite() {
-	const sprite: any = {
-		x: 0,
-		y: 0,
-		alpha: 1,
-		angle: 0,
-		rotation: 0,
-		exists: true,
-		key: '',
-		text: '',
-		inputEnabled: false,
-		ignoreChildInput: false,
-		input: { useHandCursor: false, priorityID: 0 },
-		events: {
-			onInputUp: { add: () => undefined },
-			onInputDown: { add: () => undefined },
-			onInputOver: { add: () => undefined },
-			onInputOut: { add: () => undefined },
-		},
-		anchor: {
-			x: 0,
-			y: 0,
-			setTo(x: number, y: number) {
-				sprite.x = x;
-				sprite.y = y;
-			},
-			set(x: number, y: number) {
-				sprite.x = x;
-				sprite.y = y;
-			},
-		},
-		scale: {
-			x: 1,
-			y: 1,
-			setTo(x: number, y: number) {
-				sprite.x = x;
-				sprite.y = y;
-			},
-			set(x: number, y: number) {
-				sprite.x = x;
-				sprite.y = y;
-			},
-		},
-		texture: { width: 10, height: 10 },
-		width: 10,
-		height: 10,
-		position: {
-			x: 0,
-			y: 0,
-			set(x: number, y: number) {
-				sprite.x = x;
-				sprite.y = y;
-			},
-		},
-		data: {},
-		parent: null,
-		getBounds: () => ({ x: 0, y: 0, width: 10, height: 10 }),
-		loadTexture: () => undefined,
-		alignIn: () => undefined,
-		destroy: () => undefined,
-		kill: () => undefined,
-		revive: () => undefined,
-		beginFill: () => undefined,
-		drawRect: () => undefined,
-		endFill: () => undefined,
-		clear: () => undefined,
-		mask: null,
-	};
-	return sprite;
-}
-
-function makePhaserBitmapData() {
-	return {
-		width: 10,
-		height: 10,
-		canvas: {
-			getContext: () => ({
-				drawImage: () => undefined,
-				putImageData: () => undefined,
-				getImageData: () => ({ data: new Uint8ClampedArray(0) }),
-			}),
-		},
-		context: {
-			drawImage: () => undefined,
-			putImageData: () => undefined,
-			getImageData: () => ({ data: new Uint8ClampedArray(0) }),
-		},
-		dirty: false,
-		destroy: () => undefined,
-	};
-}
-
-export function buildPhaserMock(): any {
-	const scene = {
+/**
+ * A Phaser 4 shaped stub scene.
+ *
+ * The headless authoritative server runs the real engine with rendering
+ * stubbed out, so this mirrors only the Phaser 4 surface the engine adapter
+ * touches: positional factories, `Container`-backed groups, tween `targets`,
+ * a `DynamicTexture`-backed RenderTexture with its mandatory `render()`, and
+ * the scene's loader/timer/display-list systems.
+ */
+function makeHeadlessScene() {
+	const scene: any = {
 		active: true,
+		scale: { width: 1920, height: 1080, parentIsWindow: false, autoCenter: 0 },
 		time: {
 			now: 0,
-			elapsedMS: 0,
 			delayedCall: (delay: number, cb: () => void) => {
 				cb();
 				return { remove: () => undefined };
 			},
 			addEvent: (config: any) => {
-				if (config.loop) {
-					config.callback();
-					return { remove: () => undefined };
-				}
 				config.callback();
 				return { remove: () => undefined };
 			},
 		},
-		tweens: {
-			add: (config: any) => {
-				if (!config.paused) {
-					Object.assign(config.targets, config);
-					config.onComplete?.dispatch?.();
-				}
-				return {
-					targets: config.targets,
-					on: (event: string, cb: () => void) => {
-						if (event === 'complete') config.onComplete = { dispatch: cb };
-						if (event === 'update') config.onUpdate = cb;
-					},
-					stop: () => {},
-					play: () => {},
-					paused: config.paused || false,
-					scene,
-				};
-			},
-			killTweensOf: () => {},
-		},
-		add: {
-			sprite: (config: any) => makePhaserSprite(),
-			image: (config: any) => makePhaserSprite(),
-			text: (config: any) => makePhaserSprite(),
-			graphics: (config: any) => makePhaserSprite(),
-			group: () => makePhaserGroup(),
-			tileSprite: (config: any) => makePhaserSprite(),
-			renderTexture: (config: any) => ({
-				width: config.width,
-				height: config.height,
-				canvas: { getContext: () => ({ drawImage: () => {} }) },
-				update: () => {},
-				destroy: () => {},
-			}),
+		load: {
+			progress: 1,
+			on: () => scene.load,
+			once: () => scene.load,
+			off: () => scene.load,
+			start: () => undefined,
+			image: () => undefined,
+			audio: () => undefined,
 		},
 		textures: {
-			get: (key: string) => null,
+			exists: () => false,
+			get: () => null,
 		},
 		cameras: {
-			main: { shake: () => {}, refresh: () => {} },
+			main: { shake: () => undefined, refresh: () => undefined },
 		},
 		children: {
-			clear: () => {},
-		},
-		sys: {
-			game: {
-				device: { desktop: true },
-				destroy: () => {},
+			list: [] as any[],
+			add: (child: any) => {
+				scene.children.list.push(child);
+				return child;
+			},
+			remove: (child: any) => {
+				scene.children.list = scene.children.list.filter((entry: any) => entry !== child);
 			},
 		},
+		input: { setHitArea: () => undefined },
 	};
 
-	return {
-		scene,
-		tweens: scene.tweens,
-		cameras: scene.cameras,
-		add: scene.add,
-		textures: scene.textures,
-		children: scene.children,
-		sys: scene.sys,
-		world: { width: 1920, height: 1080 },
-		cache: { getImage: () => null },
-		width: 1920,
-		height: 1080,
-		scale: {
-			parentIsWindow: false,
-			pageAlignHorizontally: false,
-			pageAlignVertically: false,
-			scaleMode: 0,
-			fullScreenScaleMode: 0,
-			autoCenter: 0,
-			fullscreenTarget: null,
-			refresh: () => undefined,
-			resize: () => undefined,
-			mode: 0,
+	scene.tweens = {
+		add: (config: any) => {
+			const tween: any = {
+				targets: config.targets,
+				data: [],
+				loop: 0,
+				paused: Boolean(config.paused),
+				handlers: {} as Record<string, Array<() => void>>,
+				on(event: string, cb: () => void) {
+					(tween.handlers[event] ||= []).push(cb);
+					return tween;
+				},
+				once(event: string, cb: () => void) {
+					tween.on(event, cb);
+					return tween;
+				},
+				stop: () => tween,
+				play: () => tween,
+			};
+			// The headless engine is deterministic and synchronous, so an
+			// un-paused tween applies its properties and completes immediately.
+			if (!config.paused) {
+				Object.assign(config.targets, config);
+				Promise.resolve().then(() => tween.handlers.complete?.forEach((cb) => cb()));
+			}
+			return tween;
 		},
-		stage: { disableVisibilityChange: false, forcePortrait: false },
-		device: { desktop: true },
-		time: {
-			now: 0,
-			elapsedMS: 0,
-			events: {
-				loop: () => 0,
-				remove: () => undefined,
-				add: () => 0,
-			},
-		},
-		load: {
-			progress: 100,
-			onFileComplete: { add: () => undefined },
-			onLoadComplete: { add: () => undefined },
-			start: () => undefined,
-		},
+		killTweensOf: () => undefined,
 	};
+
+	scene.add = {
+		sprite: () => makeHeadlessGameObject(scene),
+		image: () => makeHeadlessGameObject(scene),
+		text: () => makeHeadlessGameObject(scene, 'Text'),
+		tileSprite: () => makeHeadlessGameObject(scene),
+		graphics: () => makeHeadlessGameObject(scene, 'Graphics'),
+		container: () => makeHeadlessContainer(scene),
+		renderTexture: (x: number, y: number, width: number, height: number) => ({
+			x,
+			y,
+			width,
+			height,
+			destroy: () => undefined,
+			texture: {
+				canvas: { getContext: () => ({ drawImage: () => undefined }) },
+				// Phaser 4 only uploads buffered draw operations on `render()`.
+				render: () => undefined,
+			},
+		}),
+	};
+
+	return scene;
+}
+
+function makeHeadlessGameObject(scene: any, type = 'Sprite') {
+	const gameObject: any = {
+		type,
+		scene,
+		active: true,
+		visible: true,
+		alpha: 1,
+		angle: 0,
+		rotation: 0,
+		depth: 0,
+		z: 0,
+		x: 0,
+		y: 0,
+		originX: 0.5,
+		originY: 0.5,
+		scaleX: 1,
+		scaleY: 1,
+		displayOriginX: 0,
+		displayOriginY: 0,
+		width: 10,
+		height: 10,
+		texture: { key: '' },
+		text: '',
+		data: {},
+		parentContainer: null,
+		parentList: null,
+		input: null,
+		handlers: {} as Record<string, Array<(...args: any[]) => void>>,
+		graphicsHandlers: {} as Record<string, () => void>,
+		on(event: string, cb: (...args: any[]) => void) {
+			(gameObject.handlers[event] ||= []).push(cb);
+			return gameObject;
+		},
+		emit(event: string, ...args: any[]) {
+			gameObject.handlers[event]?.forEach((cb) => cb(...args));
+		},
+		setActive(value: boolean) {
+			gameObject.active = value;
+			return gameObject;
+		},
+		setVisible(value: boolean) {
+			gameObject.visible = value;
+			return gameObject;
+		},
+		setOrigin(x: number, y: number) {
+			gameObject.originX = x;
+			gameObject.originY = y;
+			return gameObject;
+		},
+		setScale(x: number, y: number) {
+			gameObject.scaleX = x;
+			gameObject.scaleY = y;
+			return gameObject;
+		},
+		setPosition(x: number, y: number) {
+			gameObject.x = x;
+			gameObject.y = y;
+			return gameObject;
+		},
+		setDepth(value: number) {
+			gameObject.depth = value;
+			return gameObject;
+		},
+		setTexture(key: string) {
+			gameObject.texture.key = key;
+			return gameObject;
+		},
+		setInteractive() {
+			gameObject.input = { cursor: 'default' };
+			return gameObject;
+		},
+		disableInteractive() {
+			gameObject.input = null;
+			return gameObject;
+		},
+		getBounds: () => ({
+			x: 0,
+			y: 0,
+			width: 10,
+			height: 10,
+			left: 0,
+			right: 10,
+			top: 0,
+			bottom: 10,
+		}),
+		preUpdate: () => undefined,
+		destroy: () => undefined,
+	};
+	// Graphics commands are no-ops but must exist, since the engine forwards to
+	// whatever the factory returned.
+	[
+		'beginFill',
+		'endFill',
+		'clear',
+		'lineStyle',
+		'moveTo',
+		'lineTo',
+		'fillRect',
+		'drawRect',
+		'drawCircle',
+	].forEach((name) => {
+		gameObject[name] = () => undefined;
+	});
+	return gameObject;
+}
+
+function makeHeadlessContainer(scene: any) {
+	const container: any = {
+		scene,
+		active: true,
+		alpha: 1,
+		angle: 0,
+		depth: 0,
+		z: 0,
+		x: 0,
+		y: 0,
+		originX: 0.5,
+		originY: 0.5,
+		scaleX: 1,
+		scaleY: 1,
+		displayOriginX: 0,
+		displayOriginY: 0,
+		list: [] as any[],
+		handlers: {} as Record<string, Array<(...args: any[]) => void>>,
+		add(child: any) {
+			if (!container.list.includes(child)) container.list.push(child);
+			child.parentContainer = container;
+			return container;
+		},
+		addAt(child: any, index: number) {
+			if (container.list.includes(child)) container.list.splice(container.list.indexOf(child), 1);
+			container.list.splice(index, 0, child);
+			child.parentContainer = container;
+			return container;
+		},
+		remove(child: any) {
+			container.list = container.list.filter((entry) => entry !== child);
+			child.parentContainer = null;
+			return container;
+		},
+		removeAll(destroy?: boolean) {
+			const children = container.list.slice();
+			container.list = [];
+			if (destroy) children.forEach((child) => child.destroy());
+			return container;
+		},
+		each(callback: (child: any, ...args: any[]) => void, context?: any) {
+			container.list.forEach((child) => callback.call(context, child));
+			return container;
+		},
+		iterate(callback: (child: any, ...args: any[]) => void, context?: any) {
+			container.list.forEach((child) => callback.call(context, child));
+			return container;
+		},
+		bringToTop(child: any) {
+			container.list = container.list.filter((entry) => entry !== child).concat(child);
+			return container;
+		},
+		sendToBack(child: any) {
+			container.list = [child].concat(container.list.filter((entry) => entry !== child));
+			return container;
+		},
+		getIndex(child: any) {
+			return container.list.indexOf(child);
+		},
+		getAt(index: number) {
+			return container.list[index];
+		},
+		getLocalPoint: (x: number, y: number) => ({ x, y }),
+		getWorldPoint: (x: number, y: number) => ({ x, y }),
+		getBounds: () => ({
+			x: 0,
+			y: 0,
+			width: 0,
+			height: 0,
+			left: 0,
+			right: 0,
+			top: 0,
+			bottom: 0,
+		}),
+		setName: (name: string) => {
+			container.name = name;
+			return container;
+		},
+		setActive(value: boolean) {
+			container.active = value;
+			return container;
+		},
+		setVisible(value: boolean) {
+			container.visible = value;
+			return container;
+		},
+		setOrigin(x: number, y: number) {
+			container.originX = x;
+			container.originY = y;
+			return container;
+		},
+		setScale(x: number, y: number) {
+			container.scaleX = x;
+			container.scaleY = y;
+			return container;
+		},
+		setPosition(x: number, y: number) {
+			container.x = x;
+			container.y = y;
+			return container;
+		},
+		setDepth(value: number) {
+			container.depth = value;
+			return container;
+		},
+		destroy: () => undefined,
+	};
+	container.on = (event: string, cb: (...args: any[]) => void) => {
+		(container.handlers[event] ||= []).push(cb);
+		return container;
+	};
+	return container;
 }
 
 // ─── Real Signal implementation ──────────────────────────────────────────────
@@ -721,11 +658,11 @@ export async function createHeadlessGame(
 	const Game = GameModule.default;
 	const game: any = new Game();
 
-	game.Phaser = buildPhaserMock();
-	// Wrap the mock in the engine adapter so gameplay code uses gameEngine
-	// instead of game.Phaser directly.
-	const { Phaser4Engine } = await import('../engine/Phaser4Engine');
-	const engine = new Phaser4Engine(game.Phaser);
+	// Headless engine: the neutral `GameEngine` vocabulary with inert handles.
+	// Gameplay code talks to `gameEngine`, never to raw Phaser, so the
+	// authoritative server needs no Phaser instance at all.
+	const { NullEngine } = await import('../engine/NullEngine');
+	const engine = new NullEngine();
 	for (const ch of Object.keys(game.signals)) {
 		engine.signals[ch] = game.signals[ch];
 	}

@@ -1,8 +1,5 @@
 import { locationPaths } from '../assets/index';
 
-// Phaser 2 CE polyfills (must be loaded before Phaser/Game)
-import './utility/phaser-polyfills';
-
 // Import jQuery related stuff
 import $j from 'jquery';
 import 'jquery.transit';
