@@ -6,7 +6,14 @@
  */
 
 // Mock heavy DOM/Phaser dependencies before any imports
-jest.mock('../../../node_modules/phaser-ce/build/phaser.js', () => ({}));
+// The real Phaser bundle needs a canvas context at import time, which jsdom
+// does not provide; `plasma-field` reaches it for `BlendModes`.
+jest.mock('phaser', () =>
+	(
+		jest.requireActual('../../../test/phaser-mock') as typeof import('../../../test/phaser-mock')
+	).createPhaserMock(),
+);
+
 jest.mock('../../utility/hex', () => ({
 	Hex: class Hex {
 		x: number;

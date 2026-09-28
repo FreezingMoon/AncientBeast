@@ -23,56 +23,6 @@ import * as path from 'path';
 // ─── Mock heavy external deps BEFORE importing game modules ──────────────────
 jest.mock('pixi', () => ({}), { virtual: true });
 jest.mock('p2', () => ({}), { virtual: true });
-jest.mock('phaser-ce', () => ({
-	Point: class PointMock {},
-	Polygon: class PolygonMock {},
-	default: class PhaserMock {},
-	AUTO: 0,
-	ScaleManager: { SHOW_ALL: 0 },
-	Easing: {
-		Linear: { None: 'Linear.None' },
-		Quadratic: { In: 'Quad.In', Out: 'Quad.Out', InOut: 'Quad.InOut' },
-	},
-	Text: class PhaserText {},
-	Sprite: class PhaserSprite {},
-	Group: class PhaserGroup {},
-	Tween: class PhaserTween {},
-	Signal: class PhaserSignal {
-		add() {}
-		remove() {}
-		dispatch() {}
-	},
-	Game: class PhaserGame {
-		scale = {
-			parentIsWindow: false,
-			pageAlignHorizontally: false,
-			pageAlignVertically: false,
-			scaleMode: 0,
-			fullScreenScaleMode: 0,
-			refresh() {},
-		};
-		stage = { disableVisibilityChange: false, forcePortrait: false };
-		device = { desktop: true };
-		add = {
-			group: () => ({
-				add: () => ({}),
-				position: { set: () => {} },
-				scale: { setTo: () => {}, set: () => {} },
-				children: [] as unknown[],
-				create: () => ({}),
-				forEach: () => {},
-				sendToBack: () => {},
-				bringToTop: () => {},
-				sort: () => {},
-				destroy: () => {},
-			}),
-			sprite: () => ({
-				anchor: { setTo: () => {} },
-				events: {},
-			}),
-		};
-	},
-}));
 import { variants, printReport } from './suggester';
 import { aggregateMetrics, formatMetrics } from './stats';
 import { createGame, runMatch } from './botgeria';

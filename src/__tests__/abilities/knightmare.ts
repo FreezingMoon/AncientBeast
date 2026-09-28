@@ -1,10 +1,5 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 
-jest.mock('phaser-ce', () => ({
-	Point: class PointMock {},
-	Polygon: class PolygonMock {},
-}));
-
 jest.mock('../../utility/hex', () => ({
 	Direction: {
 		Right: 0,

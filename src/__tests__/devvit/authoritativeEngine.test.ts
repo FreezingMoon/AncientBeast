@@ -4,31 +4,15 @@ import { jest, describe, test, expect } from '@jest/globals';
 // Mock heavy external deps before importing the engine (same as simulate tests).
 jest.mock('pixi', () => ({}), { virtual: true });
 jest.mock('p2', () => ({}), { virtual: true });
-jest.mock(
-	'phaser',
-	() => ({
-		Signal: class SignalMock {
-			add() {}
-			remove() {}
-			dispatch() {}
-		},
-		AUTO: 0,
-		CANVAS: 1,
-		Scale: {
-			NONE: 0,
-			FIT: 1,
-			ENVELOP: 2,
-			WIDTH_CONTROLS_HEIGHT: 3,
-			HEIGHT_CONTROLS_WIDTH: 4,
-			RESIZE: 5,
-		},
-		ScaleManager: { SHOW_ALL: 0 },
-		Easing: {
-			Linear: { None: 'Linear.None' },
-			Quadratic: { In: 'Quad.In', Out: 'Quad.Out', InOut: 'Quad.InOut' },
-			Back: { Out: 'Back.Out' },
-		},
-		blendModes: { ADD: 1, NORMAL: 0 },
+jest.mock('phaser', () => ({
+	// Phaser 4 exposes the scene base class as `Scene`; AB's scene extends it.
+	Scene: class SceneMock {
+		sys: { settings: { key: ''; data: Record<string, unknown> } };
+		constructor(config: any) {
+			this.sys.settings.key = config?.key ?? '';
+		}
+	},
+	Math: {
 		Vector2: class Vector2Mock {
 			x: number;
 			y: number;
@@ -53,63 +37,48 @@ jest.mock(
 				return this;
 			}
 		},
-		Polygon: class PolygonMock {
-			points: any[];
-			constructor(points?: any[]) {
-				this.points = points ?? [];
+	},
+	GameObjects: {
+		Polygon: class PolygonGameObjectMock {
+			constructor(_scene?: unknown, _x?: number, _y?: number, points?: unknown) {
+				(this as any).points = points ?? [];
+			}
+			contains() {
+				return true;
 			}
 		},
-		default: class PhaserMock {},
-	}),
-	{ virtual: true },
-);
-jest.mock('phaser-ce', () => ({
-	Point: class PointMock {},
-	Polygon: class PolygonMock {},
-	default: class PhaserMock {},
-	AUTO: 0,
-	ScaleManager: { SHOW_ALL: 0 },
-	Easing: {
-		Linear: { None: 'Linear.None' },
-		Quadratic: { In: 'Quad.In', Out: 'Quad.Out', InOut: 'Quad.InOut' },
-		Back: { Out: 'Back.Out' },
 	},
-	Text: class PhaserText {},
-	Sprite: class PhaserSprite {},
-	Group: class PhaserGroup {},
-	Tween: class PhaserTween {},
-	Signal: class PhaserSignal {
+	// Phaser 4 moved the geometry classes out of `GameObjects`; hex hit areas
+	// now build a `Geom.Polygon`.
+	Geom: {
+		Polygon: class GeomPolygonMock {
+			constructor(points?: unknown) {
+				(this as any).points = points ?? [];
+			}
+			contains() {
+				return true;
+			}
+		},
+	},
+	BlendModes: { ADD: 1, NORMAL: 0 },
+	AUTO: 0,
+	CANVAS: 1,
+	Scale: {
+		NONE: 0,
+		FIT: 1,
+		ENVELOP: 2,
+		NO_CENTER: 0,
+		CENTER_BOTH: 1,
+		WIDTH_CONTROLS_HEIGHT: 3,
+		HEIGHT_CONTROLS_WIDTH: 4,
+		RESIZE: 5,
+	},
+	Signal: class SignalMock {
 		add() {}
 		remove() {}
 		dispatch() {}
 	},
-	Game: class PhaserGame {
-		scale = {
-			parentIsWindow: false,
-			pageAlignHorizontally: false,
-			pageAlignVertically: false,
-			scaleMode: 0,
-			fullScreenScaleMode: 0,
-			refresh() {},
-		};
-		stage = { disableVisibilityChange: false, forcePortrait: false };
-		device = { desktop: true };
-		add = {
-			group: () => ({
-				add: () => ({}),
-				position: { set: () => {} },
-				scale: { setTo: () => {}, set: () => {} },
-				children: [] as unknown[],
-				create: () => ({}),
-				forEach: () => {},
-				sendToBack: () => {},
-				bringToTop: () => {},
-				sort: () => {},
-				destroy: () => {},
-			}),
-			sprite: () => ({ anchor: { setTo: () => {} }, events: {} }),
-		};
-	},
+	default: class PhaserMock {},
 }));
 
 // The authoritative server does not render, so stub the DOM-coupled UI module

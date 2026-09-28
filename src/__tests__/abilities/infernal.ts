@@ -1,31 +1,29 @@
-// Global Phaser mock for code that accesses Phaser globally (e.g., animations.ts)
-// Must be set before any imports that use Phaser
-globalThis.Phaser = {
-	blendModes: { ADD: 1, NORMAL: 0, MULTIPLY: 2, SCREEN: 3 },
-	Easing: {
-		Linear: { None: (k: number) => k },
-		Sinusoidal: {
-			In: (k: number) => Math.sin((k * Math.PI) / 2),
-			Out: (k: number) => Math.sin(((k + 1) * Math.PI) / 2),
-			InOut: (k: number) => (Math.sin(k * Math.PI) + 1) / 2,
-		},
-	},
-};
-
 import { afterEach, beforeAll, beforeEach, describe, expect, jest, test } from '@jest/globals';
 
 jest.mock('phaser', () => ({
 	Point: class PointMock {},
 	Polygon: class PolygonMock {},
-	Vector2: class Vector2Mock {
-		x = 0;
-		y = 0;
-		constructor(x = 0, y = 0) {
-			this.x = x;
-			this.y = y;
-		}
+	Math: {
+		Vector2: class Vector2Mock {
+			x = 0;
+			y = 0;
+			constructor(x = 0, y = 0) {
+				this.x = x;
+				this.y = y;
+			}
+		},
 	},
-	blendModes: { ADD: 1, NORMAL: 0, MULTIPLY: 2, SCREEN: 3 },
+	GameObjects: {
+		Polygon: class PolygonGameObjectMock {
+			constructor(_scene?: unknown, _x?: number, _y?: number, points?: unknown) {
+				(this as any).points = points ?? [];
+			}
+			contains() {
+				return true;
+			}
+		},
+	},
+	BlendModes: { ADD: 1, NORMAL: 0, MULTIPLY: 2, SCREEN: 3 },
 	Easing: {
 		Linear: { None: (k: number) => k },
 		Sinusoidal: {
@@ -144,19 +142,6 @@ jest.mock('../../utility/pointfacade', () => ({
 		getTrapsAt: () => [],
 	}),
 }));
-
-// Global Phaser mock for code that accesses Phaser globally (e.g., animations.ts)
-globalThis.Phaser = {
-	blendModes: { ADD: 1, NORMAL: 0, MULTIPLY: 2, SCREEN: 3 },
-	Easing: {
-		Linear: { None: (k: number) => k },
-		Sinusoidal: {
-			In: (k: number) => Math.sin((k * Math.PI) / 2),
-			Out: (k: number) => Math.sin(((k + 1) * Math.PI) / 2),
-			InOut: (k: number) => (Math.sin(k * Math.PI) + 1) / 2,
-		},
-	},
-};
 
 import loadInfernalAbilities from '../../abilities/Infernal';
 import { Animations } from '../../animations';

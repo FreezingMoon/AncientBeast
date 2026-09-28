@@ -2,11 +2,6 @@ import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-jest.mock('phaser-ce', () => ({
-	Point: class PointMock {},
-	Polygon: class PolygonMock {},
-}));
-
 jest.mock('../../damage', () => ({
 	Damage: class DamageMock {
 		damages: unknown;

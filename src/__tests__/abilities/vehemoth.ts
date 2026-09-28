@@ -1,9 +1,12 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 
-jest.mock('phaser-ce', () => ({
-	Point: class PointMock {},
-	Polygon: class PolygonMock {},
-}));
+// The real Phaser bundle needs a canvas context at import time, which jsdom
+// does not provide; `plasma-field` reaches it for `BlendModes`.
+jest.mock('phaser', () =>
+	(
+		jest.requireActual('../../../test/phaser-mock') as typeof import('../../../test/phaser-mock')
+	).createPhaserMock(),
+);
 
 jest.mock('../../damage', () => ({
 	Damage: class DamageMock {
@@ -97,14 +100,6 @@ describe('Vehemoth Falling Arrow damage fallback', () => {
 	};
 
 	beforeEach(() => {
-		(global as { Phaser?: { Easing: { Linear: { None: string } } } }).Phaser = {
-			Easing: {
-				Linear: {
-					None: 'linear-none',
-				},
-			},
-		};
-
 		game = {
 			abilities: {},
 			Phaser: {

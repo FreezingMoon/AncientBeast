@@ -60,11 +60,6 @@ type GameMock = {
 	};
 };
 
-jest.mock('phaser-ce', () => ({
-	Point: class PointMock {},
-	Polygon: class PolygonMock {},
-}));
-
 jest.mock('../../utility/hex', () => ({
 	Direction: {
 		None: -1,

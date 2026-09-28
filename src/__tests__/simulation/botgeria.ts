@@ -16,256 +16,137 @@ class SimSignal {
 		}
 	}
 }
-// ─── Phaser global ───────────────────────────────────────────────────────────
-// creature.ts references the Phaser namespace as a global (not an import),
-// e.g. `Phaser.Easing.Linear.None`. Jest runs without webpack's ProvidePlugin,
-// so we must define it on the global object ourselves.
-declare const globalThis: typeof global & { [key: string]: unknown };
+// ─── UI module mock ──────────────────────────────────────────────────────────
+// `Game.setup()` instantiates the real jQuery-bound UI, which needs the full
+// game DOM. The harness replaces `game.UI` with a stub anyway, so the real
+// class is never used.
+jest.mock('../../ui/interface', () => {
+	const deepNoop = (): unknown => {
+		const fn = function () {
+			return deepNoop();
+		};
+		return new Proxy(fn, {
+			get: () => deepNoop(),
+			apply: () => deepNoop(),
+		});
+	};
 
-(globalThis as Record<string, unknown>).Phaser = {
-	Easing: {
-		Linear: { None: 'Linear.None' },
-		Quadratic: { In: 'Quad.In', Out: 'Quad.Out', InOut: 'Quad.InOut' },
-		Back: { Out: 'Back.Out' },
+	return {
+		UI: class UIStub {
+			constructor() {
+				return new Proxy(
+					{ selectedAbility: -1, dashopen: false, active: false },
+					{
+						get: (target, prop) => (prop in target ? target[prop as string] : deepNoop()),
+						set: (target, prop, value) => {
+							target[prop as string] = value;
+							return true;
+						},
+					},
+				);
+			}
+		},
+	};
+});
+
+// ─── Phaser module mock ─────────────────────────────────────────────────────
+// The real Phaser 4 bundle boots a renderer at import time, which jsdom cannot
+// satisfy. Only the value exports AB actually imports are provided here.
+jest.mock('phaser', () => ({
+	Scene: class SceneMock {
+		sys: { settings: { key: ''; data: Record<string, unknown> } };
 	},
+	Math: {
+		Vector2: class Vector2Mock {
+			x: number;
+			y: number;
+			constructor(x?: number, y?: number) {
+				this.x = x ?? 0;
+				this.y = y ?? 0;
+			}
+			set(x: number, y?: number): this {
+				this.x = x;
+				this.y = y ?? x;
+				return this;
+			}
+			setTo(x: number, y?: number): this {
+				return this.set(x, y);
+			}
+			clone(): this {
+				return new (this.constructor as any)(this.x, this.y);
+			}
+			copy(src: any): this {
+				this.x = src.x;
+				this.y = src.y;
+				return this;
+			}
+		},
+	},
+	Vector2: class Vector2Mock {
+		x: number;
+		y: number;
+		constructor(x?: number, y?: number) {
+			this.x = x ?? 0;
+			this.y = y ?? 0;
+		}
+		set(x: number, y?: number): this {
+			this.x = x;
+			this.y = y ?? x;
+			return this;
+		}
+		setTo(x: number, y?: number): this {
+			return this.set(x, y);
+		}
+		clone(): this {
+			return new (this.constructor as any)(this.x, this.y);
+		}
+		copy(src: any): this {
+			this.x = src.x;
+			this.y = src.y;
+			return this;
+		}
+	},
+	GameObjects: {
+		Polygon: class PolygonGameObjectMock {
+			constructor(_scene?: unknown, _x?: number, _y?: number, points?: unknown) {
+				(this as any).points = points ?? [];
+			}
+			contains() {
+				return true;
+			}
+		},
+	},
+	Polygon: class PolygonMock {
+		points: any[];
+		constructor(points?: any[]) {
+			this.points = points ?? [];
+		}
+		contains(_x: number, _y: number) {
+			return true;
+		}
+	},
+	Geom: {
+		Polygon: class GeomPolygonMock {
+			points: any[];
+			constructor(points?: any[]) {
+				this.points = points ?? [];
+			}
+			contains(_x: number, _y: number) {
+				return true;
+			}
+		},
+	},
+	BlendModes: { ADD: 1, NORMAL: 0, MULTIPLY: 2, SCREEN: 3 },
 	AUTO: 0,
 	CANVAS: 1,
-	CENTER: 11, // Phaser.CENTER constant used by alignIn
-	Signal: class PhaserGlobalSignal {
+	Scale: { NO_CENTER: 0, CENTER_BOTH: 1, FIT: 1, RESIZE: 5 },
+	Signal: class SignalMock {
 		add() {}
-		dispatch() {}
 		remove() {}
+		dispatch() {}
 	},
-};
-
-// ─── Phaser mock ─────────────────────────────────────────────────────────────
-
-/**
- * Returns a tween stub whose `.onComplete` resolves the returned Promise
- * immediately (synchronously via a microtask) so movement / animation
- * callbacks fire without any real time passing.
- */
-function makeTween() {
-	let completeCb: (() => void) | null = null;
-	type TweenTarget = Record<string, any>;
-	const tween = {
-		isRunning: true,
-		_target: null as TweenTarget | null,
-		_props: null as Record<string, any> | null,
-		to(props: Record<string, any>, _duration: number, _easing?: any, autoStart = false) {
-			this._props = props;
-			if (autoStart) {
-				// Apply properties synchronously
-				if (this._target) {
-					Object.assign(this._target, props);
-				}
-				Promise.resolve().then(() => completeCb?.());
-			}
-			return this;
-		},
-		start() {
-			if (this._target && this._props) {
-				Object.assign(this._target, this._props);
-			}
-			Promise.resolve().then(() => completeCb?.());
-			return this;
-		},
-		stop() {
-			this.isRunning = false;
-			return this;
-		},
-		yoyo: () => tween,
-		repeat: () => tween,
-		onUpdateCallback: () => tween,
-		onComplete: {
-			add(cb: (...args: any[]) => void, context?: any) {
-				completeCb = context ? cb.bind(context) : cb;
-			},
-			addOnce(cb: (...args: any[]) => void, context?: any) {
-				completeCb = context ? cb.bind(context) : cb;
-			},
-		},
-	};
-	return tween;
-}
-
-function makePhaserGroup() {
-	const grp: Record<string, any> = {
-		x: 0,
-		y: 0,
-		alpha: 1,
-		angle: 0,
-		exists: true,
-		children: [] as any[],
-		position: {
-			set(x: number, y: number) {
-				grp.x = x;
-				grp.y = y;
-			},
-		},
-		scale: {
-			x: 1,
-			y: 1,
-			setTo(x: number, y: number) {
-				(this as any).x = x;
-				(this as any).y = y;
-			},
-			set(x: number, y: number) {
-				(this as any).x = x;
-				(this as any).y = y;
-			},
-		},
-		add: (child: any) => {
-			(grp.children as any[]).push(child);
-			return child;
-		},
-		remove: () => undefined,
-		removeChild: () => undefined,
-		addChild: () => undefined,
-		create: () => makePhaserSprite(),
-		forEach: () => undefined,
-		sendToBack: () => undefined,
-		bringToTop: () => undefined,
-		setChildIndex: () => undefined,
-		getChildIndex: () => 0,
-		sort: () => undefined,
-		update: () => undefined,
-		alignIn: () => undefined,
-		destroy: () => undefined,
-	};
-	return grp;
-}
-
-function makePhaserSprite() {
-	const sprite: Record<string, any> = {
-		x: 0,
-		y: 0,
-		alpha: 1,
-		angle: 0,
-		rotation: 0,
-		exists: true,
-		key: '',
-		text: '',
-		inputEnabled: false,
-		ignoreChildInput: false,
-		input: { useHandCursor: false, priorityID: 0 },
-		events: {
-			onInputUp: { add: () => undefined },
-			onInputDown: { add: () => undefined },
-			onInputOver: { add: () => undefined },
-			onInputOut: { add: () => undefined },
-		},
-		anchor: {
-			x: 0,
-			y: 0,
-			setTo(x: number, y: number) {
-				(this as any).x = x;
-				(this as any).y = y;
-			},
-			set(x: number, y: number) {
-				(this as any).x = x;
-				(this as any).y = y;
-			},
-		},
-		scale: {
-			x: 1,
-			y: 1,
-			setTo(x: number, y: number) {
-				(this as any).x = x;
-				(this as any).y = y;
-			},
-		},
-		texture: { width: 10, height: 10 },
-		width: 10,
-		height: 10,
-		position: {
-			x: 0,
-			y: 0,
-			set(x: number, y: number) {
-				(this as any).x = x;
-				(this as any).y = y;
-			},
-		},
-		data: {},
-		parent: null as any,
-		getBounds: () => ({ x: 0, y: 0, width: 10, height: 10 }),
-		loadTexture: () => undefined,
-		alignIn: () => undefined,
-		destroy: () => undefined,
-		kill: () => undefined,
-		revive: () => undefined,
-		// Phaser.Graphics methods (used when Phaser.add.graphics() returns a sprite stub)
-		beginFill: () => undefined,
-		drawRect: () => undefined,
-		endFill: () => undefined,
-		clear: () => undefined,
-		mask: null as any,
-	};
-	return sprite;
-}
-
-function makePhaserBitmapData() {
-	return {
-		width: 10,
-		height: 10,
-		canvas: {
-			getContext: () => ({
-				drawImage: () => undefined,
-				putImageData: () => undefined,
-				getImageData: () => ({ data: new Uint8ClampedArray(0) }),
-			}),
-		},
-		context: {
-			drawImage: () => undefined,
-			putImageData: () => undefined,
-			getImageData: () => ({ data: new Uint8ClampedArray(0) }),
-		},
-		dirty: false,
-		destroy: () => undefined,
-	};
-}
-
-/** Full Phaser mock — all paths used by HexGrid / Creature / Animations */
-export function buildPhaserMock() {
-	const phaser: Record<string, any> = {
-		world: { width: 1920, height: 1080 },
-		width: 1920,
-		height: 1080,
-		scale: {
-			parentIsWindow: false,
-			pageAlignHorizontally: false,
-			pageAlignVertically: false,
-			scaleMode: 0,
-			fullScreenScaleMode: 0,
-			refresh: () => undefined,
-		},
-		stage: {
-			disableVisibilityChange: false,
-			forcePortrait: false,
-		},
-		device: { desktop: true },
-		camera: { shake: () => undefined },
-		load: {
-			progress: 100,
-			onFileComplete: { add: () => undefined },
-			onLoadComplete: { add: () => undefined },
-			start: () => undefined,
-		},
-		add: {
-			group: (_parent?: unknown, _name?: string) => makePhaserGroup(),
-			sprite: (_x?: number, _y?: number, _key?: string) => makePhaserSprite(),
-			tween: (target: unknown) => {
-				const t = makeTween();
-				t._target = target;
-				return t;
-			},
-			text: (_x?: number, _y?: number, _text?: string, _style?: unknown) => makePhaserSprite(),
-			bitmapData: (_w?: number, _h?: number) => makePhaserBitmapData(),
-			graphics: () => makePhaserSprite(),
-		},
-	};
-	return phaser;
-}
+	default: class PhaserMock {},
+}));
 
 // ─── Real Signal implementation ──────────────────────────────────────────────
 
@@ -308,6 +189,12 @@ class MockAnimations {
 	constructor(game: any) {
 		this.game = game;
 	}
+
+	/** Cosmetic effect setup; simulation never renders, so this is a no-op. */
+	initInfernalCardboardEffect(_creature: unknown, _sprite: unknown) {}
+
+	/** Cosmetic effect teardown; simulation has nothing to dispose. */
+	disposeInfernalCardboardEffect(_creature: unknown) {}
 
 	/** Called by Creature.moveTo() via game.animations[animType](creature, path, opts) */
 	walk(creature: any, path: any[], opts: Record<string, any>) {
@@ -477,14 +364,11 @@ export async function createGame(abilities: Array<(G: any) => void>): Promise<an
 	const Game = GameModule.default;
 	const game: any = new Game();
 
-	// Replace game.Phaser with our fully-featured mock so all subsequent calls
-	// (setup, HexGrid construction, Creature sprites, etc.) use a consistent mock
-	// with proper sprite/group/tween support.
-	game.Phaser = buildPhaserMock();
-	// Wrap the mock in the engine adapter so gameplay code uses gameEngine
-	// instead of game.Phaser directly.
-	const { Phaser2Engine } = await import('../../engine/Phaser2Engine');
-	const engine = new Phaser2Engine(game.Phaser);
+	// Headless engine: the neutral `GameEngine` vocabulary with inert handles and
+	// no renderer. Gameplay code talks to `gameEngine`, never to raw Phaser, so
+	// the simulation never needs a Phaser instance at all.
+	const { NullEngine } = await import('../../engine/NullEngine');
+	const engine = new NullEngine();
 	// Expose the existing signal channels through the adapter
 	for (const ch of Object.keys(game.signals)) {
 		engine.signals[ch] = game.signals[ch];

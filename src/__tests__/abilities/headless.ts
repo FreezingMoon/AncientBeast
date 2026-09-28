@@ -3,12 +3,35 @@ import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 jest.mock('phaser', () => ({
+	Math: {
+		Vector2: class Vector2Mock {
+			x = 0;
+			y = 0;
+			constructor(x = 0, y = 0) {
+				this.x = x;
+				this.y = y;
+			}
+		},
+	},
+	GameObjects: {
+		Polygon: class PolygonGameObjectMock {
+			constructor(_scene?: unknown, _x?: number, _y?: number, points?: unknown) {
+				(this as any).points = points ?? [];
+			}
+			contains() {
+				return true;
+			}
+		},
+	},
 	Point: class PointMock {},
 	Polygon: class PolygonMock {},
 	Vector2: class Vector2Mock {
 		x = 0;
 		y = 0;
-		constructor(x = 0, y = 0) { this.x = x; this.y = y; }
+		constructor(x = 0, y = 0) {
+			this.x = x;
+			this.y = y;
+		}
 	},
 }));
 

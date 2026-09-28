@@ -2,19 +2,35 @@ import { jest, expect, describe, test, beforeEach, afterEach } from '@jest/globa
 
 jest.mock('pixi', () => ({}), { virtual: true });
 jest.mock('p2', () => ({}), { virtual: true });
-jest.mock('phaser-ce', () => ({
-	Point: class PointMock {},
-	Polygon: class PolygonMock {},
+jest.mock('phaser', () => ({
+	// Phaser 4 exposes the scene base class as `Scene`; AB's scene extends it.
+	Scene: class SceneMock {
+		sys: { settings: { key: ''; data: Record<string, unknown> } };
+	},
+	Math: {
+		Vector2: class Vector2Mock {
+			x = 0;
+			y = 0;
+			constructor(x = 0, y = 0) {
+				this.x = x;
+				this.y = y;
+			}
+		},
+	},
+	GameObjects: {
+		Polygon: class PolygonGameObjectMock {
+			constructor(_scene?: unknown, _x?: number, _y?: number, points?: unknown) {
+				(this as any).points = points ?? [];
+			}
+			contains() {
+				return true;
+			}
+		},
+	},
+
+	Signal: class SignalMock {},
 	default: class PhaserMock {},
 }));
-jest.mock(
-	'phaser',
-	() => ({
-		Signal: class SignalMock {},
-		default: class PhaserMock {},
-	}),
-	{ virtual: true },
-);
 
 import Game from '../game';
 import { UI } from '../ui/interface';
@@ -207,21 +223,22 @@ describe('Game Phaser boot timing', () => {
 
 	test('whenPhaserBooted waits until the current Phaser instance exposes its loader', () => {
 		const onBooted = jest.fn();
-		const phaser = {
-			isBooted: false,
-			load: null,
-		} as unknown as Game['Phaser'];
+		// Phaser 4 owns the loader on the scene, not on the game object.
+		const scene = { load: null } as unknown as { load: object | null };
+		const phaser = { isBooted: false } as unknown as Game['Phaser'];
 		const game = {
 			Phaser: phaser,
+			phaserScene: scene,
 			whenPhaserBooted: Game.prototype.whenPhaserBooted,
+			getPhaserLoad: Game.prototype['getPhaserLoad' as keyof Game],
 		} as unknown as Game;
 
 		Game.prototype.whenPhaserBooted.call(game, phaser, onBooted);
 
 		expect(onBooted).not.toHaveBeenCalled();
 
-		(phaser as { isBooted: boolean; load: object | null }).isBooted = true;
-		(phaser as { isBooted: boolean; load: object | null }).load = {};
+		(phaser as { isBooted: boolean }).isBooted = true;
+		scene.load = {};
 		jest.runOnlyPendingTimers();
 
 		expect(onBooted).toHaveBeenCalledTimes(1);

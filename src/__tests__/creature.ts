@@ -1,6 +1,15 @@
+import { jest, expect, describe, test, beforeEach, beforeAll } from '@jest/globals';
+
+// The real Phaser bundle needs a canvas context at import time, which jsdom
+// does not provide; `plasma-field` reaches it for `BlendModes`.
+jest.mock('phaser', () =>
+	(
+		jest.requireActual('../../test/phaser-mock') as typeof import('../../test/phaser-mock')
+	).createPhaserMock(),
+);
+
 import { Creature } from '../creature';
 import { Effect } from '../effect';
-import { jest, expect, describe, test, beforeEach, beforeAll } from '@jest/globals';
 
 // NOTE: ts-comments are necessary in this file to avoid mocking the entire game.
 /* eslint-disable @typescript-eslint/ban-ts-comment */

@@ -652,16 +652,26 @@ describe('HexGrid xray hover behavior', () => {
 	});
 
 	test('orderCreatureZ assigns shared depth bands within each row', () => {
-		const row0Creature = { y: 0, grp: { z: -1 } };
-		const row1Creature = { y: 1, grp: { z: -1 } };
-		const row0Drop = { y: 0, display: { z: -1 } };
-		const row0Materialize = { posy: 0, z: -1 };
-		const row0TrapUnderFx = { z: -1, parent: { id: 'trap-group' } };
-		const row0TrapOverFx = { z: -1, parent: { id: 'trap-over-group' } };
+		// Phaser 4 owns render order through the native `depth` property;
+		// `z` is reserved for the height of a light in the lighting pipeline.
+		// Rows are inverted so that bottom-of-screen rows (high y) render behind
+		// top-of-screen rows (low y) in the oblique perspective.
+		const depthSprite = (parent?: unknown) => {
+			const sprite: any = { depth: -1, setDepth: (v: number) => (sprite.depth = v) };
+			if (parent) sprite.parent = parent;
+			return sprite;
+		};
+		const row0Creature = { y: 0, grp: depthSprite() };
+		const row1Creature = { y: 1, grp: depthSprite() };
+		const row0Drop = { y: 0, display: depthSprite() };
+		const row0Materialize = depthSprite();
+		(row0Materialize as any).posy = 0;
+		const row0TrapUnderFx = depthSprite();
+		const row0TrapOverFx = depthSprite();
 		const row0Trap = {
 			y: 0,
-			display: { z: -1, parent: { id: 'trap-group' } },
-			displayOver: { z: -1 },
+			display: depthSprite(),
+			displayOver: depthSprite(),
 			getVisualSprites: () => [row0Trap.display, row0TrapUnderFx, row0TrapOverFx],
 		};
 
@@ -696,18 +706,18 @@ describe('HexGrid xray hover behavior', () => {
 
 		HexGrid.prototype.orderCreatureZ.call(gridMock);
 
-		expect(row0Trap.display.z).toBe(0);
-		expect(row0TrapUnderFx.z).toBe(20);
-		expect(row0Creature.grp.z).toBe(40);
-		expect(row0Drop.display.z).toBe(85);
-		expect(row0Materialize.z).toBe(80);
-		expect(row0TrapOverFx.z).toBe(90);
-		expect(row0Trap.displayOver.z).toBe(91);
-		expect(row1Creature.grp.z).toBe(140);
-		expect(trapSort).toHaveBeenCalledWith('z', -1);
-		expect(creatureSort).toHaveBeenCalledWith('z', -1);
-		expect(dropSort).toHaveBeenCalledWith('z', -1);
-		expect(trapOverSort).toHaveBeenCalledWith('z', -1);
+		expect(row0Trap.display.depth).toBe(0);
+		expect(row0TrapUnderFx.depth).toBe(20);
+		expect(row0Creature.grp.depth).toBe(40);
+		expect(row0Drop.display.depth).toBe(85);
+		expect(row0Materialize.depth).toBe(80);
+		expect(row0TrapOverFx.depth).toBe(90);
+		expect(row0Trap.displayOver.depth).toBe(91);
+		expect(row1Creature.grp.depth).toBe(140);
+		expect(trapSort).toHaveBeenCalledWith('depth', -1);
+		expect(creatureSort).toHaveBeenCalledWith('depth', -1);
+		expect(dropSort).toHaveBeenCalledWith('depth', -1);
+		expect(trapOverSort).toHaveBeenCalledWith('depth', -1);
 	});
 
 	test('clearAllXray can clear immediately without fade state', () => {
