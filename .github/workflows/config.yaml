@@ -48,6 +48,15 @@ jobs:
        - name: Run tests
          run: npm test
 
+       # Headless-engine smoke test: the simulation drives the real engine
+       # through NullEngine, so it catches adapter regressions that the unit
+       # tests (which use lightweight mocks) cannot.
+       - name: Simulation smoke test
+         run: npm run simulate
+         env:
+           SIM_BASELINE: 3
+           SIM_VARIANT: 2
+
   deploy:
     runs-on: ubuntu-22.04
     needs: test

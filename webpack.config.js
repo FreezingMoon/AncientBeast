@@ -110,21 +110,9 @@ module: {
 					exclude: [/node_modules/, /[\\/]__tests__[\\/]/],
 				},
 			{
-				test: /phaser\.js$/,
-				loader: 'expose-loader',
-				options: {
-					exposes: [
-						{
-							globalName: 'Phaser',
-							override: true,
-						},
-					],
-				},
-			},
-			{
 				test: /\.html$/,
-					use: ['html-loader'],
-				},
+				use: ['html-loader'],
+			},
 				{
 					test: /\.less$/,
 					use: ['style-loader', 'css-loader', 'less-loader'],

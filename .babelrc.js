@@ -11,8 +11,12 @@ module.exports = (api) => {
 	return {
 		plugins: ['@babel/plugin-transform-runtime'],
 		presets: [
-			// Enabling Babel to understand TypeScript
-			'@babel/preset-typescript',
+			/**
+			 * Presets are applied bottom-up, so `@babel/preset-env` has to be
+			 * listed first. Running the class transform before the TypeScript
+			 * one leaves TypeScript-only syntax (e.g. constructor parameter
+			 * properties) in the output, which is a parse error under Jest.
+			 */
 			[
 				// Allows smart transpilation according to target environments
 				'@babel/preset-env',
@@ -26,6 +30,8 @@ module.exports = (api) => {
 					modules: isTest ? 'commonjs' : false,
 				},
 			],
+			// Enabling Babel to understand TypeScript
+			'@babel/preset-typescript',
 		],
 	};
 };
