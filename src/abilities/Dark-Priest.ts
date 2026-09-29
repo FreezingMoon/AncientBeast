@@ -318,7 +318,9 @@ export default (G: Game) => {
 					return item.isWalkable(crea.size, 0, false);
 				});
 
-				spawnRange = arrayUtils.extendToLeft(spawnRange, crea.size, G.grid);
+				spawnRange = dpriest.player.flipped
+					? arrayUtils.extendToRight(spawnRange, crea.size, G.grid)
+					: arrayUtils.extendToLeft(spawnRange, crea.size, G.grid);
 
 				G.grid.queryHexes({
 					fnOnSelect: function (hex, args) {
