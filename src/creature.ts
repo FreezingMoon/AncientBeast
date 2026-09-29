@@ -2413,10 +2413,21 @@ class CreatureSprite {
 	private _xrayTargetAlpha = 0; // target intensity for fade animation
 	private _xrayBmd: any | null = null;
 	private _originalTextureKey: string;
-	private _xrayOriginalSrc: CanvasImageSource | null = null;
+	/** Cardboard pixel rows for the obstructor, built once per xray session. */
+	private _xrayOriginalAlpha: Uint8ClampedArray | null = null;
+	/** Cardboard silhouettes for the refs, snapped once per xray session. */
+	private _xrayRefAlpha: {
+		size: number;
+		entries: Array<{
+			rgba: Uint8ClampedArray;
+			width: number;
+			height: number;
+			xrayDepth: number;
+		} | null>;
+	} | null = null;
+	/** Union of ref-creature cardboard silhouettes, in obstructor bitmap pixels. */
+	private _xrayMaskAlpha: Uint8Array | null = null;
 	private _xrayRefCreatures: Creature[] = []; // all ref creatures whose shape we cut out
-	private _xrayScratch: HTMLCanvasElement | null = null; // Part B scratch
-	private _xrayMask: HTMLCanvasElement | null = null; // union of all ref shapes
 
 	private _postUpdateHooks: Array<() => void> = [];
 
@@ -2515,45 +2526,18 @@ class CreatureSprite {
 
 		this._originalTextureKey = spriteKey;
 
-		// Install a per-frame update hook on the group. Phaser calls group.update()
-		// every step AFTER tweens have run, which is exactly when we need to redraw
-		// the xray BitmapData so the cutout tracks movement smoothly.
-		const _groupUpdate = this._group.update.bind(this._group);
-		const XRAY_FADE_RATE = 0.08; // ~160 ms fade at 60 fps
+		// Phaser 4 containers have no `update()` tick — `phaserUpdate()` drives
+		// the fade/cutout below via `tickXray()`. Keep the historic `_group.update`
+		// override (tests and any legacy callers may still invoke it) but make
+		// it delegate to the same tick.
+		const groupHandle = this._group as { update?: unknown };
+		const _groupUpdate =
+			typeof groupHandle.update === 'function'
+				? (groupHandle.update as () => void).bind(this._group)
+				: () => undefined;
 		this._group.update = () => {
 			_groupUpdate();
-			game.animations.tickInfernalCardboardEffect(this._creature);
-			// Animate xray alpha toward target
-			if (this._xrayAlpha < this._xrayTargetAlpha) {
-				this._xrayAlpha = Math.min(this._xrayTargetAlpha, this._xrayAlpha + XRAY_FADE_RATE);
-			} else if (this._xrayAlpha > this._xrayTargetAlpha) {
-				this._xrayAlpha = Math.max(this._xrayTargetAlpha, this._xrayAlpha - XRAY_FADE_RATE);
-			}
-			// Sync health indicator world position when it lives in the elevated UI group
-			if (this._healthInUiGroup) {
-				this._healthIndicatorGroup.x = this._group.x;
-				this._healthIndicatorGroup.y = this._group.y + this._healthBounceOffset;
-			}
-			// Fade health indicator group in sync with the xray sprite effect.
-			// The health group is a separate Phaser object rendered on top of the
-			// sprite, so sprite BitmapData tricks can't hide it — we must set its
-			// alpha directly so the reference creature's badge shows through.
-			const hiAlpha = 1.0 - (1.0 - 0.2) * this._xrayAlpha;
-			this._healthIndicatorGroup.alpha = hiAlpha;
-			if (this._xrayBmd && this._xrayRefCreatures.length > 0) {
-				if (this._xrayAlpha <= 0 && this._xrayTargetAlpha === 0) {
-					// Fade-out complete — restore original texture
-					this._finalizeXrayOff();
-				} else {
-					this._drawXrayBmd(this._xrayRefCreatures, this._xrayBmd);
-				}
-			}
-
-			// Run per-frame hooks registered by effects attached to this creature
-			// (e.g. keeping the Plasma Field visual centered on the Dark Priest).
-			for (let i = 0; i < this._postUpdateHooks.length; i++) {
-				this._postUpdateHooks[i]();
-			}
+			this.tickXray();
 		};
 
 		this.setHex(creature.hexagons[size - 1]);
@@ -2573,6 +2557,50 @@ class CreatureSprite {
 	/** Registers a per-frame hook run from the group update (after tweens). */
 	addPostUpdateHook(fn: () => void): void {
 		this._postUpdateHooks.push(fn);
+	}
+
+	/**
+	 * Advances the xray fade and redraws the cutout so it tracks movement.
+	 * Called once per Phaser frame from `Game.phaserUpdate()`; the `_group.update`
+	 * override above delegates here too for legacy callers.
+	 */
+	tickXray(): void {
+		this._creature.game.animations?.tickInfernalCardboardEffect?.(this._creature);
+		const XRAY_FADE_RATE = 0.08; // ~160 ms fade at 60 fps
+		// Animate xray alpha toward target
+		if (this._xrayAlpha < this._xrayTargetAlpha) {
+			this._xrayAlpha = Math.min(this._xrayTargetAlpha, this._xrayAlpha + XRAY_FADE_RATE);
+		} else if (this._xrayAlpha > this._xrayTargetAlpha) {
+			this._xrayAlpha = Math.max(this._xrayTargetAlpha, this._xrayAlpha - XRAY_FADE_RATE);
+		}
+		// Sync health indicator world position when it lives in the elevated UI group
+		if (this._healthInUiGroup) {
+			this._healthIndicatorGroup.x = this._group.x;
+			this._healthIndicatorGroup.y = this._group.y + this._healthBounceOffset;
+		}
+		// Fade health indicator group in sync with the xray sprite effect.
+		// The health group is a separate Phaser object rendered on top of the
+		// sprite, so sprite BitmapData tricks can't hide it — we must set its
+		// alpha directly so the reference creature's badge shows through.
+		const hiAlpha = 1.0 - (1.0 - 0.2) * this._xrayAlpha;
+		this._healthIndicatorGroup.alpha = hiAlpha;
+		if (this._xrayBmd && this._xrayRefCreatures.length > 0) {
+			if (this._xrayAlpha <= 0 && this._xrayTargetAlpha === 0) {
+				// Fade-out complete — restore original texture
+				this._finalizeXrayOff();
+			} else if (!this._safeDrawXray(this._xrayRefCreatures, this._xrayBmd)) {
+				// Keep the original cardboard when a redraw can't produce
+				// pixels (missing source, blank mask) instead of stranding the
+				// sprite on a blank bitmap.
+				this._finalizeXrayOff();
+			}
+		}
+
+		// Run per-frame hooks registered by effects attached to this creature
+		// (e.g. keeping the Plasma Field visual centered on the Dark Priest).
+		for (let i = 0; i < this._postUpdateHooks.length; i++) {
+			this._postUpdateHooks[i]();
+		}
 	}
 
 	// TODO: Refactor
@@ -2665,14 +2693,10 @@ class CreatureSprite {
 			this._isXray = true;
 			this._xrayTargetAlpha = 1;
 			// Replace the active hover reference instead of accumulating old ones.
-			const alpha = this._xrayAlpha;
-			const targetAlpha = this._xrayTargetAlpha;
-			this._xrayScratch = null;
-			this._xrayMask = null;
+			// Re-snap both the obstructor and the refs: a rebuilt bitmap is only
+			// correct when every silhouette comes from the pre-swap cardboards.
+			this._xrayMaskAlpha = null;
 			this._xrayRefCreatures = nextRefCreatures.slice();
-			this._xrayAlpha = alpha;
-			this._xrayTargetAlpha = targetAlpha;
-			this._isXray = true;
 			this._buildXrayTexture(this._xrayRefCreatures);
 		} else if (enable) {
 			// Ignore legacy calls that try to enable xray without a reference target.
@@ -2702,62 +2726,69 @@ class CreatureSprite {
 	private _finalizeXrayOff() {
 		this._healthIndicatorGroup.alpha = 1;
 		this._xrayRefCreatures = [];
-		this._xrayScratch = null;
-		this._xrayMask = null;
-		if (this._xrayBmd && this._isDrawableImageSource(this._xrayOriginalSrc)) {
-			const bmd = this._xrayBmd;
-			const ctx = bmd.context;
-			ctx.clearRect(0, 0, bmd.width, bmd.height);
-			const drewOriginal = this._drawSpriteFrame(
-				ctx,
-				this._sprite,
-				this._xrayOriginalSrc,
-				0,
-				0,
-				bmd.width,
-				bmd.height,
-			);
-			if (!drewOriginal) {
-				this._sprite.loadTexture(this._originalTextureKey);
-				return;
-			}
-			bmd.dirty = true;
-			bmd.update();
-
-			if (this._sprite.texture.baseTexture.source !== (bmd.canvas as CanvasImageSource)) {
-				this._sprite.loadTexture(bmd);
-			}
-			return;
-		}
-
+		this._xrayOriginalAlpha = null;
+		this._xrayRefAlpha = null;
+		this._xrayMaskAlpha = null;
 		this._sprite.loadTexture(this._originalTextureKey);
 	}
 
 	private _buildXrayTexture(refCreatures: Creature[]) {
 		const otw = this._sprite.texture.width;
 		const oth = this._sprite.texture.height;
-
-		// Capture the original image source BEFORE swapping the texture to the BitmapData.
-		// After loadTexture(bmd), sprite.texture.baseTexture.source would be the BitmapData
-		// canvas itself, causing a circular self-draw on subsequent frames.
-		if (!this._isDrawableImageSource(this._xrayOriginalSrc)) {
-			this._xrayOriginalSrc = this._resolveSpriteDrawSource(this._sprite);
-			if (!this._xrayOriginalSrc) {
-				this._clearXrayTexture();
-				return;
-			}
+		if (!(otw > 0) || !(oth > 0)) {
+			return;
 		}
-		this._xrayRefCreatures = refCreatures.slice(); // copy to avoid external mutation
 
-		const scratch = document.createElement('canvas');
-		scratch.width = otw;
-		scratch.height = oth;
-		this._xrayScratch = scratch;
-
-		const mask = document.createElement('canvas');
-		mask.width = otw;
-		mask.height = oth;
-		this._xrayMask = mask;
+		// Snapshot the obstructor's cardboard pixels BEFORE swapping the texture
+		// to the BitmapData. After loadTexture(bmd), resolving through the live
+		// sprite would self-sample the xray bitmap and blank the redraw.
+		const original = this._snapshotCardboardPixels(this._sprite, this._originalTextureKey);
+		if (!original) {
+			return;
+		}
+		// The snapshot is at native cardboard size; if a stale bitmap from a
+		// different-size texture lingers, drop it so dimensions always match.
+		if (original.width !== otw || original.height !== oth) {
+			return;
+		}
+		const refEntries: Array<{
+			rgba: Uint8ClampedArray;
+			width: number;
+			height: number;
+			xrayDepth: number;
+		} | null> = [];
+		for (const refCreature of refCreatures) {
+			const refSprite = (refCreature as Creature)?.sprite as any;
+			// Trap/drop reveal markers are `{sprite, grp}` stand-ins without a
+			// `Creature` behind them; use the sprite's own key so the trap art
+			// resolves instead of the obstructor's texture.
+			const refKey =
+				typeof (refCreature as { name?: unknown })?.name === 'string'
+					? ((refCreature as { name: string }).name as string)
+					: typeof refSprite?.key === 'string'
+					? (refSprite.key as string)
+					: undefined;
+			const snapshot = this._snapshotCardboardPixels(refSprite, refKey);
+			if (!snapshot) {
+				refEntries.push(null);
+				continue;
+			}
+			const depthValue = Number(
+				(refCreature as unknown as { grp?: { depth?: unknown } })?.grp?.depth,
+			);
+			refEntries.push({
+				rgba: snapshot.rgba,
+				width: snapshot.width,
+				height: snapshot.height,
+				xrayDepth: Number.isFinite(depthValue) ? depthValue : 0,
+			});
+		}
+		if (!refEntries.some((entry) => entry !== null)) {
+			return;
+		}
+		this._xrayOriginalAlpha = original.rgba;
+		this._xrayRefAlpha = { size: refCreatures.length, entries: refEntries };
+		this._xrayMaskAlpha = null;
 
 		let bmd = this._xrayBmd;
 		if (!bmd || bmd.width !== otw || bmd.height !== oth) {
@@ -2767,11 +2798,85 @@ class CreatureSprite {
 			bmd = this._gameEngine.add.bitmapData(otw, oth);
 		}
 		this._xrayBmd = bmd;
+		this._xrayRefCreatures = refCreatures.slice(); // copy to avoid external mutation
 
-		this._drawXrayBmd(this._xrayRefCreatures, bmd);
-		if (this._sprite.texture.baseTexture.source !== (bmd.canvas as CanvasImageSource)) {
-			this._sprite.loadTexture(bmd);
+		if (!this._safeDrawXray(this._xrayRefCreatures, bmd)) {
+			return;
 		}
+		this._sprite.loadTexture(bmd);
+	}
+
+	private _resolveFrameSourceRect(
+		sprite: any,
+		fallbackW: number,
+		fallbackH: number,
+	): { sx: number; sy: number; sw: number; sh: number } | null {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const texture: any = sprite?.texture as any;
+		if (!texture) {
+			return null;
+		}
+		// `makeTextureView` answers both `crop` and `frame` from the live
+		// Phaser 4 `Frame`; read whichever spelling is present.
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const frame: any = texture.frame ?? texture.crop ?? null;
+		// Phaser 4 Canvas path draws `frame.source.image` at
+		// `(canvasData.x, canvasData.y)` with size `(cutWidth, cutHeight)`.
+		// The legacy `{x, y, width, height}` fallback below assumed the full
+		// source image, which misplaces creatures when the cardboard frame is
+		// trimmed/atlas-packed; prefer the cut rect that the renderer samples.
+		const cutX =
+			typeof frame?.cutX === 'number'
+				? frame.cutX
+				: typeof frame?.canvasData?.x === 'number'
+				? frame.canvasData.x
+				: undefined;
+		const cutY =
+			typeof frame?.cutY === 'number'
+				? frame.cutY
+				: typeof frame?.canvasData?.y === 'number'
+				? frame.canvasData.y
+				: undefined;
+		const cutW =
+			typeof frame?.cutWidth === 'number'
+				? frame.cutWidth
+				: typeof frame?.canvasData?.width === 'number'
+				? frame.canvasData.width
+				: undefined;
+		const cutH =
+			typeof frame?.cutHeight === 'number'
+				? frame.cutHeight
+				: typeof frame?.canvasData?.height === 'number'
+				? frame.canvasData.height
+				: undefined;
+		if (
+			typeof cutX === 'number' &&
+			typeof cutY === 'number' &&
+			typeof cutW === 'number' &&
+			typeof cutH === 'number' &&
+			cutW > 0 &&
+			cutH > 0
+		) {
+			return { sx: cutX, sy: cutY, sw: cutW, sh: cutH };
+		}
+		const sx = typeof frame?.x === 'number' ? frame.x : 0;
+		const sy = typeof frame?.y === 'number' ? frame.y : 0;
+		const sw =
+			typeof frame?.width === 'number' && frame.width > 0
+				? frame.width
+				: fallbackW > 0
+				? fallbackW
+				: 0;
+		const sh =
+			typeof frame?.height === 'number' && frame.height > 0
+				? frame.height
+				: fallbackH > 0
+				? fallbackH
+				: 0;
+		if (sw <= 0 || sh <= 0) {
+			return null;
+		}
+		return { sx, sy, sw, sh };
 	}
 
 	/**
@@ -2791,25 +2896,39 @@ class CreatureSprite {
 			return false;
 		}
 
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const texture: any = sprite.texture as any;
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const frame: any = texture.crop || texture.frame || { x: 0, y: 0, width: dw, height: dh };
-		const sx = typeof frame.x === 'number' ? frame.x : 0;
-		const sy = typeof frame.y === 'number' ? frame.y : 0;
-		const sw = typeof frame.width === 'number' ? frame.width : dw;
-		const sh = typeof frame.height === 'number' ? frame.height : dh;
-		if (sw <= 0 || sh <= 0) {
+		const rect = this._resolveFrameSourceRect(sprite, dw, dh);
+		if (!rect) {
 			return false;
 		}
 
-		ctx.drawImage(src, sx, sy, sw, sh, dx, dy, dw, dh);
+		ctx.drawImage(src, rect.sx, rect.sy, rect.sw, rect.sh, dx, dy, dw, dh);
 		return true;
 	}
 
 	private _isDrawableImageSource(src: unknown): src is CanvasImageSource {
 		if (!src) {
 			return false;
+		}
+		// Phaser 4 `TextureSource` wrappers carry the pixels under `.image`,
+		// but a CanvasTexture's entry can also be an `HTMLCanvasElement`
+		// itself, which has no `.image`. Only recurse when the property is
+		// present on the object.
+		if (
+			typeof src === 'object' &&
+			'image' in (src as Record<string, unknown>) &&
+			(src as { image?: unknown }).image !== undefined
+		) {
+			return this._isDrawableImageSource((src as { image?: unknown }).image);
+		}
+		if (
+			typeof src === 'object' &&
+			'source' in (src as Record<string, unknown>) &&
+			(src as { source?: unknown }).source !== undefined
+		) {
+			const inner = (src as { source?: unknown }).source;
+			if (inner && inner !== src && typeof inner === 'object') {
+				return this._isDrawableImageSource(inner);
+			}
 		}
 
 		if (typeof HTMLImageElement !== 'undefined' && src instanceof HTMLImageElement) {
@@ -2844,9 +2963,114 @@ class CreatureSprite {
 		return false;
 	}
 
-	private _resolveSpriteDrawSource(sprite: any): CanvasImageSource | null {
-		const src = sprite?.texture?.baseTexture?.source;
-		return this._isDrawableImageSource(src) ? src : null;
+	private _resolveSpriteDrawSource(sprite: any, cacheKey?: string): CanvasImageSource | null {
+		// Prefer the game-engine texture cache (the full cardboard pixels);
+		// fall back to the live Phaser texture chain. The facade must go last:
+		// once xrayed, its `baseTexture` view answers the xray bitmap itself,
+		// which would self-sample and blank the redraw.
+		const key = cacheKey ?? this._originalTextureKey ?? sprite?.key;
+		if (typeof key === 'string') {
+			try {
+				const cached = this._gameEngine.cache.getImage(key) as unknown;
+				if (this._isDrawableImageSource(cached)) {
+					return cached as CanvasImageSource;
+				}
+			} catch {
+				// Cache miss — fall through to the texture chain below.
+			}
+		}
+		const raw = (sprite?.__unwrapped ?? sprite) as
+			| {
+					texture?: { source?: unknown[]; getSourceImage?: (frame?: string) => unknown };
+					frame?: { name?: string };
+			  }
+			| undefined;
+		if (raw?.texture && typeof raw.texture.getSourceImage === 'function') {
+			try {
+				const fromApi = raw.texture.getSourceImage(raw.frame?.name) as unknown;
+				if (this._isDrawableImageSource(fromApi)) {
+					return fromApi as CanvasImageSource;
+				}
+			} catch {
+				// Fall through to the structural candidates below.
+			}
+		}
+		const texture = sprite?.texture as
+			| {
+					baseTexture?: { source?: unknown; image?: unknown };
+					source?: unknown;
+			  }
+			| undefined;
+		// Phaser 4 exposes the pixels as `Texture.source[i].image`
+		// (`TextureSource.image`), while the facade's `baseTexture` view
+		// answers `Texture.source[0]` (the `TextureSource` wrapper). Accept
+		// both so the cardboard can be resolved either through the facade or
+		// a raw game object.
+		const sources = Array.isArray((raw?.texture as { source?: unknown })?.source)
+			? ((raw.texture as { source: unknown[] }).source as unknown[])
+			: [];
+		const candidates = [
+			...sources.map((entry) => (entry as { image?: unknown })?.image ?? entry),
+			texture?.baseTexture?.image,
+			texture?.baseTexture?.source,
+			texture?.source,
+		];
+		for (const candidate of candidates) {
+			const inner =
+				candidate &&
+				typeof candidate === 'object' &&
+				'image' in (candidate as Record<string, unknown>)
+					? (candidate as { image?: unknown }).image
+					: candidate;
+			if (this._isDrawableImageSource(inner)) {
+				return inner;
+			}
+			if (this._isDrawableImageSource(candidate)) {
+				return candidate;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Blits a unit cardboard into an offscreen canvas at its native texture
+	 * size and returns the RGBA rows plus the canvas. The alpha channel is the
+	 * xray mask source: Phaser 2's BitmapData trick sampled the *drawn pixels*
+	 * (transparent background stays transparent), not the sprite's AABB, so the
+	 * see-through cutout follows the unit silhouette instead of a rectangle.
+	 */
+	private _snapshotCardboardPixels(
+		sprite: any,
+		cacheKey?: string,
+	): { canvas: HTMLCanvasElement; rgba: Uint8ClampedArray; width: number; height: number } | null {
+		const src = this._resolveSpriteDrawSource(sprite, cacheKey);
+		if (!this._isDrawableImageSource(src)) {
+			return null;
+		}
+		const rect = this._resolveFrameSourceRect(sprite, 0, 0);
+		if (!rect || rect.sw <= 0 || rect.sh <= 0) {
+			return null;
+		}
+		const width = Math.round(rect.sw);
+		const height = Math.round(rect.sh);
+		if (width <= 0 || height <= 0) {
+			return null;
+		}
+		const canvas = document.createElement('canvas');
+		canvas.width = width;
+		canvas.height = height;
+		const ctx = canvas.getContext('2d', { willReadFrequently: true });
+		if (!ctx) {
+			return null;
+		}
+		try {
+			ctx.clearRect(0, 0, width, height);
+			ctx.drawImage(src, rect.sx, rect.sy, rect.sw, rect.sh, 0, 0, width, height);
+			const rgba = ctx.getImageData(0, 0, width, height).data;
+			return { canvas, rgba, width, height };
+		} catch {
+			return null;
+		}
 	}
 
 	/**
@@ -2856,100 +3080,218 @@ class CreatureSprite {
 	 * The mask is the UNION of all refCreatures shapes:
 	 *   - Pixels covered by any ref creature : XRAY_OVERLAP_OPACITY alpha (see-through)
 	 *   - All other pixels                   : 1.0 alpha (fully opaque)
+	 *
+	 * Returns false when nothing drawable was produced, so callers can keep the
+	 * original cardboard instead of swapping in a blank bitmap.
 	 */
-	private _drawXrayBmd(refCreatures: Creature[], bmd: any) {
+	private _safeDrawXray(refCreatures: Creature[], bmd: any): boolean {
+		return this._drawXrayBmd(refCreatures, bmd);
+	}
+
+	private _drawXrayBmd(refCreatures: Creature[], bmd: any): boolean {
 		const oSprite = this._sprite;
+		const oGroup = this._group;
 		const otw = bmd.width;
 		const oth = bmd.height;
-		const oFlipped = oSprite.scale.x < 0;
-		// Guard: skip if sprite hasn't been added to display tree yet
-		if (!oSprite.worldTransform) {
-			return;
+		const unwrapSprite = (handle: any) => (handle?.__unwrapped ?? handle) as any;
+		const hasLiveSceneObject = (handle: any) => {
+			const raw = unwrapSprite(handle);
+			return Boolean(raw && raw.scene && raw.texture && raw.frame);
+		};
+		// Phaser 4 dropped Phaser 2's `worldTransform`; its presence was a
+		// pre-migration aliveness check that is now always falsy, so every
+		// draw silently returned and the sprite kept its stale/blank bitmap.
+		if (!hasLiveSceneObject(oSprite)) {
+			return false;
 		}
-		const oBounds = oSprite.getBounds();
-		const oLeft = oBounds.left;
-		const oTop = oBounds.top;
-		const oScaleX = oBounds.width > 0 ? otw / oBounds.width : 1;
-		const oScaleY = oBounds.height > 0 ? oth / oBounds.height : 1;
-
-		const oSrc = this._xrayOriginalSrc;
-		if (!this._isDrawableImageSource(oSrc)) {
-			this._clearXrayTexture();
-			return;
+		if (!this._xrayOriginalAlpha || this._xrayOriginalAlpha.length !== otw * oth * 4) {
+			return false;
 		}
-		const ctx = bmd.context;
-		const scratch = this._xrayScratch as HTMLCanvasElement;
-		const sctx = scratch.getContext('2d') as CanvasRenderingContext2D;
+		if (!this._xrayRefAlpha || this._xrayRefAlpha.size !== refCreatures.length) {
+			return false;
+		}
+		const ctx = bmd?.context as CanvasRenderingContext2D | undefined;
+		if (!ctx) {
+			return false;
+		}
 
-		// Build a union mask on scratch2: all ref creature shapes OR'd together
-		// We keep a second scratch for the union mask (reuse _xrayScratch2).
-		const mask = this._xrayMask as HTMLCanvasElement;
-		const mctx = mask.getContext('2d') as CanvasRenderingContext2D;
-		mctx.clearRect(0, 0, otw, oth);
+		// Like the Phaser 2 original, position comes from the local sprite
+		// transform, not `getBounds()` (which is world-space and, post-migration,
+		// snaps to the opaque-pixel box instead of the full cardboard). Both
+		// live under the same `display` parent, so the parent terms cancel and
+		// only the relative group/sprite offsets remain.
+		const anchorX = Number(oSprite.anchor?.x ?? 0.5);
+		const anchorY = Number(oSprite.anchor?.y ?? 1);
+		const oLeft = Number(oGroup.x ?? 0) + Number(oSprite.x ?? 0) - otw * anchorX;
+		const oTop = Number(oGroup.y ?? 0) + Number(oSprite.y ?? 0) - oth * anchorY;
 
-		for (const refCreature of refCreatures) {
-			const refSprite = refCreature.sprite;
-			// Guard: skip ref creatures whose sprites haven't been added to display tree yet
-			if (!refSprite.worldTransform) {
+		// Union of ref silhouettes in obstructor bitmap pixels, rebuilt every
+		// frame so the cutout tracks movement. Reuse the buffer across frames.
+		// The union stores the winning (lowest-row) ref index + 1 per pixel so
+		// the compositor below can sample that unit's cardboard for the blend.
+		if (!this._xrayMaskAlpha || this._xrayMaskAlpha.length !== otw * oth) {
+			this._xrayMaskAlpha = new Uint8Array(otw * oth);
+		} else {
+			this._xrayMaskAlpha.fill(0);
+		}
+		const union = this._xrayMaskAlpha;
+		let drewAnyRef = false;
+
+		// Back rows paint first; nearer (lower-row, higher-depth) refs overwrite
+		// them so each cutout pixel blends exactly one unit — the one the viewer
+		// would actually see there.
+		const order = refCreatures.map((_, index) => index);
+		const depthOf = (index: number) => this._xrayRefAlpha?.entries[index]?.xrayDepth ?? 0;
+		order.sort((a, b) => depthOf(a) - depthOf(b));
+
+		for (const i of order) {
+			const refCreature = refCreatures[i];
+			const refSprite = (refCreature as Creature)?.sprite as any;
+			if (!hasLiveSceneObject(refSprite)) {
 				continue;
 			}
-			const rBounds = refSprite.getBounds();
-			const rtw = Math.max(1, Math.round(rBounds.width * oScaleX));
-			const rth = Math.max(1, Math.round(rBounds.height * oScaleY));
-			const relX = Math.round((rBounds.left - oLeft) * oScaleX);
-			const relY = Math.round((rBounds.top - oTop) * oScaleY);
-			const drawX = oFlipped ? Math.round(otw - relX - rtw) : relX;
-			const rFlipped = refSprite.scale.x < 0;
+			const cached = this._xrayRefAlpha.entries[i];
+			if (!cached) {
+				continue;
+			}
+			const refGrp = ((refCreature as Creature)?.grp ?? this._creature.game.grid.creatureGroup) as {
+				x?: unknown;
+				y?: unknown;
+			};
+			const refAnchorX = Number(refSprite.anchor?.x ?? 0.5);
+			const refAnchorY = Number(refSprite.anchor?.y ?? 1);
+			const rLeft = Number(refGrp?.x ?? 0) + Number(refSprite.x ?? 0) - cached.width * refAnchorX;
+			const rTop = Number(refGrp?.y ?? 0) + Number(refSprite.y ?? 0) - cached.height * refAnchorY;
+			// Bitmap pixels map 1:1 onto the local transform (same cardboard at
+			// native size), so only the relative group/sprite offset matters.
+			const offX = Math.round(rLeft - oLeft);
+			const offY = Math.round(rTop - oTop);
+			const oFlipped = Number(oSprite.scale?.x ?? 1) < 0;
+			const rFlipped = Number(refSprite.scale?.x ?? 1) < 0;
 			const flipRef = oFlipped !== rFlipped;
-			const rSrc = this._resolveSpriteDrawSource(refSprite);
-			if (!rSrc) {
-				continue;
+			const { rgba, width: rw, height: rh } = cached;
+			for (let y = 0; y < rh; y++) {
+				const dstY = y + offY;
+				if (dstY < 0 || dstY >= oth) continue;
+				for (let x = 0; x < rw; x++) {
+					// Cardboard edges are anti-aliased: weight the cutout by the
+					// ref pixel's own alpha so soft fringes blend instead of
+					// stamping a hard rectangle.
+					const refA = rgba[(y * rw + x) * 4 + 3];
+					if (refA <= 0) continue;
+					const srcX = flipRef ? rw - 1 - x : x;
+					const dstX = (oFlipped ? otw - 1 - (srcX + offX) : srcX + offX) | 0;
+					if (dstX < 0 || dstX >= otw) continue;
+					union[dstY * otw + dstX] = i + 1;
+					drewAnyRef = true;
+				}
 			}
-
-			// source-over accumulates all ref shapes into the mask (union)
-			mctx.globalCompositeOperation = 'source-over';
-			if (!flipRef) {
-				this._drawSpriteFrame(mctx, refSprite, rSrc, drawX, relY, rtw, rth);
-			} else {
-				mctx.save();
-				mctx.translate(drawX + rtw, relY);
-				mctx.scale(-1, 1);
-				this._drawSpriteFrame(mctx, refSprite, rSrc, 0, 0, rtw, rth);
-				mctx.restore();
-			}
+		}
+		if (!drewAnyRef) {
+			return false;
 		}
 
 		const XRAY_OVERLAP_OPACITY = 0.2;
+		const overlapAlpha = Math.round(255 * (1.0 - (1.0 - XRAY_OVERLAP_OPACITY) * this._xrayAlpha));
 
-		// --- Part A: overlap region — obstructor at reduced alpha, clipped to union mask ---
+		const out = ctx.createImageData(otw, oth);
+		const src = this._xrayOriginalAlpha;
+		const dst = out.data;
+		const oFlipped = Number(oSprite.scale?.x ?? 1) < 0;
+		// Cache the winning ref's placement once per frame: the union pass
+		// above already resolved overlaps, so the compositor must reuse the
+		// same offsets instead of re-deriving them per pixel.
+		const refPlacement = refCreatures.map((refCreature, refIndex) => {
+			const entry = this._xrayRefAlpha?.entries[refIndex] ?? null;
+			const refSprite = (refCreature as Creature)?.sprite as any;
+			if (!entry || !refSprite) return null;
+			const refGrp = ((refCreature as Creature)?.grp ?? this._creature.game.grid.creatureGroup) as {
+				x?: unknown;
+				y?: unknown;
+			};
+			const refAnchorX = Number(refSprite?.anchor?.x ?? 0.5);
+			const refAnchorY = Number(refSprite?.anchor?.y ?? 1);
+			const rLeft = Number(refGrp?.x ?? 0) + Number(refSprite?.x ?? 0) - entry.width * refAnchorX;
+			const rTop = Number(refGrp?.y ?? 0) + Number(refSprite?.y ?? 0) - entry.height * refAnchorY;
+			return {
+				entry,
+				offX: Math.round(rLeft - oLeft),
+				offY: Math.round(rTop - oTop),
+				flipped: Number(refSprite?.scale?.x ?? 1) < 0,
+			};
+		});
+		for (let y = 0; y < oth; y++) {
+			for (let x = 0; x < otw; x++) {
+				const refIndex = union[y * otw + x] - 1;
+				const sx = oFlipped ? otw - 1 - x : x;
+				const s = (y * otw + sx) * 4;
+				const d = (y * otw + x) * 4;
+				const a = src[s + 3];
+				const placed = refIndex >= 0 ? refPlacement[refIndex] ?? null : null;
+				if (a <= 0 || !placed) {
+					dst[d] = src[s];
+					dst[d + 1] = src[s + 1];
+					dst[d + 2] = src[s + 2];
+					dst[d + 3] = a;
+					continue;
+				}
+				// Map the output pixel back into the winning ref's cardboard so
+				// its silhouette can be multiplied over the obstructor.
+				const refEntry = placed.entry;
+				const bothFlipped = oFlipped !== placed.flipped;
+				const unobX = oFlipped ? otw - 1 - x : x;
+				let rx = unobX - placed.offX;
+				if (bothFlipped) rx = refEntry.width - 1 - rx;
+				const ry = y - placed.offY;
+				const refOff =
+					rx >= 0 && rx < refEntry.width && ry >= 0 && ry < refEntry.height
+						? (ry * refEntry.width + rx) * 4
+						: -1;
+				const blendT = this._xrayAlpha;
+				const invT = 1 - blendT;
+				const fadedA = Math.round((a * overlapAlpha) / 255);
+				if (refOff < 0 || refEntry.rgba[refOff + 3] <= 0) {
+					dst[d] = src[s];
+					dst[d + 1] = src[s + 1];
+					dst[d + 2] = src[s + 2];
+					dst[d + 3] = fadedA;
+					continue;
+				}
+				// Overlay composite: the revealed unit's cardboard modulates the
+				// faded obstructor instead of punching a flat translucent hole.
+				// Multiply turned every semi-transparent shadow pixel (black,
+				// low alpha) into solid black regardless of its alpha, so the
+				// active unit's shadow stamped an awkward dark box. Overlay
+				// keeps midtones and weights the effect by the ref pixel's own
+				// alpha, so faint shadows/highlighter washes barely tint while
+				// opaque body pixels still read through.
+				const mr = refEntry.rgba[refOff] / 255;
+				const mg = refEntry.rgba[refOff + 1] / 255;
+				const mb = refEntry.rgba[refOff + 2] / 255;
+				const ma = refEntry.rgba[refOff + 3] / 255;
+				const t = blendT * ma;
+				const it = 1 - t;
+				const overlayChannel = (base: number, blend: number) => {
+					const b = base / 255;
+					const l = blend / 255;
+					const o = b <= 0.5 ? 2 * b * l : 1 - 2 * (1 - b) * (1 - l);
+					return Math.round(o * 255);
+				};
+				const ovR = overlayChannel(src[s], refEntry.rgba[refOff]);
+				const ovG = overlayChannel(src[s + 1], refEntry.rgba[refOff + 1]);
+				const ovB = overlayChannel(src[s + 2], refEntry.rgba[refOff + 2]);
+				dst[d] = Math.round(src[s] * it + ovR * t);
+				dst[d + 1] = Math.round(src[s + 1] * it + ovG * t);
+				dst[d + 2] = Math.round(src[s + 2] * it + ovB * t);
+				dst[d + 3] = Math.round(a * it + fadedA * t);
+			}
+		}
 		ctx.clearRect(0, 0, otw, oth);
-		ctx.save();
-		ctx.globalAlpha = 1.0 - (1.0 - XRAY_OVERLAP_OPACITY) * this._xrayAlpha;
-		if (!this._drawSpriteFrame(ctx, oSprite, oSrc, 0, 0, otw, oth)) {
-			ctx.restore();
-			this._clearXrayTexture();
-			return;
-		}
-		ctx.globalAlpha = 1.0;
-		ctx.globalCompositeOperation = 'destination-in';
-		ctx.drawImage(mask, 0, 0);
-		ctx.restore();
-
-		// --- Part B: non-overlap at full alpha — obstructor minus union mask ---
-		sctx.clearRect(0, 0, otw, oth);
-		sctx.globalCompositeOperation = 'source-over';
-		if (!this._drawSpriteFrame(sctx, oSprite, oSrc, 0, 0, otw, oth)) {
-			this._clearXrayTexture();
-			return;
-		}
-		sctx.globalCompositeOperation = 'destination-out';
-		sctx.drawImage(mask, 0, 0);
-
-		// Composite Part B on top of Part A
-		ctx.drawImage(scratch, 0, 0);
+		ctx.putImageData(out, 0, 0);
 
 		bmd.dirty = true;
 		bmd.update();
+		return true;
 	}
 
 	setHealth(number: number | string, type: HealthBubbleType) {
