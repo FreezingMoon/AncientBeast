@@ -58,6 +58,7 @@ jest.mock('../../creature', () => {
 			setAlpha: jest.fn(),
 			setHex: jest.fn(() => Promise.resolve()),
 			getPos: jest.fn(() => ({ x: 0, y: 0 })),
+			_resolveSpriteDrawSource: jest.fn(() => null),
 		};
 		sprite = {
 			alpha: 1,
@@ -68,6 +69,9 @@ jest.mock('../../creature', () => {
 			angle: 0,
 			key: 'unit',
 			frame: 0,
+			height: 120,
+			width: 90,
+			setCrop: jest.fn(),
 		};
 		grp = { x: 0, y: 0 };
 
@@ -208,6 +212,7 @@ describe('Cycloper abilities', () => {
 						moveTo: jest.fn(),
 						lineTo: jest.fn(),
 						drawCircle: jest.fn(),
+						strokePath: jest.fn(),
 						mask: null,
 						destroy: jest.fn(),
 					}),
@@ -245,6 +250,7 @@ describe('Cycloper abilities', () => {
 					image: () => ({}),
 					text: () => ({}),
 				},
+				removeTweensFrom: jest.fn(),
 				tween: () => {
 					const onComplete = {
 						add: (fn: (this: unknown) => void, context?: unknown) => fn.call(context ?? {}),

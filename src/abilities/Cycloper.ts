@@ -239,7 +239,7 @@ function createOpticBurstLaserEffect(
 	const totalDy = targetPointY - emissionPointY;
 	const baseAngle = Math.atan2(totalDy, totalDx);
 	const totalLength = Math.sqrt(totalDx * totalDx + totalDy * totalDy);
-	const totalSweepRadians = (2.5 * Math.PI) / 180;
+	const totalSweepRadians = ((ability.creature.player.flipped ? -1 : 1) * (2.5 * Math.PI)) / 180;
 
 	let startTime: number;
 	const animate = () => {
@@ -1080,19 +1080,21 @@ function createAcrylicWall3DPrintEffect(
 	const wallHeight = Math.abs(wallSprite.height);
 	const wallWidth = Math.abs(wallSprite.width);
 
-	if (!G.gameEngine.add.graphics) {
+	if (!G.gameEngine.add.graphics || typeof wallSprite.setCrop !== 'function') {
 		if (onComplete) {
 			onComplete();
 		}
 		return;
 	}
 
-	// Use an invisible graphics mask to reveal the wall bottom-to-top without stretching.
-	const maskGraphics: any = G.gameEngine.add.graphics(0, 0);
-	maskGraphics.alpha = 0;
-	G.grid.creatureGroup.addChild(maskGraphics);
-	wallSprite.mask = maskGraphics;
+	// Phaser 4 masks only work under the Canvas renderer; the WebGL renderer
+	// ignores the `mask` property entirely.  Use setCrop (which works in both
+	// renderers) instead.  Also stop the spawn fade-in tween that summon()
+	// starts on the group alpha so the crop is the sole reveal controller.
+	G.gameEngine.removeTweensFrom(wall.grp);
 	wall.creatureSprite.setAlpha(1, 0);
+	// Crop to zero-height at the texture bottom; the loop grows it upward.
+	wallSprite.setCrop(0, wallHeight, wallWidth, 0);
 
 	// Create beam graphics for laser line
 	const beamGraphics: any = G.gameEngine.add.graphics(0, 0);
@@ -1114,18 +1116,12 @@ function createAcrylicWall3DPrintEffect(
 		const elapsed = Date.now() - startTime;
 		const progress = Math.min(1, elapsed / laserDuration);
 
-		// Reveal wall from bottom to top with an invisible mask.
+		// Reveal wall from bottom to top by growing the crop rectangle upward.
 		const revealHeight = wallHeight * progress;
 		const currentFlashY = wallBottomY - revealHeight;
-		maskGraphics.clear();
-		maskGraphics.beginFill(0xffffff, 1);
-		maskGraphics.drawRect(
-			wallCenterX - wallWidth / 2,
-			wallBottomY - revealHeight,
-			wallWidth,
-			revealHeight,
-		);
-		maskGraphics.endFill();
+		if (revealHeight > 0) {
+			wallSprite.setCrop(0, wallHeight - revealHeight, wallWidth, revealHeight);
+		}
 
 		// Move flash upward along the wall
 		flashSprite.y = currentFlashY;
@@ -1139,13 +1135,13 @@ function createAcrylicWall3DPrintEffect(
 		beamGraphics.lineStyle(5, laserColor, 0.95);
 		beamGraphics.moveTo(currentEyeEmissionPoint.x, currentEyeEmissionPoint.y);
 		beamGraphics.lineTo(wallCenterX, currentFlashY);
+		beamGraphics.strokePath();
 
 		if (progress < 1) {
 			setTimeout(animate, 16);
 		} else {
-			// Animation complete - remove mask and clean up effects
-			wallSprite.mask = null;
-			maskGraphics.destroy();
+			// Animation complete - remove crop and clean up effects
+			wallSprite.setCrop();
 			beamGraphics.destroy();
 			flashSprite.destroy();
 			if (onComplete) {
