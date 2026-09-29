@@ -127,3 +127,4 @@ $RECYCLE.BIN/
 *.lnk
 /.vs
 .kilo/mcp.json
+.kilo/kilo.jsonc
