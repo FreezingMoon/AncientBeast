@@ -3299,7 +3299,7 @@ class CreatureSprite {
 
 			const noActionFrame = this._gameEngine.add.sprite(0, 50, frameBackground as any as string);
 			noActionFrame.anchor.setTo(0.5, 0.175);
-			noActionFrame.setScaleMinMax(0.75, 0.75, 0.75, 0.75);
+			noActionFrame.setScale(0.75);
 			noActionFrame.alpha = 0;
 			noActionFrame.visible = true;
 			noActionFrame.data.hintType = 'no_action_bg';
@@ -3314,7 +3314,7 @@ class CreatureSprite {
 
 			const noActionIcon = this._gameEngine.add.sprite(0, 29, 'skip');
 			noActionIcon.anchor.setTo(0.5, 0.745);
-			noActionIcon.setScaleMinMax(0.15, 0.15, 0.15, 0.15);
+			noActionIcon.setScale(0.15);
 			noActionIcon.alpha = 0;
 			noActionIcon.visible = true;
 			noActionIcon.data.hintType = 'no_action_icon';
@@ -3438,7 +3438,7 @@ class CreatureSprite {
 			frame.destroy();
 			const combinedSprite = this._gameEngine.add.sprite(0, 50, frameBackground as any as string);
 			combinedSprite.anchor.setTo(0.5, 0.175);
-			combinedSprite.setScaleMinMax(0.75, 0.75, 0.75, 0.75);
+			combinedSprite.setScale(0.75);
 			combinedSprite.alpha = isSkipTurnConfirm ? 1 : 0;
 			combinedSprite.visible = true;
 			combinedSprite.data.hintType = hintType;
@@ -3458,7 +3458,7 @@ class CreatureSprite {
 			// Add "Skip turn" icon
 			const skipTurnIcon = this._gameEngine.add.sprite(0, 29, 'skip');
 			skipTurnIcon.anchor.setTo(0.5, 0.745);
-			skipTurnIcon.setScaleMinMax(0.15, 0.15, 0.15, 0.15);
+			skipTurnIcon.setScale(0.15);
 			skipTurnIcon.alpha = isSkipTurnConfirm ? 1 : 0;
 			skipTurnIcon.visible = true;
 			skipTurnIcon.data.hintType = hintType;

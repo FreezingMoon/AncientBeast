@@ -1416,11 +1416,25 @@ export class Animations {
 		const game = this.game;
 		const sprite = creature.sprite;
 		const texture = sprite.texture as ShatterTexture;
-		const frame = texture.crop || texture.frame || { x: 0, y: 0, width: 0, height: 0 };
-		const source = texture.baseTexture?.source as CanvasImageSource;
-		const texW = Math.round(texture.width || frame.width || 1);
-		const texH = Math.round(texture.height || frame.height || 1);
+		const texW = Math.round(texture.width || 1);
+		const texH = Math.round(texture.height || 1);
+		// frame.width/height must equal texW/texH so the flipped path
+		// (frame.x + frame.width - sx - sw) stays positive; a zero width
+		// produces a negative srcX, silently yielding empty shards.
+		const frame = texture.crop || texture.frame || { x: 0, y: 0, width: texW, height: texH };
 		const isFlipped = sprite.scale.x < 0;
+
+		// Validate the source image via CreatureSprite's resolver so that a
+		// stale proxy (which could hand back an array or undefined) doesn't make
+		// drawImage throw mid-loop and strand the creature invisible.
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const source = (creature.creatureSprite as any)._resolveSpriteDrawSource(sprite);
+		if (!source) {
+			creature.creatureSprite.setAlpha(0, speed).then(() => {
+				opts.callback?.();
+			});
+			return;
+		}
 
 		const shardFadeMs = Math.max(260, Math.round(speed * 1.2));
 
