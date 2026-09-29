@@ -5,9 +5,21 @@ import Game from '../game';
  * Phaser 2 `BitmapData` class, so the drawing surface is read through these
  * members instead.
  */
+export type TextureFrameRect = {
+	x: number;
+	y: number;
+	width: number;
+	height: number;
+	cutX?: number;
+	cutY?: number;
+	cutWidth?: number;
+	cutHeight?: number;
+	canvasData?: { x: number; y: number; width: number; height: number };
+};
+
 export interface DrawableTexture {
-	crop?: { x: number; y: number; width: number; height: number };
-	frame?: { x: number; y: number; width: number; height: number };
+	crop?: TextureFrameRect;
+	frame?: TextureFrameRect;
 	baseTexture?: { source?: CanvasImageSource };
 	width?: number;
 	height?: number;
@@ -28,12 +40,22 @@ export function extractTextureFrameInfo(
 	texture: DrawableTexture,
 	defaultFrame?: { x: number; y: number; width: number; height: number },
 ): TextureFrameInfo | null {
-	const frame = texture.crop ?? texture.frame ?? defaultFrame;
+	const raw = (texture.frame ?? texture.crop ?? defaultFrame) as TextureFrameRect | undefined;
 	const source = texture.baseTexture?.source;
 
-	if (!source || !frame) {
+	if (!source || !raw) {
 		return null;
 	}
+
+	// Phaser 4 samples `frame.source.image` at `(cutX, cutY)` with size
+	// `(cutWidth, cutHeight)`; the display `x/y/width/height` is the trimmed
+	// box, so prefer the cut rect to avoid copying the wrong region.
+	const frame = {
+		x: raw.cutX ?? raw.canvasData?.x ?? raw.x,
+		y: raw.cutY ?? raw.canvasData?.y ?? raw.y,
+		width: raw.cutWidth ?? raw.canvasData?.width ?? raw.width,
+		height: raw.cutHeight ?? raw.canvasData?.height ?? raw.height,
+	};
 
 	return {
 		frame,
