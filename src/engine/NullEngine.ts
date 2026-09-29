@@ -292,6 +292,16 @@ class NullBitmapData implements BitmapDataHandle {
 		this.dirty = false;
 	}
 
+	/**
+	 * Draws a texture onto this bitmap data.
+	 * No-op in headless mode but maintains API compatibility.
+	 */
+	draw(key: string, x: number, y: number): void {
+		// In headless mode, we don't have access to textures, so just mark dirty
+		// to maintain API compatibility with Phaser 2's BitmapData.draw()
+		this.dirty = true;
+	}
+
 	destroy(): void {}
 }
 

@@ -196,6 +196,11 @@ export interface BitmapDataHandle {
 	 * them on an explicit `render()`, so marking the surface dirty flushes.
 	 */
 	dirty: boolean;
+	/**
+	 * Draws a texture/image onto this bitmap data at the given coordinates.
+	 * Mirrors Phaser 2's BitmapData.draw() method.
+	 */
+	draw(key: string, x: number, y: number): void;
 	update(): void;
 	destroy(): void;
 }

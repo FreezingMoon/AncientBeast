@@ -46,8 +46,8 @@ function makeTextureView(go: AnyObject): AnyObject {
 			if (prop === 'width') return go.frame?.width ?? go.width ?? 0;
 			if (prop === 'height') return go.frame?.height ?? go.height ?? 0;
 			if (prop === 'crop') return go.frame?.setTo ? go.frame : undefined;
-		if (prop === 'baseTexture') return (go.texture as AnyObject)?.source?.[0];
-		if (prop === 'source') return (go.texture as AnyObject)?.source?.[0];
+			if (prop === 'baseTexture') return (go.texture as AnyObject)?.source?.[0];
+			if (prop === 'source') return (go.texture as AnyObject)?.source?.[0];
 			const real = (go.texture as AnyObject)?.[prop as string];
 			return typeof real === 'function' ? real.bind(go.texture) : real;
 		},
@@ -872,6 +872,39 @@ export class DynamicTextureAdapter implements BitmapDataHandle {
 	update(): void {
 		this.canvasTexture.update();
 		this._dirty = false;
+	}
+
+	/**
+	 * Draws a texture from the texture manager onto this bitmap data.
+	 * Mirrors Phaser 2's BitmapData.draw(key, x, y) method.
+	 */
+	draw(key: string, x: number, y: number): void {
+		const texture = this.textureManager.get(key);
+		if (!texture) {
+			console.warn(`BitmapData.draw: texture "${key}" not found`);
+			return;
+		}
+		// Get the source image/canvas from the texture
+		const source = texture.getSourceImage?.();
+		if (!source) {
+			console.warn(`BitmapData.draw: texture "${key}" has no source image`);
+			return;
+		}
+		// Draw the source onto our canvas at the specified position
+		// Handle different source types: HTMLImageElement, HTMLCanvasElement, or RenderTexture
+		let drawSource: CanvasImageSource | null = null;
+		if (source instanceof HTMLImageElement || source instanceof HTMLCanvasElement) {
+			drawSource = source;
+		} else if ('canvas' in source && source.canvas instanceof HTMLCanvasElement) {
+			// RenderTexture has a canvas property
+			drawSource = source.canvas;
+		}
+		if (!drawSource) {
+			console.warn(`BitmapData.draw: texture "${key}" source type not supported for drawing`);
+			return;
+		}
+		this.ctx.drawImage(drawSource, x, y);
+		this.dirty = true;
 	}
 
 	destroy(): void {
