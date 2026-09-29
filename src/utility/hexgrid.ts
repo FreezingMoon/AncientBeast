@@ -2374,7 +2374,7 @@ export class HexGrid {
 			return;
 		}
 
-		const hex = this.hexes[pos.y][pos.x - (creatureData.size - 1)];
+		const hex = this.hexes[pos.y][player.flipped ? pos.x : pos.x - (creatureData.size - 1)];
 		const originX =
 			creatureData.display['offset-x'] +
 			(creatureData.type == '--' ? getDarkPriestDisplayOffsetX(player) : 0);
@@ -2462,19 +2462,33 @@ export class HexGrid {
 		// the rest of the spawn-range hexes (redoLastQuery may have already restored it).
 		if (preview._previewPos !== undefined) {
 			for (let i = 0, prevSize = preview._previewSize; i < prevSize; i++) {
-				const prevHex = this.hexes[preview._previewPos.y]?.[preview._previewPos.x - i];
+				// Account for player flip direction: non-flipped extends left from pos.x,
+				// flipped extends right from pos.x
+				const offsetX = player.flipped ? i : -i;
+				const prevHex = this.hexes[preview._previewPos.y]?.[preview._previewPos.x + offsetX];
 				if (prevHex) {
 					if (prevHex.creature === game.activeCreature) {
 						continue;
 					}
-					this.cleanHex(prevHex);
-					this.restoreReachableHexVisual(prevHex);
+					// Preserve reachable state for hexes that are part of the valid spawn range.
+					// During materialization preview, targeting is false, so restoreReachableHexVisual
+					// would not restore the reachable overlay. Check if the hex is in queryHexes.
+					const isInSpawnRange = Array.isArray(queryHexes) && queryHexes.indexOf(prevHex) !== -1;
+					if (isInSpawnRange) {
+						// Only clean the creature-selected overlay, keep reachable state
+						prevHex.cleanOverlayVisualState('creature selected player0 player1 player2 player3');
+						prevHex.cleanDisplayVisualState('creature selected player0 player1 player2 player3');
+					} else {
+						this.cleanHex(prevHex);
+						this.restoreReachableHexVisual(prevHex);
+					}
 				}
 			}
 		}
 
 		for (let i = 0, size = creatureData.size; i < size; i++) {
-			const hexInstance = this.hexes[pos.y][pos.x - i];
+			const hexX = player.flipped ? pos.x + i : pos.x - i;
+			const hexInstance = this.hexes[pos.y][hexX];
 			this.cleanHex(hexInstance);
 			hexInstance.overlayVisualState('creature selected player' + game.activeCreature.team);
 		}
