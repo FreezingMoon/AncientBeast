@@ -667,6 +667,11 @@ export default class Game {
 		if (this.gameState != 'playing') {
 			return;
 		}
+		for (const creature of this.creatures) {
+			if (creature instanceof Creature) {
+				creature.creatureSprite.tickXray();
+			}
+		}
 	}
 
 	phaserRender() {
