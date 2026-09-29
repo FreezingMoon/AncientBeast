@@ -1421,7 +1421,27 @@ export class Animations {
 		// frame.width/height must equal texW/texH so the flipped path
 		// (frame.x + frame.width - sx - sw) stays positive; a zero width
 		// produces a negative srcX, silently yielding empty shards.
-		const frame = texture.crop || texture.frame || { x: 0, y: 0, width: texW, height: texH };
+		// Prefer cutWidth/cutHeight (the rect the renderer samples) over the
+		// display width/height, which collapses trimmed frames to the visible
+		// box instead of the full source region.
+		const rawFrame = (texture.frame ??
+			texture.crop ?? { x: 0, y: 0, width: texW, height: texH }) as {
+			x?: number;
+			y?: number;
+			width?: number;
+			height?: number;
+			cutX?: number;
+			cutY?: number;
+			cutWidth?: number;
+			cutHeight?: number;
+			canvasData?: { x: number; y: number; width: number; height: number };
+		};
+		const frame = {
+			x: rawFrame.cutX ?? rawFrame.canvasData?.x ?? rawFrame.x ?? 0,
+			y: rawFrame.cutY ?? rawFrame.canvasData?.y ?? rawFrame.y ?? 0,
+			width: rawFrame.cutWidth ?? rawFrame.canvasData?.width ?? rawFrame.width ?? texW,
+			height: rawFrame.cutHeight ?? rawFrame.canvasData?.height ?? rawFrame.height ?? texH,
+		};
 		const isFlipped = sprite.scale.x < 0;
 
 		// Validate the source image via CreatureSprite's resolver so that a
