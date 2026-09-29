@@ -387,8 +387,17 @@ function createProxy(facade: AnyObject, local: Map<string, unknown>, target: Any
 	return new Proxy(facade, {
 		get(facadeTarget, prop, receiver) {
 			const key = prop as string;
-			if (key in facadeTarget || local.has(key)) {
+			// The facade wins: it may hold accessors (e.g. `data`) that also
+			// shadow a stashed value of the same name.
+			if (key in facadeTarget) {
 				return Reflect.get(facadeTarget, prop, receiver);
+			}
+			// Values gameplay code stashed on the handle itself. `set` routes
+			// unknown keys here, so they must be read back from here too —
+			// `Reflect.get` on the facade would always miss them and silently
+			// return undefined.
+			if (local.has(key)) {
+				return local.get(key);
 			}
 			const targetKey = graphicsMethodMap[key] ?? key;
 			const value = target[targetKey];
