@@ -45,7 +45,12 @@ function makeTextureView(go: AnyObject): AnyObject {
 		get(_t, prop) {
 			if (prop === 'width') return go.frame?.width ?? go.width ?? 0;
 			if (prop === 'height') return go.frame?.height ?? go.height ?? 0;
-			if (prop === 'crop') return go.frame?.setTo ? go.frame : undefined;
+			// Phaser 4 `Frame` has no `setTo` (that was a Phaser 2 `Rectangle`
+			// API), so the old `go.frame?.setTo ? ...` check always yielded
+			// `undefined` and every xray `drawImage` fell back to (0,0,W,H).
+			// Expose the live frame for both spellings gameplay code uses.
+			if (prop === 'crop') return go.frame ?? undefined;
+			if (prop === 'frame') return go.frame ?? undefined;
 			if (prop === 'baseTexture') return (go.texture as AnyObject)?.source?.[0];
 			if (prop === 'source') return (go.texture as AnyObject)?.source?.[0];
 			const real = (go.texture as AnyObject)?.[prop as string];
@@ -94,9 +99,29 @@ export function wrapGameObject(gameObject: Phaser.GameObjects.GameObject): Sprit
 			// Phaser 4 emits `(pointer, localX, localY, container)`; Phaser 2 CE
 			// dispatched `(sprite, pointer, …)`. Re-order so the handlers written
 			// against Phaser 2 keep working.
-			gameObject.on(event, (pointer: unknown, ...rest: unknown[]) =>
-				signal.dispatch(gameObject, pointer, ...rest),
-			);
+			// Right-clicks that began on a DOM overlay (scoreboard, music
+			// player, …) can still reach canvas listeners via Phaser's
+			// window-level mouse handlers (mousedown on the overlay is consumed
+			// by the DOM close handler, so the pointer never records a canvas
+			// downElement and mouseup retargets to the canvas): Phaser
+			// hit-tests canvas coordinates even though the user clicked the
+			// overlay. Swallow those here — a genuine canvas gesture always has
+			// a canvas downElement; an overlay-originated one doesn't.
+			gameObject.on(event, (pointer: unknown, ...rest: unknown[]) => {
+				const pointerEvent = pointer as unknown as {
+					button?: number;
+					downElement?: HTMLElement;
+				};
+				if (
+					pointerEvent &&
+					typeof pointerEvent === 'object' &&
+					(pointerEvent.button === 2 || pointerEvent.button === 1) &&
+					(!pointerEvent.downElement || pointerEvent.downElement.tagName !== 'CANVAS')
+				) {
+					return;
+				}
+				signal.dispatch(gameObject, pointer, ...rest);
+			});
 		}
 		return signal;
 	};
