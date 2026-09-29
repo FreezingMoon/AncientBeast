@@ -595,6 +595,10 @@ export class UI {
 	_abilityPanelAnimating: boolean;
 	ignoreNextConfirmUnload: boolean;
 	scoreboardGameOver: boolean;
+	// Guards the deferred pointer-events disable in closeDash(): a re-open
+	// before the fade callback runs must not have pointer-events yanked by
+	// the stale close's timeout.
+	private dashFadeToken: symbol | null = null;
 	/**
 	 * Create attributes and default buttons
 	 * @constructor
@@ -717,6 +721,7 @@ export class UI {
 		this.buttons.push(this.btnAudio);
 		this.btnAudio.$button.on('contextmenu', (e) => {
 			e.preventDefault();
+			e.stopPropagation();
 			this.cycleAudioMode();
 		});
 		// Skip Turn Button
@@ -1187,27 +1192,112 @@ export class UI {
 		this.hotkeys = new Hotkeys(this);
 		const ingameHotkeys = getHotKeys(this.hotkeys);
 
-		// Capture-phase pointer handlers to prevent right-clicks from reaching
-		// the Phaser canvas when dash is open (canvas is a sibling, not a child,
-		// so dash's bubbling handlers don't intercept canvas-targeted events).
-		const suppressCanvasEvents = (e: Event) => {
+		// Right-click closes the topmost open view on RELEASE (mouseup), not on
+		// press: holding the button must keep the view visible until release
+		// (the pre-Phaser-4 behaviour). The whole gesture is swallowed here in
+		// window capture — which runs before Phaser's canvas/window listeners
+		// and before any DOM bubble handler — so no part of it can leak into
+		// the hex grid and reopen the dash:
+		//  - mousedown with a view open: swallow, remember the gesture started
+		//    on an overlay, don't close yet (button still held);
+		//  - mouseup: swallow, close exactly one view (topmost first);
+		//  - contextmenu: swallow, close only if a view is somehow still open
+		//    (gestures without a preceding mousedown); otherwise a no-op, so a
+		//    single press can never close twice.
+		const openViews = () => {
+			const open: Array<'music' | 'score' | 'meta' | 'dash'> = [];
+			if (!this.$scoreboard.hasClass('hide')) {
+				open.push('score');
+			}
+			if (!$j('#musicplayerwrapper').hasClass('hide')) {
+				open.push('music');
+			}
+			if (this.metaPowers && !this.metaPowers.$els?.modal?.hasClass('hide')) {
+				open.push('meta');
+			}
 			if (this.dashopen) {
-				e.preventDefault();
-				e.stopPropagation();
-				e.stopImmediatePropagation();
-				// Close dash if right-click intercepted
-				const me = e as MouseEvent | PointerEvent;
-				if (e.type === 'contextmenu' || me.button === 2) {
-					this.closeDash();
-				}
+				open.push('dash');
+			}
+			return open;
+		};
+		const closeViewName = (view: 'music' | 'score' | 'meta' | 'dash') => {
+			if (view === 'music') {
+				this.toggleMusicPlayer(false);
+			} else if (view === 'score') {
+				this.closeScoreboard();
+			} else if (view === 'meta') {
+				this.metaPowers?._closeModal();
+			} else {
+				this.closeDash();
 			}
 		};
-		window.addEventListener('contextmenu', suppressCanvasEvents, true);
-		window.addEventListener('mousedown', suppressCanvasEvents, true);
-		window.addEventListener('mouseup', suppressCanvasEvents, true);
-		// Phaser uses pointer events, not mouse events
-		window.addEventListener('pointerdown', suppressCanvasEvents, true);
-		window.addEventListener('pointerup', suppressCanvasEvents, true);
+		// A physical right-click fires mousedown -> mouseup -> contextmenu.
+		// Close on mouseup (release): the overlay stays visible while the
+		// button is held, and only the release event closes a view — exactly
+		// one, topmost first. Closing happens here in window capture — which
+		// runs before Phaser's canvas listeners and before any DOM bubble
+		// handler — and propagation is stopped so every other layer stays
+		// silent for the whole gesture.
+		// The consumed-flag covers the gesture's own contextmenu (some
+		// browsers fire contextmenu without a preceding mousedown, e.g. after
+		// preventDefault on an earlier event) and resets there, so each
+		// physical press is a fresh gesture and the flag can't stick.
+		let gestureConsumed = false;
+		const onCaptureRightClick = (e: Event) => {
+			if (game.freezedInput) {
+				return;
+			}
+			const me = e as MouseEvent;
+			const isRightButton = e.type === 'contextmenu' || me.button === 2;
+			if (!isRightButton) {
+				return;
+			}
+			if (e.type !== 'mousedown' && e.type !== 'mouseup' && e.type !== 'contextmenu') {
+				return;
+			}
+			if (gestureConsumed) {
+				// Tail of an already-closed gesture: keep swallowing; the
+				// gesture's own contextmenu ends it and re-arms the next press.
+				// A fresh mousedown here means the previous release was missed
+				// (e.g. released off-window), so re-arm and handle it as new.
+				if (e.type === 'mousedown') {
+					gestureConsumed = false;
+				} else {
+					e.preventDefault();
+					e.stopPropagation();
+					if (e.type === 'contextmenu') {
+						gestureConsumed = false;
+					}
+					return;
+				}
+			}
+			if (openViews().length === 0) {
+				return;
+			}
+			e.preventDefault();
+			e.stopPropagation();
+			if (e.type === 'mouseup') {
+				// Close exactly one view per gesture, topmost first.
+				// Topmost mirrors z-order: scoreboard > music > meta > dash.
+				const open = openViews();
+				const topmost = open.includes('score')
+					? 'score'
+					: open.includes('music')
+					? 'music'
+					: open.includes('meta')
+					? 'meta'
+					: 'dash';
+				closeViewName(topmost);
+				gestureConsumed = true;
+			}
+		};
+		// Capture on window: runs before Phaser's canvas/window listeners and
+		// before any per-view bubble handler. Per-view bubble handlers are
+		// gone: closing here (once per gesture) means no second layer can
+		// double-close into the view underneath.
+		window.addEventListener('mousedown', onCaptureRightClick, true);
+		window.addEventListener('mouseup', onCaptureRightClick, true);
+		window.addEventListener('contextmenu', onCaptureRightClick, true);
 
 		// Remove hex grid if window loses focus
 		$j(window).off('blur.ingameHotkeys');
@@ -1317,15 +1407,6 @@ export class UI {
 			}
 		});
 
-		// Right-click on dash itself - close dash (reached when not on canvas)
-		$j('#dash').on('contextmenu', (e) => {
-			e.preventDefault();
-			e.stopPropagation();
-			if (this.dashopen) {
-				this.closeDash();
-			}
-		});
-
 		// Prevent mouseup from falling through to Phaser canvas after right-click closes dash
 		$j('#dash').on('mouseup', (e) => {
 			if (game.freezedInput) {
@@ -1334,65 +1415,12 @@ export class UI {
 			e.stopPropagation();
 		});
 
-		// Mouse Shortcut
-		$j('#musicplayerwrapper').on('mousedown', (e) => {
-			if (game.freezedInput) {
-				return;
-			}
-			switch (e.which) {
-				case 1:
-					// Left mouse button pressed
-					break;
-				case 2:
-					// Middle mouse button pressed
-					e.stopPropagation();
-					break;
-				case 3:
-					// Right mouse button pressed
-					this.toggleMusicPlayer(false);
-					break;
-			}
-		});
-
-		// Mouse Shortcut
-		$j('#ui').on('mousedown', (e) => {
-			if (game.freezedInput) {
-				return;
-			}
-			switch (e.which) {
-				case 1:
-					// Left mouse button pressed
-					break;
-				case 2:
-					// Middle mouse button pressed
-					e.stopPropagation();
-					break;
-				case 3:
-					// Right mouse button pressed
-					this.closeScoreboard();
-					break;
-			}
-		});
-
-		// Mouse Shortcut
-		$j('#meta-powers').on('mousedown', (e) => {
-			if (game.freezedInput) {
-				return;
-			}
-			switch (e.which) {
-				case 1:
-					// Left mouse button pressed
-					break;
-				case 2:
-					// Middle mouse button pressed
-					e.stopPropagation();
-					break;
-				case 3:
-					// Right mouse button pressed
-					this.metaPowers?._closeModal();
-					break;
-			}
-		});
+		// Stale per-view right-click closers, superseded by the window-capture
+		// gesture handler above (closes once per gesture, topmost first). They
+		// are detached so a single gesture can't close twice — e.g. closing
+		// audio and then, on the same gesture, the dash underneath.
+		$j('#meta-powers').off('mousedown.ab-close');
+		$j('#ui').off('mousedown.ab-close');
 
 		$j('#chatbox, #chatcontent').on('contextmenu', (e) => {
 			if (game.freezedInput) {
@@ -1808,6 +1836,11 @@ export class UI {
 		const oldCreatureType = this.selectedCreature;
 
 		if (wasDashClosed) {
+			// Invalidate any in-flight close's deferred pointer-events changes
+			// (see closeDash): a racing open before the fade callback runs
+			// would otherwise be left unclickable.
+			this.dashFadeToken = null;
+			(this.$dash as any).css('pointer-events', '');
 			this.$dash.show().css('opacity', 0);
 			this.$dash.transition(
 				{
@@ -2430,10 +2463,18 @@ export class UI {
 	}
 
 	toggleMusicPlayer(force?: boolean) {
+		// Close-then-reopen within one synchronous flow (e.g. toggleDash()
+		// closing audio before opening) must not leave a stale deferred
+		// disable from closeDash() to yank pointer-events off the new open:
+		// invalidate it whenever audio opens.
+		if (force === false && $j('#musicplayerwrapper').hasClass('hide')) {
+			return;
+		}
 		const $musicPlayerWrapper = $j('#musicplayerwrapper');
 		const shouldOpen = force ?? $musicPlayerWrapper.hasClass('hide');
 
 		if (shouldOpen) {
+			this.dashFadeToken = null;
 			this.closeDash();
 			this.closeScoreboard();
 			$musicPlayerWrapper.removeClass('hide');
@@ -2446,6 +2487,10 @@ export class UI {
 	}
 
 	toggleView(view: InterfaceView) {
+		if (this.isViewOpen(view)) {
+			this.closeView(view);
+			return;
+		}
 		(Object.keys(interfaceViewSignals) as InterfaceView[]).forEach((candidate) => {
 			if (candidate !== view) {
 				this.closeView(candidate);
@@ -2796,6 +2841,7 @@ export class UI {
 			return;
 		}
 
+		this.dashFadeToken = null;
 		this.closeDash();
 		this.toggleMusicPlayer(false);
 
@@ -2898,6 +2944,9 @@ export class UI {
 
 	closeScoreboard() {
 		this.scoreboardOpenCollectiveBanner.onViewClose();
+		if (this.$scoreboard.hasClass('hide')) {
+			return;
+		}
 		this.scoreboardGameOver = false;
 		this.btnSaveLog.changeState(ButtonStateEnum.hidden);
 		this.btnRestartMatch.changeState(ButtonStateEnum.hidden);
@@ -2951,6 +3000,10 @@ export class UI {
 		game.signals.ui.dispatch('onCloseDash');
 
 		const isArcade = window.innerWidth <= 600 && window.innerHeight <= 700;
+		// Token for this close's deferred pointer-events changes: a re-open
+		// before they fire must cancel them, or the dash opens unclickable.
+		const fadeToken = Symbol('dashFade');
+		this.dashFadeToken = fadeToken;
 
 		if (isArcade) {
 			// Keep the dash visible (display:flex) during the fade-out so the
@@ -2973,6 +3026,11 @@ export class UI {
 					this.$dash.removeClass('active');
 					if (!this.dashopen) {
 						this.$dash.hide();
+					} else if (this.dashFadeToken !== fadeToken) {
+						// Re-opened while fading: this close is stale, restore
+						// hit-testing so the new open receives clicks.
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
+						(this.$dash as any).css('pointer-events', '');
 					}
 				},
 			);
@@ -2982,6 +3040,9 @@ export class UI {
 			// so those events still hit the dash element and are stopped by its handlers,
 			// rather than passing through to the Phaser canvas underneath.
 			setTimeout(() => {
+				if (this.dashFadeToken !== fadeToken) {
+					return;
+				}
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				(this.$dash as any).css('pointer-events', 'none');
 			}, 0);
@@ -2996,9 +3057,14 @@ export class UI {
 				() => {
 					if (!this.dashopen) {
 						this.$dash.hide();
+						// Re-enable pointer-events after fade-out so the dash can be interacted with when reopened
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
+						(this.$dash as any).css('pointer-events', '');
+					} else if (this.dashFadeToken !== fadeToken) {
+						// Re-opened while fading: stale close, restore hit-testing.
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
+						(this.$dash as any).css('pointer-events', '');
 					}
-					// Re-enable pointer-events after fade-out so the dash can be interacted with when reopened
-					(this.$dash as any).css('pointer-events', '');
 				},
 			);
 		}
