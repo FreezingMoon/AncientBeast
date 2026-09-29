@@ -1187,6 +1187,28 @@ export class UI {
 		this.hotkeys = new Hotkeys(this);
 		const ingameHotkeys = getHotKeys(this.hotkeys);
 
+		// Capture-phase pointer handlers to prevent right-clicks from reaching
+		// the Phaser canvas when dash is open (canvas is a sibling, not a child,
+		// so dash's bubbling handlers don't intercept canvas-targeted events).
+		const suppressCanvasEvents = (e: Event) => {
+			if (this.dashopen) {
+				e.preventDefault();
+				e.stopPropagation();
+				e.stopImmediatePropagation();
+				// Close dash if right-click intercepted
+				const me = e as MouseEvent | PointerEvent;
+				if (e.type === 'contextmenu' || me.button === 2) {
+					this.closeDash();
+				}
+			}
+		};
+		window.addEventListener('contextmenu', suppressCanvasEvents, true);
+		window.addEventListener('mousedown', suppressCanvasEvents, true);
+		window.addEventListener('mouseup', suppressCanvasEvents, true);
+		// Phaser uses pointer events, not mouse events
+		window.addEventListener('pointerdown', suppressCanvasEvents, true);
+		window.addEventListener('pointerup', suppressCanvasEvents, true);
+
 		// Remove hex grid if window loses focus
 		$j(window).off('blur.ingameHotkeys');
 		$j(window).on('blur.ingameHotkeys', () => {
@@ -1290,23 +1312,26 @@ export class UI {
 						this.materializeButton.triggerClick();
 					}
 					break;
-				case 3:
-					// Right mouse button pressed
-					e.preventDefault();
-					e.stopPropagation();
-					if (this.dashopen) {
-						this.closeDash();
-					}
-					break;
+				// Right-click (button 3) handled by window capture handler below,
+				// which intercepts before canvas and closes dash.
 			}
 		});
 
+		// Right-click on dash itself - close dash (reached when not on canvas)
 		$j('#dash').on('contextmenu', (e) => {
 			e.preventDefault();
 			e.stopPropagation();
 			if (this.dashopen) {
 				this.closeDash();
 			}
+		});
+
+		// Prevent mouseup from falling through to Phaser canvas after right-click closes dash
+		$j('#dash').on('mouseup', (e) => {
+			if (game.freezedInput) {
+				return;
+			}
+			e.stopPropagation();
 		});
 
 		// Mouse Shortcut
@@ -2930,7 +2955,13 @@ export class UI {
 		if (isArcade) {
 			// Keep the dash visible (display:flex) during the fade-out so the
 			// transition actually animates; remove .active / hide only after.
+			// While the dash is fading out it still intercepts pointer events
+			// (it sits at the same z-index as the music player/scoreboard below),
+			// so right-clicks meant to close those views were landing on the
+			// dash instead and reopening it. Disable pointer-events during the
+			// fade so clicks fall through to the view underneath.
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			(this.$dash as any).css('pointer-events', 'none');
 			(this.$dash as any).transition(
 				{
 					opacity: 0,
@@ -2947,6 +2978,13 @@ export class UI {
 			);
 		} else {
 			this.$dash.removeClass('active');
+			// Defer pointer-events: none until after the current event cycle (mouseup, contextmenu)
+			// so those events still hit the dash element and are stopped by its handlers,
+			// rather than passing through to the Phaser canvas underneath.
+			setTimeout(() => {
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				(this.$dash as any).css('pointer-events', 'none');
+			}, 0);
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			(this.$dash as any).transition(
 				{
@@ -2959,6 +2997,8 @@ export class UI {
 					if (!this.dashopen) {
 						this.$dash.hide();
 					}
+					// Re-enable pointer-events after fade-out so the dash can be interacted with when reopened
+					(this.$dash as any).css('pointer-events', '');
 				},
 			);
 		}
