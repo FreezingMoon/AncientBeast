@@ -2,19 +2,22 @@ name: Build and Configure
 
 on: [push, pull_request]
 
+env:
+  BUN_VERSION: '1.4.2'
+
 jobs:
   build:
     runs-on: ubuntu-22.04
 
     steps:
     - uses: actions/checkout@v3
-    - name: Use Node.js 22
-      uses: actions/setup-node@v3
+    - name: Use Bun
+      uses: oven-sh/setup-bun@v2
       with:
-        node-version: 22
-    - run: npm ci
+        bun-version: ${{ env.BUN_VERSION }}
+    - run: bun install --frozen-lockfile
     - name: build
-      run: npx webpack --mode=production
+      run: bun run build
       env:
         PUBLIC_PATH: '/AncientBeast/'
     - name: Upload build artifact
@@ -26,33 +29,33 @@ jobs:
   test:
        runs-on: ubuntu-22.04
        needs: build
-       
+
        steps:
        - name: Checkout code
-         uses: actions/checkout@v2  
-    
-       - name: Use Node.js 22
-         uses: actions/setup-node@v2  
+         uses: actions/checkout@v2
+
+       - name: Use Bun
+         uses: oven-sh/setup-bun@v2
          with:
-          node-version: 22
+           bun-version: ${{ env.BUN_VERSION }}
 
        - name: Install dependencies
-         run: npm ci
+         run: bun install --frozen-lockfile
 
        - name: Lint code
-         run: npm run lint  
+         run: bun run lint
 
        - name: Build for testing
-         run: npm run build:dev 
+         run: bun run build:dev
 
        - name: Run tests
-         run: npm test
+         run: bun run test
 
-       # Headless-engine smoke test: the simulation drives the real engine
-       # through NullEngine, so it catches adapter regressions that the unit
-       # tests (which use lightweight mocks) cannot.
+        # Headless-engine smoke test: the simulation drives the real engine
+        # through NullEngine, so it catches adapter regressions that the unit
+        # tests (which use lightweight mocks) cannot.
        - name: Simulation smoke test
-         run: npm run simulate
+         run: bun run simulate
          env:
            SIM_BASELINE: 3
            SIM_VARIANT: 2
