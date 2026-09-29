@@ -46,8 +46,8 @@ function makeTextureView(go: AnyObject): AnyObject {
 			if (prop === 'width') return go.frame?.width ?? go.width ?? 0;
 			if (prop === 'height') return go.frame?.height ?? go.height ?? 0;
 			if (prop === 'crop') return go.frame?.setTo ? go.frame : undefined;
-			if (prop === 'baseTexture') return (go.texture as AnyObject)?.source;
-			if (prop === 'source') return (go.texture as AnyObject)?.source;
+		if (prop === 'baseTexture') return (go.texture as AnyObject)?.source?.[0];
+		if (prop === 'source') return (go.texture as AnyObject)?.source?.[0];
 			const real = (go.texture as AnyObject)?.[prop as string];
 			return typeof real === 'function' ? real.bind(go.texture) : real;
 		},
@@ -327,6 +327,32 @@ export function wrapGameObject(gameObject: Phaser.GameObjects.GameObject): Sprit
 }
 
 /**
+ * Phaser 2 Graphics methods that were renamed in Phaser 4.
+ *
+ * Phaser 2 used the PixiJS-style drawing API: `beginFill`/`endFill` bracket
+ * a shape, then `drawCircle`/`drawRect` emit it. Phaser 4 split these into
+ * one-shot `fillStyle` + `fillCircle`/`fillRect`. `endFill` has no direct
+ * equivalent, but its semantics — close and reset the current path — map to
+ * Phaser 4's `beginPath`, which clears the buffered path so that subsequent
+ * `strokePath` calls don't re-render stale shape points.
+ */
+const graphicsMethodMap: Record<string, string> = {
+	beginFill: 'fillStyle',
+	drawCircle: 'fillCircle',
+	drawRect: 'fillRect',
+	endFill: 'beginPath',
+};
+
+/**
+ * Methods that alter drawing state. In Phaser 2 each call rendered the
+ * current path immediately (PixiJS was immediate mode); in Phaser 4 paths are
+ * buffered until `strokePath` is invoked. To keep the visual output identical,
+ * any pending path is flushed before a state change so buffered line segments
+ * are rendered with their original stroke style.
+ */
+const graphicsPathFlushBefore = new Set(['lineStyle', 'beginFill']);
+
+/**
  * Builds the forwarding proxy.
  *
  * Reads/writes resolve in this order: the facade's own properties, values
@@ -339,8 +365,21 @@ function createProxy(facade: AnyObject, local: Map<string, unknown>, target: Any
 			if (key in facadeTarget || local.has(key)) {
 				return Reflect.get(facadeTarget, prop, receiver);
 			}
-			const value = target[key];
-			return typeof value === 'function' ? value.bind(target) : value;
+			const targetKey = graphicsMethodMap[key] ?? key;
+			const value = target[targetKey];
+			if (typeof value !== 'function') {
+				return value;
+			}
+			if (graphicsPathFlushBefore.has(key)) {
+				const bound = value.bind(target);
+				return (...args: unknown[]) => {
+					if (typeof target.strokePath === 'function') {
+						target.strokePath();
+					}
+					return bound(...args);
+				};
+			}
+			return value.bind(target);
 		},
 		set(facadeTarget, prop, value) {
 			const key = prop as string;
@@ -349,8 +388,9 @@ function createProxy(facade: AnyObject, local: Map<string, unknown>, target: Any
 			}
 			// Native Phaser 4 concepts (depth, tint, lighting, filters, …) must
 			// land on the real game object so the render pipeline sees them.
-			if (key in target) {
-				target[key] = value;
+			const targetKey = graphicsMethodMap[key] ?? key;
+			if (targetKey in target) {
+				target[targetKey] = value;
 			} else {
 				local.set(key, value);
 			}
@@ -358,7 +398,8 @@ function createProxy(facade: AnyObject, local: Map<string, unknown>, target: Any
 		},
 		has(facadeTarget, prop) {
 			const key = prop as string;
-			return key in facadeTarget || local.has(key) || key in target;
+			const targetKey = graphicsMethodMap[key] ?? key;
+			return key in facadeTarget || local.has(key) || targetKey in target;
 		},
 	});
 }
@@ -467,6 +508,108 @@ function alignIn(gameObject: AnyObject, container?: AnyObject, position?: number
 			setBottom(other.top + other.height - offsetY);
 			break;
 	}
+}
+
+// ─── Manual world transform (workaround for Phaser 4.2.1 getWorldPoint bug) ─────
+
+/**
+ * Manually computes the world position of a point in a container's local space
+ * by walking up the parent container chain and applying transforms.
+ * This works around a bug in Phaser 4.2.1 where getWorldPoint fails with
+ * "tempMatrix.applyITRS is not a function".
+ */
+function getWorldPointManual(
+	container: Phaser.GameObjects.Container,
+	x: number,
+	y: number,
+): Phaser.Math.Vector2 {
+	let current: Phaser.GameObjects.Container | null = container;
+	let wx = x;
+	let wy = y;
+
+	while (current) {
+		// Apply current container's transform
+		const rotation = current.rotation ?? 0;
+		const scaleX = current.scaleX ?? 1;
+		const scaleY = current.scaleY ?? 1;
+		const tx = current.x ?? 0;
+		const ty = current.y ?? 0;
+
+		// Apply rotation and scale
+		const cos = Math.cos(rotation);
+		const sin = Math.sin(rotation);
+		const rx = wx * cos * scaleX - wy * sin * scaleY;
+		const ry = wx * sin * scaleX + wy * cos * scaleY;
+
+		// Apply translation
+		wx = rx + tx;
+		wy = ry + ty;
+
+		// Move to parent container
+		current = current.parentContainer;
+	}
+
+	return new Phaser.Math.Vector2(wx, wy);
+}
+
+/**
+ * Manually computes the local position of a world point in a container's space
+ * by walking up the parent container chain and applying inverse transforms.
+ * This works around a bug in Phaser 4.2.1 where getLocalPoint fails with
+ * "tempMatrix.applyITRS is not a function" (via getWorldTransformMatrix).
+ */
+function getLocalPointManual(
+	container: Phaser.GameObjects.Container,
+	x: number,
+	y: number,
+): Phaser.Math.Vector2 {
+	// First, get the world transform of the container
+	let current: Phaser.GameObjects.Container | null = container;
+	const transforms: Array<{
+		x: number;
+		y: number;
+		rotation: number;
+		scaleX: number;
+		scaleY: number;
+	}> = [];
+
+	while (current) {
+		transforms.push({
+			x: current.x ?? 0,
+			y: current.y ?? 0,
+			rotation: current.rotation ?? 0,
+			scaleX: current.scaleX ?? 1,
+			scaleY: current.scaleY ?? 1,
+		});
+		current = current.parentContainer;
+	}
+
+	// Apply inverse transforms in reverse order (from root to container)
+	let lx = x;
+	let ly = y;
+
+	for (let i = transforms.length - 1; i >= 0; i--) {
+		const t = transforms[i];
+		// Translate to origin
+		lx -= t.x;
+		ly -= t.y;
+
+		// Apply inverse rotation and scale
+		const cos = Math.cos(-t.rotation);
+		const sin = Math.sin(-t.rotation);
+		const invScaleX = 1 / t.scaleX;
+		const invScaleY = 1 / t.scaleY;
+
+		const rx = lx * cos * invScaleX - ly * sin * invScaleY;
+		const ry = lx * sin * invScaleX + ly * cos * invScaleY;
+
+		lx = rx;
+		ly = ry;
+	}
+
+	// Note: We don't handle display origin here since the facade's position
+	// already accounts for it. The Phaser 2 compatible behavior is expected.
+	return new Phaser.Math.Vector2(lx, ly);
 }
 
 // ─── Group facade (backed by a Phaser 4 Container) ───────────────────────────
@@ -611,11 +754,11 @@ export function wrapGroup(container: Phaser.GameObjects.Container): GroupHandle 
 		sendToBack: (child: AnyObject) => container.sendToBack(unwrap(child)),
 
 		toLocal: (worldPos: AnyObject, output?: AnyObject) => {
-			const point = container.getLocalPoint(worldPos.x, worldPos.y);
+			const point = getLocalPointManual(container, worldPos.x, worldPos.y);
 			return output ? Object.assign(output, { x: point.x, y: point.y }) : point;
 		},
 		toGlobal: (localPos: AnyObject, output?: AnyObject) => {
-			const point = container.getWorldPoint(localPos.x, localPos.y);
+			const point = getWorldPointManual(container, localPos.x, localPos.y);
 			return output ? Object.assign(output, { x: point.x, y: point.y }) : point;
 		},
 		alignIn: (center?: AnyObject, align?: number) => alignIn(target, center, align),

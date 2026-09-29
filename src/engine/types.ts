@@ -118,6 +118,7 @@ export interface SpriteHandle {
 	moveTo(x: number, y: number): void;
 	lineTo(x: number, y: number): void;
 	drawCircle(x: number, y: number, radius: number): void;
+	strokePath(): void;
 	mask: any;
 }
 
