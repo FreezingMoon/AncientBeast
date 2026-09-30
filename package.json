@@ -85,7 +85,7 @@
     "preview": "echo '🔍 Previewing production build locally' && vite preview",
     "lint": "echo '✏️  Running ESLint and auto-fixing issues' && eslint --fix \"src/**/*.{js,ts}\"",
     "test": "echo '🧪 Full test suite: typecheck, lint, build, then Jest' && tsc --noEmit --project tsconfig.typecheck.json && eslint --fix \"src/**/*.{js,ts}\" && vite build && jest",
-    "simulate": "echo '🎮 Running headless game simulation tests' && jest --config jest.simulation.config.js --runInBand",
+    "simulate": "echo '🤖 Running headless game simulation tests' && jest --config jest.simulation.config.js --runInBand",
     "devvit:playtest": "echo '🎮 Cleaning SVGs for Devvit and starting playtest' && bun scripts/optimize-svgs.mjs assets/stats assets/icons assets/autoload/interface && devvit playtest",
     "devvit:upload": "echo '📤 Cleaning SVGs for Devvit and uploading' && bun scripts/optimize-svgs.mjs assets/stats assets/icons assets/autoload/interface && devvit upload"
   },
