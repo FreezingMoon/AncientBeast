@@ -9,6 +9,7 @@ import { Button, ButtonStateEnum } from './button';
 import { Chat } from './chat';
 import { Creature } from '../creature';
 import { Fullscreen } from './fullscreen';
+import { syncFullscreenViewHud } from './hud-visibility';
 import { ProgressBar } from './progressbar';
 import { getUrl } from '../assets';
 import { MetaPowers } from './meta-powers';
@@ -492,6 +493,7 @@ const toggleSecretView = () => {
 	const overlay =
 		(document.getElementById(SECRET_VIEW_ID) as HTMLDivElement | null) || createSecretViewOverlay();
 	overlay.style.display = overlay.style.display === 'flex' ? 'none' : 'flex';
+	syncFullscreenViewHud();
 };
 
 type InterfaceView = 'dash' | 'score' | 'audio' | 'secret';
@@ -1908,6 +1910,7 @@ export class UI {
 
 		// Set dash active
 		this.$dash.addClass('active');
+		syncFullscreenViewHud();
 		this.$dash.children('#tooltip').removeClass('active');
 		this.$dash.children('#playertabswrapper').addClass('active');
 		this.changePlayerTab(game.activeCreature.team);
@@ -2525,11 +2528,13 @@ export class UI {
 			this.closeScoreboard();
 			$musicPlayerWrapper.removeClass('hide');
 			this.musicPlayerOpenCollectiveBanner.onViewOpen();
+			syncFullscreenViewHud();
 			return;
 		}
 
 		$musicPlayerWrapper.addClass('hide');
 		this.musicPlayerOpenCollectiveBanner.onViewClose();
+		syncFullscreenViewHud();
 	}
 
 	toggleView(view: InterfaceView) {
@@ -2547,6 +2552,9 @@ export class UI {
 
 	closeOpenInterfaceViews() {
 		(Object.keys(interfaceViewSignals) as InterfaceView[]).forEach((view) => this.closeView(view));
+		if (this.metaPowers?.panelVisible) {
+			this.metaPowers._closeModal();
+		}
 	}
 
 	closeView(view: InterfaceView) {
@@ -2571,6 +2579,7 @@ export class UI {
 	isInterfaceViewOpen() {
 		return (
 			this.chat.isOpen ||
+			this.metaPowers?.panelVisible ||
 			(Object.keys(interfaceViewSignals) as InterfaceView[]).some((view) => this.isViewOpen(view))
 		);
 	}
@@ -2900,6 +2909,7 @@ export class UI {
 
 		this.$scoreboard.removeClass('hide');
 		this.scoreboardOpenCollectiveBanner.onViewOpen();
+		syncFullscreenViewHud();
 	}
 
 	refreshScoreboard() {
@@ -2998,6 +3008,7 @@ export class UI {
 		this.btnRestartMatch.changeState(ButtonStateEnum.hidden);
 		this.btnExit.changeState(ButtonStateEnum.hidden);
 		this.$scoreboard.addClass('hide');
+		syncFullscreenViewHud();
 	}
 
 	/**
@@ -3069,8 +3080,8 @@ export class UI {
 				this.dashAnimSpeed,
 				'linear',
 				() => {
-					this.$dash.removeClass('active');
 					if (!this.dashopen) {
+						this.$dash.removeClass('active');
 						this.$dash.hide();
 					} else if (this.dashFadeToken !== fadeToken) {
 						// Re-opened while fading: this close is stale, restore
@@ -3078,6 +3089,7 @@ export class UI {
 						// eslint-disable-next-line @typescript-eslint/no-explicit-any
 						(this.$dash as any).css('pointer-events', '');
 					}
+					syncFullscreenViewHud();
 				},
 			);
 		} else {
@@ -3121,6 +3133,7 @@ export class UI {
 
 		this.dashopen = false;
 		this.materializeToggled = false;
+		syncFullscreenViewHud();
 	}
 
 	gridSelectUp() {
