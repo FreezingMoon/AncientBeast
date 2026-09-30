@@ -1,4 +1,4 @@
-import * as $j from 'jquery';
+import $j from 'jquery';
 import skin from './skin';
 import beastAudioFile from 'assets/sounds/AncientBeast.ogg';
 
