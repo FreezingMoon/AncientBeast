@@ -5,7 +5,8 @@ import { GameLog } from './utility/gamelog';
 import { SoundSys, SoundSysAudioBufferSourceNode } from './sound/soundsys';
 import { Hex } from './utility/hex';
 import { HexGrid } from './utility/hexgrid';
-import { getUrl, use as assetsUse, soundPaths, ensureCardboardReady } from './assets';
+import { Easing } from './utility/easing';
+import { getUrl, use as assetsUse, soundPaths, ensureCardboardReady, loadTexture } from './assets';
 import {
 	Player,
 	PlayerColor,
@@ -44,7 +45,7 @@ import { CreatureType, Realm, UnitData } from './data/types';
 import { setAudioMode, getAudioMode, DEFAULT_AUDIO_MODE } from './sound/soundsys';
 import BotController from './bot';
 import { locationPaths } from '../assets/index';
-import type { GameEngine } from './engine/types';
+import type { GameEngine, SpriteHandle } from './engine/types';
 
 /* eslint-disable prefer-rest-params */
 
@@ -70,6 +71,22 @@ import type { GameEngine } from './engine/types';
 type AnimationID = number;
 
 const webKitGtkUserAgent = /(X11|Linux).*AppleWebKit\/.*Version\/.*Safari\//i;
+
+/** Cross-fade length, in ms, of the secret combat-location switch. */
+const LOCATION_FADE_DURATION = 400;
+
+/**
+ * Render depths of the match backdrop.
+ *
+ * The board draws in bands of `row * 100` (see HexGrid#getDepthAtBand), so
+ * row 0 starts at depth 0: anything at or above that would cover the first row
+ * of hexes. The fading-in copy therefore gets its own fixed slot just above the
+ * backdrop rather than being offset from whatever it replaces — offsetting
+ * from the outgoing sprite would walk the depth up by a step on every switch
+ * and eventually lift the backdrop over the board.
+ */
+const BACKGROUND_DEPTH = -1;
+const BACKGROUND_FADE_DEPTH = -0.5;
 
 function shouldUseCanvasRenderer() {
 	return webKitGtkUserAgent.test(navigator.userAgent);
@@ -198,6 +215,17 @@ export default class Game {
 	soundsys?: SoundSys;
 	fullscreenMode?: boolean;
 	background_image?: string;
+	/**
+	 * The location whose backdrop is on screen, e.g. `'Dark Forest'`. Kept in
+	 * sync with `background_image` so the quick-info tooltips and the secret
+	 * location switch agree on what is being fought over.
+	 */
+	combatLocation?: string;
+	/**
+	 * The backdrop sprite created by {@link setup}. Retained so a location
+	 * change can fade the old image out instead of tearing the world down.
+	 */
+	backgroundSprite?: SpriteHandle;
 
 	gameMode?: number;
 
@@ -865,37 +893,17 @@ export default class Game {
 		engine.scale.fullScreenScaleMode = SCALE_MODE_FIT;
 		engine.scale.refresh();
 
-		const bg = engine.add.sprite(0, 0, 'background');
-		// Re-apply (0, 0) after anchoring: Phaser 4 keeps the rendered top-left
-		// and shifts x/y by half the texture, which would leave the backdrop
-		// hanging off the top-left corner of the viewport.
-		bg.anchor.setTo(0, 0);
-		bg.x = 0;
-		bg.y = 0;
-		bg.setDisplaySize(1920, 1080);
-		bg.setDepth(-1);
-
-		bg.inputEnabled = true;
-		bg.events.onInputUp.add((Sprite, Pointer) => {
-			if (this.freezedInput || !this.UI || this.UI.dashopen) {
-				return;
-			}
-
-			switch (Pointer.button) {
-				case 0:
-					// Left mouse button pressed
-					break;
-				case 1:
-					// Middle mouse button pressed
-					break;
-				case 2:
-					// Right mouse button pressed
-					if (this.activeCreature) {
-						this.UI.showCreature(this.activeCreature.type, this.activeCreature.player.id);
-					}
-					break;
-			}
-		}, this);
+		const bg = this.createBackgroundSprite('background');
+		this.backgroundSprite = bg;
+		// Mirror the resolution order in startAssetLoad so the secret location
+		// switch knows what is currently on screen. Multiplayer lobbies send the
+		// placeholder 'default', which names no real location, so fall back to
+		// the first backdrop rather than treating it as switchable.
+		if (!locationPaths.includes(this.combatLocation)) {
+			this.combatLocation = locationPaths.includes(this.background_image)
+				? this.background_image
+				: locationPaths[0];
+		}
 
 		// Reset global counters
 		this.trapId = 0;
@@ -1064,6 +1072,117 @@ export default class Game {
 		if (DEBUG_DISABLE_MUSIC) {
 			this.musicPlayer.audio.pause();
 		}
+	}
+
+	/**
+	 * Build the full-viewport backdrop and wire the right-click shortcut that
+	 * opens the active creature's card.
+	 *
+	 * Extracted from {@link setup} so a location change can build an identical
+	 * sprite (same size, depth and gestures) and fade one into the other.
+	 */
+	private createBackgroundSprite(textureKey: string): SpriteHandle {
+		const bg = this.gameEngine.add.sprite(0, 0, textureKey);
+		// Re-apply (0, 0) after anchoring: Phaser 4 keeps the rendered top-left
+		// and shifts x/y by half the texture, which would leave the backdrop
+		// hanging off the top-left corner of the viewport.
+		bg.anchor.setTo(0, 0);
+		bg.x = 0;
+		bg.y = 0;
+		bg.setDisplaySize(1920, 1080);
+		bg.setDepth(BACKGROUND_DEPTH);
+
+		bg.inputEnabled = true;
+		bg.events.onInputUp.add((_sprite, pointer) => {
+			if (this.freezedInput || !this.UI || this.UI.dashopen) {
+				return;
+			}
+
+			switch (pointer.button) {
+				case 0:
+					// Left mouse button pressed
+					break;
+				case 1:
+					// Middle mouse button pressed
+					break;
+				case 2:
+					// Right mouse button pressed
+					if (this.activeCreature) {
+						this.UI.showCreature(this.activeCreature.type, this.activeCreature.player.id);
+					}
+					break;
+			}
+		}, this);
+
+		return bg;
+	}
+
+	/**
+	 * Move the fight to a different combat location, chosen at random.
+	 *
+	 * Backs the secret Ctrl + click-on-the-logo gesture in {@link UI}. The new
+	 * backdrop is cross-faded over the old one so the board never flashes, and
+	 * the location is only recorded locally: it is cosmetic scenery, not
+	 * gameplay state, so a peer that never switched keeps its own backdrop.
+	 */
+	randomizeCombatLocation(): string | undefined {
+		if (!this.backgroundSprite) {
+			return undefined;
+		}
+		// "A different one": exclude the location already on screen so repeated
+		// clicks always visibly change something.
+		const alternatives = locationPaths.filter((path) => path !== this.combatLocation);
+		const pool = alternatives.length > 0 ? alternatives : locationPaths;
+		const next = pool[Math.floor(Math.random() * pool.length)];
+		this.setCombatLocation(next);
+		return next;
+	}
+
+	/**
+	 * Point the match at `location`, fading the backdrop across to it.
+	 *
+	 * The location texture is fetched on demand (locations are not part of the
+	 * preload batch) and the swap only completes once it has decoded, so the
+	 * fade never reveals an empty backdrop.
+	 */
+	private setCombatLocation(location: string): void {
+		const previous = this.backgroundSprite;
+		if (!previous || !location || location === this.combatLocation) {
+			return;
+		}
+
+		this.combatLocation = location;
+		this.background_image = location;
+		if (this.configData) {
+			this.configData.combatLocation = location;
+			this.configData.background_image = location;
+		}
+
+		loadTexture(location, `locations/${location}`, () => {
+			// A rematch or a reset may have replaced the backdrop while the
+			// texture was still in flight; that world owns its own scenery now.
+			if (this.backgroundSprite !== previous) {
+				return;
+			}
+			const engine = this.gameEngine;
+			// The incoming backdrop takes a fixed depth just above the outgoing
+			// one so the two overlap exactly, then the old sprite is retired. It
+			// stops taking input straight away: both cover the viewport, and the
+			// right-click shortcut must not fire twice mid-fade.
+			const incoming = this.createBackgroundSprite(location);
+			incoming.alpha = 0;
+			incoming.setDepth(BACKGROUND_FADE_DEPTH);
+			previous.inputEnabled = false;
+			engine.tween(incoming).to({ alpha: 1 }, LOCATION_FADE_DURATION, Easing.Linear.None).start();
+			const fadeOut = engine
+				.tween(previous)
+				.to({ alpha: 0 }, LOCATION_FADE_DURATION, Easing.Linear.None);
+			fadeOut.onComplete.addOnce(() => {
+				previous.destroy();
+			});
+			fadeOut.start();
+			this.backgroundSprite = incoming;
+		});
 	}
 
 	async createLobby(config: MultiplayerGameConfig): Promise<LobbySession> {
@@ -2389,6 +2508,11 @@ export default class Game {
 		this.lastSummonedType = null;
 		this.animationQueue = [];
 		this.configData = {};
+		// The backdrop belongs to the Phaser instance that resetGame is about to
+		// tear down, and the location comes back with the next match's config.
+		this.backgroundSprite = undefined;
+		this.combatLocation = undefined;
+		this.background_image = undefined;
 		this.match = {};
 		this.lobby = null;
 		this.lobbyCode = '';

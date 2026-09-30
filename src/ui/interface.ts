@@ -29,6 +29,15 @@ import { OpenCollectiveBanner, isThirdPartyContentBlocked } from './open-collect
 
 const SECRET_VIEW_ID = 'ab-secret-view';
 
+/**
+ * Render/input depth of the brand logo revealed with Ctrl.
+ *
+ * The hex grid renders in bands of `row * 100` (see HexGrid#getDepthAtBand), so
+ * anything above a few thousand sits in front of the whole board — which is
+ * what the logo needs, since it is a clickable overlay rather than scenery.
+ */
+const BRAND_LOGO_DEPTH = 100000;
+
 /** Combat log elements that toggle the Meta Powers panel on right-click. */
 const META_TOGGLE_SELECTOR = '#chatbox, #chatcontent';
 const GAME_IN_PROGRESS_UNLOAD_CONFIRMATION =
@@ -617,6 +626,19 @@ export class UI {
 		// on the viewport instead of hardcoding an off-center x.
 		this.brandlogo = game.gameEngine.add.image(this.getBrandLogoCenterX(), 200, 'AncientBeastLogo');
 		this.brandlogo.alpha = 0;
+		// Clicking the revealed logo re-rolls the combat location. A secret
+		// feature, so it stays inert until the logo is actually shown and it
+		// takes priority over the board — see #setBrandLogoVisible.
+		this.brandlogo.setDepth(BRAND_LOGO_DEPTH);
+		this.brandlogo.inputEnabled = false;
+		this.brandlogo.events.onInputUp.add((_sprite, pointer) => {
+			// Left click only: a right-click over the logo should still reach the
+			// backdrop shortcut underneath and open the active creature's card.
+			if (pointer.button !== 0) {
+				return;
+			}
+			game.randomizeCombatLocation();
+		});
 		this.active = false;
 
 		this.queue = UI.#getQueue(this, document.getElementById('queuewrapper'));
@@ -1631,6 +1653,38 @@ export class UI {
 	centerBrandLogo() {
 		if (this.brandlogo) {
 			this.brandlogo.x = this.getBrandLogoCenterX();
+		}
+	}
+
+	/**
+	 * Show or hide the brand logo, and with it its click target.
+	 *
+	 * Holding Ctrl reveals the logo as a secret control that re-rolls the
+	 * combat location, so it only accepts pointer input while it is on screen.
+	 * Phaser 4 hit-tests interactive objects regardless of alpha — the engine
+	 * adapter deliberately keeps the render mask set so invisible hex hitboxes
+	 * still work — so leaving input enabled on a hidden logo would make it
+	 * swallow clicks meant for the board underneath it.
+	 */
+	setBrandLogoVisible(visible: boolean) {
+		const logo = this.brandlogo;
+		if (!logo) {
+			return;
+		}
+		logo.alpha = visible ? 1 : 0;
+		if (visible) {
+			// `setInteractive` is what creates the interactive object the hand
+			// cursor is stored on, so the cursor has to be set afterwards.
+			logo.inputEnabled = true;
+			logo.input.useHandCursor = true;
+			return;
+		}
+		logo.input.useHandCursor = false;
+		logo.inputEnabled = false;
+		// Phaser only restores the canvas cursor on a pointer-out it observes
+		// itself, which never arrives for an object hidden mid-hover.
+		if ($j('canvas').css('cursor') === 'pointer') {
+			$j('canvas').css('cursor', '');
 		}
 	}
 
@@ -4139,13 +4193,13 @@ export class UI {
 		}, 2000);
 
 		const onTurnEndMouseEnter = ifGameNotFrozen(() => {
-			ui.brandlogo.alpha = 0;
+			ui.setBrandLogoVisible(false);
 			ui.game.grid.showGrid(true);
 			ui.game.grid.showCurrentCreatureMovementInOverlay(ui.game.activeCreature);
 		});
 
 		const onTurnEndMouseLeave = () => {
-			ui.brandlogo.alpha = 0;
+			ui.setBrandLogoVisible(false);
 			ui.game.grid.showGrid(false);
 			ui.game.grid.allhexes.forEach((hex) => {
 				hex.cleanOverlayVisualState();
@@ -4156,14 +4210,14 @@ export class UI {
 		// Hide the project logo when navigating away using a hotkey
 		document.addEventListener('visibilitychange', function () {
 			if (document.hidden) {
-				ui.brandlogo.alpha = 0;
+				ui.setBrandLogoVisible(false);
 			}
 		});
 
 		// Hide the project logo when navigating away using a hotkey (Ctrl+Shift+M)
 		document.addEventListener('keydown', (event) => {
 			if (event.ctrlKey && event.shiftKey && event.key === 'M') {
-				ui.brandlogo.alpha = 0;
+				ui.setBrandLogoVisible(false);
 			}
 		});
 

@@ -193,7 +193,7 @@ export class Hotkeys {
 			if (event.shiftKey) this.ui.gridSelectPrevious();
 			else this.ui.gridSelectNext();
 		} else if (event.shiftKey) {
-			this.ui.brandlogo.alpha = 0;
+			this.ui.setBrandLogoVisible(false);
 			this.ui.selectPreviousAbility();
 		} else {
 			this.ui.selectNextAbility();
@@ -269,7 +269,7 @@ export class Hotkeys {
 	pressControlKeyDown() {
 		if (!this.ui.dashopen) {
 			this.ui.centerBrandLogo();
-			this.ui.brandlogo.alpha = 1;
+			this.ui.setBrandLogoVisible(true);
 			this.ui.game.grid.showGrid(true);
 			this.ui.game.grid.showCurrentCreatureMovementInOverlay(this.ui.game.activeCreature);
 		}
@@ -277,7 +277,7 @@ export class Hotkeys {
 
 	pressControlKeyUp() {
 		if (!this.ui.dashopen) {
-			this.ui.brandlogo.alpha = 0;
+			this.ui.setBrandLogoVisible(false);
 			this.ui.game.grid.showGrid(false);
 			this.ui.game.grid.allhexes.forEach((hex) => {
 				hex.cleanOverlayVisualState();
