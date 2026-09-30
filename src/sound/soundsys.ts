@@ -171,7 +171,28 @@ export class SoundSys {
 		bufferLoader.load();
 	}
 
-	private playSound(sound: AudioBuffer, node: GainNode): SoundSysAudioBufferSourceNode {
+	/** Stop a source returned by one of the play methods, tolerating an already-ended one. */
+	stopSFX(source?: SoundSysAudioBufferSourceNode) {
+		if (isNullAudioBufferSourcNode(source)) {
+			return;
+		}
+		try {
+			// Throws if the node never started or already stopped.
+			(source as AudioBufferSourceNode).stop();
+		} catch {
+			// Already finished; nothing left to silence.
+		}
+	}
+
+	/**
+	 * @param duration - optional length in seconds to play, cutting the sound short.
+	 * Useful for long stingers that would otherwise linger over the whole screen.
+	 */
+	private playSound(
+		sound: AudioBuffer,
+		node: GainNode,
+		duration?: number,
+	): SoundSysAudioBufferSourceNode {
 		if (!this.envHasSound) {
 			return new NullAudioBufferSourceNode();
 		}
@@ -179,14 +200,14 @@ export class SoundSys {
 		const source = this.context.createBufferSource();
 		source.buffer = sound;
 		source.connect(node);
-		source.start(0);
+		source.start(0, 0, duration);
 
 		return source;
 	}
 
-	playSFX(relativePath: string): SoundSysAudioBufferSourceNode {
+	playSFX(relativePath: string, duration?: number): SoundSysAudioBufferSourceNode {
 		if (this.envHasSound && this.loadedPaths.hasOwnProperty(relativePath)) {
-			return this.playSound(this.loadedPaths[relativePath], this.effectsGainNode);
+			return this.playSound(this.loadedPaths[relativePath], this.effectsGainNode, duration);
 		}
 		return new NullAudioBufferSourceNode();
 	}
@@ -218,6 +239,9 @@ class NullAudioBufferSourceNode {
 		// pass
 	}
 	pause() {
+		// pass
+	}
+	stop() {
 		// pass
 	}
 }
