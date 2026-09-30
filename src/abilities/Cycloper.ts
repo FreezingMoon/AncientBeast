@@ -1561,12 +1561,8 @@ export default (G: Game) => {
 				let wallPlacementConfirmed = false;
 				const hideWallPreviewInstantly = () => {
 					const gridAny = G.grid as unknown as {
-						_flickerTween?: any;
 						materialize_overlay?: { alpha: number } | null;
 					};
-					if (gridAny._flickerTween) {
-						gridAny._flickerTween.stop(true);
-					}
 					if (gridAny.materialize_overlay) {
 						gridAny.materialize_overlay.alpha = 0;
 					}
@@ -1643,15 +1639,10 @@ export default (G: Game) => {
 				wallFlags.hideFromCreatureCount = true;
 
 				const gridAny = G.grid as unknown as {
-					_flickerTween?: any;
 					materialize_overlay?: { alpha: number } | null;
 					secondary_overlay?: { alpha: number } | null;
-					_flickerTweenSecondary?: any;
 				};
 				const previewOverlay = gridAny.materialize_overlay;
-				if (gridAny._flickerTween) {
-					gridAny._flickerTween.stop(true);
-				}
 				if (previewOverlay) {
 					previewOverlay.alpha = 0;
 				}
@@ -1904,12 +1895,6 @@ export default (G: Game) => {
 						if (G.grid.secondary_overlay) {
 							G.grid.secondary_overlay.alpha = 0;
 						}
-						if (G.grid._flickerTween && G.grid._flickerTween.isRunning) {
-							G.grid._flickerTween.stop(true);
-						}
-						if (G.grid._flickerTweenSecondary && G.grid._flickerTweenSecondary.isRunning) {
-							G.grid._flickerTweenSecondary.stop(true);
-						}
 					};
 
 					const clearTargetPathPreview = () => {
@@ -1934,12 +1919,6 @@ export default (G: Game) => {
 								const preview = G.grid.materialize_overlay;
 								const oldPreview = G.grid.secondary_overlay;
 
-								if (G.grid._flickerTween && G.grid._flickerTween.isRunning) {
-									G.grid._flickerTween.stop(true);
-								}
-								if (G.grid._flickerTweenSecondary && G.grid._flickerTweenSecondary.isRunning) {
-									G.grid._flickerTweenSecondary.stop(true);
-								}
 								cleanupTweens();
 								// Immediately remove all grid path visualizations
 								G.grid.forEachHex((gridHex: Hex) => {
@@ -1985,16 +1964,6 @@ export default (G: Game) => {
 								}
 								cleanupTweens();
 								G.grid.previewCreature(hex.pos, targetStats, target.player);
-
-								if (G.grid._flickerTween && G.grid._flickerTween.isRunning) {
-									G.grid._flickerTween.stop(true);
-								}
-
-								if (!G.grid.materialize_overlay) {
-									return;
-								}
-
-								G.grid.materialize_overlay.alpha = 0.5;
 							},
 							hexes: extendedDestinations,
 							hexesDashed: extendedDashed,
@@ -2010,12 +1979,6 @@ export default (G: Game) => {
 										target.player,
 										true,
 									);
-									if (G.grid._flickerTweenSecondary && G.grid._flickerTweenSecondary.isRunning) {
-										G.grid._flickerTweenSecondary.stop(true);
-									}
-									if (G.grid.secondary_overlay) {
-										G.grid.secondary_overlay.alpha = 0.5;
-									}
 								}
 							},
 							ownCreatureHexShade: true,
@@ -2148,12 +2111,6 @@ export default (G: Game) => {
 					this.end();
 				};
 
-				if (G.grid._flickerTween && G.grid._flickerTween.isRunning) {
-					G.grid._flickerTween.stop(true);
-				}
-				if (G.grid._flickerTweenSecondary && G.grid._flickerTweenSecondary.isRunning) {
-					G.grid._flickerTweenSecondary.stop(true);
-				}
 				if (G.grid.materialize_overlay) {
 					G.grid.materialize_overlay.destroy();
 					G.grid.materialize_overlay = null;
@@ -2240,12 +2197,6 @@ export default (G: Game) => {
 								}
 								if (G.grid.secondary_overlay) {
 									G.grid.secondary_overlay.alpha = 0;
-								}
-								if (G.grid._flickerTween && G.grid._flickerTween.isRunning) {
-									G.grid._flickerTween.stop(true);
-								}
-								if (G.grid._flickerTweenSecondary && G.grid._flickerTweenSecondary.isRunning) {
-									G.grid._flickerTweenSecondary.stop(true);
 								}
 								G.updateQueueDisplay();
 

@@ -16,6 +16,7 @@ jest.mock('../../creature', () => ({
 }));
 
 import { HexGrid } from '../../utility/hexgrid';
+import { GHOST_PREVIEW_ALPHA } from '../../utility/const';
 import { Creature } from '../../creature';
 import { notifyTextureLoaded, resetOnDemandTextures, setOnDemandLoader } from '../../assets';
 
@@ -35,7 +36,6 @@ describe('HexGrid previewCreature query guards', () => {
 		const oldHexB = { creature: null };
 		const invalidTargetHex = { reachable: false };
 
-		const stopFlicker = jest.fn();
 		const cleanHex = jest.fn();
 		const restoreReachableHexVisual = jest.fn();
 		const createOverlay = jest.fn();
@@ -61,8 +61,6 @@ describe('HexGrid previewCreature query guards', () => {
 			},
 			materialize_overlay: materializeOverlay,
 			secondary_overlay: undefined,
-			_flickerTween: { stop: stopFlicker },
-			_flickerTweenSecondary: undefined,
 			cleanHex,
 			restoreReachableHexVisual,
 			creatureGroup: {
@@ -85,8 +83,6 @@ describe('HexGrid previewCreature query guards', () => {
 			{ flipped: false, color: 'blue' },
 		);
 
-		expect(stopFlicker).toHaveBeenCalledWith(true);
-		expect((gridMock as unknown as { _flickerTween?: unknown })._flickerTween).toBeUndefined();
 		expect(cleanHex).toHaveBeenCalledTimes(2);
 		expect(restoreReachableHexVisual).toHaveBeenCalledTimes(2);
 		expect(materializeOverlay.alpha).toBe(0);
@@ -96,7 +92,6 @@ describe('HexGrid previewCreature query guards', () => {
 
 	test('replay mode clears stale preview and suppresses cardboard rendering', () => {
 		const oldHex = { creature: null };
-		const stopFlicker = jest.fn();
 		const cleanHex = jest.fn();
 		const restoreReachableHexVisual = jest.fn();
 		const createOverlay = jest.fn();
@@ -125,8 +120,6 @@ describe('HexGrid previewCreature query guards', () => {
 			},
 			materialize_overlay: materializeOverlay,
 			secondary_overlay: undefined,
-			_flickerTween: { stop: stopFlicker },
-			_flickerTweenSecondary: undefined,
 			cleanHex,
 			restoreReachableHexVisual,
 			creatureGroup: {
@@ -149,7 +142,6 @@ describe('HexGrid previewCreature query guards', () => {
 			{ flipped: false, color: 'blue' },
 		);
 
-		expect(stopFlicker).toHaveBeenCalledWith(true);
 		expect(materializeOverlay.alpha).toBe(0);
 		expect(materializeOverlay._previewPos).toBeUndefined();
 		expect(cleanHex).toHaveBeenCalledTimes(1);
@@ -208,6 +200,8 @@ describe('HexGrid previewCreature depth banding', () => {
 			repeat: () => tweenChain,
 			start: () => ({ stop: jest.fn() }),
 		};
+		const tween = jest.fn(() => tweenChain);
+		const removeTweensFrom = jest.fn();
 
 		const activePlayer = { id: 0, flipped: false, controller: 'human', color: 'red' };
 		const activeCreature = { id: 0, team: 0, player: activePlayer };
@@ -219,14 +213,12 @@ describe('HexGrid previewCreature depth banding', () => {
 				creatures: [],
 				traps: [],
 				drops: [],
-				gameEngine: { tween: () => tweenChain },
+				gameEngine: { tween, removeTweensFrom },
 			},
 			hexes,
 			lastQueryOpt: { hexes: [] },
 			materialize_overlay: undefined as unknown,
 			secondary_overlay: undefined as unknown,
-			_flickerTween: undefined as unknown,
-			_flickerTweenSecondary: undefined as unknown,
 			cleanHex: jest.fn(),
 			restoreReachableHexVisual: jest.fn(),
 			creatureGroup: {
@@ -249,7 +241,7 @@ describe('HexGrid previewCreature depth banding', () => {
 			previewCreature: HexGrid.prototype.previewCreature,
 		};
 
-		return { gridMock, hexes, activeCreature, activePlayer };
+		return { gridMock, hexes, activeCreature, activePlayer, tween, removeTweensFrom };
 	};
 
 	const priestData = {
@@ -311,6 +303,59 @@ describe('HexGrid previewCreature depth banding', () => {
 
 		expect(gridMock.creatureGroup.create).not.toHaveBeenCalled();
 		expect(overlay.loadTexture).toHaveBeenCalled();
+	});
+
+	test('the ghost is held at the ghost opacity, with no tween to animate it', () => {
+		const createdSprites: unknown[] = [];
+		const { gridMock, activePlayer, tween } = makeGrid(createdSprites);
+
+		HexGrid.prototype.previewCreature.call(gridMock, { x: 1, y: 1 }, priestData, activePlayer);
+
+		const overlay = gridMock.materialize_overlay as unknown as { alpha: number };
+		expect(overlay.alpha).toBe(GHOST_PREVIEW_ALPHA);
+		expect(tween).not.toHaveBeenCalled();
+	});
+
+	test('moving the cursor to another hex does not animate the ghost', () => {
+		const createdSprites: unknown[] = [];
+		const { gridMock, activePlayer, tween } = makeGrid(createdSprites);
+
+		HexGrid.prototype.previewCreature.call(gridMock, { x: 1, y: 1 }, priestData, activePlayer);
+		HexGrid.prototype.previewCreature.call(gridMock, { x: 2, y: 1 }, priestData, activePlayer);
+
+		const overlay = gridMock.materialize_overlay as unknown as { alpha: number };
+		expect(overlay.alpha).toBe(GHOST_PREVIEW_ALPHA);
+		expect(tween).not.toHaveBeenCalled();
+	});
+
+	test('a fade left over from the last use of the overlay is killed before the ghost is pinned', () => {
+		const createdSprites: unknown[] = [];
+		const { gridMock, activePlayer, removeTweensFrom } = makeGrid(createdSprites);
+
+		HexGrid.prototype.previewCreature.call(gridMock, { x: 1, y: 1 }, priestData, activePlayer);
+
+		// The overlay the priest materializes onto is the same one its own
+		// movement preview reuses. fadeOutTempCreature() is still tweening that
+		// sprite to 0, which would swallow the ghost until the fade ended.
+		const overlay = gridMock.materialize_overlay;
+		expect(removeTweensFrom).toHaveBeenCalledWith(overlay);
+	});
+
+	test('the materialize preview (secondary overlay) is held at the ghost opacity too', () => {
+		const createdSprites: unknown[] = [];
+		const { gridMock, activePlayer, tween } = makeGrid(createdSprites);
+
+		HexGrid.prototype.previewCreature.call(
+			gridMock,
+			{ x: 2, y: 1 },
+			priestData,
+			activePlayer,
+			true,
+		);
+
+		const overlay = gridMock.secondary_overlay as unknown as { alpha: number };
+		expect(overlay.alpha).toBe(GHOST_PREVIEW_ALPHA);
+		expect(tween).not.toHaveBeenCalled();
 	});
 });
 
@@ -378,8 +423,6 @@ describe('HexGrid previewCreature lazy cardboard loading', () => {
 			lastQueryOpt: { hexes: [] },
 			materialize_overlay: undefined as unknown,
 			secondary_overlay: undefined as unknown,
-			_flickerTween: undefined as unknown,
-			_flickerTweenSecondary: undefined as unknown,
 			cleanHex: jest.fn(),
 			restoreReachableHexVisual: jest.fn(),
 			creatureGroup: {

@@ -1,5 +1,5 @@
 import { Easing } from './easing';
-import type { SpriteHandle } from '../engine/types';
+import type { GameEngine, SpriteHandle } from '../engine/types';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import $j from 'jquery';
 import { Direction, Hex } from './hex';
@@ -9,7 +9,7 @@ import { Team, isTeam } from './team';
 import * as arrayUtils from './arrayUtils';
 import Game from '../game';
 import { DEBUG } from '../debug';
-import { HEX_WIDTH_PX } from './const';
+import { GHOST_PREVIEW_ALPHA, HEX_WIDTH_PX } from './const';
 import { Point } from './pointfacade';
 import { AugmentedMatrix } from './matrices';
 import { PierceThroughBehavior } from '../ability';
@@ -185,6 +185,24 @@ function replayPendingPreview(grid: HexGrid, secondary: boolean): void {
 }
 
 /**
+ * Drop every tween still bound to a preview overlay.
+ *
+ * The two ways a ghost is dismissed both fade it with a tween that nothing
+ * tracks — `fadeOutTempCreature()` on materialization, and `Creature`'s move
+ * handler on a move confirm. `previewCreature()` cannot reach either handle, so
+ * the fade kept writing `alpha` every frame after the ghost had been handed
+ * back: a ghost pinned afterwards was dragged straight back to 0 and only
+ * reappeared once the stale tween finally ended, which is why the movement
+ * preview (drawn from `Creature.tracePath()`) showed up late — or not at all,
+ * when the next hover landed inside the same fade.
+ */
+function clearPreviewTweens(game: { gameEngine?: GameEngine }, overlay: any): void {
+	if (overlay) {
+		game.gameEngine?.removeTweensFrom?.(overlay);
+	}
+}
+
+/**
  * Object containing grid and methods concerning the whole grid.
  * Should only have one instance during the game.
  */
@@ -255,8 +273,6 @@ export class HexGrid {
 	materialize_overlay: any;
 	secondary_overlay: any;
 	lastQueryOpt: any;
-	_flickerTween: any;
-	_flickerTweenSecondary: any | undefined;
 
 	/**
 	 * Helper to determine cursor style for multiplayer games.
@@ -1102,23 +1118,12 @@ export class HexGrid {
 		// Save the last Query
 		this.lastQueryOpt = { ...o };
 
-		const clearPreviewOverlay = (preview, secondary = false) => {
+		const clearPreviewOverlay = (preview) => {
 			if (!preview) {
 				return;
 			}
 
-			if (secondary) {
-				if (this._flickerTweenSecondary) {
-					this._flickerTweenSecondary.stop(true);
-					this._flickerTweenSecondary = undefined;
-				}
-			} else {
-				if (this._flickerTween) {
-					this._flickerTween.stop(true);
-					this._flickerTween = undefined;
-				}
-			}
-
+			clearPreviewTweens(game, preview);
 			preview.alpha = 0;
 
 			if (preview._previewPos === undefined) {
@@ -1187,14 +1192,7 @@ export class HexGrid {
 
 		// Cleanup
 		clearPreviewOverlay(this.materialize_overlay);
-		clearPreviewOverlay(this.secondary_overlay, true);
-
-		if (this._flickerTween) {
-			this._flickerTween.stop(true);
-		}
-		if (this._flickerTweenSecondary) {
-			this._flickerTweenSecondary.stop(true);
-		}
+		clearPreviewOverlay(this.secondary_overlay);
 
 		if (!o.ownCreatureHexShade) {
 			if (o.id instanceof Array) {
@@ -1412,7 +1410,7 @@ export class HexGrid {
 
 				// Keep primary materialize preview alive for summon handoff:
 				// Creature.summon() uses fadeOutTempCreature() for a smooth transition.
-				clearPreviewOverlay(this.secondary_overlay, true);
+				clearPreviewOverlay(this.secondary_overlay);
 
 				o.fnOnConfirm(hex, o.args, { queryOptions: o });
 			}
@@ -1533,7 +1531,7 @@ export class HexGrid {
 				// Clean the last preview position's hex overlays and reset tracking so
 				// that re-entering the spawn range doesn't leave a ghost outline behind.
 				clearPreviewOverlay(this.materialize_overlay);
-				clearPreviewOverlay(this.secondary_overlay, true);
+				clearPreviewOverlay(this.secondary_overlay);
 				hex.overlayVisualState('hover');
 
 				$j('canvas').css(
@@ -2385,23 +2383,12 @@ export class HexGrid {
 	 */
 	previewCreature(pos, creatureData, player, secondary = false) {
 		const game = this.game;
-		const clearPreviewOverlay = (preview, isSecondary = false) => {
+		const clearPreviewOverlay = (preview) => {
 			if (!preview) {
 				return;
 			}
 
-			if (isSecondary) {
-				if (this._flickerTweenSecondary) {
-					this._flickerTweenSecondary.stop(true);
-					this._flickerTweenSecondary = undefined;
-				}
-			} else {
-				if (this._flickerTween) {
-					this._flickerTween.stop(true);
-					this._flickerTween = undefined;
-				}
-			}
-
+			clearPreviewTweens(game, preview);
 			preview.alpha = 0;
 
 			if (preview._previewPos === undefined) {
@@ -2426,7 +2413,7 @@ export class HexGrid {
 			game.activePlayer === game.activeCreature.player;
 
 		if (!shouldShowPlacementPreview) {
-			clearPreviewOverlay(secondary ? this.secondary_overlay : this.materialize_overlay, secondary);
+			clearPreviewOverlay(secondary ? this.secondary_overlay : this.materialize_overlay);
 			return;
 		}
 
@@ -2438,7 +2425,7 @@ export class HexGrid {
 				queryHexes.length > 0 &&
 				(!targetHex.reachable || queryHexes.indexOf(targetHex) === -1))
 		) {
-			clearPreviewOverlay(secondary ? this.secondary_overlay : this.materialize_overlay, secondary);
+			clearPreviewOverlay(secondary ? this.secondary_overlay : this.materialize_overlay);
 			return;
 		}
 
@@ -2465,7 +2452,7 @@ export class HexGrid {
 				player,
 				secondary,
 			});
-			clearPreviewOverlay(secondary ? this.secondary_overlay : this.materialize_overlay, secondary);
+			clearPreviewOverlay(secondary ? this.secondary_overlay : this.materialize_overlay);
 			ensureCardboard(cardboard, () => replayPendingPreview(this, secondary));
 			return;
 		}
@@ -2519,37 +2506,24 @@ export class HexGrid {
 				: HEX_WIDTH_PX * creatureData.size - preview.texture.width - originX) +
 			preview.texture.width / 2;
 		preview.y = hex.displayPos.y + creatureData.display['offset-y'] + preview.texture.height;
-		preview.alpha = 0.5;
+		// The ghost is the overlay's final say on its own opacity: whatever fade
+		// the previous use left behind has to be gone before it is pinned.
+		clearPreviewTweens(game, preview);
+
+		// Held at a fixed ghost opacity, never tweened. The preview used to
+		// flicker (0.5 → 0.15, yoyo, forever), but under Phaser 4 the tween only
+		// completed one cycle before Phaser tore it down — `tweens.add()` resets
+		// a tween the moment it is created, which is before the chained
+		// `repeat(-1)` could be applied, so the loop counter stayed at 0 and
+		// `nextState()` completed the tween after the first pass. Every hex the
+		// cursor then crossed restarted that single fade, so moving between hexes
+		// animated the ghost instead of holding it still.
+		preview.alpha = GHOST_PREVIEW_ALPHA;
 
 		if (player.flipped) {
 			preview.scale.setTo(-1, 1);
 		} else {
 			preview.scale.setTo(1, 1);
-		}
-
-		const flickering = game.gameEngine
-			.tween(preview)
-			.to(
-				{
-					alpha: 0.15,
-				},
-				777,
-				Easing.Linear.None,
-			)
-			.yoyo(true)
-			.repeat(-1)
-			.start();
-		if (!secondary) {
-			if (this._flickerTween) {
-				// Stop animations that are about to be orphaned #2698
-				this._flickerTween.stop(true);
-			}
-			this._flickerTween = flickering;
-		} else {
-			if (this._flickerTweenSecondary) {
-				this._flickerTweenSecondary.stop(true);
-			}
-			this._flickerTweenSecondary = flickering;
 		}
 
 		// Clean overlay from the previous preview position before painting the new one.
@@ -2596,7 +2570,13 @@ export class HexGrid {
 		// TODO: factor out this function. Use either Creature.creatureSprite
 		// or the existing temp creature created by /src/abilities/Dark-Priest.js
 		if (target) {
-			target.alpha = 0.5;
+			// A fade already in flight (a cancelled summon, a second
+			// materialization) would fight this one for `alpha`.
+			clearPreviewTweens(this.game, target);
+			// Snap to the ghost opacity the preview was held at, so the handoff to
+			// the materializing unit — which fades up from the very same value —
+			// has no seam.
+			target.alpha = GHOST_PREVIEW_ALPHA;
 			this.game.gameEngine
 				.tween(target)
 				.to(

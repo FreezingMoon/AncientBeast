@@ -13,7 +13,12 @@ import { Player, PlayerID, getDarkPriestCardboardKey, getDarkPriestDisplayOffset
 import { Damage, DamageResult } from './damage';
 import { AugmentedMatrix } from './utility/matrices';
 import { Trap } from './utility/trap';
-import { HEX_WIDTH_PX, hashOffsetCoords, offsetNeighbors } from './utility/const';
+import {
+	GHOST_PREVIEW_ALPHA,
+	HEX_WIDTH_PX,
+	hashOffsetCoords,
+	offsetNeighbors,
+} from './utility/const';
 import { CreatureType, Level, Realm, Unit, UnitName } from './data/types';
 import { PlasmaField, detectWeakHardware, detectVeryWeakHardware } from './plasma-field';
 import type { GameEngine } from './engine/types';
@@ -503,6 +508,11 @@ export class Creature {
 
 		// Materialization fade-in: 1 second per occupied hex
 		const fadeMs = 1000 * this.size;
+		// The cardboard comes in at the ghost opacity the player was just
+		// previewing, so the confirmed unit rises out of the ghost rather than
+		// popping into existence — the ghost itself fades out over the same span
+		// (see HexGrid.fadeOutTempCreature).
+		this.creatureSprite.setAlpha(GHOST_PREVIEW_ALPHA, 0);
 		game.grid.fadeOutTempCreature(undefined, fadeMs);
 		this.creatureSprite.setAlpha(1, fadeMs);
 		setTimeout(() => {

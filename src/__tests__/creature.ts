@@ -9,6 +9,7 @@ jest.mock('phaser', () =>
 );
 
 import { Creature } from '../creature';
+import { GHOST_PREVIEW_ALPHA } from '../utility/const';
 import { Effect } from '../effect';
 
 // NOTE: ts-comments are necessary in this file to avoid mocking the entire game.
@@ -538,6 +539,10 @@ describe('Creature', () => {
 
 			creature.summon();
 
+			// The cardboard rises out of the ghost the player was previewing:
+			// pinned at the ghost opacity, then faded up to full over the
+			// materialization window.
+			expect(setAlphaSpy).toHaveBeenCalledWith(GHOST_PREVIEW_ALPHA, 0);
 			expect(setAlphaSpy).toHaveBeenCalledWith(1, 2000);
 			jest.advanceTimersByTime(2050);
 			expect(setAlphaSpy).toHaveBeenCalledWith(1);
