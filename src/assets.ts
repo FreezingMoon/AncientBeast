@@ -11,7 +11,11 @@ export { generatedSoundPaths as soundPaths };
  *
  * @param {Phaser.Game} e.g., units/shouts/Chimera
  * @returns {string[]} array of loaded asset keys
- * @throws Throws an error if two files have the same basename.
+ *
+ * Texture keys are file basenames, so a basename that appears in more than one
+ * preloaded directory (e.g. `units/avatars/Abolished.jpg` and
+ * `units/artwork/Abolished.jpg`) resolves to the first one in manifest order.
+ * The skipped duplicates are reported as a single warning.
  */
 export function use(phaser: Phaser.Game): string[] {
 	// In Phaser 4, the loader is on the active scene
@@ -27,6 +31,7 @@ export function use(phaser: Phaser.Game): string[] {
 	const assets = Object.entries(phaserAutoloadAssetPaths ?? {});
 
 	const loadedKeys = new Set<string>();
+	const duplicateKeys = new Set<string>();
 	const result: string[] = [];
 
 	for (const [path, url] of assets) {
@@ -35,13 +40,23 @@ export function use(phaser: Phaser.Game): string[] {
 		const key = getBasename(path);
 
 		if (loadedKeys.has(key)) {
-			console.warn(`[assets.ts] Duplicate key skipped: "${key}" from path: ${path}`);
+			duplicateKeys.add(key);
 			continue;
 		}
 
 		load.image(key, url);
 		loadedKeys.add(key);
 		result.push(key);
+	}
+
+	// `assets/units/avatars` and `assets/units/artwork` deliberately share
+	// basenames, so most creatures collide here and the first one wins. Report
+	// it once rather than once per file.
+	if (duplicateKeys.size) {
+		console.warn(
+			`[assets.ts] ${duplicateKeys.size} duplicate texture key(s) skipped, first match wins: ` +
+				`${[...duplicateKeys].join(', ')}`,
+		);
 	}
 	return result;
 }
