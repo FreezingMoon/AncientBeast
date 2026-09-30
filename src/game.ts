@@ -72,6 +72,14 @@ type AnimationID = number;
 
 const webKitGtkUserAgent = /(X11|Linux).*AppleWebKit\/.*Version\/.*Safari\//i;
 
+/**
+ * How long the game-over drum roll plays before it is cut off.
+ *
+ * The asset is a 12s continuous pattern, not a short sting, so playing it in
+ * full means it drums over the entire scoreboard.
+ */
+const END_GAME_SOUND_DURATION = 4;
+
 /** Cross-fade length, in ms, of the secret combat-location switch. */
 const LOCATION_FADE_DURATION = 400;
 
@@ -628,6 +636,11 @@ export default class Game {
 		// a second match-start delivery arriving during that fetch would still see
 		// 'initialized' and start a competing load.
 		this.gameState = 'loading';
+
+		// The old match's drum roll would keep ringing over the loading screen and
+		// the new music, since loadGame() below swaps in a brand new SoundSys
+		// (and with it a new AudioContext) while the old node is still live.
+		this.stopEndGameSound();
 
 		try {
 			// Create a fresh Phaser instance for this game session
@@ -2335,7 +2348,11 @@ export default class Game {
 		}
 
 		this.soundsys.stopMusic();
-		this.endGameSound = this.soundsys.playSFX('sounds/drums');
+		// A disconnect is not a match result, so it gets no victory drum roll.
+		// Full audio only, since the sting is long enough to grate on repeated matches.
+		if (!reason && getAudioMode() === 'full') {
+			this.endGameSound = this.soundsys.playSFX('sounds/drums', END_GAME_SOUND_DURATION);
+		}
 
 		this.stopTimer();
 		this.activeCreature = undefined;
@@ -2488,7 +2505,19 @@ export default class Game {
 		};
 	}
 
+	/**
+	 * Silence a still-ringing game-over drum roll.
+	 *
+	 * Called whenever the match is torn down (new game, restart, main menu,
+	 * replay) so the sting does not follow the player onto the next screen.
+	 */
+	stopEndGameSound() {
+		this.soundsys?.stopSFX(this.endGameSound);
+		this.endGameSound = undefined;
+	}
+
 	resetGame() {
+		this.stopEndGameSound();
 		this.UI?.metaPowers?._clearPowers();
 		this.UI.showGameSetup();
 		this.stopTimer();

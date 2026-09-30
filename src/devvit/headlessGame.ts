@@ -564,6 +564,7 @@ function makeSoundSysStub() {
 		playMusic: noop,
 		stopMusic: noop,
 		playSFX: () => ({ stop: noop }),
+		stopSFX: noop,
 		playHeartBeat: noop,
 		loadSound: noop,
 		playShout: noop,

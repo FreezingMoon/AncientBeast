@@ -155,6 +155,7 @@ describe('Game reset lifecycle', () => {
 				showGameSetup: jest.fn(),
 			},
 			stopTimer: jest.fn(),
+			stopEndGameSound: jest.fn(),
 			players: [],
 			creatures: [],
 			effects: [],
@@ -215,6 +216,15 @@ describe('Game reset lifecycle', () => {
 		expect(dropDestroy).toHaveBeenCalledTimes(1);
 		expect(game.traps).toEqual([]);
 		expect(game.drops).toEqual([]);
+	});
+
+	test('resetGame silences a still-ringing game over sound', () => {
+		const stopEndGameSound = jest.fn();
+		const game = makeMockGame({ stopEndGameSound });
+
+		Game.prototype.resetGame.call(game);
+
+		expect(stopEndGameSound).toHaveBeenCalledTimes(1);
 	});
 });
 
