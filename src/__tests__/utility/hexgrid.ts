@@ -157,6 +157,159 @@ describe('HexGrid previewCreature query guards', () => {
 	});
 });
 
+describe('HexGrid previewCreature depth banding', () => {
+	beforeAll(() => {
+		(global as unknown as { Phaser?: unknown }).Phaser = {
+			Easing: {
+				Linear: {
+					None: null,
+				},
+			},
+		};
+	});
+
+	const makePreviewSprite = () => ({
+		depth: 0,
+		posy: undefined as number | undefined,
+		alpha: 0,
+		anchor: { setTo: jest.fn() },
+		scale: { setTo: jest.fn() },
+		texture: { width: 112, height: 200 },
+		setDepth: jest.fn(function (this: { depth: number }, value: number) {
+			this.depth = value;
+		}),
+		loadTexture: jest.fn(),
+	});
+
+	/**
+	 * Minimal grid whose orderCreatureZ() is the real implementation, so the
+	 * tests assert the depth the renderer would actually use.
+	 */
+	const makeGrid = (createdSprites: unknown[]) => {
+		const makeHex = (x: number, y: number) => ({
+			x,
+			y,
+			reachable: true,
+			creature: null,
+			displayPos: { x: 90 * x, y: 58 * y },
+			overlayVisualState: jest.fn(),
+		});
+
+		const hexes = [
+			[makeHex(0, 0), makeHex(1, 0), makeHex(2, 0)],
+			[makeHex(0, 1), makeHex(1, 1), makeHex(2, 1)],
+			[makeHex(0, 2), makeHex(1, 2), makeHex(2, 2)],
+		];
+
+		const tweenChain = {
+			to: () => tweenChain,
+			yoyo: () => tweenChain,
+			repeat: () => tweenChain,
+			start: () => ({ stop: jest.fn() }),
+		};
+
+		const activePlayer = { id: 0, flipped: false, controller: 'human', color: 'red' };
+		const activeCreature = { id: 0, team: 0, player: activePlayer };
+
+		const gridMock = {
+			game: {
+				activeCreature,
+				activePlayer,
+				creatures: [],
+				traps: [],
+				drops: [],
+				gameEngine: { tween: () => tweenChain },
+			},
+			hexes,
+			lastQueryOpt: { hexes: [] },
+			materialize_overlay: undefined as unknown,
+			secondary_overlay: undefined as unknown,
+			_flickerTween: undefined as unknown,
+			_flickerTweenSecondary: undefined as unknown,
+			cleanHex: jest.fn(),
+			restoreReachableHexVisual: jest.fn(),
+			creatureGroup: {
+				create: jest.fn(() => {
+					const sprite = makePreviewSprite();
+					createdSprites.push(sprite);
+					return sprite;
+				}),
+				sort: jest.fn(),
+			},
+			trapGroup: { sort: jest.fn() },
+			trapOverGroup: { sort: jest.fn() },
+			dropGroup: { sort: jest.fn() },
+			_rowDepthBaseIndex: HexGrid.prototype['_rowDepthBaseIndex'],
+			getDepthAtBand: HexGrid.prototype.getDepthAtBand,
+			assignSpriteDepthBand: HexGrid.prototype.assignSpriteDepthBand,
+			orderCreatureZ: HexGrid.prototype.orderCreatureZ,
+		};
+
+		return { gridMock, hexes, activeCreature, activePlayer };
+	};
+
+	const priestData = {
+		size: 1,
+		type: '--',
+		name: 'Dark Priest',
+		display: {
+			'offset-x': 0,
+			'offset-y': 0,
+		},
+	};
+
+	test('a newly created materialize overlay is banded into its row instead of depth 0', () => {
+		const createdSprites: unknown[] = [];
+		const { gridMock, hexes, activeCreature, activePlayer } = makeGrid(createdSprites);
+
+		HexGrid.prototype.previewCreature.call(gridMock, { x: 1, y: 2 }, priestData, activePlayer);
+
+		expect(createdSprites).toHaveLength(1);
+		const overlay = gridMock.materialize_overlay as unknown as {
+			posy: number;
+			depth: number;
+		};
+		// Row 2, EFFECT_OVER_UNITS band: in front of every creature on the same
+		// row (200 + 40) and behind anything on the rows below it.
+		expect(overlay.posy).toBe(2);
+		expect(overlay.depth).toBe(200 + 80);
+		expect(overlay.depth).toBeGreaterThan(2 * 100 + 40);
+		expect(hexes[2][1].overlayVisualState).toHaveBeenCalledWith(
+			`creature selected player${activeCreature.team}`,
+		);
+	});
+
+	test('a newly created secondary overlay is banded into its row', () => {
+		const createdSprites: unknown[] = [];
+		const { gridMock, activePlayer } = makeGrid(createdSprites);
+
+		HexGrid.prototype.previewCreature.call(
+			gridMock,
+			{ x: 2, y: 1 },
+			priestData,
+			activePlayer,
+			true,
+		);
+
+		const overlay = gridMock.secondary_overlay as unknown as { posy: number; depth: number };
+		expect(overlay.posy).toBe(1);
+		expect(overlay.depth).toBe(100 + 80);
+	});
+
+	test('reusing an overlay on the same row keeps its depth band', () => {
+		const createdSprites: unknown[] = [];
+		const { gridMock, activePlayer } = makeGrid(createdSprites);
+		const overlay = makePreviewSprite();
+		overlay.posy = 1;
+		gridMock.materialize_overlay = overlay as unknown;
+
+		HexGrid.prototype.previewCreature.call(gridMock, { x: 1, y: 1 }, priestData, activePlayer);
+
+		expect(gridMock.creatureGroup.create).not.toHaveBeenCalled();
+		expect(overlay.loadTexture).toHaveBeenCalled();
+	});
+});
+
 describe('HexGrid xray hover behavior', () => {
 	type Bounds = {
 		left: number;

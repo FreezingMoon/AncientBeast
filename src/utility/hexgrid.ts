@@ -2388,6 +2388,11 @@ export class HexGrid {
 				this.materialize_overlay = this.creatureGroup.create(0, 0, cardboard);
 				this.materialize_overlay.anchor.setTo(0.5, 1);
 				this.materialize_overlay.posy = pos.y;
+				// A freshly created sprite keeps depth 0, which renders it behind
+				// every creature and trap on the board. orderCreatureZ() only
+				// re-bands an overlay when its row changes, so a brand new ghost
+				// has to be slotted into its depth band explicitly.
+				this.orderCreatureZ();
 			} else {
 				this.materialize_overlay.loadTexture(cardboard);
 				if (this.materialize_overlay.posy != pos.y) {
@@ -2402,6 +2407,8 @@ export class HexGrid {
 				this.secondary_overlay = this.creatureGroup.create(0, 0, cardboard);
 				this.secondary_overlay.anchor.setTo(0.5, 1);
 				this.secondary_overlay.posy = pos.y;
+				// Same as the primary overlay: slot the new sprite into its band.
+				this.orderCreatureZ();
 			} else {
 				this.secondary_overlay.loadTexture(cardboard);
 				if (this.secondary_overlay.posy != pos.y) {

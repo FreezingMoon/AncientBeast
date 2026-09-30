@@ -3168,7 +3168,6 @@ class CreatureSprite {
 			const offY = Math.round(rTop - oTop);
 			const oFlipped = Number(oSprite.scale?.x ?? 1) < 0;
 			const rFlipped = Number(refSprite.scale?.x ?? 1) < 0;
-			const flipRef = oFlipped !== rFlipped;
 			const { rgba, width: rw, height: rh } = cached;
 			for (let y = 0; y < rh; y++) {
 				const dstY = y + offY;
@@ -3179,7 +3178,11 @@ class CreatureSprite {
 					// stamping a hard rectangle.
 					const refA = rgba[(y * rw + x) * 4 + 3];
 					if (refA <= 0) continue;
-					const srcX = flipRef ? rw - 1 - x : x;
+					// The ref's own texture column lands at `offX + srcX` on screen;
+					// only the ref's own mirror matters here. The obstructor's mirror
+					// is applied by the renderer, so the destination column is the
+					// one whose rendered position lands on the ref.
+					const srcX = rFlipped ? rw - 1 - x : x;
 					const dstX = (oFlipped ? otw - 1 - (srcX + offX) : srcX + offX) | 0;
 					if (dstX < 0 || dstX >= otw) continue;
 					union[dstY * otw + dstX] = i + 1;
@@ -3197,6 +3200,11 @@ class CreatureSprite {
 		const out = ctx.createImageData(otw, oth);
 		const src = this._xrayOriginalAlpha;
 		const dst = out.data;
+		// The bitmap is written in the obstructor's own texture space: the
+		// renderer mirrors it through `sprite.scale.x`, so the cardboard
+		// snapshot is copied 1:1. Pre-mirroring it here would flip a flipped
+		// (blue) unit's cardboard a second time and it would face backwards
+		// for as long as it stays xrayed.
 		const oFlipped = Number(oSprite.scale?.x ?? 1) < 0;
 		// Cache the winning ref's placement once per frame: the union pass
 		// above already resolved overlaps, so the compositor must reuse the
@@ -3223,8 +3231,7 @@ class CreatureSprite {
 		for (let y = 0; y < oth; y++) {
 			for (let x = 0; x < otw; x++) {
 				const refIndex = union[y * otw + x] - 1;
-				const sx = oFlipped ? otw - 1 - x : x;
-				const s = (y * otw + sx) * 4;
+				const s = (y * otw + x) * 4;
 				const d = (y * otw + x) * 4;
 				const a = src[s + 3];
 				const placed = refIndex >= 0 ? refPlacement[refIndex] ?? null : null;
@@ -3237,11 +3244,13 @@ class CreatureSprite {
 				}
 				// Map the output pixel back into the winning ref's cardboard so
 				// its silhouette can be multiplied over the obstructor.
+				// `x` is the obstructor's texture column, so the matching point
+				// on screen is the same one the union pass resolved; a flipped
+				// ref reads that point back out of its own mirrored cardboard.
 				const refEntry = placed.entry;
-				const bothFlipped = oFlipped !== placed.flipped;
 				const unobX = oFlipped ? otw - 1 - x : x;
 				let rx = unobX - placed.offX;
-				if (bothFlipped) rx = refEntry.width - 1 - rx;
+				if (placed.flipped) rx = refEntry.width - 1 - rx;
 				const ry = y - placed.offY;
 				const refOff =
 					rx >= 0 && rx < refEntry.width && ry >= 0 && ry < refEntry.height

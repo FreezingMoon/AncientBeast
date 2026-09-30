@@ -332,6 +332,172 @@ describe('Creature', () => {
 		});
 	});
 
+	describe('xray bitmap orientation', () => {
+		// The xray bitmap replaces the cardboard *texture*, so it is written in
+		// the sprite's own texture space and the renderer mirrors it through
+		// `sprite.scale.x`. A pre-mirrored bitmap flips a flipped (blue) unit's
+		// cardboard a second time, which is why a freshly materialized blue unit
+		// faced backwards until hovering its hexagons cleared the xray.
+		type Rgba = Uint8ClampedArray;
+
+		const CARD_BOARD_GREY = 128;
+		const makeCardboard = (
+			width: number,
+			height: number,
+			columnColor: (x: number) => number,
+		): Rgba => {
+			const rgba = new Uint8ClampedArray(width * height * 4);
+			for (let y = 0; y < height; y++) {
+				for (let x = 0; x < width; x++) {
+					const i = (y * width + x) * 4;
+					rgba[i] = columnColor(x);
+					rgba[i + 1] = 0;
+					rgba[i + 2] = 0;
+					rgba[i + 3] = 255;
+				}
+			}
+			return rgba;
+		};
+
+		const makeBmd = (width: number, height: number) => {
+			let written: Rgba = new Uint8ClampedArray(0);
+			const context = {
+				createImageData: (_w: number, _h: number) => ({
+					width,
+					height,
+					data: new Uint8ClampedArray(width * height * 4),
+				}),
+				clearRect: jest.fn(),
+				putImageData: (image: { data: Rgba }) => {
+					written = image.data;
+				},
+			};
+			return {
+				width,
+				height,
+				context,
+				dirty: false,
+				update: jest.fn(),
+				read: () => written,
+			};
+		};
+
+		const makeSpriteLike = (x: number, y: number, dir: 1 | -1, textureWidth: number) => ({
+			x,
+			y,
+			scale: { x: dir },
+			anchor: { x: 0.5, y: 1 },
+			texture: { width: textureWidth, height: HEIGHT },
+			frame: { name: 'frame' },
+			scene: {},
+		});
+
+		const HEIGHT = 2;
+
+		const drawXray = (
+			obstructor: ReturnType<typeof makeSpriteLike>,
+			obstructorGrp: { x: number; y: number },
+			ref: ReturnType<typeof makeSpriteLike>,
+			refGrp: { x: number; y: number },
+			original: Rgba,
+			refRgba: Rgba,
+			width: number,
+		) => {
+			const game = getGameMock();
+			// @ts-ignore
+			const creature = new Creature(getCreatureObjMock(), game);
+			// @ts-ignore
+			const sprite: any = (creature as any).creatureSprite;
+			// @ts-ignore
+			const proto: any = Object.getPrototypeOf(sprite);
+			const refCreature = { sprite: ref, grp: refGrp, name: 'ref' };
+			const self = {
+				_sprite: obstructor,
+				_group: obstructorGrp,
+				_xrayOriginalAlpha: original,
+				_xrayRefAlpha: {
+					size: 1,
+					entries: [{ rgba: refRgba, width: ref.texture.width, height: HEIGHT, xrayDepth: 0 }],
+				},
+				_xrayMaskAlpha: null,
+				_xrayAlpha: 1,
+				_creature: creature,
+			};
+			const bmd = makeBmd(width, HEIGHT);
+			proto._drawXrayBmd.call(self, [refCreature], bmd);
+			return bmd.read();
+		};
+
+		test('a flipped obstructor keeps its cardboard un-mirrored and samples the flipped ref in screen space', () => {
+			const WIDTH = 8;
+			const REF_WIDTH = 4;
+			// Column 0 is the orientation marker: mirroring would move it.
+			const original = makeCardboard(WIDTH, HEIGHT, (x) => (x === 0 ? 200 : CARD_BOARD_GREY));
+			// Mid-grey under the overlay blend keeps the revealed unit's own
+			// column value readable, so the cutout geometry is verifiable.
+			const refRgba = makeCardboard(REF_WIDTH, HEIGHT, (x) => 40 * (x + 1));
+			const obstructorGrp = { x: 100, y: 200 };
+			const obstructor = makeSpriteLike(4, HEIGHT, -1, WIDTH);
+			const refGrp = { x: 102, y: 200 };
+			const ref = makeSpriteLike(2, HEIGHT, -1, REF_WIDTH);
+
+			const bmd = drawXray(obstructor, obstructorGrp, ref, refGrp, original, refRgba, WIDTH);
+			const oLeft = obstructorGrp.x + obstructor.x - WIDTH / 2;
+			const rLeft = refGrp.x + ref.x - REF_WIDTH / 2;
+
+			for (let y = 0; y < HEIGHT; y++) {
+				for (let b = 0; b < WIDTH; b++) {
+					const i = (y * WIDTH + b) * 4;
+					// Texture column `b` renders at this screen offset.
+					const screenOffset = WIDTH - 1 - b;
+					const refColumn = screenOffset - (rLeft - oLeft);
+					if (refColumn >= 0 && refColumn < REF_WIDTH) {
+						// A flipped ref reads this screen point out of its own mirrored cardboard.
+						const t = REF_WIDTH - 1 - refColumn;
+						expect(Math.abs(bmd[i] - refRgba[(y * REF_WIDTH + t) * 4])).toBeLessThanOrEqual(2);
+					} else {
+						// Outside the cutout the cardboard is copied verbatim, in texture space.
+						expect(bmd[i]).toBe(original[i]);
+					}
+				}
+			}
+			// The marker column keeps its own side of the bitmap; the renderer
+			// (sprite.scale.x === -1) is what mirrors the finished cardboard.
+			expect(bmd[0]).toBe(200);
+			expect(bmd[(WIDTH - 1) * 4]).toBe(CARD_BOARD_GREY);
+		});
+
+		test('an unflipped obstructor is unaffected by the texture-space compositor', () => {
+			const WIDTH = 8;
+			const REF_WIDTH = 4;
+			const original = makeCardboard(WIDTH, HEIGHT, (x) => (x === 0 ? 200 : CARD_BOARD_GREY));
+			const refRgba = makeCardboard(REF_WIDTH, HEIGHT, (x) => 40 * (x + 1));
+			const obstructorGrp = { x: 100, y: 200 };
+			const obstructor = makeSpriteLike(4, HEIGHT, 1, WIDTH);
+			const refGrp = { x: 102, y: 200 };
+			const ref = makeSpriteLike(2, HEIGHT, 1, REF_WIDTH);
+
+			const bmd = drawXray(obstructor, obstructorGrp, ref, refGrp, original, refRgba, WIDTH);
+			const oLeft = obstructorGrp.x + obstructor.x - WIDTH / 2;
+			const rLeft = refGrp.x + ref.x - REF_WIDTH / 2;
+
+			for (let y = 0; y < HEIGHT; y++) {
+				for (let b = 0; b < WIDTH; b++) {
+					const i = (y * WIDTH + b) * 4;
+					const refColumn = b - (rLeft - oLeft);
+					if (refColumn >= 0 && refColumn < REF_WIDTH) {
+						expect(Math.abs(bmd[i] - refRgba[(y * REF_WIDTH + refColumn) * 4])).toBeLessThanOrEqual(
+							2,
+						);
+					} else {
+						expect(bmd[i]).toBe(original[i]);
+					}
+				}
+			}
+			expect(bmd[0]).toBe(200);
+		});
+	});
+
 	describe('cardboard effect initialization path', () => {
 		test('creating a cardboard-effect creature calls init without requiring creature.creatureSprite', () => {
 			const game = getGameMock();
