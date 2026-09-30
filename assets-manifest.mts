@@ -22,6 +22,19 @@ export default function phaserAssetManifestPlugin({
   locationDirs = [
     'assets/locations',
   ],
+  // Directories published for `assets.getUrl()` lookups. These are NOT part of
+  // the Phaser preload manifest: `getUrl` is used for cards, ability icons and
+  // other UI art that is fetched on demand.
+  urlDirs = [
+    'assets/cards',
+    'assets/icons',
+    'assets/interface',
+    'assets/sounds',
+    'assets/stats',
+    'assets/units/abilities',
+    'assets/units/artwork',
+    'assets/units/avatars',
+  ],
   output = 'assets/index.js',
 } = {}) {
   return {
@@ -43,9 +56,7 @@ export default function phaserAssetManifestPlugin({
               // Match everything after 'units/avatars/' and before the extension (allow spaces, dots, etc.)
               const match = relPath.match(/units\/avatars\/([^/]+?)\.(jpg|png|jpeg)$/i);
               if (match) {
-                const shortKey = `units/avatars/${match[1]}`;
-                manifest[shortKey] = relPath;
-                assetPaths[shortKey] = relPath;
+                manifest[`units/avatars/${match[1]}`] = relPath;
               }
             }
           }
@@ -60,10 +71,22 @@ export default function phaserAssetManifestPlugin({
           for (const file of files) {
             const relPath = relative(process.cwd(), file).replace(/\\/g, '/');
             if (/\.(ogg|mp3|wav)$/i.test(relPath)) {
-              const shortKey = relPath.replace(/^assets\//, '').replace(/\.(ogg|mp3|wav)$/i, '');
-              soundPaths.push(shortKey);
-              assetPaths[shortKey] = relPath;
+              soundPaths.push(relPath.replace(/^assets\//, '').replace(/\.(ogg|mp3|wav)$/i, ''));
+              assetPaths[relPath] = relPath;
             }
+          }
+        } catch (e) {}
+      }
+      // Register the remaining published assets so `assets.getUrl()` can resolve
+      // the on-demand UI art (cards, ability icons, stat icons). These are kept
+      // out of `manifest` so they are not force-preloaded into Phaser.
+      for (const dir of urlDirs) {
+        const absDir = resolve(process.cwd(), dir);
+        try {
+          const files = await getFiles(absDir);
+          for (const file of files) {
+            const relPath = relative(process.cwd(), file).replace(/\\/g, '/');
+            assetPaths[relPath] = relPath;
           }
         } catch (e) {}
       }

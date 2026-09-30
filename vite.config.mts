@@ -1,12 +1,179 @@
 import { defineConfig, loadEnv } from 'vite';
 import { createRequire } from 'module';
-import { resolve } from 'path';
+import { relative, resolve } from 'path';
 import { readFileSync } from 'fs';
-import phaserAssetManifestPlugin from './assets-manifest.js';
-import { ViteEjsPlugin } from 'vite-plugin-ejs';
+import phaserAssetManifestPlugin from './assets-manifest.mts';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 const require = createRequire(import.meta.url);
+
+// `configLoader: 'native'` (the upcoming Vite default) runs this file as real
+// ESM, where `__dirname` does not exist.
+const rootDir = import.meta.dirname;
+
+/**
+ * Renders `src/index.ejs` into a real HTML entry.
+ *
+ * The webpack build used `html-webpack-plugin`, which gave the template a
+ * `require()` and a `htmlWebpackPlugin.options` global. Vite has no equivalent
+ * and no `.html` input existed, so `vite build` emitted bundles but never an
+ * `index.html` (and `vite dev` had no document to serve at `/`).
+ *
+ * This plugin supplies those two globals to the EJS render and wires the
+ * resulting markup to the app entry chunk, in both `serve` and `build`.
+ *
+ * `require()` inside the template resolves as follows:
+ * - `./templates/*.html` -> `{ default: <file contents> }`
+ * - `./**` (TS modules) -> bundled with esbuild and evaluated in Node
+ * - `assets/**`         -> the repo-relative URL, returned as a string
+ */
+function ejsHtmlPlugin({ devvitTarget, enableServiceWorker }) {
+  const srcDir = resolve(rootDir, 'src');
+  const templatePath = resolve(srcDir, 'index.ejs');
+
+  /** Resolves the request forms used by index.ejs to an absolute file path. */
+  function toAbsolutePath(request) {
+    if (request.startsWith('.')) return resolve(srcDir, request);
+    if (request.startsWith('assets/')) return resolve(rootDir, request);
+    return null;
+  }
+
+  /**
+   * `DEBUG_*` values for the Node-side render, taken from `.env` and falling
+   * back to `.env.example` (which is what `dotenv-defaults` is meant to supply
+   * to the app bundle).
+   */
+  function debugEnv() {
+    const values = {};
+    for (const file of ['.env', '.env.example']) {
+      let contents;
+      try {
+        contents = readFileSync(resolve(rootDir, file), 'utf-8');
+      } catch {
+        continue;
+      }
+      for (const line of contents.split('\n')) {
+        const match = /^\s*(DEBUG_[A-Z0-9_]+)\s*=\s*(.*?)\s*$/.exec(line);
+        if (!match) continue;
+        const value = match[2].replace(/^(['"])(.*)\1$/, '$2');
+        if (!(match[1] in values)) values[match[1]] = value;
+      }
+    }
+    return values;
+  }
+
+  /** Bundles a TS module and evaluates it in Node so the template can require it. */
+  async function loadTypeScriptModule(absolutePath) {
+    const esbuild = await import('esbuild');
+    // `src/debug.ts` reads `process.env.DEBUG_*`; feeding it the same values
+    // keeps the rendered version string in sync with the app bundle.
+    const result = await esbuild.build({
+      entryPoints: [absolutePath],
+      bundle: true,
+      write: false,
+      platform: 'node',
+      format: 'cjs',
+      target: 'node18',
+      logLevel: 'silent',
+      define: { 'process.env': JSON.stringify(debugEnv()) },
+    });
+    const moduleExports = { exports: {} };
+    const evaluate = new Function('module', 'exports', 'require', result.outputFiles[0].text);
+    evaluate(moduleExports, moduleExports.exports, createRequire(absolutePath));
+    return moduleExports.exports;
+  }
+
+  /**
+   * @param {(absolutePath: string) => string} resolveAssetUrl
+   *        Maps an asset path to the URL the document should reference.
+   */
+  async function render(resolveAssetUrl) {
+    const ejs = (await import('ejs')).default;
+    // The template was written for `html-webpack-plugin`, whose `<%= %>` does
+    // not escape. EJS escapes with `<%= %>` and only skips escaping with
+    // `<%- %>`, so every interpolation is rewritten to the raw form —
+    // otherwise the inlined UI templates end up in the document as text.
+    const template = readFileSync(templatePath, 'utf-8').replaceAll('<%=', '<%-');
+
+    // Collect every `require('...')` in the template so the TypeScript ones can
+    // be loaded (asynchronously) before the synchronous EJS render runs.
+    const requests = Array.from(new Set(Array.from(template.matchAll(/require\('([^']+)'\)/g), (m) => m[1])));
+    const moduleCache = new Map();
+    for (const request of requests) {
+      const absolutePath = toAbsolutePath(request);
+      if (!absolutePath || absolutePath.endsWith('.html')) continue;
+      if (!/\.(ts|js)$/.test(absolutePath) && !absolutePath.endsWith('version')) continue;
+      moduleCache.set(request, await loadTypeScriptModule(absolutePath));
+    }
+
+    const templateRequire = (request) => {
+      if (moduleCache.has(request)) return moduleCache.get(request);
+
+      const absolutePath = toAbsolutePath(request);
+      if (!absolutePath) return require(request);
+      if (absolutePath.endsWith('.html')) return { default: readFileSync(absolutePath, 'utf-8') };
+      return resolveAssetUrl(absolutePath);
+    };
+
+    return ejs.render(template, {
+      require: templateRequire,
+      htmlWebpackPlugin: { options: { devvitTarget, enableServiceWorker } },
+    });
+  }
+
+  /** Dev: serve the rendered document for `/` and `/index.html`. */
+  function devServer() {
+    return {
+      name: 'ab-ejs-html:serve',
+      apply: 'serve',
+      async configureServer(server) {
+        server.middlewares.use(async (req, res, next) => {
+          const path = (req.url || '').split('?')[0];
+          if (path !== '/' && path !== '/index.html') return next();
+
+          try {
+            const html = await render((absolutePath) => `/${relative(rootDir, absolutePath)}`);
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'text/html');
+            res.end(
+              html
+                .replace('</head>', '  <script type="module" src="/@vite/client"></script>\n</head>')
+                .replace('</body>', '    <script type="module" src="/src/script.ts"></script>\n  </body>'),
+            );
+          } catch (error) {
+            next(error);
+          }
+        });
+      },
+    };
+  }
+
+  /** Build: emit `index.html` referencing the hashed app entry chunk. */
+  function build() {
+    return {
+      name: 'ab-ejs-html:build',
+      apply: 'build',
+      async generateBundle(_outputOptions, bundle) {
+        const entry = Object.values(bundle).find(
+          (chunk) => chunk.type === 'chunk' && chunk.isEntry && chunk.name === 'app',
+        );
+        if (!entry) throw new Error('ab-ejs-html: app entry chunk not found');
+
+        // `assets/` is copied verbatim into the output, so asset URLs stay
+        // repo-relative in both `serve` and `build`.
+        const html = await render((absolutePath) => relative(rootDir, absolutePath).replace(/\\/g, '/'));
+
+        this.emitFile({
+          type: 'asset',
+          fileName: 'index.html',
+          source: html.replace('</body>', `    <script type="module" src="./${entry.fileName}"></script>\n  </body>`),
+        });
+      },
+    };
+  }
+
+  return [devServer(), build()];
+}
 
 export default defineConfig(({ mode, command }) => {
   const isDev = command === 'serve';
@@ -16,42 +183,15 @@ export default defineConfig(({ mode, command }) => {
   const enableServiceWorker = env.ENABLE_SERVICE_WORKER === 'true';
   const isDevvitTarget = env.VITE_DEVVIT_TARGET === 'true';
 
-  const phaserPath = resolve(__dirname, 'node_modules/phaser/dist/phaser.js');
+  const phaserPath = resolve(rootDir, 'node_modules/phaser/dist/phaser.js');
 
   const entries = {
-    app: resolve(__dirname, 'src/script.ts'),
+    app: resolve(rootDir, 'src/script.ts'),
   };
 
-  const htmlPlugins = [
-    {
-      template: resolve(__dirname, 'src/index.ejs'),
-      filename: 'index.html',
-      chunks: ['app'],
-      inject: 'body',
-      minify: isProduction,
-    },
-  ];
-
   if (isDevvitTarget) {
-    entries.splash = resolve(__dirname, 'src/devvit/splash.ts');
-    entries.gameEntry = resolve(__dirname, 'src/devvit/game-entry.ts');
-
-    htmlPlugins.push(
-      {
-        template: resolve(__dirname, 'src/devvit/splash.ejs'),
-        filename: 'splash.html',
-        chunks: ['splash'],
-        inject: 'body',
-        minify: isProduction,
-      },
-      {
-        template: resolve(__dirname, 'src/devvit/game-entry.html'),
-        filename: 'game.html',
-        chunks: ['gameEntry'],
-        inject: 'body',
-        minify: isProduction,
-      }
-    );
+    entries.splash = resolve(rootDir, 'src/devvit/splash.ts');
+    entries.gameEntry = resolve(rootDir, 'src/devvit/game-entry.ts');
   }
 
   return {
@@ -72,12 +212,14 @@ export default defineConfig(({ mode, command }) => {
       rollupOptions: {
         input: entries,
         output: {
-          entryFileNames: '[name].[contenthash].bundle.js',
-          chunkFileNames: '[name].[contenthash].chunk.js',
+          // Rolldown (Vite 8) only understands the `[hash]` placeholder; the
+          // rollup-style `[contenthash]` is emitted verbatim into filenames.
+          entryFileNames: '[name].[hash].bundle.js',
+          chunkFileNames: '[name].[hash].chunk.js',
           assetFileNames: (assetInfo) => {
             if (isProduction && assetInfo.name) {
               const ext = assetInfo.name.split('.').pop();
-              return `assets/[contenthash].${ext}`;
+              return `assets/[hash].${ext}`;
             }
             return '[path][name].[ext]';
           },
@@ -110,10 +252,10 @@ export default defineConfig(({ mode, command }) => {
     resolve: {
       alias: {
         phaser: phaserPath,
-        '@': resolve(__dirname, 'src'),
-        assets: resolve(__dirname, 'assets'),
-        modules: resolve(__dirname, 'node_modules'),
-        underscore: resolve(__dirname, 'node_modules/underscore/underscore-umd.js'),
+        '@': resolve(rootDir, 'src'),
+        assets: resolve(rootDir, 'assets'),
+        modules: resolve(rootDir, 'node_modules'),
+        underscore: resolve(rootDir, 'node_modules/underscore/underscore-umd.js'),
       },
       extensions: ['.ts', '.js', '.json'],
       conditions: ['browser', 'import', 'require', 'default'],
@@ -160,25 +302,34 @@ export default defineConfig(({ mode, command }) => {
         ],
         output: 'assets/index.js',
       }),
-      ViteEjsPlugin({
-        preMatchHtml: readFileSync(resolve(__dirname, 'src/templates/pre-match.html'), 'utf-8'),
-        production: isProduction,
-        enableServiceWorker,
-        devvitTarget: isDevvitTarget,
-      }),
-      viteStaticCopy({
-        targets: [
-          {
-            src: 'static',
-            dest: '',
-          },
-        ],
-      }),
+      ejsHtmlPlugin({ devvitTarget: isDevvitTarget, enableServiceWorker }),
+      // Build only. The plugin's dev middleware serves the copied trees with
+      // their raw MIME type, so it swallows `?import` requests for files under
+      // `assets/` and the browser rejects them as module scripts. In serve mode
+      // Vite already exposes `static/` through `publicDir` and serves `assets/`
+      // from the project root, and only the build needs the tree copied into
+      // the output directory.
+      ...(isDev
+        ? []
+        : [
+            viteStaticCopy({
+              targets: [
+                {
+                  // Runtime asset URLs (music, cards, avatars, ability icons)
+                  // are repo-relative paths produced by `assets/index.js`, so the
+                  // tree has to be published under the same paths. (`static` is
+                  // already handled by `publicDir`.)
+                  src: 'assets',
+                  dest: '.',
+                },
+              ],
+            }),
+          ]),
       {
         name: 'dotenv-config',
         configResolved(config) {
           require('dotenv-defaults').config({
-            default: resolve(__dirname, '.env.example'),
+            default: resolve(rootDir, '.env.example'),
             silent: true,
           });
         },
