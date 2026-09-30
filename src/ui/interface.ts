@@ -28,6 +28,9 @@ import { getRandomSummonCandidates, getSummonCandidates } from '../utility/summo
 import { OpenCollectiveBanner, isThirdPartyContentBlocked } from './open-collective-banner';
 
 const SECRET_VIEW_ID = 'ab-secret-view';
+
+/** Combat log elements that toggle the Meta Powers panel on right-click. */
+const META_TOGGLE_SELECTOR = '#chatbox, #chatcontent';
 const GAME_IN_PROGRESS_UNLOAD_CONFIRMATION =
 	'A game is in progress and cannot be restored, are you sure you want to leave?';
 const DEV_RELOAD_PROMPT_ID = 'ab-dev-reload-prompt';
@@ -1220,6 +1223,23 @@ export class UI {
 			}
 			return open;
 		};
+		const topmostOpenView = (): 'music' | 'score' | 'meta' | 'dash' | null => {
+			// Topmost mirrors z-order: scoreboard > music > meta > dash.
+			const open = openViews();
+			if (open.includes('score')) {
+				return 'score';
+			}
+			if (open.includes('music')) {
+				return 'music';
+			}
+			if (open.includes('meta')) {
+				return 'meta';
+			}
+			if (open.includes('dash')) {
+				return 'dash';
+			}
+			return null;
+		};
 		const closeViewName = (view: 'music' | 'score' | 'meta' | 'dash') => {
 			if (view === 'music') {
 				this.toggleMusicPlayer(false);
@@ -1230,6 +1250,16 @@ export class UI {
 			} else {
 				this.closeDash();
 			}
+		};
+		// The combat log is also the Meta Powers toggle (bound on the
+		// contextmenu bubble further down). That gesture must toggle the panel
+		// on/off, not close it, so this capture handler stays out of its way:
+		// without the guard below, the panel opened by the contextmenu would be
+		// closed again by the same press' mouseup (it only appeared while the
+		// button was held, then faded out).
+		const isMetaToggleGesture = (e: Event) => {
+			const target = e.target as Element | null;
+			return !!target?.closest?.(META_TOGGLE_SELECTOR);
 		};
 		// A physical right-click fires mousedown -> mouseup -> contextmenu.
 		// Close on mouseup (release): the overlay stays visible while the
@@ -1274,21 +1304,22 @@ export class UI {
 			if (openViews().length === 0) {
 				return;
 			}
+			if (isMetaToggleGesture(e) && topmostOpenView() === 'meta') {
+				// Hand the whole press to the combat log's toggle: the native menu
+				// and text selection stay suppressed, but the gesture is no longer
+				// swallowed so the panel toggles instead of closing on release.
+				e.preventDefault();
+				return;
+			}
 			e.preventDefault();
 			e.stopPropagation();
 			if (e.type === 'mouseup') {
 				// Close exactly one view per gesture, topmost first.
-				// Topmost mirrors z-order: scoreboard > music > meta > dash.
-				const open = openViews();
-				const topmost = open.includes('score')
-					? 'score'
-					: open.includes('music')
-					? 'music'
-					: open.includes('meta')
-					? 'meta'
-					: 'dash';
-				closeViewName(topmost);
-				gestureConsumed = true;
+				const topmost = topmostOpenView();
+				if (topmost) {
+					closeViewName(topmost);
+					gestureConsumed = true;
+				}
 			}
 		};
 		// Capture on window: runs before Phaser's canvas/window listeners and
@@ -1422,7 +1453,7 @@ export class UI {
 		$j('#meta-powers').off('mousedown.ab-close');
 		$j('#ui').off('mousedown.ab-close');
 
-		$j('#chatbox, #chatcontent').on('contextmenu', (e) => {
+		$j(META_TOGGLE_SELECTOR).on('contextmenu', (e) => {
 			if (game.freezedInput) {
 				return;
 			}
