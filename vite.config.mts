@@ -148,25 +148,39 @@ function ejsHtmlPlugin({ devvitTarget, enableServiceWorker }) {
     };
   }
 
-  /** Build: emit `index.html` referencing the hashed app entry chunk. */
+  /** Build: emit `index.html` referencing the hashed app entry chunk and CSS. */
   function build() {
     return {
       name: 'ab-ejs-html:build',
       apply: 'build',
       async generateBundle(_outputOptions, bundle) {
-        const entry = Object.values(bundle).find(
-          (chunk) => chunk.type === 'chunk' && chunk.isEntry && chunk.name === 'app',
-        );
+        const outputs = Object.values(bundle);
+        const entry = outputs.find((chunk) => chunk.type === 'chunk' && chunk.isEntry && chunk.name === 'app');
         if (!entry) throw new Error('ab-ejs-html: app entry chunk not found');
+
+        // Vite injects these `<link>` tags itself, but only for HTML it owns.
+        // `rollupOptions.input` lists entry chunks only, so this plugin has to
+        // emit the references: without them the extracted stylesheets ship
+        // unreferenced and the document renders unstyled.
+        const styles = outputs
+          .filter((output) => output.type === 'asset' && output.fileName.endsWith('.css'))
+          .map((output) => output.fileName)
+          .sort();
 
         // `assets/` is copied verbatim into the output, so asset URLs stay
         // repo-relative in both `serve` and `build`.
         const html = await render((absolutePath) => relative(rootDir, absolutePath).replace(/\\/g, '/'));
 
+        // The template already indents `</head>` by one tab, so each link only
+        // adds the second one and `</head>` keeps the tab it already had.
+        const stylesMarkup = styles.map((fileName) => `\t<link rel="stylesheet" href="./${fileName}">\n`).join('');
+
         this.emitFile({
           type: 'asset',
           fileName: 'index.html',
-          source: html.replace('</body>', `    <script type="module" src="./${entry.fileName}"></script>\n  </body>`),
+          source: html
+            .replace('</head>', `${stylesMarkup}\t</head>`)
+            .replace('</body>', `    <script type="module" src="./${entry.fileName}"></script>\n  </body>`),
         });
       },
     };
