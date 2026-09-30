@@ -235,7 +235,12 @@ export default defineConfig(({ mode, command }) => {
               const ext = assetInfo.name.split('.').pop();
               return `assets/[hash].${ext}`;
             }
-            return '[path][name].[ext]';
+            // Rolldown only understands `[hash]`; the rollup-style `[path]` and
+            // `[name]` placeholders are not substituted and end up literally in
+            // the emitted filename (e.g. `[path]app.css`), which is what a
+            // non-production `vite build` used to produce.
+            const ext = assetInfo.name?.split('.').pop();
+            return ext ? `[name].[hash].${ext}` : '[name].[hash]';
           },
           manualChunks: undefined,
         },

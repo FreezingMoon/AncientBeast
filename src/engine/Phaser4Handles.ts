@@ -1,4 +1,5 @@
-import Phaser from 'phaser';
+import type Phaser from 'phaser';
+import { getPhaser } from './phaser-runtime';
 import { Signal } from '../utility/signal';
 import { toTextureKey } from './textureKey';
 import type { BitmapDataHandle, GroupHandle, SpriteHandle, TextureKeyLike } from './types';
@@ -170,7 +171,7 @@ export function wrapGameObject(gameObject: Phaser.GameObjects.GameObject): Sprit
 		set: (x: number, y: number) => go.setPosition(x, y),
 		setTo: (x: number, y: number) => go.setPosition(x, y),
 		/** Phaser 2 `position` was a `Point`, so gameplay code clones it. */
-		clone: () => new Phaser.Math.Vector2(go.x, go.y),
+		clone: () => new (getPhaser().Math.Vector2)(go.x, go.y),
 	};
 
 	const input = {
@@ -583,7 +584,7 @@ function getWorldPointManual(
 		current = current.parentContainer;
 	}
 
-	return new Phaser.Math.Vector2(wx, wy);
+	return new (getPhaser().Math.Vector2)(wx, wy);
 }
 
 /**
@@ -643,7 +644,7 @@ function getLocalPointManual(
 
 	// Note: We don't handle display origin here since the facade's position
 	// already accounts for it. The Phaser 2 compatible behavior is expected.
-	return new Phaser.Math.Vector2(lx, ly);
+	return new (getPhaser().Math.Vector2)(lx, ly);
 }
 
 // ─── Group facade (backed by a Phaser 4 Container) ───────────────────────────

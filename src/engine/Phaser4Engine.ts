@@ -1,4 +1,5 @@
-import Phaser, { Math as PhaserMath, Scale } from 'phaser';
+import type Phaser from 'phaser';
+import { getPhaser } from './phaser-runtime';
 import { Signal } from '../utility/signal';
 import { DynamicTextureAdapter, wrapGameObject, wrapGroup } from './Phaser4Handles';
 import { toTextureKey } from './textureKey';
@@ -192,15 +193,17 @@ export class Phaser4Engine implements GameEngine {
 			},
 			// Phaser 2's page alignment flags are Phaser 4's `autoCenter`.
 			get pageAlignHorizontally() {
-				return manager.autoCenter !== Scale.NO_CENTER;
+				return manager.autoCenter !== getPhaser().Scale.NO_CENTER;
 			},
 			set pageAlignHorizontally(value: boolean) {
+				const { Scale } = getPhaser();
 				manager.autoCenter = value ? Scale.CENTER_BOTH : Scale.NO_CENTER;
 			},
 			get pageAlignVertically() {
-				return manager.autoCenter !== Scale.NO_CENTER;
+				return manager.autoCenter !== getPhaser().Scale.NO_CENTER;
 			},
 			set pageAlignVertically(value: boolean) {
+				const { Scale } = getPhaser();
 				manager.autoCenter = value ? Scale.CENTER_BOTH : Scale.NO_CENTER;
 			},
 			get scaleMode() {
@@ -250,7 +253,10 @@ export class Phaser4Engine implements GameEngine {
 					const intensity =
 						horizontal && vertical
 							? amplitude
-							: new PhaserMath.Vector2(horizontal ? amplitude : 0, vertical ? amplitude : 0);
+							: new (getPhaser().Math.Vector2)(
+									horizontal ? amplitude : 0,
+									vertical ? amplitude : 0,
+							  );
 					manager.getScene().cameras.main.shake(duration, intensity, force);
 				},
 				SHAKE_HORIZONTAL,

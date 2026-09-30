@@ -19,6 +19,7 @@ import {
 	DEBUG_HAS_GAME_LOG,
 } from './debug';
 import { getDevvitAppVersion, getGameVersion } from './utility/clientVersion';
+import { prefetchPhaser } from './engine/phaser-runtime';
 
 if (DEBUG && 'serviceWorker' in navigator) {
 	navigator.serviceWorker
@@ -141,6 +142,12 @@ $j(() => {
 	scrim.removeClass('loading');
 	renderGameModeType(G.multiplayer);
 
+	// The pre-match screen is up and interactive, so this is a safe moment to pull
+	// the Phaser chunk down in the background. Deferring it keeps it off the
+	// critical path; prefetching it here means the first match still starts without
+	// waiting on a download the player could not have avoided anyway.
+	prefetchPhaser();
+
 	let isJoiningLobby = false;
 
 	const joinCodeFromUrl = new URLSearchParams(window.location.search).get('join');
@@ -182,7 +189,9 @@ $j(() => {
 					gameMode: 2,
 					players: [0],
 				};
-				G.loadGame(botConfig);
+				void G.loadGame(botConfig).catch((error) => {
+					console.error('[Game] Could not start the bot match', error);
+				});
 			} else if (devvitLaunch.mode === 'queue') {
 				// The splash already opened expanded mode on the click gesture; now we
 				// run the existing, tested queue flow (poll + countdown) in the larger
@@ -692,7 +701,11 @@ $j(() => {
 
 	const startGame = () => {
 		G.multiplayer = false;
-		G.loadGame(getGameConfig());
+		// `loadGame` is async: it fetches the Phaser chunk on first use. Kick it off
+		// during the click so the fetch overlaps the rest of the match-start work.
+		void G.loadGame(getGameConfig()).catch((error) => {
+			console.error('[Game] Could not start the match', error);
+		});
 	};
 
 	const restoreGameLog = (log) => {
@@ -1012,7 +1025,7 @@ async function startDevvitBotPractice(playerId: string) {
 			gameMode: 2,
 			players: [0],
 		};
-		G.loadGame(config);
+		await G.loadGame(config);
 	} catch (error) {
 		console.error('Bot practice error:', error);
 		$j('#devvitQueueStatus').text('Could not start bot practice, try again!');

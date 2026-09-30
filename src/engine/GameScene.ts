@@ -1,4 +1,16 @@
-import { Scene } from 'phaser';
+import { getPhaser } from './phaser-runtime';
+import type { Scene } from 'phaser';
+
+/**
+ * The Phaser `Scene` base class, resolved at module-evaluation time.
+ *
+ * This module is only ever reached through a dynamic `import()` issued by
+ * `Game.createPhaser()`, which awaits the Phaser runtime first. Evaluating
+ * `getPhaser()` at module scope is therefore safe, and it is what keeps this
+ * file out of the initial bundle: a static `import { Scene } from 'phaser'`
+ * would put the whole engine on the pre-match critical path.
+ */
+const SceneBase = getPhaser().Scene as typeof Scene;
 
 /**
  * The contract the Ancient Beast scene needs from its host (`Game`).
@@ -24,7 +36,7 @@ export const GAME_SCENE_KEY = 'AncientBeast';
  * queued through `this.load` (reached via {@link GameEngine}), and the rest of
  * the engine hangs off the scene's own systems.
  */
-export class GameScene extends Scene {
+export class GameScene extends SceneBase {
 	private readonly host: GameSceneHost;
 
 	constructor(host: GameSceneHost) {

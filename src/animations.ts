@@ -1,4 +1,4 @@
-import { BlendModes } from 'phaser';
+import { BLEND_MODE_ADD } from './engine/phaser-runtime';
 import type { SpriteHandle, GroupHandle, BitmapDataHandle } from './engine/types';
 import { Easing } from './utility/easing';
 import * as arrayUtils from './utility/arrayUtils';
@@ -729,7 +729,7 @@ export class Animations {
 		innerGlow.alpha = 0.3;
 		innerGlow.tint = 0xffa347;
 		innerGlow.scale.setTo(1.07, 1.06);
-		innerGlow.blendMode = BlendModes.ADD;
+		innerGlow.blendMode = BLEND_MODE_ADD;
 		idleTweens.push(
 			this._yoyo(innerGlow, { alpha: 0.43 }, 480 + randInt(200), Easing.Linear.None),
 			this._yoyo(innerGlow.scale, { x: 1.2, y: 1.17 }, 520 + randInt(210), Easing.Quadratic.InOut),
@@ -741,7 +741,7 @@ export class Animations {
 		outerAura.alpha = 0.19;
 		outerAura.tint = 0xff7a1f;
 		outerAura.scale.setTo(1.24, 1.22);
-		outerAura.blendMode = BlendModes.ADD;
+		outerAura.blendMode = BLEND_MODE_ADD;
 		idleTweens.push(
 			this._yoyo(outerAura, { alpha: 0.3 }, 700 + randInt(260), Easing.Linear.None),
 			this._yoyo(
@@ -1692,7 +1692,7 @@ export class Animations {
 		hazeSprite.scale.setTo(dir, 1);
 		hazeSprite.alpha = 0;
 		hazeSprite.tint = 0xff8f3a;
-		hazeSprite.blendMode = BlendModes.ADD;
+		hazeSprite.blendMode = BLEND_MODE_ADD;
 		group.addAt(hazeSprite, Math.min(group.children.length - 1, spriteIndex + 1));
 		state.hazeSprite = hazeSprite;
 		state.trailSprites.push(hazeSprite);
@@ -1778,7 +1778,7 @@ export class Animations {
 		heatLayerSprite.scale.setTo(dir, 1.38);
 		heatLayerSprite.alpha = 0;
 		heatLayerSprite.tint = 0xffa15a;
-		heatLayerSprite.blendMode = BlendModes.ADD;
+		heatLayerSprite.blendMode = BLEND_MODE_ADD;
 		// Keep expanded heat distortion behind the cardboard to prevent ghost overlays.
 		group.addAt(heatLayerSprite, Math.max(0, spriteIndex));
 		state.heatLayerSprite = heatLayerSprite;
@@ -1910,7 +1910,7 @@ export class Animations {
 			wisp.scale.setTo(dir * (1 + rand(0.06)), 0.96 + rand(0.1));
 			wisp.alpha = 0.26 + rand(0.12);
 			wisp.tint = 0xff9c52;
-			wisp.blendMode = BlendModes.ADD;
+			wisp.blendMode = BLEND_MODE_ADD;
 			group.addAt(wisp, 0);
 			if (state.heatBmd) {
 				wisp.loadTexture(state.heatBmd);

@@ -12,7 +12,8 @@ import { Creature, CreatureHintType } from './creature';
 import { refreshPlasmaRenderScales } from './plasma-field';
 import { unitData } from './data/units';
 import { Signal } from './utility/signal';
-import Phaser from 'phaser';
+import type Phaser from 'phaser';
+import { loadPhaser, getPhaser, SCALE_MODE_FIT } from './engine/phaser-runtime';
 import { LobbyClient } from './multiplayer';
 import { createLobbyProvider } from './multiplayer/provider';
 import type {
@@ -36,8 +37,6 @@ import { CreatureType, Realm, UnitData } from './data/types';
 import { setAudioMode, getAudioMode, DEFAULT_AUDIO_MODE } from './sound/soundsys';
 import BotController from './bot';
 import { locationPaths } from '../assets/index';
-import { Phaser4Engine } from './engine/Phaser4Engine';
-import { GameScene } from './engine/GameScene';
 import type { GameEngine } from './engine/types';
 
 /* eslint-disable prefer-rest-params */
@@ -157,7 +156,16 @@ export default class Game {
 	_deferredQueryMovePending: number;
 	Phaser: Phaser.Game | null;
 	/** The single Phaser 4 scene that replaces Phaser 2 CE's `game.state`. */
-	private phaserScene: GameScene | null = null;
+	private phaserScene: import('./engine/GameScene').GameScene | null = null;
+	/**
+	 * The concrete Phaser-backed engine adapter, captured at construction.
+	 *
+	 * `Phaser4Engine` is loaded through a dynamic `import()`, so it cannot be named
+	 * in a static `instanceof`. Keeping a reference to the instance lets
+	 * {@link phaserUpdate} reach `advanceClock`, which is specific to the Phaser
+	 * clock and intentionally not part of the headless `GameEngine` interface.
+	 */
+	private _phaserEngine: import('./engine/Phaser4Engine').Phaser4Engine | null = null;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	msg: any; // type this properly
 	triggers: Record<string, RegExp>;
@@ -201,12 +209,28 @@ export default class Game {
 	endGameSound?: SoundSysAudioBufferSourceNode;
 	disconnectReason?: string;
 
-	createPhaser() {
+	/**
+	 * Boot the Phaser runtime and build the scene/engine for a match.
+	 *
+	 * Phaser is a large, non-tree-shakeable dependency that the pre-match screen
+	 * never touches, so it is loaded on demand here rather than at page load. The
+	 * two engine modules are pulled in through `import()` for the same reason:
+	 * `GameScene` subclasses `Scene`, which can only be evaluated once the
+	 * runtime is present.
+	 */
+	async createPhaser() {
 		// Always destroy existing Phaser first to prevent duplicate canvas elements
 		if (this.Phaser) {
 			this.destroyPhaser();
 		}
-		const renderer = shouldUseCanvasRenderer() ? Phaser.CANVAS : Phaser.AUTO;
+
+		await loadPhaser();
+		const [{ GameScene }, { Phaser4Engine }] = await Promise.all([
+			import('./engine/GameScene'),
+			import('./engine/Phaser4Engine'),
+		]);
+
+		const renderer = shouldUseCanvasRenderer() ? getPhaser().CANVAS : getPhaser().AUTO;
 		// The scene is handed its host explicitly instead of reaching for a
 		// global: Phaser 2 CE's `game.state` bag is gone, and so is the
 		// `sys.game.GAME_INSTANCE` back-reference that used to replace it.
@@ -214,20 +238,21 @@ export default class Game {
 			onSceneReady: () => this.phaserSceneCreated(),
 			onSceneUpdate: (time, delta) => this.phaserUpdate(time, delta),
 		});
-		this.Phaser = new Phaser.Game({
+		this.Phaser = new (getPhaser().Game)({
 			width: 1920,
 			height: 1080,
 			type: renderer,
 			parent: 'combatwrapper',
 			scale: {
-				mode: Phaser.Scale.FIT,
-				autoCenter: Phaser.Scale.CENTER_BOTH,
+				mode: getPhaser().Scale.FIT,
+				autoCenter: getPhaser().Scale.CENTER_BOTH,
 			},
 			scene: [this.phaserScene],
 		});
 		// Wrap the raw Phaser instance in the engine adapter so gameplay code
 		// talks to a stable GameEngine interface instead of raw Phaser APIs.
-		this._gameEngine = new Phaser4Engine(this.Phaser, this.phaserScene);
+		this._phaserEngine = new Phaser4Engine(this.Phaser, this.phaserScene);
+		this._gameEngine = this._phaserEngine;
 		// Expose the existing signal channels (created in the constructor) through
 		// the adapter. We do NOT recreate them here — the BotController and other
 		// listeners registered on the original signals during construction.
@@ -319,11 +344,20 @@ export default class Game {
 				canvas.parentNode.removeChild(canvas);
 			}
 
-			// Phaser 4 stops the rAF loop inside destroy(); `removeCanvas` is
-			// already handled above, `noReturn` keeps teardown synchronous.
-			phaser.destroy(false, true);
+			// Phaser 4 stops the rAF loop inside destroy(). `removeCanvas` is false
+			// because the canvas is detached just above.
+			//
+			// `noReturn` MUST stay false. Phaser treats it as "this page will never
+			// run Phaser again" and responds by wiping its global core-plugin cache
+			// (PluginCache.destroyCorePlugins), after which any subsequent
+			// `new Phaser.Game()` aborts in Game.boot() with
+			// "Aborting. Core Plugins missing." — leaving a rematch stuck on the
+			// loading overlay forever. It does not affect teardown synchronicity:
+			// destroy() still runs synchronously either way.
+			phaser.destroy(false, false);
 			this.Phaser = null;
 			this.phaserScene = null;
+			this._phaserEngine = null;
 
 			// Reset game state (this.UI is already nulled above when its interval
 			// was cleared, kept here for clarity)
@@ -510,10 +544,29 @@ export default class Game {
 	}
 
 	/**
+	 * Fire-and-forget wrapper around {@link loadGame}.
+	 *
+	 * `loadGame` awaits the Phaser chunk, so it is async. Most call sites are event
+	 * handlers (lobby messages, restart, replay) that cannot await it; without this
+	 * wrapper a failed load would surface as an unhandled rejection instead of a
+	 * logged error.
+	 */
+	private startGameLoad(
+		setupOpt: Partial<GameConfig>,
+		matchInitialized?: boolean,
+		matchid?: string,
+		onLoadCompleteFn?: () => void,
+	): void {
+		this.loadGame(setupOpt, matchInitialized, matchid, onLoadCompleteFn).catch((error) => {
+			console.error('[Game] loadGame failed', error);
+		});
+	}
+
+	/**
 	 * @param {Partial<GameConfig>} setupOpt - Setup options from matchmaking menu
 	 * Load all required game files
 	 */
-	loadGame(
+	async loadGame(
 		setupOpt: Partial<GameConfig>,
 		matchInitialized?: boolean,
 		matchid?: string,
@@ -532,9 +585,27 @@ export default class Game {
 			return;
 		}
 
-		// Create a fresh Phaser instance for this game session
-		// (createPhaser safely destroys any existing Phaser first to prevent duplicates)
-		this.createPhaser();
+		// Claim the loading state synchronously, before the first `await`.
+		// createPhaser() now loads the Phaser chunk asynchronously, so without this
+		// a second match-start delivery arriving during that fetch would still see
+		// 'initialized' and start a competing load.
+		this.gameState = 'loading';
+
+		try {
+			// Create a fresh Phaser instance for this game session
+			// (createPhaser safely destroys any existing Phaser first to prevent duplicates)
+			await this.createPhaser();
+		} catch (error) {
+			// Release the guard so the player can retry instead of being stuck on a
+			// screen that will never finish loading.
+			this.gameState = 'initialized';
+			console.error('[Game] Failed to start Phaser', error);
+			throw error;
+		}
+
+		// createPhaser() destroys any previous instance, and destroyPhaser() resets
+		// the state to 'initialized' — re-assert the loading state it just cleared.
+		this.gameState = 'loading';
 
 		// Need to remove keydown listener before new game start
 		// to prevent memory leak and mixing hotkeys between start screen and game
@@ -544,7 +615,6 @@ export default class Game {
 			this.matchid = matchid;
 		}
 
-		this.gameState = 'loading';
 		this.preventSetup = false;
 		if (setupOpt) {
 			this.configData = setupOpt;
@@ -661,8 +731,8 @@ export default class Game {
 
 	/** Called by {@link GameScene#update} once per Phaser frame. */
 	phaserUpdate(_time?: number, delta?: number) {
-		if (this._gameEngine instanceof Phaser4Engine && typeof delta === 'number') {
-			this._gameEngine.advanceClock(delta);
+		if (this._phaserEngine && typeof delta === 'number') {
+			this._phaserEngine.advanceClock(delta);
 		}
 		if (this.gameState != 'playing') {
 			return;
@@ -733,8 +803,8 @@ export default class Game {
 		engine.scale.parentIsWindow = window.innerWidth > 600 || window.innerHeight > 700;
 		engine.scale.pageAlignHorizontally = true;
 		engine.scale.pageAlignVertically = window.innerWidth > 600 || window.innerHeight > 700;
-		engine.scale.scaleMode = Phaser.Scale.FIT;
-		engine.scale.fullScreenScaleMode = Phaser.Scale.FIT;
+		engine.scale.scaleMode = SCALE_MODE_FIT;
+		engine.scale.fullScreenScaleMode = SCALE_MODE_FIT;
 		engine.scale.refresh();
 
 		const bg = engine.add.sprite(0, 0, 'background');
@@ -973,7 +1043,7 @@ export default class Game {
 			hostPeerId: lobbyState.hostPeerId,
 		});
 		this.multiplayer = true;
-		this.loadGame(config as Partial<GameConfig>, true);
+		this.startGameLoad(config as Partial<GameConfig>, true);
 	}
 
 	handleLobbyMessage(message: GameMessage): void {
@@ -1033,7 +1103,7 @@ export default class Game {
 					.filter((player) => player.isBot)
 					.map((player) => player.playerIndex),
 			);
-			this.loadGame(message.config as Partial<GameConfig>, true);
+			this.startGameLoad(message.config as Partial<GameConfig>, true);
 			return;
 		}
 		if (message.type === 'match-loaded') {
@@ -1045,7 +1115,7 @@ export default class Game {
 			// missing priests, repeated round logs). Only allow bootstrap-time use.
 			if (this.gameState === 'initialized' || this.gameState === 'ended') {
 				this.multiplayer = true;
-				this.loadGame(message.config as Partial<GameConfig>, true);
+				this.startGameLoad(message.config as Partial<GameConfig>, true);
 			}
 			return;
 		}
@@ -2299,7 +2369,7 @@ export default class Game {
 		};
 
 		this.resetGame();
-		this.loadGame(restartConfig);
+		this.startGameLoad(restartConfig);
 	}
 
 	/**
@@ -2392,7 +2462,7 @@ export default class Game {
 			}, 100);
 		};
 
-		this.loadGame(configData, undefined, undefined, () => {
+		this.startGameLoad(configData, undefined, undefined, () => {
 			setTimeout(() => nextAction(), 3000);
 		});
 	}

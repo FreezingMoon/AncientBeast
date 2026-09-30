@@ -13,7 +13,7 @@
 
 import type { Creature } from './creature';
 import type { GameEngine, BitmapDataHandle, SpriteHandle, GroupHandle } from './engine/types';
-import { BlendModes } from 'phaser';
+import { BLEND_MODE_ADD } from './engine/phaser-runtime';
 
 export interface PlasmaFieldSettings {
 	transparency: number;
@@ -318,7 +318,9 @@ export class PlasmaField {
 		// Additive blending is what gives the shield its glow. `2` is MULTIPLY,
 		// not ADD (ADD is 1 in both Phaser 2 CE and Phaser 4), and multiplying
 		// muddies the highlight instead of blooming it — so use the constant.
-		this.sprite.blendMode = BlendModes.ADD;
+		// `BLEND_MODE_ADD` mirrors `BlendModes.ADD` rather than reading it off the
+		// Phaser namespace, so this also works on the headless NullEngine path.
+		this.sprite.blendMode = BLEND_MODE_ADD;
 
 		if (this._staticMode) {
 			this.draw();

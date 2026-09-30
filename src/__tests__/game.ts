@@ -57,7 +57,10 @@ describe('Game replay completion', () => {
 			_deferredQueryMovePending: 3,
 			turnThrottle: true,
 			freezedInput: true,
-			loadGame: jest.fn(
+			// `onLogLoad` starts the replay through the internal `startGameLoad`
+			// wrapper (which awaits the Phaser chunk and swallows rejections), so
+			// that is the collaborator to stub here.
+			startGameLoad: jest.fn(
 				(
 					_configData: unknown,
 					_matchInitialized: unknown,
@@ -107,7 +110,10 @@ describe('Game replay completion', () => {
 			_deferredQueryMovePending: 2,
 			turnThrottle: true,
 			freezedInput: true,
-			loadGame: jest.fn(
+			// `onLogLoad` starts the replay through the internal `startGameLoad`
+			// wrapper (which awaits the Phaser chunk and swallows rejections), so
+			// that is the collaborator to stub here.
+			startGameLoad: jest.fn(
 				(
 					_configData: unknown,
 					_matchInitialized: unknown,

@@ -842,7 +842,9 @@ export class UI {
 					};
 
 					game.resetGame();
-					game.loadGame(restartConfig);
+					void game.loadGame(restartConfig).catch((error) => {
+						console.error('[Game] Could not restart the match', error);
+					});
 				},
 				state: ButtonStateEnum.hidden,
 			},

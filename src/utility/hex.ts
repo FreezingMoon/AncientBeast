@@ -4,11 +4,8 @@ import { Drop } from '../drop';
 import { Creature } from '../creature';
 import { HexGrid } from './hexgrid';
 import Game from '../game';
-import { Math as PhaserMath } from 'phaser';
-import { Geom } from 'phaser';
-
-const { Vector2 } = PhaserMath;
-import { TweenHandle, SpriteHandle } from '../engine/types';
+import { tryGetPhaser } from '../engine/phaser-runtime';
+import type { TweenHandle, SpriteHandle } from '../engine/types';
 import { ALIGN_CENTER } from '../engine/Phaser4Handles';
 import { DEBUG } from '../debug';
 import { getPointFacade } from './pointfacade';
@@ -186,14 +183,23 @@ export class Hex {
 				// NOTE: The coefficients below are "magic"; tested in-game.
 				const [radius_w, radius_h] = [0.58 * this.width, 0.69 * this.height];
 				const [offset_x, offset_y] = [radius_w + 2, radius_h + 9];
-				const points = angles.map(
-					(angle) =>
-						new Vector2(
-							Math.cos(angle) * radius_w + offset_x,
-							Math.sin(angle) * radius_h + offset_y,
-						),
-				);
-				this.hitBox.hitArea = new Geom.Polygon(points);
+				// The hexagonal hit area only drives pointer hit-testing in a real
+				// renderer; the headless `NullEngine` ignores it. Skip building it
+				// when Phaser was never loaded (unit tests, authoritative server),
+				// so this stays off the Phaser critical path there.
+				const phaser = tryGetPhaser();
+				if (phaser) {
+					const { Math: PhaserMath, Geom } = phaser;
+					const { Vector2 } = PhaserMath;
+					const points = angles.map(
+						(angle) =>
+							new Vector2(
+								Math.cos(angle) * radius_w + offset_x,
+								Math.sin(angle) * radius_h + offset_y,
+							),
+					);
+					this.hitBox.hitArea = new Geom.Polygon(points);
+				}
 			}
 
 			this.display = grid.displayHexesGroup.create(x, y, 'hex');
