@@ -2366,6 +2366,8 @@ export class Creature {
 			result = 'Sickened';
 		} else if (this.protectedFromFatigue || this.stats.fatigueImmunity) {
 			result = 'Protected';
+		} else if (this.isFatigued()) {
+			result = 'Fatigued';
 		} else if (this.isFragile()) {
 			result = 'Fragile';
 			// Display message if the creature has first become fragile
@@ -2376,8 +2378,6 @@ export class Creature {
 			if (this.#fatigueText !== result) {
 				this.game.log('%CreatureName' + this.id + '% has become fragile');
 			}
-		} else if (this.isFatigued()) {
-			result = 'Fatigued';
 		} else {
 			result = this.endurance + '/' + this.stats.endurance;
 		}
