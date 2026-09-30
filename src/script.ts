@@ -49,14 +49,25 @@ AB.saveLog = () => AB.currentGame.gamelog.save();
 AB.restoreGame = (str) => AB.currentGame.gamelog.load(str);
 window.AB = AB;
 // Load the abilities
-unitData.forEach(async (creature) => {
+// `import.meta.glob` is required here: a fully dynamic `import()` specifier has
+// no static part for the bundler to resolve, so it is left as a bare runtime
+// request that 404s against the deployed bundle.
+const abilityModules = import.meta.glob<{ default: (game: Game) => void }>('./abilities/*.ts');
+
+unitData.forEach((creature) => {
 	if (!creature.playable) {
 		return;
 	}
 
-	import(`./abilities/${creature.name.split(' ').join('-')}`).then((generator) =>
-		generator.default(G),
-	);
+	const modulePath = `./abilities/${creature.name.split(' ').join('-')}.ts`;
+	const loadAbility = abilityModules[modulePath];
+
+	if (!loadAbility) {
+		console.error(`[Ability] No module found for ${creature.name} (${modulePath})`);
+		return;
+	}
+
+	loadAbility().then((generator) => generator.default(G));
 });
 
 $j(() => {
