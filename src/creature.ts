@@ -6,7 +6,7 @@ import { Hex } from './utility/hex';
 import Game from './game';
 import * as arrayUtils from './utility/arrayUtils';
 import { Drop, DropDefinition } from './drop';
-import { ensureCardboard, ensureDropTexture } from './assets';
+import { ensureCardboard, ensureDropTexture, isTextureReady } from './assets';
 import { Point, getPointFacade } from './utility/pointfacade';
 import { Effect } from './effect';
 import { Player, PlayerID, getDarkPriestCardboardKey, getDarkPriestDisplayOffsetX } from './player';
@@ -2405,6 +2405,14 @@ export class Creature {
 }
 
 class CreatureSprite {
+	/**
+	 * Texture key Phaser substitutes when the requested one is not resident
+	 * (its 32×32 "image ready" placeholder). A sprite created against it keeps
+	 * sampling it: registering the real texture later does not re-resolve an
+	 * existing sprite.
+	 */
+	private static readonly MISSING_TEXTURE_KEY = '__MISSING';
+
 	private _creature: Creature;
 	private _group: any;
 	private _sprite: any;
@@ -2425,6 +2433,7 @@ class CreatureSprite {
 	private _frameInfo: { originX: number; originY: number };
 	private _creatureSize: number;
 	private _creatureTeam: PlayerID;
+	private _dir: 1 | -1 = 1;
 
 	private _isXray = false;
 	get isXrayed(): boolean {
@@ -2470,24 +2479,13 @@ class CreatureSprite {
 		group.alpha = 0;
 
 		const isDarkPriest = type === '--';
-		const darkPriestOffsetX = isDarkPriest ? getDarkPriestDisplayOffsetX(creature.player) : 0;
-		const originX = display['offset-x'] + darkPriestOffsetX;
 
 		// Adding sprite
 		const spriteKey = isDarkPriest ? getDarkPriestCardboardKey(creature.player) : creature.name;
 		const sprite = group.create(0, 0, spriteKey);
 		sprite.anchor.setTo(0.5, 1);
-		// Placing sprite.
-		// The hex artwork is *not* concentric with its hit area: the base `hex`
-		// texture is drawn with its top-left on the hit point (see
-		// Hex#pinTopLeft), so the visible centre of a hex sits half a
-		// hex-width east of `displayPos.x`. The creature group, by contrast, is
-		// placed on `displayPos.x`, hence the half-texture term below — it
-		// re-centres the unit on the hex *artwork*, it is not a double count.
-		sprite.x =
-			(!player.flipped ? originX : HEX_WIDTH_PX * size - sprite.texture.width - originX) +
-			sprite.texture.width / 2;
-		sprite.y = display['offset-y'] + sprite.texture.height;
+		// Placed by `setDir()` below, once the sprite and the hint group are
+		// both reachable — see `_place()` for the offset maths.
 
 		if (creature.name === 'Infernal') {
 			game.animations.initInfernalCardboardEffect(creature, sprite);
@@ -2496,7 +2494,6 @@ class CreatureSprite {
 		// Hint Group
 		const hintGrp = gameEngine.add.group(group, 'creatureHintGrp_' + id);
 		hintGrp.x = 0.5 * HEX_WIDTH_PX * size;
-		hintGrp.y = -sprite.texture.height + 5;
 
 		const healthIndicatorGroup = gameEngine.add.group(group, 'creatureHealthGrp_' + id);
 
@@ -2566,6 +2563,7 @@ class CreatureSprite {
 
 		this.setHex(creature.hexagons[size - 1]);
 		this.setDir(dir);
+		this._bindCardboardWhenReady();
 	}
 
 	// NOTE: This is the old API exposed by Creature.
@@ -2685,20 +2683,71 @@ class CreatureSprite {
 	}
 
 	setDir(dir: 1 | -1) {
+		this._dir = dir;
 		this._sprite.scale.setTo(dir, 1);
-
-		const originX =
-			this._frameInfo.originX +
-			(this._creature.isDarkPriest() ? getDarkPriestDisplayOffsetX(this._creature.player) : 0);
-		// See the constructor for why the half-texture term is needed.
-		this._sprite.x =
-			(dir === 1
-				? originX
-				: HEX_WIDTH_PX * this._creatureSize - this._sprite.texture.width - originX) +
-			this._sprite.texture.width / 2;
+		this._place();
 		this._healthIndicatorSprite.x = dir === -1 ? 19 : 19 + HEX_WIDTH_PX * (this._creatureSize - 1);
 		this._healthIndicatorText.x =
 			dir === -1 ? HEX_WIDTH_PX * 0.5 : HEX_WIDTH_PX * (this._creatureSize - 0.5);
+	}
+
+	/**
+	 * Places the cardboard inside its group, and the hint group above it.
+	 *
+	 * The hex artwork is *not* concentric with its hit area: the base `hex`
+	 * texture is drawn with its top-left on the hit point (see
+	 * Hex#pinTopLeft), so the visible centre of a hex sits half a hex-width
+	 * east of `displayPos.x`. The creature group, by contrast, is placed on
+	 * `displayPos.x`, hence the half-texture term below — it re-centres the
+	 * unit on the hex *artwork*, it is not a double count.
+	 *
+	 * Every term is read off the texture's own size, so this has to be re-run
+	 * whenever that size changes — see `_bindCardboardWhenReady()`.
+	 */
+	private _place(): void {
+		const originX =
+			this._frameInfo.originX +
+			(this._creature.isDarkPriest() ? getDarkPriestDisplayOffsetX(this._creature.player) : 0);
+		const width = this._sprite.texture.width;
+		const height = this._sprite.texture.height;
+		this._sprite.x =
+			(this._dir === 1 ? originX : HEX_WIDTH_PX * this._creatureSize - width - originX) + width / 2;
+		this._sprite.y = this._frameInfo.originY + height;
+		// Hints (skip turn, no action possible, …) hang just above the cardboard.
+		this._hintGrp.y = -height + 5;
+	}
+
+	/**
+	 * Rebinds the cardboard once its on-demand download lands.
+	 *
+	 * Cardboards are fetched the first time a unit is shown rather than at match
+	 * start, so a creature is regularly constructed while its texture is still
+	 * in flight — always on the client that replays a materialization, since it
+	 * has no placement preview to warm the fetch. Phaser resolves the missing
+	 * key to its 32×32 `__MISSING` placeholder and never re-resolves an
+	 * existing sprite, which left the unit invisible *and* offset by the
+	 * placeholder's size (see `_place()`) until some unrelated code path
+	 * happened to call `setTexture` again — the xray teardown at the start of
+	 * Abolished's Bonfire Spring teleport, for one.
+	 */
+	private _bindCardboardWhenReady(): void {
+		const spriteKey = this._originalTextureKey;
+		if (isTextureReady(spriteKey)) {
+			return;
+		}
+		ensureCardboard(spriteKey, () => {
+			// The unit may have died, or been replaced by its materialized twin,
+			// while its cardboard was still downloading.
+			if (!this._group?.parent) {
+				return;
+			}
+			// Only the placeholder is worth swapping: a sprite parked on an xray
+			// bitmap is restored by `_finalizeXrayOff()` instead.
+			if (this._sprite.key === CreatureSprite.MISSING_TEXTURE_KEY) {
+				this._sprite.loadTexture(spriteKey);
+			}
+			this._place();
+		});
 	}
 
 	xray(enable: boolean, referenceCreature?: Creature | Creature[]) {
