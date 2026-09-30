@@ -34,6 +34,7 @@ jest.mock('phaser', () => ({
 
 import Game from '../game';
 import { UI } from '../ui/interface';
+import { setAudioMode } from '../sound/soundsys';
 
 describe('Game replay completion', () => {
 	beforeEach(() => {
@@ -225,6 +226,76 @@ describe('Game reset lifecycle', () => {
 		Game.prototype.resetGame.call(game);
 
 		expect(stopEndGameSound).toHaveBeenCalledTimes(1);
+	});
+});
+
+describe('Game over sound', () => {
+	const makeSoundSys = () => ({
+		stopMusic: jest.fn(),
+		playMusic: jest.fn(),
+		playSFX: jest.fn(() => ({ stop: jest.fn() })),
+		stopSFX: jest.fn(),
+		musicVolume: 1,
+		effectsVolume: 1,
+		heartbeatVolume: 1,
+		announcerVolume: 1,
+	});
+
+	const makeMockGame = (soundsys: ReturnType<typeof makeSoundSys>): Game =>
+		({
+			gameState: 'playing',
+			gameMode: 0,
+			players: [],
+			soundsys,
+			stopTimer: jest.fn(),
+			stopEndGameSound: jest.fn(),
+			UI: { endGame: jest.fn() },
+		} as unknown as Game);
+
+	afterEach(() => {
+		// Leave the module-level audio mode on 'full' for unrelated suites.
+		setAudioMode('full', makeSoundSys(), undefined);
+	});
+
+	test('plays a truncated drum roll on a real match ending', () => {
+		setAudioMode('full', makeSoundSys(), undefined);
+		const soundsys = makeSoundSys();
+		const game = makeMockGame(soundsys);
+
+		Game.prototype.endGame.call(game);
+
+		expect(soundsys.playSFX).toHaveBeenCalledWith('sounds/drums', 4);
+	});
+
+	test('stays silent on a player disconnect', () => {
+		setAudioMode('full', makeSoundSys(), undefined);
+		const soundsys = makeSoundSys();
+		const game = makeMockGame(soundsys);
+
+		Game.prototype.endGame.call(game, 'Host disconnected...');
+
+		expect(soundsys.playSFX).not.toHaveBeenCalled();
+	});
+
+	test('stays silent unless the audio mode is full', () => {
+		setAudioMode('sfx', makeSoundSys(), undefined);
+		const soundsys = makeSoundSys();
+		const game = makeMockGame(soundsys);
+
+		Game.prototype.endGame.call(game);
+
+		expect(soundsys.playSFX).not.toHaveBeenCalled();
+	});
+
+	test('stopEndGameSound stops the node and clears the handle', () => {
+		const soundsys = makeSoundSys();
+		const node = { stop: jest.fn() };
+		const game = { soundsys, endGameSound: node } as unknown as Game;
+
+		Game.prototype.stopEndGameSound.call(game);
+
+		expect(soundsys.stopSFX).toHaveBeenCalledWith(node);
+		expect(game.endGameSound).toBeUndefined();
 	});
 });
 
