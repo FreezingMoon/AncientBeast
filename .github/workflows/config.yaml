@@ -46,7 +46,7 @@ jobs:
          run: bun run lint
 
        - name: Build for testing
-         run: bun run build:dev
+         run: bun run build
 
        - name: Run tests
          run: bun run test
