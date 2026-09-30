@@ -232,7 +232,7 @@ export default class Game {
 		// the adapter. We do NOT recreate them here — the BotController and other
 		// listeners registered on the original signals during construction.
 		for (const ch of Object.keys(this.signals)) {
-			(this._gameEngine.signals as Record<string, any>)[ch] = this.signals[ch];
+			this._gameEngine.signals[ch] = this.signals[ch];
 		}
 		// Note: Scale manager configuration happens in setup() after Phaser is ready
 	}
@@ -241,7 +241,7 @@ export default class Game {
 		// Phaser scene created - boot complete, Phaser is ready for use
 	}
 
-	whenPhaserBooted(phaser: any, onBooted: (phaser: any) => void) {
+	whenPhaserBooted(phaser: Phaser.Game, onBooted: (phaser: Phaser.Game) => void) {
 		if (!phaser) {
 			return;
 		}
