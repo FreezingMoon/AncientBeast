@@ -282,6 +282,13 @@ export interface GameEngine {
 		onLoadComplete: SignalHandle;
 	};
 
+	// On-demand textures. `loadImage` queues a single texture after the initial
+	// preload has finished; `textures.exists` reports whether a key is drawable
+	// yet. Together they let callers fetch a texture the first time it is needed
+	// rather than up front — see assets.ts#loadTexture and issue #678.
+	loadImage(key: string, url: string): void;
+	textures: { exists(key: string): boolean };
+
 	// Time
 	time: {
 		now: number;

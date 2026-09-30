@@ -50,6 +50,26 @@ type DarkPriestOwner = {
 	color: PlayerColor;
 };
 
+/**
+ * The colour a player seat is drawn in, derived purely from its id.
+ *
+ * Exported so a Dark Priest cardboard can be requested before the `Player`
+ * objects exist (see `Game#preloadDarkPriestCardboards`) without duplicating this
+ * mapping.
+ */
+export function getPlayerColor(id: PlayerID): PlayerColor {
+	switch (id) {
+		case 0:
+			return 'red';
+		case 1:
+			return 'blue';
+		case 2:
+			return 'orange';
+		default:
+			return 'green';
+	}
+}
+
 export function getDarkPriestCardboardKey(owner: DarkPriestOwner): string {
 	const variant = owner.controller === 'bot' ? 'clone' : 'player';
 	return `Dark Priest ${variant} ${owner.color}`;
@@ -100,20 +120,7 @@ export class Player {
 		this.game = game;
 		this.creatures = [];
 		this.name = ('Player' + (id + 1)) as PlayerName;
-		switch (id) {
-			case 0:
-				this.color = 'red';
-				break;
-			case 1:
-				this.color = 'blue';
-				break;
-			case 2:
-				this.color = 'orange';
-				break;
-			default:
-				this.color = 'green';
-				break;
-		}
+		this.color = getPlayerColor(id);
 		this.avatar = getDarkPriestAvatarUrl({ controller: 'human', color: this.color });
 		this.score = [];
 		// @ts-expect-error ts(2339)

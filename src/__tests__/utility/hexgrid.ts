@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, jest, test } from '@jest/globals';
+import { afterEach, beforeAll, beforeEach, describe, expect, jest, test } from '@jest/globals';
 jest.mock('../../game', () => ({
 	__esModule: true,
 	default: class GameMock {},
@@ -17,6 +17,7 @@ jest.mock('../../creature', () => ({
 
 import { HexGrid } from '../../utility/hexgrid';
 import { Creature } from '../../creature';
+import { notifyTextureLoaded, resetOnDemandTextures, setOnDemandLoader } from '../../assets';
 
 describe('HexGrid previewCreature query guards', () => {
 	beforeAll(() => {
@@ -243,6 +244,9 @@ describe('HexGrid previewCreature depth banding', () => {
 			getDepthAtBand: HexGrid.prototype.getDepthAtBand,
 			assignSpriteDepthBand: HexGrid.prototype.assignSpriteDepthBand,
 			orderCreatureZ: HexGrid.prototype.orderCreatureZ,
+			// The cardboard gate re-enters previewCreature when a unit's texture is
+			// not resident, so the stand-in needs the method too.
+			previewCreature: HexGrid.prototype.previewCreature,
 		};
 
 		return { gridMock, hexes, activeCreature, activePlayer };
@@ -309,6 +313,162 @@ describe('HexGrid previewCreature depth banding', () => {
 		expect(overlay.loadTexture).toHaveBeenCalled();
 	});
 });
+
+describe('HexGrid previewCreature lazy cardboard loading', () => {
+	beforeAll(() => {
+		(global as unknown as { Phaser?: unknown }).Phaser = {
+			Easing: { Linear: { None: null } },
+		};
+	});
+
+	/**
+	 * Cardboards are no longer preloaded, so `previewCreature` has to be able to
+	 * render a unit whose texture is still in flight. These exercise that against
+	 * the real on-demand loader in `assets.ts`, with the Phaser scene faked out.
+	 */
+	let resident: Set<string>;
+	let requested: Map<string, string>;
+
+	beforeEach(() => {
+		resident = new Set();
+		requested = new Map();
+		setOnDemandLoader(
+			(key, url) => void requested.set(key, url),
+			(key) => resident.has(key),
+		);
+	});
+
+	afterEach(() => {
+		resetOnDemandTextures();
+		setOnDemandLoader(undefined, undefined);
+	});
+
+	const makeGrid = (createdSprites: unknown[]) => {
+		const makeHex = (x: number, y: number) => ({
+			x,
+			y,
+			reachable: true,
+			creature: null,
+			displayPos: { x: 90 * x, y: 58 * y },
+			overlayVisualState: jest.fn(),
+		});
+		const hexes = [
+			[makeHex(0, 0), makeHex(1, 0), makeHex(2, 0)],
+			[makeHex(0, 1), makeHex(1, 1), makeHex(2, 1)],
+			[makeHex(0, 2), makeHex(1, 2), makeHex(2, 2)],
+		];
+		const tweenChain = {
+			to: () => tweenChain,
+			yoyo: () => tweenChain,
+			repeat: () => tweenChain,
+			start: () => ({ stop: jest.fn() }),
+		};
+		const activePlayer = { id: 0, flipped: false, controller: 'human', color: 'red' };
+		const activeCreature = { id: 0, team: 0, player: activePlayer };
+		const gridMock = {
+			game: {
+				activeCreature,
+				activePlayer,
+				creatures: [],
+				traps: [],
+				drops: [],
+				gameEngine: { tween: () => tweenChain },
+			},
+			hexes,
+			lastQueryOpt: { hexes: [] },
+			materialize_overlay: undefined as unknown,
+			secondary_overlay: undefined as unknown,
+			_flickerTween: undefined as unknown,
+			_flickerTweenSecondary: undefined as unknown,
+			cleanHex: jest.fn(),
+			restoreReachableHexVisual: jest.fn(),
+			creatureGroup: {
+				create: jest.fn(() => {
+					const sprite = {
+						depth: 0,
+						posy: undefined as number | undefined,
+						alpha: 0,
+						anchor: { setTo: jest.fn() },
+						scale: { setTo: jest.fn() },
+						texture: { width: 112, height: 200 },
+						setDepth: jest.fn(function (this: { depth: number }, v: number) {
+							this.depth = v;
+						}),
+						loadTexture: jest.fn(),
+					};
+					createdSprites.push(sprite);
+					return sprite;
+				}),
+				sort: jest.fn(),
+			},
+			trapGroup: { sort: jest.fn() },
+			trapOverGroup: { sort: jest.fn() },
+			dropGroup: { sort: jest.fn() },
+			_rowDepthBaseIndex: HexGrid.prototype['_rowDepthBaseIndex'],
+			getDepthAtBand: HexGrid.prototype.getDepthAtBand,
+			assignSpriteDepthBand: HexGrid.prototype.assignSpriteDepthBand,
+			orderCreatureZ: HexGrid.prototype.orderCreatureZ,
+			previewCreature: HexGrid.prototype.previewCreature,
+		};
+		return { gridMock, activePlayer };
+	};
+
+	const summonedData = {
+		size: 1,
+		type: 'A1',
+		name: 'Swine Thug',
+		display: { 'offset-x': 0, 'offset-y': 0 },
+	};
+
+	test('holds the ghost back until the cardboard arrives, then draws it', () => {
+		const createdSprites: unknown[] = [];
+		const { gridMock, activePlayer } = makeGrid(createdSprites);
+
+		HexGrid.prototype.previewCreature.call(gridMock, { x: 1, y: 1 }, summonedData, activePlayer);
+
+		// Nothing drawn yet — a ghost sized against a missing texture would be wrong.
+		expect(createdSprites).toHaveLength(0);
+		expect(requested.get('Swine Thug')).toBe('assets/units/cardboards/Swine Thug.png');
+
+		resident.add('Swine Thug');
+		notifyTextureLoaded('Swine Thug');
+
+		expect(createdSprites).toHaveLength(1);
+		expect(gridMock.materialize_overlay).toBe(createdSprites[0]);
+	});
+
+	test('the parked preview follows the cursor rather than the request that started the load', () => {
+		const createdSprites: unknown[] = [];
+		const { gridMock, activePlayer } = makeGrid(createdSprites);
+
+		HexGrid.prototype.previewCreature.call(gridMock, { x: 1, y: 1 }, summonedData, activePlayer);
+		// The cursor moves on while the texture is still in flight.
+		HexGrid.prototype.previewCreature.call(gridMock, { x: 2, y: 2 }, summonedData, activePlayer);
+
+		resident.add('Swine Thug');
+		notifyTextureLoaded('Swine Thug');
+
+		expect(createdSprites).toHaveLength(1);
+		// Landed on the second hex, not the one that triggered the download.
+		expect(hexesOf(gridMock)).toEqual({ x: 2, y: 2 });
+	});
+
+	test('a resident cardboard draws immediately and requests nothing', () => {
+		const createdSprites: unknown[] = [];
+		const { gridMock, activePlayer } = makeGrid(createdSprites);
+		resident.add('Swine Thug');
+
+		HexGrid.prototype.previewCreature.call(gridMock, { x: 1, y: 1 }, summonedData, activePlayer);
+
+		expect(createdSprites).toHaveLength(1);
+		expect(requested.size).toBe(0);
+	});
+});
+
+/** The hex the preview ghost was placed on. */
+function hexesOf(gridMock: { materialize_overlay: { _previewPos?: { x: number; y: number } } }) {
+	return gridMock.materialize_overlay._previewPos;
+}
 
 describe('HexGrid xray hover behavior', () => {
 	type Bounds = {

@@ -18,6 +18,7 @@
  */
 
 import { toTextureKey } from './textureKey';
+import { setOnDemandLoader } from '../assets';
 import type {
 	BitmapDataHandle,
 	BoundsRect,
@@ -646,6 +647,16 @@ class NullTimer {
 // ─── The engine ───────────────────────────────────────────────────────────────
 
 export class NullEngine implements GameEngine {
+	constructor() {
+		// Headless draws nothing, so every key counts as present and the on-demand
+		// path in `assets.ts` short-circuits instead of queueing anything. Binding
+		// it here keeps simulation callers free of asset plumbing.
+		setOnDemandLoader(
+			() => undefined,
+			() => true,
+		);
+	}
+
 	public readonly scale: ScaleHandle = {
 		parentIsWindow: false,
 		pageAlignHorizontally: false,
@@ -685,6 +696,15 @@ export class NullEngine implements GameEngine {
 		onLoadComplete: new NullSignal(),
 		start: () => undefined,
 	};
+
+	/**
+	 * Headless has no texture manager. Reporting every key as present keeps
+	 * callers that gate a redraw on `onReady` from waiting forever, and nothing
+	 * ever draws in a simulation anyway.
+	 */
+	public loadImage(_key: string, _url: string): void {}
+
+	public readonly textures: GameEngine['textures'] = { exists: () => true };
 
 	public readonly time: GameEngine['time'] = {
 		now: 0,

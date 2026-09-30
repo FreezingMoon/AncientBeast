@@ -6,6 +6,7 @@ import { Hex } from './utility/hex';
 import Game from './game';
 import * as arrayUtils from './utility/arrayUtils';
 import { Drop, DropDefinition } from './drop';
+import { ensureCardboard, ensureDropTexture } from './assets';
 import { Point, getPointFacade } from './utility/pointfacade';
 import { Effect } from './effect';
 import { Player, PlayerID, getDarkPriestCardboardKey, getDarkPriestDisplayOffsetX } from './player';
@@ -291,6 +292,12 @@ export class Creature {
 		this.animation = obj.animation;
 		this.display = obj.display;
 		this.drop = obj.drop;
+		// A unit only leaves its drop behind when it dies, which can be many turns
+		// away — so the pickup art is fetched here, while there is still time for
+		// it to land, rather than being part of the match preload.
+		if (obj.drop) {
+			ensureDropTexture(obj.drop.name);
+		}
 		this._movementType = 'normal';
 		this.temp = obj.temp;
 
@@ -310,6 +317,13 @@ export class Creature {
 		this.effects = [];
 		this.dropCollection = [];
 		this.protectedFromFatigue = this.isDarkPriest() ? true : false;
+		// Safety net for a unit that reaches the board without a placement preview
+		// to trigger its own cardboard load — the Dark Priest builds its temp
+		// creature before the first preview, and `player.summon` can run straight
+		// after a click. Setup already waits for the Dark Priest's own variant, so
+		// in practice this is a no-op for it and a genuine request for a summoned
+		// unit's board art.
+		ensureCardboard(this.isDarkPriest() ? getDarkPriestCardboardKey(this.player) : this.name);
 		this.turnsActive = 0;
 		this._brbActive = false;
 		this._brbState = null;

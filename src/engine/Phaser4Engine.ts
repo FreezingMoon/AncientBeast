@@ -3,6 +3,7 @@ import { getPhaser } from './phaser-runtime';
 import { Signal } from '../utility/signal';
 import { DynamicTextureAdapter, wrapGameObject, wrapGroup } from './Phaser4Handles';
 import { toTextureKey } from './textureKey';
+import { notifyTextureLoaded, resetOnDemandTextures, setOnDemandLoader } from '../assets';
 import type {
 	CameraHandle,
 	GameEngine,
@@ -123,12 +124,7 @@ export class Phaser4Engine implements GameEngine {
 	get load() {
 		// The adapter's `load` getter is read several times while wiring the
 		// loader, so the Phaser 4 event listeners are attached exactly once.
-		if (!this._loadWired) {
-			this._loadWired = true;
-			const loader = this.scene.load;
-			loader.on('filecomplete', (key: string) => this.loadSignal('onFileComplete').dispatch(key));
-			loader.on('complete', () => this.loadSignal('onLoadComplete').dispatch());
-		}
+		this.wireLoader();
 		const loader = this.scene.load as AnyObject;
 		return {
 			start: () => loader.start(),
@@ -139,6 +135,54 @@ export class Phaser4Engine implements GameEngine {
 			onFileComplete: this.loadSignal('onFileComplete'),
 			onLoadComplete: this.loadSignal('onLoadComplete'),
 		};
+	}
+
+	/**
+	 * Queue a texture after the initial preload has finished.
+	 *
+	 * Phaser only drains a queue that has been started, and it ignores `start()`
+	 * while a run is already in flight — so a texture requested mid-match is
+	 * queued and started here, and one requested during a run simply joins that
+	 * run. Callers reach this through the on-demand path in `assets.ts` rather
+	 * than calling it directly.
+	 */
+	loadImage(key: string, url: string): void {
+		this.wireLoader();
+		const loader = this.scene.load as AnyObject;
+		loader.image(key, url);
+		if (!loader.isLoading?.()) {
+			loader.start();
+		}
+	}
+
+	get textures() {
+		return {
+			exists: (key: string) => this.scene.textures.exists(key),
+		};
+	}
+
+	private wireLoader(): void {
+		// The `load` getter, `loadImage` and the on-demand binder all reach the
+		// Phaser 4 loader, so the event listeners are attached exactly once.
+		if (this._loadWired) {
+			return;
+		}
+		this._loadWired = true;
+		const loader = this.scene.load;
+		loader.on('filecomplete', (key: string) => {
+			// On-demand textures are fetched one at a time, after the preload
+			// batch; release any caller waiting on this key.
+			notifyTextureLoaded(key);
+			this.loadSignal('onFileComplete').dispatch(key);
+		});
+		loader.on('complete', () => this.loadSignal('onLoadComplete').dispatch());
+		// The loader only exists once Phaser has booted partway, which is why
+		// this is wired lazily rather than in the constructor. Rebinding also
+		// drops the previous instance's memo caches.
+		setOnDemandLoader(
+			(key, url) => this.loadImage(key, url),
+			(key) => this.scene.textures.exists(key),
+		);
 	}
 
 	private readonly loadSignals: Record<string, Signal> = {};
@@ -323,6 +367,10 @@ export class Phaser4Engine implements GameEngine {
 	// ─── Lifecycle ──────────────────────────────────────────────────────────
 
 	destroy(): void {
+		// The texture cache dies with the game, so the on-demand memo has to go
+		// with it — otherwise a rematch would believe its textures are loaded.
+		resetOnDemandTextures();
+		setOnDemandLoader(undefined, undefined);
 		// Phaser 4 `Game.destroy(removeCanvas, noReturn)`.
 		this.phaser.destroy(true, true);
 	}

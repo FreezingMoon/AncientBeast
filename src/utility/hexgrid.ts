@@ -14,6 +14,7 @@ import { Point } from './pointfacade';
 import { AugmentedMatrix } from './matrices';
 import { PierceThroughBehavior } from '../ability';
 import { getDarkPriestCardboardKey, getDarkPriestDisplayOffsetX } from '../player';
+import { ensureCardboard, isTextureReady } from '../assets';
 
 const ROW_DEPTH_STRIDE = 100;
 
@@ -114,6 +115,73 @@ export interface QueryOptions {
 	 * Function applied when clicking a non reachable hex
 	 */
 	fnOnCancel: () => void;
+}
+
+/**
+ * A `previewCreature` call parked while its unit cardboard downloads.
+ */
+interface PendingPreview {
+	pos: { x: number; y: number };
+	creatureData: any;
+	player: any;
+	secondary: boolean;
+}
+
+interface PendingPreviews {
+	primary?: PendingPreview;
+	secondary?: PendingPreview;
+}
+
+/**
+ * Previews held back while a unit cardboard downloads, one slot per overlay.
+ *
+ * Keyed by grid rather than stored on it: `previewCreature` is also exercised
+ * against stand-in grids, and per-overlay scratch state has no business on the
+ * class surface.
+ */
+const pendingPreviews = new WeakMap<object, PendingPreviews>();
+
+function getPendingPreviews(grid: object): PendingPreviews {
+	let previews = pendingPreviews.get(grid);
+	if (!previews) {
+		previews = {};
+		pendingPreviews.set(grid, previews);
+	}
+	return previews;
+}
+
+function setPendingPreview(
+	grid: object,
+	slot: keyof PendingPreviews,
+	request: PendingPreview,
+): void {
+	getPendingPreviews(grid)[slot] = request;
+}
+
+function takePendingPreview(grid: object, slot: keyof PendingPreviews): PendingPreview | undefined {
+	const request = getPendingPreviews(grid)[slot];
+	if (request) {
+		delete getPendingPreviews(grid)[slot];
+	}
+	return request;
+}
+
+function clearPendingPreview(grid: object, secondary: boolean): void {
+	takePendingPreview(grid, secondary ? 'secondary' : 'primary');
+}
+
+/**
+ * Redraw a preview that was waiting on its unit's cardboard.
+ *
+ * Takes the held request rather than a captured closure, so moving the cursor
+ * while the texture was in flight supersedes the stale position instead of
+ * painting a ghost on a hex the cursor has already left.
+ */
+function replayPendingPreview(grid: HexGrid, secondary: boolean): void {
+	const pending = takePendingPreview(grid, secondary ? 'secondary' : 'primary');
+	if (pending) {
+		grid.previewCreature(pending.pos, pending.creatureData, pending.player, pending.secondary);
+	}
 }
 
 /**
@@ -2380,6 +2448,28 @@ export class HexGrid {
 			(creatureData.type == '--' ? getDarkPriestDisplayOffsetX(player) : 0);
 		const cardboard =
 			creatureData.type == '--' ? getDarkPriestCardboardKey(player) : creatureData.name;
+
+		// The cardboard is what the preview measures the unit against, so it is
+		// also what triggers its download. It is a few KiB and normally arrives
+		// long before the player settles on a hex, but a unit summoned straight
+		// from an ability (Dark Priest, Uncle Fungus, Scavenger) can reach a
+		// preview cold. When that happens, hold the request and replay the newest
+		// one for this overlay once the texture lands, rather than drawing a
+		// ghost sized against a missing texture.
+		if (!isTextureReady(cardboard)) {
+			// Recorded before the request, so a loader that answers synchronously
+			// still finds the request to replay.
+			setPendingPreview(this, secondary ? 'secondary' : 'primary', {
+				pos,
+				creatureData,
+				player,
+				secondary,
+			});
+			clearPreviewOverlay(secondary ? this.secondary_overlay : this.materialize_overlay, secondary);
+			ensureCardboard(cardboard, () => replayPendingPreview(this, secondary));
+			return;
+		}
+		clearPendingPreview(this, secondary);
 
 		if (!secondary) {
 			if (!this.materialize_overlay) {

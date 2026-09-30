@@ -3,14 +3,48 @@ import { resolve, relative } from 'path';
 
 // Vite plugin to generate a static asset manifest for Phaser autoload
 export default function phaserAssetManifestPlugin({
-  assetDirs = [
-    'assets/autoload/drops',
-    'assets/autoload/interface',
-    'assets/autoload/units',
-    'assets/units/avatars', // Ensure avatars are included
-    'assets/locations', // Add locations for backgrounds
-    'assets/units/artwork', // Add unit artwork for preloading
-    // Add more asset subfolders as needed
+  // Assets handed to Phaser before a match starts. Keep this list to the art the
+  // board cannot be drawn without: the shared unit sprites (traps, objects, effect
+  // puffs) and the hex/frame chrome named below. Everything else — per-unit
+  // cardboards, drop pickups, backgrounds, artwork, avatars and the rest of the
+  // interface art — is fetched on demand. See issue #678.
+  assetDirs = ['assets/units/sprites'],
+  // Board chrome lives in `assets/interface` alongside a lot of UI-only art, so
+  // it is named file by file rather than swept up by directory. Add a path here
+  // only when the board genuinely cannot render without it.
+  assetFiles = [
+    'assets/interface/ability_range.png',
+    'assets/interface/frame.png',
+    'assets/interface/hex.png',
+    'assets/interface/hex_dashed.png',
+    'assets/interface/hex_dashed_p0.png',
+    'assets/interface/hex_dashed_p1.png',
+    'assets/interface/hex_dashed_p2.png',
+    'assets/interface/hex_dashed_p3.png',
+    'assets/interface/hex_deadzone.png',
+    'assets/interface/hex_hover_p0.png',
+    'assets/interface/hex_hover_p1.png',
+    'assets/interface/hex_hover_p2.png',
+    'assets/interface/hex_hover_p3.png',
+    'assets/interface/hex_p0.png',
+    'assets/interface/hex_p1.png',
+    'assets/interface/hex_p2.png',
+    'assets/interface/hex_p3.png',
+    'assets/interface/hex_path.png',
+    'assets/interface/input.png',
+    'assets/interface/p0_frozen.png',
+    'assets/interface/p0_health.png',
+    'assets/interface/p0_plasma.png',
+    'assets/interface/p1_frozen.png',
+    'assets/interface/p1_health.png',
+    'assets/interface/p1_plasma.png',
+    'assets/interface/p2_frozen.png',
+    'assets/interface/p2_health.png',
+    'assets/interface/p2_plasma.png',
+    'assets/interface/p3_frozen.png',
+    'assets/interface/p3_health.png',
+    'assets/interface/p3_plasma.png',
+    'assets/interface/skip.svg',
   ],
   soundDirs = [
     'assets/sounds',
@@ -24,16 +58,21 @@ export default function phaserAssetManifestPlugin({
   ],
   // Directories published for `assets.getUrl()` lookups. These are NOT part of
   // the Phaser preload manifest: `getUrl` is used for cards, ability icons and
-  // other UI art that is fetched on demand.
+  // other UI art that is fetched on demand, and by the on-demand Phaser loaders
+  // (cardboards, backgrounds) that resolve a texture key to its URL.
   urlDirs = [
     'assets/cards',
+    'assets/drops',
     'assets/icons',
     'assets/interface',
+    'assets/locations',
     'assets/sounds',
     'assets/stats',
     'assets/units/abilities',
     'assets/units/artwork',
     'assets/units/avatars',
+    'assets/units/cardboards',
+    'assets/units/sprites',
   ],
   output = 'assets/index.js',
 } = {}) {
@@ -43,67 +82,47 @@ export default function phaserAssetManifestPlugin({
     async buildStart() {
       const manifest = {};
       const assetPaths = {};
+      const preload = [];
       for (const dir of assetDirs) {
-        const absDir = resolve(process.cwd(), dir);
-        try {
-          const files = await getFiles(absDir);
-          for (const file of files) {
-            const relPath = relative(process.cwd(), file).replace(/\\/g, '/');
-            manifest[relPath] = relPath;
-            assetPaths[relPath] = relPath;
-            // Add short key for avatars (e.g., units/avatars/Dark Priest red)
-            if (/\/units\/avatars\//.test(relPath)) {
-              // Match everything after 'units/avatars/' and before the extension (allow spaces, dots, etc.)
-              const match = relPath.match(/units\/avatars\/([^/]+?)\.(jpg|png|jpeg)$/i);
-              if (match) {
-                manifest[`units/avatars/${match[1]}`] = relPath;
-              }
-            }
-          }
-        } catch (e) {}
+        preload.push(...(await listFiles(dir)));
+      }
+      preload.push(...assetFiles);
+      for (const relPath of preload) {
+        if (!(await exists(relPath))) {
+          console.warn(`[assets-manifest] preloading missing asset: ${relPath}`);
+          continue;
+        }
+        manifest[relPath] = relPath;
+        assetPaths[relPath] = relPath;
       }
       // Gather all sound files and add short keys
       let soundPaths = [];
       for (const dir of soundDirs) {
-        const absDir = resolve(process.cwd(), dir);
-        try {
-          const files = await getFiles(absDir);
-          for (const file of files) {
-            const relPath = relative(process.cwd(), file).replace(/\\/g, '/');
-            if (/\.(ogg|mp3|wav)$/i.test(relPath)) {
-              soundPaths.push(relPath.replace(/^assets\//, '').replace(/\.(ogg|mp3|wav)$/i, ''));
-              assetPaths[relPath] = relPath;
-            }
-          }
-        } catch (e) {}
-      }
-      // Register the remaining published assets so `assets.getUrl()` can resolve
-      // the on-demand UI art (cards, ability icons, stat icons). These are kept
-      // out of `manifest` so they are not force-preloaded into Phaser.
-      for (const dir of urlDirs) {
-        const absDir = resolve(process.cwd(), dir);
-        try {
-          const files = await getFiles(absDir);
-          for (const file of files) {
-            const relPath = relative(process.cwd(), file).replace(/\\/g, '/');
+        for (const relPath of await listFiles(dir)) {
+          if (/\.(ogg|mp3|wav)$/i.test(relPath)) {
+            soundPaths.push(relPath.replace(/^assets\//, '').replace(/\.(ogg|mp3|wav)$/i, ''));
             assetPaths[relPath] = relPath;
           }
-        } catch (e) {}
+        }
+      }
+      // Register the remaining published assets so `assets.getUrl()` can resolve
+      // the on-demand UI art (cards, ability icons, stat icons) and the on-demand
+      // Phaser textures (cardboards, backgrounds). These are kept out of
+      // `manifest` so they are not force-preloaded into Phaser.
+      for (const dir of urlDirs) {
+        for (const relPath of await listFiles(dir)) {
+          assetPaths[relPath] = relPath;
+        }
       }
       // Gather location paths (matching webpack behavior: assets/locations/*.jpg -> basename without extension)
       let locationPaths = [];
       for (const dir of locationDirs) {
-        const absDir = resolve(process.cwd(), dir);
-        try {
-          const files = await getFiles(absDir);
-          for (const file of files) {
-            const relPath = relative(process.cwd(), file).replace(/\\/g, '/');
-            if (/\.jpg$/i.test(relPath)) {
-              const shortKey = relPath.replace(/^assets\/locations\//, '').replace(/\.jpg$/i, '');
-              locationPaths.push(shortKey);
-            }
+        for (const relPath of await listFiles(dir)) {
+          if (/\.jpg$/i.test(relPath)) {
+            const shortKey = relPath.replace(/^assets\/locations\//, '').replace(/\.jpg$/i, '');
+            locationPaths.push(shortKey);
           }
-        } catch (e) {}
+        }
       }
       const js = `// Auto-generated by phaserAssetManifestPlugin\nexport const phaserAutoloadAssetPaths = ${JSON.stringify(manifest, null, 2)};\nexport const assetPaths = ${JSON.stringify(assetPaths, null, 2)};\nexport const soundPaths = ${JSON.stringify(soundPaths, null, 2)};\nexport const locationPaths = ${JSON.stringify(locationPaths, null, 2)};\n`;
       await fs.writeFile(resolve(process.cwd(), output), js, 'utf8');
@@ -111,15 +130,32 @@ export default function phaserAssetManifestPlugin({
   };
 }
 
-// Recursively get all files in a directory
-async function getFiles(dir) {
+async function exists(relPath) {
+  try {
+    await fs.stat(resolve(process.cwd(), relPath));
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+// Recursively list the files under `dir` as cwd-relative, slash-separated paths.
+// A missing directory yields an empty list so a stale config entry never breaks
+// the build.
+async function listFiles(dir) {
   let files = [];
-  for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
+  let entries;
+  try {
+    entries = await fs.readdir(resolve(process.cwd(), dir), { withFileTypes: true });
+  } catch (e) {
+    return files;
+  }
+  for (const entry of entries) {
     const res = resolve(dir, entry.name);
     if (entry.isDirectory()) {
-      files = files.concat(await getFiles(res));
+      files = files.concat(await listFiles(res));
     } else {
-      files.push(res);
+      files.push(relative(process.cwd(), res).replace(/\\/g, '/'));
     }
   }
   return files;

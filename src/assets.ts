@@ -7,15 +7,20 @@ import {
 export { generatedSoundPaths as soundPaths };
 
 /**
- * Load all assets in phaserAutoloadAssetsPaths into Phaser Game instance, using URL basename as Phaser key.
+ * Load the always-needed assets into the Phaser Game instance, using the URL
+ * basename as the Phaser texture key.
  *
- * @param {Phaser.Game} e.g., units/shouts/Chimera
- * @returns {string[]} array of loaded asset keys
+ * This is deliberately a short list — hex/frame chrome, drop pickups and the
+ * shared unit sprites. Per-unit cardboards, backgrounds, artwork and avatars are
+ * *not* here: they are fetched on demand (see {@link loadTexture}) so a match only
+ * pays for the units it actually shows. See issue #678.
+ *
+ * @param {Phaser.Game} phaser
+ * @returns {string[]} array of loaded texture keys
  *
  * Texture keys are file basenames, so a basename that appears in more than one
- * preloaded directory (e.g. `units/avatars/Abolished.jpg` and
- * `units/artwork/Abolished.jpg`) resolves to the first one in manifest order.
- * The skipped duplicates are reported as a single warning.
+ * preloaded directory resolves to the first one in manifest order. The skipped
+ * duplicates are reported as a single warning.
  */
 export function use(phaser: Phaser.Game): string[] {
 	// In Phaser 4, the loader is on the active scene
@@ -49,9 +54,6 @@ export function use(phaser: Phaser.Game): string[] {
 		result.push(key);
 	}
 
-	// `assets/units/avatars` and `assets/units/artwork` deliberately share
-	// basenames, so most creatures collide here and the first one wins. Report
-	// it once rather than once per file.
 	if (duplicateKeys.size) {
 		console.warn(
 			`[assets.ts] ${duplicateKeys.size} duplicate texture key(s) skipped, first match wins: ` +
@@ -59,6 +61,186 @@ export function use(phaser: Phaser.Game): string[] {
 		);
 	}
 	return result;
+}
+
+/**
+ * Resolvers for textures that are loaded on demand rather than at match start.
+ *
+ * Both are reset by {@link resetOnDemandTextures} whenever the Phaser instance is
+ * torn down, since the texture cache dies with it.
+ */
+let onDemandLoader: ((key: string, url: string) => void) | undefined;
+let onDemandExists: ((key: string) => boolean) | undefined;
+let warnedNoLoader = false;
+const inFlight = new Set<string>();
+const completed = new Set<string>();
+
+/**
+ * Binds {@link loadTexture} to a live Phaser scene.
+ *
+ * Call once after the engine exists and before the first on-demand texture is
+ * requested. Calling it again (e.g. on rematch) clears the memo caches, because
+ * the new Phaser instance starts with an empty texture manager.
+ */
+export function setOnDemandLoader(
+	loader?: (key: string, url: string) => void,
+	exists?: (key: string) => boolean,
+): void {
+	onDemandLoader = loader;
+	onDemandExists = exists;
+	warnedNoLoader = false;
+	inFlight.clear();
+	completed.clear();
+}
+
+/** Whether a texture can be drawn right now, or is already being fetched. */
+export function isTextureReady(key: string): boolean {
+	if (completed.has(key)) return true;
+	return onDemandExists?.(key) ?? false;
+}
+
+/** Whether a texture has been requested but has not finished loading yet. */
+export function isTextureLoading(key: string): boolean {
+	return inFlight.has(key);
+}
+
+/**
+ * Queue an on-demand texture (a unit cardboard, a match background, …).
+ *
+ * Repeated calls for the same key are no-ops, and a texture that is already in
+ * Phaser's texture manager is never re-fetched. Callers that need to draw it
+ * should pass `onReady`, which fires once the texture is available.
+ *
+ * @param key Phaser texture key, i.e. the asset's basename
+ * @param manifestKey key understood by {@link getUrl}, e.g. `units/cardboards/Abolished`
+ * @param onReady optional callback invoked after the texture becomes available
+ */
+export function loadTexture(key: string, manifestKey: string, onReady?: () => void): void {
+	if (isTextureReady(key)) {
+		onReady?.();
+		return;
+	}
+	if (!onDemandLoader) {
+		// Nothing to load against: headless simulations and unit tests. Report
+		// once, then let the caller draw anyway rather than hanging on a callback
+		// that can never fire.
+		//
+		// The key is recorded as resolved so a caller that immediately retries
+		// (e.g. a preview redrawn from its own onReady) terminates instead of
+		// recursing. `setOnDemandLoader` clears `completed`, so binding a real
+		// loader later still gives the key a chance to be fetched.
+		if (!warnedNoLoader) {
+			warnedNoLoader = true;
+			console.warn('[assets.ts] no on-demand loader bound; textures will not be fetched');
+		}
+		completed.add(key);
+		onReady?.();
+		return;
+	}
+	if (inFlight.has(key)) {
+		// A caller that arrived mid-flight still wants to draw the texture, so
+		// defer its callback until the pending load settles.
+		pendingCallbacks.set(key, (pendingCallbacks.get(key) ?? []).concat(onReady ?? []));
+		return;
+	}
+
+	inFlight.add(key);
+	if (onReady) {
+		pendingCallbacks.set(key, [onReady]);
+	}
+
+	const url = safeGetUrl(manifestKey);
+	if (!url) {
+		console.warn(`[assets.ts] unknown asset "${manifestKey}"; texture "${key}" not loaded`);
+		inFlight.delete(key);
+		pendingCallbacks.delete(key);
+		onReady?.();
+		return;
+	}
+
+	onDemandLoader(key, url);
+}
+
+/**
+ * Called by the scene once an on-demand file finishes decoding, so waiting
+ * callers can draw it.
+ */
+export function notifyTextureLoaded(key: string): void {
+	inFlight.delete(key);
+	completed.add(key);
+	const callbacks = pendingCallbacks.get(key);
+	pendingCallbacks.delete(key);
+	for (const callback of callbacks ?? []) {
+		callback();
+	}
+}
+
+const pendingCallbacks = new Map<string, (() => void)[]>();
+
+/**
+ * Fetch a unit cardboard the first time it is needed.
+ *
+ * Cardboards are what a unit looks like on the board, and they are also what the
+ * placement preview uses to work out where a unit will land — so a match only
+ * ever pays for the units it actually shows, instead of the whole roster. The
+ * 2–8 KiB PNGs are queued one at a time through the on-demand loader.
+ *
+ * @param key cardboard texture key, i.e. the file basename (`Abolished`, or
+ *   `Dark Priest clone blue` for the per-player Dark Priest variants)
+ * @param onReady optional callback invoked once the texture can be drawn
+ * @returns true if the texture is already available
+ */
+export function ensureCardboard(key: string, onReady?: () => void): boolean {
+	if (isTextureReady(key)) {
+		onReady?.();
+		return true;
+	}
+	loadTexture(key, `units/cardboards/${key}`, onReady);
+	return false;
+}
+
+/**
+ * {@link ensureCardboard} as a promise, for the rare caller that cannot draw
+ * until the texture is actually resident.
+ *
+ * The Dark Priest is the case that matters: it is on the board the instant
+ * `setup()` runs and has no placement preview to trigger a lazy load, so
+ * `setup()` waits on this rather than spawning a unit against a missing texture.
+ *
+ * @param key cardboard texture key, i.e. the file basename
+ */
+export function ensureCardboardReady(key: string): Promise<void> {
+	return new Promise((resolve) => {
+		ensureCardboard(key, resolve);
+	});
+}
+
+/**
+ * Fetch a drop pickup's art the first time a unit carrying it is created.
+ *
+ * Drops are only ever spawned when a unit dies, so a match that ends without
+ * losses never touches them. Warming when the unit appears leaves the whole
+ * round between the request and the drop actually hitting the board.
+ *
+ * @param key drop texture key, i.e. the file basename (`fried chicken`)
+ */
+export function ensureDropTexture(key: string): void {
+	loadTexture(key, `drops/${key}`);
+}
+
+/** Clears the on-demand memo state. Called when the Phaser instance is destroyed. */
+export function resetOnDemandTextures(): void {
+	inFlight.clear();
+	completed.clear();
+	pendingCallbacks.clear();
+}
+
+function safeGetUrl(key: string): string | undefined {
+	try {
+		return getUrl(key);
+	} catch {
+		return undefined;
+	}
 }
 
 /**
@@ -237,7 +419,7 @@ export function getDirectory(path: string): AssetEntry[] {
 const urls: { [key: string]: string } = (() => {
 	/**
 	 * Receives the "local path" and returns the "key".
-	 * E.g., getKey('./assets/autoload/phaser/units/sprites/trap_firewall.png') === 'assets/autoload/phaser/units/sprites/trap_firewall.png';
+	 * E.g., getKey('./assets/units/sprites/trap_firewall.png') === 'units/sprites/trap_firewall';
 	 */
 	const getKey = (path: string): string => {
 		const parts = path.split('/');

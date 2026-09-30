@@ -5,8 +5,15 @@ import { GameLog } from './utility/gamelog';
 import { SoundSys, SoundSysAudioBufferSourceNode } from './sound/soundsys';
 import { Hex } from './utility/hex';
 import { HexGrid } from './utility/hexgrid';
-import { getUrl, use as assetsUse, soundPaths } from './assets';
-import { Player, PlayerColor, PlayerID, getDarkPriestAvatarUrl } from './player';
+import { getUrl, use as assetsUse, soundPaths, ensureCardboardReady } from './assets';
+import {
+	Player,
+	PlayerColor,
+	PlayerID,
+	getDarkPriestAvatarUrl,
+	getDarkPriestCardboardKey,
+	getPlayerColor,
+} from './player';
 import { UI } from './ui/interface';
 import { Creature, CreatureHintType } from './creature';
 import { refreshPlasmaRenderScales } from './plasma-field';
@@ -166,6 +173,11 @@ export default class Game {
 	 * clock and intentionally not part of the headless `GameEngine` interface.
 	 */
 	private _phaserEngine: import('./engine/Phaser4Engine').Phaser4Engine | null = null;
+	/**
+	 * Fires once, after the preload batch and after setup has had its Dark Priest
+	 * cardboards. Detached from the loader in `destroyPhaser`.
+	 */
+	private _pendingLoadCompleteFn: (() => void) | undefined;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	msg: any; // type this properly
 	triggers: Record<string, RegExp>;
@@ -539,8 +551,6 @@ export default class Game {
 			// For code compatibility
 			this.availableCreatures[creatureId] = type;
 		});
-
-		this.gameEngine.load.start();
 	}
 
 	/**
@@ -653,17 +663,18 @@ export default class Game {
 
 		console.log('[Game] Setting up loader events...');
 		load.onFileComplete.add(this.loadFinish, this);
-		load.onLoadComplete.add(this.finishLoading, this);
-		load.onLoadComplete.add(onLoadCompleteFn, this);
+		// One-shot: on-demand textures keep flowing through the same Phaser
+		// loader during the match, and its `complete` event fires for every one
+		// of them. Re-running setup (or the replay scheduler) on those would
+		// re-create the world mid-match.
+		load.onLoadComplete.addOnce(this.finishLoading, this);
+		load.onLoadComplete.addOnce(onLoadCompleteFn, this);
+		this._pendingLoadCompleteFn = onLoadCompleteFn;
 
-		const assetsRaw = assetsUse(phaser);
-		const assets = Array.isArray(assetsRaw) ? assetsRaw : [];
-
-		console.log('[DEBUG] Safe assets list:', assets);
-
-		assets.forEach((_asset) => {
-			// safely process each asset here
-		});
+		// Preload only what the board needs before it can be drawn: the hex/frame
+		// chrome, the shared unit sprites, and the background. Per-unit
+		// cardboards, drop pickups and the UI art are fetched on demand — see #678.
+		assetsUse(phaser);
 
 		// Background
 		const backgroundImage =
@@ -678,7 +689,9 @@ export default class Game {
 			rawLoad.image('AncientBeastLogo', getUrl('interface/AncientBeast'));
 		}
 
-		// Load artwork, shout and avatar for each unit
+		// Prime the browser cache for the shout, artwork and avatar of each unit
+		// that can appear. These are UI sounds and art rather than Phaser
+		// textures, so they are warmed rather than queued.
 		this.loadUnitData(unitData);
 
 		// Start the loader in Phaser 4
@@ -717,6 +730,9 @@ export default class Game {
 	}
 
 	finishLoading() {
+		// On-demand textures keep flowing through the loader during the match;
+		// the progress bar belongs to the preload batch only.
+		this.gameEngine.load.onFileComplete.remove(this.loadFinish, this);
 		this.gameState = 'loaded';
 		$j('#combatwrapper').show();
 		$j('body').css('cursor', 'default');
@@ -725,8 +741,50 @@ export default class Game {
 		// Headless browsers and tab-switching shouldn't block multiplayer initialization
 		if (this.multiplayer || !this.preventSetup) {
 			this.preventSetup = false;
-			this.setup(this.gameMode);
+			void this.setupAfterDarkPriestCards();
 		}
+	}
+
+	/**
+	 * Fetch the Dark Priest cardboards this match needs, then build the world.
+	 *
+	 * Every player starts with a Dark Priest, and setup() summons it with no
+	 * placement preview in between, so nothing else would ever ask for its
+	 * cardboard. Waiting here keeps that one unit out of the general preload: a
+	 * 1v1 hotseat match fetches two 45 KiB cardboards rather than all eight
+	 * variants, and only for the seats that are actually in play.
+	 */
+	private async setupAfterDarkPriestCards(): Promise<void> {
+		try {
+			await Promise.all(this.darkPriestCardboardKeys().map(ensureCardboardReady));
+		} catch (error) {
+			console.error('[Game] failed to preload Dark Priest cardboards', error);
+		}
+		// The match may have been torn down while the cardboards were in flight.
+		if (this.gameState !== 'loaded') {
+			return;
+		}
+		this.setup(this.gameMode);
+	}
+
+	/**
+	 * Dark Priest cardboard keys for the seats configured in this match, derived
+	 * from the same id → colour and human/bot rules that `setup()` uses.
+	 */
+	private darkPriestCardboardKeys(): string[] {
+		const gameMode = this.gameMode || 2;
+		const humanSeats: number[] = this.multiplayer
+			? [0, 1, 2, 3].slice(0, gameMode)
+			: this.configData.players ?? [0];
+		return Array.from({ length: gameMode }, (_, id) =>
+			getDarkPriestCardboardKey({
+				color: getPlayerColor(id as PlayerID),
+				controller:
+					this.multiplayer || humanSeats.includes(id) || this.botOpponentIds.has(id as PlayerID)
+						? 'human'
+						: 'bot',
+			}),
+		);
 	}
 
 	/** Called by {@link GameScene#update} once per Phaser frame. */

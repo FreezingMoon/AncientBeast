@@ -41,6 +41,8 @@ export class SoundSys {
 	private _heartbeatVol = 1;
 	private _announcerVol = 1;
 	private _allEffectsCoeff = 1;
+	/** Sounds currently being fetched, so repeated warm-ups do not re-decode. */
+	private _pendingSoundPaths = new Set<string>();
 
 	constructor(config: SoundSysConfig) {
 		this.musicPlayer = new MusicPlayer();
@@ -139,14 +141,34 @@ export class SoundSys {
 	}
 
 	loadSound(relativePath: string) {
-		if (this.envHasSound) {
-			const url = getUrl(relativePath);
-			const bufferLoader = new BufferLoader(this.context, [url], (arraybuffer: AudioBuffer[]) => {
-				this.loadedPaths[relativePath] = arraybuffer[0];
-			});
-
-			bufferLoader.load();
+		if (!this.envHasSound) {
+			return;
 		}
+		// The constructor already walks every path, and callers warm individual
+		// sounds on top of that. Decoding an ogg is expensive, so only ever fetch
+		// a given sound once: skip it if it has landed or is already in flight.
+		if (
+			this.loadedPaths.hasOwnProperty(relativePath) ||
+			this._pendingSoundPaths.has(relativePath)
+		) {
+			return;
+		}
+
+		let url: string;
+		try {
+			url = getUrl(relativePath);
+		} catch {
+			console.warn(`[soundsys] unknown sound "${relativePath}"`);
+			return;
+		}
+
+		this._pendingSoundPaths.add(relativePath);
+		const bufferLoader = new BufferLoader(this.context, [url], (arraybuffer: AudioBuffer[]) => {
+			this._pendingSoundPaths.delete(relativePath);
+			this.loadedPaths[relativePath] = arraybuffer[0];
+		});
+
+		bufferLoader.load();
 	}
 
 	private playSound(sound: AudioBuffer, node: GainNode): SoundSysAudioBufferSourceNode {

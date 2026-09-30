@@ -304,14 +304,6 @@ export default defineConfig(({ mode, command }) => {
     },
     plugins: [
       phaserAssetManifestPlugin({
-        assetDirs: [
-          'assets/autoload/drops',
-          'assets/autoload/interface',
-          'assets/autoload/units',
-          'assets/units/avatars',
-          'assets/locations',
-          'assets/units/artwork',
-        ],
         soundDirs: [
           'assets/sounds',
           'assets/units/sfx',
