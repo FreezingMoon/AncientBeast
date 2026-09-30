@@ -62,7 +62,7 @@ cp .env.example .env
 In order to build the development version of the game, run the following command:
 
 ```sh
-bun run build:dev
+bun run build
 ```
 
 ### Docker Setup
@@ -86,7 +86,7 @@ If there's something already running on port 80 or it's being blocked, try the n
 To have the game up and running on your local machine, simply run this command in the terminal:
 
 ```sh
-bun run start
+bun run dev
 ```
 
 Then access it using [Chromium](https://chromium.org) or [Google Chrome](https://google.com/chrome), as support for other browsers is not guaranteed:
@@ -126,12 +126,12 @@ To access the Meta Powers screen:
 ### Patch Game
 
 The main coding language used is Javascript, feel free to create patches and propose them by making a Pull Request.
-You should look around on the GitHub Issue tracker for open issues, priority being the ones that are assigned to the next [milestone](https://github.com/FreezingMoon/AncientBeast/milestones) and are tagged "[Priority](https://github.com/FreezingMoon/AncientBeast/labels/Priority)", while also lacking the "[Brainstorm](https://github.com/FreezingMoon/AncientBeast/labels/Brainstorm)" tag. You can ping [DreadKnight](https://github.com/DreadKnight) in the [Discord server](https://discord.gg/x78rKen) in order to be assigned to something specific, otherwise you can comment on a specific issue in order to receive the green light for it, making sure there's nobody else currently working on the issue or that design hasn't changed and a patch is still required. The game engine we're using is the [community edition](https://github.com/photonstorm/phaser-ce) of [Phaser](https://github.com/photonstorm/phaser), which is free and open source, and has nice [documentation](https://photonstorm.github.io/phaser-ce).
+You should look around on the GitHub Issue tracker for open issues, priority being the ones that are assigned to the next [milestone](https://github.com/FreezingMoon/AncientBeast/milestones) and are tagged "[Priority](https://github.com/FreezingMoon/AncientBeast/labels/Priority)", while also lacking the "[Brainstorm](https://github.com/FreezingMoon/AncientBeast/labels/Brainstorm)" tag. You can ping [DreadKnight](https://github.com/DreadKnight) in the [Discord server](https://discord.gg/x78rKen) in order to be assigned to something specific, otherwise you can comment on a specific issue in order to receive the green light for it, making sure there's nobody else currently working on the issue or that design hasn't changed and a patch is still required. The game engine we're using is [Phaser](https://phaser.io), which is free and open source, and has nice [documentation](https://phaser.io/docs).
 
 In order to patch the game and constantly test it, run it using this command, which will keep track of any file changes:
 
 ```sh
-bun run start:dev
+bun run dev
 ```
 
 Then access it using [Chromium](https://chromium.org) or [Google Chrome](https://google.com/chrome), as support for other browsers is not guaranteed:
@@ -140,7 +140,7 @@ Then access it using [Chromium](https://chromium.org) or [Google Chrome](https:/
 localhost:8080
 ```
 
-Keep in mind that you'll have to refresh the webpage after making changes. Make sure to disable browser caching by using `Ctrl + Shift + J`, then going to the **Network** tab and checking **Disable cache**.
+Vite provides Hot Module Replacement (HMR) for **styles (LESS/CSS)** and **UI components** — these update instantly without a full page reload. Game logic changes (TypeScript in `src/`) still require a manual refresh, as the Phaser game instance and ability registrations cannot be hot-swapped.
 
 ### Unit Tests
 
@@ -157,10 +157,9 @@ See `/src/__tests__/utility/string.js` for an example.
 
 The test runner is included in the existing `bun run test` command.
 
-In addition, the following commands were added to `package.json`:
+In addition, the following commands are available:
 
-- `bun run jest` – Run tests
-- `bun run start:jest` – Watch test files and rerun when modified
+- `bun run simulate` – Run headless game simulation tests
 
 ### Next Step
 
