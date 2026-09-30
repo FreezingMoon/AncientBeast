@@ -726,6 +726,17 @@ export function wrapGroup(container: Phaser.GameObjects.Container): GroupHandle 
 		set position(value: { x: number; y: number }) {
 			position.set(value.x, value.y);
 		},
+		/**
+		 * The group this container was added to, as a facade. Phaser 4 renamed
+		 * Phaser 2's `parent` to `parentContainer`, and without this the lookup
+		 * fell through to the raw object (always `undefined` on a Container), so
+		 * every `group.parent?.removeChild(group)` teardown silently did nothing
+		 * and left the group rendering in the scene.
+		 */
+		get parent() {
+			const parent = container.parentContainer;
+			return parent ? (wrappers.get(parent) as GroupHandle | undefined) ?? parent : null;
+		},
 		get children() {
 			return container.list.map((child) => wrapGameObject(child));
 		},
