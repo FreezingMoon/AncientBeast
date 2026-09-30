@@ -4,7 +4,13 @@ import { MusicPlayer } from './musicplayer';
 import { clamp } from '../utility/math';
 
 export type AudioMode = 'full' | 'sfx' | 'muted';
-let currentAudioMode: AudioMode = 'full';
+
+// NOTE: Start with SFX only while developing so that
+// music does not interfere with audio the developer is working on.
+export const DEFAULT_AUDIO_MODE: AudioMode =
+	process.env.NODE_ENV === 'development' ? 'sfx' : 'full';
+
+let currentAudioMode: AudioMode = DEFAULT_AUDIO_MODE;
 
 export function getAudioMode(): AudioMode {
 	return currentAudioMode;

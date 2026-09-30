@@ -33,7 +33,7 @@ import { GameConfig } from './script';
 import { Trap } from './utility/trap';
 import { Drop } from './drop';
 import { CreatureType, Realm, UnitData } from './data/types';
-import { setAudioMode } from './sound/soundsys';
+import { setAudioMode, getAudioMode, DEFAULT_AUDIO_MODE } from './sound/soundsys';
 import BotController from './bot';
 import { locationPaths } from '../assets/index';
 import { Phaser4Engine } from './engine/Phaser4Engine';
@@ -895,7 +895,7 @@ export default class Game {
 			this,
 		); // Create UI (not before because some functions require creatures to already exist)
 
-		setAudioMode('full', this.soundsys, this.UI);
+		setAudioMode(DEFAULT_AUDIO_MODE, this.soundsys, this.UI);
 		// DO NOT CALL LOG BEFORE UI CREATION
 		this.gameState = 'playing';
 
@@ -930,7 +930,9 @@ export default class Game {
 			refreshPlasmaRenderScales();
 		});
 
-		this.soundsys.playMusic();
+		if (getAudioMode() === 'full') {
+			this.soundsys.playMusic();
+		}
 		if (DEBUG_DISABLE_MUSIC) {
 			this.musicPlayer.audio.pause();
 		}
