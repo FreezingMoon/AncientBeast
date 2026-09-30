@@ -618,7 +618,9 @@ export class UI {
 		this.$grid = $j(this.makeCreatureGrid(document.getElementById('creaturerasterwrapper')));
 		this.$activebox = $j('#activebox');
 		this.$scoreboard = $j('#scoreboard');
-		this.brandlogo = game.gameEngine.add.image(670, 200, 'AncientBeastLogo');
+		// The logo is revealed while holding Ctrl; keep it horizontally centered
+		// on the viewport instead of hardcoding an off-center x.
+		this.brandlogo = game.gameEngine.add.image(this.getBrandLogoCenterX(), 200, 'AncientBeastLogo');
 		this.brandlogo.alpha = 0;
 		this.active = false;
 
@@ -1620,6 +1622,19 @@ export class UI {
 
 		// Events
 		this.game.signals.ui.add(this._handleUiEvent, this);
+	}
+
+	/** Horizontal center of the game viewport, used to center the brand logo. */
+	getBrandLogoCenterX(): number {
+		const worldWidth = this.game.gameEngine?.world?.width;
+		return worldWidth ? worldWidth / 2 : 960;
+	}
+
+	/** Re-center the brand logo, e.g. after the viewport was resized. */
+	centerBrandLogo() {
+		if (this.brandlogo) {
+			this.brandlogo.x = this.getBrandLogoCenterX();
+		}
 	}
 
 	/**

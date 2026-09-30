@@ -268,6 +268,7 @@ export class Hotkeys {
 
 	pressControlKeyDown() {
 		if (!this.ui.dashopen) {
+			this.ui.centerBrandLogo();
 			this.ui.brandlogo.alpha = 1;
 			this.ui.game.grid.showGrid(true);
 			this.ui.game.grid.showCurrentCreatureMovementInOverlay(this.ui.game.activeCreature);
