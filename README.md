@@ -33,11 +33,17 @@ There are more ways you can help out this project, check out the ["Make Your Con
 
 <a href="https://github.com/FreezingMoon/AncientBeast/graphs/contributors"><img src="https://opencollective.com/ancientbeast/contributors.svg?width=838&button=false" alt="Contributors"></a>
 
+### 🐦‍🔥 Divine
+
+Receive all the goodies, [become divine](https://opencollective.com/ancientbeast/contribute/divine-103801) while making sure this project becomes the best it can be!
+
+<a href="https://opencollective.com/ancientbeast/contribute/divine-103801"><img src="https://opencollective.com/ancientbeast/tiers/divine.svg?avatarHeight=90&width=838" alt="Divine"></a>
+
 ### 🪙 Sponsors
 
 To get your brand featured in-game as well, [become a sponsor](https://opencollective.com/ancientbeast/contribute/sponsor-8022) to greatly support this game project!
 
-<a href="https://opencollective.com/ancientbeast/contribute/sponsor-8022"><img src="https://opencollective.com/ancientbeast/tiers/sponsor.svg?avatarHeight=70&width=838" alt="Backers"></a>
+<a href="https://opencollective.com/ancientbeast/contribute/sponsor-8022"><img src="https://opencollective.com/ancientbeast/tiers/sponsor.svg?avatarHeight=70&width=838" alt="Sponsors"></a>
 
 ### 🛡️ Backers
 
