@@ -11,9 +11,17 @@
  * burst flash is triggered whenever the shield counters an attack.
  */
 
+import { PLASMA_LOOK, plasmaLookFor } from './plasma-look';
 import type { Creature } from './creature';
-import type { GameEngine, BitmapDataHandle, SpriteHandle, GroupHandle } from './engine/types';
+import type {
+	GameEngine,
+	BitmapDataHandle,
+	SpriteHandle,
+	GroupHandle,
+	ShaderHandle,
+} from './engine/types';
 import { BLEND_MODE_ADD } from './engine/phaser-runtime';
+import { PLASMA_FRAGMENT_SOURCE } from './plasma-shader';
 
 export interface PlasmaFieldSettings {
 	transparency: number;
@@ -79,8 +87,14 @@ export function computePlasmaRenderScale(): number {
 		if (typeof window !== 'undefined') {
 			const displayWidth = window.innerWidth || 0;
 			const ratio = displayWidth / LOGICAL_GAME_WIDTH;
+			// A floor only. This used to hard-code a quality drop on narrow
+			// windows — but `renderScale` is the plasma's real pixel density, so
+			// guessing wrong makes the shield visibly blocky (scale 2 renders a
+			// 96x128 grid upscaled to 192x256, which the sprite then scales 1.25x
+			// again). Actual cost is now governed at runtime by the frame-budget
+			// governor in `_tickAllFields`, which measures real draw time instead
+			// of guessing from window width.
 			if (ratio < 0.4) return 2;
-			if (ratio < 0.75) return 2;
 		}
 	} catch {
 		// window may be unavailable.
@@ -90,6 +104,8 @@ export function computePlasmaRenderScale(): number {
 
 export function refreshPlasmaRenderScales(): void {
 	const scale = computePlasmaRenderScale();
+	_adaptiveRenderScale = scale;
+	_adaptiveOverBudgetStreak = 0;
 	for (const field of _activeFields) {
 		field.updateRenderScale(scale);
 	}
@@ -178,16 +194,111 @@ const _activeFields = new Set<PlasmaField>();
 // steady rate and each field self-throttles its own draw cadence below.
 const SHARED_TICK_FPS = 24;
 
+// ─── Frame-budget quality governor ───────────────────────────────────────────
+// The per-pixel loop is by far the most expensive thing this effect does, and
+// its cost depends on how many fields are on screen at once (2 in a 1v1, 4 in a
+// 2v2) and on how fast the machine actually is. Neither is knowable up front
+// from the window size, so instead of guessing a fixed tier and being wrong
+// (visibly blocky shields on capable machines, or a slideshow on weak ones)
+// the ticker measures its own real cost and trades resolution for smoothness
+// only when the frame budget is genuinely being missed.
+//
+// Each step is roughly a 4x cut in grid area:
+//   1 -> 192x256 (~15ms/field)  2 -> 96x128 (~4ms)  3 -> 64x85 (~1.8ms)  4 -> 48x64 (~1ms)
+const MAX_RENDER_SCALE = 4;
+
+/**
+ * Animation speed multiplier applied to the shared tick rate.
+ *
+ * Below 1.0 slows the surface drift. Both renderers advance from `this.time`, so
+ * this scales the shader and the Canvas2D fallback together.
+ */
+const PLASMA_ANIMATION_SPEED = 0.9;
+
+/** Ceiling for plasma's own per-tick work, in ms. Leaves room for the rest of the frame. */
+const PLASMA_BUDGET_MS = 6;
+
+/** Consecutive over-budget ticks required before dropping quality. Avoids reacting to one hitch. */
+const DOWNGRADE_STREAK = 8;
+
+/** Consecutive comfortably-under-budget ticks required before restoring quality. */
+const UPGRADE_STREAK = 90;
+
+let _adaptiveRenderScale = 1;
+let _adaptiveOverBudgetStreak = 0;
+let _adaptiveUnderBudgetStreak = 0;
+
+function _applyAdaptiveScale(scale: number): void {
+	if (scale === _adaptiveRenderScale) return;
+	_adaptiveRenderScale = scale;
+	for (const field of _activeFields) {
+		field.updateRenderScale(scale);
+	}
+}
+
+/**
+ * Feed one tick's measured duration into the governor.
+ *
+ * Hysteresis is deliberately asymmetric: downgrade quickly (8 slow ticks),
+ * upgrade slowly (90 fast ones). Without that, a machine sitting near the
+ * threshold oscillates between two quality levels and the shield visibly
+ * pulses between sharp and soft.
+ */
+function _governQuality(elapsedMs: number): void {
+	if (elapsedMs > PLASMA_BUDGET_MS) {
+		_adaptiveUnderBudgetStreak = 0;
+		_adaptiveOverBudgetStreak++;
+		if (_adaptiveOverBudgetStreak >= DOWNGRADE_STREAK && _adaptiveRenderScale < MAX_RENDER_SCALE) {
+			_adaptiveOverBudgetStreak = 0;
+			_applyAdaptiveScale(_adaptiveRenderScale + 1);
+		}
+		return;
+	}
+
+	_adaptiveOverBudgetStreak = 0;
+	_adaptiveUnderBudgetStreak++;
+	if (_adaptiveUnderBudgetStreak >= UPGRADE_STREAK && _adaptiveRenderScale > 1) {
+		_adaptiveUnderBudgetStreak = 0;
+		_applyAdaptiveScale(_adaptiveRenderScale - 1);
+	}
+}
+
 function _tickAllFields(): void {
+	if (_activeFields.size === 0) {
+		return;
+	}
+
+	const started = performance.now();
 	for (const field of _activeFields) {
 		if (field.sprite.visible && field.sprite.inCamera !== false) {
 			field.tick();
 		}
 	}
+	// Only meaningful for the CPU path. Shader-backed fields cost a uniform write
+	// per tick, so timing them would just report noise and pin the governor at
+	// full resolution for no reason.
+	if (!_anyFieldUsesShader()) {
+		_governQuality(performance.now() - started);
+	}
+}
+
+/** Whether any live field is drawn by the fragment shader rather than the CPU loop. */
+function _anyFieldUsesShader(): boolean {
+	for (const field of _activeFields) {
+		if (field.usesShader) {
+			return true;
+		}
+	}
+	return false;
 }
 
 function _ensureTicker(): void {
 	if (_sharedTimer || !_sharedEngine) return;
+	// Seed from the display-derived floor so a rematch does not start at a
+	// stale adaptive tier from the previous one.
+	if (_adaptiveRenderScale < 1) {
+		_adaptiveRenderScale = computePlasmaRenderScale();
+	}
 	_sharedTimer = _sharedEngine.time.loop(1000 / SHARED_TICK_FPS, _tickAllFields);
 }
 
@@ -204,6 +315,9 @@ function _resetSharedState(): void {
 	_sharedTimer = null;
 	_sharedEngine = null;
 	_activeFields.clear();
+	_adaptiveRenderScale = computePlasmaRenderScale();
+	_adaptiveOverBudgetStreak = 0;
+	_adaptiveUnderBudgetStreak = 0;
 }
 
 function _registerField(field: PlasmaField): void {
@@ -261,10 +375,46 @@ export class PlasmaField {
 	onBurstEnd: (() => void) | null;
 	private fps: number;
 	private _staticMode: boolean;
+	private _plasmaFraction: number;
 	private _noCanvas = false;
+
+	/**
+	 * The GPU quad, when this field is running on the shader path.
+	 *
+	 * `null` on the CPU fallback (CANVAS renderer, headless NullEngine, or when
+	 * `staticMode` needs a single baked frame). The two paths are mutually
+	 * exclusive — `sprite` is whichever one is live, so callers above this class
+	 * (positioning, visibility, scale) do not need to care which is in use.
+	 */
+	private _shader: ShaderHandle | null = null;
+
+	/**
+	 * True when the field is drawn by the fragment shader rather than the CPU
+	 * per-pixel loop. The shader costs a single draw call regardless of how
+	 * many fields are on screen, so all of the CPU-path resolution machinery
+	 * (renderScale, quality governor, the glow pass) is skipped entirely.
+	 */
+	get usesShader(): boolean {
+		return this._shader !== null;
+	}
+
+	/**
+	 * Drives the field's line weight from the owning player's remaining plasma,
+	 * as a fraction of the plasma they allocated (1 = full, 0 = empty).
+	 *
+	 * Deliberately a plain setter rather than reading the player off the field:
+	 * `PlasmaField` has no gameplay knowledge, which keeps it unit-testable and
+	 * means the visual harness can sweep the whole range without a game.
+	 */
+	setPlasmaFraction(fraction: number): void {
+		this._plasmaFraction = fraction;
+	}
 
 	constructor(engine: GameEngine, x: number, y: number, opt: PlasmaFieldOptions = {}) {
 		this._engine = engine;
+		// Defaults to a full tank so any field created outside the Dark Priest
+		// path (tests, the visual harness) keeps the reference look.
+		this._plasmaFraction = 1;
 		this.w = opt.width || 192;
 		this.h = opt.height || 256;
 		this.cx = this.w / 2;
@@ -292,6 +442,61 @@ export class PlasmaField {
 		this.creature = opt.creature || null;
 		this.onBurstEnd = null;
 
+		// Prefer the GPU. It is exact (the GLSL is a verified port of the loop
+		// below), renders at full resolution, and costs the same for four shields
+		// as for one — the CPU path used ~15ms per field per frame at full res.
+		// `staticMode` asks for one baked frame with no animation, which only the
+		// CPU path can produce, so it keeps the old behaviour.
+		const canUseShader =
+			!this._staticMode &&
+			typeof engine.add?.shader === 'function' &&
+			engine.supportsShaders === true;
+
+		if (canUseShader) {
+			this.sprite = this._createShaderQuad(x, y);
+		} else {
+			this.sprite = this._createCpuSprite(x, y);
+		}
+
+		if (this._staticMode) {
+			this.draw();
+		} else {
+			_registerField(this);
+		}
+	}
+
+	/** GPU path: one fragment-shader quad, animated purely by uniforms. */
+	private _createShaderQuad(x: number, y: number): ShaderHandle {
+		const shader = this._engine.add.shader(
+			{
+				name: 'ABPlasmaField',
+				fragmentSource: PLASMA_FRAGMENT_SOURCE,
+				setupUniforms: (setUniform) => this._pushShaderUniforms(setUniform),
+			},
+			x,
+			y,
+			this.w,
+			this.h,
+			// Same group as the CPU path. The board display group is offset by
+			// (230, 380), so an un-parented quad would render off in the upper-left
+			// corner instead of over its creature.
+			this.parent,
+		);
+
+		// Phaser 4's Shader mixes in Origin, not Anchor; `setOrigin` is the
+		// equivalent of the CPU path's `anchor.set(0.5, 0.5)`.
+		(shader as unknown as { setOrigin?: (x: number, y: number) => void }).setOrigin?.(0.5, 0.5);
+		shader.scale.set(this.settings.scaleX, this.settings.scaleY);
+		// Shader has no Alpha component (`setAlpha` is a no-op), so opacity travels
+		// as the `uAlpha` uniform instead — see `_pushShaderUniforms`.
+		shader.blendMode = BLEND_MODE_ADD;
+
+		this._shader = shader;
+		return shader;
+	}
+
+	/** CPU path: a BitmapData-backed sprite redrawn by `draw()` every tick. */
+	private _createCpuSprite(x: number, y: number): SpriteHandle {
 		this.low = document.createElement('canvas');
 		this.low.width = this.rw;
 		this.low.height = this.rh;
@@ -306,27 +511,50 @@ export class PlasmaField {
 			this._imgData = ctx.createImageData(this.rw, this.rh);
 		}
 
-		this.bmd = engine.add.bitmapData(this.w, this.h);
+		this.bmd = this._engine.add.bitmapData(this.w, this.h);
 		// The handle is a live texture, so the sprite samples the pixels written
 		// into it below rather than falling back to the missing-texture image.
-		this.sprite = this.parent.create
+		const sprite = this.parent.create
 			? (this.parent.create(x, y, this.bmd) as SpriteHandle)
-			: engine.add.sprite(x, y, this.bmd);
-		this.sprite.anchor.set(0.5, 0.5);
-		this.sprite.scale.set(this.settings.scaleX, this.settings.scaleY);
-		this.sprite.alpha = this.alpha;
+			: this._engine.add.sprite(x, y, this.bmd);
+		sprite.anchor.set(0.5, 0.5);
+		sprite.scale.set(this.settings.scaleX, this.settings.scaleY);
+		sprite.alpha = this.alpha;
 		// Additive blending is what gives the shield its glow. `2` is MULTIPLY,
 		// not ADD (ADD is 1 in both Phaser 2 CE and Phaser 4), and multiplying
 		// muddies the highlight instead of blooming it — so use the constant.
 		// `BLEND_MODE_ADD` mirrors `BlendModes.ADD` rather than reading it off the
 		// Phaser namespace, so this also works on the headless NullEngine path.
-		this.sprite.blendMode = BLEND_MODE_ADD;
+		sprite.blendMode = BLEND_MODE_ADD;
+		return sprite;
+	}
 
-		if (this._staticMode) {
-			this.draw();
-		} else {
-			_registerField(this);
-		}
+	/** Push the current field state into the fragment shader's uniforms. */
+	private _pushShaderUniforms(setUniform: (name: string, value: number | number[]) => void): void {
+		const set = this.settings;
+		// `uRadius` is in normalised quad units: the CPU loop works in pixels with
+		// rx/ry over a w x h bitmap, so divide to get the same ellipse once the
+		// quad's own aspect is accounted for.
+		setUniform('uTime', this.time);
+		setUniform('uAlpha', this.alpha);
+		setUniform('uHueShift', set.hueShift);
+		setUniform('uRadius', [this.rx / this.w, this.ry / this.h]);
+		setUniform('uFlowSpeed', set.flowSpeed);
+		setUniform('uWrap3D', set.wrap3d);
+		setUniform('uDensity', set.density);
+		setUniform('uThickness', set.thickness);
+		setUniform('uSkin', set.skin);
+		setUniform('uContrast', set.contrast);
+		setUniform('uBackSurface', set.backSurface);
+		setUniform('uTransparency', set.transparency);
+		setUniform('uBottomFade', set.bottomFade);
+		setUniform('uBottomFadeCurve', set.bottomFadeCurve);
+		setUniform('uBurst', this.burstPower * set.blockPower);
+		// Same helper the CPU loop calls, so the two renderers agree on band
+		// weight for the same field on the same tick.
+		const look = plasmaLookFor(this._plasmaFraction);
+		setUniform('uBandWiden', look.bandWiden);
+		setUniform('uBandGain', look.bandGain);
 	}
 
 	private band(s: number, center: number, width: number): number {
@@ -379,7 +607,9 @@ export class PlasmaField {
 	}
 
 	private draw(): void {
-		if (this._noCanvas) return;
+		// CPU fallback only. On the GPU path the effect lives in a fragment shader
+		// and `tick()` just writes uniforms, so there is nothing to rasterise.
+		if (this._noCanvas || this._shader) return;
 		const set = this.settings;
 		const ctx = this.lowCtx;
 		const img = this._imgData;
@@ -411,6 +641,9 @@ export class PlasmaField {
 		const dens = set.density;
 		const thick = set.thickness;
 		const backSurf = set.backSurface;
+		// Resolved once per frame, outside the pixel loop: band weight tracks the
+		// owner's remaining plasma, and it is constant across the whole field.
+		const look = plasmaLookFor(this._plasmaFraction);
 
 		let idx = 0;
 
@@ -450,16 +683,72 @@ export class PlasmaField {
 				const back = this.surfaceScalar(thetaBack, v, -sideDepth, mtBack, true);
 
 				let f = 0;
-				f = Math.max(f, this.band(front.s * dens, -0.54 + 0.08 * sin_t_1_8, 0.078 * thick));
-				f = Math.max(f, this.band(front.s * dens, -0.2 + 0.07 * sin_t_2_4_1_5, 0.07 * thick));
-				f = Math.max(f, this.band(front.s * dens, 0.14 + 0.08 * sin_t_2_0_2_2, 0.075 * thick));
-				f = Math.max(f, this.band(front.s * dens, 0.48 + 0.06 * sin_t_2_8_0_7, 0.066 * thick));
+				f = Math.max(
+					f,
+					this.band(
+						front.s * dens,
+						-0.54 + 0.08 * sin_t_1_8,
+						PLASMA_LOOK.bandWidths[0] * look.bandWiden * thick,
+					),
+				);
+				f = Math.max(
+					f,
+					this.band(
+						front.s * dens,
+						-0.2 + 0.07 * sin_t_2_4_1_5,
+						PLASMA_LOOK.bandWidths[1] * look.bandWiden * thick,
+					),
+				);
+				f = Math.max(
+					f,
+					this.band(
+						front.s * dens,
+						0.14 + 0.08 * sin_t_2_0_2_2,
+						PLASMA_LOOK.bandWidths[2] * look.bandWiden * thick,
+					),
+				);
+				f = Math.max(
+					f,
+					this.band(
+						front.s * dens,
+						0.48 + 0.06 * sin_t_2_8_0_7,
+						PLASMA_LOOK.bandWidths[3] * look.bandWiden * thick,
+					),
+				);
 
 				let b = 0;
-				b = Math.max(b, this.band(back.s * dens, -0.5 + 0.08 * sin_t_1_5, 0.078 * thick));
-				b = Math.max(b, this.band(back.s * dens, -0.15 + 0.07 * sin_t_2_1_1_4, 0.07 * thick));
-				b = Math.max(b, this.band(back.s * dens, 0.2 + 0.08 * sin_t_2_4_2_0, 0.075 * thick));
-				b = Math.max(b, this.band(back.s * dens, 0.52 + 0.06 * sin_t_2_3_0_8, 0.066 * thick));
+				b = Math.max(
+					b,
+					this.band(
+						back.s * dens,
+						-0.5 + 0.08 * sin_t_1_5,
+						PLASMA_LOOK.bandWidths[0] * look.bandWiden * thick,
+					),
+				);
+				b = Math.max(
+					b,
+					this.band(
+						back.s * dens,
+						-0.15 + 0.07 * sin_t_2_1_1_4,
+						PLASMA_LOOK.bandWidths[1] * look.bandWiden * thick,
+					),
+				);
+				b = Math.max(
+					b,
+					this.band(
+						back.s * dens,
+						0.2 + 0.08 * sin_t_2_4_2_0,
+						PLASMA_LOOK.bandWidths[2] * look.bandWiden * thick,
+					),
+				);
+				b = Math.max(
+					b,
+					this.band(
+						back.s * dens,
+						0.52 + 0.06 * sin_t_2_3_0_8,
+						PLASMA_LOOK.bandWidths[3] * look.bandWiden * thick,
+					),
+				);
 
 				const crackleF =
 					0.7 +
@@ -491,14 +780,22 @@ export class PlasmaField {
 					1,
 				);
 
-				let alpha = 0;
-				if (intensity > 0.038) alpha = intensity * 124 + core * 42;
+				// Mirrors the shader's anti-aliased onset. The hard `if (intensity > 0.038)`
+				// that used to guard this cut the first band in with a stair-stepped
+				// rim; ramping over the same threshold fades the silhouette in.
+				const onset = smoothstep(PLASMA_LOOK.onsetLow, PLASMA_LOOK.onsetHigh, intensity);
+				let alpha =
+					(intensity * PLASMA_LOOK.alphaIntensity + core * PLASMA_LOOK.alphaCore) *
+					look.bandGain *
+					onset;
 
+				// Rim-weighted aura: weighting it towards `edge` alone still spread a
+				// milky film across the whole shield and hid the board behind it.
 				const aura =
-					(0.018 + 0.028 * sin(t * 2.6 + v * 10.0 + thetaFront * 0.6)) *
-					(0.18 + 0.82 * edge) *
+					(0.018 + 0.028 * Math.sin(t * 2.6 + v * 10.0 + thetaFront * 0.6)) *
+					(PLASMA_LOOK.auraEdgeBase + PLASMA_LOOK.auraEdgeWeight * edge) *
 					bottomMask;
-				alpha += aura * 30;
+				alpha += aura * PLASMA_LOOK.auraAmount;
 				alpha = clamp(alpha * set.transparency, 0, 185);
 
 				const rr = 116 + 126 * Math.min(1, intensity) + 58 * core + 8 * sideDepth * f;
@@ -507,9 +804,14 @@ export class PlasmaField {
 
 				const hue = hueRotateRgb(rr, gg, bb, set.hueShift);
 
-				data[idx] = clamp(hue.r, 0, 255);
-				data[idx + 1] = clamp(hue.g, 0, 255);
-				data[idx + 2] = clamp(hue.b, 0, 255);
+				// Only the body of each wave carries the player's hue; the crest
+				// burns toward white, mixed in after the rotation so the caps stay
+				// white instead of being dragged to one flat tinted wash.
+				const white = core * PLASMA_LOOK.crestWhite * onset;
+
+				data[idx] = clamp(hue.r + (255 - hue.r) * white, 0, 255);
+				data[idx + 1] = clamp(hue.g + (255 - hue.g) * white, 0, 255);
+				data[idx + 2] = clamp(hue.b + (255 - hue.b) * white, 0, 255);
 				data[idx + 3] = alpha;
 			}
 		}
@@ -521,13 +823,6 @@ export class PlasmaField {
 		out.clearRect(0, 0, this.w, this.h);
 		out.imageSmoothingEnabled = true;
 		out.drawImage(this.low, 0, 0, this.w, this.h);
-
-		out.save();
-		out.globalCompositeOperation = 'lighter';
-		out.shadowColor = 'rgba(255, 34, 230,' + (0.18 + burst * 0.08) + ')';
-		out.shadowBlur = 8 + burst * 5;
-		out.drawImage(this.bmd.canvas, 0, 0);
-		out.restore();
 
 		// Block outline using the same bottom-fade idea as the plasma body.
 		// Only shown when the plasma field ability is upgraded and burstPower is active.
@@ -600,15 +895,59 @@ export class PlasmaField {
 		// Steady animation step. The shared ticker fires at a fixed rate, so
 		// advancing by a constant keeps the plasma flowing smoothly regardless
 		// of how many fields are currently on screen.
-		this.time += 1 / 24;
+		//
+		// Scaled down from the tick rate to give the surface a slow, lava-lamp
+		// drift rather than a busy churn. This is purely cosmetic and costs
+		// nothing: both paths evaluate the same per-pixel work regardless of how
+		// fast the clock advances.
+		this.time += (1 / 24) * PLASMA_ANIMATION_SPEED;
+		if (this.advanceBurst()) {
+			// The field destroyed itself as the burst finished; its sprite is gone.
+			return;
+		}
+		if (this._shader) {
+			// GPU path: the effect is a fragment shader, so animating it is just a
+			// uniform write. No per-pixel work, no canvas, no upload — which is the
+			// entire point of the port.
+			this._pushShaderUniforms((name, value) => this._shader?.setUniform(name, value));
+			return;
+		}
+		this.draw();
+	};
+
+	/**
+	 * Decay the burst flash and fire `onBurstEnd` once it has fully faded.
+	 *
+	 * `onBurstEnd` is how callers defer tearing the field down until the block
+	 * flash has actually played. Nothing invoked it, so a deferred removal never
+	 * completed: the field stayed registered on the shared ticker and kept
+	 * redrawing every frame for the rest of the match.
+	 *
+	 * Runs from {@link tick} while visible, and once more from {@link setVisible}
+	 * when hiding — an invisible field is unregistered from the ticker, so its
+	 * burst would otherwise stop decaying and the callback would dangle forever.
+	 *
+	 * @returns `true` when the field destroyed itself and must not draw.
+	 */
+	private advanceBurst(): boolean {
 		if (this.burstPower > 0) {
 			this.burstPower = Math.max(0, this.burstPower - 0.08);
 		}
 		if (this.outlinePower > 0) {
 			this.outlinePower = Math.max(0, this.outlinePower - 0.03);
 		}
-		this.draw();
-	};
+
+		if (this.onBurstEnd && this.burstPowerVisible <= 0) {
+			const onBurstEnd = this.onBurstEnd;
+			// Clear before invoking: the callback destroys this field, and a
+			// re-entrant tick would otherwise fire the callback a second time.
+			this.onBurstEnd = null;
+			onBurstEnd();
+			return true;
+		}
+
+		return false;
+	}
 
 	/** Position the field relative to the Dark Priest cardboard sprite. */
 	positionTo(target: SpriteHandle, offsetX: number, offsetY: number): void {
@@ -621,6 +960,16 @@ export class PlasmaField {
 		if (visible && !this._staticMode) {
 			_registerField(this);
 		} else if (!visible && !this._staticMode) {
+			// A hidden field is unregistered from the shared ticker, so nothing
+			// would ever decay its burst or fire `onBurstEnd`. Since the field is
+			// invisible anyway there is no flash left to play, so snap the burst
+			// to its end: a removal deferred while hidden completes immediately
+			// instead of waiting on a callback nothing can run.
+			this.burstPower = 0;
+			this.outlinePower = 0;
+			if (this.advanceBurst()) {
+				return;
+			}
 			_unregisterField(this);
 		}
 	}
@@ -636,6 +985,11 @@ export class PlasmaField {
 			if (key === 'scaleX' || key === 'scaleY') {
 				this.sprite.scale.set(this.settings.scaleX, this.settings.scaleY);
 			}
+			// On the GPU path every setting is a uniform, so a change only reaches
+			// the screen on the next tick. Push now so the change is immediate.
+			if (this._shader) {
+				this._pushShaderUniforms((n, v) => this._shader?.setUniform(n, v));
+			}
 		}
 	}
 
@@ -643,11 +997,20 @@ export class PlasmaField {
 		_unregisterField(this);
 		this.onBurstEnd = null;
 		if (this.sprite && this.sprite.destroy) this.sprite.destroy();
+		// Only the CPU path owns a BitmapData; the GPU path has no backing
+		// texture to free (the shader quad holds its own).
 		if (this.bmd && this.bmd.destroy) this.bmd.destroy();
+		this._shader = null;
 	}
 
-	/** Recompute the effective render scale from the display-derived factor. */
+	/**
+	 * Recompute the effective render scale from the display-derived factor.
+	 *
+	 * CPU path only: it trades internal resolution for fill rate. The shader path
+	 * has no internal resolution to change, so it always renders at full size.
+	 */
 	updateRenderScale(displayScale: number): void {
+		if (this._shader) return;
 		this.displayRenderScale = displayScale > 1 ? displayScale : 1;
 		const effective = Math.max(this.baseRenderScale, this.displayRenderScale);
 		if (this.renderScale === effective) return;
