@@ -122,6 +122,34 @@ export interface SpriteHandle {
 	mask: any;
 }
 
+// ─── Procedural shader ─────────────────────────────────────────────────────────
+
+/**
+ * Config for a fully procedural fragment shader, mirroring the subset of
+ * Phaser 4's `ShaderQuadConfig` the engine exposes.
+ */
+export interface ShaderConfigHandle {
+	/** Unique render-node name for this shader. */
+	name: string;
+	/** GLSL ES 1.00 fragment source. */
+	fragmentSource: string;
+	/** Uniform values applied before the first render and on demand. */
+	initialUniforms?: Record<string, number | number[]>;
+	/** Called each render with a `setUniform(name, value)` sink. */
+	setupUniforms?: (setUniform: (name: string, value: number | number[]) => void) => void;
+}
+
+/**
+ * A procedural shader quad.
+ *
+ * Phaser 4's `Shader` mixes in `BlendMode` but NOT `Alpha`, and its
+ * `setAlpha()` is a documented no-op — opacity has to be applied inside the
+ * fragment shader. It also has no `inCamera`.
+ */
+export interface ShaderHandle extends SpriteHandle {
+	setUniform(name: string, value: number | number[]): void;
+}
+
 // ─── Group ────────────────────────────────────────────────────────────────────
 
 export interface GroupHandle {
@@ -255,8 +283,14 @@ export interface GameEngine {
 	add: {
 		socket(x: number, y: number, key: TextureKeyLike, frame?: string): SpriteHandle;
 		image(x: number, y: number, key: TextureKeyLike, frame?: string): SpriteHandle;
-		sprite(x: number, y: number, key: TextureKeyLike, frame?: string): SpriteHandle;
-		text(x: number, y: number, text: string, style?: any): SpriteHandle;
+		sprite(
+			x: number,
+			y: number,
+			key: TextureKeyLike,
+			frame?: string,
+			parent?: GroupHandle,
+		): SpriteHandle;
+		text(x: number, y: number, text: string, style?: any, parent?: GroupHandle): SpriteHandle;
 		graphics(x?: number, y?: number, parent?: GroupHandle): SpriteHandle;
 		group(parent?: GroupHandle, name?: string): GroupHandle;
 		tileSprite(
@@ -268,6 +302,23 @@ export interface GameEngine {
 			frame?: string,
 		): SpriteHandle;
 		bitmapData(w: number, h: number): BitmapDataHandle;
+		/**
+		 * A fully procedural fragment-shader quad. Only functional on the WebGL
+		 * renderer — see {@link GameEngine.supportsShaders}.
+		 *
+		 * Pass `parent` to place the quad inside a group: groups are backed by
+		 * `Container`, so the quad then inherits the group's transform and ordering.
+		 * Without it the quad sits at un-offset scene coordinates, which is
+		 * visibly wrong for anything parented to the offset board display group.
+		 */
+		shader(
+			config: ShaderConfigHandle,
+			x: number,
+			y: number,
+			w: number,
+			h: number,
+			parent?: GroupHandle,
+		): ShaderHandle;
 	};
 
 	make: {
@@ -318,4 +369,14 @@ export interface GameEngine {
 
 	// Signals
 	signals: Record<string, SignalHandle>;
+
+	/**
+	 * Whether `add.shader` produces a working fragment shader.
+	 *
+	 * False on the CANVAS renderer (Phaser 4's `ShaderCanvasRenderer` is an empty
+	 * stub, so a shader silently renders nothing) and on the headless NullEngine.
+	 * Callers that can render acceptably without a shader must check this and
+	 * fall back rather than assume a blank quad is a rendering bug.
+	 */
+	supportsShaders: boolean;
 }

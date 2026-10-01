@@ -26,6 +26,7 @@ import type {
 	GameEngine,
 	GroupHandle,
 	ScaleHandle,
+	ShaderHandle,
 	SignalHandle,
 	SpriteHandle,
 	TextureKeyLike,
@@ -83,7 +84,7 @@ class NullTween implements TweenHandle {
 		ctx?: any;
 		once: boolean;
 	}> = [];
-	private readonly updateHandlers: Array<(target: any) => void> = [];
+	private readonly updateHandlers: Array<{ fn: (target: any) => void; ctx?: any }> = [];
 
 	// Declared explicitly rather than as a constructor parameter property:
 	// @babel/preset-typescript (used by Jest) does not strip parameter
@@ -137,8 +138,8 @@ class NullTween implements TweenHandle {
 		return this;
 	}
 
-	onUpdateCallback(cb: (...args: any[]) => void): TweenHandle {
-		this.updateHandlers.push(cb);
+	onUpdateCallback(cb: (...args: any[]) => void, context?: any): TweenHandle {
+		this.updateHandlers.push({ fn: cb, ctx: context });
 		return this;
 	}
 
@@ -156,7 +157,7 @@ class NullTween implements TweenHandle {
 			}
 			(this.target as Record<string, any>)[key] = value;
 		}
-		for (const cb of this.updateHandlers) cb(this.target);
+		for (const handler of this.updateHandlers) handler.fn.call(handler.ctx, this.target);
 	}
 
 	private completeOnce(): void {
@@ -690,6 +691,12 @@ export class NullEngine implements GameEngine {
 
 	public readonly signals: Record<string, SignalHandle> = {};
 
+	/**
+	 * Headless: there is no renderer, so no fragment shader can run. Effects that
+	 * can render acceptably another way check this and fall back.
+	 */
+	public readonly supportsShaders = false;
+
 	public readonly load: GameEngine['load'] = {
 		progress: 100,
 		onFileComplete: new NullSignal(),
@@ -732,6 +739,28 @@ export class NullEngine implements GameEngine {
 			return sprite;
 		},
 		bitmapData: (w, h) => new NullBitmapData(w, h),
+		/**
+		 * An inert quad. Headless runs never rasterise anything, so this exists
+		 * only so shader-backed visuals can construct and tear down without
+		 * crashing — `supportsShaders` is `false`, which is the signal callers
+		 * use to pick a non-shader path anyway.
+		 */
+		shader: (config, x, y, w, h, parent) => {
+			const sprite = makeSprite(x, y, config.name);
+			sprite.width = w;
+			sprite.height = h;
+			sprite.setUniform = (uniformName: string, value: number | number[]) => {
+				if (config.initialUniforms) {
+					config.initialUniforms[uniformName] = value;
+				}
+			};
+			if (parent) {
+				parent.add(sprite);
+				sprite.x = x;
+				sprite.y = y;
+			}
+			return sprite as ShaderHandle;
+		},
 	};
 
 	public readonly make: GameEngine['make'] = {

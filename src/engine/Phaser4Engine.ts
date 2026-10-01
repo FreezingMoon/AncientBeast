@@ -9,6 +9,8 @@ import type {
 	GameEngine,
 	GroupHandle,
 	ScaleHandle,
+	ShaderConfigHandle,
+	ShaderHandle,
 	SpriteHandle,
 	TextureKeyLike,
 	TimerHandle,
@@ -74,10 +76,40 @@ export class Phaser4Engine implements GameEngine {
 				this.add.sprite(x, y, key, frame),
 			image: (x: number, y: number, key: TextureKeyLike, frame?: string): SpriteHandle =>
 				wrapGameObject(this.scene.add.image(x, y, toTextureKey(key), frame)),
-			sprite: (x: number, y: number, key: TextureKeyLike, frame?: string): SpriteHandle =>
-				wrapGameObject(this.scene.add.sprite(x, y, toTextureKey(key), frame)),
-			text: (x: number, y: number, text: string, style?: AnyObject): SpriteHandle =>
-				wrapGameObject(this.scene.add.text(x, y, text, style)),
+			sprite: (
+				x: number,
+				y: number,
+				key: TextureKeyLike,
+				frame?: string,
+				parent?: GroupHandle,
+			): SpriteHandle => {
+				const sprite = wrapGameObject(this.scene.add.sprite(0, 0, toTextureKey(key), frame));
+				if (parent) {
+					parent.add(sprite);
+					sprite.x = x;
+					sprite.y = y;
+				} else {
+					sprite.setPosition(x, y);
+				}
+				return sprite;
+			},
+			text: (
+				x: number,
+				y: number,
+				text: string,
+				style?: AnyObject,
+				parent?: GroupHandle,
+			): SpriteHandle => {
+				const txt = wrapGameObject(this.scene.add.text(0, 0, text, style));
+				if (parent) {
+					parent.add(txt);
+					txt.x = x;
+					txt.y = y;
+				} else {
+					txt.setPosition(x, y);
+				}
+				return txt;
+			},
 			graphics: (x?: number, y?: number, parent?: GroupHandle): SpriteHandle => {
 				const graphics = this.scene.add.graphics({ x, y });
 				if (parent) parent.add(graphics);
@@ -104,6 +136,51 @@ export class Phaser4Engine implements GameEngine {
 			): SpriteHandle =>
 				wrapGameObject(this.scene.add.tileSprite(x, y, w, h, toTextureKey(key), frame)),
 			bitmapData: (w: number, h: number) => this.make.bitmapData(w, h),
+			/**
+			 * Phaser 4's `Shader` game object: a quad running a fragment shader.
+			 *
+			 * Note this replaces Phaser 3's `preFX` / `postFX`, which Phaser 4
+			 * removed — the FX system became *Filters* and custom shaders are
+			 * RenderNodes. A fully procedural effect needs neither: a Shader quad
+			 * is the direct route, and unlike a Filter it needs no node
+			 * registration and no `enableFilters()`.
+			 *
+			 * The returned quad mixes in `BlendMode` but NOT `Alpha` (`setAlpha`
+			 * is a no-op), so callers apply opacity inside the fragment shader.
+			 */
+			shader: (
+				config: ShaderConfigHandle,
+				x: number,
+				y: number,
+				w: number,
+				h: number,
+				parent?: GroupHandle,
+			): ShaderHandle => {
+				const shaderConfig = {
+					name: config.name,
+					fragmentSource: config.fragmentSource,
+					...(config.initialUniforms ? { initialUniforms: { ...config.initialUniforms } } : {}),
+					...(config.setupUniforms
+						? {
+								setupUniforms: (setUniform: (name: string, value: number | number[]) => void) =>
+									config.setupUniforms?.(setUniform),
+						  }
+						: {}),
+				};
+				const shader = this.scene.add.shader(shaderConfig, x, y, w, h);
+				if (parent) {
+					// Groups are Containers, so children inherit the group's
+					// transform — the board display group is offset by (230, 380).
+					// `scene.add` also registered the quad in the scene display list,
+					// where it would keep rendering at un-offset coordinates as a
+					// second copy, so detach it before re-parenting.
+					this.scene.children.remove(shader);
+					parent.add(shader);
+					shader.x = x;
+					shader.y = y;
+				}
+				return wrapGameObject(shader) as unknown as ShaderHandle;
+			},
 		};
 	}
 
@@ -221,7 +298,11 @@ export class Phaser4Engine implements GameEngine {
 
 	/** Called from the scene's `update()` so `time.elapsedMS` keeps working. */
 	advanceClock(delta: number): void {
-		this._elapsedMS += delta;
+		// phaser-ce (`src/time/Time.js`) sets `elapsedMS = this.time - previousDateNow`,
+		// i.e. the delta since the last update — NOT cumulative time. Callers such as
+		// the Infernal glow accumulate it into a `uTime` uniform, so accumulating here
+		// would drive their animations at the frame rate times too fast.
+		this._elapsedMS = delta;
 	}
 
 	// ─── Scale ──────────────────────────────────────────────────────────────
@@ -364,6 +445,16 @@ export class Phaser4Engine implements GameEngine {
 		return { disableVisibilityChange: false, forcePortrait: false };
 	}
 
+	/**
+	 * Phaser 4's `Shader` has no renderer under CANVAS (`ShaderCanvasRenderer` is
+	 * an empty stub that draws nothing), so a shader would silently produce an
+	 * invisible object. This is the same `renderer.gl` discriminator Phaser's own
+	 * code uses internally.
+	 */
+	get supportsShaders(): boolean {
+		return Boolean((this.phaser.renderer as AnyObject | undefined)?.gl);
+	}
+
 	// ─── Lifecycle ──────────────────────────────────────────────────────────
 
 	destroy(): void {
@@ -379,75 +470,152 @@ export class Phaser4Engine implements GameEngine {
 // ─── Tween adapter ───────────────────────────────────────────────────────────
 
 class TweenAdapter implements TweenHandle {
-	private tween: Phaser.Tweens.Tween;
 	private readonly scene: Phaser.Scene;
+	private chainSteps: Array<{
+		props: Record<string, any>;
+		duration: number;
+		ease?: string | ((k: number) => number);
+		delay?: number;
+		repeat?: number;
+		yoyo?: boolean;
+	}> = [];
+	private chain: Phaser.Tweens.TweenChain | null = null;
+	private readonly targets: any[];
+	private _started = false;
 
-	constructor(scene: Phaser.Scene, tween: Phaser.Tweens.Tween) {
+	constructor(scene: Phaser.Scene, initialTween: Phaser.Tweens.Tween) {
 		this.scene = scene;
-		this.tween = tween;
+		this.targets = initialTween.targets as any[];
+		initialTween.stop();
+		initialTween.destroy();
 	}
 
-	private get liveScene(): Phaser.Scene {
-		// Phaser 4 tweens reach the scene through their owning TweenManager.
-		return (this.tween.parent as Phaser.Tweens.TweenManager | undefined)?.scene ?? this.scene;
+	private buildChain(): Phaser.Tweens.TweenChain | null {
+		if (this.chainSteps.length === 0) {
+			return null;
+		}
+		const tweens = this.chainSteps.map((step, i) => ({
+			targets: this.targets,
+			duration: step.duration,
+			ease: step.ease,
+			delay: step.delay ?? (i === 0 ? 0 : undefined),
+			repeat: step.repeat,
+			yoyo: step.yoyo,
+			...step.props,
+		}));
+		return this.scene.tweens.chain({ tweens });
+	}
+
+	private stopCurrentChain(): void {
+		this.chain?.stop();
 	}
 
 	to(
 		props: Record<string, any>,
 		duration: number,
 		easing?: string | ((k: number) => number),
-		autoStart = true,
+		autoStart = false,
 		delay = 0,
 		repeat = 0,
 		yoyo = false,
 	): TweenHandle {
-		this.tween.stop();
-		this.tween = this.liveScene.tweens.add({
-			targets: this.tween.targets,
-			duration,
-			ease: easing as any,
-			delay,
-			repeat,
-			yoyo,
-			paused: !autoStart,
-			...props,
-		});
+		this.chainSteps.push({ props, duration, ease: easing, delay, repeat, yoyo });
+		if (autoStart && !this._started) {
+			// First auto-starting step: build and play immediately.
+			this.stopCurrentChain();
+			this.chain = this.buildChain();
+			this.chain?.play();
+			this._started = true;
+		} else if (autoStart && this._started) {
+			// Subsequent auto-starting steps: rebuild chain but don't play yet.
+			// The final explicit .start() will play the complete chain once.
+			this.stopCurrentChain();
+			this.chain = this.buildChain();
+		}
 		return this;
 	}
 
 	start(): TweenHandle {
-		this.tween.play();
+		if (!this.chain) {
+			this.chain = this.buildChain();
+		}
+		if (this._started) {
+			// Already auto-played a partial chain; restart the complete one.
+			this.stopCurrentChain();
+		}
+		this.chain?.play();
+		this._started = true;
 		return this;
 	}
 
 	stop(): TweenHandle {
-		this.tween.stop();
+		this.stopCurrentChain();
 		return this;
 	}
 
-	/** Phaser 4 moved `yoyo` onto each tween data entry rather than the tween. */
 	yoyo(enable = true): TweenHandle {
-		this.tween.data.forEach((entry) => {
-			entry.yoyo = enable;
-		});
+		this.chainSteps.forEach((s) => (s.yoyo = enable));
+		if (this.chain) {
+			this.stopCurrentChain();
+			this.chain = this.buildChain();
+			if (this._started) this.chain?.play();
+		}
 		return this;
 	}
 
-	/** Phaser 4 renamed the tween-level repeat count to `loop`. */
 	repeat(count = 1): TweenHandle {
-		this.tween.loop = count;
+		this.chainSteps.forEach((s) => (s.repeat = count));
+		if (this.chain) {
+			this.stopCurrentChain();
+			this.chain = this.buildChain();
+			if (this._started) this.chain?.play();
+		}
 		return this;
 	}
 
 	get onComplete() {
+		const self = this;
 		return {
-			add: (cb: (...args: any[]) => void) => this.tween.on('complete', cb),
-			addOnce: (cb: (...args: any[]) => void) => this.tween.once('complete', cb),
+			add: (cb: (...args: any[]) => void, context?: any) => {
+				if (self.chain) {
+					self.chain.on('complete', cb, context);
+				} else {
+					// No chain built yet (no steps). Attach when chain is created.
+					const originalStart = self.start.bind(self);
+					self.start = function () {
+						originalStart();
+						if (self.chain) self.chain.on('complete', cb, context);
+						return self;
+					} as typeof self.start;
+				}
+			},
+			addOnce: (cb: (...args: any[]) => void, context?: any) => {
+				if (self.chain) {
+					self.chain.once('complete', cb, context);
+				} else {
+					const originalStart = self.start.bind(self);
+					self.start = function () {
+						originalStart();
+						if (self.chain) self.chain.once('complete', cb, context);
+						return self;
+					} as typeof self.start;
+				}
+			},
 		};
 	}
 
-	onUpdateCallback(cb: (...args: any[]) => void): TweenHandle {
-		this.tween.on('update', cb);
-		return this;
+	onUpdateCallback(cb: (...args: any[]) => void, context?: any): TweenHandle {
+		const self = this;
+		if (!self.chain) {
+			const originalStart = self.start.bind(self);
+			self.start = function () {
+				originalStart();
+				if (self.chain) self.chain.on('update', cb, context);
+				return self;
+			};
+		} else {
+			self.chain.on('update', cb, context);
+		}
+		return self;
 	}
 }
