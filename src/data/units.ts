@@ -282,7 +282,7 @@ export const unitData: UnitDataStructure = [
 			initiative: 100,
 			offense: 14,
 			defense: 5,
-			movement: 7,
+			movement: 5,
 			pierce: 8,
 			slash: 8,
 			crush: 6,
@@ -3639,7 +3639,7 @@ export const unitData: UnitDataStructure = [
 			initiative: 70,
 			offense: 1,
 			defense: 8,
-			movement: 9,
+			movement: 7,
 			pierce: 7,
 			slash: 7,
 			crush: 3,
@@ -3656,7 +3656,7 @@ export const unitData: UnitDataStructure = [
 			movement: 1,
 			defense: 2,
 		},
-		movementType: 'hover',
+		movementType: 'flying',
 		animation: {
 			walk_speed: 180,
 		},
@@ -3669,9 +3669,9 @@ export const unitData: UnitDataStructure = [
 		ability_info: [
 			{
 				title: 'Wing Feathers',
-				desc: 'Can fly to available locations within movement range, avoiding all traps.',
+				desc: 'Can fly to available locations within movement range, avoiding obstacles.',
 				info: 'Safely travel towards new locations.',
-				upgrade: 'Flight over all units as well.',
+				upgrade: 'Stores unused movement.',
 			},
 			{
 				title: 'Slicing Pounce',

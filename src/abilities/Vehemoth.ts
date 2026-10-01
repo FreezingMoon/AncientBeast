@@ -610,34 +610,28 @@ export default (G: Game) => {
 					sprite.anchor.setTo(0, 0.5); // Center-left
 					sprite.rotation = shotAngle;
 
-					// Vertical clipping line slightly inside the nose cavity.
-					const revealMask = G.gameEngine.add.graphics(0, 0, G.grid.creatureGroup);
-					const outwardClipPx = 2;
-					const maskLineNudgeX = -3;
-					const shotDirX = Math.cos(shotAngle);
-					const shotGoesRightAtFire = shotDirX >= 0;
-					const clipX =
-						noseWorldX + (shotGoesRightAtFire ? outwardClipPx : -outwardClipPx) + maskLineNudgeX;
-					revealMask.beginFill(0xffffff);
-					if (shotGoesRightAtFire) {
-						revealMask.drawRect(clipX, -2000, 5000, 4000);
-					} else {
-						revealMask.drawRect(-2000, -2000, clipX + 2000, 4000);
-					}
-					revealMask.endFill();
-					sprite.mask = revealMask;
-
 					const travelDistance = Math.hypot(impactPoint.x - startX, impactPoint.y - startY);
 					const duration = Math.max(180, Math.min(420, travelDistance * 0.6));
+
+					// The arrow is born inside the nose cavity, so it fades in over the
+					// first stretch of its flight rather than being revealed by a geometry
+					// mask: Phaser 4 only applies those in the Canvas renderer, and a
+					// Graphics mask left in the creature group paints its own fill — a
+					// screen-wide white slab over the board — instead of clipping.
+					const revealDuration = Math.max(100, Math.min(240, travelDistance * 0.25));
+					sprite.alpha = 0;
+					G.gameEngine
+						.tween(sprite)
+						.to({ alpha: 1 }, revealDuration, Easing.Quadratic.Out, true)
+						.start();
+
 					const tween = G.gameEngine
 						.tween(sprite)
 						.to({ x: impactPoint.x, y: impactPoint.y }, duration, Easing.Linear.None)
 						.start();
 
 					tween.onComplete.add(() => {
-						sprite.mask = null;
 						sprite.destroy();
-						revealMask.destroy();
 						target.takeDamage(damage);
 						if (isBackwardsShot) {
 							vehemoth.facePlayerDefault();

@@ -194,7 +194,7 @@ export class Chat {
 						: stat === 'endurance'
 						? `${creature.endurance}/${creature.stats[stat]}`
 						: stat === 'movement'
-						? `${creature.remainingMove}/${creature.stats[stat]}`
+						? `${creature.remainingMove}/${creature.maxMovement}`
 						: creature.stats[stat];
 
 				return `

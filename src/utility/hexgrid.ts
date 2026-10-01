@@ -266,6 +266,14 @@ export class HexGrid {
 	overlayHexesGroup: any;
 	dropGroup: any;
 	creatureGroup: any;
+	/**
+	 * A sibling of {@link creatureGroup} holding Infernal's smoke. Smoke is
+	 * deliberately not parented to the cardboard: a child of the moving group is
+	 * dragged along by the group's position tween, so it slides with the unit
+	 * instead of hanging in the air where it was released. Here it stays put and
+	 * the unit walks out from under it.
+	 */
+	infernalSmokeGroup: any;
 	healthIndicatorUiGroup: any;
 	trapOverGroup: any;
 	selectedHex: Hex;
@@ -285,8 +293,27 @@ export class HexGrid {
 		return isLocalPlayerTurn ? normalCursor : 'wait';
 	}
 
+	/** Memoised backing store for {@link allhexes}. See the getter for why. */
+	private _allhexes: Hex[] | null = null;
+
+	/**
+	 * Every hex in the grid, row-major.
+	 *
+	 * Memoised: this used to be `this.hexes.flat(1)`, which rebuilt a fresh
+	 * ~130-element array on *every* read. `allhexes` is read at 100 Hz by the UI
+	 * glow interval and several more times per hex hover, so that was tens of
+	 * thousands of pointless element copies per second. The grid is populated
+	 * once in the constructor (:367-375) and never mutated afterwards, so the
+	 * flattened array is built lazily once and then reused.
+	 *
+	 * The array is shared, so treat it as read-only — callers that need to
+	 * modify it must copy (`.slice()` / `.filter()`) first.
+	 */
 	get allhexes(): Hex[] {
-		return this.hexes.flat(1);
+		if (!this._allhexes) {
+			this._allhexes = this.hexes.flat(1);
+		}
+		return this._allhexes;
 	}
 
 	/**
@@ -334,6 +361,20 @@ export class HexGrid {
 		this.overlayHexesGroup = game.gameEngine.add.group(this.gridGroup, 'overlayHexesGroup');
 		this.dropGroup = game.gameEngine.add.group(this.display, 'dropGrp');
 		this.creatureGroup = game.gameEngine.add.group(this.display, 'creaturesGrp');
+		// Behind the creatures so smoke never draws over a unit, but not a child of
+		// any creature group, so it does not travel with one.
+		this.infernalSmokeGroup = game.gameEngine.add.group(this.display, 'infernalSmokeGrp');
+		// `add.group(display, …)` appends, which would put the smoke in front of
+		// every creature. Move it back to sit just below the creature layer.
+		const smokeIndex = this.display.children.indexOf(this.infernalSmokeGroup);
+		if (smokeIndex > 0) {
+			this.display.children.splice(smokeIndex, 1);
+			this.display.children.splice(
+				this.display.children.indexOf(this.creatureGroup),
+				0,
+				this.infernalSmokeGroup,
+			);
+		}
 		// Health indicators sit above all creature sprites so they're never occluded
 		this.healthIndicatorUiGroup = game.gameEngine.add.group(this.display, 'healthIndicatorUiGrp');
 		// Parts of traps displayed over creatures
@@ -2064,22 +2105,13 @@ export class HexGrid {
 	}
 
 	findCreatureMovementHexes(creature) {
+		// maxMovement includes movement banked by abilities that store unused points.
+		const movement = creature.maxMovement ?? creature.stats.movement;
+
 		if (creature.movementType() === 'flying') {
-			return this.getFlyingRange(
-				creature.x,
-				creature.y,
-				creature.stats.movement,
-				creature.size,
-				creature.id,
-			);
+			return this.getFlyingRange(creature.x, creature.y, movement, creature.size, creature.id);
 		} else {
-			return this.getMovementRange(
-				creature.x,
-				creature.y,
-				creature.stats.movement,
-				creature.size,
-				creature.id,
-			);
+			return this.getMovementRange(creature.x, creature.y, movement, creature.size, creature.id);
 		}
 	}
 

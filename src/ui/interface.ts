@@ -1574,7 +1574,7 @@ export class UI {
 				0.5 +
 				// eslint-disable-next-line prettier/prettier
 				Math.floor(
-					((1 + Math.sin(Math.floor(new Date().valueOf() * Math.PI * 0.2) / 100)) / 4) * 100,
+					((1 + Math.sin(Math.floor(new Date().valueOf() * (Math.PI / 7.775)) / 100)) / 4) * 100,
 				) /
 					100;
 			const opaWeak = opa / 2;
@@ -2103,7 +2103,7 @@ export class UI {
 							);
 						} else if (key == 'movement') {
 							$stat.text(
-								this.selectedCreatureObj.remainingMove + '/' + this.selectedCreatureObj.stats[key],
+								this.selectedCreatureObj.remainingMove + '/' + this.selectedCreatureObj.maxMovement,
 							);
 						} else if (key == 'energy') {
 							$stat.text(

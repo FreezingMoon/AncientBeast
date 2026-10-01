@@ -1109,6 +1109,49 @@ describe('HexGrid xray hover behavior', () => {
 });
 
 describe('HexGrid display group layering', () => {
+	test('the Infernal smoke layer sits below the creatures and is not one of them', () => {
+		type MockGroup = {
+			name: string;
+			parent?: MockGroup;
+			children: MockGroup[];
+			scale: { set: jest.Mock };
+		};
+		const createGroup = (parent?: MockGroup, name = ''): MockGroup => {
+			const group: MockGroup = {
+				name,
+				children: [],
+				scale: { set: jest.fn() },
+			};
+			if (parent) {
+				parent.children.push(group);
+				group.parent = parent;
+			}
+			return group;
+		};
+		const smokeGameMock = {
+			gameEngine: {
+				add: { group: jest.fn((parent?: MockGroup, name?: string) => createGroup(parent, name)) },
+			},
+			signals: { metaPowers: { add: jest.fn() }, ui: { add: jest.fn() } },
+			metaPowersState: { executeMonster: false },
+		};
+
+		const grid = new HexGrid(
+			{ numRows: 2, numCols: 3, isFirstRowFull: true },
+			smokeGameMock as never,
+		);
+
+		// Smoke must render behind units, so it belongs below the creature layer.
+		const names = grid.display.children.map((child) => (child as { name?: string }).name);
+		expect(names.indexOf('infernalSmokeGrp')).toBeGreaterThanOrEqual(0);
+		expect(names.indexOf('infernalSmokeGrp')).toBeLessThan(names.indexOf('creaturesGrp'));
+
+		// And it is a child of the display group, not of any creature group, so
+		// smoke already in the air is not dragged along by a moving unit.
+		expect(grid.infernalSmokeGroup.parent).toBe(grid.display);
+		expect(grid.infernalSmokeGroup.parent).not.toBe(grid.creatureGroup);
+	});
+
 	test('constructor creates drop group below creature group', () => {
 		type MockGroup = {
 			name: string;

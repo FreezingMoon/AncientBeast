@@ -254,6 +254,27 @@ describe('Vehemoth Falling Arrow damage fallback', () => {
 		};
 		expect(damage.damages).toEqual({ pierce: 20, frost: 3 });
 	});
+
+	test('fires the arrow without a Graphics mask that would paint over the board', () => {
+		const target = {
+			level: '1',
+			hexagons: [{ displayPos: { x: 1000, y: 10 } }],
+			takeDamage: jest.fn(),
+		};
+
+		ability.activate(target);
+
+		// A Graphics mask in the creature group is drawn by the WebGL renderer, so
+		// it flashed a white slab over the board and hid the projectile itself.
+		expect((game as any).gameEngine.add.graphics).not.toHaveBeenCalled();
+		expect(game.grid.creatureGroup.create).toHaveBeenCalledWith(
+			expect.any(Number),
+			expect.any(Number),
+			'effects_ice-bolt',
+		);
+		const sprite = game.grid.creatureGroup.create.mock.results[0].value as { mask: unknown };
+		expect(sprite.mask).toBeNull();
+	});
 });
 
 describe('Vehemoth Flat Frons deferred query resume', () => {

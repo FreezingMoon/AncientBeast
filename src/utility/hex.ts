@@ -25,6 +25,37 @@ export enum Direction {
 
 const shrinkScale = 0.5;
 
+/**
+ * Word-boundary matcher for a single CSS class token, memoised.
+ *
+ * `cleanOverlayVisualState` / `cleanDisplayVisualState` strip a list of class
+ * tokens off a hex on every hover sweep, and each token used to build a fresh
+ * `new RegExp('\\b' + token + '\\b', 'g')` inline. With ~13 tokens on the
+ * overlay plus ~9 on the display, and `updateDisplay()` running that over every
+ * hex on the board for every `queryHexes()` call, that was thousands of RegExp
+ * compilations per hover.
+ *
+ * The set of tokens is drawn from a handful of fixed class-name lists, so the
+ * compiled matchers are cached and reused.
+ */
+const classTokenMatchers = new Map<string, RegExp>();
+
+/** Remove every occurrence of `token` from `classString` as a whole word. */
+function stripClassToken(classString: string, token: string): string {
+	if (!token) {
+		return classString;
+	}
+	let matcher = classTokenMatchers.get(token);
+	if (!matcher) {
+		matcher = new RegExp('\\b' + token + '\\b', 'g');
+		classTokenMatchers.set(token, matcher);
+	}
+	// A shared global regex carries `lastIndex` between uses; `replace` resets it
+	// for us, but a bail-out before the replace would not, so clear it up front.
+	matcher.lastIndex = 0;
+	return classString.replace(matcher, '');
+}
+
 // Legacy leftward shift retained from the old version; see the constructor.
 const HEX_DISPLAY_X_HACK = 10;
 
@@ -603,8 +634,7 @@ export class Hex {
 		const a = classes.split(' ');
 
 		for (let i = 0, len = a.length; i < len; i++) {
-			const regex = new RegExp('\\b' + a[i] + '\\b', 'g');
-			this.overlayClasses = this.overlayClasses.replace(regex, '');
+			this.overlayClasses = stripClassToken(this.overlayClasses, a[i]);
 		}
 
 		this.updateStyle();
@@ -619,8 +649,7 @@ export class Hex {
 		const a = classes.split(' ');
 
 		for (let i = 0, len = a.length; i < len; i++) {
-			const regex = new RegExp('\\b' + a[i] + '\\b', 'g');
-			this.displayClasses = this.displayClasses.replace(regex, '');
+			this.displayClasses = stripClassToken(this.displayClasses, a[i]);
 		}
 
 		this.displayClasses = this.displayClasses.trim();
@@ -804,21 +833,23 @@ export class Hex {
 		if (this.displayClasses.match(/showGrid/g)) {
 			if (!(this.coordText && this.coordText.exists)) {
 				this.coordText = this.game.gameEngine.add.text(
-					this.originalDisplayPos.x + 45,
-					this.originalDisplayPos.y + 63,
+					0,
+					0,
 					this.coord,
 					{
 						font: '30pt Play',
-						fill: '#000000',
+						color: '#000000',
 						align: 'center',
 					},
+					this.grid.overlayHexesGroup,
 				);
 				if (this.creature || this.trap || this.drop) {
 					this.coordText.stroke = '#ffffff';
 					this.coordText.strokeThickness = 5;
 				}
 				this.coordText.anchor.setTo(0.5);
-				this.grid.overlayHexesGroup.add(this.coordText);
+				this.coordText.x = this.originalDisplayPos.x - HEX_DISPLAY_X_HACK + 45;
+				this.coordText.y = this.originalDisplayPos.y + 63;
 			}
 		} else if (this.coordText && this.coordText.exists) {
 			this.coordText.destroy();

@@ -125,7 +125,7 @@ export default (G: Game) => {
 				const result = target.takeDamage(damage);
 				// Recharge movement if any damage dealt
 				if (result.damages && result.damages.total > 0) {
-					this.creature.remainingMove = this.creature.stats.movement;
+					this.creature.remainingMove = this.creature.maxMovement;
 					G.log('%CreatureName' + this.creature.id + "%'s movement recharged");
 					G.activeCreature?.queryMove();
 				}

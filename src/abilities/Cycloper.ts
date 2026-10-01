@@ -1108,7 +1108,38 @@ function createAcrylicWall3DPrintEffect(
 	flashSprite.scale.setTo(4.5, 0.7);
 
 	let startTime: number;
+	let settled = false;
+
+	/**
+	 * Ends the print. The crop is the only thing standing between the wall and
+	 * being invisible, so it is cleared first and unconditionally: if anything
+	 * below throws — or the wall is retired mid-print, which happens when the
+	 * Cycloper prints again before the reveal finished — the reveal must not be
+	 * left half-applied.
+	 */
+	const finish = () => {
+		if (settled) {
+			return;
+		}
+		settled = true;
+		try {
+			wallSprite.setCrop();
+		} catch {
+			// The sprite was torn down along with the wall mid-print. There is
+			// nothing left to reveal, and nothing to report either.
+		}
+		beamGraphics.destroy();
+		flashSprite.destroy();
+		if (onComplete) {
+			onComplete();
+		}
+	};
+
 	const animate = () => {
+		if (settled) {
+			return;
+		}
+
 		if (startTime === undefined) {
 			startTime = Date.now();
 		}
@@ -1140,17 +1171,16 @@ function createAcrylicWall3DPrintEffect(
 		if (progress < 1) {
 			setTimeout(animate, 16);
 		} else {
-			// Animation complete - remove crop and clean up effects
-			wallSprite.setCrop();
-			beamGraphics.destroy();
-			flashSprite.destroy();
-			if (onComplete) {
-				onComplete();
-			}
+			finish();
 		}
 	};
 
-	animate();
+	try {
+		animate();
+	} catch (error) {
+		console.error('Acrylic wall print effect failed', error);
+		finish();
+	}
 }
 
 function ensureAcrylicWallData(G: Game) {
@@ -1604,21 +1634,20 @@ export default (G: Game) => {
 					targetedWall.health = targetedWall.stats.health;
 					targetedWall.updateHealth();
 					targetedWall.healthShow();
-					this._lastBonus = targetedWall.id;
 					G.updateQueueDisplay();
 					this.end();
 					return;
 				}
 
-				const previousShield = G.creatures[this._lastBonus ?? -1];
-				if (
-					previousShield instanceof Creature &&
-					!previousShield.dead &&
-					previousShield.type === ACRYLIC_WALL_TYPE
-				) {
-					previousShield.destroy();
-				}
-
+				// The previously printed wall is deliberately left standing. Riot
+				// Shield beams relay through its own walls (see
+				// `getRiotShieldPlacementRange`, which widens the range by the number
+				// of relay walls already on the board), so a Cycloper is meant to
+				// accumulate them. Destroying the last one here took that wall's
+				// cardboard off the board while the wall itself stayed on it as a
+				// corpse with no sprite — attackable and shatterable at its original
+				// hex, but invisible, and re-appearing displaced once something else
+				// touched the orphaned sprite.
 				const wallBase = ensureAcrylicWallData(G);
 
 				const wallData = {
@@ -1661,7 +1690,6 @@ export default (G: Game) => {
 				wallFlags._nextGameTurnActive = Number.MAX_SAFE_INTEGER;
 				wall.remainingMove = 0;
 				wall.noActionPossible = true;
-				this._lastBonus = wall.id;
 				this.creature.faceHex(hex);
 
 				// Create 3D print laser effect from Cycloper's eye.

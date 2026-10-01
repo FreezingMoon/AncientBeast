@@ -45,12 +45,20 @@ export default (G: Game) => {
 		// 	First Ability: Wing Feathers
 		{
 			/**
-			 * Provides custom movement type given whether the ability is upgraded or not.
-			 * Movement type is "hover" unless this ability is upgraded, then it's "flying"
-			 * @return {string} movement type, "hover" or "flying"
+			 * The Scavenger flies by default (see its `movementType` in the unit data).
+			 * Upgrading Wing Feathers instead lets it store the movement points it
+			 * leaves unused at the end of a turn, up to its base movement, and spend
+			 * them on top of its movement the following turn.
+			 *
+			 * The banked points are spent first and only the leftovers are banked
+			 * again, so a turn that spends 4 of 10 (7 movement + 3 banked) banks 6
+			 * for next turn, giving 7 + 6 = 13 movement. Delaying a turn banks
+			 * nothing, as the movement it had was already available that turn.
+			 *
+			 * @return {number} maximum stashed movement points, 0 when not upgraded
 			 */
-			movementType: function () {
-				return this.isUpgraded() ? 'flying' : 'hover';
+			stashedMovementCap: function () {
+				return this.isUpgraded() ? this.creature.baseStats.movement : 0;
 			},
 
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"

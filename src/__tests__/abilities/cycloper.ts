@@ -273,6 +273,52 @@ describe('Cycloper abilities', () => {
 		loadCycloperAbilities(game as never);
 	});
 
+	test('Riot Shield leaves every previously printed wall standing', () => {
+		// Riot Shield beams relay through the Cycloper's own walls, so printing a
+		// second wall through the first used to destroy the first. It stayed on the
+		// board as a corpse with no cardboard — attackable and shatterable at its
+		// original hex, invisible, and re-appearing displaced once something else
+		// touched the orphaned sprite.
+		const cycloper = new (Creature as any)({
+			id: 15,
+			team: 0,
+			type: 'W0',
+			x: 3,
+			y: 3,
+			hexagons: [{ x: 3, y: 3, displayPos: { x: 270, y: 234 } }],
+			player: { id: 0, flipped: false, creatures: [] },
+			health: 60,
+			stats: { health: 60, energy: 100 },
+		});
+		cycloper.queryMove = jest.fn();
+		game.creatures = [];
+
+		const riotShield = {
+			...game.abilities[15][2],
+			creature: cycloper,
+			isUpgraded: () => true,
+			end: jest.fn(),
+		};
+
+		riotShield.activate({ x: 4, y: 3, creature: undefined });
+		jest.runAllTimers();
+
+		const firstWall = cycloper.player.creatures[0];
+		expect(firstWall).toBeDefined();
+		expect(firstWall.x).toBe(4);
+
+		// Second print, one hex further out along the same beam.
+		riotShield.activate({ x: 5, y: 3, creature: undefined });
+		jest.runAllTimers();
+
+		expect(cycloper.player.creatures).toHaveLength(2);
+		expect(cycloper.player.creatures[1].x).toBe(5);
+		expect(firstWall.destroy).not.toHaveBeenCalled();
+		// The print reveal must be fully released on both walls, or the cardboard
+		// is left cropped and reads as drawn somewhere else entirely.
+		expect(firstWall.sprite.setCrop).toHaveBeenLastCalledWith();
+	});
+
 	test('Optic Burst upgraded prioritizes enemy damage over inline damaged wall', () => {
 		const cycloper = new (Creature as any)({
 			id: 15,
