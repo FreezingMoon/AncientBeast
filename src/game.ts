@@ -837,7 +837,7 @@ export default class Game {
 			return;
 		}
 		for (const creature of this.creatures) {
-			if (creature instanceof Creature) {
+			if (creature instanceof Creature && !creature.creatureSprite.destroyed) {
 				creature.creatureSprite.tickXray();
 			}
 		}
@@ -1487,6 +1487,9 @@ export default class Game {
 			creature.dead = snap.dead;
 			if ('isVaporized' in creature) creature.isVaporized = snap.vaporized;
 			creature.remainingMove = snap.remainingMove;
+			if (typeof snap.movementPool === 'number') {
+				creature.movementPool = snap.movementPool;
+			}
 			if (creature.status) {
 				creature.status.frozen = snap.status.frozen;
 				creature.status.dizzy = snap.status.dizzy;
@@ -2028,13 +2031,22 @@ export default class Game {
 		});
 
 		// For other creatures
+		// Resolve the matcher once: this runs for every ability of every creature
+		// on a trigger that fires several times per walk step and per damage, so
+		// the `trigger + '_other'` concat and the property lookup were being redone
+		// for every single one.
+		const otherTrigger = this.triggers[trigger + '_other'];
+		if (!otherTrigger) {
+			return retValue;
+		}
+
 		this.creatures.forEach((creature) => {
 			if (!creature || triggeredCreature === creature || creature.dead === true) {
 				return;
 			}
 
 			creature.abilities.forEach((ability) => {
-				if (this.triggers[trigger + '_other'].test(ability.getTrigger())) {
+				if (otherTrigger.test(ability.getTrigger())) {
 					if (ability.require(required)) {
 						retValue = ability.animation(required, triggeredCreature);
 					}
@@ -2060,6 +2072,13 @@ export default class Game {
 		});
 
 		// For other creatures
+		// See `triggerAbility`: resolve the matcher once rather than rebuilding
+		// `trigger + '_other'` for every effect of every creature.
+		const otherTrigger = this.triggers[trigger + '_other'];
+		if (!otherTrigger) {
+			return retValue;
+		}
+
 		this.creatures.forEach((creature) => {
 			if (creature) {
 				if (triggeredCreature === creature || creature.dead === true) {
@@ -2067,7 +2086,7 @@ export default class Game {
 				}
 
 				creature.effects.forEach((effect) => {
-					if (this.triggers[trigger + '_other'].test(effect.trigger)) {
+					if (otherTrigger.test(effect.trigger)) {
 						retValue = effect.activate(required);
 					}
 				});

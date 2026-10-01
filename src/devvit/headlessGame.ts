@@ -564,6 +564,7 @@ function makeSoundSysStub() {
 		playMusic: noop,
 		stopMusic: noop,
 		playSFX: () => ({ stop: noop }),
+		playSFXLoop: () => ({ stop: noop }),
 		stopSFX: noop,
 		playHeartBeat: noop,
 		loadSound: noop,
@@ -805,7 +806,9 @@ export async function createHeadlessGame(
 				this.status.dizzy = false;
 				g.grid.lastMouseHex = undefined;
 				g.grid.suppressNextHoverRefresh = true;
-				this.remainingMove = 0;
+				// Stashes leftover movement for next turn (see Creature.stashMovement)
+				// before zeroing this turn's movement.
+				this.stashMovement?.();
 				if (g._deferredQueryMovePending > 0) g._deferredQueryMovePending--;
 				if (g._deferredQueryMovePending === 0 && g.animationQueue.length === 0)
 					g.freezedInput = false;
@@ -1062,6 +1065,7 @@ export function serializeState(game: any): import('./authoritativeTypes').Author
 		dead: !!c.dead,
 		vaporized: !!c.isVaporized,
 		remainingMove: c.remainingMove,
+		movementPool: c.movementPool ?? 0,
 		playerIndex: c.player?.id ?? null,
 		status: {
 			frozen: !!c.status?.frozen,

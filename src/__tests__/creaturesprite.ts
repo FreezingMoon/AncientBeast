@@ -279,6 +279,22 @@ describe('CreatureSprite cardboard', () => {
 		expect(creature.sprite.y).toBe(OFFSET_Y + CARDBOARD.height);
 	});
 
+	test('the group update hook does not double-tick the Infernal effect', () => {
+		// Phaser still calls `_group.update()` every step, and `phaserUpdate()`
+		// drives `tickXray()` too. Delegating from the hook ticked the effect
+		// twice per frame, which doubled the speed of its `uTime`-driven pulse
+		// and smoke spawns.
+		// @ts-expect-error partial Creature options
+		const creature = new Creature(getCreatureObjMock(), game);
+		const tickSpy = jest.spyOn(creature.creatureSprite, 'tickXray');
+
+		const groupUpdate = (creature.creatureSprite as any)._group.update as (() => void) | undefined;
+		expect(typeof groupUpdate).toBe('function');
+		groupUpdate?.call((creature.creatureSprite as any)._group);
+
+		expect(tickSpy).not.toHaveBeenCalled();
+	});
+
 	test('a torn-down sprite is left alone when its cardboard lands', () => {
 		// @ts-expect-error partial Creature options
 		const creature = new Creature(getCreatureObjMock(), game);

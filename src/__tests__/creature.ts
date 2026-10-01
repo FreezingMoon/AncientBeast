@@ -260,6 +260,161 @@ describe('Creature', () => {
 		});
 	});
 
+	describe('stashed movement', () => {
+		// Mirrors the upgraded Wing Feathers: bank leftover movement, capped at the
+		// creature's base movement.
+		const grantingStash = (creature: Creature, cap: number) => {
+			creature.abilities[0].stashedMovementCap = () => cap;
+		};
+
+		const getScavengerMock = () => {
+			const obj = getCreatureObjMock();
+			obj.stats.movement = 7;
+			return obj;
+		};
+
+		// `displayHealthStats` is UI-only and needs a real engine to draw on.
+		// The game mock is shared by every test here: each one builds a full hex grid
+		// mock, and this suite sits right at the edge of the default jest heap.
+		let sharedGame: Game;
+
+		const getScavenger = (stashes: boolean) => {
+			const obj = getScavengerMock();
+			// @ts-ignore
+			const game: Game = sharedGame;
+			// @ts-ignore
+			const creature = new Creature(obj, game);
+			creature.displayHealthStats = () => undefined;
+
+			if (stashes) {
+				grantingStash(creature, creature.baseStats.movement);
+			}
+
+			return creature;
+		};
+
+		beforeAll(() => {
+			// @ts-ignore
+			sharedGame = getGameMock();
+		});
+
+		test('a creature whose abilities store nothing banks nothing', () => {
+			const creature = getScavenger(false);
+
+			creature.activate();
+			creature.remainingMove = 7;
+			creature.deactivate('turn-end');
+
+			expect(creature.movementPool).toBe(0);
+			expect(creature.maxMovement).toBe(7);
+		});
+
+		test('a creature that skipped a turn starts next turn with 7 + 7 movement', () => {
+			const creature = getScavenger(true);
+
+			creature.activate();
+			expect(creature.remainingMove).toBe(7);
+
+			creature.deactivate('turn-end');
+			expect(creature.movementPool).toBe(7);
+			expect(creature.remainingMove).toBe(0);
+
+			creature.activate();
+			expect(creature.maxMovement).toBe(14);
+			expect(creature.remainingMove).toBe(14);
+		});
+
+		test("spending all of next turn's movement banks nothing", () => {
+			const creature = getScavenger(true);
+
+			creature.activate();
+			creature.deactivate('turn-end');
+			creature.activate();
+
+			creature.remainingMove -= 14;
+			creature.deactivate('turn-end');
+
+			expect(creature.movementPool).toBe(0);
+		});
+
+		test('leftover movement becomes the pool; the pool itself is not banked again', () => {
+			const creature = getScavenger(true);
+
+			// Skip with 3 left over.
+			creature.activate();
+			creature.remainingMove = 3;
+			creature.deactivate('turn-end');
+			expect(creature.movementPool).toBe(3);
+
+			// Next turn: 7 + 3 = 10 movement, spending 4 of it leaves 6.
+			creature.activate();
+			expect(creature.remainingMove).toBe(10);
+			creature.remainingMove -= 4;
+			creature.deactivate('turn-end');
+			expect(creature.movementPool).toBe(6);
+
+			creature.activate();
+			expect(creature.remainingMove).toBe(13);
+		});
+
+		test('the pool is capped at the base movement, however long a unit rests', () => {
+			const creature = getScavenger(true);
+
+			creature.activate();
+			creature.deactivate('turn-end');
+			creature.activate();
+			creature.remainingMove = 20;
+			creature.deactivate('turn-end');
+
+			expect(creature.movementPool).toBe(7);
+
+			creature.activate();
+			expect(creature.remainingMove).toBe(14);
+		});
+
+		test('a delayed turn banks nothing and keeps the movement it had left', () => {
+			const creature = getScavenger(true);
+
+			creature.activate();
+			creature.remainingMove = 5;
+			creature.wait();
+
+			expect(creature.isDelayed).toBe(true);
+			expect(creature.movementPool).toBe(0);
+			expect(creature.remainingMove).toBe(5);
+		});
+
+		test('restored movement cannot exceed movement plus the pool', () => {
+			const creature = getScavenger(true);
+
+			creature.activate();
+			creature.deactivate('turn-end');
+			creature.activate();
+			creature.remainingMove = 2;
+
+			creature.restoreMovement(100, false);
+			expect(creature.remainingMove).toBe(14);
+
+			creature.movementPool = 0;
+			creature.updateAlteration();
+			expect(creature.remainingMove).toBe(7);
+		});
+
+		test('a pool left over from a lost upgrade is dropped', () => {
+			const creature = getScavenger(true);
+
+			creature.activate();
+			creature.deactivate('turn-end');
+			expect(creature.movementPool).toBe(7);
+
+			grantingStash(creature, 0);
+			creature.updateAlteration();
+
+			expect(creature.movementPool).toBe(0);
+			expect(creature.maxMovement).toBe(7);
+		});
+	});
+
 	describe('effect attachment', () => {
 		test('addEffect ignores re-attaching the same Effect instance', () => {
 			const game = getGameMock();

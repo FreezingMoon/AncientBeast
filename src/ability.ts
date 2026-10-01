@@ -109,6 +109,11 @@ export class Ability {
 	message?: string;
 	movementType?: () => Movement; // Currently, this functon only exists in `Scavenger.ts`
 	/**
+	 * Maximum movement points this ability lets its creature bank at the end of a
+	 * turn, spent on top of its movement the following turn. 0 stores nothing.
+	 */
+	stashedMovementCap?: () => number; // Currently, this functon only exists in `Scavenger.ts`
+	/**
 	 * Marks repositioning abilities (teleport, flying dash, leap, etc.).
 	 * - `true`: movement ability, but not guaranteed trap-safe along path.
 	 * - `'safe'`: movement ability that safely bypasses traps along path.

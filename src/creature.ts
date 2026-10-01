@@ -235,6 +235,12 @@ export class Creature {
 	energy: number;
 	oldEnergy: number;
 	remainingMove: number;
+	/**
+	 * Movement banked from previous turns by an ability that stores unused movement
+	 * (see `stashedMovementCap()`). Added on top of `this.stats.movement` to form
+	 * `this.maxMovement`, and spent first during a turn.
+	 */
+	movementPool: number;
 	abilities: Ability[];
 	accumulatedTeleportRange = 0; // Used for Abolished's third ability
 	// BRB state — used by Gumble's upgraded Gooey Body to defer death
@@ -250,6 +256,12 @@ export class Creature {
 
 	/** Base horizontal offset used to center the field on the cardboard's top opaque row. */
 	private _plasmaFieldBaseOffsetX = 0;
+
+	/**
+	 * The per-frame hook that keeps {@link plasmaField} centred on the priest.
+	 * Held so it can be unregistered when the field is torn down.
+	 */
+	private _plasmaFieldPositionHook: (() => void) | null = null;
 
 	/**
 	 * Whether the Plasma Field is currently shown because this Dark Priest is the
@@ -420,8 +432,11 @@ export class Creature {
 		this.endurance = obj.stats.endurance;
 		// Current energy. Maximum energy is `this.stats.energy`.
 		this.energy = obj.stats.energy;
-		// Current movement. Maximum movement is `this.stats.movement`.
+		// Current movement. Maximum movement is `this.maxMovement`.
 		this.remainingMove = 0; //Default value recovered each turn
+		// Movement banked from previous turns. Only abilities granting a
+		// `stashedMovementCap()` can fill this; see `stashMovement()`.
+		this.movementPool = 0;
 
 		// Abilities
 		this.abilities = [
@@ -583,7 +598,7 @@ export class Creature {
 			this.game.onReset(this);
 			// Variables reset
 			this.updateAlteration();
-			this.remainingMove = stats.movement;
+			this.remainingMove = this.maxMovement;
 
 			if (!this.materializationSickness) {
 				// Fatigued creatures (endurance 0) should not regenerate.
@@ -761,7 +776,7 @@ export class Creature {
 			// turn handoff, which can briefly render the active unit preview at cursor.
 			game.grid.lastMouseHex = undefined;
 			game.grid.suppressNextHoverRefresh = true;
-			this.remainingMove = 0;
+			this.stashMovement();
 			this.queryMove(null);
 			this.turnsActive += 1;
 			this._nextGameTurnActive = game.turn + 1;
@@ -1476,12 +1491,12 @@ export class Creature {
 
 	/**
 	 * Restore remaining movement to a creature. Will be capped against the creature's
-	 * maximum movement (this.stats.movement).
+	 * maximum movement (this.maxMovement).
 	 *
 	 * @param {*} amount Number of movement points to restore.
 	 */
 	restoreMovement(amount: number, log = true) {
-		this.remainingMove = Math.min(this.stats.movement, this.remainingMove + amount);
+		this.remainingMove = Math.min(this.maxMovement, this.remainingMove + amount);
 
 		if (log) {
 			this.game.log('%CreatureName' + this.id + '% recovers +' + amount + ' movement');
@@ -1701,6 +1716,10 @@ export class Creature {
 	}
 
 	updateHealth(noAnimBar = false) {
+		// Dead creatures stay in `game.creatures` and their effects stay in
+		// `game.effects`, so a round-start effect teardown can refresh a sprite
+		// whose Phaser objects are already freed (see CreatureSprite.destroyed).
+		if (this.creatureSprite.destroyed) return;
 		const game = this.game;
 
 		if (this == game.activeCreature && !noAnimBar) {
@@ -1798,7 +1817,12 @@ export class Creature {
 				cardboard.y - PLASMA_FIELD_OFFSET_Y,
 				opts,
 			);
-			this.creatureSprite.addPostUpdateHook(() => {
+
+			// Keep the field centred on the priest without recreating it. The hook
+			// outlives the field it tracks, so it is unregistered on teardown —
+			// otherwise every shield re-show added another permanently-running
+			// per-frame closure.
+			const positionHook = () => {
 				if (this.plasmaField) {
 					const dir = this.creatureSprite.sprite.scale.x < 0 ? -1 : 1;
 					this.plasmaField.positionTo(
@@ -1806,8 +1830,15 @@ export class Creature {
 						dir * this._plasmaFieldBaseOffsetX,
 						PLASMA_FIELD_OFFSET_Y,
 					);
+					// Line weight tracks remaining plasma, so a well-stocked priest
+					// reads as a fat, bright field and a nearly-spent one as thin
+					// wisps. Updated here rather than on show, because plasma is
+					// spent mid-turn and the hook already runs every frame.
+					this.plasmaField.setPlasmaFraction(this.getPlasmaFraction());
 				}
-			});
+			};
+			this._plasmaFieldPositionHook = positionHook;
+			this.creatureSprite.addPostUpdateHook(positionHook);
 		}
 
 		this.plasmaField.setVisible(true);
@@ -1839,6 +1870,14 @@ export class Creature {
 			return;
 		}
 
+		// Drop the per-frame centring hook before the field goes away: it is
+		// registered on the sprite (not the field), so tearing down the field
+		// would otherwise leave it running forever.
+		if (this._plasmaFieldPositionHook) {
+			this.creatureSprite.removePostUpdateHook(this._plasmaFieldPositionHook);
+			this._plasmaFieldPositionHook = null;
+		}
+
 		field.onBurstEnd = null;
 		field.destroy();
 		this.plasmaField = null;
@@ -1866,6 +1905,25 @@ export class Creature {
 
 	hasCreaturePlayerGotPlasma() {
 		return this.player.plasma > 0;
+	}
+
+	/**
+	 * This creature's player's plasma as a fraction of the pool they allocated,
+	 * for the plasma field's line weight.
+	 *
+	 * Falls back to a full tank when the allocation is unknown or zero, so the
+	 * field never renders as a hairline because of a missing config value.
+	 */
+	getPlasmaFraction(): number {
+		// `plasma_amount` is attached to the Game instance from the game-setup
+		// form rather than declared on the class, so it is read through a cast
+		// and treated as optional. Same defensive access as `Player`'s own
+		// initialiser.
+		const max = (this.game as unknown as { plasma_amount?: number }).plasma_amount;
+		if (typeof max !== 'number' || !(max > 0)) {
+			return 1;
+		}
+		return Math.max(0, Math.min(1, this.player.plasma / max));
 	}
 
 	addFatigue(dmgAmount: number) {
@@ -2012,7 +2070,10 @@ export class Creature {
 		this.health = Math.min(this.health, this.stats.health);
 		this.endurance = Math.min(this.endurance, this.stats.endurance);
 		this.energy = Math.min(this.energy, this.stats.energy);
-		this.remainingMove = Math.min(this.remainingMove, this.stats.movement);
+		// A pool the creature can no longer bank (ability lost / un-upgraded) is
+		// dropped before capping this turn's movement, which includes it.
+		this.movementPool = Math.min(this.movementPool, this.stashedMovementCap());
+		this.remainingMove = Math.min(this.remainingMove, this.maxMovement);
 	}
 
 	/**
@@ -2302,6 +2363,45 @@ export class Creature {
 	}
 
 	/**
+	 * Total movement available for this turn: the creature's own movement plus
+	 * anything banked in `this.movementPool`. This is the ceiling `this.remainingMove`
+	 * respects.
+	 */
+	get maxMovement(): number {
+		return this.stats.movement + this.movementPool;
+	}
+
+	/**
+	 * Maximum movement points an ability of this creature allows to be banked
+	 * between turns. 0 when no ability stores unused movement.
+	 */
+	stashedMovementCap(): number {
+		// If the creature has an ability that stores movement, that ability owns the
+		// cap, otherwise nothing can be banked.
+		for (const ability of this.abilities) {
+			if (typeof ability.stashedMovementCap === 'function') {
+				return Math.max(0, ability.stashedMovementCap());
+			}
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Bank the movement left over at the end of a turn so it counts towards next
+	 * turn's movement, then end this turn's movement.
+	 *
+	 * Only the leftover is banked — the banked points themselves are never banked
+	 * again, they are spent first. Whatever is left at the end of a turn simply
+	 * becomes the new pool, capped by `stashedMovementCap()`, which also means
+	 * stashing cannot be farmed by delaying a turn.
+	 */
+	stashMovement(): void {
+		this.movementPool = Math.min(this.stashedMovementCap(), Math.max(this.remainingMove, 0));
+		this.remainingMove = 0;
+	}
+
+	/**
 	 * Is this unit a Dark Priest?
 	 */
 	isDarkPriest(): boolean {
@@ -2464,6 +2564,20 @@ class CreatureSprite {
 
 	private _postUpdateHooks: Array<() => void> = [];
 
+	/**
+	 * True once the Phaser objects owned by this sprite have been torn down.
+	 * Dead creatures stay in `game.creatures` and their effects stay in
+	 * `game.effects`, so per-frame and per-round callbacks (tickXray,
+	 * updateHealth) can still arrive after `destroy()` — every one of them must
+	 * bail out instead of touching freed Phaser objects, which in Phaser 4 crash
+	 * on `this.data`/`this.scene` access.
+	 */
+	private _destroyed = false;
+
+	get destroyed(): boolean {
+		return this._destroyed;
+	}
+
 	constructor(creature: Creature) {
 		const { game, player, type, team, display, size, id, health } = creature;
 		const dir = player.flipped ? -1 : 1;
@@ -2487,13 +2601,26 @@ class CreatureSprite {
 		// Placed by `setDir()` below, once the sprite and the hint group are
 		// both reachable — see `_place()` for the offset maths.
 
-		if (creature.name === 'Infernal') {
+		// A temp creature is the placement placeholder the Dark Priest shows while
+		// the player picks a hex: it sits at a fixed placeholder hex and is hidden
+		// with `sprite.alpha = 0`. That hides the cardboard only -- the glow
+		// overlays and smoke are separate sprites, so they went on rendering and
+		// left a lit cardboard ghost sitting near the caster until the real unit
+		// replaced the temp. A hidden unit gets no FX; the materialised creature
+		// builds its own at its real hex.
+		if (creature.name === 'Infernal' && !creature.temp) {
 			game.animations.initInfernalCardboardEffect(creature, sprite);
 		}
 
 		// Hint Group
 		const hintGrp = gameEngine.add.group(group, 'creatureHintGrp_' + id);
 		hintGrp.x = 0.5 * HEX_WIDTH_PX * size;
+		// Default hint group position above cardboard (will be corrected in _place()
+		// when actual texture loads). Phaser 2 used -sprite.texture.height + 5 which
+		// worked because textures were preloaded; Phaser 4 loads on-demand so we
+		// estimate based on size.
+		const estimatedHeight = size === 1 ? 160 : 220;
+		hintGrp.y = -estimatedHeight + 5;
 
 		const healthIndicatorGroup = gameEngine.add.group(group, 'creatureHealthGrp_' + id);
 
@@ -2524,14 +2651,14 @@ class CreatureSprite {
 			health as any as string,
 			{
 				font: 'bold 15pt Play',
-				fill: '#fff',
+				color: '#fff',
 				align: 'center',
 				stroke: '#000',
 				strokeThickness: 6,
 			},
+			healthIndicatorGroup,
 		);
 		healthIndicatorText.anchor.setTo(0.5, 0.5);
-		healthIndicatorGroup.add(healthIndicatorText);
 		healthIndicatorGroup.visible = false;
 
 		this._group = group;
@@ -2550,7 +2677,10 @@ class CreatureSprite {
 		// Phaser 4 containers have no `update()` tick — `phaserUpdate()` drives
 		// the fade/cutout below via `tickXray()`. Keep the historic `_group.update`
 		// override (tests and any legacy callers may still invoke it) but make
-		// it delegate to the same tick.
+		// it a no-op rather than delegating: Phaser still calls `_group.update()`
+		// every step, so delegating ticked the Infernal effect a second time per
+		// frame. The effect advances `uTime` from the frame delta, so the double
+		// tick ran its pulse and smoke at double speed.
 		const groupHandle = this._group as { update?: unknown };
 		const _groupUpdate =
 			typeof groupHandle.update === 'function'
@@ -2558,7 +2688,6 @@ class CreatureSprite {
 				: () => undefined;
 		this._group.update = () => {
 			_groupUpdate();
-			this.tickXray();
 		};
 
 		this.setHex(creature.hexagons[size - 1]);
@@ -2582,11 +2711,27 @@ class CreatureSprite {
 	}
 
 	/**
+	 * Unregisters a hook added by {@link addPostUpdateHook}.
+	 *
+	 * Hooks run every frame and were previously push-only, so anything that
+	 * re-registered on teardown (the Plasma Field hook re-adds itself whenever
+	 * the shield is re-shown) grew the array without bound and kept running
+	 * after the thing it tracked was gone.
+	 */
+	removePostUpdateHook(fn: () => void): void {
+		const index = this._postUpdateHooks.indexOf(fn);
+		if (index !== -1) {
+			this._postUpdateHooks.splice(index, 1);
+		}
+	}
+
+	/**
 	 * Advances the xray fade and redraws the cutout so it tracks movement.
 	 * Called once per Phaser frame from `Game.phaserUpdate()`; the `_group.update`
 	 * override above delegates here too for legacy callers.
 	 */
 	tickXray(): void {
+		if (this._destroyed) return;
 		this._creature.game.animations?.tickInfernalCardboardEffect?.(this._creature);
 		const XRAY_FADE_RATE = 0.08; // ~160 ms fade at 60 fps
 		// Animate xray alpha toward target
@@ -2751,6 +2896,7 @@ class CreatureSprite {
 	}
 
 	xray(enable: boolean, referenceCreature?: Creature | Creature[]) {
+		if (this._destroyed) return;
 		if (!enable && !this._isXray && this._xrayTargetAlpha === 0) return;
 		if (enable && referenceCreature) {
 			const nextRefCreatures = Array.isArray(referenceCreature)
@@ -2797,12 +2943,35 @@ class CreatureSprite {
 
 	/** Restores the original texture and frees all xray canvas resources. */
 	private _finalizeXrayOff() {
+		if (this._destroyed) {
+			this._freeXrayState();
+			return;
+		}
 		this._healthIndicatorGroup.alpha = 1;
 		this._xrayRefCreatures = [];
 		this._xrayOriginalAlpha = null;
 		this._xrayRefAlpha = null;
 		this._xrayMaskAlpha = null;
 		this._sprite.loadTexture(this._originalTextureKey);
+	}
+
+	/**
+	 * Releases the xray bitmaps without touching any Phaser object. Safe to
+	 * call after destroy, where the sprite's scene is already gone.
+	 */
+	private _freeXrayState() {
+		this._xrayAlpha = 0;
+		this._xrayTargetAlpha = 0;
+		this._isXray = false;
+		this._xrayRefCreatures = [];
+		this._xrayOriginalAlpha = null;
+		this._xrayRefAlpha = null;
+		this._xrayMaskAlpha = null;
+		this._postUpdateHooks.length = 0;
+		if (this._xrayBmd) {
+			this._xrayBmd.destroy();
+			this._xrayBmd = null;
+		}
 	}
 
 	private _buildXrayTexture(refCreatures: Creature[]) {
@@ -3377,6 +3546,7 @@ class CreatureSprite {
 	}
 
 	setHealth(number: number | string, type: HealthBubbleType) {
+		if (this._destroyed) return;
 		// Support both Phaser Text API and test doubles without setText()
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const textObj: any = (this as any)._healthIndicatorText;
@@ -3393,6 +3563,7 @@ class CreatureSprite {
 	}
 
 	showHealth(enable: boolean) {
+		if (this._destroyed) return;
 		this._healthIndicatorGroup.visible = enable;
 	}
 
@@ -3402,6 +3573,7 @@ class CreatureSprite {
 	 * active or hovered; false when it returns to normal.
 	 */
 	elevateHealth(enable: boolean) {
+		if (this._destroyed) return;
 		if (enable && !this._healthInUiGroup) {
 			this._healthUiGroup.add(this._healthIndicatorGroup);
 			this._healthIndicatorGroup.x = this._group.x;
@@ -3572,33 +3744,33 @@ class CreatureSprite {
 			});
 		};
 
-		const hintColor: Record<CreatureHintType, { fill: string; stroke: string }> = {
+		const hintColor: Record<CreatureHintType, { color: string; stroke: string }> = {
 			damage: {
-				fill: '#ff0000',
+				color: '#ff0000',
 				stroke: '#000000',
 			},
 			confirm: {
-				fill: '#ffffff',
+				color: '#ffffff',
 				stroke: '#000000',
 			},
 			gamehintblack: {
-				fill: '#ffffff',
+				color: '#ffffff',
 				stroke: '#000000',
 			},
 			healing: {
-				fill: '#00ff00',
+				color: '#00ff00',
 				stroke: '#000000',
 			},
 			msg_effects: {
-				fill: '#ffff00',
+				color: '#ffff00',
 				stroke: '#000000',
 			},
 			creature_name: {
-				fill: '#ffffff',
+				color: '#ffffff',
 				stroke: '#AAAAAA',
 			},
 			no_action: {
-				fill: '#ffffff',
+				color: '#ffffff',
 				stroke: '#000000',
 			},
 		};
@@ -3606,7 +3778,7 @@ class CreatureSprite {
 		const style = {
 			...{
 				font: 'bold 20pt Play',
-				fill: '#ff0000',
+				color: '#ff0000',
 				align: 'center',
 				stroke: '#000000',
 				strokeThickness: 2,
@@ -3714,14 +3886,20 @@ class CreatureSprite {
 			this.clearHints(['confirm', 'no_action']);
 			this.destroyNoActionHintGroup();
 
-			const frame = this._gameEngine.add.sprite(0, 50, 'frame');
+			const frame = this._gameEngine.add.sprite(0, 50, 'frame', undefined, this._hintGrp);
 			const frameBackground = this._gameEngine.make.bitmapData(frame.width, frame.height);
 			frameBackground.ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
 			frameBackground.ctx.fillRect(0, 0, frameBackground.width, frameBackground.height);
 			frameBackground.draw('frame', 0, 0);
 			frame.destroy();
 
-			const noActionFrame = this._gameEngine.add.sprite(0, 50, frameBackground as any as string);
+			const noActionFrame = this._gameEngine.add.sprite(
+				0,
+				50,
+				frameBackground as any as string,
+				undefined,
+				this._hintGrp,
+			);
 			noActionFrame.anchor.setTo(0.5, 0.175);
 			noActionFrame.setScale(0.75);
 			noActionFrame.alpha = 0;
@@ -3736,7 +3914,7 @@ class CreatureSprite {
 				.start();
 			this._enableSkipTurnInput(noActionFrame);
 
-			const noActionIcon = this._gameEngine.add.sprite(0, 29, 'skip');
+			const noActionIcon = this._gameEngine.add.sprite(0, 29, 'skip', undefined, this._hintGrp);
 			noActionIcon.anchor.setTo(0.5, 0.745);
 			noActionIcon.setScale(0.15);
 			noActionIcon.alpha = 0;
@@ -3751,7 +3929,7 @@ class CreatureSprite {
 				.start();
 			this._enableSkipTurnInput(noActionIcon);
 
-			const noActionText = this._gameEngine.add.text(0, 50, text, style);
+			const noActionText = this._gameEngine.add.text(0, 50, text, style, this._hintGrp);
 			noActionText.anchor.setTo(0.5, 0.5);
 			noActionText.alpha = 0;
 			noActionText.data.hintType = 'no_action';
@@ -3763,9 +3941,6 @@ class CreatureSprite {
 				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
 				.start();
 
-			this._hintGrp.add(noActionFrame);
-			this._hintGrp.add(noActionIcon);
-			this._hintGrp.add(noActionText);
 			this._noActionHintElements = [noActionFrame, noActionIcon, noActionText];
 
 			this._hintGrp.forEach(
@@ -3782,6 +3957,8 @@ class CreatureSprite {
 						hint.data.tweenPos.stop();
 						hint.data.tweenPos = null;
 					}
+
+					hint.x = 0;
 
 					if (this.isNoActionHintType(hint.data.hintType)) {
 						hint.y = offset;
@@ -3823,7 +4000,7 @@ class CreatureSprite {
 			true,
 		);
 
-		const hint = this._gameEngine.add.text(0, 50, text, style);
+		const hint = this._gameEngine.add.text(0, 50, text, style, this._hintGrp);
 		hint.anchor.setTo(0.5, 0.5);
 
 		hint.alpha = isSkipTurnConfirm ? 1 : 0;
@@ -3852,7 +4029,7 @@ class CreatureSprite {
 
 		if (hintType === 'confirm') {
 			// Add "Skip turn" frame
-			const frame = this._gameEngine.add.sprite(0, 50, 'frame');
+			const frame = this._gameEngine.add.sprite(0, 50, 'frame', undefined, this._hintGrp);
 			const frameBackground = this._gameEngine.make.bitmapData(frame.width, frame.height);
 			frameBackground.ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
 			frameBackground.ctx.fillRect(0, 0, frameBackground.width, frameBackground.height);
@@ -3860,7 +4037,13 @@ class CreatureSprite {
 			// Destroy the temporary frame sprite after using it as a texture source
 			// to prevent it from lingering in the upper-left corner of the canvas
 			frame.destroy();
-			const combinedSprite = this._gameEngine.add.sprite(0, 50, frameBackground as any as string);
+			const combinedSprite = this._gameEngine.add.sprite(
+				0,
+				50,
+				frameBackground as any as string,
+				undefined,
+				this._hintGrp,
+			);
 			combinedSprite.anchor.setTo(0.5, 0.175);
 			combinedSprite.setScale(0.75);
 			combinedSprite.alpha = isSkipTurnConfirm ? 1 : 0;
@@ -3877,10 +4060,9 @@ class CreatureSprite {
 					.start();
 			}
 			this._enableSkipTurnInput(combinedSprite);
-			this._hintGrp.add(combinedSprite);
 
 			// Add "Skip turn" icon
-			const skipTurnIcon = this._gameEngine.add.sprite(0, 29, 'skip');
+			const skipTurnIcon = this._gameEngine.add.sprite(0, 29, 'skip', undefined, this._hintGrp);
 			skipTurnIcon.anchor.setTo(0.5, 0.745);
 			skipTurnIcon.setScale(0.15);
 			skipTurnIcon.alpha = isSkipTurnConfirm ? 1 : 0;
@@ -3897,10 +4079,7 @@ class CreatureSprite {
 					.start();
 			}
 			this._enableSkipTurnInput(skipTurnIcon);
-			this._hintGrp.add(skipTurnIcon);
 		}
-
-		this._hintGrp.add(hint);
 
 		// Stacking
 		this._hintGrp.forEach(
@@ -3917,6 +4096,8 @@ class CreatureSprite {
 					hint.data.tweenPos.stop();
 					hint.data.tweenPos = null;
 				}
+
+				hint.x = 0;
 
 				if (hint.data.hintType === 'no_action') {
 					this.setSkipButtonNoActionVisibility(true);
@@ -4078,8 +4259,24 @@ class CreatureSprite {
 	}
 
 	destroy() {
+		if (this._destroyed) return;
+		this._destroyed = true;
+		this._freeXrayState();
 		this._creature.game.animations.disposeInfernalCardboardEffect(this._creature);
-		this._group.parent?.removeChild(this._group);
+		this._healthIndicatorTween?.stop();
+		this._noActionHintTween?.stop();
+		// A hover reparents the health bar out of the creature group and into the
+		// elevated UI layer, so it is no longer covered by the container teardown
+		// below and has to be released explicitly.
+		if (this._healthInUiGroup) {
+			this._healthUiGroup?.remove(this._healthIndicatorGroup, true);
+			this._healthInUiGroup = false;
+		}
+		// Phaser 2's `removeChild` only detached the container, leaving the
+		// cardboard, the hint group and their tweens alive with no owner — the
+		// wall's sprite outlived the wall. `remove(child, true)` destroys the
+		// whole subtree instead.
+		this._group.parent?.removeChild(this._group, true);
 	}
 }
 

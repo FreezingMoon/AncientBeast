@@ -332,6 +332,7 @@ function makeSoundSysStub() {
 		playMusic: noop,
 		stopMusic: noop,
 		playSFX: () => ({ stop: noop }),
+		playSFXLoop: () => ({ stop: noop }),
 		stopSFX: noop,
 		playHeartBeat: noop,
 		loadSound: noop,
@@ -570,7 +571,9 @@ export async function createGame(abilities: Array<(G: any) => void>): Promise<an
 				this.status.dizzy = false;
 				game.grid.lastMouseHex = undefined;
 				game.grid.suppressNextHoverRefresh = true;
-				this.remainingMove = 0;
+				// Stashes leftover movement for next turn (see Creature.stashMovement)
+				// before zeroing this turn's movement.
+				this.stashMovement?.();
 				// Preserve the non-UI side effects of queryMove(null):
 				// decrement deferred-query counter and clear freezedInput.
 				if (game._deferredQueryMovePending > 0) game._deferredQueryMovePending--;
