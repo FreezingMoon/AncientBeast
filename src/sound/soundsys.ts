@@ -10,6 +10,13 @@ export type AudioMode = 'full' | 'sfx' | 'muted';
 export const DEFAULT_AUDIO_MODE: AudioMode =
 	process.env.NODE_ENV === 'development' ? 'sfx' : 'full';
 
+/**
+ * The turn-skip heartbeat is an ambient cue that fires on every turn handoff,
+ * so it plays well below the requested heartbeat volume. The asset peaks at
+ * 0 dBFS, which makes small reductions inaudible, hence the sizeable cut.
+ */
+const HEARTBEAT_VOLUME_SCALE = 0.25;
+
 let currentAudioMode: AudioMode = DEFAULT_AUDIO_MODE;
 
 export function getAudioMode(): AudioMode {
@@ -63,6 +70,7 @@ export class SoundSys {
 			}
 
 			this.heartbeatGainNode = this.context.createGain();
+			this.heartbeatGainNode.gain.value = HEARTBEAT_VOLUME_SCALE;
 			this.heartbeatGainNode.connect(this.context.destination);
 			if ('heartbeatVolume' in config) {
 				this.heartbeatVolume = config.heartbeatVolume;
@@ -107,7 +115,8 @@ export class SoundSys {
 	set heartbeatVolume(level: number) {
 		if (this.envHasSound) {
 			this._heartbeatVol = clamp(level, 0, 1);
-			this.heartbeatGainNode.gain.value = this._heartbeatVol * this._allEffectsCoeff;
+			this.heartbeatGainNode.gain.value =
+				this._heartbeatVol * HEARTBEAT_VOLUME_SCALE * this._allEffectsCoeff;
 		}
 	}
 
@@ -187,11 +196,15 @@ export class SoundSys {
 	/**
 	 * @param duration - optional length in seconds to play, cutting the sound short.
 	 * Useful for long stingers that would otherwise linger over the whole screen.
+	 * @param loop - repeat the buffer until the returned node is passed to
+	 * {@link stopSFX}. Used for continuous cues such as a unit in flight, whose
+	 * length is not known up front.
 	 */
 	private playSound(
 		sound: AudioBuffer,
 		node: GainNode,
 		duration?: number,
+		loop?: boolean,
 	): SoundSysAudioBufferSourceNode {
 		if (!this.envHasSound) {
 			return new NullAudioBufferSourceNode();
@@ -199,6 +212,9 @@ export class SoundSys {
 
 		const source = this.context.createBufferSource();
 		source.buffer = sound;
+		if (loop) {
+			source.loop = true;
+		}
 		source.connect(node);
 		source.start(0, 0, duration);
 
@@ -208,6 +224,17 @@ export class SoundSys {
 	playSFX(relativePath: string, duration?: number): SoundSysAudioBufferSourceNode {
 		if (this.envHasSound && this.loadedPaths.hasOwnProperty(relativePath)) {
 			return this.playSound(this.loadedPaths[relativePath], this.effectsGainNode, duration);
+		}
+		return new NullAudioBufferSourceNode();
+	}
+
+	/**
+	 * Start a repeating SFX. The caller owns the returned node and must hand it to
+	 * {@link stopSFX} when the sound should stop, otherwise it plays forever.
+	 */
+	playSFXLoop(relativePath: string): SoundSysAudioBufferSourceNode {
+		if (this.envHasSound && this.loadedPaths.hasOwnProperty(relativePath)) {
+			return this.playSound(this.loadedPaths[relativePath], this.effectsGainNode, undefined, true);
 		}
 		return new NullAudioBufferSourceNode();
 	}

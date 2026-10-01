@@ -15,6 +15,14 @@ import { isDocumentHidden } from './utility/time';
 
 // to fix @ts-expect-error 2554: properly type the arguments for the trigger functions in `game.ts`
 
+/**
+ * Per-hex share of a creature's `walk_speed` used by {@link Animations.fly}. Flying
+ * covers the whole path in one tween, so a flat `walk_speed` made it look like a
+ * teleport; walking the same distance at the walking pace made it look like a
+ * crawl. Half pace per hex reads as flight.
+ */
+const FLIGHT_SPEED_FACTOR = 0.5;
+
 type AnimationOptions = {
 	customMovementPoint?: number;
 	overrideSpeed?: number;
@@ -39,10 +47,57 @@ type ShatterTexture = {
 	height?: number;
 };
 
+/**
+ * Chase rate for the haze and heat overlays. High enough to look welded to the
+ * cardboard while it stands still, low enough to smear behind it while it walks.
+ */
+const INFERNAL_OVERLAY_FOLLOW = 26;
+
+/**
+ * A cardboard jump larger than this is a teleport (materialise, reparent, hex
+ * snap) rather than walking, and is snapped instead of eased.
+ */
+const INFERNAL_OVERLAY_SNAP_DISTANCE = 96;
+
+/**
+ * The heat layer is bottom-anchored, so any vertical scale above 1 pushes a
+ * full-cardboard copy above the silhouette with nothing occluding it: a static
+ * ghost hovering over the unit, which does not move or breathe with it. Held at
+ * 1:1 and feathered top-to-bottom it only bleeds through the cardboard's own
+ * semi-transparent alpha. The upward heat comes from the rising smoke instead.
+ */
+const INFERNAL_HEAT_LAYER_SCALE_Y = 1;
+
+/**
+ * Rising smoke smoke.
+ */
+const INFERNAL_SMOKE_ENABLED = true;
+
+/**
+ * Chase rate for a smoke's anchor, in the same exponential form as
+ * INFERNAL_OVERLAY_FOLLOW so the lag is frame-rate independent.
+ *
+ * Under a steady walk the anchor settles at `speed * (1 - follow) / follow`
+ * behind the unit, and that distance is the entire lag. It is easy to make
+ * this so small it stops reading as lag at all: at 95 it was ~2px on an
+ * 8px/frame walk, invisible on a cardboard ~120px wide, so the smoke looked
+ * welded on and simply rose straight up. At 20 it is ~20px, which is plainly a
+ * trail while still overlapping the unit rather than parting company with it.
+ * Dropping to a share-of-each-step model instead (letting the smoke fall
+ * progressively further behind with no chase at all) was tried and is far too
+ * much: a smoke's whole life is ~1.35s, enough to leave it hundreds of pixels
+ * behind, which is the detached-ghost problem again.
+ */
+const INFERNAL_SMOKE_LAG_RATE = 9;
+
 type InfernalCardboardEffectState = {
 	trailNextAt: number;
 	heatNextAt: number;
-	glowOffsetY: number;
+	/** Overlays trail the cardboard instead of being welded to it. */
+	hazeX: number;
+	hazeY: number;
+	heatX: number;
+	heatY: number;
 	hazePulsePhaseMs: number;
 	hazePulsePeriodMs: number;
 	hazePulsePhaseRad: number;
@@ -50,6 +105,63 @@ type InfernalCardboardEffectState = {
 	heatUniforms: ShaderUniformMap;
 	hazeReady: boolean;
 	heatReady: boolean;
+	/**
+	 * False until a tick has positioned the overlays on the live sprite. `init`
+	 * runs while the cardboard is still at the origin and unflipped (`setDir`
+	 * places it afterwards), so showing the overlays then drew a stray
+	 * full-cardboard copy at (0, 0) that was not even facing the right way.
+	 */
+	synced: boolean;
+	/**
+	 * How fast the cardboard is travelling, in pixels per frame. Smoke at the
+	 * unit's feet is parented to it and dimmed in motion, so a walking unit does
+	 * not drag a bright full-cardboard copy along with it.
+	 */
+	speedPx: number;
+	/**
+	 * The combined pulse for this frame, shared between the haze and the heat
+	 * layer so both breathe together.
+	 */
+	glowFlicker: number;
+	/**
+	 * Live smoke. Each tracks the unit through `anchor` and carries its own rise
+	 * and drift in `offset`, with the sprite's position recomputed from the two
+	 * every tick. The offset is what the tween animates: tweening `x`/`y`
+	 * directly would write absolute spawn-time coordinates back over the anchor
+	 * each frame, pinning the smoke where the unit used to be.
+	 */
+	smoke: Array<{
+		sprite: SpriteHandle;
+		/** Where the unit was when this smoke spawned. The smoke never returns to it. */
+		anchorX: number;
+		anchorY: number;
+		/** Rise and drift away from the anchor, in the smoke layer's space. */
+		offset: { x: number; y: number };
+		/**
+		 * Scale as an unsigned magnitude. Held separately from `sprite.scale` so
+		 * the facing sign can be re-derived from the unit each tick: a sign baked
+		 * in at spawn left smoke facing the way the unit was heading when it was
+		 * born, so a unit that turned around kept trailing cardboard facing the
+		 * other way.
+		 */
+		growth: { x: number; y: number };
+	}>;
+	/**
+	 * The cardboard's world position on the previous tick. Movement is measured
+	 * from this rather than from the sprite's own x/y: walking tweens the
+	 * creature *group* (see CreatureSprite#setPx) while the sprite's local
+	 * position stays fixed, so a sprite-local delta is always zero and any smoke
+	 * driven by it stands still while the unit walks out from under it.
+	 */
+	lastWorldX: number;
+	lastWorldY: number;
+	/**
+	 * The creature group's position on the previous tick. Walking tweens the
+	 * group rather than the sprite, so this is what a detached smoke has to be
+	 * fed to follow the unit.
+	 */
+	lastGroupX: number;
+	lastGroupY: number;
 	sprite: SpriteHandle;
 	group: GroupHandle;
 	hazeSprite?: SpriteHandle;
@@ -87,6 +199,30 @@ export class Animations {
 		const sprite = creature.creatureSprite?.sprite ?? fallbackSprite;
 		const group = (sprite?.parent as GroupHandle | undefined) ?? creature.creatureSprite?.grp;
 		return { sprite, group };
+	}
+
+	/**
+	 * Bottom-anchors an overlay onto the cardboard's own baseline and sets its
+	 * scale and position in one step.
+	 *
+	 * Phaser 4 resolves an origin against the texture frame it is set on, so
+	 * `loadTexture` invalidates any anchoring done before it. It also only treats
+	 * `setOrigin` as meaningful together with the position it was set against,
+	 * which is why `Hex#pinTopLeft` re-applies x/y. Doing all three here means
+	 * every call site stays pinned to the cardboard's bottom edge — otherwise a
+	 * scaled overlay grows about the wrong point and slides off the base.
+	 */
+	private _anchorInfernalOverlay(
+		overlay: SpriteHandle,
+		x: number,
+		y: number,
+		scaleX: number,
+		scaleY: number,
+	): void {
+		overlay.anchor.setTo(0.5, 1);
+		overlay.x = x;
+		overlay.y = y;
+		overlay.scale.setTo(scaleX, scaleY);
 	}
 
 	private _retryInfernalCardboardBitmaps(
@@ -131,16 +267,29 @@ export class Animations {
 						continue;
 					}
 
+					// Hot core. Concentrating the glow toward the middle of the body
+					// reads as the unit being alight from within; spreading it evenly
+					// over the silhouette just brightens the whole outline and stays
+					// flat however far the alpha is pushed.
+					const px = (index / 4) % width;
+					const py = Math.floor(index / 4 / width);
+					const dx = (px - width * 0.5) / (width * 0.5);
+					// Core sits below centre, where a body of heat would be, and the
+					// top of the sprite is the head rather than the hot part.
+					const dy = (py - height * 0.62) / (height * 0.62);
+					const radial = Math.sqrt(dx * dx + dy * dy);
+					const core = Math.max(0, 1 - radial * 0.85);
+
 					const warmBoost = 1 + warmMask * 0.95;
 					data[index] = Math.min(255, red * warmBoost);
 					data[index + 1] = Math.min(255, green * (1 + warmMask * 0.48));
 					data[index + 2] = Math.min(255, blue * (1 - warmMask * 0.2));
-					data[index + 3] = Math.min(255, alpha * warmMask * 255 * 1.15);
+					data[index + 3] = Math.min(255, alpha * warmMask * 255 * (0.5 + core * 1.1));
 				}
 				ctx.putImageData(imageData, 0, 0);
 				state.hazeBmd.dirty = true;
 				state.hazeSprite.loadTexture(state.hazeBmd);
-				state.hazeSprite.scale.setTo(dir, 1);
+				this._anchorInfernalOverlay(state.hazeSprite, sprite.x, sprite.y, dir, 1);
 				state.hazeSprite.tint = 0xffffff;
 				state.hazeReady = true;
 			} catch (e) {
@@ -179,9 +328,15 @@ export class Animations {
 				state.heatBmd.dirty = true;
 				state.heatReady = true;
 				state.heatLayerSprite.loadTexture(state.heatBmd);
-				state.heatLayerSprite.scale.setTo(dir, 1.38);
+				this._anchorInfernalOverlay(
+					state.heatLayerSprite,
+					sprite.x,
+					sprite.y,
+					dir,
+					INFERNAL_HEAT_LAYER_SCALE_Y,
+				);
 				state.heatLayerSprite.tint = 0xffffff;
-				state.heatLayerSprite.alpha = 0.24;
+				state.heatLayerSprite.alpha = state.synced ? 0.18 : 0;
 			} catch (e) {
 				console.warn('[Infernal] Failed to retry heat BitmapData:', e);
 			}
@@ -853,27 +1008,42 @@ export class Animations {
 		const start = game.grid.hexes[creature.y][creature.x - creature.size + 1];
 		const currentHex = game.grid.hexes[hex.y][hex.x - creature.size + 1];
 
+		// Determine distance; guard against same-hex edge case to prevent an infinite loop.
+		let distance = 0;
+		let k = 0;
+		const maxBoardDistance = 30;
+		while (!distance && k < maxBoardDistance) {
+			k++;
+
+			if (arrayUtils.findPos(start.adjacentHex(k), currentHex)) {
+				distance = k;
+			}
+		}
+
 		this.leaveHex(creature, currentHex, opts);
 
-		const durationMS = !opts.overrideSpeed ? creature.animation.walk_speed : opts.overrideSpeed;
+		// A flight covers its whole path in a single tween, so a flat `walk_speed`
+		// duration made a full-movement flight read as a teleport. Scale the tween
+		// with the distance covered instead: half the per-hex pace of walking, so a
+		// rested unit that banks movement visibly crosses the map without crawling.
+		// `Math.max(distance, 1)` keeps a single-hex (or same-hex) move animating.
+		const durationMS = !opts.overrideSpeed
+			? creature.animation.walk_speed * FLIGHT_SPEED_FACTOR * Math.max(distance, 1)
+			: opts.overrideSpeed;
+
+		// A true flier (Scavenger) loops its wingbeat for the whole crossing instead
+		// of a step per hex, since the flight is one uninterrupted tween with no
+		// footfalls to hear. The landing is still marked by the usual step.
+		const flightSound =
+			creature.movementType() === 'flying' ? game.soundsys.playSFXLoop('sounds/flight') : undefined;
 
 		creature.creatureSprite.setHex(currentHex, isDocumentHidden() ? 0 : durationMS).then(() => {
+			game.soundsys.stopSFX(flightSound);
+
 			// Sound Effect
 			game.soundsys.playSFX('sounds/step');
 
 			if (!opts.ignoreMovementPoint) {
-				// Determine distance; guard against same-hex edge case to prevent an infinite loop.
-				let distance = 0;
-				let k = 0;
-				const maxBoardDistance = 30;
-				while (!distance && k < maxBoardDistance) {
-					k++;
-
-					if (arrayUtils.findPos(start.adjacentHex(k), currentHex)) {
-						distance = k;
-					}
-				}
-
 				creature.remainingMove -= distance;
 				if (opts.customMovementPoint === 0) {
 					creature.travelDist += distance;
@@ -1622,6 +1792,12 @@ export class Animations {
 		if (creature.name !== 'Infernal') {
 			return;
 		}
+		// Temp creatures are invisible placement placeholders, so they must not
+		// spawn overlays or smoke: those are separate sprites and hiding the
+		// cardboard does not hide them, which leaves a lit ghost behind.
+		if (creature.temp) {
+			return;
+		}
 
 		const { sprite, group } = this._getLiveInfernalCardboardTarget(creature, spriteRef);
 		if (!sprite || !group) {
@@ -1649,8 +1825,12 @@ export class Animations {
 		const luminescenceUniforms: ShaderUniformMap = {
 			uTime: 0,
 			uGlowStrength: 0.95,
-			uPulseSpeed: 4.2,
 			...(luminescenceShader?.defaultUniforms ?? {}),
+			// Overrides the shader default: at 4.2 the glow strobed hard enough to
+			// read as a flicker. Raised from 0.55 along with the alphas, because a
+			// brighter glow at 0.55 was slow enough to look like a static wash
+			// rather than something molten.
+			uPulseSpeed: 1.87,
 		};
 		const heatUniforms: ShaderUniformMap = {
 			uTime: 0,
@@ -1661,7 +1841,10 @@ export class Animations {
 		const state: InfernalCardboardEffectState = {
 			trailNextAt: this.game.gameEngine.time.now,
 			heatNextAt: this.game.gameEngine.time.now,
-			glowOffsetY: sprite.texture.height * 0.02,
+			hazeX: sprite.x,
+			hazeY: sprite.y,
+			heatX: sprite.x,
+			heatY: sprite.y,
 			hazePulsePhaseMs: randInt(2000),
 			hazePulsePeriodMs: 260 + randInt(180),
 			hazePulsePhaseRad: Math.random() * Math.PI * 2,
@@ -1669,6 +1852,14 @@ export class Animations {
 			heatUniforms,
 			hazeReady: false,
 			heatReady: false,
+			synced: false,
+			speedPx: 0,
+			glowFlicker: 0.5,
+			smoke: [],
+			lastWorldX: group.x + sprite.x,
+			lastWorldY: group.y + sprite.y,
+			lastGroupX: group.x,
+			lastGroupY: group.y,
 			sprite,
 			group,
 			tweens: [],
@@ -1687,9 +1878,12 @@ export class Animations {
 		const heatSource = hazeSource;
 
 		// Always create a visible haze layer bound to Infernal's silhouette.
-		const hazeSprite = group.create(sprite.x, sprite.y - state.glowOffsetY, sprite.key);
-		hazeSprite.anchor.setTo(0.5, 1);
-		hazeSprite.scale.setTo(dir, 1);
+		// Emits from the cardboard's own bottom anchor, with no extra offset.
+		// Exactly on the cardboard's own position. With the overlays at scale.y 1 an
+		// offset is not a look choice but an additive double-image, which is what
+		// reads as the unit being blurry.
+		const hazeSprite = group.create(sprite.x, sprite.y, sprite.key);
+		this._anchorInfernalOverlay(hazeSprite, sprite.x, sprite.y, dir, 1);
 		hazeSprite.alpha = 0;
 		hazeSprite.tint = 0xff8f3a;
 		hazeSprite.blendMode = BLEND_MODE_ADD;
@@ -1731,6 +1925,7 @@ export class Animations {
 				ctx.putImageData(imageData, 0, 0);
 				state.hazeBmd.dirty = true;
 				state.hazeSprite.loadTexture(state.hazeBmd);
+				this._anchorInfernalOverlay(state.hazeSprite, sprite.x, sprite.y, dir, 1);
 				state.hazeSprite.tint = 0xffffff;
 				state.hazeReady = true;
 			} catch (e) {
@@ -1773,20 +1968,34 @@ export class Animations {
 			}
 		}
 
-		const heatLayerSprite = group.create(sprite.x, sprite.y - state.glowOffsetY, sprite.key);
-		heatLayerSprite.anchor.setTo(0.5, 1);
-		heatLayerSprite.scale.setTo(dir, 1.38);
+		// Keep expanded heat distortion behind the cardboard to prevent ghost overlays.
+		const heatLayerSprite = group.create(sprite.x, sprite.y, sprite.key);
+		this._anchorInfernalOverlay(
+			heatLayerSprite,
+			sprite.x,
+			sprite.y,
+			dir,
+			INFERNAL_HEAT_LAYER_SCALE_Y,
+		);
 		heatLayerSprite.alpha = 0;
 		heatLayerSprite.tint = 0xffa15a;
 		heatLayerSprite.blendMode = BLEND_MODE_ADD;
-		// Keep expanded heat distortion behind the cardboard to prevent ghost overlays.
 		group.addAt(heatLayerSprite, Math.max(0, spriteIndex));
 		state.heatLayerSprite = heatLayerSprite;
 		state.trailSprites.push(heatLayerSprite);
 		if (state.heatReady && state.heatBmd) {
 			heatLayerSprite.loadTexture(state.heatBmd);
+			this._anchorInfernalOverlay(
+				heatLayerSprite,
+				sprite.x,
+				sprite.y,
+				dir,
+				INFERNAL_HEAT_LAYER_SCALE_Y,
+			);
 			heatLayerSprite.tint = 0xffffff;
-			heatLayerSprite.alpha = 0.24;
+			// Held back until the first tick: until then the cardboard is still at
+			// the origin and unflipped, so this would flash a stray copy there.
+			heatLayerSprite.alpha = 0;
 		}
 
 		this._spawnInfernalCardboardTrail(creature, state, true);
@@ -1830,11 +2039,36 @@ export class Animations {
 			return;
 		}
 
+		const dir = sprite.scale.x < 0 ? -1 : 1;
+
+		// `init` runs while the cardboard is still at the origin and unflipped:
+		// `setDir` places and faces it afterwards. The overlays are created there
+		// too, so until a tick has put them on the live sprite they would draw a
+		// stray full-cardboard copy at (0, 0), facing the wrong way. The first
+		// tick snaps them into place and only then lets them show.
+		if (!state.synced) {
+			state.hazeX = sprite.x;
+			state.hazeY = sprite.y;
+			state.heatX = sprite.x;
+			state.heatY = sprite.y;
+			this._anchorInfernalOverlay(state.hazeSprite, sprite.x, sprite.y, dir, 1);
+			if (state.heatLayerSprite) {
+				this._anchorInfernalOverlay(
+					state.heatLayerSprite,
+					sprite.x,
+					sprite.y,
+					dir,
+					INFERNAL_HEAT_LAYER_SCALE_Y,
+				);
+			}
+			state.synced = true;
+		}
+
 		if (!state.hazeReady || !state.heatReady) {
-			const dir = sprite.scale.x < 0 ? -1 : 1;
 			this._retryInfernalCardboardBitmaps(state, sprite, dir);
 		}
 
+		this._positionInfernalSmoke(state, sprite);
 		this._spawnInfernalCardboardTrail(creature, state);
 	}
 
@@ -1847,6 +2081,7 @@ export class Animations {
 
 		state.tweens.forEach((tween) => tween.stop());
 		state.trailSprites.forEach((sprite) => sprite.destroy());
+		state.smoke = [];
 		state.hazeBmd?.destroy();
 		state.heatBmd?.destroy();
 		this._infernalCardboardFx.delete(effectKey);
@@ -1868,6 +2103,66 @@ export class Animations {
 		this._infernalCardboardFx.set(this._infernalCardboardFxKey(creature), state);
 	}
 
+	/**
+	 * Moves a smoke out of the creature's group once it has risen above the
+	 * cardboard. Below that line it is smoke at the unit's feet and belongs to
+	 * the unit; above it, it is hanging in the air and should stay where it was
+	 * released instead of being dragged along by the group's position tween.
+	 */
+	/**
+	 * Moves each smoke to `anchor + offset`, where the anchor chases the unit's
+	 * world position and the offset is the rise and drift the smoke's own tween is
+	 * animating.
+	 *
+	 * The position is written here rather than tweened on the sprite because a
+	 * tween holds absolute spawn-time coordinates: it would rewrite x/y from
+	 * `from -> to` every frame and overwrite the anchor, leaving detached smoke
+	 * pinned at the place the unit had walked away from.
+	 */
+	private _positionInfernalSmoke(state: InfernalCardboardEffectState, sprite: SpriteHandle) {
+		const smokeGroup = this.game.grid?.infernalSmokeGroup;
+		if (!smokeGroup) {
+			return;
+		}
+		// The unit's world position. Walking tweens the creature group and leaves
+		// the sprite's own x/y fixed, so the group is what has to be read.
+		const worldX = state.group.x + sprite.x;
+		const worldY = state.group.y + sprite.y;
+		const frameSeconds = Math.min((this.game.gameEngine.time.elapsedMS ?? 0) / 1000, 0.1);
+		const follow = 1 - Math.exp(-INFERNAL_SMOKE_LAG_RATE * frameSeconds);
+		// A materialisation or hex snap is a teleport, not a walk. Chasing across
+		// one would slide the smoke a long way across the board, so it is snapped
+		// onto the unit instead.
+		const teleported =
+			!state.synced ||
+			Math.abs(worldX - state.hazeX) > INFERNAL_OVERLAY_SNAP_DISTANCE ||
+			Math.abs(worldY - state.hazeY) > INFERNAL_OVERLAY_SNAP_DISTANCE;
+		// Re-read the facing every tick. A unit that turns around mid-walk would
+		// otherwise leave its smoke facing the direction it was travelling when
+		// each smoke spawned, trailing backwards cardboard.
+		const dir = sprite.scale.x < 0 ? -1 : 1;
+		for (const entry of state.smoke) {
+			if (!entry.sprite.exists) {
+				continue;
+			}
+			if (teleported) {
+				entry.anchorX = worldX;
+				entry.anchorY = worldY;
+			} else {
+				// The smoke absorbs only part of the gap each frame, so under a steady
+				// walk it settles at a fixed distance behind the unit. That distance is
+				// the whole of the lag: the smoke keeps up, but visibly trails rather
+				// than sitting on top of the cardboard and rising straight up.
+				entry.anchorX += (worldX - entry.anchorX) * follow;
+				entry.anchorY += (worldY - entry.anchorY) * follow;
+			}
+			entry.sprite.position.set(entry.anchorX + entry.offset.x, entry.anchorY + entry.offset.y);
+			// The tween carries only the growth magnitude, so the facing sign is
+			// applied here to keep tracking the unit's current direction.
+			entry.sprite.scale.setTo(dir * entry.growth.x, entry.growth.y);
+		}
+	}
+
 	private _spawnInfernalCardboardTrail(
 		creature: Creature,
 		state: InfernalCardboardEffectState,
@@ -1883,68 +2178,187 @@ export class Animations {
 		}
 
 		const dir = sprite.scale.x < 0 ? -1 : 1;
-		if (state.hazeSprite && state.hazeReady) {
-			state.hazeSprite.x = sprite.x;
-			state.hazeSprite.y = sprite.y - state.glowOffsetY;
-			state.hazeSprite.scale.setTo(dir, 1);
+		const frameSeconds = Math.min((this.game.gameEngine.time.elapsedMS ?? 0) / 1000, 0.1);
+		// How far the unit travelled since the previous tick, smoothed so a single
+		// jittery frame cannot spike the smoke's brightness. Measured in world
+		// space: walking tweens the creature group, leaving the sprite's own x/y
+		// untouched, so a sprite-local delta would read as a stationary unit.
+		const worldX = state.group.x + sprite.x;
+		const worldY = state.group.y + sprite.y;
+		const moved = Math.hypot(worldX - state.lastWorldX, worldY - state.lastWorldY);
+		state.speedPx = state.speedPx * 0.7 + moved * 0.3;
+		state.lastWorldX = worldX;
+		state.lastWorldY = worldY;
+		state.lastGroupX = state.group.x;
+		state.lastGroupY = state.group.y;
+		// Frame-rate independent chase. A stationary cardboard is caught exactly,
+		// while a walking one is not, so the overlays smear into a trail instead of
+		// riding along at the unit's speed.
+		const follow = 1 - Math.exp(-INFERNAL_OVERLAY_FOLLOW * frameSeconds);
+		// Materialisation, reparenting and hex snapping teleport the cardboard.
+		// Easing across one of those jumps slides a second cardboard copy into the
+		// unit, so anything that far away is a teleport and gets snapped instead.
+		// Chased in the group's space, because that is what a walk tweens. The
+		// overlays are children of the group, so their own x/y are group-local:
+		// comparing them against a world-space target would chase a constant
+		// offset forever and never settle.
+		const targetX = state.group.x + sprite.x;
+		const targetY = state.group.y + sprite.y;
+		if (
+			!state.synced ||
+			Math.abs(targetX - state.hazeX) > INFERNAL_OVERLAY_SNAP_DISTANCE ||
+			Math.abs(targetY - state.hazeY) > INFERNAL_OVERLAY_SNAP_DISTANCE
+		) {
+			state.hazeX = targetX;
+			state.hazeY = targetY;
+			state.heatX = targetX;
+			state.heatY = targetY;
+		} else {
+			state.hazeX += (targetX - state.hazeX) * follow;
+			state.hazeY += (targetY - state.hazeY) * follow;
+			state.heatX += (targetX - state.heatX) * follow;
+			state.heatY += (targetY - state.heatY) * follow;
+		}
+
+		if (state.hazeSprite) {
+			this._anchorInfernalOverlay(
+				state.hazeSprite,
+				state.hazeX - state.group.x,
+				state.hazeY - state.group.y,
+				dir,
+				1,
+			);
+		}
+		if (state.hazeSprite && state.hazeReady && state.synced) {
 			const deltaSeconds = Math.min((this.game.gameEngine.time.elapsedMS ?? 0) / 1000, 0.1);
 			state.luminescenceUniforms = advanceShaderTime(state.luminescenceUniforms, deltaSeconds);
 			const uTime = state.luminescenceUniforms.uTime as number;
-			const pulseSpeed = (state.luminescenceUniforms.uPulseSpeed as number) ?? 4.2;
-			const hazePulse = 0.5 + 0.5 * Math.sin(uTime * pulseSpeed + state.hazePulsePhaseRad);
-			state.hazeSprite.alpha = 0.12 + hazePulse * 0.88;
+			const pulseSpeed = (state.luminescenceUniforms.uPulseSpeed as number) ?? 1.87;
+			// Two beats, not one. A single sine is a smooth swell: it reads as a
+			// lamp being dimmed rather than something alight, because the intensity
+			// only ever changes at one rate. Layering a faster, shallower beat over
+			// the slow breath makes it fluctuate unevenly, the way a real glow does,
+			// without returning to the hard strobe the shader's 4.2 default gave.
+			const slow = 0.5 + 0.5 * Math.sin(uTime * pulseSpeed + state.hazePulsePhaseRad);
+			// ~1.9Hz against the slow beat's 0.35Hz, and only a third of the
+			// amplitude: enough that the intensity visibly wavers several times
+			// within each breath, shallow enough that it stays a glow.
+			const fast = 0.5 + 0.5 * Math.sin(uTime * pulseSpeed * 5.5 + state.hazePulsePhaseRad * 2.7);
+			const flicker = slow * 0.65 + fast * 0.35;
+			// A wide swing rather than a uniform lift. The trough goes almost dark
+			// and the crest punches well past the old ceiling, so the pulsation is
+			// obvious; the midpoint is close to where the flat version sat, so this
+			// is more dynamic rather than brighter.
+			state.hazeSprite.alpha = 0.05 + flicker * 0.61;
+			// Shared with the heat layer below, which is driven from its own block
+			// so it does not depend on the haze bitmap having loaded.
+			state.glowFlicker = flicker;
+		}
+		if (state.heatLayerSprite && !state.synced) {
+			state.heatLayerSprite.alpha = 0;
 		}
 		if (state.heatLayerSprite) {
-			state.heatLayerSprite.x = sprite.x;
-			state.heatLayerSprite.y = sprite.y - state.glowOffsetY;
-			state.heatLayerSprite.scale.setTo(dir, 1.38);
-			state.heatLayerSprite.alpha = state.heatReady ? 0.24 : 0;
+			this._anchorInfernalOverlay(
+				state.heatLayerSprite,
+				state.heatX - state.group.x,
+				state.heatY - state.group.y,
+				dir,
+				INFERNAL_HEAT_LAYER_SCALE_Y,
+			);
+			// The heat layer used to sit at a fixed alpha while the haze breathed,
+			// leaving a quarter of the glow completely static. It pulses off the same
+			// signal so the whole effect moves together.
+			state.heatLayerSprite.alpha =
+				state.heatReady && state.synced ? 0.06 + (state.glowFlicker ?? 0.5) * 0.24 : 0;
 		}
 
-		if (state.heatReady && (forceHeatSpawn || now >= state.heatNextAt)) {
-			const group = state.group;
+		// Smokes are additive full-cardboard copies; one spawned before the first
+		// sync would be drawn at the origin, facing the wrong way.
+		if (
+			INFERNAL_SMOKE_ENABLED &&
+			state.heatReady &&
+			state.synced &&
+			(forceHeatSpawn || now >= state.heatNextAt)
+		) {
+			// Born in the smoke layer in world space, not parented to the creature
+			// group. A child of the moving group is dragged along by the group's
+			// position tween and cannot lag behind it at all, and a smoke-layer
+			// child that nothing repositions is left standing where the unit used to
+			// be. `_positionInfernalSmoke` owns the position instead.
+			const smokeGroup = this.game.grid?.infernalSmokeGroup;
+			if (!smokeGroup) {
+				return;
+			}
 			const deltaSeconds = Math.min((this.game.gameEngine.time.elapsedMS ?? 0) / 1000, 0.1);
 			state.heatUniforms = advanceShaderTime(state.heatUniforms, deltaSeconds);
-			const wisp = group.create(sprite.x, sprite.y - state.glowOffsetY, sprite.key);
-			wisp.anchor.setTo(0.5, 1);
-			wisp.scale.setTo(dir * (1 + rand(0.06)), 0.96 + rand(0.1));
-			wisp.alpha = 0.26 + rand(0.12);
-			wisp.tint = 0xff9c52;
-			wisp.blendMode = BLEND_MODE_ADD;
-			group.addAt(wisp, 0);
+			const smokeX = state.group.x + sprite.x;
+			const smokeY = state.group.y + sprite.y;
+			const smoke = smokeGroup.create(smokeX, smokeY, sprite.key);
+			const growth = { x: 1 + rand(0.06), y: 0.96 + rand(0.1) };
+			this._anchorInfernalOverlay(smoke, smokeX, smokeY, dir * growth.x, growth.y);
+			// Born invisible and eased up to its peak. Appearing at full alpha steps
+			// the total additive brightness in one frame, and with several smoke
+			// overlapping that reads as a flicker rather than smoke.
+			smoke.alpha = 0;
+			// A stationary unit can carry full smoke; a walking one gets roughly
+			// half, so the trail dissipates rather than reading as a ghost.
+			const motionFade = 1 - Math.min(0.5, state.speedPx * 0.08);
+			const smokePeakAlpha = (0.11 + rand(0.04)) * motionFade;
+			smoke.tint = 0xff9c52;
+			smoke.blendMode = BLEND_MODE_ADD;
 			if (state.heatBmd) {
-				wisp.loadTexture(state.heatBmd);
-				wisp.tint = 0xffffff;
+				smoke.loadTexture(state.heatBmd);
+				// `loadTexture` swaps the frame the origin is measured from, and may
+				// reset the scale, so re-assert both from the intended values.
+				this._anchorInfernalOverlay(smoke, smokeX, smokeY, dir * growth.x, growth.y);
+				smoke.tint = 0xffffff;
 			}
-			state.trailSprites.push(wisp);
+			state.trailSprites.push(smoke);
+			const offset = { x: 0, y: 0 };
+			state.smoke.push({
+				sprite: smoke,
+				anchorX: smokeX,
+				anchorY: smokeY,
+				offset,
+				growth,
+			});
 
 			const driftX = (randInt(2) === 0 ? -1 : 1) * (2 + rand(4));
-			const riseY = 22 + rand(18);
-			const duration = 1900 + randInt(700);
+			const riseY = 8 + rand(4);
+			const duration = 1350 + randInt(450);
+			// Rise and drift are tweened on a detached offset object, never on the
+			// sprite itself. A tween writes absolute `from -> to` values into x/y
+			// every frame, so tweening the sprite would overwrite the anchor that
+			// tracks the walking unit and pin the smoke at its spawn point.
 			const moveTween = this.game.gameEngine
-				.tween(wisp)
-				.to(
-					{ x: wisp.x + driftX, y: wisp.y - riseY, alpha: 0 },
-					duration,
-					Easing.Sinusoidal.Out,
-					true,
-				);
+				.tween(offset)
+				.to({ x: driftX, y: -riseY }, duration, Easing.Sinusoidal.Out, true);
+			// Eased in over the first third, then eased back out. A single
+			// `Sinusoidal.Out` to zero starts at full slope, so the smoke would dim
+			// fastest exactly when it is brightest and hardest to notice.
+			const fadeTween = this.game.gameEngine
+				.tween(smoke)
+				.to({ alpha: smokePeakAlpha }, duration * 0.3, Easing.Sinusoidal.InOut, true)
+				.to({ alpha: 0 }, duration * 0.7, Easing.Sinusoidal.In, true);
 			const scaleTween = this.game.gameEngine
-				.tween(wisp.scale)
+				.tween(growth)
 				.to(
-					{ x: dir * (1.02 + rand(0.08)), y: 1.5 + rand(0.12) },
+					{ x: growth.x + rand(0.06), y: 1.12 + rand(0.05) },
 					duration,
 					Easing.Sinusoidal.Out,
 					true,
 				);
 			moveTween.onComplete.add(() => {
-				wisp.destroy();
-				state.trailSprites = state.trailSprites.filter((s) => s !== wisp);
-				state.tweens = state.tweens.filter((t) => t !== moveTween && t !== scaleTween);
+				smoke.destroy();
+				state.trailSprites = state.trailSprites.filter((s) => s !== smoke);
+				state.smoke = state.smoke.filter((entry) => entry.sprite !== smoke);
+				state.tweens = state.tweens.filter(
+					(t) => t !== moveTween && t !== scaleTween && t !== fadeTween,
+				);
 			});
-			state.tweens.push(moveTween, scaleTween);
+			state.tweens.push(moveTween, scaleTween, fadeTween);
 
-			state.heatNextAt = now + 240 + randInt(160);
+			state.heatNextAt = now + 420 + randInt(140);
 		}
 	}
 }
