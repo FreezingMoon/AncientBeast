@@ -493,7 +493,7 @@ export class PlasmaField {
 		// Phaser 4's Shader mixes in Origin, not Anchor; `setOrigin` is the
 		// equivalent of the CPU path's `anchor.set(0.5, 0.5)`.
 		(shader as unknown as { setOrigin?: (x: number, y: number) => void }).setOrigin?.(0.5, 0.5);
-		shader.scale.set(this.settings.scaleX, this.settings.scaleY);
+		shader.setScale(this.settings.scaleX, this.settings.scaleY);
 		// Shader has no Alpha component (`setAlpha` is a no-op), so opacity travels
 		// as the `uAlpha` uniform instead — see `_pushShaderUniforms`.
 		shader.blendMode = BLEND_MODE_ADD;
@@ -524,8 +524,8 @@ export class PlasmaField {
 		const sprite = this.parent.create
 			? (this.parent.create(x, y, this.bmd.key) as SpriteHandle)
 			: this._engine.add.sprite(x, y, this.bmd.key);
-		sprite.anchor.set(0.5, 0.5);
-		sprite.scale.set(this.settings.scaleX, this.settings.scaleY);
+		sprite.setOrigin(0.5, 0.5);
+		sprite.setScale(this.settings.scaleX, this.settings.scaleY);
 		sprite.alpha = this.alpha;
 		// Additive blending is what gives the shield its glow. `2` is MULTIPLY,
 		// not ADD (ADD is 1 in both Phaser 2 CE and Phaser 4), and multiplying
@@ -990,7 +990,7 @@ export class PlasmaField {
 		if (key in this.settings) {
 			(this.settings[key] as number | boolean) = value as never;
 			if (key === 'scaleX' || key === 'scaleY') {
-				this.sprite.scale.set(this.settings.scaleX, this.settings.scaleY);
+				this.sprite.setScale(this.settings.scaleX, this.settings.scaleY);
 			}
 			// On the GPU path every setting is a uniform, so a change only reaches
 			// the screen on the next tick. Push now so the change is immediate.

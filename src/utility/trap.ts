@@ -59,7 +59,7 @@ export class Trap {
 		sourceGroup.remove(sprite, false);
 		targetGroup.add(sprite);
 		const localPos = targetGroup.toLocal(worldPos, this.game.gameEngine.world);
-		sprite.position.set(localPos.x, localPos.y);
+		sprite.setPosition(localPos.x, localPos.y);
 	}
 
 	private _moveVisualsToOverLayer(enabled: boolean) {
