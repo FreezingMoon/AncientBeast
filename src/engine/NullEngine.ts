@@ -11,21 +11,17 @@
  *   - `tween()` applies the target properties synchronously and resolves
  *     `onComplete` on a microtask, so chained callbacks (trap fades, ability
  *     handoffs) still run in order.
- *   - `add.bitmapData()` / `make.bitmapData()` return a handle backed by a real
- *     2D canvas context, so the pixel paths in `animations.ts` /
- *     `bitmapUtils.ts` (`getImageData` / `putImageData` / `drawImage`) work
- *     headless.
+ *   - CPU-drawn surfaces come from `createGameCanvasSurface` in
+ *     `src/game-display/canvas-surface.ts`, which owns the headless 2D
+ *     fallback, so the pixel paths in `animations.ts` / `bitmapUtils.ts`
+ *     (`getImageData` / `putImageData` / `drawImage`) work headless.
  */
 
-import { toTextureKey } from './textureKey';
 import { setOnDemandLoader } from '../assets';
 import type {
-	BitmapDataHandle,
 	BoundsRect,
-	CameraHandle,
 	GameEngine,
 	GroupHandle,
-	ScaleHandle,
 	ShaderHandle,
 	SignalHandle,
 	SpriteHandle,
@@ -198,127 +194,12 @@ class NullTween implements TweenHandle {
 	}
 }
 
-// ─── BitmapData ───────────────────────────────────────────────────────────────
-
-/**
- * Phaser 4 dropped `BitmapData`. Headless runs still need a real 2D context for
- * the pixel-manipulation paths, so this builds a detached canvas. Environments
- * without canvas support (plain Node) fall back to a zeroed pixel buffer, which
- * every consumer already treats as "no pixel data".
- */
-function createHeadlessContext(width: number, height: number): CanvasRenderingContext2D {
-	const g = globalThis as any;
-	if (typeof g.document !== 'undefined' && typeof g.document.createElement === 'function') {
-		try {
-			const canvas = g.document.createElement('canvas');
-			canvas.width = Math.max(1, Math.floor(width) || 1);
-			canvas.height = Math.max(1, Math.floor(height) || 1);
-			const ctx = canvas.getContext('2d');
-			if (ctx) return ctx as CanvasRenderingContext2D;
-		} catch {
-			// fall through to the buffer-backed stub
-		}
-	}
-	return createBufferContext(width, height) as unknown as CanvasRenderingContext2D;
-}
-
-function createBufferContext(width: number, height: number): Partial<CanvasRenderingContext2D> {
-	const w = Math.max(1, Math.floor(width) || 1);
-	const h = Math.max(1, Math.floor(height) || 1);
-	const data = new Uint8ClampedArray(w * h * 4);
-	return {
-		canvas: { width: w, height: h } as HTMLCanvasElement,
-		fillStyle: '#000000',
-		strokeStyle: '#000000',
-		lineWidth: 1,
-		globalAlpha: 1,
-		clearRect: () => undefined,
-		fillRect: () => undefined,
-		strokeRect: () => undefined,
-		drawImage: () => undefined,
-		beginPath: () => undefined,
-		closePath: () => undefined,
-		moveTo: () => undefined,
-		lineTo: () => undefined,
-		arc: () => undefined,
-		fill: () => undefined,
-		stroke: () => undefined,
-		save: () => undefined,
-		restore: () => undefined,
-		translate: () => undefined,
-		rotate: () => undefined,
-		scale: () => undefined,
-		createImageData: ((sw: number, sh: number) => ({
-			width: sw,
-			height: sh,
-			data: new Uint8ClampedArray(sw * sh * 4),
-			colorSpace: 'srgb' as ImageData['colorSpace'],
-		})) as CanvasRenderingContext2D['createImageData'],
-		getImageData: (_x: number, _y: number, sw: number, sh: number) => ({
-			width: sw,
-			height: sh,
-			data: data.subarray(0, sw * sh * 4),
-			colorSpace: 'srgb' as ImageData['colorSpace'],
-		}),
-		putImageData: () => undefined,
-		setTransform: () => undefined,
-		measureText: () => ({ width: 0 } as TextMetrics),
-		fillText: () => undefined,
-		strokeText: () => undefined,
-	};
-}
-
-class NullBitmapData implements BitmapDataHandle {
-	width: number;
-	height: number;
-	/** Stands in for the texture manager key; see `toTextureKey`. */
-	textureKey: string;
-	ctx: CanvasRenderingContext2D;
-	dirty = false;
-
-	private static nextId = 1;
-
-	constructor(width: number, height: number) {
-		this.width = Math.max(1, Math.floor(width) || 1);
-		this.height = Math.max(1, Math.floor(height) || 1);
-		this.textureKey = `__ab_bmp_null_${NullBitmapData.nextId++}`;
-		this.ctx = createHeadlessContext(this.width, this.height);
-	}
-
-	get context(): CanvasRenderingContext2D {
-		return this.ctx;
-	}
-
-	/** Phaser 4 flushes a DynamicTexture here; headless there is nothing to upload. */
-	update(): void {
-		this.dirty = false;
-	}
-
-	/**
-	 * Draws a texture onto this bitmap data.
-	 * No-op in headless mode but maintains API compatibility.
-	 */
-	draw(key: string, x: number, y: number): void {
-		// In headless mode, we don't have access to textures, so just mark dirty
-		// to maintain API compatibility with Phaser 2's BitmapData.draw()
-		this.dirty = true;
-	}
-
-	destroy(): void {}
-}
-
 // ─── Sprites ──────────────────────────────────────────────────────────────────
 
 function makeSprite(x = 0, y = 0, key: TextureKeyLike = ''): SpriteHandle {
-	const events = {
-		onInputUp: new NullSignal(),
-		onInputDown: new NullSignal(),
-		onInputOver: new NullSignal(),
-		onInputOut: new NullSignal(),
-	};
-	// Mirrors the Phaser 4 adapter: a `BitmapDataHandle` resolves to the key it
-	// is registered under rather than being stored as an opaque object.
-	const resolvedKey = toTextureKey(key) ?? '';
+	// CPU-drawn surfaces are real texture keys under Phaser 4, so an absent key
+	// still has to normalize to something the sprite can carry.
+	const resolvedKey = key ?? '';
 
 	const sprite: Record<string, any> = {
 		x,
@@ -336,10 +217,10 @@ function makeSprite(x = 0, y = 0, key: TextureKeyLike = ''): SpriteHandle {
 		texture: { width: 0, height: 0 },
 		blendMode: 0,
 		depth: 0,
-		inputEnabled: false,
-		ignoreChildInput: false,
-		input: { useHandCursor: false, useHandcursor: false, priorityID: 0, hitArea: null },
-		events,
+		// Pointer events are Phaser 4's own; the headless engine only has to
+		// satisfy the emitter shape, since nothing can click a headless board.
+		input: null,
+		on: () => sprite,
 		anchor: { x: 0, y: 0 },
 		scale: { x: 1, y: 1 },
 		flipX: false,
@@ -376,11 +257,11 @@ function makeSprite(x = 0, y = 0, key: TextureKeyLike = ''): SpriteHandle {
 		},
 		getDepth: () => sprite.depth,
 		loadTexture: (nextKey: TextureKeyLike) => {
-			sprite.key = toTextureKey(nextKey);
+			sprite.key = nextKey;
 			return sprite;
 		},
 		setTexture: (nextKey: TextureKeyLike) => {
-			sprite.key = toTextureKey(nextKey);
+			sprite.key = nextKey;
 			return sprite;
 		},
 		setDisplaySize: () => sprite,
@@ -478,6 +359,12 @@ function makeGroup(x = 0, y = 0): GroupHandle {
 		visible: true,
 		depth: 0,
 		children,
+		/**
+		 * Phaser 4's `Container` exposes its children as `list`; `children` was
+		 * Phaser 2's `Group` spelling. Both name the same array, so code written
+		 * against the native container works unchanged against this stand-in.
+		 */
+		list: children,
 		length: 0,
 		// Phaser 2 exposed the child count as `total`; kept alongside `length`.
 		total: 0,
@@ -550,11 +437,14 @@ function makeGroup(x = 0, y = 0): GroupHandle {
 		/** Phaser 2 spelling of `getChildIndex`. */
 		getIndex: (child: any) => children.indexOf(child),
 		// Phaser 4 sorts by `depth`; Phaser 2 call sites pass a property name.
+		// `order < 0` means "ascending" here to match the real adapter, which
+		// inverts Phaser 2's flag because Phaser 2's renderer ignored list order
+		// (see `sortChildrenByDepth` in Phaser4Handles).
 		sort: (property = 'depth', order = 1) => {
 			children.sort((a, b) => {
 				const av = a?.[property] ?? 0;
 				const bv = b?.[property] ?? 0;
-				return order < 0 ? bv - av : av - bv;
+				return order < 0 ? av - bv : bv - av;
 			});
 		},
 		setDepth: (value: number) => {
@@ -658,25 +548,6 @@ export class NullEngine implements GameEngine {
 		);
 	}
 
-	public readonly scale: ScaleHandle = {
-		parentIsWindow: false,
-		pageAlignHorizontally: false,
-		pageAlignVertically: false,
-		scaleMode: 0,
-		fullScreenScaleMode: 0,
-		refresh: () => undefined,
-		resize: () => undefined,
-	};
-
-	public readonly cameras: { main: CameraHandle } = {
-		main: {
-			shake: () => undefined,
-			SHAKE_HORIZONTAL: 1,
-			SHAKE_VERTICAL: 2,
-			SHAKE_BOTH: 3,
-		},
-	};
-
 	public readonly world = { removeAll: (_destroy?: boolean) => undefined };
 
 	/** No textures are loaded headless; consumers treat a null image as "no pixels". */
@@ -689,29 +560,23 @@ export class NullEngine implements GameEngine {
 		forcePortrait: false,
 	};
 
-	public readonly signals: Record<string, SignalHandle> = {};
-
 	/**
 	 * Headless: there is no renderer, so no fragment shader can run. Effects that
 	 * can render acceptably another way check this and fall back.
 	 */
 	public readonly supportsShaders = false;
 
-	public readonly load: GameEngine['load'] = {
-		progress: 100,
-		onFileComplete: new NullSignal(),
-		onLoadComplete: new NullSignal(),
-		start: () => undefined,
-	};
-
 	/**
 	 * Headless has no texture manager. Reporting every key as present keeps
 	 * callers that gate a redraw on `onReady` from waiting forever, and nothing
 	 * ever draws in a simulation anyway.
+	 *
+	 * The on-demand *queueing* side is bound separately, in the constructor, via
+	 * `setOnDemandLoader`.
 	 */
-	public loadImage(_key: string, _url: string): void {}
-
-	public readonly textures: GameEngine['textures'] = { exists: () => true };
+	public readonly textures: GameEngine['textures'] = {
+		exists: () => true,
+	};
 
 	public readonly time: GameEngine['time'] = {
 		now: 0,
@@ -738,7 +603,6 @@ export class NullEngine implements GameEngine {
 			sprite.height = h;
 			return sprite;
 		},
-		bitmapData: (w, h) => new NullBitmapData(w, h),
 		/**
 		 * An inert quad. Headless runs never rasterise anything, so this exists
 		 * only so shader-backed visuals can construct and tear down without
@@ -761,10 +625,6 @@ export class NullEngine implements GameEngine {
 			}
 			return sprite as ShaderHandle;
 		},
-	};
-
-	public readonly make: GameEngine['make'] = {
-		bitmapData: (w, h) => new NullBitmapData(w, h),
 	};
 
 	private readonly activeTweens = new Set<NullTween>();

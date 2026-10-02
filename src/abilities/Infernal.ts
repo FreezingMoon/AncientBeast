@@ -6,6 +6,7 @@ import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
 import { getPointFacade } from '../utility/pointfacade';
 import { Hex } from '../utility/hex';
+import { shakeBoard } from '../game-display/camera';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -157,13 +158,12 @@ export default (G) => {
 					G,
 				);
 				target.takeDamage(damage);
-				G.gameEngine.cameras.main.shake(
-					0.02,
-					300,
-					true,
-					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.02,
+					durationMs: 300,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				// Add attack stacks
 				let stacksToAdd = 1;
@@ -412,13 +412,12 @@ export default (G) => {
 						},
 					});
 				};
-				G.gameEngine.cameras.main.shake(
-					0.01,
-					300,
-					true,
-					G.gameEngine.cameras.main.SHAKE_BOTH,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 300,
+					force: true,
+					axis: 'both',
+				});
 				hurl(path);
 			},
 		},

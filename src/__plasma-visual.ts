@@ -105,6 +105,7 @@ async function boot(game: Phaser.Game) {
 			const gpu = new PlasmaField(engine, x, TOP_Y, {
 				parent: creatureGrp,
 				hueShift: HUES[i],
+				surfaceSource: { textures: scene.textures },
 			});
 			gpu.setVisible(false);
 			gpuFields.push(gpu);
@@ -114,6 +115,7 @@ async function boot(game: Phaser.Game) {
 				parent: creatureGrp,
 				hueShift: HUES[i],
 				staticMode: true,
+				surfaceSource: { textures: scene.textures },
 			});
 			cpuFields.push(cpu);
 

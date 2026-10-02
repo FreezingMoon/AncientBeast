@@ -14,6 +14,9 @@ module.exports = {
 	// Override base exclusions — we WANT to run the simulation directory here.
 	// `/node_modules/` is dropped too so matches inside the worktree still run.
 	testPathIgnorePatterns: ['/node_modules/'],
-	testTimeout: 600_000, // 10 minutes — simulation runs thousands of matches
+	// A floor only. `simulate.test.ts` overrides this with a budget scaled to the
+	// configured match counts, since a match costs real wall-clock time now that
+	// it runs on a stepped Phaser clock rather than fake timers.
+	testTimeout: 600_000,
 	verbose: false, // the test itself prints a summary; per-test lines are noisy
 };

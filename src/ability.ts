@@ -232,36 +232,42 @@ export class Ability {
 		// If set, active unit's energy is restored to max after each ability use.
 		this._infiniteEnergy = this.game.metaPowersState.infiniteEnergy;
 
-		// Events
-		this.game.signals.metaPowers.add(this.handleMetaPowerEvent, this);
+		// Events. One subscription per meta power this ability tracks, rather than
+		// a single handler filtering every message by name.
+		this.game.channels.metaPowers.on('toggleResetCooldowns', (enabled: boolean) =>
+			this.onResetCooldownsToggled(enabled),
+		);
+		this.game.channels.metaPowers.on('toggleInfiniteEnergy', (enabled: boolean) =>
+			this.onInfiniteEnergyToggled(enabled),
+		);
 	}
 
-	handleMetaPowerEvent(message: string, payload: boolean) {
-		const ui = this.game.UI;
+	/**
+	 * `toggleResetCooldowns`: keep this ability off cooldown, and retroactively
+	 * reset it if it is already spent.
+	 */
+	private onResetCooldownsToggled(enabled: boolean) {
+		this._disableCooldowns = enabled;
 
-		if (message === 'toggleResetCooldowns') {
-			// Prevent ability from going on cooldown.
-			this._disableCooldowns = payload;
-
-			// Reset cooldown if the ability has already been used.
-			if (this.used && payload === true) {
-				this.reset();
-				// Refresh UI to show ability is available.
-				ui?.selectAbility(-1);
-			}
+		// Reset cooldown if the ability has already been used.
+		if (this.used && enabled === true) {
+			this.reset();
+			// Refresh UI to show ability is available.
+			this.game.UI?.selectAbility(-1);
 		}
+	}
 
-		if (message === 'toggleInfiniteEnergy') {
-			this._infiniteEnergy = payload;
+	/** `toggleInfiniteEnergy`: refuel the active creature as soon as it is granted. */
+	private onInfiniteEnergyToggled(enabled: boolean) {
+		this._infiniteEnergy = enabled;
 
-			// Immediately refill energy for the active creature when enabled.
-			// Gate on id === 0 so only one ability instance triggers the refill.
-			if (payload && this.id === 0) {
-				const active = this.game.activeCreature;
-				if (active && active.id === this.creature.id && active.stats.energy > 0) {
-					active.energy = active.stats.energy;
-					ui?.energyBar.animSize(1);
-				}
+		// Immediately refill energy for the active creature when enabled.
+		// Gate on id === 0 so only one ability instance triggers the refill.
+		if (enabled && this.id === 0) {
+			const active = this.game.activeCreature;
+			if (active && active.id === this.creature.id && active.stats.energy > 0) {
+				active.energy = active.stats.energy;
+				this.game.UI?.energyBar.animSize(1);
 			}
 		}
 	}
@@ -348,7 +354,7 @@ export class Ability {
 		}
 
 		game.clearOncePerDamageChain();
-		game.activeCreature.hint(this.title, 'msg_effects');
+		game.activeCreature?.hint(this.title, 'msg_effects');
 
 		return this.query();
 	}
@@ -374,12 +380,12 @@ export class Ability {
 		if (!this._disableCooldowns) {
 			this.setUsed(true); // Should always be here
 		}
-		game.signals.creature.dispatch('abilityend', { creature: this.creature });
+		game.channels.creature.emit('abilityend', { creature: this.creature });
 		game.UI.btnDelay.changeState('disabled');
 		game.UI.selectAbility(-1);
 
 		if (this.getTrigger() === 'onQuery' && !deferredEnding) {
-			game.activeCreature.queryMove();
+			game.activeCreature?.queryMove();
 		} else if (this.getTrigger() === 'onQuery' && deferredEnding) {
 			// Keep input frozen until the ability's animation calls queryMove().
 			game.freezedInput = true;
@@ -397,12 +403,12 @@ export class Ability {
 		if (val) {
 			this.used = true;
 			// Avoid dimmed passive for current creature
-			if (this.creature.id == game.activeCreature.id && !game.UI._abilityPanelAnimating) {
+			if (this.creature.id == game.activeCreature?.id && !game.UI._abilityPanelAnimating) {
 				game.UI.abilitiesButtons[this.id].changeState('disabled');
 			}
 		} else {
 			this.used = false;
-			if (this.creature.id == game.activeCreature.id && !game.UI._abilityPanelAnimating) {
+			if (this.creature.id == game.activeCreature?.id && !game.UI._abilityPanelAnimating) {
 				// Passive
 				game.UI.abilitiesButtons[this.id].changeState('normal');
 			}
@@ -998,7 +1004,7 @@ export class Ability {
 		}
 
 		creature.updateHealth();
-		if (creature.id == game.activeCreature.id) {
+		if (creature.id == game.activeCreature?.id) {
 			game.UI.energyBar.animSize(creature.energy / creature.stats.energy);
 		}
 	}

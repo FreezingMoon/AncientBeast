@@ -6,22 +6,23 @@
  * around non-active Dark Priests (human or bot) that still have plasma points,
  * visualising the Plasma Field passive ability.
  *
- * The effect renders into a BitmapData and is attached as a sprite child of the
- * creature's group so it tracks the Dark Priest automatically. A short-lived
- * burst flash is triggered whenever the shield counters an attack.
+ * The effect renders into a canvas surface and is attached as a sprite child of
+ * the creature's group so it tracks the Dark Priest automatically. A
+ * short-lived burst flash is triggered whenever the shield counters an attack.
  */
 
 import { PLASMA_LOOK, plasmaLookFor } from './plasma-look';
 import type { Creature } from './creature';
-import type {
-	GameEngine,
-	BitmapDataHandle,
-	SpriteHandle,
-	GroupHandle,
-	ShaderHandle,
-} from './engine/types';
-import { BLEND_MODE_ADD } from './engine/phaser-runtime';
+import type { GameEngine, SpriteHandle, GroupHandle, ShaderHandle } from './engine/types';
+import { BLEND_MODE_ADD } from './phaser/runtime';
 import { PLASMA_FRAGMENT_SOURCE } from './plasma-shader';
+import { every } from './timing/clock';
+import {
+	createCanvasSurface,
+	type CanvasSurface,
+	type SurfaceSource,
+} from './game-display/canvas-surface';
+import type { Timer } from './timing/clock';
 
 export interface PlasmaFieldSettings {
 	transparency: number;
@@ -53,6 +54,15 @@ export interface PlasmaFieldOptions extends Partial<PlasmaFieldSettings> {
 	staticMode?: boolean;
 	parent?: GroupHandle;
 	creature?: Creature;
+	/**
+	 * Where the shield's drawing surface is registered.
+	 *
+	 * The field is a visual component with no gameplay knowledge, and it reaches
+	 * Phaser only for this one texture. Supplying it explicitly keeps that the
+	 * case: without a source the field still draws, onto a context with nothing
+	 * behind it, which is what the headless runner wants.
+	 */
+	surfaceSource?: SurfaceSource;
 }
 
 const WEAK_CORE_THRESHOLD = 4;
@@ -184,14 +194,14 @@ function hueRotateRgb(
 // All Plasma Fields share a single Phaser timer so the cost of animating
 // several shields at once (e.g. a 2v2 where each side hovers the active
 // Dark Priest) stays bounded instead of multiplying per-field timers.
-let _sharedTimer: any = null;
+let _sharedTimer: Timer | null = null;
 let _sharedEngine: GameEngine | null = null;
 const _activeFields = new Set<PlasmaField>();
 
 // Fixed cadence for the shared ticker. We never mutate a running TimerEvent's
-// `delay` (which in Phaser CE does not reset the elapsed accumulator and
-// causes an immediately-fired, skipped frame). Instead the ticker runs at a
-// steady rate and each field self-throttles its own draw cadence below.
+// `delay` (which does not reset the elapsed accumulator and causes an
+// immediately-fired, skipped frame). Instead the ticker runs at a steady rate
+// and each field self-throttles its own draw cadence below.
 const SHARED_TICK_FPS = 24;
 
 // ─── Frame-budget quality governor ───────────────────────────────────────────
@@ -299,19 +309,20 @@ function _ensureTicker(): void {
 	if (_adaptiveRenderScale < 1) {
 		_adaptiveRenderScale = computePlasmaRenderScale();
 	}
-	_sharedTimer = _sharedEngine.time.loop(1000 / SHARED_TICK_FPS, _tickAllFields);
+	// Routed through the AB clock rather than the engine directly: on a scene
+	// this becomes a scene timer, so the shield surface is stepped by the same
+	// clock as the tweens around it. Under a headless virtual clock that is what
+	// makes the plasma deterministic instead of racing the render loop.
+	_sharedTimer = every(1000 / SHARED_TICK_FPS, _tickAllFields);
 }
 
 function _resetSharedState(): void {
 	// Clear all module-level shared state so a new match can register fields
 	// against a fresh engine instance. Called automatically on engine mismatch.
-	if (_sharedTimer && _sharedEngine) {
-		try {
-			_sharedEngine.time.remove(_sharedTimer);
-		} catch {
-			// Old engine instance is already destroyed; ignore.
-		}
-	}
+	// Stopping the clock handle also covers the match-restart case the old
+	// `engine.time.remove` try/catch existed for: the timer belongs to the clock,
+	// not to the engine instance that happened to start it.
+	_sharedTimer?.stop();
 	_sharedTimer = null;
 	_sharedEngine = null;
 	_activeFields.clear();
@@ -333,13 +344,7 @@ function _registerField(field: PlasmaField): void {
 function _unregisterField(field: PlasmaField): void {
 	_activeFields.delete(field);
 	if (_activeFields.size === 0 && _sharedTimer) {
-		if (_sharedEngine) {
-			try {
-				_sharedEngine.time.remove(_sharedTimer);
-			} catch {
-				// Old engine instance is already destroyed; ignore.
-			}
-		}
+		_sharedTimer.stop();
 		_sharedTimer = null;
 	}
 }
@@ -366,7 +371,8 @@ export class PlasmaField {
 	private outlinePower: number;
 	private settings: PlasmaFieldSettings;
 	private lowCtx: CanvasRenderingContext2D;
-	private bmd: BitmapDataHandle;
+	private bmd: CanvasSurface;
+	private _surfaceSource: SurfaceSource | undefined;
 	private low: HTMLCanvasElement;
 	private _imgData: ImageData;
 	private parent: GroupHandle;
@@ -438,6 +444,7 @@ export class PlasmaField {
 
 		this.settings = { ...DEFAULT_SETTINGS, ...opt };
 
+		this._surfaceSource = opt.surfaceSource;
 		this.parent = opt.parent || engine.world;
 		this.creature = opt.creature || null;
 		this.onBurstEnd = null;
@@ -495,7 +502,7 @@ export class PlasmaField {
 		return shader;
 	}
 
-	/** CPU path: a BitmapData-backed sprite redrawn by `draw()` every tick. */
+	/** CPU path: a canvas-surface-backed sprite redrawn by `draw()` every tick. */
 	private _createCpuSprite(x: number, y: number): SpriteHandle {
 		this.low = document.createElement('canvas');
 		this.low.width = this.rw;
@@ -511,12 +518,12 @@ export class PlasmaField {
 			this._imgData = ctx.createImageData(this.rw, this.rh);
 		}
 
-		this.bmd = this._engine.add.bitmapData(this.w, this.h);
+		this.bmd = createCanvasSurface(this._surfaceSource, this.w, this.h);
 		// The handle is a live texture, so the sprite samples the pixels written
 		// into it below rather than falling back to the missing-texture image.
 		const sprite = this.parent.create
-			? (this.parent.create(x, y, this.bmd) as SpriteHandle)
-			: this._engine.add.sprite(x, y, this.bmd);
+			? (this.parent.create(x, y, this.bmd.key) as SpriteHandle)
+			: this._engine.add.sprite(x, y, this.bmd.key);
 		sprite.anchor.set(0.5, 0.5);
 		sprite.scale.set(this.settings.scaleX, this.settings.scaleY);
 		sprite.alpha = this.alpha;
@@ -887,7 +894,7 @@ export class PlasmaField {
 			out.restore();
 		}
 
-		this.bmd.dirty = true;
+		this.bmd.commit();
 	}
 
 	tick = (): void => {
@@ -997,9 +1004,9 @@ export class PlasmaField {
 		_unregisterField(this);
 		this.onBurstEnd = null;
 		if (this.sprite && this.sprite.destroy) this.sprite.destroy();
-		// Only the CPU path owns a BitmapData; the GPU path has no backing
+		// Only the CPU path owns a canvas surface; the GPU path has no backing
 		// texture to free (the shader quad holds its own).
-		if (this.bmd && this.bmd.destroy) this.bmd.destroy();
+		this.bmd?.destroy();
 		this._shader = null;
 	}
 

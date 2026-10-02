@@ -6,6 +6,7 @@ import { Hex } from '../utility/hex';
 import { Creature } from '../creature';
 import { CreatureType } from '../data/types';
 import Game from '../game';
+import { shakeBoard } from '../game-display/camera';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -44,13 +45,12 @@ export default (G: Game) => {
 					);
 					counter.counter = true;
 					G.activeCreature?.takeDamage(counter);
-					G.gameEngine.cameras.main.shake(
-						0.03,
-						220,
-						true,
-						G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-						true,
-					);
+					shakeBoard({
+						amplitude: 0.03,
+						durationMs: 220,
+						force: true,
+						axis: 'horizontal',
+					});
 				}
 
 				this.creature.player.plasma -= 1;
@@ -123,13 +123,12 @@ export default (G: Game) => {
 			activate: function (target) {
 				const ability = this;
 				ability.end();
-				G.gameEngine.cameras.main.shake(
-					0.02,
-					200,
-					true,
-					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.02,
+					durationMs: 200,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				const damageAmount = {
 					shock: 12 * target.size,
@@ -214,13 +213,12 @@ export default (G: Game) => {
 			activate: function (target: Creature) {
 				const ability = this;
 				ability.end();
-				G.gameEngine.cameras.main.shake(
-					0.04,
-					111,
-					true,
-					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.04,
+					durationMs: 111,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				const plasmaCost = target.size;
 				let damageAmount = target.baseStats.health - target.health;

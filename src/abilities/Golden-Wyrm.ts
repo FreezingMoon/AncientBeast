@@ -5,6 +5,7 @@ import { Creature } from '../creature';
 import { Effect } from '../effect';
 import Game from '../game';
 import { Hex } from '../utility/hex';
+import { shakeBoard } from '../game-display/camera';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -51,13 +52,12 @@ export default (G: Game) => {
 				const creature = this.creature;
 				const damage = new Damage(creature, { sonic: 30 }, this._targets.length, [], G);
 				const hits: Set<Creature> = new Set();
-				G.gameEngine.cameras.main.shake(
-					0.02,
-					300,
-					true,
-					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.02,
+					durationMs: 300,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				this._targets.forEach((target) => {
 					if (target.creature === undefined || hits.has(target.creature)) {
@@ -133,13 +133,12 @@ export default (G: Game) => {
 
 			activate: function (target: Creature) {
 				this.end();
-				G.gameEngine.cameras.main.shake(
-					0.02,
-					200,
-					true,
-					G.gameEngine.cameras.main.SHAKE_BOTH,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.02,
+					durationMs: 200,
+					force: true,
+					axis: 'both',
+				});
 				// Removes bounce after use
 				G.UI.abilitiesButtons[1].$button.removeClass('bounce');
 
@@ -260,13 +259,12 @@ export default (G: Game) => {
 					ignorePath: true,
 					callback: function () {
 						G.activeCreature?.queryMove();
-						G.gameEngine.cameras.main.shake(
-							0.04,
-							100,
-							true,
-							G.gameEngine.cameras.main.SHAKE_VERTICAL,
-							true,
-						);
+						shakeBoard({
+							amplitude: 0.04,
+							durationMs: 100,
+							force: true,
+							axis: 'vertical',
+						});
 
 						if (ability.isUpgraded()) {
 							// Add offense buff after landing

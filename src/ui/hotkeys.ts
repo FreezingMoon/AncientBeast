@@ -110,7 +110,7 @@ export class Hotkeys {
 
 	pressP(event) {
 		if (event.metaKey && event.altKey && this.ui.canToggleMetaPowers()) {
-			this.ui.game.signals.ui.dispatch('toggleMetaPowers');
+			this.ui.game.channels.ui.emit('toggleMetaPowers');
 		}
 	}
 
@@ -130,7 +130,7 @@ export class Hotkeys {
 
 	pressBackspace() {
 		if (this.ui.canToggleMetaPowers()) {
-			this.ui.game.signals.ui.dispatch('toggleMetaPowers');
+			this.ui.game.channels.ui.emit('toggleMetaPowers');
 		}
 	}
 

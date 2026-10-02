@@ -5,6 +5,7 @@ import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
 import { getDirectionFromDelta } from '../utility/position';
 import Game from '../game';
+import { shakeBoard } from '../game-display/camera';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -119,13 +120,12 @@ export default (G: Game) => {
 			// activate() :
 			activate: function (target) {
 				this.end();
-				G.gameEngine.cameras.main.shake(
-					0.01,
-					65,
-					true,
-					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 65,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				const damage = new Damage(
 					this.creature, // Attacker
@@ -137,7 +137,7 @@ export default (G: Game) => {
 
 				const dmg = target.takeDamage(damage);
 
-				if (dmg.damageObj.status === '') {
+				if (dmg.damageObj && dmg.damageObj.status === '') {
 					let amount = dmg.damages.total;
 
 					// If upgraded, heal immediately up to the amount of health lost so far;
@@ -272,13 +272,12 @@ export default (G: Game) => {
 					ignorePath: true,
 					callback: () => {
 						// Shake the screen upon landing to simulate the jump
-						G.gameEngine.cameras.main.shake(
-							0.03,
-							90,
-							true,
-							G.gameEngine.cameras.main.SHAKE_VERTICAL,
-							true,
-						);
+						shakeBoard({
+							amplitude: 0.03,
+							durationMs: 90,
+							force: true,
+							axis: 'vertical',
+						});
 
 						G.onStepIn(this.creature, this.creature.hexagons[0], false);
 
@@ -393,13 +392,12 @@ export default (G: Game) => {
 			// activate() :
 			activate: function (target) {
 				this.end();
-				G.gameEngine.cameras.main.shake(
-					0.03,
-					100,
-					true,
-					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.03,
+					durationMs: 100,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				const damage = new Damage(
 					this.creature, // Attacker

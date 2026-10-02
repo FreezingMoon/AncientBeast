@@ -19,9 +19,13 @@ import { UI } from './ui/interface';
 import { Creature, CreatureHintType } from './creature';
 import { refreshPlasmaRenderScales } from './plasma-field';
 import { unitData } from './data/units';
-import { Signal } from './utility/signal';
+import type { GameChannels, MetaPowersState } from './game-events/channels.types';
+import { createGameChannels } from './game-events/factory';
+import { resetClock, setClockScene } from './timing/clock';
 import type Phaser from 'phaser';
-import { loadPhaser, getPhaser, SCALE_MODE_FIT } from './engine/phaser-runtime';
+import { loadPhaser, getPhaser } from './phaser/runtime';
+import { applyBoardScale, refreshScale } from './game-display/scale';
+import { createGameConfig } from './phaser/boot';
 import { LobbyClient } from './multiplayer';
 import { createLobbyProvider } from './multiplayer/provider';
 import type {
@@ -46,6 +50,13 @@ import { setAudioMode, getAudioMode, DEFAULT_AUDIO_MODE } from './sound/soundsys
 import BotController from './bot';
 import { locationPaths } from '../assets/index';
 import type { GameEngine, SpriteHandle } from './engine/types';
+import {
+	clearHoveredHex,
+	onPointerUp,
+	rejectIfTurnFrozen,
+	resetPointerWithinBoard,
+	trackPointerWithinBoard,
+} from './input/input';
 
 /* eslint-disable prefer-rest-params */
 
@@ -100,12 +111,30 @@ function shouldUseCanvasRenderer() {
 	return webKitGtkUserAgent.test(navigator.userAgent);
 }
 
-export type MetaPowersState = {
-	executeMonster: boolean;
-	resetCooldowns: boolean;
-	disableMaterializationSickness: boolean;
-	infiniteEnergy: boolean;
-};
+/** Re-exported for the existing `import Game, { MetaPowersState }` call sites. */
+export type { MetaPowersState } from './game-events/channels.types';
+
+/**
+ * Overrides for {@link Game.createPhaser}.
+ *
+ * The browser path needs none of this: it picks its renderer from the device's
+ * capabilities and mounts into the `#combatwrapper` element the page provides.
+ * The headless runners pass `Phaser.HEADLESS` because there is no display to
+ * pick for, and they drive the game by stepping frames by hand rather than from
+ * `requestAnimationFrame`.
+ */
+export interface CreatePhaserOptions {
+	/** Renderer constant. Defaults to `CANVAS` or `AUTO` per device capability. */
+	type?: number;
+	/**
+	 * DOM id or element to mount into. Defaults to `'combatwrapper'`.
+	 *
+	 * `null` mounts nowhere, which is what `Phaser.HEADLESS` needs: it has no
+	 * canvas to parent, and Phaser throws rather than mounting at the document
+	 * body when handed an element that does not exist.
+	 */
+	parent?: string | null;
+}
 
 export default class Game {
 	/* Attributes
@@ -188,7 +217,10 @@ export default class Game {
 	_deferredQueryMovePending: number;
 	Phaser: Phaser.Game | null;
 	/** The single Phaser 4 scene that replaces Phaser 2 CE's `game.state`. */
-	private phaserScene: import('./engine/GameScene').GameScene | null = null;
+	private phaserScene: import('./phaser/scenes/GameScene').GameScene | null = null;
+
+	/** Unsubscribes the scene's pointer-boundary listeners. See phaserSceneCreated. */
+	private _stopPointerTracking: (() => void) | null = null;
 	/**
 	 * The concrete Phaser-backed engine adapter, captured at construction.
 	 *
@@ -203,10 +235,38 @@ export default class Game {
 	 * cardboards. Detached from the loader in `destroyPhaser`.
 	 */
 	private _pendingLoadCompleteFn: (() => void) | undefined;
+	/**
+	 * Detaches the preload progress listener from the scene's loader.
+	 *
+	 * Released in `finishLoading` once the preload batch lands, and again in
+	 * `destroyPhaser` for a game that is torn down before it does.
+	 */
+	private _unsubscribeLoadProgress: (() => void) | undefined;
+	/**
+	 * Resolves once the `GameScene` has run `create()`, which is the first point
+	 * its GameObject factory (`scene.add`) exists.
+	 *
+	 * `new Phaser.Game()` returns long before that: the scene boots on a later
+	 * tick, and under `Phaser.HEADLESS` nothing else will ever drive the tick.
+	 * Callers that go on to build display objects — `setup()` and the headless
+	 * server alike — must await this or they read `scene.add.sprite` off
+	 * `undefined`. The browser path does not need it today because its scene is
+	 * built before `setup()` runs, but it is the same ordering hazard.
+	 */
+	private _sceneReady: Promise<void> = Promise.resolve();
+	private _resolveSceneReady: (() => void) | null = null;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	msg: any; // type this properly
 	triggers: Record<string, RegExp>;
-	signals: Record<string, Signal>;
+	/**
+	 * Gameplay message channels.
+	 *
+	 * Created in `createPhaser()` rather than the constructor, because they are
+	 * Phaser `EventEmitter`s and the Phaser runtime is only loaded from
+	 * `createPhaser()`. Callers that need them earlier than that have a real
+	 * ordering bug, so the getter throws with that explanation.
+	 */
+	channels!: GameChannels;
 	botController: BotController;
 	/** Engine adapter abstraction layer — gameplay code should use this instead of `this.Phaser` directly. */
 	private _gameEngine?: GameEngine;
@@ -266,7 +326,7 @@ export default class Game {
 	 * `GameScene` subclasses `Scene`, which can only be evaluated once the
 	 * runtime is present.
 	 */
-	async createPhaser() {
+	async createPhaser(options: CreatePhaserOptions = {}) {
 		// Always destroy existing Phaser first to prevent duplicate canvas elements
 		if (this.Phaser) {
 			this.destroyPhaser();
@@ -274,11 +334,17 @@ export default class Game {
 
 		await loadPhaser();
 		const [{ GameScene }, { Phaser4Engine }] = await Promise.all([
-			import('./engine/GameScene'),
+			import('./phaser/scenes/GameScene'),
 			import('./engine/Phaser4Engine'),
 		]);
 
-		const renderer = shouldUseCanvasRenderer() ? getPhaser().CANVAS : getPhaser().AUTO;
+		const renderer =
+			options.type ?? (shouldUseCanvasRenderer() ? getPhaser().CANVAS : getPhaser().AUTO);
+		// Armed before the `Game` is constructed, because the scene can run its
+		// `create()` before `new Phaser.Game()` has even returned.
+		this._sceneReady = new Promise<void>((resolve) => {
+			this._resolveSceneReady = resolve;
+		});
 		// The scene is handed its host explicitly instead of reaching for a
 		// global: Phaser 2 CE's `game.state` bag is gone, and so is the
 		// `sys.game.GAME_INSTANCE` back-reference that used to replace it.
@@ -286,32 +352,68 @@ export default class Game {
 			onSceneReady: () => this.phaserSceneCreated(),
 			onSceneUpdate: (time, delta) => this.phaserUpdate(time, delta),
 		});
-		this.Phaser = new (getPhaser().Game)({
-			width: 1920,
-			height: 1080,
-			type: renderer,
-			parent: 'combatwrapper',
-			scale: {
-				mode: getPhaser().Scale.FIT,
-				autoCenter: getPhaser().Scale.CENTER_BOTH,
-			},
-			scene: [this.phaserScene],
-		});
+		// Shared with the headless runner, so the browser and simulation boots
+		// cannot drift apart on viewport, scale mode or renderer selection.
+		this.Phaser = new (getPhaser().Game)(
+			createGameConfig({
+				type: renderer,
+				parent: options.parent === undefined ? 'combatwrapper' : options.parent,
+				scene: [this.phaserScene],
+			}),
+		);
 		// Wrap the raw Phaser instance in the engine adapter so gameplay code
 		// talks to a stable GameEngine interface instead of raw Phaser APIs.
 		this._phaserEngine = new Phaser4Engine(this.Phaser, this.phaserScene);
 		this._gameEngine = this._phaserEngine;
-		// Expose the existing signal channels (created in the constructor) through
-		// the adapter. We do NOT recreate them here — the BotController and other
-		// listeners registered on the original signals during construction.
-		for (const ch of Object.keys(this.signals)) {
-			this._gameEngine.signals[ch] = this.signals[ch];
-		}
+		// Gameplay channels are Phaser `EventEmitter`s, so they cannot be built
+		// before the runtime is present. `createPhaser()` is the first point where
+		// that is guaranteed, and every subscriber (BotController, players,
+		// abilities, UI) is constructed after it.
+		this.channels = createGameChannels();
+		this.botController = new BotController(this);
+		// AB timing now reads the scene's clock instead of the wall clock, so a
+		// headless virtual clock steps hand-driven ability animations in step with
+		// Phaser's tweens instead of racing them.
+		setClockScene(this.phaserScene);
 		// Note: Scale manager configuration happens in setup() after Phaser is ready
 	}
 
 	phaserSceneCreated() {
 		// Phaser scene created - boot complete, Phaser is ready for use
+		//
+		// Phaser 2 CE published "is the pointer over the canvas" on the pointer as
+		// `withinGame`; Phaser 4 reports the same boundary as scene events. Hex
+		// hover-out needs the distinction, so the scene input is the source.
+		this._stopPointerTracking?.();
+		this._stopPointerTracking = trackPointerWithinBoard(this.phaserScene);
+		this._resolveSceneReady?.();
+		this._resolveSceneReady = null;
+	}
+
+	/**
+	 * Resolve once the scene's GameObject factory exists.
+	 *
+	 * Already resolved for a game whose Phaser instance was never created, so a
+	 * caller can await this unconditionally instead of branching on whether it
+	 * booted.
+	 */
+	whenSceneReady(): Promise<void> {
+		return this._sceneReady;
+	}
+
+	/**
+	 * The live `GameScene`, for callers that need to point AB's engine
+	 * registries at this game before driving it.
+	 *
+	 * `src/timing/clock.ts` and `src/game-display/camera.ts` hold module-level
+	 * singletons, because gameplay reaches them without a handle to the match.
+	 * That is fine while one game runs at a time — the browser, the server's one
+	 * game per lobby, the simulation — but a process driving two engines has to
+	 * re-point them before it steps either one, or the second game's
+	 * registration wins and the first reads the wrong clock.
+	 */
+	get scene(): import('./phaser/scenes/GameScene').GameScene | null {
+		return this.phaserScene;
 	}
 
 	whenPhaserBooted(phaser: Phaser.Game, onBooted: (phaser: Phaser.Game) => void) {
@@ -379,10 +481,11 @@ export default class Game {
 			// Detach pending async callbacks before destroying.
 			// Phaser 4 `Game.destroy()` tears the scene systems down, but any
 			// asset decode still in flight can settle afterwards and fire
-			// `finishLoading`/`loadFinish` on a dead game. Clearing the loader
-			// signals prevents a destroyed game from restarting its loop.
-			this._gameEngine?.load.onLoadComplete.removeAll();
-			this._gameEngine?.load.onFileComplete.removeAll();
+			// `finishLoading`/`loadFinish` on a dead game. Dropping the loader
+			// subscriptions — this one and the scene's own `shutdown()` hook —
+			// prevents a destroyed game from restarting its loop.
+			this._unsubscribeLoadProgress?.();
+			this._unsubscribeLoadProgress = undefined;
 
 			// IMPORTANT: Remove the canvas element from the DOM before destroying Phaser
 			// `Game.destroy(true)` removes the canvas itself; doing it first keeps
@@ -406,6 +509,25 @@ export default class Game {
 			this.Phaser = null;
 			this.phaserScene = null;
 			this._phaserEngine = null;
+			// The scene is gone, so nothing should read its clock. Left registered,
+			// an ability animation started before teardown would keep polling a dead
+			// scene and never advance.
+			resetClock();
+
+			// Pointer state is per-match, not per-scene. Carrying it into a rematch
+			// would leave the new board believing the pointer is off-screen and skip
+			// the hover replay.
+			//
+			// The canvas cursor needs no equivalent reset: `InputPlugin.destroy()`
+			// calls its own `shutdown()`, which assigns `defaultCursor` to
+			// `canvas.style.cursor`. That was not obvious enough to leave to chance
+			// in review, so the engine was read rather than the comment believed —
+			// the earlier claim that Phaser resets the cursor only on an observed
+			// pointer-out was wrong.
+			this._stopPointerTracking?.();
+			this._stopPointerTracking = null;
+			resetPointerWithinBoard();
+			clearHoveredHex();
 
 			// Reset game state (this.UI is already nulled above when its interval
 			// was cleared, kept here for clarity)
@@ -542,10 +664,6 @@ export default class Game {
 			onQuery: /\bonQuery\b/,
 			oncePerDamageChain: /\boncePerDamageChain\b/,
 		};
-
-		const signalChannels = ['ui', 'metaPowers', 'creature', 'hex'];
-		this.signals = this.setupSignalChannels(signalChannels);
-		this.botController = new BotController(this);
 	}
 
 	loadUnitData(data: UnitData) {
@@ -695,21 +813,24 @@ export default class Game {
 
 	/** Wire up loader completion hooks and queue the game's asset downloads. */
 	private startAssetLoad(phaser: Phaser.Game, onLoadCompleteFn: () => void): void {
-		// Use the engine's load adapter which wraps Phaser 4 events into Signal-like API
-		const load = this.gameEngine.load;
+		// `phaserScene.assets` is the scene's loader seam: the preload batch, the
+		// on-demand texture path, and the progress the loader bar reads.
+		const load = this.phaserScene?.assets;
 		if (!load) {
-			console.error('[Game] startAssetLoad: no load adapter');
+			console.error('[Game] startAssetLoad: no scene loader');
 			return;
 		}
 
 		console.log('[Game] Setting up loader events...');
-		load.onFileComplete.add(this.loadFinish, this);
+		// The preload batch reports its own progress; the on-demand textures that
+		// follow would otherwise keep driving the bar past 100%.
+		this._unsubscribeLoadProgress = load.onFileComplete(() => this.loadFinish());
 		// One-shot: on-demand textures keep flowing through the same Phaser
 		// loader during the match, and its `complete` event fires for every one
 		// of them. Re-running setup (or the replay scheduler) on those would
 		// re-create the world mid-match.
-		load.onLoadComplete.addOnce(this.finishLoading, this);
-		load.onLoadComplete.addOnce(onLoadCompleteFn, this);
+		load.onceComplete(() => this.finishLoading());
+		load.onceComplete(onLoadCompleteFn);
 		this._pendingLoadCompleteFn = onLoadCompleteFn;
 
 		// Preload only what the board needs before it can be drawn: the hex/frame
@@ -723,12 +844,8 @@ export default class Game {
 			this.configData.background_image ||
 			this.configData.combatLocation ||
 			locationPaths[0];
-		// Use the raw Phaser loader for actual asset loading
-		const rawLoad = this.getPhaserLoad(phaser);
-		if (rawLoad) {
-			rawLoad.image('background', getUrl('locations/' + backgroundImage));
-			rawLoad.image('AncientBeastLogo', getUrl('interface/AncientBeast'));
-		}
+		load.image('background', getUrl('locations/' + backgroundImage));
+		load.image('AncientBeastLogo', getUrl('interface/AncientBeast'));
 
 		// Prime the browser cache for the shout, artwork and avatar of each unit
 		// that can appear. These are UI sounds and art rather than Phaser
@@ -764,7 +881,7 @@ export default class Game {
 	}
 
 	loadFinish() {
-		const progress = this.gameEngine.load.progress,
+		const progress = this.phaserScene?.assets.progress ?? 0,
 			progressWidth = progress + '%';
 
 		$j('#barLoader .progress').css('width', progressWidth);
@@ -773,7 +890,8 @@ export default class Game {
 	finishLoading() {
 		// On-demand textures keep flowing through the loader during the match;
 		// the progress bar belongs to the preload batch only.
-		this.gameEngine.load.onFileComplete.remove(this.loadFinish, this);
+		this._unsubscribeLoadProgress?.();
+		this._unsubscribeLoadProgress = undefined;
 		this.gameState = 'loaded';
 		$j('#combatwrapper').show();
 		$j('body').css('cursor', 'default');
@@ -897,14 +1015,7 @@ export default class Game {
 			this.grid = undefined;
 		}
 
-		// Phaser — use the engine adapter for scale/camera/world operations
-		const engine = this.gameEngine;
-		engine.scale.parentIsWindow = window.innerWidth > 600 || window.innerHeight > 700;
-		engine.scale.pageAlignHorizontally = true;
-		engine.scale.pageAlignVertically = window.innerWidth > 600 || window.innerHeight > 700;
-		engine.scale.scaleMode = SCALE_MODE_FIT;
-		engine.scale.fullScreenScaleMode = SCALE_MODE_FIT;
-		engine.scale.refresh();
+		applyBoardScale(this.Phaser?.scale);
 
 		const bg = this.createBackgroundSprite('background');
 		this.backgroundSprite = bg;
@@ -1073,9 +1184,7 @@ export default class Game {
 			// Throttle down to 1 event every 100ms of inactivity
 			resizeGame();
 			// Refresh Phaser scale to fit the resized window
-			if (this.Phaser) {
-				this.gameEngine.scale.refresh();
-			}
+			refreshScale(this.Phaser?.scale);
 			refreshPlasmaRenderScales();
 		});
 
@@ -1105,9 +1214,9 @@ export default class Game {
 		bg.setDisplaySize(1920, 1080);
 		bg.setDepth(BACKGROUND_DEPTH);
 
-		bg.inputEnabled = true;
-		bg.events.onInputUp.add((_sprite, pointer) => {
-			if (this.freezedInput || !this.UI || this.UI.dashopen) {
+		bg.setInteractive();
+		onPointerUp(bg, (pointer) => {
+			if (rejectIfTurnFrozen(this) || !this.UI || this.UI.dashopen) {
 				return;
 			}
 
@@ -1125,7 +1234,7 @@ export default class Game {
 					}
 					break;
 			}
-		}, this);
+		});
 
 		return bg;
 	}
@@ -1185,7 +1294,7 @@ export default class Game {
 			const incoming = this.createBackgroundSprite(location);
 			incoming.alpha = 0;
 			incoming.setDepth(BACKGROUND_FADE_DEPTH);
-			previous.inputEnabled = false;
+			previous.disableInteractive();
 			engine.tween(incoming).to({ alpha: 1 }, LOCATION_FADE_DURATION, Easing.Linear.None).start();
 			const fadeOut = engine
 				.tween(previous)
@@ -1625,7 +1734,7 @@ export default class Game {
 				// Updates UI to match new creature
 				this.UI.updateActivebox();
 				this.updateQueueDisplay();
-				this.signals.creature.dispatch('activate', { creature: this.activeCreature });
+				this.channels.creature.emit('activate', { creature: this.activeCreature });
 				// Only the client whose own player controlled the *outgoing* creature
 				// broadcasts the turn transition. Without this, a locally-replayed
 				// remote action that ends in the opponent's creature dying (and thus
@@ -2577,9 +2686,10 @@ export default class Game {
 		this.traps = [];
 		this.drops = [];
 
-		// Recreate signal channels to avoid accumulating UI listeners between restarts.
-		const signalChannels = ['ui', 'metaPowers', 'creature', 'hex'];
-		this.signals = this.setupSignalChannels(signalChannels);
+		// Rebuild the channels so UI listeners registered for the previous match do
+		// not accumulate. `BotController` re-subscribes to the fresh `creature`
+		// channel as part of being reconstructed.
+		this.channels = createGameChannels();
 		this.botController = new BotController(this);
 
 		this.gamelog.reset();
@@ -2600,27 +2710,6 @@ export default class Game {
 
 		this.resetGame();
 		this.startGameLoad(restartConfig);
-	}
-
-	/**
-	 * Setup signal channels based on a list of channel names.
-	 *
-	 * @example setupSignalChannels(['ui', 'game'])
-	 * // ... another file
-	 * this.game.signals.ui.add((message, payload) => console.log(message, payload), this);
-	 *
-	 * @param {array} channels List of channel names.
-	 * @returns {object} signal channels keyed by channel name.
-	 */
-	setupSignalChannels(channels) {
-		const signals = channels.reduce((acc, curr) => {
-			return {
-				...acc,
-				[curr]: new Signal(),
-			};
-		}, {});
-
-		return signals;
 	}
 
 	onLogSave(log) {
@@ -2664,7 +2753,7 @@ export default class Game {
 				return;
 			}
 
-			this.activeCreature.queryMove();
+			this.activeCreature?.queryMove();
 			this.grid?.refreshHoverState();
 		};
 
@@ -2684,7 +2773,7 @@ export default class Game {
 			const interval = setInterval(() => {
 				if (!this.freezedInput && !this.turnThrottle) {
 					clearInterval(interval);
-					this.activeCreature.queryMove();
+					this.activeCreature?.queryMove();
 					this.action(actions.shift(), {
 						callback: nextAction,
 					});

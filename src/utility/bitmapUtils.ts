@@ -1,4 +1,5 @@
 import Game from '../game';
+import { createGameCanvasSurface, type CanvasSurface } from '../game-display/canvas-surface';
 
 /**
  * Structural view of a Phaser 4 render/dynamic texture: Phaser 4 dropped the
@@ -66,17 +67,18 @@ export function extractTextureFrameInfo(
 }
 
 /**
- * Create a BitmapData from texture frame with optional horizontal flip.
- * Centralizes canvas setup: clearRect, drawImage, dirty flag.
+ * Copy a texture frame onto a fresh surface, with an optional horizontal flip.
+ *
+ * Centralizes canvas setup: clear, draw, commit.
  */
 export function createBitmapDataFromTexture(
 	game: Game,
 	textureFrameInfo: TextureFrameInfo,
 	flipHorizontally?: boolean,
-): any {
+): CanvasSurface {
 	const { frame, source, width, height } = textureFrameInfo;
-	const bmd = game.gameEngine.add.bitmapData(width, height);
-	const { ctx } = bmd;
+	const surface = createGameCanvasSurface(game, width, height);
+	const { ctx } = surface;
 
 	ctx.clearRect(0, 0, width, height);
 
@@ -92,6 +94,6 @@ export function createBitmapDataFromTexture(
 		ctx.restore();
 	}
 
-	bmd.dirty = true;
-	return bmd;
+	surface.commit();
+	return surface;
 }

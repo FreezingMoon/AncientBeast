@@ -1,3 +1,4 @@
+import { getFrameSize } from '../game-display/texture';
 import { Easing } from '../utility/easing';
 import { Damage } from '../damage';
 import { Team } from '../utility/team';
@@ -9,6 +10,7 @@ import { Effect } from '../effect';
 import { getPointFacade } from '../utility/pointfacade';
 import { HEX_WIDTH_PX } from '../utility/const';
 import Game from '../game';
+import { shakeBoard } from '../game-display/camera';
 
 /** Creates the abilities
  * @param {Game} G the game object
@@ -189,16 +191,23 @@ export default (G: Game) => {
 
 					vehemoth.queryMove();
 				};
-				G.gameEngine.cameras.main.shake(
-					0.02,
-					333,
-					true,
-					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.02,
+					durationMs: 333,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				path = arrayUtils.sortByDirection(path, args.direction);
-				const target = arrayUtils.last(path).creature;
+				// The path was built against creatures that were alive when the
+				// query opened. By the time the charge resolves the far hex can be
+				// empty — a target killed by the hit that triggered this, say — and
+				// the last path hex then has no creature to charge into.
+				const target = arrayUtils.last(path)?.creature;
+				if (!target) {
+					resumeQueryMove();
+					return;
+				}
 				const targetIsNearby = this._getHexes().some((hex) => hex.creature?.id === target.id);
 
 				if (targetIsNearby) {
@@ -407,13 +416,12 @@ export default (G: Game) => {
 				const target = getPointFacade().getCreaturesAt(hexWithTarget.x, hexWithTarget.y)[0];
 
 				ability.end();
-				G.gameEngine.cameras.main.shake(
-					0.01,
-					50,
-					true,
-					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 50,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				const [tween, sprite] = G.animations.projectile(
 					// @ts-expect-error `this.creature` exists once this file is extended into `ability.ts`
@@ -543,13 +551,12 @@ export default (G: Game) => {
 				const vehemoth = this.creature;
 
 				ability.end();
-				G.gameEngine.cameras.main.shake(
-					0.02,
-					123,
-					true,
-					G.gameEngine.cameras.main.SHAKE_VERTICAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.02,
+					durationMs: 123,
+					force: true,
+					axis: 'vertical',
+				});
 
 				const vehemothLevel = Number(vehemoth.level);
 				const targetLevel = Number(target.level);
@@ -593,11 +600,14 @@ export default (G: Game) => {
 					const cardboardNoseLocalY = 127;
 					const creatureGroup = vehemoth.creatureSprite.grp;
 					const creatureSprite = vehemoth.creatureSprite.sprite;
+					// A pixel on the cardboard artwork, so this needs the frame
+					// size, not the source image size.
+					const creatureSize = getFrameSize(creatureSprite);
 					const localOffsetX =
-						(cardboardNoseLocalX - creatureSprite.anchor.x * creatureSprite.texture.width) *
+						(cardboardNoseLocalX - creatureSprite.anchor.x * creatureSize.width) *
 						creatureSprite.scale.x;
 					const localOffsetY =
-						(cardboardNoseLocalY - creatureSprite.anchor.y * creatureSprite.texture.height) *
+						(cardboardNoseLocalY - creatureSprite.anchor.y * creatureSize.height) *
 						creatureSprite.scale.y;
 					const noseWorldX = creatureGroup.x + creatureSprite.x + localOffsetX;
 					const noseWorldY = creatureGroup.y + creatureSprite.y + localOffsetY;

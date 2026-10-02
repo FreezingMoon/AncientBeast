@@ -5,6 +5,7 @@ import * as matrices from '../utility/matrices';
 import { Effect } from '../effect';
 import Game from '../game';
 import { Creature } from '../creature';
+import { shakeBoard } from '../game-display/camera';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -175,13 +176,12 @@ export default (G: Game) => {
 				if (!this.isUpgraded()) {
 					const targetCreature = target.find((hex) => hex.creature).creature;
 
-					G.gameEngine.cameras.main.shake(
-						0.03,
-						400,
-						true,
-						G.gameEngine.cameras.main.SHAKE_VERTICAL,
-						true,
-					);
+					shakeBoard({
+						amplitude: 0.03,
+						durationMs: 400,
+						force: true,
+						axis: 'vertical',
+					});
 					targetCreature.takeDamage(damage);
 				} else {
 					const set: Set<Creature> = new Set();
@@ -191,13 +191,12 @@ export default (G: Game) => {
 						}
 					});
 					set.forEach((creature) => {
-						G.gameEngine.cameras.main.shake(
-							0.03,
-							400,
-							true,
-							G.gameEngine.cameras.main.SHAKE_VERTICAL,
-							true,
-						);
+						shakeBoard({
+							amplitude: 0.03,
+							durationMs: 400,
+							force: true,
+							axis: 'vertical',
+						});
 						creature.takeDamage(damage);
 					});
 				}
@@ -407,13 +406,12 @@ export default (G: Game) => {
 				const stomper = this.creature;
 				let i = 0;
 				ability.end();
-				G.gameEngine.cameras.main.shake(
-					0.03,
-					400,
-					true,
-					G.gameEngine.cameras.main.SHAKE_VERTICAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.03,
+					durationMs: 400,
+					force: true,
+					axis: 'vertical',
+				});
 
 				const targets = ability.getTargets(hexes);
 
@@ -466,13 +464,12 @@ export default (G: Game) => {
 					ignorePath: true,
 					callback: function () {
 						// Shake the screen upon landing to simulate the jump
-						G.gameEngine.cameras.main.shake(
-							0.02,
-							100,
-							true,
-							G.gameEngine.cameras.main.SHAKE_VERTICAL,
-							true,
-						);
+						shakeBoard({
+							amplitude: 0.02,
+							durationMs: 100,
+							force: true,
+							axis: 'vertical',
+						});
 
 						G.onStepIn(ability.creature, ability.creature.hexagons[0], false);
 
@@ -524,13 +521,12 @@ export default (G: Game) => {
 			activate: function (hexes) {
 				const ability = this;
 				ability.end(); // Deferred ending
-				G.gameEngine.cameras.main.shake(
-					0.03,
-					400,
-					true,
-					G.gameEngine.cameras.main.SHAKE_VERTICAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.03,
+					durationMs: 400,
+					force: true,
+					axis: 'vertical',
+				});
 
 				// Delay all creatures in area
 				const targets = ability.getTargets(hexes);

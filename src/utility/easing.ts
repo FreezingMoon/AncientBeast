@@ -1,100 +1,114 @@
+import { getPhaser } from '../phaser/runtime';
+
 /**
  * Easing functions used by Ancient Beast tweens.
  *
- * Phaser 4 removed the `Phaser.Easing` namespace that Phaser 2 CE exposed.
- * Phaser 4 tweens accept either an ease string (`'Quad.easeInOut'`) or a raw
- * function, so Ancient Beast ships its own named easing table and passes the
- * functions straight through to the tween engine.
+ * These used to be a hand-written table, because Phaser 2 CE's `Phaser.Easing`
+ * namespace is gone and nothing else was available. Phaser 4 has
+ * `Phaser.Math.Easing`, so the table is now deleted rather than maintained.
  *
- * These are plain module exports on purpose: no global `Phaser` mutation and
- * no `window` dependency, so the values are identical in the browser build,
- * in headless simulations and under Jest.
+ * `spike/easing-parity.mjs` checked the two before removing ours: for every ease
+ * AB uses, the worst absolute difference across 1001 sample points was
+ * 2.22e-16 — floating-point noise. So this is a pure deletion, not a behaviour
+ * change.
+ *
+ * Three naming differences are worth remembering:
+ *
+ *  - Phaser 2's `Sinusoidal` is Phaser 4's `Sine`.
+ *  - Phaser 4 has **no `Linear` namespace**. An untweened ease is linear, so
+ *    `Linear.None` is exported here as the identity function.
+ *  - Phaser 4 spells its members `In` / `Out` / `InOut`, matching what AB used.
+ *
+ * The lookup is lazy: `Phaser.Math.Easing` is reached through the runtime rather
+ * than a static import, so a module that merely mentions `Easing` does not pull
+ * the whole engine onto the startup path.
  */
 
 export type EaseFunction = (k: number) => number;
 
+/** The identity ease. Phaser 4 has no `Linear` namespace to point at. */
 const linear: EaseFunction = (k) => k;
 
-const easeIn =
-	(power: number): EaseFunction =>
-	(k) =>
-		Math.pow(k, power);
+/** Phaser 2's `Sinusoidal`, under the name Phaser 4 gives it. */
+export const Sinusoidal = 'Sine' as const;
 
-const easeOut =
-	(power: number): EaseFunction =>
-	(k) =>
-		1 - Math.pow(1 - k, power);
+type EasingNamespace = { In: EaseFunction; Out: EaseFunction; InOut: EaseFunction };
 
-const easeInOut =
-	(power: number): EaseFunction =>
-	(k) =>
-		k < 0.5 ? 0.5 * Math.pow(2 * k, power) : 1 - 0.5 * Math.pow(2 - 2 * k, power);
+/** The `Linear` pseudo-namespace; Phaser 4 has no equivalent. */
+type LinearNamespace = EasingNamespace & { None: EaseFunction };
 
-const sinusoidalIn: EaseFunction = (k) => 1 - Math.cos((k * Math.PI) / 2);
-const sinusoidalOut: EaseFunction = (k) => Math.sin((k * Math.PI) / 2);
-const sinusoidalInOut: EaseFunction = (k) => 0.5 * (1 - Math.cos(Math.PI * k));
+/**
+ * The shape callers see.
+ *
+ * Spelled out rather than inferred so `Easing.Quadratic.InOut` typechecks: the
+ * value behind it is a `Proxy`, which types as `unknown` on every property.
+ */
+export interface EasingTable {
+	Linear: LinearNamespace;
+	Quadratic: EasingNamespace;
+	Cubic: EasingNamespace;
+	Quartic: EasingNamespace;
+	Quintic: EasingNamespace;
+	/** Phaser 2's `Sinusoidal`; Phaser 4 calls it `Sine`. */
+	Sinusoidal: EasingNamespace;
+	Exponential: EasingNamespace;
+	Circular: EasingNamespace;
+	Elastic: EasingNamespace;
+	Back: EasingNamespace;
+	Bounce: EasingNamespace;
+}
 
-const exponentialIn: EaseFunction = (k) => (k === 0 ? 0 : Math.pow(2, 10 * (k - 1)));
-const exponentialOut: EaseFunction = (k) => (k === 1 ? 1 : 1 - Math.pow(2, -10 * k));
-const exponentialInOut: EaseFunction = (k) => {
-	if (k === 0) return 0;
-	if (k === 1) return 1;
-	if ((k *= 2) < 1) return 0.5 * Math.pow(2, 10 * (k - 1));
-	return 0.5 * (2 - Math.pow(2, -10 * (k - 1)));
+/**
+ * Phaser 4 easing namespaces that correspond one-for-one with the names AB used,
+ * with `Sinusoidal` remapped to `Sine` and `Exponential` to `Expo`.
+ */
+const NAMESPACE_FOR: Record<Exclude<keyof EasingTable, 'Linear'>, string> = {
+	Quadratic: 'Quadratic',
+	Cubic: 'Cubic',
+	Quartic: 'Quartic',
+	Quintic: 'Quintic',
+	Sinusoidal: 'Sine',
+	Exponential: 'Expo',
+	Circular: 'Circular',
+	Elastic: 'Elastic',
+	Back: 'Back',
+	Bounce: 'Bounce',
 };
 
-const circularIn: EaseFunction = (k) => 1 - Math.sqrt(1 - k * k);
-const circularOut: EaseFunction = (k) => Math.sqrt(1 - (k - 1) * (k - 1));
-const circularInOut: EaseFunction = (k) => {
-	if ((k *= 2) < 1) return -0.5 * (Math.sqrt(1 - k * k) - 1);
-	return 0.5 * (Math.sqrt(1 - (k - 2) * (k - 2)) + 1);
-};
+const resolve = (): Record<string, unknown> =>
+	getPhaser().Math.Easing as unknown as Record<string, unknown>;
 
-const elasticIn: EaseFunction = (k) => {
-	if (k === 0) return 0;
-	if (k === 1) return 1;
-	return -Math.pow(2, 10 * (k - 1)) * Math.sin((k - 1.1) * 5 * Math.PI);
-};
-const elasticOut: EaseFunction = (k) => {
-	if (k === 0) return 0;
-	if (k === 1) return 1;
-	return Math.pow(2, -10 * k) * Math.sin((k - 0.1) * 5 * Math.PI) + 1;
-};
-const elasticInOut: EaseFunction = (k) => {
-	if (k === 0) return 0;
-	if (k === 1) return 1;
-	if ((k *= 2) < 1) return -0.5 * Math.pow(2, -10 * (k - 1)) * Math.sin((k - 1.1) * 5 * Math.PI);
-	return 0.5 * Math.pow(2, -10 * (k - 1)) * Math.sin((k - 1.1) * 5 * Math.PI) + 1;
-};
+/**
+ * The easing table, in AB's shape.
+ *
+ * A `Proxy` rather than a built object because the values have to come from the
+ * Phaser runtime, which may not be loaded when this module is first imported —
+ * only when a tween actually needs an ease. Looking up a name that Phaser 4 does
+ * not have throws with the list of what it does have, instead of silently
+ * handing back `undefined` and failing later inside the tween manager.
+ */
+export const Easing: EasingTable = new Proxy({} as EasingTable, {
+	get(_target, prop: string) {
+		if (prop === 'Linear') {
+			return { None: linear, In: linear, Out: linear, InOut: linear };
+		}
 
-const backIn: EaseFunction = (k) => k * k * (2.70158 * k - 1.70158);
-const backOut: EaseFunction = (k) => (k - 1) * (k - 1) * (2.70158 * (k - 1) + 1.70158) + 1;
-const backInOut: EaseFunction = (k) => {
-	const s = 1.70158 * 1.525;
-	if ((k *= 2) < 1) return 0.5 * (k * k * ((s + 1) * k - s));
-	return 0.5 * ((k -= 2) * k * ((s + 1) * k + s) + 2);
-};
+		const phaserName = NAMESPACE_FOR[prop as keyof typeof NAMESPACE_FOR];
+		if (!phaserName) {
+			return undefined;
+		}
 
-const bounceOut: EaseFunction = (k) => {
-	if (k < 1 / 2.75) return 7.5625 * k * k;
-	if (k < 2 / 2.75) return 7.5625 * (k -= 1.5 / 2.75) * k + 0.75;
-	if (k < 2.5 / 2.75) return 7.5625 * (k -= 2.25 / 2.75) * k + 0.9375;
-	return 7.5625 * (k -= 2.625 / 2.75) * k + 0.984375;
-};
-const bounceIn: EaseFunction = (k) => 1 - bounceOut(1 - k);
-const bounceInOut: EaseFunction = (k) =>
-	k < 0.5 ? 0.5 * bounceIn(k * 2) : 0.5 * bounceOut(k * 2 - 1) + 0.5;
-
-export const Easing = {
-	Linear: { None: linear, In: linear, Out: linear, InOut: linear },
-	Quadratic: { In: easeIn(2), Out: easeOut(2), InOut: easeInOut(2) },
-	Cubic: { In: easeIn(3), Out: easeOut(3), InOut: easeInOut(3) },
-	Quartic: { In: easeIn(4), Out: easeOut(4), InOut: easeInOut(4) },
-	Quintic: { In: easeIn(5), Out: easeOut(5), InOut: easeInOut(5) },
-	Sinusoidal: { In: sinusoidalIn, Out: sinusoidalOut, InOut: sinusoidalInOut },
-	Exponential: { In: exponentialIn, Out: exponentialOut, InOut: exponentialInOut },
-	Circular: { In: circularIn, Out: circularOut, InOut: circularInOut },
-	Elastic: { In: elasticIn, Out: elasticOut, InOut: elasticInOut },
-	Back: { In: backIn, Out: backOut, InOut: backInOut },
-	Bounce: { In: bounceIn, Out: bounceOut, InOut: bounceInOut },
-} as const;
+		const easing = resolve();
+		const ns = easing[phaserName] as EasingNamespace | undefined;
+		if (!ns) {
+			throw new Error(
+				`Easing.${prop} is not a Phaser 4 easing namespace (looked for ${phaserName}). ` +
+					`Phaser 4 provides: ${Object.keys(easing).join(', ')}.`,
+			);
+		}
+		return ns;
+	},
+	has(_target, prop: string) {
+		return prop === 'Linear' || prop in NAMESPACE_FOR;
+	},
+});

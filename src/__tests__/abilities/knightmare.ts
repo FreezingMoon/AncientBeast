@@ -74,9 +74,7 @@ jest.mock('../../creature', () => ({
 import loadKnightmareAbilities from '../../abilities/Knightmare';
 import { Creature } from '../../creature';
 
-(globalThis as { Phaser?: unknown }).Phaser = {
-	camera: { SHAKE_HORIZONTAL: 0, SHAKE_VERTICAL: 0, SHAKE_BOTH: 0 },
-};
+(globalThis as { Phaser?: unknown }).Phaser = {};
 
 type MockEffect = {
 	name: string;
@@ -145,7 +143,6 @@ describe('Knightmare Frigid Tower', () => {
 			effectId: 0,
 			effects: [],
 			gameEngine: {
-				cameras: { main: { shake: () => {} } },
 				add: {
 					graphics: () => ({}),
 					bitmapData: () => ({}),
@@ -238,7 +235,6 @@ describe('Knightmare Icy Talons', () => {
 				},
 			},
 			gameEngine: {
-				cameras: { main: { shake: () => {} } },
 				add: {
 					graphics: () => ({}),
 					bitmapData: () => ({}),
@@ -363,7 +359,6 @@ describe('Knightmare Icicle Spear', () => {
 				},
 			},
 			gameEngine: {
-				cameras: { main: { shake: () => {} } },
 				add: {
 					graphics: () => ({}),
 					bitmapData: () => ({}),

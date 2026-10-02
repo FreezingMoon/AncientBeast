@@ -15,19 +15,16 @@ import { AugmentedMatrix } from './matrices';
 import { PierceThroughBehavior } from '../ability';
 import { getDarkPriestCardboardKey, getDarkPriestDisplayOffsetX } from '../player';
 import { ensureCardboard, isTextureReady } from '../assets';
+import { getFrameSize } from '../game-display/texture';
+import { getHoveredHex, isPointerWithinBoard, setHoveredHex } from '../input/input';
+import {
+	createBoardLayersWithFactory,
+	getDepthAtBand,
+	sortLayerByDepth,
+	type DepthBand,
+} from '../game-display/layer';
 
-const ROW_DEPTH_STRIDE = 100;
-
-const DEPTH_BAND = {
-	TRAP_GROUND: 0,
-	EFFECT_UNDER_UNITS: 20,
-	UNITS: 40,
-	EFFECT_OVER_UNITS: 80,
-	DROPS: 85,
-	TRAP_VOLUMETRIC: 90,
-} as const;
-
-export type DepthBand = keyof typeof DEPTH_BAND;
+export type { DepthBand };
 
 interface GridDefinition {
 	numRows: number;
@@ -238,8 +235,18 @@ export class HexGrid {
 	 * The hex the physical mouse pointer is currently over, updated before any
 	 * freezedInput guard so it remains accurate during ability animations.
 	 * Distinct from selectedHex which the keyboard cursor and queryHexes() reset.
+	 *
+	 * Backed by the input module rather than kept as a field of its own: the
+	 * module is the single owner of pointer position, and a second copy here
+	 * would be free to disagree with it.
 	 */
-	lastMouseHex: Hex | undefined = undefined;
+	get lastMouseHex(): Hex | undefined {
+		return getHoveredHex() as Hex | undefined;
+	}
+
+	set lastMouseHex(hex: Hex | undefined) {
+		setHoveredHex(hex);
+	}
 
 	/**
 	 * True while refreshHoverState() is replaying hover behavior programmatically.
@@ -348,38 +355,27 @@ export class HexGrid {
 		this.hexes = []; // Hex Array
 		this.lastClickedHex = undefined;
 
-		this.display = game.gameEngine.add.group(undefined, 'displayGroup');
-		this.display.x = 230;
-		this.display.y = 380;
-
-		this.gridGroup = game.gameEngine.add.group(this.display, 'gridGroup');
-		this.gridGroup.scale.set(1, 0.75);
-
-		this.trapGroup = game.gameEngine.add.group(this.gridGroup, 'trapGrp');
-		this.hexesGroup = game.gameEngine.add.group(this.gridGroup, 'hexesGroup');
-		this.displayHexesGroup = game.gameEngine.add.group(this.gridGroup, 'displayHexesGroup');
-		this.overlayHexesGroup = game.gameEngine.add.group(this.gridGroup, 'overlayHexesGroup');
-		this.dropGroup = game.gameEngine.add.group(this.display, 'dropGrp');
-		this.creatureGroup = game.gameEngine.add.group(this.display, 'creaturesGrp');
+		// The layer tree's shape and sibling order come from the shared
+		// `LAYER_SPEC`, the same table the native container builder uses, so the two
+		// cannot disagree. This fixes the smoke layer, which the previous inline
+		// sequence appended after the creature layer and then tried to move with a
+		// splice on a throwaway array.
+		const layers = createBoardLayersWithFactory(game.gameEngine);
+		this.display = layers.display;
+		this.gridGroup = layers.gridGroup;
+		this.trapGroup = layers.trapGroup;
+		this.hexesGroup = layers.hexesGroup;
+		this.displayHexesGroup = layers.displayHexesGroup;
+		this.overlayHexesGroup = layers.overlayHexesGroup;
+		this.dropGroup = layers.dropGroup;
+		this.creatureGroup = layers.creatureGroup;
 		// Behind the creatures so smoke never draws over a unit, but not a child of
 		// any creature group, so it does not travel with one.
-		this.infernalSmokeGroup = game.gameEngine.add.group(this.display, 'infernalSmokeGrp');
-		// `add.group(display, …)` appends, which would put the smoke in front of
-		// every creature. Move it back to sit just below the creature layer.
-		const smokeIndex = this.display.children.indexOf(this.infernalSmokeGroup);
-		if (smokeIndex > 0) {
-			this.display.children.splice(smokeIndex, 1);
-			this.display.children.splice(
-				this.display.children.indexOf(this.creatureGroup),
-				0,
-				this.infernalSmokeGroup,
-			);
-		}
+		this.infernalSmokeGroup = layers.infernalSmokeGroup;
 		// Health indicators sit above all creature sprites so they're never occluded
-		this.healthIndicatorUiGroup = game.gameEngine.add.group(this.display, 'healthIndicatorUiGrp');
+		this.healthIndicatorUiGroup = layers.healthIndicatorUiGroup;
 		// Parts of traps displayed over creatures
-		this.trapOverGroup = game.gameEngine.add.group(this.display, 'trapOverGrp');
-		this.trapOverGroup.scale.set(1, 0.75);
+		this.trapOverGroup = layers.trapOverGroup;
 
 		// Populate grid
 		for (let row = 0; row < numRows; row++) {
@@ -404,8 +400,21 @@ export class HexGrid {
 		this._executionMode = this.game.metaPowersState.executeMonster;
 
 		// Events
-		this.game.signals.metaPowers.add(this.handleMetaPowerEvent, this);
-		this.game.signals.ui.add(this.handleUIEvent, this);
+		this.game.channels.metaPowers.on('toggleExecuteMonster', (enabled: boolean) => {
+			this._executionMode = enabled;
+		});
+		// When the dash opens or closes, creatures can remain in a "hovered" state
+		// (e.g. bounce animation stuck). Reset all bounces to ensure a clean state.
+		const resetBounces = () => {
+			this.forEachHex((hex) => {
+				const creature = hex.creature;
+				if (creature instanceof Creature) {
+					creature.resetBounce();
+				}
+			});
+		};
+		this.game.channels.ui.on('onOpenDash', resetBounces);
+		this.game.channels.ui.on('onCloseDash', resetBounces);
 	}
 
 	get traps() {
@@ -417,25 +426,6 @@ export class HexGrid {
 		const row = this.hexes[y];
 		if (x < 0 || x >= row.length) return;
 		return row[x];
-	}
-
-	handleMetaPowerEvent(message, payload) {
-		if (message === 'toggleExecuteMonster') {
-			this._executionMode = payload;
-		}
-	}
-
-	handleUIEvent(message, _payload) {
-		if (message === 'onOpenDash' || message === 'onCloseDash') {
-			// When the dash opens or closes, creatures can remain in a "hovered" state
-			// (e.g. bounce animation stuck). Reset all bounces to ensure a clean state.
-			this.forEachHex((hex) => {
-				const creature = hex.creature;
-				if (creature instanceof Creature) {
-					creature.resetBounce();
-				}
-			});
-		}
 	}
 
 	isInBounds({ x, y }: Point) {
@@ -1051,6 +1041,13 @@ export class HexGrid {
 	}
 
 	redoLastQuery() {
+		// A replayed query is anchored to the creature that issued it. With no
+		// active creature the match has ended or reset, so re-running it would
+		// overlay a dead unit's reachable hexes and dereference a null
+		// `activeCreature` on the way through.
+		if (!this.lastQueryOpt || !this.game.activeCreature) {
+			return;
+		}
 		this.queryHexes(this.lastQueryOpt);
 	}
 
@@ -1067,14 +1064,19 @@ export class HexGrid {
 		if (this.game.botController?.isBotTurn()) {
 			return;
 		}
+		// Nothing to replay when the pointer has left the board: the last hex it
+		// crossed is not where it is, and re-firing hover there would light up a
+		// unit the player is no longer pointing at.
+		if (!isPointerWithinBoard()) return;
 		const hex = this.lastMouseHex;
 		if (!hex || this.game.freezedInput || this.isRefreshingHoverState) return;
 		this.cancelDeferredActiveHexDashedClear();
-		// Replicate what onInputOver does so cursor, unit preview and xray all update.
+		// Replicate what the pointer-over handler does so cursor, unit preview and
+		// xray all update.
 		if (hex.reachable && this.game.activeCreature) {
 			this.game.activeCreature.highlightCurrentHexesAsDashed();
 		}
-		this.game.signals.hex.dispatch('over', { hex });
+		this.game.channels.hex.emit('over', { hex });
 		this.selectedHex = hex;
 		this.isRefreshingHoverState = true;
 		try {
@@ -1288,7 +1290,7 @@ export class HexGrid {
 			}
 			if (o.targeting) {
 				if (hex.creature instanceof Creature) {
-					if (hex.creature.id != this.game.activeCreature.id) {
+					if (hex.creature.id != this.game.activeCreature?.id) {
 						hex.overlayVisualState('reachable h_player' + hex.creature.team);
 						// Add dashed hexagons under targets for ranged abilities with team color
 						hex.displayVisualState('dashed player' + hex.creature.team);
@@ -1298,7 +1300,7 @@ export class HexGrid {
 				} else {
 					if (o.fillOnlyHoveredCreature && !emptyHexBeforeCreature(hex)) {
 						hex.displayVisualState('dashed');
-					} else {
+					} else if (this.game.activeCreature) {
 						hex.overlayVisualState('reachable h_player' + this.game.activeCreature.team);
 					}
 				}
@@ -2201,16 +2203,16 @@ export class HexGrid {
 		this.game.UI.xrayQueue(-1);
 	}
 
-	private _rowDepthBaseIndex(y: number) {
-		// Leave room within each row for shared layer bands instead of forcing
-		// every renderable to compete in a single linear ordering.
-		// Rows further down the board (high y, nearer the viewer in the oblique
-		// perspective) get a higher depth and render in front of rows above them.
-		return y * ROW_DEPTH_STRIDE;
-	}
-
+	/**
+	 * Depth for one renderable: a per-row base plus a band offset and an optional
+	 * within-band slot.
+	 *
+	 * The bands themselves live in `src/game-display/layer.ts` so the board layout
+	 * has one definition shared with the native container tree, rather than one
+	 * here and a copy in the layer module.
+	 */
 	getDepthAtBand(y: number, band: DepthBand, slot = 0) {
-		return this._rowDepthBaseIndex(y) + DEPTH_BAND[band] + slot;
+		return getDepthAtBand(y, band, slot);
 	}
 
 	/**
@@ -2336,10 +2338,14 @@ export class HexGrid {
 			}
 		}
 
-		this.trapGroup.sort('depth', -1);
-		this.creatureGroup.sort('depth', -1);
-		this.dropGroup.sort('depth', -1);
-		this.trapOverGroup.sort('depth', -1);
+		// Ascending depth: lower depth draws first, i.e. further back. These were
+		// `sort('depth', -1)` calls, whose `-1` was inert under Phaser 2's renderer
+		// (list order did not affect drawing) but would invert the board if it were
+		// honoured now, so the direction is stated explicitly instead.
+		sortLayerByDepth(this.trapGroup);
+		sortLayerByDepth(this.creatureGroup);
+		sortLayerByDepth(this.dropGroup);
+		sortLayerByDepth(this.trapOverGroup);
 	}
 
 	/**
@@ -2530,14 +2536,14 @@ export class HexGrid {
 		const preview = secondary ? this.secondary_overlay : this.materialize_overlay;
 
 		// Placing sprite. Mirrors CreatureSprite's placement so the ghost lines
-		// up with the unit it is previewing.
+		// up with the unit it is previewing — including reading the frame size
+		// rather than the source size, for the same reason.
+		const previewSize = getFrameSize(preview);
 		preview.x =
 			hex.displayPos.x +
-			(!player.flipped
-				? originX
-				: HEX_WIDTH_PX * creatureData.size - preview.texture.width - originX) +
-			preview.texture.width / 2;
-		preview.y = hex.displayPos.y + creatureData.display['offset-y'] + preview.texture.height;
+			(!player.flipped ? originX : HEX_WIDTH_PX * creatureData.size - previewSize.width - originX) +
+			previewSize.width / 2;
+		preview.y = hex.displayPos.y + creatureData.display['offset-y'] + previewSize.height;
 		// The ghost is the overlay's final say on its own opacity: whatever fade
 		// the previous use left behind has to be gone before it is pinned.
 		clearPreviewTweens(game, preview);

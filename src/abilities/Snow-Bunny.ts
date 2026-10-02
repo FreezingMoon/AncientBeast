@@ -6,6 +6,7 @@ import * as arrayUtils from '../utility/arrayUtils';
 import Game from '../game';
 import { Hex } from '../utility/hex';
 import { Point, getPointFacade } from '../utility/pointfacade';
+import { shakeBoard } from '../game-display/camera';
 
 /* TODO:
  * Refactor to remove the `arguments` keyword
@@ -101,13 +102,12 @@ export default (G: Game) => {
 				const ability = this;
 
 				ability.end();
-				G.gameEngine.cameras.main.shake(
-					0.01,
-					55,
-					true,
-					G.gameEngine.cameras.main.SHAKE_VERTICAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 55,
+					force: true,
+					axis: 'vertical',
+				});
 
 				this.creature.moveTo(this._getHopHex(), {
 					callback: function () {
@@ -295,13 +295,12 @@ export default (G: Game) => {
 			activate: function (target) {
 				const ability = this;
 				ability.end();
-				G.gameEngine.cameras.main.shake(
-					0.01,
-					100,
-					true,
-					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 100,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				const damages = ability.damages;
 				const pureDamage = {
@@ -464,13 +463,12 @@ export default (G: Game) => {
 						return;
 					}
 
-					G.gameEngine.cameras.main.shake(
-						0.01,
-						400,
-						true,
-						G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-						true,
-					);
+					shakeBoard({
+						amplitude: 0.01,
+						durationMs: 400,
+						force: true,
+						axis: 'horizontal',
+					});
 
 					const cannotBePushed = target.stats?.moveable === false;
 					const landsInPlace = pushHex.x === target.x && pushHex.y === target.y;
@@ -569,13 +567,12 @@ export default (G: Game) => {
 					// @ts-expect-error 'this' refers to the animation object, _not_ the ability
 					this.destroy();
 
-					G.gameEngine.cameras.main.shake(
-						0.01,
-						90,
-						true,
-						G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-						true,
-					);
+					shakeBoard({
+						amplitude: 0.01,
+						durationMs: 90,
+						force: true,
+						axis: 'horizontal',
+					});
 
 					// Play hit sound when projectile reaches target
 					G.soundsys.playSFX('units/sfx/Snow Bunny 3');

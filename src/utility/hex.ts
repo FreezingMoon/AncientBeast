@@ -4,7 +4,7 @@ import { Drop } from '../drop';
 import { Creature } from '../creature';
 import { HexGrid } from './hexgrid';
 import Game from '../game';
-import { tryGetPhaser } from '../engine/phaser-runtime';
+import { tryGetPhaser } from '../phaser/runtime';
 import type { TweenHandle, SpriteHandle } from '../engine/types';
 import { ALIGN_CENTER } from '../engine/Phaser4Handles';
 import { DEBUG } from '../debug';
@@ -12,6 +12,16 @@ import { getPointFacade } from './pointfacade';
 import * as Const from './const';
 import { Effect } from '../effect';
 import { Player } from '../player';
+import {
+	clearHoveredHex,
+	isPointerWithinBoard,
+	onPointerOut,
+	onPointerOver,
+	onPointerUp,
+	rejectIfTurnFrozen,
+	setHoveredHex,
+} from '../input/input';
+import { setHandCursor } from '../game-display/cursor';
 
 export enum Direction {
 	None = -1,
@@ -201,9 +211,13 @@ export class Hex {
 
 			this.hitBox = grid.hexesGroup.create(x, y, 'hex');
 			this.hitBox.alpha = 0;
-			this.hitBox.inputEnabled = true;
-			this.hitBox.ignoreChildInput = true;
-			this.hitBox.input.useHandCursor = false;
+			// A hex is the board's only interactive surface, so it is made
+			// interactive once here and left enabled; the turn gate decides what a
+			// gesture means rather than whether the object is listening.
+			this.hitBox.setInteractive();
+			// The hex artwork carries no children, so the Phaser 2 CE
+			// `ignoreChildInput` toggle has nothing to do in Phaser 4.
+			setHandCursor(this.hitBox, false);
 			this.pinTopLeft(this.hitBox, x, y);
 
 			{
@@ -229,7 +243,15 @@ export class Hex {
 								Math.sin(angle) * radius_h + offset_y,
 							),
 					);
-					this.hitBox.hitArea = new Geom.Polygon(points);
+					// Phaser 4 no longer maps a shape to its own `contains` test, so
+					// the polygon and the test that uses it are both supplied.
+					const polygon = new Geom.Polygon(points);
+					const hitArea = this.hitBox.input;
+					if (hitArea) {
+						hitArea.hitArea = polygon;
+						hitArea.customHitArea = true;
+						hitArea.hitAreaCallback = (_shape, hitX, hitY) => polygon.contains(hitX, hitY);
+					}
 				}
 			}
 
@@ -243,7 +265,7 @@ export class Hex {
 			this.overlay.alpha = 0;
 
 			// Binding Events
-			this.hitBox.events.onInputOver.add(() => {
+			onPointerOver(this.hitBox, () => {
 				grid.cancelDeferredActiveHexDashedClear();
 				const previousMouseHex = grid.lastMouseHex;
 				if (previousMouseHex && previousMouseHex !== this) {
@@ -262,14 +284,11 @@ export class Hex {
 				}
 				// Always track pointer position so refreshHoverState() knows which hex
 				// to re-evaluate once freezedInput is cleared after an ability animation.
+				// `lastMouseHex` is backed by the input module, so this is the one
+				// place hover position is recorded.
 				grid.lastMouseHex = this;
 
-				// Check if it's not the player's turn (bot or remote opponent)
-				const isNotPlayerTurn = game.freezedInput || game.botController?.isBotTurn();
-				if (isNotPlayerTurn) {
-					$j('canvas').css('cursor', 'wait');
-					return;
-				}
+				if (rejectIfTurnFrozen(game)) return;
 
 				if (!game.UI || game.UI.dashopen || shouldUseDirectTouchInput()) return;
 
@@ -278,24 +297,20 @@ export class Hex {
 					game.activeCreature.highlightCurrentHexesAsDashed();
 				}
 
-				game.signals.hex.dispatch('over', { hex: this });
+				game.channels.hex.emit('over', { hex: this });
 				grid.selectedHex = this;
 				this.onSelectFn(this);
-			}, this);
+			});
 
-			this.hitBox.events.onInputOut.add((_, pointer) => {
-				// Check if it's not the player's turn (bot or remote opponent)
-				const isNotPlayerTurn = game.freezedInput || game.botController?.isBotTurn();
-				if (isNotPlayerTurn) {
-					$j('canvas').css('cursor', 'wait');
-					return;
-				}
+			onPointerOut(this.hitBox, () => {
+				if (rejectIfTurnFrozen(game)) return;
 
 				if (!game.UI || game.UI.dashopen || shouldUseDirectTouchInput()) return;
 
-				// When cursor leaves the game canvas entirely, still reset hover state
-				// (e.g. stop the health indicator bounce animation) but skip overlay/signal work.
-				if (!pointer.withinGame) {
+				// When the pointer leaves the game canvas entirely, still reset hover
+				// state (e.g. stop the health indicator bounce animation) but skip
+				// overlay/signal work.
+				if (!isPointerWithinBoard()) {
 					// Clear pointer tracking so refreshHoverState() won't fire on a stale hex.
 					grid.lastMouseHex = undefined;
 					if (this.creature instanceof Creature) {
@@ -312,22 +327,17 @@ export class Hex {
 					grid.scheduleDeferredActiveHexDashedClear();
 				}
 
-				game.signals.hex.dispatch('out', { hex: this });
+				game.channels.hex.emit('out', { hex: this });
 				if (this.creature instanceof Creature) {
 					grid.clearTransientCreatureHoverVisual(this.creature);
 				} else {
 					grid.clearTransientHexHoverVisual(this);
 				}
 				this.onHoverOffFn(this);
-			}, this);
+			});
 
-			this.hitBox.events.onInputUp.add((Sprite, Pointer) => {
-				// Check if it's not the player's turn (bot or remote opponent)
-				const isNotPlayerTurn = game.freezedInput || game.botController?.isBotTurn();
-				if (isNotPlayerTurn) {
-					$j('canvas').css('cursor', 'wait');
-					return;
-				}
+			onPointerUp(this.hitBox, (pointer) => {
+				if (rejectIfTurnFrozen(game)) return;
 
 				if (!game.UI || game.UI.dashopen) return;
 
@@ -340,7 +350,7 @@ export class Hex {
 					return;
 				}
 
-				switch (Pointer.button) {
+				switch (pointer.button) {
 					case 1:
 						// Middle mouse button pressed
 						break;
@@ -353,7 +363,7 @@ export class Hex {
 						confirmSelectedHex();
 						break;
 				}
-			}, this);
+			});
 		}
 
 		this.displayPos.y = this.displayPos.y * 0.75 + 30;
@@ -664,7 +674,7 @@ export class Hex {
 		this.reachable = true;
 		// Only show hand cursor if it's the local player's turn
 		const isMyTurn = !this.game?.multiplayer || this.game?.lobby?.isMyTurn?.() !== false;
-		this.hitBox.input.useHandCursor = isMyTurn;
+		setHandCursor(this.hitBox, isMyTurn);
 		this.updateStyle();
 	}
 
@@ -673,7 +683,7 @@ export class Hex {
 	 */
 	unsetReachable() {
 		this.reachable = false;
-		this.hitBox.input.useHandCursor = false;
+		setHandCursor(this.hitBox, false);
 		this.updateStyle();
 	}
 

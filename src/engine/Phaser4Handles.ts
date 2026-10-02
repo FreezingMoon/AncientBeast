@@ -1,8 +1,6 @@
 import type Phaser from 'phaser';
-import { getPhaser } from './phaser-runtime';
-import { Signal } from '../utility/signal';
-import { toTextureKey } from './textureKey';
-import type { BitmapDataHandle, GroupHandle, SpriteHandle, TextureKeyLike } from './types';
+import { getPhaser } from '../phaser/runtime';
+import type { GroupHandle, SpriteHandle, TextureKeyLike } from './types';
 
 /**
  * Phaser 4 game object / group / dynamic texture facades.
@@ -13,13 +11,16 @@ import type { BitmapDataHandle, GroupHandle, SpriteHandle, TextureKeyLike } from
  *  - `sprite.anchor`       -> `setOrigin` / `originX` / `originY`
  *  - `sprite.scale.setTo`  -> `setScale` / `scaleX` / `scaleY`
  *  - `sprite.loadTexture`  -> `setTexture`
- *  - `sprite.inputEnabled` -> `setInteractive` / `disableInteractive`
- *  - `sprite.events.onInputUp.add` -> `on('pointerup')`
  *  - `Group` is only a membership `Set` in Phaser 4: no transform, no ordering,
  *    no `create`. `Container` is the native Phaser 4 object that covers all three,
  *    so groups are containers behind this facade.
  *  - `BitmapData` became `RenderTexture` / `DynamicTexture`, which buffer draw
  *    commands and only upload them on an explicit `render()`.
+ *
+ * Input is not in that list any more. `inputEnabled` and `events.onInput*` were
+ * removed rather than translated: gameplay subscribes through
+ * `src/input/input.ts`, which applies Ancient Beast's own gesture rules on top of
+ * Phaser 4's pointer events, so `on` and `input` are forwarded natively here.
  *
  * Everything that is not translated is forwarded straight to the real game
  * object, so native Phaser 4 API (`depth`, `setTint`, `setLighting`, filters,
@@ -72,13 +73,6 @@ export function unwrap<T = any>(handle: AnyObject): T {
 
 // ─── Game object facade ───────────────────────────────────────────────────────
 
-const INPUT_EVENT_BY_HANDLE: Record<string, string> = {
-	onInputUp: 'pointerup',
-	onInputDown: 'pointerdown',
-	onInputOver: 'pointerover',
-	onInputOut: 'pointerout',
-};
-
 /** Wraps (or returns the existing wrapper for) a Phaser 4 game object. */
 export function wrapGameObject(gameObject: Phaser.GameObjects.GameObject): SpriteHandle {
 	const existing = wrappers.get(gameObject);
@@ -88,44 +82,8 @@ export function wrapGameObject(gameObject: Phaser.GameObjects.GameObject): Sprit
 	// `GameObject` base type, so the facade works off a loose alias internally.
 	const go = gameObject as unknown as AnyObject;
 	const target = go;
-	const signals = new Map<string, Signal>();
 	// Values gameplay code stashes on the handle itself (`tween`, custom flags).
 	const local = new Map<string, unknown>();
-
-	const signalFor = (event: string): Signal => {
-		let signal = signals.get(event);
-		if (!signal) {
-			signal = new Signal();
-			signals.set(event, signal);
-			// Phaser 4 emits `(pointer, localX, localY, container)`; Phaser 2 CE
-			// dispatched `(sprite, pointer, …)`. Re-order so the handlers written
-			// against Phaser 2 keep working.
-			// Right-clicks that began on a DOM overlay (scoreboard, music
-			// player, …) can still reach canvas listeners via Phaser's
-			// window-level mouse handlers (mousedown on the overlay is consumed
-			// by the DOM close handler, so the pointer never records a canvas
-			// downElement and mouseup retargets to the canvas): Phaser
-			// hit-tests canvas coordinates even though the user clicked the
-			// overlay. Swallow those here — a genuine canvas gesture always has
-			// a canvas downElement; an overlay-originated one doesn't.
-			gameObject.on(event, (pointer: unknown, ...rest: unknown[]) => {
-				const pointerEvent = pointer as unknown as {
-					button?: number;
-					downElement?: HTMLElement;
-				};
-				if (
-					pointerEvent &&
-					typeof pointerEvent === 'object' &&
-					(pointerEvent.button === 2 || pointerEvent.button === 1) &&
-					(!pointerEvent.downElement || pointerEvent.downElement.tagName !== 'CANVAS')
-				) {
-					return;
-				}
-				signal.dispatch(gameObject, pointer, ...rest);
-			});
-		}
-		return signal;
-	};
 
 	const anchor = {
 		get x() {
@@ -174,29 +132,6 @@ export function wrapGameObject(gameObject: Phaser.GameObjects.GameObject): Sprit
 		clone: () => new (getPhaser().Math.Vector2)(go.x, go.y),
 	};
 
-	const input = {
-		get useHandCursor() {
-			return target.input?.cursor === 'pointer';
-		},
-		get useHandcursor() {
-			return target.input?.cursor === 'pointer';
-		},
-		set useHandCursor(value: boolean) {
-			if (target.input) target.input.cursor = value ? 'pointer' : 'default';
-		},
-		set useHandcursor(value: boolean) {
-			input.useHandCursor = value;
-		},
-		priorityID: 0,
-	};
-
-	const events = {
-		onInputUp: signalFor('pointerup'),
-		onInputDown: signalFor('pointerdown'),
-		onInputOver: signalFor('pointerover'),
-		onInputOut: signalFor('pointerout'),
-	};
-
 	const facade: AnyObject = {
 		__unwrapped: gameObject,
 
@@ -208,7 +143,7 @@ export function wrapGameObject(gameObject: Phaser.GameObjects.GameObject): Sprit
 			go.setActive(value);
 		},
 		get key() {
-			return toTextureKey(target.texture?.key);
+			return target.texture?.key;
 		},
 		get text() {
 			return target.text;
@@ -220,12 +155,18 @@ export function wrapGameObject(gameObject: Phaser.GameObjects.GameObject): Sprit
 			return { width: go.width, height: go.height };
 		},
 		/**
-		 * Phaser 2's `Texture` carried `width`/`height` for the whole sheet, and
-		 * AB positions sprites from it (`sprite.texture.width / 2` to centre,
-		 * `-sprite.texture.height` to sit on a hex). Phaser 4's `Texture` is a
-		 * key/frame index with no dimensions, so the view adds them back from the
-		 * game object's current frame — which is what every one of those call
-		 * sites actually means.
+		 * Phaser 2's `Texture` carried `width`/`height` for the sprite's own
+		 * frame, and AB read them to place sprites (`sprite.texture.width / 2` to
+		 * centre, `-sprite.texture.height` to sit on a hex). Phaser 4's `Texture`
+		 * is a key/frame index with no dimensions at all, so this view adds them
+		 * back from the game object's current frame, which is what those call sites
+		 * mean.
+		 *
+		 * Gameplay positioning now asks `getFrameSize()` in
+		 * `src/game-display/texture.ts` instead, which prefers the *untrimmed*
+		 * frame size. What remains is source-region drawing
+		 * (`utility/bitmapUtils`, the shatter effect), where the packed frame box is
+		 * the right answer.
 		 */
 		get texture(): AnyObject {
 			if (!local.has('textureView')) local.set('textureView', makeTextureView(go));
@@ -269,51 +210,17 @@ export function wrapGameObject(gameObject: Phaser.GameObjects.GameObject): Sprit
 		},
 
 		// ── Texture / input ──────────────────────────────────────────────
-		// Accepts a live `BitmapDataHandle` as well as a key: the CPU-drawn
+		// Accepts a live `CanvasSurface` as well as a key: the CPU-drawn
 		// surfaces (plasma field, x-ray, haze) are attached this way.
-		loadTexture: (key: TextureKeyLike, frame?: string) => go.setTexture(toTextureKey(key), frame),
-		get inputEnabled() {
-			return Boolean(target.input);
-		},
-		set inputEnabled(value: boolean) {
-			if (value) {
-				go.setInteractive();
-			} else {
-				go.disableInteractive();
-			}
-		},
-		input,
-		get hitArea() {
-			return target.input?.hitArea;
-		},
+		loadTexture: (key: TextureKeyLike, frame?: string) => go.setTexture(key!, frame),
 		/**
-		 * Phaser 4 no longer maps a shape to its `contains` test automatically,
-		 * so the geometry's own `contains` is wired up as the hit area callback.
+		 * Phaser 4's interactive object, exposed as-is.
+		 *
+		 * `setInteractive` / `disableInteractive` and the `input` object are
+		 * forwarded to the real game object by the proxy below, so there is nothing
+		 * to translate: pointer subscriptions go through `src/input/input.ts`
+		 * instead of the old `events.onInput*` signals.
 		 */
-		set hitArea(value: AnyObject) {
-			if (!value) return;
-			const io = target.input;
-			if (io) {
-				io.hitArea = value;
-				io.customHitArea = true;
-				if (typeof value.contains === 'function') {
-					io.hitAreaCallback = (_hitArea: unknown, x: number, y: number) => value.contains(x, y);
-				}
-			} else {
-				const contains =
-					typeof value.contains === 'function'
-						? (_x: number, _y: number) => value.contains(_x, _y)
-						: undefined;
-				gameObject.scene?.input?.setHitArea(gameObject, value, contains);
-			}
-		},
-		// Phaser 2 groups did not forward pointer events to their children;
-		// Phaser 4 has no equivalent toggle, so the flag is accepted as a no-op.
-		get ignoreChildInput() {
-			return true;
-		},
-		set ignoreChildInput(_value: boolean) {},
-		events,
 
 		/**
 		 * Phaser 2 gave every game object a `DataManager` at `.data`, always
@@ -751,7 +658,7 @@ export function wrapGroup(container: Phaser.GameObjects.Container): GroupHandle 
 		},
 
 		create: (x: number, y: number, key: TextureKeyLike, frame?: string, exists?: boolean) => {
-			const child = container.scene.add.sprite(x, y, toTextureKey(key), frame);
+			const child = container.scene.add.sprite(x, y, key!, frame);
 			if (exists === false) child.setActive(false);
 			container.add(child);
 			return wrapGameObject(child);
@@ -838,123 +745,4 @@ function sortChildrenByDepth(
 		const right = Number((b as AnyObject)[property] ?? 0);
 		return (left - right) * direction;
 	});
-}
-
-// ─── DynamicTexture facade ────────────────────────────────────────────────────
-
-/**
- * Phaser 2 `BitmapData` was a plain offscreen 2D canvas that gameplay code drew
- * into with raw canvas ops (`getImageData` / `putImageData` / `drawImage`).
- *
- * Phaser 4 has no equivalent. `RenderTexture` is the closest display object,
- * but under the WebGL renderer its `DynamicTexture.canvas` is `null` — the
- * draw calls are buffered in a WebGL command buffer instead, so there is no
- * 2D context to hand out. The only Phaser 4 texture with a real 2D context is a
- * `CanvasTexture`, obtained through `textures.createCanvas(key, w, h)`.
- *
- * So the surface is a `CanvasTexture` (real 2D context, and the thing a sprite
- * samples), and the facade exposes it under Phaser 2's `BitmapData` shape.
- * `CanvasTexture.update()` re-uploads the canvas to the GPU; Phaser 2's
- * equivalent flush point was an explicit draw, so `update()`/`dirty = true`
- * both funnel here.
- */
-export class DynamicTextureAdapter implements BitmapDataHandle {
-	readonly textureKey: string;
-	readonly canvasTexture: Phaser.Textures.CanvasTexture;
-	readonly canvas: HTMLCanvasElement;
-	readonly ctx: CanvasRenderingContext2D;
-	readonly context: CanvasRenderingContext2D;
-	readonly width: number;
-	readonly height: number;
-
-	private _dirty = false;
-
-	constructor(
-		private readonly textureManager: Phaser.Textures.TextureManager,
-		width: number,
-		height: number,
-	) {
-		// AB creates many short-lived bitmaps (trails, plasma, per-hex masks), so
-		// the key only needs to be unique among live bitmaps.
-		let n = DynamicTextureAdapter.nextId++;
-		let canvasTexture = textureManager.createCanvas(`__ab_bmp_${n}`, width, height);
-		// `createCanvas` returns null if the key is already taken or the manager
-		// is out of canvas slots; retry rather than handing back a broken handle.
-		while (!canvasTexture && n < DynamicTextureAdapter.nextId + 64) {
-			n = DynamicTextureAdapter.nextId++;
-			canvasTexture = textureManager.createCanvas(`__ab_bmp_${n}`, width, height);
-		}
-		if (!canvasTexture) {
-			throw new Error('Phaser4Handles: could not create a CanvasTexture for BitmapData');
-		}
-
-		this.canvasTexture = canvasTexture;
-		this.textureKey = canvasTexture.key;
-		this.canvas = canvasTexture.canvas;
-		this.ctx = canvasTexture.getContext();
-		this.context = this.ctx;
-		this.width = width;
-		this.height = height;
-	}
-
-	private static nextId = 1;
-
-	get texture(): Phaser.Textures.CanvasTexture {
-		return this.canvasTexture;
-	}
-
-	get dirty(): boolean {
-		return this._dirty;
-	}
-
-	set dirty(value: boolean) {
-		this._dirty = value;
-		// Phaser 4 only uploads a `CanvasTexture` when `update()` is called, so
-		// marking the surface dirty is the flush trigger.
-		if (value) this.update();
-	}
-
-	/** Uploads the canvas contents to the GPU. */
-	update(): void {
-		this.canvasTexture.update();
-		this._dirty = false;
-	}
-
-	/**
-	 * Draws a texture from the texture manager onto this bitmap data.
-	 * Mirrors Phaser 2's BitmapData.draw(key, x, y) method.
-	 */
-	draw(key: string, x: number, y: number): void {
-		const texture = this.textureManager.get(key);
-		if (!texture) {
-			console.warn(`BitmapData.draw: texture "${key}" not found`);
-			return;
-		}
-		// Get the source image/canvas from the texture
-		const source = texture.getSourceImage?.();
-		if (!source) {
-			console.warn(`BitmapData.draw: texture "${key}" has no source image`);
-			return;
-		}
-		// Draw the source onto our canvas at the specified position
-		// Handle different source types: HTMLImageElement, HTMLCanvasElement, or RenderTexture
-		let drawSource: CanvasImageSource | null = null;
-		if (source instanceof HTMLImageElement || source instanceof HTMLCanvasElement) {
-			drawSource = source;
-		} else if ('canvas' in source && source.canvas instanceof HTMLCanvasElement) {
-			// RenderTexture has a canvas property
-			drawSource = source.canvas;
-		}
-		if (!drawSource) {
-			console.warn(`BitmapData.draw: texture "${key}" source type not supported for drawing`);
-			return;
-		}
-		this.ctx.drawImage(drawSource, x, y);
-		this.dirty = true;
-	}
-
-	destroy(): void {
-		this.textureManager.remove(this.textureKey);
-		this._dirty = false;
-	}
 }

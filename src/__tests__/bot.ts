@@ -15,6 +15,7 @@ jest.mock('../creature', () => ({
 }));
 
 import BotController, { unitStrategies } from '../bot';
+import { createGameChannels } from '../game-events/factory';
 import { Creature } from '../creature';
 import type Game from '../game';
 import { Hex } from '../utility/hex';
@@ -134,11 +135,7 @@ const makeGame = (activeCreature: ReturnType<typeof makeCreature>, otherCreature
 		minimumTurnBeforeFleeing: 12,
 		freezedInput: false,
 		turnThrottle: false,
-		signals: {
-			creature: {
-				add: jest.fn(),
-			},
-		},
+		channels: createGameChannels(),
 		skipTurn: jest.fn(),
 		retrieveCreatureStats: () => ({ size: 1 }),
 	} as unknown as Game);

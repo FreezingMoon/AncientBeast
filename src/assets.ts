@@ -175,6 +175,25 @@ export function notifyTextureLoaded(key: string): void {
 	}
 }
 
+/**
+ * Called by the scene when an on-demand file fails to load.
+ *
+ * The waiters have to be released here or they wait forever. `ensureCardboardReady`
+ * resolves on this, not only on success: a unit whose cardboard 404s should still
+ * reach the board and draw with `__MISSING`, and a match that refuses to start
+ * because one image 404s is strictly worse than one that looks wrong. Nothing is
+ * added to `completed`, so a later retry can still fetch it.
+ */
+export function notifyTextureFailed(key: string): void {
+	inFlight.delete(key);
+	const callbacks = pendingCallbacks.get(key);
+	pendingCallbacks.delete(key);
+	console.warn(`[assets.ts] failed to load texture "${key}"`);
+	for (const callback of callbacks ?? []) {
+		callback();
+	}
+}
+
 const pendingCallbacks = new Map<string, (() => void)[]>();
 
 /**

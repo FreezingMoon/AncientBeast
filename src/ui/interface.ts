@@ -26,6 +26,8 @@ import { getAvatarSet } from '../style/avatar-styles';
 import { applyBuffDebuffStyle } from './buffs-debuffs';
 import { getRandomSummonCandidates, getSummonCandidates } from '../utility/summon-candidates';
 import { OpenCollectiveBanner, isThirdPartyContentBlocked } from './open-collective-banner';
+import { onPointerUp } from '../input/input';
+import { setHandCursor } from '../game-display/cursor';
 
 const SECRET_VIEW_ID = 'ab-secret-view';
 
@@ -630,8 +632,11 @@ export class UI {
 		// feature, so it stays inert until the logo is actually shown and it
 		// takes priority over the board — see #setBrandLogoVisible.
 		this.brandlogo.setDepth(BRAND_LOGO_DEPTH);
-		this.brandlogo.inputEnabled = false;
-		this.brandlogo.events.onInputUp.add((_sprite, pointer) => {
+		// The subscription is installed once and outlives the show/hide toggles;
+		// `setBrandLogoVisible` is what makes the logo hit-testable or not, so a
+		// hidden logo cannot consume a board click.
+		this.brandlogo.disableInteractive();
+		onPointerUp(this.brandlogo, (pointer) => {
 			// Left click only: a right-click over the logo should still reach the
 			// backdrop shortcut underneath and open the active creature's card.
 			if (pointer.button !== 0) {
@@ -695,7 +700,7 @@ export class UI {
 				$button: $j('.toggledash'),
 				hasShortcut: true,
 				click: () => {
-					this.game.signals.ui.dispatch('toggleDash');
+					this.game.channels.ui.emit('toggleDash');
 				},
 				overridefreeze: true,
 			},
@@ -709,7 +714,7 @@ export class UI {
 				$button: $j('#playerbutton.togglescore'),
 				hasShortcut: true,
 				click: () => {
-					this.game.signals.ui.dispatch('toggleScore');
+					this.game.channels.ui.emit('toggleScore');
 				},
 				overridefreeze: true,
 			},
@@ -734,7 +739,7 @@ export class UI {
 				$button: $j('.toggle-music-player'),
 				hasShortcut: true,
 				click: () => {
-					this.game.signals.ui.dispatch('toggleMusicPlayer');
+					this.game.channels.ui.emit('toggleMusicPlayer');
 				},
 				overridefreeze: true,
 			},
@@ -1154,7 +1159,7 @@ export class UI {
 
 		// Scoreboard close button
 		$j('.togglescore.close-button').on('click', () => {
-			this.game.signals.ui.dispatch('toggleScore');
+			this.game.channels.ui.emit('toggleScore');
 		});
 
 		// ProgressBar
@@ -1482,7 +1487,7 @@ export class UI {
 			if (this.canToggleMetaPowers()) {
 				e.preventDefault();
 				e.stopPropagation();
-				this.game.signals.ui.dispatch('toggleMetaPowers');
+				this.game.channels.ui.emit('toggleMetaPowers');
 			}
 		});
 
@@ -1640,7 +1645,26 @@ export class UI {
 		this.$dash.hide();
 
 		// Events
-		this.game.signals.ui.add(this._handleUiEvent, this);
+		this.game.channels.ui.on('toggleDash', () => this.toggleDash(false));
+		this.game.channels.ui.on('toggleScore', () => this.toggleScoreboard(false));
+		this.game.channels.ui.on('toggleMusicPlayer', () => this.toggleMusicPlayer());
+		this.game.channels.ui.on('toggleSecretView', () => toggleSecretView());
+		this.game.channels.ui.on('toggleMetaPowers', () => {
+			if (!this.canToggleMetaPowers()) {
+				return;
+			}
+
+			this.closeDash();
+			this.closeScoreboard();
+		});
+		this.game.channels.ui.on('closeInterfaceScreens', () => {
+			if (this.isViewOpen('secret')) {
+				toggleSecretView();
+			}
+			this.closeDash();
+			this.toggleMusicPlayer(false);
+			this.closeScoreboard();
+		});
 	}
 
 	/** Horizontal center of the game viewport, used to center the brand logo. */
@@ -1675,12 +1699,14 @@ export class UI {
 		if (visible) {
 			// `setInteractive` is what creates the interactive object the hand
 			// cursor is stored on, so the cursor has to be set afterwards.
-			logo.inputEnabled = true;
-			logo.input.useHandCursor = true;
+			logo.setInteractive();
+			setHandCursor(logo, true);
 			return;
 		}
-		logo.input.useHandCursor = false;
-		logo.inputEnabled = false;
+		// Disabled rather than left enabled-and-transparent: an invisible logo that
+		// still hit-tests would swallow clicks meant for the board underneath.
+		logo.disableInteractive();
+		setHandCursor(logo, false);
 		// Phaser only restores the canvas cursor on a pointer-out it observes
 		// itself, which never arrives for an object hidden mid-hover.
 		if ($j('canvas').css('cursor') === 'pointer') {
@@ -1694,42 +1720,6 @@ export class UI {
 	 * @param {string} message Event name.
 	 * @param {object} payload Event payload.
 	 */
-	_handleUiEvent(message: string, _payload: object) {
-		if (message === 'toggleDash') {
-			this.toggleDash(false);
-		}
-
-		if (message === 'toggleScore') {
-			this.toggleScoreboard(false);
-		}
-
-		if (message === 'toggleMusicPlayer') {
-			this.toggleMusicPlayer();
-		}
-
-		if (message === 'toggleSecretView') {
-			toggleSecretView();
-		}
-
-		if (message === 'toggleMetaPowers') {
-			if (!this.canToggleMetaPowers()) {
-				return;
-			}
-
-			this.closeDash();
-			this.closeScoreboard();
-		}
-
-		if (message === 'closeInterfaceScreens') {
-			if (this.isViewOpen('secret')) {
-				toggleSecretView();
-			}
-			this.closeDash();
-			this.toggleMusicPlayer(false);
-			this.closeScoreboard();
-		}
-	}
-
 	canToggleMetaPowers() {
 		return process.env.NODE_ENV === 'development' && !this.game.multiplayer && !!this.metaPowers;
 	}
@@ -2593,7 +2583,7 @@ export class UI {
 				this.closeView(candidate);
 			}
 		});
-		this.game.signals.ui.dispatch(interfaceViewSignals[view]);
+		this.game.channels.ui.emit(interfaceViewSignals[view]);
 	}
 
 	closeOpenInterfaceViews() {
@@ -3067,7 +3057,7 @@ export class UI {
 		this.closeScoreboard();
 		this.toggleMusicPlayer(false);
 
-		game.signals.ui.dispatch('onOpenDash');
+		game.channels.ui.emit('onOpenDash');
 		if (randomize && !this.lastViewedCreature) {
 			this.showRandomCreature();
 		} else if (!randomize) {
@@ -3094,7 +3084,7 @@ export class UI {
 		$j('#card .sideA, #card .sideB').removeClass('flipping flip-reset');
 		this.dashOpenCollectiveBanner.onViewClose();
 
-		game.signals.ui.dispatch('onCloseDash');
+		game.channels.ui.emit('onCloseDash');
 
 		const isArcade = window.innerWidth <= 600 && window.innerHeight <= 700;
 		// Token for this close's deferred pointer-events changes: a re-open
@@ -3499,9 +3489,9 @@ export class UI {
 				if (game.grid) {
 					game.grid.forEachHex((hex) => {
 						if (isOpponentTurn) {
-							hex.hitBox.input.useHandCursor = false;
+							setHandCursor(hex.hitBox, false);
 						} else if (hex.reachable) {
-							hex.hitBox.input.useHandCursor = true;
+							setHandCursor(hex.hitBox, true);
 						}
 					});
 				}
@@ -4062,42 +4052,39 @@ export class UI {
 			showCurrentPlayer();
 		};
 
-		ui.game.signals.creature.add((message) => {
-			if (['abilityend', 'activate'].includes(message)) {
-				showDefault();
-				if (window.innerWidth <= 600 && window.innerHeight <= 700 && ui.game.activeCreature) {
-					ui.chat.showExpanded(ui.game.activeCreature);
-				}
+		const showQuickInfoForActiveCreature = () => {
+			showDefault();
+			if (window.innerWidth <= 600 && window.innerHeight <= 700 && ui.game.activeCreature) {
+				ui.chat.showExpanded(ui.game.activeCreature);
 			}
-		});
+		};
+		ui.game.channels.creature.on('abilityend', showQuickInfoForActiveCreature);
+		ui.game.channels.creature.on('activate', showQuickInfoForActiveCreature);
 
-		ui.game.signals.ui.add((message, payload) => {
-			if (
-				[
-					'toggleMusicPlayer',
-					'toggleDash',
-					'toggleScore',
-					'toggleMetaPowers',
-					'closeInterfaceScreens',
-					'vignettecreaturemouseleave',
-					'vignetteturnendmouseleave',
-				].includes(message)
-			) {
-				showDefault();
-			} else if ('vignettecreaturemouseenter' === message) {
-				showCreature(payload.creature);
-			} else if ('vignetteturnendmouseenter' === message) {
-				showGameInfo();
-			}
-		});
+		for (const message of [
+			'toggleMusicPlayer',
+			'toggleDash',
+			'toggleScore',
+			'toggleMetaPowers',
+			'closeInterfaceScreens',
+			'vignettecreaturemouseleave',
+			'vignetteturnendmouseleave',
+		] as const) {
+			ui.game.channels.ui.on(message, showDefault);
+		}
+		ui.game.channels.ui.on('vignettecreaturemouseenter', ({ creature }) => showCreature(creature));
+		ui.game.channels.ui.on('vignetteturnendmouseenter', showGameInfo);
 
-		ui.game.signals.hex.add((message, { hex }) => {
-			if (message === 'over' && (hex.creature || hex.drop || hex.trap)) {
+		// `hex` carries both directions: `over` shows the hovered hex when it has
+		// something worth describing, `out` always falls back to the player card.
+		ui.game.channels.hex.on('over', ({ hex }) => {
+			if (hex.creature || hex.drop || hex.trap) {
 				showHex(hex);
 			} else {
 				showDefault();
 			}
 		});
+		ui.game.channels.hex.on('out', showDefault);
 
 		return quickInfo;
 	}
@@ -4231,46 +4218,35 @@ export class UI {
 		const SIGNAL_TURN_END_MOUSE_ENTER = 'vignetteturnendmouseenter';
 		const SIGNAL_TURN_END_MOUSE_LEAVE = 'vignetteturnendmouseleave';
 
-		ui.game.signals.ui.add((msg, payload) => {
-			switch (msg) {
-				case SIGNAL_CREATURE_CLICK:
-					onCreatureClick(payload.creature);
-					break;
-				case SIGNAL_CREATURE_MOUSE_ENTER:
-					onCreatureMouseEnter(payload.creature);
-					break;
-				case SIGNAL_CREATURE_MOUSE_LEAVE:
-					onCreatureMouseLeave();
-					break;
-				case SIGNAL_TURN_END_CLICK:
-					onTurnEndClick();
-					break;
-				case SIGNAL_TURN_END_MOUSE_ENTER:
-					onTurnEndMouseEnter(payload.turnNumber);
-					break;
-				case SIGNAL_TURN_END_MOUSE_LEAVE:
-					onTurnEndMouseLeave();
-					break;
-			}
-		});
+		// One subscription per vignette message the queue drives, rather than a
+		// single handler switching on the message name.
+		ui.game.channels.ui.on(SIGNAL_CREATURE_CLICK, ({ creature }) => onCreatureClick(creature));
+		ui.game.channels.ui.on(SIGNAL_CREATURE_MOUSE_ENTER, ({ creature }) =>
+			onCreatureMouseEnter(creature),
+		);
+		ui.game.channels.ui.on(SIGNAL_CREATURE_MOUSE_LEAVE, () => onCreatureMouseLeave());
+		ui.game.channels.ui.on(SIGNAL_TURN_END_CLICK, () => onTurnEndClick());
+		ui.game.channels.ui.on(SIGNAL_TURN_END_MOUSE_ENTER, ({ turnNumber }) =>
+			onTurnEndMouseEnter(turnNumber),
+		);
+		ui.game.channels.ui.on(SIGNAL_TURN_END_MOUSE_LEAVE, () => onTurnEndMouseLeave());
 
 		const queueEventHandlers = {
-			onCreatureClick: (creature) =>
-				ui.game.signals.ui.dispatch(SIGNAL_CREATURE_CLICK, { creature }),
+			onCreatureClick: (creature) => ui.game.channels.ui.emit(SIGNAL_CREATURE_CLICK, { creature }),
 			onCreatureMouseEnter: (creature) =>
-				ui.game.signals.ui.dispatch(SIGNAL_CREATURE_MOUSE_ENTER, { creature }),
-			onCreatureMouseLeave: () => ui.game.signals.ui.dispatch(SIGNAL_CREATURE_MOUSE_LEAVE, {}),
-			onDelayClick: () => ui.game.signals.ui.dispatch(SIGNAL_DELAY_CLICK, {}),
-			onDelayMouseEnter: () => ui.game.signals.ui.dispatch(SIGNAL_DELAY_MOUSE_ENTER, {}),
-			onDelayMouseLeave: () => ui.game.signals.ui.dispatch(SIGNAL_DELAY_MOUSE_LEAVE, {}),
+				ui.game.channels.ui.emit(SIGNAL_CREATURE_MOUSE_ENTER, { creature }),
+			onCreatureMouseLeave: () => ui.game.channels.ui.emit(SIGNAL_CREATURE_MOUSE_LEAVE, {}),
+			onDelayClick: () => ui.game.channels.ui.emit(SIGNAL_DELAY_CLICK, {}),
+			onDelayMouseEnter: () => ui.game.channels.ui.emit(SIGNAL_DELAY_MOUSE_ENTER, {}),
+			onDelayMouseLeave: () => ui.game.channels.ui.emit(SIGNAL_DELAY_MOUSE_LEAVE, {}),
 			onTurnEndClick: (turnNumber: number) =>
-				ui.game.signals.ui.dispatch(SIGNAL_TURN_END_CLICK, { turnNumber }),
+				ui.game.channels.ui.emit(SIGNAL_TURN_END_CLICK, { turnNumber }),
 			onTurnEndMarkerMouseDown: () => {
 				ui.toggleView('secret');
 			},
 			onTurnEndMouseEnter: (turnNumber: number) =>
-				ui.game.signals.ui.dispatch(SIGNAL_TURN_END_MOUSE_ENTER, { turnNumber }),
-			onTurnEndMouseLeave: () => ui.game.signals.ui.dispatch(SIGNAL_TURN_END_MOUSE_LEAVE, {}),
+				ui.game.channels.ui.emit(SIGNAL_TURN_END_MOUSE_ENTER, { turnNumber }),
+			onTurnEndMouseLeave: () => ui.game.channels.ui.emit(SIGNAL_TURN_END_MOUSE_LEAVE, {}),
 		};
 
 		return new Queue(queueDomElement, queueEventHandlers);

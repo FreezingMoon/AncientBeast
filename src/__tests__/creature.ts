@@ -531,9 +531,10 @@ describe('Creature', () => {
 			return {
 				width,
 				height,
+				ctx: context,
 				context,
-				dirty: false,
-				update: jest.fn(),
+				commit: jest.fn(),
+				destroy: jest.fn(),
 				read: () => written,
 			};
 		};

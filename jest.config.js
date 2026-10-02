@@ -93,7 +93,11 @@ module.exports = {
 		'^assets/(.*)$': '<rootDir>/assets/$1',
 	},
 
-	// Exclude simulation tests — run those via `bun run simulate` instead
+	// Exclude the simulation suite — that one runs via `npm run simulate`, because
+	// it plays 20 full matches and rewrites the baseline file. The real-engine
+	// suites under `/src/__tests__/headless/` deliberately stay in this run: they
+	// scope their own jsdom options and timeout from a docblock, so they need no
+	// separate project.
 	testPathIgnorePatterns: ['/node_modules/', '/src/__tests__/simulation/', '/.kilo/worktrees/'],
 
 	// An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
@@ -138,7 +142,10 @@ module.exports = {
 	// runner: "jest-runner",
 
 	// The paths to modules that run some code to configure or set up the testing environment before each test
-	// setupFiles: [],
+	// Paths to modules that run some code to configure or set up the testing
+	// environment before each test. Registers the `phaser` stub as the runtime so
+	// `getPhaser()` resolves in suites — see the file for why.
+	setupFiles: ['<rootDir>/test/phaser-runtime-setup.js'],
 
 	// A list of paths to modules that run some code to configure or set up the testing framework before each test
 	// setupFilesAfterEnv: [],

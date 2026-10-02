@@ -49,7 +49,6 @@ type GameMock = {
 	turn: number;
 	log: ReturnType<typeof jest.fn>;
 	gameEngine: {
-		cameras: { main: { shake: () => void } };
 		add: {
 			graphics: () => Record<string, unknown>;
 			bitmapData: () => Record<string, unknown>;
@@ -199,7 +198,6 @@ describe('Horn Head Life Support passive revamp', () => {
 			turn: 1,
 			log: jest.fn(),
 			gameEngine: {
-				cameras: { main: { shake: () => {} } },
 				add: {
 					graphics: () => ({}),
 					bitmapData: () => ({}),
@@ -363,7 +361,6 @@ describe('Horn Head Meat Sickle landing validation', () => {
 			},
 			log: jest.fn(),
 			gameEngine: {
-				cameras: { main: { shake: () => {} } },
 				add: {
 					graphics: () => ({}),
 					bitmapData: () => ({}),
@@ -453,7 +450,6 @@ describe('Horn Head Meat Sickle landing validation', () => {
 			},
 			log: jest.fn(),
 			gameEngine: {
-				cameras: { main: { shake: () => {} } },
 				add: {
 					graphics: () => ({}),
 					bitmapData: () => ({}),
@@ -540,7 +536,6 @@ describe('Horn Head Meat Sickle landing validation', () => {
 			},
 			log: jest.fn(),
 			gameEngine: {
-				cameras: { main: { shake: () => {} } },
 				add: {
 					graphics: () => ({}),
 					bitmapData: () => ({}),

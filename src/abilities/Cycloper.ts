@@ -1,3 +1,6 @@
+import { runTimedAnimation } from '../timing/clock';
+import { createGameCanvasSurface } from '../game-display/canvas-surface';
+import type { TimedAnimation } from '../timing/clock';
 import { Easing } from '../utility/easing';
 import { Damage } from '../damage';
 import { Creature } from '../creature';
@@ -241,84 +244,74 @@ function createOpticBurstLaserEffect(
 	const totalLength = Math.sqrt(totalDx * totalDx + totalDy * totalDy);
 	const totalSweepRadians = ((ability.creature.player.flipped ? -1 : 1) * (2.5 * Math.PI)) / 180;
 
-	let startTime: number;
-	const animate = () => {
-		if (startTime === undefined) {
-			startTime = Date.now();
-		}
+	runTimedAnimation({
+		durationMs: beamDurationMs,
+		onFrame: (elapsed, _progress) => {
+			const isStraightTravelPhase = elapsed < straightTravelDurationMs;
+			const straightProgress = Math.min(1, elapsed / straightTravelDurationMs);
+			const sweepProgress = Math.min(
+				1,
+				Math.max(0, elapsed - straightTravelDurationMs) / sweepDurationMs,
+			);
+			const currentLength = isStraightTravelPhase ? totalLength * straightProgress : totalLength;
+			const sweepRadians = isStraightTravelPhase ? 0 : totalSweepRadians * sweepProgress;
 
-		const elapsed = Date.now() - startTime;
-		const progress = Math.min(1, elapsed / beamDurationMs);
-		const isStraightTravelPhase = elapsed < straightTravelDurationMs;
-		const straightProgress = Math.min(1, elapsed / straightTravelDurationMs);
-		const sweepProgress = Math.min(
-			1,
-			Math.max(0, elapsed - straightTravelDurationMs) / sweepDurationMs,
-		);
-		const currentLength = isStraightTravelPhase ? totalLength * straightProgress : totalLength;
-		const sweepRadians = isStraightTravelPhase ? 0 : totalSweepRadians * sweepProgress;
+			ability.creature.faceHex(target);
+			const currentEyeEmissionPoint = getCycloperEyeEmissionPoint(ability.creature);
+			beamGraphics.clear();
+			const beamTip = drawCycloperBeamLayered(
+				beamGraphics,
+				currentEyeEmissionPoint.x,
+				currentEyeEmissionPoint.y,
+				baseAngle,
+				currentLength,
+				sweepRadians,
+			);
 
-		ability.creature.faceHex(target);
-		const currentEyeEmissionPoint = getCycloperEyeEmissionPoint(ability.creature);
-		beamGraphics.clear();
-		const beamTip = drawCycloperBeamLayered(
-			beamGraphics,
-			currentEyeEmissionPoint.x,
-			currentEyeEmissionPoint.y,
-			baseAngle,
-			currentLength,
-			sweepRadians,
-		);
+			if (isStraightTravelPhase) {
+				impactSprite.alpha = 0;
+			} else {
+				impactSprite.x = beamTip.x;
+				impactSprite.y = beamTip.y;
+				const glowPulse = 0.5 + 0.5 * Math.sin(sweepProgress * Math.PI * 6);
+				impactSprite.alpha = Math.min(0.9, 0.65 + glowPulse * 0.2);
+				impactSprite.scale.setTo(1.4 + glowPulse * 0.35, 1.4 + glowPulse * 0.35);
+			}
+		},
+		onDone: () => {
+			beamGraphics.destroy();
 
-		if (isStraightTravelPhase) {
-			impactSprite.alpha = 0;
-		} else {
-			impactSprite.x = beamTip.x;
-			impactSprite.y = beamTip.y;
-			const glowPulse = 0.5 + 0.5 * Math.sin(sweepProgress * Math.PI * 6);
-			impactSprite.alpha = Math.min(0.9, 0.65 + glowPulse * 0.2);
-			impactSprite.scale.setTo(1.4 + glowPulse * 0.35, 1.4 + glowPulse * 0.35);
-		}
+			G.gameEngine
+				.tween(impactSprite.scale)
+				.to(
+					{
+						x: 2.5,
+						y: 2.5,
+					},
+					220,
+					Easing.Cubic.Out,
+				)
+				.start();
 
-		if (progress < 1) {
-			setTimeout(animate, 16);
-			return;
-		}
-
-		beamGraphics.destroy();
-
-		G.gameEngine
-			.tween(impactSprite.scale)
-			.to(
-				{
-					x: 2.5,
-					y: 2.5,
-				},
-				220,
-				Easing.Cubic.Out,
-			)
-			.start();
-
-		G.gameEngine
-			.tween(impactSprite)
-			.to(
-				{
-					alpha: 0,
-				},
-				220,
-				Easing.Cubic.Out,
-				true,
-			)
-			.onComplete.add(function () {
-				// @ts-expect-error 'this' defaults to type 'any'
-				this.destroy();
-				if (onComplete) {
-					onComplete();
-				}
-			}, impactSprite);
-	};
-
-	animate();
+			G.gameEngine
+				.tween(impactSprite)
+				.to(
+					{
+						alpha: 0,
+					},
+					220,
+					Easing.Cubic.Out,
+					true,
+				)
+				.onComplete.add(function () {
+					// @ts-expect-error 'this' defaults to type 'any'
+					this.destroy();
+					if (onComplete) {
+						onComplete();
+					}
+				}, impactSprite);
+		},
+	});
 }
 
 function createPowerApertureTiles(
@@ -360,10 +353,10 @@ function createPowerApertureTiles(
 		for (let sx = 0; sx < targetTexW; sx += tileSize) {
 			const sw = Math.min(tileSize, targetTexW - sx);
 			const sh = Math.min(tileSize, targetTexH - sy);
-			const bitmapData = G.gameEngine.add.bitmapData(sw, sh);
+			const bitmapData = createGameCanvasSurface(G, sw, sh);
 			bitmapData.ctx.clearRect(0, 0, sw, sh);
 			bitmapData.ctx.drawImage(orientedBitmapData.canvas, sx, sy, sw, sh, 0, 0, sw, sh);
-			bitmapData.dirty = true;
+			bitmapData.commit();
 			const tileCenterX = sx + sw / 2;
 			const tileCenterY = sy + sh / 2;
 			const screenTileX = tileCenterX;
@@ -490,72 +483,67 @@ function createPowerAperturePhase1Effect(
 	const beamGraphics: any = G.gameEngine.add.graphics(0, 0);
 	G.grid.creatureGroup.addChild(beamGraphics);
 
-	let startTime: number;
-	const animateLaser = () => {
-		if (startTime === undefined) {
-			startTime = Date.now();
-		}
+	runTimedAnimation({
+		durationMs: laserDurationMs,
+		onFrame: (elapsed, progress) => {
+			const suctionProgress = progress;
 
-		const elapsed = Date.now() - startTime;
-		const progress = Math.min(1, elapsed / laserDurationMs);
-		const suctionProgress = progress;
+			beamGraphics.clear();
+			const beamTip = drawCycloperBeamLayered(
+				beamGraphics,
+				lockedEyeEmissionPoint.x,
+				lockedEyeEmissionPoint.y,
+				Math.atan2(
+					targetCapPoint.y - lockedEyeEmissionPoint.y,
+					targetCapPoint.x - lockedEyeEmissionPoint.x,
+				),
+				Math.hypot(
+					targetCapPoint.x - lockedEyeEmissionPoint.x,
+					targetCapPoint.y - lockedEyeEmissionPoint.y,
+				),
+				0,
+			);
 
-		beamGraphics.clear();
-		const beamTip = drawCycloperBeamLayered(
-			beamGraphics,
-			lockedEyeEmissionPoint.x,
-			lockedEyeEmissionPoint.y,
-			Math.atan2(
-				targetCapPoint.y - lockedEyeEmissionPoint.y,
-				targetCapPoint.x - lockedEyeEmissionPoint.x,
-			),
-			Math.hypot(
-				targetCapPoint.x - lockedEyeEmissionPoint.x,
-				targetCapPoint.y - lockedEyeEmissionPoint.y,
-			),
-			0,
-		);
+			impactSprite.x = beamTip.x;
+			impactSprite.y = beamTip.y;
+			impactSprite.alpha = 0.55 + 0.35 * Math.sin(progress * Math.PI * 4) * 0.5;
+			impactSprite.scale.setTo(2 + suctionProgress * 0.4, 1.5 + suctionProgress * 0.25);
 
-		impactSprite.x = beamTip.x;
-		impactSprite.y = beamTip.y;
-		impactSprite.alpha = 0.55 + 0.35 * Math.sin(progress * Math.PI * 4) * 0.5;
-		impactSprite.scale.setTo(2 + suctionProgress * 0.4, 1.5 + suctionProgress * 0.25);
-
-		tiles.forEach((tile) => {
-			const lineDeltaX = targetCapPoint.x - tile.sourceX;
-			const lineDeltaY = targetCapPoint.y - tile.sourceY;
-			const lineLength = Math.max(1, Math.hypot(lineDeltaX, lineDeltaY));
-			const normalX = -lineDeltaY / lineLength;
-			const normalY = lineDeltaX / lineLength;
-			const speedFactor = 0.7 + tile.dissolveSeed * 0.9;
-			const adjustedProgress = Math.min(1, suctionProgress * speedFactor);
-			const motionProgress =
-				tile.phase1StartProgress + (1 - tile.phase1StartProgress) * adjustedProgress;
-			const scatterFalloff = 1 - adjustedProgress;
-			tile.sprite.x =
-				tile.sourceX + lineDeltaX * motionProgress + normalX * tile.phase1Scatter * scatterFalloff;
-			tile.sprite.y =
-				tile.sourceY + lineDeltaY * motionProgress + normalY * tile.phase1Scatter * scatterFalloff;
-			tile.sprite.alpha = Math.max(0, 1 - motionProgress * (0.85 + tile.dissolveSeed * 0.1));
-			tile.sprite.scale.setTo(tile.renderScaleX, tile.renderScaleY);
-		});
-		if (progress < 1) {
-			setTimeout(animateLaser, 16);
-			return;
-		}
-
-		tiles.forEach((tile) => {
-			tile.sprite.destroy();
-			tile.bitmapData.destroy();
-		});
-		beamGraphics.destroy();
-		impactSprite.destroy();
-		if (onComplete) {
-			onComplete();
-		}
-	};
-
-	animateLaser();
+			tiles.forEach((tile) => {
+				const lineDeltaX = targetCapPoint.x - tile.sourceX;
+				const lineDeltaY = targetCapPoint.y - tile.sourceY;
+				const lineLength = Math.max(1, Math.hypot(lineDeltaX, lineDeltaY));
+				const normalX = -lineDeltaY / lineLength;
+				const normalY = lineDeltaX / lineLength;
+				const speedFactor = 0.7 + tile.dissolveSeed * 0.9;
+				const adjustedProgress = Math.min(1, suctionProgress * speedFactor);
+				const motionProgress =
+					tile.phase1StartProgress + (1 - tile.phase1StartProgress) * adjustedProgress;
+				const scatterFalloff = 1 - adjustedProgress;
+				tile.sprite.x =
+					tile.sourceX +
+					lineDeltaX * motionProgress +
+					normalX * tile.phase1Scatter * scatterFalloff;
+				tile.sprite.y =
+					tile.sourceY +
+					lineDeltaY * motionProgress +
+					normalY * tile.phase1Scatter * scatterFalloff;
+				tile.sprite.alpha = Math.max(0, 1 - motionProgress * (0.85 + tile.dissolveSeed * 0.1));
+				tile.sprite.scale.setTo(tile.renderScaleX, tile.renderScaleY);
+			});
+		},
+		onDone: () => {
+			tiles.forEach((tile) => {
+				tile.sprite.destroy();
+				tile.bitmapData.destroy();
+			});
+			beamGraphics.destroy();
+			impactSprite.destroy();
+			if (onComplete) {
+				onComplete();
+			}
+		},
+	});
 }
 
 function createPowerAperturePhase2Effect(
@@ -680,95 +668,84 @@ function createPowerAperturePhase2Effect(
 	const beamGraphics: any = G.gameEngine.add.graphics(0, 0);
 	G.grid.creatureGroup.addChild(beamGraphics);
 
-	let startTime: number;
-	const animateLaser = () => {
-		if (startTime === undefined) {
-			startTime = Date.now();
-		}
+	runTimedAnimation({
+		durationMs: laserDurationMs,
+		onFrame: (elapsed, progress) => {
+			beamGraphics.clear();
+			const beamTip = drawCycloperBeamLayered(
+				beamGraphics,
+				lockedEyeEmissionPoint.x,
+				lockedEyeEmissionPoint.y,
+				Math.atan2(
+					destinationCapPoint.y - lockedEyeEmissionPoint.y,
+					destinationCapPoint.x - lockedEyeEmissionPoint.x,
+				),
+				Math.hypot(
+					destinationCapPoint.x - lockedEyeEmissionPoint.x,
+					destinationCapPoint.y - lockedEyeEmissionPoint.y,
+				),
+				0,
+			);
+			const reassembleProgress = Math.min(1, elapsed / reformDurationMs);
+			const pulseIntensity = 0.5 + 0.5 * Math.sin(progress * Math.PI * 4);
+			// Fade creature in only in the last 400ms so tiles finish assembling first.
+			const revealStartMs = laserDurationMs - 400;
+			const revealProgress = Math.min(1, Math.max(0, elapsed - revealStartMs) / 400);
+			applyTargetReformState(revealProgress, revealProgress);
+			impactSprite.x = beamTip.x;
+			impactSprite.y = beamTip.y;
+			impactSprite.alpha = 0.6 + pulseIntensity * 0.3;
+			impactSprite.scale.setTo(2.5 + pulseIntensity * 0.6, 1.8 + pulseIntensity * 0.4);
 
-		const elapsed = Date.now() - startTime;
-		const progress = Math.min(1, elapsed / laserDurationMs);
+			tiles.forEach((tile) => {
+				const phaseSeed = Math.abs(Math.sin(tile.dissolveSeed * 97.13));
+				const staggeredProgress = getStaggeredProgress(reassembleProgress, phaseSeed, 0.92);
+				if (staggeredProgress <= 0) {
+					tile.sprite.x = destinationCapPoint.x;
+					tile.sprite.y = destinationCapPoint.y;
+					tile.sprite.alpha = 0;
+					tile.sprite.scale.setTo(tile.renderScaleX, tile.renderScaleY);
+					return;
+				}
 
-		beamGraphics.clear();
-		const beamTip = drawCycloperBeamLayered(
-			beamGraphics,
-			lockedEyeEmissionPoint.x,
-			lockedEyeEmissionPoint.y,
-			Math.atan2(
-				destinationCapPoint.y - lockedEyeEmissionPoint.y,
-				destinationCapPoint.x - lockedEyeEmissionPoint.x,
-			),
-			Math.hypot(
-				destinationCapPoint.x - lockedEyeEmissionPoint.x,
-				destinationCapPoint.y - lockedEyeEmissionPoint.y,
-			),
-			0,
-		);
-		const reassembleProgress = Math.min(1, elapsed / reformDurationMs);
-		const pulseIntensity = 0.5 + 0.5 * Math.sin(progress * Math.PI * 4);
-		// Fade creature in only in the last 400ms so tiles finish assembling first.
-		const revealStartMs = laserDurationMs - 400;
-		const revealProgress = Math.min(1, Math.max(0, elapsed - revealStartMs) / 400);
-		applyTargetReformState(revealProgress, revealProgress);
-		impactSprite.x = beamTip.x;
-		impactSprite.y = beamTip.y;
-		impactSprite.alpha = 0.6 + pulseIntensity * 0.3;
-		impactSprite.scale.setTo(2.5 + pulseIntensity * 0.6, 1.8 + pulseIntensity * 0.4);
-
-		tiles.forEach((tile) => {
-			const phaseSeed = Math.abs(Math.sin(tile.dissolveSeed * 97.13));
-			const staggeredProgress = getStaggeredProgress(reassembleProgress, phaseSeed, 0.92);
-			if (staggeredProgress <= 0) {
-				tile.sprite.x = destinationCapPoint.x;
-				tile.sprite.y = destinationCapPoint.y;
-				tile.sprite.alpha = 0;
+				const adjustedProgress = staggeredProgress;
+				tile.sprite.x =
+					destinationCapPoint.x + (tile.destinationX - destinationCapPoint.x) * adjustedProgress;
+				tile.sprite.y =
+					destinationCapPoint.y + (tile.destinationY - destinationCapPoint.y) * adjustedProgress;
+				tile.sprite.alpha = Math.min(1, 0.82 + adjustedProgress * 0.18);
 				tile.sprite.scale.setTo(tile.renderScaleX, tile.renderScaleY);
-				return;
+			});
+		},
+		onDone: () => {
+			beamGraphics.destroy();
+			impactSprite.destroy();
+
+			tiles.forEach((tile) => {
+				tile.sprite.destroy();
+				tile.bitmapData.destroy();
+			});
+
+			target.grp.alpha = 1;
+			target.grp.visible = true;
+			target.grp.renderable = true;
+			targetSprite.alpha = 1;
+			targetSprite.visible = true;
+			targetSprite.renderable = true;
+			targetSprite.tint = 0xffffff;
+			targetSprite.angle = targetOriginalState.angle;
+			target.creatureSprite.setDir(preservedSign);
+			targetSprite.scale.y = targetOriginalState.scaleY;
+			enforcePowerApertureFacing(target, preservedSign);
+			if (typeof target.creatureSprite?.setAlpha === 'function') {
+				target.creatureSprite.setAlpha(1, 0);
 			}
-
-			const adjustedProgress = staggeredProgress;
-			tile.sprite.x =
-				destinationCapPoint.x + (tile.destinationX - destinationCapPoint.x) * adjustedProgress;
-			tile.sprite.y =
-				destinationCapPoint.y + (tile.destinationY - destinationCapPoint.y) * adjustedProgress;
-			tile.sprite.alpha = Math.min(1, 0.82 + adjustedProgress * 0.18);
-			tile.sprite.scale.setTo(tile.renderScaleX, tile.renderScaleY);
-		});
-
-		if (progress < 1) {
-			setTimeout(animateLaser, 16);
-			return;
-		}
-
-		beamGraphics.destroy();
-		impactSprite.destroy();
-
-		tiles.forEach((tile) => {
-			tile.sprite.destroy();
-			tile.bitmapData.destroy();
-		});
-
-		target.grp.alpha = 1;
-		target.grp.visible = true;
-		target.grp.renderable = true;
-		targetSprite.alpha = 1;
-		targetSprite.visible = true;
-		targetSprite.renderable = true;
-		targetSprite.tint = 0xffffff;
-		targetSprite.angle = targetOriginalState.angle;
-		target.creatureSprite.setDir(preservedSign);
-		targetSprite.scale.y = targetOriginalState.scaleY;
-		enforcePowerApertureFacing(target, preservedSign);
-		if (typeof target.creatureSprite?.setAlpha === 'function') {
-			target.creatureSprite.setAlpha(1, 0);
-		}
-		cycloper.facePlayerDefault?.();
-		if (onComplete) {
-			onComplete();
-		}
-	};
-
-	animateLaser();
+			cycloper.facePlayerDefault?.();
+			if (onComplete) {
+				onComplete();
+			}
+		},
+	});
 }
 
 function getApertureEnergyCost(target: Creature, useCurrentHealth: boolean) {
@@ -1107,8 +1084,8 @@ function createAcrylicWall3DPrintEffect(
 	flashSprite.alpha = 0.96;
 	flashSprite.scale.setTo(4.5, 0.7);
 
-	let startTime: number;
 	let settled = false;
+	let reveal: TimedAnimation | null = null;
 
 	/**
 	 * Ends the print. The crop is the only thing standing between the wall and
@@ -1116,12 +1093,19 @@ function createAcrylicWall3DPrintEffect(
 	 * below throws — or the wall is retired mid-print, which happens when the
 	 * Cycloper prints again before the reveal finished — the reveal must not be
 	 * left half-applied.
+	 *
+	 * Cancelling the loop here is what the old `settled` early-return in the
+	 * frame callback did. Cancelling rather than merely ignoring later frames
+	 * matters now: the loop is a repeating scene timer, so a frame that kept
+	 * running would keep redrawing the beam over a destroyed wall.
 	 */
 	const finish = () => {
 		if (settled) {
 			return;
 		}
 		settled = true;
+		reveal?.cancel();
+		reveal = null;
 		try {
 			wallSprite.setCrop();
 		} catch {
@@ -1135,52 +1119,53 @@ function createAcrylicWall3DPrintEffect(
 		}
 	};
 
-	const animate = () => {
-		if (settled) {
-			return;
-		}
+	/**
+	 * One frame of the reveal.
+	 *
+	 * Failures are reported and the effect settled here rather than at the call
+	 * site alone, because the original guard only covered the very first frame: a
+	 * throw on a later frame killed the `setTimeout` chain for free, while a
+	 * repeating scene timer would otherwise carry on.
+	 *
+	 * Rethrown after settling, so the clock's own stop-and-propagate path also
+	 * runs. `finish()` cannot cancel frame 0 — there is no handle yet — which is
+	 * exactly the case a swallowed error would leave running against a destroyed
+	 * wall.
+	 */
+	const drawFrame = (elapsed: number, progress: number) => {
+		try {
+			// Reveal wall from bottom to top by growing the crop rectangle upward.
+			const revealHeight = wallHeight * progress;
+			const currentFlashY = wallBottomY - revealHeight;
+			if (revealHeight > 0) {
+				wallSprite.setCrop(0, wallHeight - revealHeight, wallWidth, revealHeight);
+			}
 
-		if (startTime === undefined) {
-			startTime = Date.now();
-		}
+			// Move flash upward along the wall
+			flashSprite.y = currentFlashY;
 
-		const elapsed = Date.now() - startTime;
-		const progress = Math.min(1, elapsed / laserDuration);
+			// Keep Cycloper facing the print direction for the full effect duration.
+			cycloper.faceHex(wall);
+			const currentEyeEmissionPoint = getCycloperEyeEmissionPoint(cycloper);
 
-		// Reveal wall from bottom to top by growing the crop rectangle upward.
-		const revealHeight = wallHeight * progress;
-		const currentFlashY = wallBottomY - revealHeight;
-		if (revealHeight > 0) {
-			wallSprite.setCrop(0, wallHeight - revealHeight, wallWidth, revealHeight);
-		}
-
-		// Move flash upward along the wall
-		flashSprite.y = currentFlashY;
-
-		// Keep Cycloper facing the print direction for the full effect duration.
-		cycloper.faceHex(wall);
-		const currentEyeEmissionPoint = getCycloperEyeEmissionPoint(cycloper);
-
-		// Draw laser beam from eye to flash
-		beamGraphics.clear();
-		beamGraphics.lineStyle(5, laserColor, 0.95);
-		beamGraphics.moveTo(currentEyeEmissionPoint.x, currentEyeEmissionPoint.y);
-		beamGraphics.lineTo(wallCenterX, currentFlashY);
-		beamGraphics.strokePath();
-
-		if (progress < 1) {
-			setTimeout(animate, 16);
-		} else {
+			// Draw laser beam from eye to flash
+			beamGraphics.clear();
+			beamGraphics.lineStyle(5, laserColor, 0.95);
+			beamGraphics.moveTo(currentEyeEmissionPoint.x, currentEyeEmissionPoint.y);
+			beamGraphics.lineTo(wallCenterX, currentFlashY);
+			beamGraphics.strokePath();
+		} catch (error) {
+			console.error('Acrylic wall print effect failed', error);
 			finish();
+			throw error;
 		}
 	};
 
-	try {
-		animate();
-	} catch (error) {
-		console.error('Acrylic wall print effect failed', error);
-		finish();
-	}
+	reveal = runTimedAnimation({
+		durationMs: laserDuration,
+		onFrame: drawFrame,
+		onDone: finish,
+	});
 }
 
 function ensureAcrylicWallData(G: Game) {

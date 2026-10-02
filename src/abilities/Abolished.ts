@@ -5,6 +5,7 @@ import { Effect } from '../effect';
 import * as arrayUtils from '../utility/arrayUtils';
 import { getPointFacade } from '../utility/pointfacade';
 import Game from '../game';
+import { shakeBoard } from '../game-display/camera';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -136,13 +137,12 @@ export default (G: Game) => {
 				const target = getPointFacade().getCreaturesAt(hexWithTarget.x, hexWithTarget.y)[0];
 
 				ability.end();
-				G.gameEngine.cameras.main.shake(
-					0.01,
-					100,
-					true,
-					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 100,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				const startX = ability.creature.sprite.scale.x > 0 ? 232 : 52;
 				const projectileInstance = G.animations.projectile(

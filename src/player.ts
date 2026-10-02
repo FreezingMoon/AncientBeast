@@ -147,7 +147,9 @@ export class Player {
 			!this.game.metaPowersState.disableMaterializationSickness;
 
 		// Events
-		this.game.signals.metaPowers.add(this.handleMetaPowerEvent, this);
+		this.game.channels.metaPowers.on('toggleDisableMaterializationSickness', (enabled: boolean) => {
+			this._summonCreaturesWithMaterializationSickness = !enabled;
+		});
 	}
 
 	// TODO: Is this even right? it should be off by 1 based on this code...
@@ -346,11 +348,5 @@ export class Player {
 
 	get summonCreaturesWithMaterializationSickness() {
 		return this._summonCreaturesWithMaterializationSickness;
-	}
-
-	handleMetaPowerEvent(message, payload) {
-		if (message === 'toggleDisableMaterializationSickness') {
-			this._summonCreaturesWithMaterializationSickness = !payload;
-		}
 	}
 }

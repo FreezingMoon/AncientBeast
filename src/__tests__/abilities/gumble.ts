@@ -117,9 +117,7 @@ jest.mock('../../creature', () => {
 import loadGumbleAbilities from '../../abilities/Gumble';
 import { Creature } from '../../creature';
 
-(globalThis as { Phaser?: unknown }).Phaser = {
-	camera: { SHAKE_HORIZONTAL: 0, SHAKE_VERTICAL: 0, SHAKE_BOTH: 0 },
-};
+(globalThis as { Phaser?: unknown }).Phaser = {};
 
 describe('Gumble abilities', () => {
 	let game: any;
@@ -208,7 +206,6 @@ describe('Gumble abilities', () => {
 				},
 			},
 			gameEngine: {
-				cameras: { main: { shake: () => {} } },
 				add: {
 					graphics: () => ({}),
 					bitmapData: () => ({}),

@@ -153,6 +153,13 @@ import { Animations } from '../../animations';
 import type { Creature } from '../../creature';
 import { Creature as CreatureClass } from '../../creature';
 import { getEffectShader } from '../../shader';
+import {
+	installAbClock,
+	resetAbClockTime,
+	setAbClockTime,
+	uninstallAbClock,
+} from '../../../test/abClock';
+import { setBoardCamera, resetBoardCamera } from '../../game-display/camera';
 
 type MockHex = {
 	x: number;
@@ -171,12 +178,14 @@ describe('Infernal Molten Hurl movement safety', () => {
 	afterEach(() => {
 		jest.runOnlyPendingTimers();
 		jest.useRealTimers();
+		resetBoardCamera();
 	});
 
 	test('falls back to the nearest walkable hex when furthest destination is blocked', () => {
 		const selectAbility = jest.fn();
 		const queryMove = jest.fn();
 		const cameraShake = jest.fn();
+		setBoardCamera({ shake: cameraShake } as never);
 
 		const row: MockHex[] = [];
 		for (let x = 0; x <= 10; x++) {
@@ -213,14 +222,7 @@ describe('Infernal Molten Hurl movement safety', () => {
 			UI: { selectAbility },
 			activeCreature: { queryMove },
 			freezedInput: false,
-			Phaser: {
-				camera: {
-					shake: cameraShake,
-					SHAKE_BOTH: 0,
-				},
-			},
 			gameEngine: {
-				cameras: { main: { shake: cameraShake } },
 				add: {
 					graphics: () => ({
 						beginFill: jest.fn(),
@@ -302,6 +304,7 @@ describe('Infernal Molten Hurl movement safety', () => {
 		const selectAbility = jest.fn();
 		const queryMove = jest.fn();
 		const cameraShake = jest.fn();
+		setBoardCamera({ shake: cameraShake } as never);
 
 		const row: MockHex[] = [];
 		for (let x = 0; x <= 10; x++) {
@@ -331,14 +334,7 @@ describe('Infernal Molten Hurl movement safety', () => {
 			UI: { selectAbility },
 			activeCreature: { queryMove },
 			freezedInput: false,
-			Phaser: {
-				camera: {
-					shake: cameraShake,
-					SHAKE_BOTH: 0,
-				},
-			},
 			gameEngine: {
-				cameras: { main: { shake: cameraShake } },
 				add: {
 					graphics: () => ({
 						beginFill: jest.fn(),
@@ -434,7 +430,6 @@ describe('Infernal trap damage safety', () => {
 				playSFX: jest.fn(),
 			},
 			gameEngine: {
-				cameras: { main: { shake: () => {} } },
 				add: {
 					graphics: () => ({
 						beginFill: jest.fn(),
@@ -533,6 +528,17 @@ describe('Infernal trap damage safety', () => {
 });
 
 describe('Infernal cardboard FX regression', () => {
+	// These effects read time and the frame delta from the AB clock, so the suite
+	// pins it. Without a registered scene the clock falls back to the host clock,
+	// which no assertion here could place at a known instant.
+	beforeEach(() => {
+		installAbClock();
+	});
+
+	afterEach(() => {
+		uninstallAbClock();
+	});
+
 	test('keeps duplicate overlays hidden when bitmap masks are unavailable', () => {
 		const game = getInfernalAnimationsGameMock();
 		const animations = new Animations(game as never);
@@ -561,6 +567,7 @@ describe('Infernal cardboard FX regression', () => {
 
 		game.Phaser.time.now = 30;
 		game.Phaser.time.elapsedMS = 16;
+		setAbClockTime(30, 16);
 		animations.tickInfernalCardboardEffect(creature);
 
 		expect(haze?.alpha).toBe(0);
@@ -594,6 +601,7 @@ describe('Infernal cardboard FX regression', () => {
 		};
 		game.Phaser.time.now = 30;
 		game.Phaser.time.elapsedMS = 16;
+		setAbClockTime(30, 16);
 		animations.tickInfernalCardboardEffect(creature);
 
 		expect(haze?.loadTexture).toHaveBeenCalledTimes(1);
@@ -646,6 +654,7 @@ describe('Infernal cardboard FX regression', () => {
 		// First tick after re-init snaps the fresh overlays onto the cardboard.
 		game.Phaser.time.now = 50;
 		game.Phaser.time.elapsedMS = 17;
+		setAbClockTime(50, 17);
 		animations.tickInfernalCardboardEffect(creature);
 
 		second.sprite.scale.x = -1;
@@ -653,6 +662,7 @@ describe('Infernal cardboard FX regression', () => {
 		second.sprite.y = 55;
 		game.Phaser.time.now = 65;
 		game.Phaser.time.elapsedMS = 17;
+		setAbClockTime(65, 17);
 		animations.tickInfernalCardboardEffect(creature);
 
 		expect(secondHeatLayer?.scale.x).toBe(-1);
@@ -697,8 +707,7 @@ describe('Infernal cardboard FX regression', () => {
 		// The first tick places and flips them; only then may they show.
 		sprite.x = 240;
 		sprite.scale.x = -1;
-		game.gameEngine.time.now = 16;
-		game.gameEngine.time.elapsedMS = 16;
+		setAbClockTime(16, 16);
 		animations.tickInfernalCardboardEffect(creature);
 
 		expect(haze?.x).toBe(240);
@@ -733,8 +742,7 @@ describe('Infernal cardboard FX regression', () => {
 		} as unknown as Creature;
 
 		animations.initInfernalCardboardEffect(creature, sprite as never);
-		game.gameEngine.time.now = 16;
-		game.gameEngine.time.elapsedMS = 16;
+		setAbClockTime(16, 16);
 		animations.tickInfernalCardboardEffect(creature);
 
 		const smoke = smokeGroup.children[0];
@@ -767,8 +775,7 @@ describe('Infernal cardboard FX regression', () => {
 		// change, so driving travel through the sprite measures nothing.
 		const beforeX = smoke!.x;
 		group.x = 900;
-		game.gameEngine.time.now = 32;
-		game.gameEngine.time.elapsedMS = 16;
+		setAbClockTime(32, 16);
 		animations.tickInfernalCardboardEffect(creature);
 
 		// A big jump is a teleport, so settle into a steady walk instead and
@@ -779,8 +786,7 @@ describe('Infernal cardboard FX regression', () => {
 		let lag = 0;
 		for (let frame = 0; frame < 90; frame++) {
 			group.x += walkPxPerFrame;
-			game.gameEngine.time.now = 48 + frame * 16;
-			game.gameEngine.time.elapsedMS = 16;
+			setAbClockTime(48 + frame * 16, 16);
 			animations.tickInfernalCardboardEffect(creature);
 			lag = group.x + sprite.x - smoke!.x;
 		}
@@ -845,8 +851,7 @@ describe('Infernal cardboard FX regression', () => {
 		} as unknown as Creature;
 
 		animations.initInfernalCardboardEffect(creature, sprite as never);
-		game.gameEngine.time.now = 16;
-		game.gameEngine.time.elapsedMS = 16;
+		setAbClockTime(16, 16);
 		animations.tickInfernalCardboardEffect(creature);
 
 		const smokeGroup = game.grid.infernalSmokeGroup as InfernalGroupMock;
@@ -856,8 +861,7 @@ describe('Infernal cardboard FX regression', () => {
 
 		// The unit turns around.
 		sprite.scale.x = -1;
-		game.gameEngine.time.now = 32;
-		game.gameEngine.time.elapsedMS = 16;
+		setAbClockTime(32, 16);
 		animations.tickInfernalCardboardEffect(creature);
 
 		// The smoke faces the same way, and keeps its magnitude rather than
@@ -882,8 +886,12 @@ describe('Infernal cardboard FX regression', () => {
 		};
 
 		// A fresh fixture per sample: the effect holds position state, so reusing
-		// one across samples would leak the previous walk into the next.
+		// one across samples would leak the previous walk into the next. The clock
+		// is rewound to match, since the effect seeds its schedule from the current
+		// time and a second fixture starting at the end of the first would schedule
+		// its first smoke past the whole replay.
 		const sample = (walkPx: number) => {
+			resetAbClockTime();
 			const game = getInfernalAnimationsGameMock();
 			const animations = new Animations(game as never);
 			const { group, sprite } = createInfernalSpriteMock({ x: 100, y: 60, scaleX: 1 });
@@ -902,8 +910,7 @@ describe('Infernal cardboard FX regression', () => {
 
 			// Settle first so the first tick's snap is not counted as travel.
 			for (let frame = 0; frame < 40; frame++) {
-				game.gameEngine.time.now = frame * 16;
-				game.gameEngine.time.elapsedMS = 16;
+				setAbClockTime(frame * 16, 16);
 				animations.tickInfernalCardboardEffect(creature);
 			}
 
@@ -924,8 +931,7 @@ describe('Infernal cardboard FX regression', () => {
 				// walks (see CreatureSprite#setPx); the sprite's own x/y never
 				// move, so driving travel through it measures nothing.
 				group.x = walkPx * frame;
-				game.gameEngine.time.now = 640 + frame * 16;
-				game.gameEngine.time.elapsedMS = 16;
+				setAbClockTime(640 + frame * 16, 16);
 				animations.tickInfernalCardboardEffect(creature);
 				const peak = readPeak(game);
 				if (peak > 0) peaks.push(peak);
@@ -964,8 +970,7 @@ describe('Infernal cardboard FX regression', () => {
 
 		animations.initInfernalCardboardEffect(creature, sprite as never);
 		for (let frame = 0; frame < 30; frame++) {
-			game.gameEngine.time.now = frame * 16;
-			game.gameEngine.time.elapsedMS = 16;
+			setAbClockTime(frame * 16, 16);
 			animations.tickInfernalCardboardEffect(creature);
 		}
 
@@ -979,8 +984,7 @@ describe('Infernal cardboard FX regression', () => {
 			{ ...creature, temp: false } as unknown as Creature,
 			sprite as never,
 		);
-		game.gameEngine.time.now = 480;
-		game.gameEngine.time.elapsedMS = 16;
+		setAbClockTime(480, 16);
 		animations.tickInfernalCardboardEffect(creature);
 		const { haze } = splitInfernalOverlays(group, sprite);
 		expect(haze).toBeDefined();
@@ -1005,16 +1009,14 @@ describe('Infernal cardboard FX regression', () => {
 		} as unknown as Creature;
 
 		animations.initInfernalCardboardEffect(creature, sprite as never);
-		game.gameEngine.time.now = 0;
-		game.gameEngine.time.elapsedMS = 16;
+		setAbClockTime(0, 16);
 		animations.tickInfernalCardboardEffect(creature);
 		const { heatLayer } = splitInfernalOverlays(group, sprite);
 		expect(heatLayer?.x).toBe(100);
 
 		// The sprite does not move at all; the group does.
 		group.x = 60;
-		game.gameEngine.time.now = 16;
-		game.gameEngine.time.elapsedMS = 16;
+		setAbClockTime(16, 16);
 		animations.tickInfernalCardboardEffect(creature);
 
 		// Read in world space: the overlay is a child of the moving group, so its
@@ -1047,8 +1049,7 @@ describe('Infernal cardboard FX regression', () => {
 
 		const samples: number[] = [];
 		for (let frame = 0; frame < 600; frame++) {
-			game.gameEngine.time.now = frame * 16;
-			game.gameEngine.time.elapsedMS = 16;
+			setAbClockTime(frame * 16, 16);
 			animations.tickInfernalCardboardEffect(creature);
 			samples.push((haze as InfernalSpriteMock).alpha);
 		}
@@ -1102,8 +1103,7 @@ describe('Infernal cardboard FX regression', () => {
 		const frames = 1800;
 		const samples: number[] = [];
 		for (let frame = 0; frame < frames; frame++) {
-			game.gameEngine.time.now = frame * 16;
-			game.gameEngine.time.elapsedMS = 16;
+			setAbClockTime(frame * 16, 16);
 			animations.tickInfernalCardboardEffect(creature);
 			samples.push((haze as InfernalSpriteMock).alpha);
 		}
@@ -1155,8 +1155,7 @@ describe('Infernal cardboard FX regression', () => {
 		const hazeSamples: number[] = [];
 		const heatSamples: number[] = [];
 		for (let frame = 0; frame < 900; frame++) {
-			game.gameEngine.time.now = frame * 16;
-			game.gameEngine.time.elapsedMS = 16;
+			setAbClockTime(frame * 16, 16);
 			animations.tickInfernalCardboardEffect(creature);
 			hazeSamples.push((haze as InfernalSpriteMock).alpha);
 			heatSamples.push((heatLayer as InfernalSpriteMock).alpha);
@@ -1197,8 +1196,7 @@ describe('Infernal cardboard FX regression', () => {
 
 		animations.initInfernalCardboardEffect(creature, sprite as never);
 		// First tick syncs the overlays onto the (still unmoved) cardboard.
-		game.gameEngine.time.now = 0;
-		game.gameEngine.time.elapsedMS = 16;
+		setAbClockTime(0, 16);
 		animations.tickInfernalCardboardEffect(creature);
 		const { heatLayer } = splitInfernalOverlays(group, sprite);
 		expect(heatLayer?.x).toBe(100);
@@ -1207,8 +1205,7 @@ describe('Infernal cardboard FX regression', () => {
 		// creature *group* is what a walk tweens (see CreatureSprite#setPx).
 		// Only the group moves: that is what a walk tweens.
 		group.x = 60;
-		game.gameEngine.time.now = 16;
-		game.gameEngine.time.elapsedMS = 16;
+		setAbClockTime(16, 16);
 		animations.tickInfernalCardboardEffect(creature);
 
 		const lagging = (heatLayer?.x ?? -Infinity) + group.x;
@@ -1217,8 +1214,7 @@ describe('Infernal cardboard FX regression', () => {
 
 		// Stand still long enough and it converges onto the cardboard.
 		for (let frame = 0; frame < 120; frame++) {
-			game.gameEngine.time.now = 32 + frame * 16;
-			game.gameEngine.time.elapsedMS = 16;
+			setAbClockTime(32 + frame * 16, 16);
 			animations.tickInfernalCardboardEffect(creature);
 		}
 		expect((heatLayer?.x ?? 0) + group.x).toBeCloseTo(160, 1);
@@ -1247,8 +1243,7 @@ describe('Infernal cardboard FX regression', () => {
 		sprite.y = 640;
 		group.x = 0;
 		group.y = 0;
-		game.gameEngine.time.now = 16;
-		game.gameEngine.time.elapsedMS = 16;
+		setAbClockTime(16, 16);
 		animations.tickInfernalCardboardEffect(creature);
 
 		// Easing across a jump is what slid a second cardboard copy into the unit.
@@ -1271,14 +1266,12 @@ describe('Infernal cardboard FX regression', () => {
 		} as unknown as Creature;
 
 		animations.initInfernalCardboardEffect(creature, sprite as never);
-		game.gameEngine.time.now = 0;
-		game.gameEngine.time.elapsedMS = 16;
+		setAbClockTime(0, 16);
 		animations.tickInfernalCardboardEffect(creature);
 		const { heatLayer } = splitInfernalOverlays(group, sprite);
 
 		sprite.x = 140;
-		game.gameEngine.time.now = 16;
-		game.gameEngine.time.elapsedMS = 16;
+		setAbClockTime(16, 16);
 		animations.tickInfernalCardboardEffect(creature);
 
 		// A 40px walk step is under the snap threshold, so it must still lag.
@@ -1311,8 +1304,7 @@ describe('Infernal cardboard FX regression', () => {
 		// At 0.55 rad/s a full breath takes ~11s, so cover a long enough window to
 		// see the glow actually rise and fall.
 		for (let frame = 0; frame < 900; frame++) {
-			game.gameEngine.time.now = frame * 16;
-			game.gameEngine.time.elapsedMS = 16;
+			setAbClockTime(frame * 16, 16);
 			animations.tickInfernalCardboardEffect(creature);
 			const alpha = (haze as InfernalSpriteMock).alpha;
 			min = Math.min(min, alpha);
@@ -1362,6 +1354,7 @@ describe('Infernal cardboard FX regression', () => {
 
 		game.Phaser.time.now = 64;
 		game.Phaser.time.elapsedMS = 16;
+		setAbClockTime(64, 16);
 		animations.tickInfernalCardboardEffect(creature);
 
 		originalOverlays.forEach((overlay) => {
@@ -1404,6 +1397,7 @@ describe('Infernal cardboard FX regression', () => {
 
 		game.Phaser.time.now = 48;
 		game.Phaser.time.elapsedMS = 16;
+		setAbClockTime(48, 16);
 		animations.tickInfernalCardboardEffect(creature);
 
 		originalOverlays.forEach((overlay) => {
@@ -1604,7 +1598,11 @@ const readTweenCall = (tween?: { to: jest.Mock }): [Record<string, number>, numb
 };
 
 const getInfernalAnimationsGameMock = () => {
-	const createBitmapData = (width: number, height: number) => {
+	// The effects draw into a canvas texture and read the pixels back, so this
+	// stands up a texture manager whose `createCanvas` hands out a context that
+	// genuinely renders. Stubs the draw calls and the returned pixels separately,
+	// matching what the effect code does with them.
+	const createCanvasTexture = (key: string, width: number, height: number) => {
 		const imageData = {
 			data: new Uint8ClampedArray(width * height * 4).fill(0),
 		};
@@ -1625,16 +1623,14 @@ const getInfernalAnimationsGameMock = () => {
 			scale: jest.fn(),
 		};
 		return {
-			width,
-			height,
-			ctx,
-			context: ctx,
-			canvas: {} as CanvasImageSource,
-			dirty: false,
-			update: jest.fn(),
-			destroy: jest.fn(),
+			key,
+			canvas: { width, height } as HTMLCanvasElement,
+			getContext: () => ctx,
+			refresh: jest.fn(),
 		};
 	};
+
+	const nextSurfaceKey = 1;
 
 	const makeTween = () => {
 		const tween = {
@@ -1655,8 +1651,13 @@ const getInfernalAnimationsGameMock = () => {
 				now: 0,
 				elapsedMS: 16,
 			},
+			textures: {
+				createCanvas: jest.fn((key: string, width: number, height: number) =>
+					createCanvasTexture(key, width, height),
+				),
+				remove: jest.fn(),
+			},
 			add: {
-				bitmapData: jest.fn((width: number, height: number) => createBitmapData(width, height)),
 				tween: jest.fn(() => makeTween()),
 			},
 		},
@@ -1669,9 +1670,6 @@ const getInfernalAnimationsGameMock = () => {
 				remove: jest.fn(),
 			},
 			tween: jest.fn(() => makeTween()),
-			add: {
-				bitmapData: jest.fn((width: number, height: number) => createBitmapData(width, height)),
-			},
 		},
 	};
 };

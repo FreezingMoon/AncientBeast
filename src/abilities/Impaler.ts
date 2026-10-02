@@ -8,6 +8,7 @@ import { Effect } from '../effect';
 import { once } from 'underscore';
 import { getPointFacade } from '../utility/pointfacade';
 import Game from '../game';
+import { shakeBoard } from '../game-display/camera';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -97,13 +98,12 @@ export default (G: Game) => {
 			//	activate() :
 			activate: function (target) {
 				const ability = this;
-				G.gameEngine.cameras.main.shake(
-					0.01,
-					120,
-					true,
-					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 120,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				const finalDmg: DamageStats = {
 					pierce: 30,
@@ -368,7 +368,7 @@ export default (G: Game) => {
 					if (curDamage.damages.total <= 0) {
 						break;
 					} // If damage is too weak
-					if (curDamage.damageObj.status !== '') {
+					if (!curDamage.damageObj || curDamage.damageObj.status !== '') {
 						break;
 					}
 					delete curDamage.damages.total;
@@ -421,13 +421,12 @@ export default (G: Game) => {
 
 					if (bestTarget instanceof Creature) {
 						targets.push(bestTarget);
-						G.gameEngine.cameras.main.shake(
-							0.03,
-							220,
-							true,
-							G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-							true,
-						);
+						shakeBoard({
+							amplitude: 0.03,
+							durationMs: 220,
+							force: true,
+							axis: 'horizontal',
+						});
 					} else {
 						break;
 					}

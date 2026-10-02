@@ -3,6 +3,8 @@
 /* global NodeListOf */
 import * as fs from 'fs';
 import * as nodePath from 'path';
+import { setBoardCamera } from '../game-display/camera';
+import { setClockScene } from '../timing/clock';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Headless game harness for the authoritative server.
@@ -45,11 +47,19 @@ function ensureHeadlessDom(): void {
 		(globalThis as { fetch?: unknown }).fetch = () =>
 			Promise.reject(new Error('headless: network disabled'));
 	}
-	// jsdom doesn't implement canvas 2d; plasma-field's getContext returns null
-	// and guards on it, so just make the call a no-op to silence the warning.
+	// `plasma-field` calls `getContext('2d')` and tolerates a null return, which
+	// used to be all jsdom could offer. That assumption is now false — the
+	// optional `canvas` package is installed and provides a real 2D context — and
+	// forcing null regardless sabotages Phaser, whose text metrics take a hard
+	// dependency on a working context and throw outright on null.
+	//
+	// So probe for the capability and only stub where it is genuinely missing.
 	const gAny = globalThis as any;
 	if (gAny.HTMLCanvasElement) {
-		gAny.HTMLCanvasElement.prototype.getContext = () => null;
+		const probe = document.createElement('canvas');
+		if (!probe.getContext('2d')) {
+			gAny.HTMLCanvasElement.prototype.getContext = () => null;
+		}
 	}
 
 	if (TEMPLATE_HTML) {
@@ -100,430 +110,6 @@ function ensureHeadlessDom(): void {
 		}
 		return cache.get(key) as unknown as NodeListOf<HTMLElement>;
 	}) as typeof document.querySelectorAll;
-}
-
-// ─── Phaser mock ─────────────────────────────────────────────────────────────
-
-/**
- * A Phaser 4 shaped stub scene.
- *
- * The headless authoritative server runs the real engine with rendering
- * stubbed out, so this mirrors only the Phaser 4 surface the engine adapter
- * touches: positional factories, `Container`-backed groups, tween `targets`,
- * a `DynamicTexture`-backed RenderTexture with its mandatory `render()`, and
- * the scene's loader/timer/display-list systems.
- */
-function makeHeadlessScene() {
-	const scene: any = {
-		active: true,
-		scale: { width: 1920, height: 1080, parentIsWindow: false, autoCenter: 0 },
-		time: {
-			now: 0,
-			delayedCall: (delay: number, cb: () => void) => {
-				cb();
-				return { remove: () => undefined };
-			},
-			addEvent: (config: any) => {
-				config.callback();
-				return { remove: () => undefined };
-			},
-		},
-		load: {
-			progress: 1,
-			on: () => scene.load,
-			once: () => scene.load,
-			off: () => scene.load,
-			start: () => undefined,
-			image: () => undefined,
-			audio: () => undefined,
-		},
-		textures: {
-			exists: () => false,
-			get: () => null,
-		},
-		cameras: {
-			main: { shake: () => undefined, refresh: () => undefined },
-		},
-		children: {
-			list: [] as any[],
-			add: (child: any) => {
-				scene.children.list.push(child);
-				return child;
-			},
-			remove: (child: any) => {
-				scene.children.list = scene.children.list.filter((entry: any) => entry !== child);
-			},
-		},
-		input: { setHitArea: () => undefined },
-	};
-
-	scene.tweens = {
-		add: (config: any) => {
-			const tween: any = {
-				targets: config.targets,
-				data: [],
-				loop: 0,
-				paused: Boolean(config.paused),
-				handlers: {} as Record<string, Array<() => void>>,
-				on(event: string, cb: () => void) {
-					(tween.handlers[event] ||= []).push(cb);
-					return tween;
-				},
-				once(event: string, cb: () => void) {
-					tween.on(event, cb);
-					return tween;
-				},
-				stop: () => tween,
-				play: () => tween,
-			};
-			// The headless engine is deterministic and synchronous, so an
-			// un-paused tween applies its properties and completes immediately.
-			if (!config.paused) {
-				Object.assign(config.targets, config);
-				Promise.resolve().then(() => tween.handlers.complete?.forEach((cb) => cb()));
-			}
-			return tween;
-		},
-		killTweensOf: () => undefined,
-	};
-
-	scene.add = {
-		sprite: () => makeHeadlessGameObject(scene),
-		image: () => makeHeadlessGameObject(scene),
-		text: () => makeHeadlessGameObject(scene, 'Text'),
-		tileSprite: () => makeHeadlessGameObject(scene),
-		graphics: () => makeHeadlessGameObject(scene, 'Graphics'),
-		container: () => makeHeadlessContainer(scene),
-		renderTexture: (x: number, y: number, width: number, height: number) => ({
-			x,
-			y,
-			width,
-			height,
-			destroy: () => undefined,
-			texture: {
-				canvas: { getContext: () => ({ drawImage: () => undefined }) },
-				// Phaser 4 only uploads buffered draw operations on `render()`.
-				render: () => undefined,
-			},
-		}),
-	};
-
-	return scene;
-}
-
-function makeHeadlessGameObject(scene: any, type = 'Sprite') {
-	const gameObject: any = {
-		type,
-		scene,
-		active: true,
-		visible: true,
-		alpha: 1,
-		angle: 0,
-		rotation: 0,
-		depth: 0,
-		z: 0,
-		x: 0,
-		y: 0,
-		originX: 0.5,
-		originY: 0.5,
-		scaleX: 1,
-		scaleY: 1,
-		displayOriginX: 0,
-		displayOriginY: 0,
-		width: 10,
-		height: 10,
-		texture: { key: '' },
-		text: '',
-		data: {},
-		parentContainer: null,
-		parentList: null,
-		input: null,
-		handlers: {} as Record<string, Array<(...args: any[]) => void>>,
-		graphicsHandlers: {} as Record<string, () => void>,
-		on(event: string, cb: (...args: any[]) => void) {
-			(gameObject.handlers[event] ||= []).push(cb);
-			return gameObject;
-		},
-		emit(event: string, ...args: any[]) {
-			gameObject.handlers[event]?.forEach((cb) => cb(...args));
-		},
-		setActive(value: boolean) {
-			gameObject.active = value;
-			return gameObject;
-		},
-		setVisible(value: boolean) {
-			gameObject.visible = value;
-			return gameObject;
-		},
-		setOrigin(x: number, y: number) {
-			gameObject.originX = x;
-			gameObject.originY = y;
-			return gameObject;
-		},
-		setScale(x: number, y: number) {
-			gameObject.scaleX = x;
-			gameObject.scaleY = y;
-			return gameObject;
-		},
-		setPosition(x: number, y: number) {
-			gameObject.x = x;
-			gameObject.y = y;
-			return gameObject;
-		},
-		setDepth(value: number) {
-			gameObject.depth = value;
-			return gameObject;
-		},
-		setTexture(key: string) {
-			gameObject.texture.key = key;
-			return gameObject;
-		},
-		setInteractive() {
-			gameObject.input = { cursor: 'default' };
-			return gameObject;
-		},
-		disableInteractive() {
-			gameObject.input = null;
-			return gameObject;
-		},
-		getBounds: () => ({
-			x: 0,
-			y: 0,
-			width: 10,
-			height: 10,
-			left: 0,
-			right: 10,
-			top: 0,
-			bottom: 10,
-		}),
-		preUpdate: () => undefined,
-		destroy: () => undefined,
-	};
-	// Graphics commands are no-ops but must exist, since the engine forwards to
-	// whatever the factory returned.
-	[
-		'beginFill',
-		'endFill',
-		'clear',
-		'lineStyle',
-		'moveTo',
-		'lineTo',
-		'fillRect',
-		'drawRect',
-		'drawCircle',
-	].forEach((name) => {
-		gameObject[name] = () => undefined;
-	});
-	return gameObject;
-}
-
-function makeHeadlessContainer(scene: any) {
-	const container: any = {
-		scene,
-		active: true,
-		alpha: 1,
-		angle: 0,
-		depth: 0,
-		z: 0,
-		x: 0,
-		y: 0,
-		originX: 0.5,
-		originY: 0.5,
-		scaleX: 1,
-		scaleY: 1,
-		displayOriginX: 0,
-		displayOriginY: 0,
-		list: [] as any[],
-		handlers: {} as Record<string, Array<(...args: any[]) => void>>,
-		add(child: any) {
-			if (!container.list.includes(child)) container.list.push(child);
-			child.parentContainer = container;
-			return container;
-		},
-		addAt(child: any, index: number) {
-			if (container.list.includes(child)) container.list.splice(container.list.indexOf(child), 1);
-			container.list.splice(index, 0, child);
-			child.parentContainer = container;
-			return container;
-		},
-		remove(child: any) {
-			container.list = container.list.filter((entry) => entry !== child);
-			child.parentContainer = null;
-			return container;
-		},
-		removeAll(destroy?: boolean) {
-			const children = container.list.slice();
-			container.list = [];
-			if (destroy) children.forEach((child) => child.destroy());
-			return container;
-		},
-		each(callback: (child: any, ...args: any[]) => void, context?: any) {
-			container.list.forEach((child) => callback.call(context, child));
-			return container;
-		},
-		iterate(callback: (child: any, ...args: any[]) => void, context?: any) {
-			container.list.forEach((child) => callback.call(context, child));
-			return container;
-		},
-		bringToTop(child: any) {
-			container.list = container.list.filter((entry) => entry !== child).concat(child);
-			return container;
-		},
-		sendToBack(child: any) {
-			container.list = [child].concat(container.list.filter((entry) => entry !== child));
-			return container;
-		},
-		getIndex(child: any) {
-			return container.list.indexOf(child);
-		},
-		getAt(index: number) {
-			return container.list[index];
-		},
-		getLocalPoint: (x: number, y: number) => ({ x, y }),
-		getWorldPoint: (x: number, y: number) => ({ x, y }),
-		getBounds: () => ({
-			x: 0,
-			y: 0,
-			width: 0,
-			height: 0,
-			left: 0,
-			right: 0,
-			top: 0,
-			bottom: 0,
-		}),
-		setName: (name: string) => {
-			container.name = name;
-			return container;
-		},
-		setActive(value: boolean) {
-			container.active = value;
-			return container;
-		},
-		setVisible(value: boolean) {
-			container.visible = value;
-			return container;
-		},
-		setOrigin(x: number, y: number) {
-			container.originX = x;
-			container.originY = y;
-			return container;
-		},
-		setScale(x: number, y: number) {
-			container.scaleX = x;
-			container.scaleY = y;
-			return container;
-		},
-		setPosition(x: number, y: number) {
-			container.x = x;
-			container.y = y;
-			return container;
-		},
-		setDepth(value: number) {
-			container.depth = value;
-			return container;
-		},
-		destroy: () => undefined,
-	};
-	container.on = (event: string, cb: (...args: any[]) => void) => {
-		(container.handlers[event] ||= []).push(cb);
-		return container;
-	};
-	return container;
-}
-
-// ─── Real Signal implementation ──────────────────────────────────────────────
-
-class SimSignal {
-	private listeners: Array<{ fn: (...args: any[]) => void; ctx?: any }> = [];
-	add(fn: (...args: any[]) => void, ctx?: any) {
-		this.listeners.push({ fn, ctx });
-	}
-	dispatch(...args: any[]) {
-		for (const { fn, ctx } of this.listeners) fn.apply(ctx, args);
-	}
-}
-
-// ─── Animations mock (completes movement synchronously) ─────────────────────
-
-class MockAnimations {
-	game: any;
-	animationCounter = 0;
-	movementPoints = 0;
-
-	constructor(game: any) {
-		this.game = game;
-	}
-
-	walk(creature: any, path: any[], opts: Record<string, any>) {
-		this._completeMove(creature, path[path.length - 1] ?? path[0], opts);
-	}
-	fly(creature: any, path: any[], opts: Record<string, any>) {
-		this._completeMove(creature, path[0], opts);
-	}
-	teleport(creature: any, path: any[], opts: Record<string, any>) {
-		this._completeMove(creature, path[0], opts);
-	}
-	push(creature: any, path: any[], opts: Record<string, any>) {
-		this._completeMove(creature, path[path.length - 1] ?? path[0], opts);
-	}
-
-	private _completeMove(creature: any, hex: any, opts: Record<string, any>) {
-		const animId = ++this.animationCounter;
-		(this.game as any).animationQueue.push(animId);
-		setTimeout(() => {
-			this.movementComplete(creature, hex, animId, opts);
-		}, 1);
-	}
-
-	movementComplete(creature: any, _hex: any, animId: number | string, opts: Record<string, any>) {
-		if (
-			opts?.customMovementPoint &&
-			typeof opts.customMovementPoint === 'number' &&
-			opts.customMovementPoint > 0
-		)
-			creature.remainingMove = this.movementPoints;
-		if (opts?.turnAroundOnComplete) creature.facePlayerDefault?.();
-		creature.healthShow?.();
-		creature.hexagons?.forEach(() => creature.pickupDrop?.());
-		(this.game as any).grid?.orderCreatureZ?.();
-		const queue = (this.game as any).animationQueue.filter((item: any) => item !== animId);
-		if (queue.length === 0) {
-			(this.game as any).freezedInput = false;
-			(this.game as any).grid?.refreshHoverState?.();
-		}
-		(this.game as any).animationQueue = queue;
-		opts?.callback?.();
-	}
-
-	death(creature: any, opts: Record<string, any>) {
-		opts?.callback?.();
-	}
-	melt(creature: any, opts: Record<string, any>) {
-		opts?.callback?.();
-	}
-	rise(creature: any, opts: Record<string, any>) {
-		opts?.callback?.();
-	}
-	shake(creature: any, opts: Record<string, any>) {
-		opts?.callback?.();
-	}
-	projectile(_creature: any, _spell: any, _targets: any, _args: any, ..._rest: any[]) {
-		const sprite = { destroy: () => undefined };
-		const tween = {
-			onComplete: {
-				add(fn: (...a: any[]) => any, ctx?: any) {
-					fn.call(ctx ?? sprite);
-				},
-			},
-		};
-		return [tween, sprite];
-	}
-	startBonfireSpringTrapAnimation() {}
-	startScorchedGroundTrapAnimation() {}
-	shatterDown(creature: any, opts: Record<string, any>) {
-		opts?.callback?.();
-	}
-	rekeyInfernalCardboardEffect() {}
 }
 
 // ─── UI / sound stubs ────────────────────────────────────────────────────────
@@ -660,28 +246,28 @@ export async function createHeadlessGame(
 	const Game = GameModule.default;
 	const game: any = new Game();
 
-	// Headless engine: the neutral `GameEngine` vocabulary with inert handles.
-	// Gameplay code talks to `gameEngine`, never to raw Phaser, so the
-	// authoritative server needs no Phaser instance at all.
-	const { NullEngine } = await import('../engine/NullEngine');
-	const engine = new NullEngine();
-	for (const ch of Object.keys(game.signals)) {
-		engine.signals[ch] = game.signals[ch];
-	}
-	game._gameEngine = engine;
-	game.animations = new MockAnimations(game);
-
-	const signalChannels = ['ui', 'metaPowers', 'creature', 'hex'];
-	game.signals = signalChannels.reduce((acc: Record<string, any>, ch: string) => {
-		acc[ch] = new SimSignal();
-		return acc;
-	}, {} as Record<string, any>);
-
-	game.botController.game = game;
-	game.signals.creature.add(
-		game.botController.handleCreatureSignal.bind(game.botController),
-		game.botController,
-	);
+	// Real `Phaser.HEADLESS`, booted through the same `createPhaser()` the
+	// browser uses — same `GameScene`, same `Phaser4Engine` wrapper, same
+	// genuine `EventEmitter` channels, same AB clock bound to the scene. The
+	// authoritative server is now running the engine that runs in production,
+	// with rendering the only thing switched off.
+	//
+	// `HEADLESS` because there is no display for Phaser to pick a renderer from,
+	// and `parent: null` because it has no canvas to mount into.
+	//
+	// The driver goes in *before* `createPhaser()`, because the scene's
+	// `TweenManager` reads the clock while `createPhaser()` builds it; installed
+	// afterwards, every tween would be keyed to a start time the virtual clock
+	// has already moved past, and none of them would ever complete.
+	const { getPhaser } = await import('../phaser/runtime');
+	const { createHeadlessDriver } = await import('../phaser/headless');
+	const driver = createHeadlessDriver();
+	game.headlessDriver = driver;
+	await game.createPhaser({ type: getPhaser().HEADLESS, parent: null });
+	// `setup()` builds sprites, so it has to wait for the scene's GameObject
+	// factory. Nothing drives the scene boot under `HEADLESS` on its own.
+	await game.whenSceneReady();
+	if (game.Phaser) driver.attach(game.Phaser);
 
 	game.soundsys = makeSoundSysStub();
 	game.musicPlayer = { audio: { pause: () => undefined } };
@@ -709,9 +295,10 @@ export async function createHeadlessGame(
 	const unitsModule = await import('../data/units');
 	game.loadUnitData(unitsModule.unitData);
 
+	// `setup()` builds the real `Animations` on top of the real scene. Movement
+	// is therefore tween-driven, and `settle()` advances the frames that move
+	// those tweens along — the same path the browser takes, minus the pixels.
 	game.setup(config.gameMode);
-	// setup() reinstalls a real Animations instance; swap it back for the mock.
-	game.animations = new MockAnimations(game);
 
 	// Collapse ability animation delays (350ms/500ms) to ~1ms so the engine
 	// advances without real-time waiting. Logic is untouched — only cosmetic
@@ -944,7 +531,7 @@ export async function createHeadlessGame(
 			this.activeCreature.activate();
 			this.UI?.updateActivebox?.();
 			this.updateQueueDisplay?.();
-			this.signals.creature.dispatch('activate', { creature: this.activeCreature });
+			this.channels.creature.emit('activate', { creature: this.activeCreature });
 			if (!this.multiplayer) this.playersReady = true;
 		}, 1);
 	};
@@ -970,22 +557,74 @@ function isIdle(game: any): boolean {
 }
 
 /**
- * Pump the (real) event loop until `predicate` is true or we hit the bounds.
- * The headless engine advances via setTimeout/setInterval (clamped to ~1ms by
- * the sim patches) plus Promise microtasks, so awaiting a macrotask repeatedly
- * lets it progress without jest fake timers.
+ * Point AB's engine singletons at this match before driving it.
+ *
+ * `src/timing/clock.ts` and `src/game-display/camera.ts` keep module-level
+ * state, because gameplay reaches them without a handle to the match they
+ * belong to. `createPhaser()` registers into those on behalf of whichever game
+ * booted last, so a process running two engines — which the convergence test
+ * does deliberately, and which the server does not — has to re-register before
+ * it pumps either one. Otherwise the second game to boot silently answers for
+ * the first, and the first match advances on the other match's clock.
+ */
+/**
+ * Virtual milliseconds elapsed on this match's clock.
+ *
+ * Falls back to the wall clock for a game built before the driver existed, so
+ * the budget still means something rather than measuring the driver's install.
+ */
+function elapsedMs(game: any): number {
+	return game.headlessDriver ? game.headlessDriver.elapsed() : Date.now();
+}
+
+function activateGame(game: any): void {
+	const scene = game.scene;
+	if (!scene) return;
+	setClockScene(scene);
+	const camera = scene.camera ?? null;
+	if (camera) setBoardCamera(camera);
+}
+
+/**
+ * One turn of the pump: advance a frame, then let promises run.
+ *
+ * Both halves are needed. The frame is what Phaser runs on — tweens, timers,
+ * the scene update — so without it nothing time-driven ever happens. The yield
+ * is what gameplay promises run on, and a loop that never returned to the event
+ * loop would starve them. Order matters: the frame first, so anything it
+ * queues is already in place when the microtasks drain.
+ */
+async function pumpOnce(game: any): Promise<void> {
+	game.headlessDriver?.step();
+	await new Promise((resolve) => setTimeout(resolve, 0));
+}
+
+/**
+ * Pump until `predicate` is true or a bound is hit.
+ *
+ * The budget is measured on the virtual clock the driver installed, not the
+ * wall clock: a step advances virtual time by exactly one frame, so the bound
+ * means "this much game time" and the same intent log always costs the same
+ * number of steps regardless of how fast the host is.
  */
 export async function pumpUntil(
 	game: any,
 	predicate: (game: any) => boolean,
 	options: { maxIters?: number; maxMs?: number } = {},
 ): Promise<void> {
-	const maxIters = options.maxIters ?? 20000;
-	const maxMs = options.maxMs ?? 60_000;
-	const start = Date.now();
+	activateGame(game);
+	// Sized in frames, not iterations. Each iteration now costs 16ms of *virtual*
+	// time, so a 60s budget was 3 750 frames — sized when an iteration was a
+	// ~0ms microtask drain and the cap was effectively unreachable. With real
+	// tweened movement a long pathing turn needs more than that, and because match
+	// length is random the shortfall showed up as an intermittent settle that
+	// returned early and desynchronised the two engines.
+	const maxIters = options.maxIters ?? 50_000;
+	const maxMs = options.maxMs ?? 800_000;
+	const start = elapsedMs(game);
 	for (let i = 0; i < maxIters; i++) {
-		await new Promise((resolve) => setTimeout(resolve, 0));
-		if (predicate(game) || Date.now() - start > maxMs) return;
+		await pumpOnce(game);
+		if (predicate(game) || elapsedMs(game) - start > maxMs) return;
 	}
 }
 
@@ -999,21 +638,34 @@ export async function settle(
 	game: any,
 	options: { maxIters?: number; maxMs?: number } = {},
 ): Promise<void> {
-	const maxIters = options.maxIters ?? 20000;
-	const maxMs = options.maxMs ?? 60_000;
-	const start = Date.now();
+	activateGame(game);
+	// Sized in frames, not iterations. Each iteration now costs 16ms of *virtual*
+	// time, so a 60s budget was 3 750 frames — sized when an iteration was a
+	// ~0ms microtask drain and the cap was effectively unreachable. With real
+	// tweened movement a long pathing turn needs more than that, and because match
+	// length is random the shortfall showed up as an intermittent settle that
+	// returned early and desynchronised the two engines.
+	const maxIters = options.maxIters ?? 50_000;
+	const maxMs = options.maxMs ?? 800_000;
+	const start = elapsedMs(game);
 	let streak = 0;
 	for (let i = 0; i < maxIters; i++) {
-		await new Promise((resolve) => setTimeout(resolve, 0));
+		await pumpOnce(game);
 		if (game.gameState === 'ended') return;
 		streak = isIdle(game) ? streak + 1 : 0;
 		if (streak >= 2) return;
-		if (Date.now() - start > maxMs) return;
+		if (elapsedMs(game) - start > maxMs) return;
 	}
 }
 
 /** Apply a single client `Intent` to the engine (does not await settle). */
 export function applyIntent(game: any, intent: import('./authoritativeTypes').Intent): void {
+	// Every operation on a game has to run against *that* game's engine
+	// registries, not merely the one that settled last. `game.action()` reaches
+	// the AB clock synchronously while it queues the move, so activating only
+	// inside `settle()` leaves the intent itself running on whichever match was
+	// pumped previously — which desynchronises two engines by a turn.
+	activateGame(game);
 	switch (intent.kind) {
 		case 'skip':
 			game.action({ action: 'skip' }, { callback() {} });

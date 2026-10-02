@@ -6,6 +6,7 @@ import * as arrayUtils from '../utility/arrayUtils';
 import { Creature } from '../creature';
 import Game from '../game';
 import { Hex } from '../utility/hex';
+import { shakeBoard } from '../game-display/camera';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -53,13 +54,12 @@ export default (G: Game) => {
 					G,
 				);
 				target.takeDamage(damage);
-				G.gameEngine.cameras.main.shake(
-					0.01,
-					123,
-					true,
-					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 123,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				// Keep highlighted in UI
 				this.setUsed(false);
@@ -105,13 +105,12 @@ export default (G: Game) => {
 			activate: function (target: Creature) {
 				const ability = this;
 				ability.end();
-				G.gameEngine.cameras.main.shake(
-					0.01,
-					150,
-					true,
-					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 150,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				const damage = new Damage(
 					ability.creature, // Attacker
@@ -239,13 +238,12 @@ export default (G: Game) => {
 			activate: function (choice: Hex[]) {
 				const ability = this;
 				ability.end();
-				G.gameEngine.cameras.main.shake(
-					0.02,
-					350,
-					true,
-					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.02,
+					durationMs: 350,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				const crea = this.creature;
 
@@ -375,13 +373,12 @@ export default (G: Game) => {
 			activate: function (crea: Creature) {
 				const ability = this;
 				ability.end();
-				G.gameEngine.cameras.main.shake(
-					0.03,
-					333,
-					true,
-					G.gameEngine.cameras.main.SHAKE_VERTICAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.03,
+					durationMs: 333,
+					force: true,
+					axis: 'vertical',
+				});
 
 				const target = crea;
 

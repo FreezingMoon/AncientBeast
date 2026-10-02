@@ -3,6 +3,7 @@ import { isTeam, Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import { Effect } from '../effect';
 import Game from '../game';
+import { shakeBoard } from '../game-display/camera';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -151,13 +152,12 @@ export default (G: Game) => {
 			activate: function (target) {
 				const ability = this;
 				ability.end();
-				G.gameEngine.cameras.main.shake(
-					0.01,
-					90,
-					true,
-					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 90,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				const d = {
 					pierce: 11,
@@ -418,13 +418,12 @@ export default (G: Game) => {
 
 				const ability = this;
 				ability.end();
-				G.gameEngine.cameras.main.shake(
-					0.02,
-					100,
-					true,
-					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.02,
+					durationMs: 100,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				ability.areaDamage(
 					ability.creature, //Attacker

@@ -1,4 +1,4 @@
-import type { SpriteHandle, GroupHandle, BitmapDataHandle } from './engine/types';
+import type { SpriteHandle, GroupHandle } from './engine/types';
 import { Easing } from './utility/easing';
 import { Creature } from './creature';
 import Game from './game';

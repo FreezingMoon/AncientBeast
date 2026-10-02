@@ -8,6 +8,7 @@ import type { Ability } from '../ability';
 import { Direction, Hex } from '../utility/hex';
 import { isTeam } from '../utility/team';
 import Game from '../game';
+import { shakeBoard } from '../game-display/camera';
 
 const isPlasmaFieldBlocker = (source: Creature, target: Creature) => {
 	return target.isDarkPriest() && target.hasCreaturePlayerGotPlasma();
@@ -229,13 +230,12 @@ export default (G: Game) => {
 			activate: function (target: Creature) {
 				const ability = this;
 				ability.end();
-				G.gameEngine.cameras.main.shake(
-					0.01,
-					80,
-					true,
-					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 80,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				// Upgraded ability does pierce damage to smaller size targets
 				const damages = ability.damages;
@@ -315,13 +315,12 @@ export default (G: Game) => {
 			activate: function (target: Creature) {
 				const ability = this;
 				ability.end();
-				G.gameEngine.cameras.main.shake(
-					0.02,
-					222,
-					true,
-					G.gameEngine.cameras.main.SHAKE_VERTICAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.02,
+					durationMs: 222,
+					force: true,
+					axis: 'vertical',
+				});
 
 				const effects = [];
 				// Upgraded ability adds a -10 defense debuff
@@ -530,13 +529,12 @@ export default (G: Game) => {
 							);
 
 							const result = trg.takeDamage(damage);
-							G.gameEngine.cameras.main.shake(
-								0.02,
-								80,
-								true,
-								G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-								true,
-							);
+							shakeBoard({
+								amplitude: 0.02,
+								durationMs: 80,
+								force: true,
+								axis: 'horizontal',
+							});
 
 							// Stop propagating if no damage dealt
 							if (

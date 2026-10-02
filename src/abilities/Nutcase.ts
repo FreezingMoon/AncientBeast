@@ -9,6 +9,7 @@ import { once } from 'underscore';
 import { Direction } from '../utility/hex';
 import Game from '../game';
 import { QueryOptions } from '../utility/hexgrid';
+import { shakeBoard } from '../game-display/camera';
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
@@ -174,13 +175,12 @@ export default (G: Game) => {
 			activate: function (targetOrChoice, args) {
 				const ability = this;
 				ability.end();
-				G.gameEngine.cameras.main.shake(
-					0.02,
-					100,
-					true,
-					G.gameEngine.cameras.main.SHAKE_VERTICAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.02,
+					durationMs: 100,
+					force: true,
+					axis: 'vertical',
+				});
 
 				if (!this.isUpgraded()) {
 					this._activateOnTarget(targetOrChoice);
@@ -391,13 +391,12 @@ export default (G: Game) => {
 						callback: function () {
 							// Damage before any other creature movement is complete and before push.
 							ability._damage(target, runPath);
-							G.gameEngine.cameras.main.shake(
-								0.01,
-								250,
-								true,
-								G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-								true,
-							);
+							shakeBoard({
+								amplitude: 0.01,
+								durationMs: 250,
+								force: true,
+								axis: 'horizontal',
+							});
 
 							const interval = setInterval(function () {
 								if (!G.freezedInput) {
@@ -598,13 +597,12 @@ export default (G: Game) => {
 				const ability = this;
 				const crea = ability.creature;
 				ability.end();
-				G.gameEngine.cameras.main.shake(
-					0.02,
-					200,
-					true,
-					G.gameEngine.cameras.main.SHAKE_BOTH,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.02,
+					durationMs: 200,
+					force: true,
+					axis: 'both',
+				});
 
 				const damage = new Damage(
 					crea, // Attacker

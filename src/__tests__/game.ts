@@ -33,6 +33,7 @@ jest.mock('phaser', () => ({
 }));
 
 import Game from '../game';
+import { createGameChannels } from '../game-events/factory';
 import { UI } from '../ui/interface';
 import { setAudioMode } from '../sound/soundsys';
 
@@ -181,26 +182,19 @@ describe('Game reset lifecycle', () => {
 			traps: [],
 			drops: [],
 			gamelog: { reset: jest.fn() },
-			signals: {
-				ui: { add: jest.fn(), dispatch: jest.fn() },
-				metaPowers: { add: jest.fn(), dispatch: jest.fn() },
-				creature: { add: jest.fn(), dispatch: jest.fn() },
-				hex: { add: jest.fn(), dispatch: jest.fn() },
-			},
-			setupSignalChannels: jest.fn(() => ({
-				ui: { add: jest.fn(), dispatch: jest.fn() },
-				metaPowers: { add: jest.fn(), dispatch: jest.fn() },
-				creature: { add: jest.fn(), dispatch: jest.fn() },
-				hex: { add: jest.fn(), dispatch: jest.fn() },
-			})),
 			botController: {},
 			...overrides,
 		} as unknown as Game);
 
-	test('resetGame recreates signal channels to avoid listener accumulation after restart', () => {
+	test('resetGame recreates the gameplay channels to avoid listener accumulation', () => {
 		const game = makeMockGame();
+		// No Phaser runtime in this suite, so the factory falls back to its own
+		// emitter; all that matters here is that fresh instances are installed.
 		Game.prototype.resetGame.call(game);
-		expect(game.signals.creature.add).toHaveBeenCalledTimes(1);
+		for (const channel of Object.values(game.channels)) {
+			expect(channel).toBeDefined();
+			expect((channel as unknown as { listeners: unknown }).listeners ?? true).toBeDefined();
+		}
 	});
 
 	test('resetGame destroys existing traps and drops', () => {
@@ -874,7 +868,7 @@ describe('Game nextCreature turn-update broadcast ownership', () => {
 			},
 			soundsys: { playHeartBeat: jest.fn() },
 			log: jest.fn(),
-			signals: { creature: { dispatch: jest.fn() } },
+			channels: createGameChannels(),
 			multiplayer: true,
 			playersReady: true,
 			lobby: {

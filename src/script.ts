@@ -9,6 +9,7 @@ import { PreMatchAudioPlayer } from './sound/pre-match-audio';
 import { Fullscreen } from './ui/fullscreen';
 import { buttonSlide } from './ui/button';
 import { normalizeLobbyCode } from './multiplayer/types';
+import { applyPortraitScale, refreshScale } from './game-display/scale';
 
 import { installAvatarStyles } from './style/avatar-styles';
 import {
@@ -19,7 +20,7 @@ import {
 	DEBUG_HAS_GAME_LOG,
 } from './debug';
 import { getDevvitAppVersion, getGameVersion } from './utility/clientVersion';
-import { prefetchPhaser } from './engine/phaser-runtime';
+import { prefetchPhaser } from './phaser/runtime';
 
 if (DEBUG && 'serviceWorker' in navigator) {
 	navigator.serviceWorker
@@ -99,14 +100,15 @@ $j(() => {
 
 		if (G.Phaser) {
 			try {
-				const scale = G.gameEngine.scale;
+				const scale = G.Phaser.scale;
 				if (scale) {
-					scale.parentIsWindow = !isPortrait;
-					scale.pageAlignVertically = !isPortrait;
-					scale.refresh();
+					applyPortraitScale(scale, isPortrait);
+					// The mobile browser has usually not finished laying out for the
+					// new orientation when this handler runs, so a second pass a
+					// moment later is what actually lands the right size.
 					window.setTimeout(() => {
 						try {
-							G.gameEngine.scale.refresh();
+							refreshScale(G.Phaser?.scale);
 						} catch {}
 					}, 100);
 					window.setTimeout(() => {

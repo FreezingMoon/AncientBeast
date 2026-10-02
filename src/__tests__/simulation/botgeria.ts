@@ -1,21 +1,14 @@
+/**
+ * @jest-environment jsdom
+ * @jest-environment-options {"resources": "usable"}
+ */
+
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 
-// ─── SimSignal mock (minimal Signal replacement for simulation) ─────────────
-class SimSignal {
-	private listeners: Array<{ fn: (...args: any[]) => void; ctx?: any }> = [];
-	add(fn: (...args: any[]) => void, ctx?: any) {
-		this.listeners.push({ fn, ctx });
-	}
-	dispatch(...args: any[]) {
-		for (const { fn, ctx } of this.listeners) {
-			fn.apply(ctx, args);
-		}
-	}
-}
 // ─── UI module mock ──────────────────────────────────────────────────────────
 // `Game.setup()` instantiates the real jQuery-bound UI, which needs the full
 // game DOM. The harness replaces `game.UI` with a stub anyway, so the real
@@ -49,104 +42,7 @@ jest.mock('../../ui/interface', () => {
 	};
 });
 
-// ─── Phaser module mock ─────────────────────────────────────────────────────
-// The real Phaser 4 bundle boots a renderer at import time, which jsdom cannot
-// satisfy. Only the value exports AB actually imports are provided here.
-jest.mock('phaser', () => ({
-	Scene: class SceneMock {
-		sys: { settings: { key: ''; data: Record<string, unknown> } };
-	},
-	Math: {
-		Vector2: class Vector2Mock {
-			x: number;
-			y: number;
-			constructor(x?: number, y?: number) {
-				this.x = x ?? 0;
-				this.y = y ?? 0;
-			}
-			set(x: number, y?: number): this {
-				this.x = x;
-				this.y = y ?? x;
-				return this;
-			}
-			setTo(x: number, y?: number): this {
-				return this.set(x, y);
-			}
-			clone(): this {
-				return new (this.constructor as any)(this.x, this.y);
-			}
-			copy(src: any): this {
-				this.x = src.x;
-				this.y = src.y;
-				return this;
-			}
-		},
-	},
-	Vector2: class Vector2Mock {
-		x: number;
-		y: number;
-		constructor(x?: number, y?: number) {
-			this.x = x ?? 0;
-			this.y = y ?? 0;
-		}
-		set(x: number, y?: number): this {
-			this.x = x;
-			this.y = y ?? x;
-			return this;
-		}
-		setTo(x: number, y?: number): this {
-			return this.set(x, y);
-		}
-		clone(): this {
-			return new (this.constructor as any)(this.x, this.y);
-		}
-		copy(src: any): this {
-			this.x = src.x;
-			this.y = src.y;
-			return this;
-		}
-	},
-	GameObjects: {
-		Polygon: class PolygonGameObjectMock {
-			constructor(_scene?: unknown, _x?: number, _y?: number, points?: unknown) {
-				(this as any).points = points ?? [];
-			}
-			contains() {
-				return true;
-			}
-		},
-	},
-	Polygon: class PolygonMock {
-		points: any[];
-		constructor(points?: any[]) {
-			this.points = points ?? [];
-		}
-		contains(_x: number, _y: number) {
-			return true;
-		}
-	},
-	Geom: {
-		Polygon: class GeomPolygonMock {
-			points: any[];
-			constructor(points?: any[]) {
-				this.points = points ?? [];
-			}
-			contains(_x: number, _y: number) {
-				return true;
-			}
-		},
-	},
-	BlendModes: { ADD: 1, NORMAL: 0, MULTIPLY: 2, SCREEN: 3 },
-	AUTO: 0,
-	CANVAS: 1,
-	Scale: { NO_CENTER: 0, CENTER_BOTH: 1, FIT: 1, RESIZE: 5 },
-	Signal: class SignalMock {
-		add() {}
-		remove() {}
-		dispatch() {}
-	},
-	default: class PhaserMock {},
-}));
+// Phaser is NOT mocked. This harness boots a real `Phaser.HEADLESS` game.
 
 // ─── Real Signal implementation ──────────────────────────────────────────────
 
@@ -172,111 +68,6 @@ function _makeJQueryChain(): any {
 		},
 	);
 	return chain;
-}
-
-// ─── Animations mock ─────────────────────────────────────────────────────────
-
-/**
- * Mock Animations that skips all Phaser tweens and completes movement
- * synchronously (via a resolved Promise) so BotController receives the
- * 'movementComplete' signal without needing real timer advancement.
- */
-class MockAnimations {
-	game: any;
-	animationCounter = 0;
-	movementPoints = 0;
-
-	constructor(game: any) {
-		this.game = game;
-	}
-
-	/** Cosmetic effect setup; simulation never renders, so this is a no-op. */
-	initInfernalCardboardEffect(_creature: unknown, _sprite: unknown) {}
-
-	/** Cosmetic effect teardown; simulation has nothing to dispose. */
-	disposeInfernalCardboardEffect(_creature: unknown) {}
-
-	/** Called by Creature.moveTo() via game.animations[animType](creature, path, opts) */
-	walk(creature: any, path: any[], opts: Record<string, any>) {
-		this._completeMove(creature, path[path.length - 1] ?? path[0], opts);
-	}
-
-	fly(creature: any, path: any[], opts: Record<string, any>) {
-		this._completeMove(creature, path[0], opts);
-	}
-
-	teleport(creature: any, path: any[], opts: Record<string, any>) {
-		this._completeMove(creature, path[0], opts);
-	}
-
-	push(creature: any, path: any[], opts: Record<string, any>) {
-		this._completeMove(creature, path[path.length - 1] ?? path[0], opts);
-	}
-
-	private _completeMove(creature: any, hex: any, opts: Record<string, any>) {
-		const animId = ++this.animationCounter;
-		(this.game as any).animationQueue.push(animId);
-		setTimeout(() => {
-			this.movementComplete(creature, hex, animId, opts);
-		}, 1);
-	}
-
-	movementComplete(creature: any, hex: any, animId: number | string, opts: Record<string, any>) {
-		if (
-			opts?.customMovementPoint &&
-			typeof opts.customMovementPoint === 'number' &&
-			opts.customMovementPoint > 0
-		) {
-			creature.remainingMove = this.movementPoints;
-		}
-		if (opts?.turnAroundOnComplete) {
-			creature.facePlayerDefault?.();
-		}
-		creature.healthShow?.();
-		creature.hexagons?.forEach(() => creature.pickupDrop?.());
-		(this.game as any).grid?.orderCreatureZ?.();
-
-		const queue = (this.game as any).animationQueue.filter((item: any) => item !== animId);
-		if (queue.length === 0) {
-			(this.game as any).freezedInput = false;
-			(this.game as any).grid?.refreshHoverState?.();
-		}
-		(this.game as any).animationQueue = queue;
-		opts?.callback?.();
-	}
-
-	// Stubs for other animation paths used in abilities
-	death(creature: any, opts: Record<string, any>) {
-		opts?.callback?.();
-	}
-	melt(creature: any, opts: Record<string, any>) {
-		opts?.callback?.();
-	}
-	rise(creature: any, opts: Record<string, any>) {
-		opts?.callback?.();
-	}
-	shake(creature: any, opts: Record<string, any>) {
-		opts?.callback?.();
-	}
-	projectile(_creature: any, _spell: any, _targets: any, _args: any, ..._rest: any[]) {
-		// Abilities expect [tween, sprite] back. The tween's onComplete.add(fn, ctx) must
-		// invoke fn with ctx as `this` so the turn can resume after the projectile lands.
-		const sprite = { destroy: () => undefined };
-		const tween = {
-			onComplete: {
-				add(fn: (...a: any[]) => any, ctx?: any) {
-					fn.call(ctx ?? sprite);
-				},
-			},
-		};
-		return [tween, sprite];
-	}
-	startBonfireSpringTrapAnimation() {}
-	startScorchedGroundTrapAnimation() {}
-	shatterDown(creature: any, opts: Record<string, any>) {
-		opts?.callback?.();
-	}
-	rekeyInfernalCardboardEffect() {}
 }
 
 // ─── Stub UI / SoundSys ───────────────────────────────────────────────────────
@@ -364,37 +155,23 @@ export async function createGame(abilities: Array<(G: any) => void>): Promise<an
 
 	const GameModule = await import('../../game');
 	const Game = GameModule.default;
+	const { PlasmaField } = await import('../../plasma-field');
 	const game: any = new Game();
 
 	// Headless engine: the neutral `GameEngine` vocabulary with inert handles and
 	// no renderer. Gameplay code talks to `gameEngine`, never to raw Phaser, so
 	// the simulation never needs a Phaser instance at all.
-	const { NullEngine } = await import('../../engine/NullEngine');
-	const engine = new NullEngine();
-	// Expose the existing signal channels through the adapter
-	for (const ch of Object.keys(game.signals)) {
-		engine.signals[ch] = game.signals[ch];
-	}
-	game._gameEngine = engine;
-
-	// Swap out the Animations instance with our synchronous mock
-	game.animations = new MockAnimations(game);
-
-	// Install real signals (Game constructor creates them via setupSignalChannels
-	// which uses `new Signal()` from the phaser mock — replace with SimSignals)
-	const signalChannels = ['ui', 'metaPowers', 'creature', 'hex'];
-	game.signals = signalChannels.reduce((acc: Record<string, any>, ch: string) => {
-		acc[ch] = new SimSignal();
-		return acc;
-	}, {} as Record<string, any>);
-
-	// Re-register BotController on the new signals (it registered during constructor)
-	game.botController.game = game;
-	// BotController listens on game.signals.creature
-	game.signals.creature.add(
-		game.botController.handleCreatureSignal.bind(game.botController),
-		game.botController,
-	);
+	// Real `Phaser.HEADLESS`, booted through the same `Game.createPhaser()` the
+	// browser uses. The driver goes in first: the scene's `TweenManager` samples
+	// the clock while `createPhaser()` builds the scene.
+	const { getPhaser, loadRealPhaser } = await import('../../phaser/runtime');
+	const { createHeadlessDriver } = await import('../../phaser/headless');
+	await loadRealPhaser();
+	const driver = createHeadlessDriver();
+	game.headlessDriver = driver;
+	await game.createPhaser({ type: getPhaser().HEADLESS, parent: null });
+	await game.whenSceneReady();
+	if (game.Phaser) driver.attach(game.Phaser);
 
 	// Stub sound / music
 	game.soundsys = makeSoundSysStub();
@@ -440,9 +217,8 @@ export async function createGame(abilities: Array<(G: any) => void>): Promise<an
 
 	// setup() is synchronous and no longer calls matchInit()
 	game.setup(2);
-	// game.setup() calls `this.animations = new Animations(this)` internally, which
-	// overwrites any pre-setup assignment. Re-install the mock here, after setup().
-	game.animations = new MockAnimations(game);
+	// `setup()` installs the real `Animations`, so movement is tween-driven and the
+	// frame pump in `runMatch` is what moves it along.
 
 	// Collapse ability animation delays from 350ms/500ms → 1ms/2ms (one-time prototype patch).
 	// The real timings generate ~9 fake-timer callbacks per ability use; with 1ms/2ms and a
@@ -682,6 +458,18 @@ export async function createGame(abilities: Array<(G: any) => void>): Promise<an
 	// cleanOverlayVisualState — purely cosmetic, safe to skip entirely.
 	game.grid.updateDisplay = () => undefined;
 
+	// Plasma field rendering. The field picks the GPU path when WebGL exists and
+	// falls back to a per-pixel CPU loop otherwise; headless has no GL, so every
+	// field pays the full CPU loop each tick — 24 times a virtual second — writing
+	// pixels into a canvas nothing ever displays. Measured at >96% of wall-clock,
+	// and because it scales with field count (4 in a 2v2) it grows with the match
+	// rather than staying a fixed tax. Stubbing `draw` on the prototype skips the
+	// raster pass while leaving `tick`'s time advance and `advanceBurst` decay
+	// intact, so burst teardown timing and any gameplay reading the field's
+	// animation state are unchanged. `tick` is an instance arrow property and so
+	// cannot be stubbed here; `draw` is a prototype method and can be.
+	(PlasmaField.prototype as unknown as { draw: () => void }).draw = () => undefined;
+
 	// clearAllXray calls creature.xray() on every creature — pure visual effect.
 	game.grid.clearAllXray = () => undefined;
 
@@ -787,7 +575,7 @@ export async function createGame(abilities: Array<(G: any) => void>): Promise<an
 			this.activeCreature.activate();
 			this.UI?.updateActivebox?.();
 			this.updateQueueDisplay?.();
-			this.signals.creature.dispatch('activate', { creature: this.activeCreature });
+			this.channels.creature.emit('activate', { creature: this.activeCreature });
 			if (!this.multiplayer) {
 				this.playersReady = true;
 			}
@@ -822,8 +610,11 @@ export interface MatchResult {
 const MAX_SIM_TURNS = 40; // hard cap — 4 rounds is plenty; outlier games beyond this are timeouts
 
 /**
- * Advance a running game to completion using Jest fake timers.
- * Must be called inside a test that has already called `jest.useFakeTimers()`.
+ * Advance a running game to completion.
+ *
+ * Real timers, not Jest's fake ones: Phaser 4 boots the scene through `setTimeout`,
+ * so faked timers mean the scene never reaches `create()` and the harness hangs
+ * before a match ever starts.
  */
 export async function runMatch(game: unknown): Promise<MatchResult> {
 	// Suppress the checkTime interval — it's a noop for infinite time pools but
@@ -831,29 +622,19 @@ export async function runMatch(game: unknown): Promise<MatchResult> {
 	const origCheckTime = (game as any).checkTime?.bind?.(game) ?? (() => {});
 	(game as any).checkTime = () => {};
 
-	// Advance fake time in chunks, yielding between each so microtasks (Promise
-	// callbacks from MockAnimations._completeMove) can flush.
-	// With bot delays collapsed to 1ms and nextCreature at 1ms, total per creature
-	// turn ≈ ~160ms fake time.  TICK_MS=2000 covers ~12 creature turns per iteration.
-	const TICK_MS = 2_000;
-	// Allow enough fake time for MAX_SIM_TURNS turns, with 2× headroom.
-	const MAX_ELAPSED = MAX_SIM_TURNS * 500;
+	// Phaser only advances when a frame is stepped, so this is not optional: with
+	// zero frames every tween sits at progress 0 and no match ever ends.
+	const FRAMES_PER_SLICE = 16;
 	// Stagnation timeout: end game if no damage dealt in this many rounds.
 	// Prevents extremely long stalemates where both bots are stuck in a loop.
 	const STAGNATION_ROUNDS = 15;
-	let elapsed = 0;
-	// Wall-clock bail-out using perf_hooks.performance.now() which is NOT mocked
-	// by Jest fake timers (unlike process.hrtime.bigint() which IS mocked).
+	// Wall-clock bail-out, so a match that never terminates cannot hang the run.
 	const wallStart = (globalThis as any).realPerf?.now?.() ?? 0;
 	const MAX_WALL_MS = 120_000; // 2 minutes per game
 
 	let _dbgTick = 0;
 	const bc = (game as any).botController;
-	while (
-		(game as any).gameState !== 'ended' &&
-		(game as any).turn < MAX_SIM_TURNS &&
-		elapsed < MAX_ELAPSED
-	) {
+	while ((game as any).gameState !== 'ended' && (game as any).turn < MAX_SIM_TURNS) {
 		// Stagnation check: bail out early if no damage in STAGNATION_ROUNDS rounds.
 		if (
 			bc &&
@@ -863,20 +644,16 @@ export async function runMatch(game: unknown): Promise<MatchResult> {
 			break;
 		}
 		const _t0 = (globalThis as any).realPerf?.now?.() ?? 0;
-		(jest as any).advanceTimersByTime?.(TICK_MS);
-		const _dtAdv = ((globalThis as any).realPerf?.now?.() ?? 0) - _t0;
-		// Let microtasks (Promise callbacks from MockAnimations) flush
-		await Promise.resolve();
-		await Promise.resolve();
-		const _dtAwait = ((globalThis as any).realPerf?.now?.() ?? 0) - _t0 - _dtAdv;
+		(game as any).headlessDriver?.stepFrames(FRAMES_PER_SLICE);
+		// A real macrotask, not a microtask: AB paces turns through `setTimeout`,
+		// and draining microtasks alone never lets those fire.
+		await new Promise((resolve) => setTimeout(resolve, 0));
+		const _dtSlice = ((globalThis as any).realPerf?.now?.() ?? 0) - _t0;
 		if (_dbgTick < 20)
 			(process.stderr as any).write(
-				`  [tick${_dbgTick} t=${(game as any).turn} adv=${_dtAdv.toFixed(
-					0,
-				)}ms await=${_dtAwait.toFixed(0)}ms]\n`,
+				`  [slice${_dbgTick} t=${(game as any).turn} ${_dtSlice.toFixed(0)}ms]\n`,
 			);
 		_dbgTick++;
-		elapsed += TICK_MS;
 		if (((globalThis as any).realPerf?.now?.() ?? 0) - wallStart > MAX_WALL_MS) break;
 	}
 

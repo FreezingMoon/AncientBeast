@@ -3,11 +3,16 @@
  * talks to instead of raw Phaser APIs.
  *
  * The Phaser 4 adapter is a translation layer: Phaser 4 dropped most of the
- * Phaser 2 CE convenience API (anchor/scale objects, `inputEnabled`,
- * `events.onInput*`, group ordering, `BitmapData`, …), so those live here and
- * are re-implemented on top of Phaser 4's own calls. Anything not listed is
- * forwarded straight to the underlying Phaser 4 game object, which keeps the
- * native API — `depth`, `setTint`, `setLighting`, filters — reachable.
+ * Phaser 2 CE convenience API (anchor/scale objects, group ordering, …), so
+ * those live here and are re-implemented on top of Phaser 4's own calls.
+ * Anything not listed is forwarded straight to the underlying Phaser 4 game
+ * object, which keeps the native API — `depth`, `setTint`, `setLighting`,
+ * filters — reachable.
+ *
+ * Input is no longer part of that translation. `events.onInput*`,
+ * `inputEnabled`, and `input.useHandCursor` are gone; gameplay subscribes
+ * through `src/input/input.ts` against Phaser 4's own pointer events, and
+ * `input` here is the native interactive object.
  */
 
 // ─── Signal (Phaser.Signal replacement) ───────────────────────────────────────
@@ -45,6 +50,22 @@ export interface TweenHandle {
 
 // ─── Sprite / Game Object ─────────────────────────────────────────────────────
 
+/**
+ * Phaser 4's interactive object, as much of it as AB configures.
+ *
+ * Structurally typed rather than importing the Phaser class: `SpriteHandle` has
+ * to stay usable from the unit suites, which run without Phaser loaded, and the
+ * adapter's fake has to satisfy the same shape.
+ */
+export interface PhaserInput {
+	enabled?: boolean;
+	cursor?: string;
+	hitArea?: unknown;
+	hitAreaCallback?: (hitArea: unknown, x: number, y: number, gameObject?: unknown) => boolean;
+	customHitArea?: boolean;
+	draggable?: boolean;
+}
+
 /** Phaser 4 returns a `Geom.Rectangle` from `getBounds()`. */
 export interface BoundsRect {
 	x: number;
@@ -70,18 +91,14 @@ export interface SpriteHandle {
 	key: string;
 	text: string;
 	blendMode: number;
-	inputEnabled: boolean;
-	input: {
-		useHandcursor: boolean;
-		useHandCursor: boolean;
-		priorityID: number;
-	};
-	events: {
-		onInputUp: SignalHandle;
-		onInputDown: SignalHandle;
-		onInputOver: SignalHandle;
-		onInputOut: SignalHandle;
-	};
+	/** Phaser 4's own interactive object, once `setInteractive()` has run. */
+	input?: PhaserInput;
+	/**
+	 * Native Phaser 4 event emitter, forwarded by the proxy. Pointer events are
+	 * subscribed through `src/input/input.ts` rather than raw, so that AB's
+	 * gesture rules apply to every board surface.
+	 */
+	on(event: string, handler: (...args: any[]) => void, context?: unknown): unknown;
 	anchor: {
 		x: number;
 		y: number;
@@ -197,41 +214,12 @@ export interface GroupHandle {
  * Anything acceptable where a texture key is expected.
  *
  * Phaser 2 CE's texture-key parameters were loosely typed enough to take a
- * `BitmapData`, and AB's per-pixel effects lean on that. `string` covers the
- * normal loader keys; `BitmapDataHandle` covers the CPU-drawn surfaces; Phaser
- * `Texture`/`Frame` instances are passed through untouched.
+ * `BitmapData`, and AB's per-pixel effects leaned on that. Under native Phaser
+ * 4 the CPU-drawn surfaces are `CanvasTexture`s registered in the
+ * `TextureManager` (see `src/game-display/canvas-surface.ts`), so a surface is
+ * now passed as its key like any other texture.
  */
-export type TextureKeyLike = string | BitmapDataHandle | { key?: unknown } | undefined;
-
-// ─── BitmapData ───────────────────────────────────────────────────────────────
-
-export interface BitmapDataHandle {
-	[key: string]: any;
-	width: number;
-	height: number;
-	/**
-	 * The key this surface is registered under in the texture manager, so the
-	 * handle can be used anywhere a texture key is expected. Phaser 2 CE
-	 * registered every `BitmapData` as a texture and accepted it directly in
-	 * `sprite.loadTexture(bmd)` / `group.create(x, y, bmd)`; the per-pixel
-	 * effects depend on that, and Phaser 4 has no such overload.
-	 */
-	textureKey: string;
-	ctx: CanvasRenderingContext2D;
-	context: CanvasRenderingContext2D;
-	/**
-	 * Phaser 4's DynamicTexture buffers drawing operations and only uploads
-	 * them on an explicit `render()`, so marking the surface dirty flushes.
-	 */
-	dirty: boolean;
-	/**
-	 * Draws a texture/image onto this bitmap data at the given coordinates.
-	 * Mirrors Phaser 2's BitmapData.draw() method.
-	 */
-	draw(key: string, x: number, y: number): void;
-	update(): void;
-	destroy(): void;
-}
+export type TextureKeyLike = string | undefined;
 
 // ─── Camera ───────────────────────────────────────────────────────────────────
 
@@ -251,18 +239,6 @@ export interface CameraHandle {
 	SHAKE_HORIZONTAL: number;
 	SHAKE_VERTICAL: number;
 	SHAKE_BOTH: number;
-}
-
-// ─── Scale ────────────────────────────────────────────────────────────────────
-
-export interface ScaleHandle {
-	parentIsWindow: boolean;
-	pageAlignHorizontally: boolean;
-	pageAlignVertically: boolean;
-	scaleMode: number;
-	fullScreenScaleMode: number;
-	refresh(): void;
-	resize(): void;
 }
 
 // ─── Timer ────────────────────────────────────────────────────────────────────
@@ -301,7 +277,6 @@ export interface GameEngine {
 			key: TextureKeyLike,
 			frame?: string,
 		): SpriteHandle;
-		bitmapData(w: number, h: number): BitmapDataHandle;
 		/**
 		 * A fully procedural fragment-shader quad. Only functional on the WebGL
 		 * renderer — see {@link GameEngine.supportsShaders}.
@@ -321,24 +296,12 @@ export interface GameEngine {
 		): ShaderHandle;
 	};
 
-	make: {
-		bitmapData(w: number, h: number): BitmapDataHandle;
+	// Textures. `textures.exists` reports whether a key is drawable yet, which is
+	// what lets callers fetch a texture the first time it is needed rather than
+	// up front — see assets.ts#loadTexture and issue #678.
+	textures: {
+		exists(key: string): boolean;
 	};
-
-	// Loader
-	load: {
-		start(): void;
-		progress: number;
-		onFileComplete: SignalHandle;
-		onLoadComplete: SignalHandle;
-	};
-
-	// On-demand textures. `loadImage` queues a single texture after the initial
-	// preload has finished; `textures.exists` reports whether a key is drawable
-	// yet. Together they let callers fetch a texture the first time it is needed
-	// rather than up front — see assets.ts#loadTexture and issue #678.
-	loadImage(key: string, url: string): void;
-	textures: { exists(key: string): boolean };
 
 	// Time
 	time: {
@@ -348,12 +311,6 @@ export interface GameEngine {
 		loop(delay: number, cb: () => void): TimerHandle;
 		remove(timer: TimerHandle): void;
 	};
-
-	// Scale
-	scale: ScaleHandle;
-
-	// Camera
-	cameras: { main: CameraHandle };
 
 	// World / Display
 	world: any;
@@ -366,9 +323,6 @@ export interface GameEngine {
 
 	// Stage
 	stage: { disableVisibilityChange: boolean; forcePortrait: boolean };
-
-	// Signals
-	signals: Record<string, SignalHandle>;
 
 	/**
 	 * Whether `add.shader` produces a working fragment shader.

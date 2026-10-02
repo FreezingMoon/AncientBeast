@@ -164,7 +164,18 @@ export default class BotController {
 
 	constructor(game: Game) {
 		this.game = game;
-		this.game.signals.creature.add(this.handleCreatureSignal, this);
+		// One subscription per message this controller acts on. The former single
+		// `Signal` handler switched on the message name; `EventEmitter` dispatches
+		// by name, so the filter became the subscription key.
+		this.game.channels.creature.on('activate', (payload: { creature: Creature }) =>
+			this.startTurn(payload?.creature),
+		);
+		this.game.channels.creature.on('abilityend', (payload: { creature: Creature }) =>
+			this.onCreatureTurnIdle(payload),
+		);
+		this.game.channels.creature.on('movementComplete', (payload: { creature: Creature }) =>
+			this.onCreatureTurnIdle(payload),
+		);
 	}
 
 	/** Returns the unit-specific strategy for the given creature, if one exists. */
@@ -172,20 +183,16 @@ export default class BotController {
 		return unitStrategies[creature.type as string];
 	}
 
-	handleCreatureSignal(message: string, payload?: { creature?: Creature }) {
-		if (message === 'activate') {
-			this.startTurn(payload?.creature);
-			return;
-		}
-
+	/**
+	 * `abilityend` and `movementComplete` mean the active unit has finished
+	 * resolving and can be asked for its next decision.
+	 */
+	private onCreatureTurnIdle(payload: { creature: Creature }): void {
 		if (!this.isBotTurn()) {
 			return;
 		}
 
-		if (
-			(message === 'abilityend' || message === 'movementComplete') &&
-			payload?.creature?.id === this.game.activeCreature?.id
-		) {
+		if (payload?.creature?.id === this.game.activeCreature?.id) {
 			this.queueDecision(this.turnDelayMs);
 		}
 	}

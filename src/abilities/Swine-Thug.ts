@@ -9,6 +9,7 @@ import Game from '../game';
 import { Hex } from '../utility/hex';
 import { getPointFacade } from '../utility/pointfacade';
 import { Trap } from '../utility/trap';
+import { shakeBoard } from '../game-display/camera';
 
 /*
  *TODO
@@ -156,13 +157,12 @@ export default (G: Game) => {
 			activate: function (path, args) {
 				const ability = this;
 				ability.end();
-				G.gameEngine.cameras.main.shake(
-					0.01,
-					100,
-					true,
-					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 100,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				const target = arrayUtils.last(path).creature;
 				if (!target) return;
@@ -334,13 +334,12 @@ export default (G: Game) => {
 			activate: function (path) {
 				const ability = this;
 				ability.end();
-				G.gameEngine.cameras.main.shake(
-					0.01,
-					60,
-					true,
-					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 60,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				const target = arrayUtils.last(path).creature;
 				if (!target) return;

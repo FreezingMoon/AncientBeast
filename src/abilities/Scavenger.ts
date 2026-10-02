@@ -7,6 +7,7 @@ import { Effect } from '../effect';
 import { Creature } from '../creature';
 import { Hex } from '../utility/hex';
 import Game from '../game';
+import { shakeBoard } from '../game-display/camera';
 
 function getEscortUsableHexes(G: Game, crea: Creature, trg: Creature) {
 	const trgIsInfront =
@@ -119,13 +120,12 @@ export default (G: Game) => {
 			activate: function (target: Creature) {
 				const ability = this;
 				ability.end();
-				G.gameEngine.cameras.main.shake(
-					0.01,
-					70,
-					true,
-					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 70,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				// If upgraded, hits will permanently debuff target with -1 offense (stackable)
 				if (this.isUpgraded()) {
@@ -335,13 +335,12 @@ export default (G: Game) => {
 			activate: function (hex, args) {
 				const ability = this;
 				ability.end();
-				G.gameEngine.cameras.main.shake(
-					0.01,
-					66,
-					true,
-					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 66,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				const crea = this.creature;
 
@@ -437,13 +436,12 @@ export default (G: Game) => {
 			activate: function (target: Creature) {
 				const ability = this;
 				ability.end();
-				G.gameEngine.cameras.main.shake(
-					0.01,
-					100,
-					true,
-					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 100,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				// Don't perform poison damage unless upgraded
 				const damages = $j.extend({}, ability.damages);
@@ -461,7 +459,7 @@ export default (G: Game) => {
 
 				const result = target.takeDamage(damage);
 
-				if (result.damageObj.status !== 'Shielded') {
+				if (result.damageObj && result.damageObj.status !== 'Shielded') {
 					// Add poison damage debuff
 					const effect = new Effect(
 						this.title,

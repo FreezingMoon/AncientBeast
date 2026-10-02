@@ -22,6 +22,10 @@ import {
 import { CreatureType, Level, Realm, Unit, UnitName } from './data/types';
 import { PlasmaField, detectWeakHardware, detectVeryWeakHardware } from './plasma-field';
 import type { GameEngine } from './engine/types';
+import { getFrameSize, MISSING_TEXTURE_KEY } from './game-display/texture';
+import { onPointerDown } from './input/input';
+import { setHandCursor } from './game-display/cursor';
+import { createGameCanvasSurface, type CanvasSurface } from './game-display/canvas-surface';
 
 /** Vertical distance (in pixels) between the Dark Priest's feet and the Plasma Field center. */
 const PLASMA_FIELD_OFFSET_Y = 90;
@@ -917,7 +921,7 @@ export class Creature {
 				callback: function (hex: Hex, args) {
 					if (hex.x == args.creature.x && hex.y == args.creature.y) {
 						// Prevent null movement
-						game.activeCreature.queryMove();
+						game.activeCreature?.queryMove();
 						return;
 					}
 
@@ -960,7 +964,7 @@ export class Creature {
 						animation: isFlying ? 'fly' : 'walk',
 						path: movePath,
 						callback: function () {
-							game.activeCreature.queryMove();
+							game.activeCreature?.queryMove();
 						},
 					});
 				},
@@ -1266,7 +1270,7 @@ export class Creature {
 				game.UI.checkAbilities();
 				game.UI.selectAbility(-1);
 			}
-			game.signals.creature.dispatch('movementComplete', { creature: this, hex });
+			game.channels.creature.emit('movementComplete', { creature: this, hex });
 			// @ts-expect-error 2554
 			game.onCreatureMove(this, hex); // Trigger
 		};
@@ -1780,11 +1784,7 @@ export class Creature {
 	/** Ensures the procedural Plasma Field visual exists and is visible. */
 	private showPlasmaShield() {
 		const gameEngine = this.game.gameEngine;
-		if (
-			!gameEngine ||
-			typeof gameEngine.add?.bitmapData !== 'function' ||
-			!this.creatureSprite.grp
-		) {
+		if (!gameEngine || !this.creatureSprite.grp) {
 			return;
 		}
 
@@ -1815,7 +1815,9 @@ export class Creature {
 				gameEngine,
 				cardboard.x + offsetXMirror,
 				cardboard.y - PLASMA_FIELD_OFFSET_Y,
-				opts,
+				// The field draws its own shield surface, so it needs the texture
+				// manager the match is using rather than the adapter it renders through.
+				{ ...opts, surfaceSource: { textures: this.game.Phaser?.textures ?? null } },
 			);
 
 			// Keep the field centred on the priest without recreating it. The hook
@@ -2133,7 +2135,7 @@ export class Creature {
 				game.nextCreature();
 				return;
 			}
-			game.activeCreature.queryMove();
+			game.activeCreature?.queryMove();
 			return;
 		}
 
@@ -2446,7 +2448,7 @@ export class Creature {
 		// Show frozen fatigue text effect in queue.
 		this.game.UI.updateFatigue();
 
-		this.game.signals.creature.dispatch('frozen', { creature: this, cryostasis });
+		this.game.channels.creature.emit('frozen', { creature: this, cryostasis });
 	}
 
 	get fatigueText(): string {
@@ -2506,12 +2508,16 @@ export class Creature {
 
 class CreatureSprite {
 	/**
-	 * Texture key Phaser substitutes when the requested one is not resident
-	 * (its 32×32 "image ready" placeholder). A sprite created against it keeps
-	 * sampling it: registering the real texture later does not re-resolve an
-	 * existing sprite.
+	 * Whether a sprite is still parked on Phaser's placeholder texture.
+	 *
+	 * Phaser substitutes a 32x32 "image ready" texture when the requested one is
+	 * not resident, and a sprite created against it keeps sampling it forever:
+	 * registering the real texture later does not re-resolve an existing sprite.
+	 * So the load callback below has to notice and swap it.
 	 */
-	private static readonly MISSING_TEXTURE_KEY = '__MISSING';
+	private _isOnPlaceholderTexture(): boolean {
+		return this._sprite?.key === MISSING_TEXTURE_KEY;
+	}
 
 	private _creature: Creature;
 	private _group: any;
@@ -2544,7 +2550,7 @@ class CreatureSprite {
 		return this._xrayAlpha;
 	}
 	private _xrayTargetAlpha = 0; // target intensity for fade animation
-	private _xrayBmd: any | null = null;
+	private _xrayBmd: CanvasSurface | null = null;
 	private _originalTextureKey: string;
 	/** Cardboard pixel rows for the obstructor, built once per xray session. */
 	private _xrayOriginalAlpha: Uint8ClampedArray | null = null;
@@ -2747,7 +2753,7 @@ class CreatureSprite {
 		}
 		// Fade health indicator group in sync with the xray sprite effect.
 		// The health group is a separate Phaser object rendered on top of the
-		// sprite, so sprite BitmapData tricks can't hide it — we must set its
+		// sprite, so canvas-surface tricks can't hide it — we must set its
 		// alpha directly so the reference creature's badge shows through.
 		const hiAlpha = 1.0 - (1.0 - 0.2) * this._xrayAlpha;
 		this._healthIndicatorGroup.alpha = hiAlpha;
@@ -2853,8 +2859,9 @@ class CreatureSprite {
 		const originX =
 			this._frameInfo.originX +
 			(this._creature.isDarkPriest() ? getDarkPriestDisplayOffsetX(this._creature.player) : 0);
-		const width = this._sprite.texture.width;
-		const height = this._sprite.texture.height;
+		// Frame size, not source size: this positions the cardboard relative to the
+		// hex artwork, and `texture.width` is the whole source image.
+		const { width, height } = getFrameSize(this._sprite);
 		this._sprite.x =
 			(this._dir === 1 ? originX : HEX_WIDTH_PX * this._creatureSize - width - originX) + width / 2;
 		this._sprite.y = this._frameInfo.originY + height;
@@ -2888,7 +2895,7 @@ class CreatureSprite {
 			}
 			// Only the placeholder is worth swapping: a sprite parked on an xray
 			// bitmap is restored by `_finalizeXrayOff()` instead.
-			if (this._sprite.key === CreatureSprite.MISSING_TEXTURE_KEY) {
+			if (this._isOnPlaceholderTexture()) {
 				this._sprite.loadTexture(spriteKey);
 			}
 			this._place();
@@ -2975,15 +2982,16 @@ class CreatureSprite {
 	}
 
 	private _buildXrayTexture(refCreatures: Creature[]) {
-		const otw = this._sprite.texture.width;
-		const oth = this._sprite.texture.height;
+		// Frame size: the xray bitmap is sized to the cardboard it replaces, and the
+		// snapshot below is compared against it.
+		const { width: otw, height: oth } = getFrameSize(this._sprite);
 		if (!(otw > 0) || !(oth > 0)) {
 			return;
 		}
 
 		// Snapshot the obstructor's cardboard pixels BEFORE swapping the texture
-		// to the BitmapData. After loadTexture(bmd), resolving through the live
-		// sprite would self-sample the xray bitmap and blank the redraw.
+		// to the xray surface. After loadTexture(surfaceKey), resolving through
+		// the live sprite would self-sample the xray canvas and blank the redraw.
 		const original = this._snapshotCardboardPixels(this._sprite, this._originalTextureKey);
 		if (!original) {
 			return;
@@ -3037,7 +3045,7 @@ class CreatureSprite {
 			if (bmd) {
 				bmd.destroy();
 			}
-			bmd = this._gameEngine.add.bitmapData(otw, oth);
+			bmd = createGameCanvasSurface(this._creature.game, otw, oth);
 		}
 		this._xrayBmd = bmd;
 		this._xrayRefCreatures = refCreatures.slice(); // copy to avoid external mutation
@@ -3045,7 +3053,7 @@ class CreatureSprite {
 		if (!this._safeDrawXray(this._xrayRefCreatures, bmd)) {
 			return;
 		}
-		this._sprite.loadTexture(bmd);
+		this._sprite.loadTexture(bmd.key);
 	}
 
 	private _resolveFrameSourceRect(
@@ -3277,7 +3285,7 @@ class CreatureSprite {
 	/**
 	 * Blits a unit cardboard into an offscreen canvas at its native texture
 	 * size and returns the RGBA rows plus the canvas. The alpha channel is the
-	 * xray mask source: Phaser 2's BitmapData trick sampled the *drawn pixels*
+	 * xray mask source: the surface trick samples the *drawn pixels*
 	 * (transparent background stays transparent), not the sprite's AABB, so the
 	 * see-through cutout follows the unit silhouette instead of a rectangle.
 	 */
@@ -3316,7 +3324,7 @@ class CreatureSprite {
 	}
 
 	/**
-	 * Redraws the xray BitmapData in-place using the current creature positions.
+	 * Redraws the xray canvas surface in-place using the current creature positions.
 	 * Called once on initial build and then every frame so the cutout tracks movement.
 	 *
 	 * The mask is the UNION of all refCreatures shapes:
@@ -3540,8 +3548,7 @@ class CreatureSprite {
 		ctx.clearRect(0, 0, otw, oth);
 		ctx.putImageData(out, 0, 0);
 
-		bmd.dirty = true;
-		bmd.update();
+		bmd.commit();
 		return true;
 	}
 
@@ -3623,10 +3630,9 @@ class CreatureSprite {
 	}
 
 	private _enableSkipTurnInput(sprite: any) {
-		sprite.inputEnabled = true;
-		sprite.input.priorityID = 10;
-		sprite.input.useHandCursor = true;
-		sprite.events.onInputDown.add(() => {
+		sprite.setInteractive();
+		setHandCursor(sprite, true);
+		onPointerDown(sprite, () => {
 			if (this._creature.noActionPossible) {
 				// Clear flag and fade out before click so cleanup queryMove doesn't
 				// re-run querySelf and spawn a second marker mid-fade.
@@ -3887,10 +3893,14 @@ class CreatureSprite {
 			this.destroyNoActionHintGroup();
 
 			const frame = this._gameEngine.add.sprite(0, 50, 'frame', undefined, this._hintGrp);
-			const frameBackground = this._gameEngine.make.bitmapData(frame.width, frame.height);
+			const frameBackground = createGameCanvasSurface(
+				this._creature.game,
+				frame.width,
+				frame.height,
+			);
 			frameBackground.ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
 			frameBackground.ctx.fillRect(0, 0, frameBackground.width, frameBackground.height);
-			frameBackground.draw('frame', 0, 0);
+			frameBackground.drawTexture('frame', 0, 0);
 			frame.destroy();
 
 			const noActionFrame = this._gameEngine.add.sprite(
@@ -4030,10 +4040,14 @@ class CreatureSprite {
 		if (hintType === 'confirm') {
 			// Add "Skip turn" frame
 			const frame = this._gameEngine.add.sprite(0, 50, 'frame', undefined, this._hintGrp);
-			const frameBackground = this._gameEngine.make.bitmapData(frame.width, frame.height);
+			const frameBackground = createGameCanvasSurface(
+				this._creature.game,
+				frame.width,
+				frame.height,
+			);
 			frameBackground.ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
 			frameBackground.ctx.fillRect(0, 0, frameBackground.width, frameBackground.height);
-			frameBackground.draw('frame', 0, 0);
+			frameBackground.drawTexture('frame', 0, 0);
 			// Destroy the temporary frame sprite after using it as a texture source
 			// to prevent it from lingering in the upper-left corner of the canvas
 			frame.destroy();

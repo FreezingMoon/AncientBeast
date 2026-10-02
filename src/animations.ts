@@ -1,5 +1,6 @@
-import { BLEND_MODE_ADD } from './engine/phaser-runtime';
-import type { SpriteHandle, GroupHandle, BitmapDataHandle } from './engine/types';
+import { BLEND_MODE_ADD } from './phaser/runtime';
+import { createGameCanvasSurface, type CanvasSurface } from './game-display/canvas-surface';
+import type { SpriteHandle, GroupHandle } from './engine/types';
 import { Easing } from './utility/easing';
 import * as arrayUtils from './utility/arrayUtils';
 import { extractTextureFrameInfo, createBitmapDataFromTexture } from './utility/bitmapUtils';
@@ -12,6 +13,7 @@ import { Ability } from './ability';
 import { QuadraticCurve } from './utility/curve';
 import { DEBUG_ENABLE_FAST_WALKING, DEBUG_WALK_SPEED_MS } from './debug';
 import { isDocumentHidden } from './utility/time';
+import { after, deltaMs, now } from './timing/clock';
 
 // to fix @ts-expect-error 2554: properly type the arguments for the trigger functions in `game.ts`
 
@@ -165,10 +167,10 @@ type InfernalCardboardEffectState = {
 	sprite: SpriteHandle;
 	group: GroupHandle;
 	hazeSprite?: SpriteHandle;
-	hazeBmd?: BitmapDataHandle;
+	hazeBmd?: CanvasSurface;
 	hazeFrame?: { x: number; y: number; width: number; height: number };
 	hazeSource?: CanvasImageSource;
-	heatBmd?: BitmapDataHandle;
+	heatBmd?: CanvasSurface;
 	heatFrame?: { x: number; y: number; width: number; height: number };
 	heatSource?: CanvasImageSource;
 	heatLayerSprite?: any;
@@ -287,8 +289,8 @@ export class Animations {
 					data[index + 3] = Math.min(255, alpha * warmMask * 255 * (0.5 + core * 1.1));
 				}
 				ctx.putImageData(imageData, 0, 0);
-				state.hazeBmd.dirty = true;
-				state.hazeSprite.loadTexture(state.hazeBmd);
+				state.hazeBmd.commit();
+				state.hazeSprite.loadTexture(state.hazeBmd.key);
 				this._anchorInfernalOverlay(state.hazeSprite, sprite.x, sprite.y, dir, 1);
 				state.hazeSprite.tint = 0xffffff;
 				state.hazeReady = true;
@@ -325,9 +327,9 @@ export class Animations {
 					}
 				}
 				ctx.putImageData(imageData, 0, 0);
-				state.heatBmd.dirty = true;
+				state.heatBmd.commit();
 				state.heatReady = true;
-				state.heatLayerSprite.loadTexture(state.heatBmd);
+				state.heatLayerSprite.loadTexture(state.heatBmd.key);
 				this._anchorInfernalOverlay(
 					state.heatLayerSprite,
 					sprite.x,
@@ -616,11 +618,11 @@ export class Animations {
 			}
 
 			if (attemptsLeft > 0) {
-				this.game.gameEngine.time.add(intervalMs, tryClear);
+				after(intervalMs, tryClear);
 			}
 		};
 
-		this.game.gameEngine.time.add(options.minDelayMs ?? 0, tryClear);
+		after(options.minDelayMs ?? 0, tryClear);
 	}
 
 	private _scheduleHexVisualCleanupOnNextInput(hexes: Hex[], timeoutMs = 2500) {
@@ -1680,17 +1682,17 @@ export class Animations {
 					continue;
 				}
 
-				const bmd = game.gameEngine.add.bitmapData(sw, sh);
+				const bmd = createGameCanvasSurface(game, sw, sh);
 				const srcX = isFlipped ? frame.x + frame.width - sx - sw : frame.x + sx;
 				const srcY = frame.y + sy;
 				bmd.ctx.clearRect(0, 0, sw, sh);
 				bmd.ctx.drawImage(source, srcX, srcY, sw, sh, 0, 0, sw, sh);
-				bmd.dirty = true;
+				bmd.commit();
 
 				const shardScreenX = isFlipped ? texW - sx - sw : sx;
 				const x = spriteLeft + shardScreenX + sw / 2;
 				const y = spriteTop + sy + sh / 2;
-				const shard = game.grid.creatureGroup.create(x, y, bmd);
+				const shard = game.grid.creatureGroup.create(x, y, bmd.key);
 				shard.anchor.setTo(0.5, 0.5);
 				shard.angle = -18 + Math.random() * 36;
 
@@ -1739,7 +1741,7 @@ export class Animations {
 
 		const baseSh = Math.max(0, texH);
 		if (baseSh > 0) {
-			const baseBmd = game.gameEngine.add.bitmapData(texW, baseSh);
+			const baseBmd = createGameCanvasSurface(game, texW, baseSh);
 			baseBmd.ctx.clearRect(0, 0, texW, baseSh);
 			for (let copyX = 0; copyX < texW; copyX++) {
 				const seamY = seamProfile[Math.min(copyX, texW - 1)];
@@ -1752,11 +1754,11 @@ export class Animations {
 				const sourceY = frame.y + seamY;
 				baseBmd.ctx.drawImage(source, sourceX, sourceY, 1, copyHeight, copyX, seamY, 1, copyHeight);
 			}
-			baseBmd.dirty = true;
+			baseBmd.commit();
 
 			const baseX = spriteLeft + texW / 2;
 			const baseY = spriteTop + texH / 2;
-			const baseSprite = game.grid.creatureGroup.create(baseX, baseY, baseBmd);
+			const baseSprite = game.grid.creatureGroup.create(baseX, baseY, baseBmd.key);
 			baseSprite.anchor.setTo(0.5, 0.5);
 			if (isFlipped) {
 				baseSprite.scale.x = -1;
@@ -1839,8 +1841,8 @@ export class Animations {
 			...(heatShader?.defaultUniforms ?? {}),
 		};
 		const state: InfernalCardboardEffectState = {
-			trailNextAt: this.game.gameEngine.time.now,
-			heatNextAt: this.game.gameEngine.time.now,
+			trailNextAt: now(),
+			heatNextAt: now(),
 			hazeX: sprite.x,
 			hazeY: sprite.y,
 			heatX: sprite.x,
@@ -1923,8 +1925,8 @@ export class Animations {
 					data[index + 3] = Math.min(255, alpha * warmMask * 255 * 1.15);
 				}
 				ctx.putImageData(imageData, 0, 0);
-				state.hazeBmd.dirty = true;
-				state.hazeSprite.loadTexture(state.hazeBmd);
+				state.hazeBmd.commit();
+				state.hazeSprite.loadTexture(state.hazeBmd.key);
 				this._anchorInfernalOverlay(state.hazeSprite, sprite.x, sprite.y, dir, 1);
 				state.hazeSprite.tint = 0xffffff;
 				state.hazeReady = true;
@@ -1961,7 +1963,7 @@ export class Animations {
 					}
 				}
 				ctx.putImageData(imageData, 0, 0);
-				state.heatBmd.dirty = true;
+				state.heatBmd.commit();
 				state.heatReady = true;
 			} catch (e) {
 				console.warn('[Infernal] Failed to initialize heat BitmapData:', e);
@@ -1984,7 +1986,7 @@ export class Animations {
 		state.heatLayerSprite = heatLayerSprite;
 		state.trailSprites.push(heatLayerSprite);
 		if (state.heatReady && state.heatBmd) {
-			heatLayerSprite.loadTexture(state.heatBmd);
+			heatLayerSprite.loadTexture(state.heatBmd.key);
 			this._anchorInfernalOverlay(
 				heatLayerSprite,
 				sprite.x,
@@ -2128,7 +2130,7 @@ export class Animations {
 		// the sprite's own x/y fixed, so the group is what has to be read.
 		const worldX = state.group.x + sprite.x;
 		const worldY = state.group.y + sprite.y;
-		const frameSeconds = Math.min((this.game.gameEngine.time.elapsedMS ?? 0) / 1000, 0.1);
+		const frameSeconds = Math.min(deltaMs() / 1000, 0.1);
 		const follow = 1 - Math.exp(-INFERNAL_SMOKE_LAG_RATE * frameSeconds);
 		// A materialisation or hex snap is a teleport, not a walk. Chasing across
 		// one would slide the smoke a long way across the board, so it is snapped
@@ -2170,7 +2172,7 @@ export class Animations {
 	) {
 		const rand = (n: number) => Math.random() * n;
 		const randInt = (n: number) => Math.floor(rand(n));
-		const now = this.game.gameEngine.time.now;
+		const nowMs = now();
 
 		const sprite = state.sprite;
 		if (!sprite) {
@@ -2178,7 +2180,7 @@ export class Animations {
 		}
 
 		const dir = sprite.scale.x < 0 ? -1 : 1;
-		const frameSeconds = Math.min((this.game.gameEngine.time.elapsedMS ?? 0) / 1000, 0.1);
+		const frameSeconds = Math.min(deltaMs() / 1000, 0.1);
 		// How far the unit travelled since the previous tick, smoothed so a single
 		// jittery frame cannot spike the smoke's brightness. Measured in world
 		// space: walking tweens the creature group, leaving the sprite's own x/y
@@ -2230,7 +2232,7 @@ export class Animations {
 			);
 		}
 		if (state.hazeSprite && state.hazeReady && state.synced) {
-			const deltaSeconds = Math.min((this.game.gameEngine.time.elapsedMS ?? 0) / 1000, 0.1);
+			const deltaSeconds = Math.min(deltaMs() / 1000, 0.1);
 			state.luminescenceUniforms = advanceShaderTime(state.luminescenceUniforms, deltaSeconds);
 			const uTime = state.luminescenceUniforms.uTime as number;
 			const pulseSpeed = (state.luminescenceUniforms.uPulseSpeed as number) ?? 1.87;
@@ -2278,7 +2280,7 @@ export class Animations {
 			INFERNAL_SMOKE_ENABLED &&
 			state.heatReady &&
 			state.synced &&
-			(forceHeatSpawn || now >= state.heatNextAt)
+			(forceHeatSpawn || nowMs >= state.heatNextAt)
 		) {
 			// Born in the smoke layer in world space, not parented to the creature
 			// group. A child of the moving group is dragged along by the group's
@@ -2289,7 +2291,7 @@ export class Animations {
 			if (!smokeGroup) {
 				return;
 			}
-			const deltaSeconds = Math.min((this.game.gameEngine.time.elapsedMS ?? 0) / 1000, 0.1);
+			const deltaSeconds = Math.min(deltaMs() / 1000, 0.1);
 			state.heatUniforms = advanceShaderTime(state.heatUniforms, deltaSeconds);
 			const smokeX = state.group.x + sprite.x;
 			const smokeY = state.group.y + sprite.y;
@@ -2307,7 +2309,7 @@ export class Animations {
 			smoke.tint = 0xff9c52;
 			smoke.blendMode = BLEND_MODE_ADD;
 			if (state.heatBmd) {
-				smoke.loadTexture(state.heatBmd);
+				smoke.loadTexture(state.heatBmd.key);
 				// `loadTexture` swaps the frame the origin is measured from, and may
 				// reset the scale, so re-assert both from the intended values.
 				this._anchorInfernalOverlay(smoke, smokeX, smokeY, dir * growth.x, growth.y);
@@ -2358,7 +2360,7 @@ export class Animations {
 			});
 			state.tweens.push(moveTween, scaleTween, fadeTween);
 
-			state.heatNextAt = now + 420 + randInt(140);
+			state.heatNextAt = nowMs + 420 + randInt(140);
 		}
 	}
 }

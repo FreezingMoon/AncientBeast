@@ -23,9 +23,7 @@ jest.mock('../../creature', () => ({
 
 import loadDarkPriestAbilities from '../../abilities/Dark-Priest';
 
-(globalThis as { Phaser?: unknown }).Phaser = {
-	camera: { SHAKE_HORIZONTAL: 0, SHAKE_VERTICAL: 0, SHAKE_BOTH: 0 },
-};
+(globalThis as { Phaser?: unknown }).Phaser = {};
 
 type MockHex = {
 	x: number;
@@ -96,7 +94,6 @@ describe('Dark Priest materialize query preview guards', () => {
 				queryMove: jest.fn(),
 			},
 			gameEngine: {
-				cameras: { main: { shake: () => {} } },
 				add: {
 					graphics: () => ({}),
 					bitmapData: () => ({}),
@@ -183,7 +180,6 @@ describe('Dark Priest Plasma Field reactions', () => {
 				Phaser: { camera: { shake: jest.fn(), SHAKE_HORIZONTAL: 0 } },
 				log: jest.fn(),
 				gameEngine: {
-					cameras: { main: { shake: () => {} } },
 					add: {
 						graphics: () => ({}),
 						bitmapData: () => ({}),

@@ -16,6 +16,7 @@ jest.mock('../../creature', () => ({
 }));
 
 import { HexGrid } from '../../utility/hexgrid';
+import { createGameChannels } from '../../game-events/factory';
 import { GHOST_PREVIEW_ALPHA } from '../../utility/const';
 import { Creature } from '../../creature';
 import { notifyTextureLoaded, resetOnDemandTextures, setOnDemandLoader } from '../../assets';
@@ -227,12 +228,11 @@ describe('HexGrid previewCreature depth banding', () => {
 					createdSprites.push(sprite);
 					return sprite;
 				}),
-				sort: jest.fn(),
+				list: [],
 			},
-			trapGroup: { sort: jest.fn() },
-			trapOverGroup: { sort: jest.fn() },
-			dropGroup: { sort: jest.fn() },
-			_rowDepthBaseIndex: HexGrid.prototype['_rowDepthBaseIndex'],
+			trapGroup: { list: [] },
+			trapOverGroup: { list: [] },
+			dropGroup: { list: [] },
 			getDepthAtBand: HexGrid.prototype.getDepthAtBand,
 			assignSpriteDepthBand: HexGrid.prototype.assignSpriteDepthBand,
 			orderCreatureZ: HexGrid.prototype.orderCreatureZ,
@@ -442,12 +442,11 @@ describe('HexGrid previewCreature lazy cardboard loading', () => {
 					createdSprites.push(sprite);
 					return sprite;
 				}),
-				sort: jest.fn(),
+				list: [],
 			},
-			trapGroup: { sort: jest.fn() },
-			trapOverGroup: { sort: jest.fn() },
-			dropGroup: { sort: jest.fn() },
-			_rowDepthBaseIndex: HexGrid.prototype['_rowDepthBaseIndex'],
+			trapGroup: { list: [] },
+			trapOverGroup: { list: [] },
+			dropGroup: { list: [] },
 			getDepthAtBand: HexGrid.prototype.getDepthAtBand,
 			assignSpriteDepthBand: HexGrid.prototype.assignSpriteDepthBand,
 			orderCreatureZ: HexGrid.prototype.orderCreatureZ,
@@ -1036,8 +1035,13 @@ describe('HexGrid xray hover behavior', () => {
 		const dropSort = jest.fn();
 		const trapOverSort = jest.fn();
 
-		const trapGroup = { id: 'trap-group', sort: trapSort };
-		const trapOverGroup = { id: 'trap-over-group', sort: trapOverSort };
+		// The layers are stand-in containers with real `list` arrays, so the test
+		// observes the resulting order rather than that a `sort()` was called: the
+		// direction is the point, and only an actual sort can demonstrate it.
+		const trapGroup = { id: 'trap-group', list: [] as unknown[] };
+		const trapOverGroup = { id: 'trap-over-group', list: [] as unknown[] };
+		const creatureGroup = { list: [] as unknown[] };
+		const dropGroup = { list: [] as unknown[] };
 		const gridMock = {
 			hexes: [[{}], [{}]],
 			game: {
@@ -1046,12 +1050,11 @@ describe('HexGrid xray hover behavior', () => {
 				traps: [row0Trap],
 			},
 			trapGroup,
-			creatureGroup: { sort: creatureSort },
-			dropGroup: { sort: dropSort },
+			creatureGroup,
+			dropGroup,
 			trapOverGroup,
 			materialize_overlay: row0Materialize,
 			secondary_overlay: undefined,
-			_rowDepthBaseIndex: HexGrid.prototype['_rowDepthBaseIndex'],
 			getDepthAtBand: HexGrid.prototype.getDepthAtBand,
 			assignSpriteDepthBand: HexGrid.prototype.assignSpriteDepthBand,
 		};
@@ -1059,6 +1062,12 @@ describe('HexGrid xray hover behavior', () => {
 		row0Trap.display.parent = trapGroup;
 		row0TrapUnderFx.parent = trapGroup;
 		row0TrapOverFx.parent = trapOverGroup;
+		// Every renderable is a member of the layer it is sorted within, so the
+		// sort has something to reorder.
+		trapGroup.list.push(row0Trap.display, row0TrapUnderFx);
+		trapOverGroup.list.push(row0TrapOverFx, row0Trap.displayOver);
+		creatureGroup.list.push(row0Creature.grp, row1Creature.grp);
+		dropGroup.list.push(row0Drop.display);
 
 		HexGrid.prototype.orderCreatureZ.call(gridMock);
 
@@ -1070,10 +1079,15 @@ describe('HexGrid xray hover behavior', () => {
 		expect(row0TrapOverFx.depth).toBe(90);
 		expect(row0Trap.displayOver.depth).toBe(91);
 		expect(row1Creature.grp.depth).toBe(140);
-		expect(trapSort).toHaveBeenCalledWith('depth', -1);
-		expect(creatureSort).toHaveBeenCalledWith('depth', -1);
-		expect(dropSort).toHaveBeenCalledWith('depth', -1);
-		expect(trapOverSort).toHaveBeenCalledWith('depth', -1);
+
+		// Ascending depth, i.e. lowest first in the list, which is what Phaser 4
+		// renders as furthest back. The old `sort('depth', -1)` would have inverted
+		// these, putting row 1's unit behind row 0's.
+		const depths = (list: unknown[]) => list.map((child) => (child as { depth: number }).depth);
+		expect(depths(trapGroup.list)).toEqual([0, 20]);
+		expect(depths(trapOverGroup.list)).toEqual([90, 91]);
+		expect(depths(creatureGroup.list)).toEqual([40, 140]);
+		expect(depths(dropGroup.list)).toEqual([85]);
 	});
 
 	test('clearAllXray can clear immediately without fade state', () => {
@@ -1132,7 +1146,7 @@ describe('HexGrid display group layering', () => {
 			gameEngine: {
 				add: { group: jest.fn((parent?: MockGroup, name?: string) => createGroup(parent, name)) },
 			},
-			signals: { metaPowers: { add: jest.fn() }, ui: { add: jest.fn() } },
+			channels: createGameChannels(),
 			metaPowersState: { executeMonster: false },
 		};
 
@@ -1182,10 +1196,7 @@ describe('HexGrid display group layering', () => {
 					group: jest.fn((parent?: MockGroup, name?: string) => createGroup(parent, name)),
 				},
 			},
-			signals: {
-				metaPowers: { add: jest.fn() },
-				ui: { add: jest.fn() },
-			},
+			channels: createGameChannels(),
 			metaPowersState: {
 				executeMonster: false,
 			},

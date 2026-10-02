@@ -73,24 +73,15 @@ export class Chat {
 		});
 
 		// Events
-		this.game.signals.ui.add(this._handleUiEvent, this);
-	}
-
-	/**
-	 * Handle events on the "ui" channel.
-	 *
-	 * @param {string} message Event name.
-	 * @param {object} payload Event payload.
-	 */
-	_handleUiEvent(message: string, _payload) {
-		if (
-			message === 'toggleDash' ||
-			message === 'toggleScore' ||
-			message === 'toggleMusicPlayer' ||
-			message === 'toggleMetaPowers' ||
-			message === 'closeInterfaceScreens'
-		) {
-			this.hide();
+		// Chat collapses whenever any interface screen takes over the viewport.
+		for (const message of [
+			'toggleDash',
+			'toggleScore',
+			'toggleMusicPlayer',
+			'toggleMetaPowers',
+			'closeInterfaceScreens',
+		] as const) {
+			this.game.channels.ui.on(message, () => this.hide());
 		}
 	}
 

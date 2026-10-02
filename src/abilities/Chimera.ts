@@ -3,6 +3,7 @@ import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import Game from '../game';
+import { shakeBoard } from '../game-display/camera';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -284,13 +285,12 @@ export default (G: Game) => {
 			activate: function (path, args) {
 				const ability = this;
 				this.end();
-				G.gameEngine.cameras.main.shake(
-					0.02,
-					300,
-					true,
-					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.02,
+					durationMs: 300,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				const knockback = (_target, _crush, _range) => {
 					if (!_target) {

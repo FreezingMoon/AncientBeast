@@ -30,17 +30,6 @@ export type PhaserNamespace = typeof import('phaser');
  */
 export const BLEND_MODE_ADD = 1;
 
-/**
- * Phaser's `Scale.FIT`, as a plain constant (`ScaleModes.FIT = 3`).
- *
- * Mirrored for the same reason as {@link BLEND_MODE_ADD}: `Game.setup()` talks to
- * the `GameEngine` abstraction, whose `scaleMode` is a plain number, so reading
- * the enum off the Phaser namespace there would make the headless `NullEngine`
- * path (unit tests, authoritative Devvit server) require the engine it exists
- * to avoid.
- */
-export const SCALE_MODE_FIT = 3;
-
 let phaserPromise: Promise<PhaserNamespace> | null = null;
 let phaserNamespace: PhaserNamespace | null = null;
 
@@ -78,6 +67,37 @@ export function getPhaser(): PhaserNamespace {
 	}
 
 	return phaserNamespace;
+}
+
+/**
+ * Supply a Phaser namespace directly instead of loading it.
+ *
+ * The only caller is the Jest bootstrap, where `jest.mock('phaser', …)` already
+ * stands in for the engine and loading the real bundle would defeat the point.
+ * Putting the seam here rather than in the individual modules keeps every reader
+ * on the same `tryGetPhaser`/`getPhaser` path it uses in production.
+ */
+export function setPhaserNamespace(namespace: PhaserNamespace): void {
+	phaserNamespace = namespace;
+	phaserPromise = Promise.resolve(namespace);
+}
+
+/**
+ * Load the genuine engine, discarding any namespace {@link setPhaserNamespace}
+ * injected.
+ *
+ * Both share one memo slot on purpose — a test that hands over a stub and code
+ * that awaits {@link loadPhaser} must agree on which engine they mean, and the
+ * stub is what production never sees. The exception is the real-engine
+ * integration suites, whose entire subject is the real engine: they boot a
+ * `Phaser.HEADLESS` game and assert on its actual behavior, so a stub would
+ * silently satisfy them while proving nothing. They call this to get the bundle
+ * back before booting.
+ */
+export function loadRealPhaser(): Promise<PhaserNamespace> {
+	phaserNamespace = null;
+	phaserPromise = null;
+	return loadPhaser();
 }
 
 /**

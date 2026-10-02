@@ -617,7 +617,6 @@ describe('Snow Bunny sequencing', () => {
 				playSFX: jest.fn(),
 			},
 			gameEngine: {
-				cameras: { main: { shake: () => {} } },
 				add: {
 					graphics: () => ({}),
 					bitmapData: () => ({}),

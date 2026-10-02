@@ -102,9 +102,7 @@ import loadHeadlessAbilities from '../../abilities/Headless';
 import { Ability } from '../../ability';
 import { Creature } from '../../creature';
 
-(globalThis as { Phaser?: unknown }).Phaser = {
-	camera: { SHAKE_HORIZONTAL: 0, SHAKE_VERTICAL: 0, SHAKE_BOTH: 0 },
-};
+(globalThis as { Phaser?: unknown }).Phaser = {};
 
 describe('Headless abilities', () => {
 	let game: any;
@@ -146,7 +144,6 @@ describe('Headless abilities', () => {
 				},
 			},
 			gameEngine: {
-				cameras: { main: { shake: () => {} } },
 				add: {
 					graphics: () => ({}),
 					bitmapData: () => ({}),

@@ -1,85 +1,15 @@
+/**
+ * @jest-environment jsdom
+ * @jest-environment-options {"resources": "usable"}
+ */
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { jest, describe, test, expect } from '@jest/globals';
+import { jest, beforeAll, describe, test, expect } from '@jest/globals';
 
 // Mock heavy external deps (same as the engine test).
 jest.mock('pixi', () => ({}), { virtual: true });
 jest.mock('p2', () => ({}), { virtual: true });
-jest.mock('phaser', () => ({
-	// Phaser 4 exposes the scene base class as `Scene`; AB's scene extends it.
-	Scene: class SceneMock {
-		sys: { settings: { key: ''; data: Record<string, unknown> } };
-		constructor(config: any) {
-			this.sys.settings.key = config?.key ?? '';
-		}
-	},
-	Math: {
-		Vector2: class Vector2Mock {
-			x: number;
-			y: number;
-			constructor(x?: number, y?: number) {
-				this.x = x ?? 0;
-				this.y = y ?? 0;
-			}
-			set(x: number, y?: number): this {
-				this.x = x;
-				this.y = y ?? x;
-				return this;
-			}
-			setTo(x: number, y?: number): this {
-				return this.set(x, y);
-			}
-			clone(): this {
-				return new (this.constructor as any)(this.x, this.y);
-			}
-			copy(src: any): this {
-				this.x = src.x;
-				this.y = src.y;
-				return this;
-			}
-		},
-	},
-	GameObjects: {
-		Polygon: class PolygonGameObjectMock {
-			constructor(_scene?: unknown, _x?: number, _y?: number, points?: unknown) {
-				(this as any).points = points ?? [];
-			}
-			contains() {
-				return true;
-			}
-		},
-	},
-	// Phaser 4 moved the geometry classes out of `GameObjects`; hex hit areas
-	// now build a `Geom.Polygon`.
-	Geom: {
-		Polygon: class GeomPolygonMock {
-			constructor(points?: unknown) {
-				(this as any).points = points ?? [];
-			}
-			contains() {
-				return true;
-			}
-		},
-	},
-	BlendModes: { ADD: 1, NORMAL: 0 },
-	AUTO: 0,
-	CANVAS: 1,
-	Scale: {
-		NONE: 0,
-		FIT: 1,
-		ENVELOP: 2,
-		NO_CENTER: 0,
-		CENTER_BOTH: 1,
-		WIDTH_CONTROLS_HEIGHT: 3,
-		HEIGHT_CONTROLS_WIDTH: 4,
-		RESIZE: 5,
-	},
-	Signal: class SignalMock {
-		add() {}
-		remove() {}
-		dispatch() {}
-	},
-	default: class PhaserMock {},
-}));
+// Phaser is NOT mocked here — see the note in `authoritativeEngine.test.ts`.
 
 jest.mock('../../ui/interface', () => {
 	const deepNoop = () =>
@@ -114,6 +44,7 @@ import {
 	replayIntents,
 	type HeadlessConfig,
 } from '../../devvit/headlessGame';
+import { loadRealPhaser } from '../../phaser/runtime';
 import { EngineAuthoritativeProcessor } from '../../multiplayer/engineAuthoritativeProcessor';
 import { InMemoryIntentStore } from '../../multiplayer/authoritative';
 import type { AuthoritativeState, Intent } from '../../multiplayer/authoritative';
@@ -175,6 +106,10 @@ function stopTimers(game: any) {
 const CONFIG: Partial<HeadlessConfig> = { players: [0, 1] };
 
 describe('Authoritative client wiring (transport-agnostic)', () => {
+	beforeAll(async () => {
+		await loadRealPhaser();
+	});
+
 	test('two clients converge on the broadcast authoritative state via the processor', async () => {
 		const abilities = await loadAbilities();
 

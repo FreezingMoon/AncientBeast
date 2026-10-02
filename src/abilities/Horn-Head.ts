@@ -1,3 +1,4 @@
+import { getFrameSize } from '../game-display/texture';
 import { Damage } from '../damage';
 import { Effect } from '../effect';
 import Game from '../game';
@@ -7,6 +8,7 @@ import * as matrices from '../utility/matrices';
 import { getDirectionFromDelta } from '../utility/position';
 import { isTeam, Team } from '../utility/team';
 import { HEX_WIDTH_PX } from '../utility/const';
+import { shakeBoard } from '../game-display/camera';
 
 const getDualSwipeChoiceFromAnchor = (G: Game, anchor: Hex, directions: Direction[]) =>
 	directions
@@ -444,7 +446,9 @@ const playMeatSickleHookEffect = (
 		const grp = creature.creatureSprite?.grp;
 		const sprite = creature.creatureSprite?.sprite;
 		if (grp && sprite) {
-			return { x: grp.x + sprite.x, y: grp.y + sprite.y - sprite.texture.height / 2 };
+			// Frame size: the centre is a point on the cardboard artwork, and
+			// `texture.height` is the whole source image.
+			return { x: grp.x + sprite.x, y: grp.y + sprite.y - getFrameSize(sprite).height / 2 };
 		}
 		return {
 			x: (fallbackHex.displayPos.x ?? 0) + HEX_WIDTH_PX / 2 + 5,
@@ -470,11 +474,14 @@ const playMeatSickleHookEffect = (
 			// pixel (measured from the image's left edge) is mirrored too — the
 			// emit point must come from the side the creature is actually facing.
 			const flipped = sourceSprite.scale.x < 0;
+			// Pixels on the cardboard image, so this needs the frame size rather
+			// than the source size.
+			const sourceSize = getFrameSize(sourceSprite);
 			const launchPixelX = flipped
-				? sourceSprite.texture.width - MEAT_SICKLE_LAUNCH_PIXEL_X
+				? sourceSize.width - MEAT_SICKLE_LAUNCH_PIXEL_X
 				: MEAT_SICKLE_LAUNCH_PIXEL_X;
-			const imageTopX = sourceSprite.x - sourceSprite.texture.width / 2;
-			const imageTopY = sourceSprite.y - sourceSprite.texture.height;
+			const imageTopX = sourceSprite.x - sourceSize.width / 2;
+			const imageTopY = sourceSprite.y - sourceSize.height;
 			return {
 				x: grp.x + imageTopX + launchPixelX,
 				y: grp.y + imageTopY + MEAT_SICKLE_LAUNCH_PIXEL_Y,
@@ -781,13 +788,12 @@ export default (G: Game) => {
 				const pushHex = pushPath[pushPath.length - 1];
 
 				ability.end(false, !!pushHex);
-				G.gameEngine.cameras.main.shake(
-					0.01,
-					80,
-					true,
-					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 80,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				const result = target.takeDamage(new Damage(ability.creature, ability.damages, 1, [], G));
 
@@ -1335,13 +1341,12 @@ export default (G: Game) => {
 					}
 				};
 
-				G.gameEngine.cameras.main.shake(
-					0.01,
-					100,
-					true,
-					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 100,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				for (let hit = 0; hit < 2; hit++) {
 					const meleeTargets = getUniqueEnemyTargets(laneHexes);

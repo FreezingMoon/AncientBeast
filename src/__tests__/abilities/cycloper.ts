@@ -170,6 +170,28 @@ describe('Cycloper abilities', () => {
 				},
 			},
 			Phaser: {
+				// The tile-dissolve path copies the unit's cardboard into per-tile
+				// surfaces, so it needs a real canvas texture to copy from — the
+				// source in these tests is a plain object, which a genuine jsdom
+				// context would (correctly) refuse to `drawImage`.
+				textures: {
+					createCanvas: jest.fn((key: string, width: number, height: number) => ({
+						key,
+						width,
+						height,
+						canvas: { width, height } as HTMLCanvasElement,
+						getContext: () => ({
+							clearRect: jest.fn(),
+							save: jest.fn(),
+							restore: jest.fn(),
+							translate: jest.fn(),
+							scale: jest.fn(),
+							drawImage: jest.fn(),
+						}),
+						refresh: jest.fn(),
+					})),
+					remove: jest.fn(),
+				},
 				add: {
 					group: jest.fn(() => ({ x: 0, y: 0, alpha: 1, destroy: jest.fn() })),
 					sprite: jest.fn(() => ({
@@ -201,7 +223,6 @@ describe('Cycloper abilities', () => {
 				},
 			},
 			gameEngine: {
-				cameras: { main: { shake: () => {} } },
 				add: {
 					graphics: () => ({
 						beginFill: jest.fn(),
@@ -214,29 +235,6 @@ describe('Cycloper abilities', () => {
 						drawCircle: jest.fn(),
 						strokePath: jest.fn(),
 						mask: null,
-						destroy: jest.fn(),
-					}),
-					bitmapData: () => ({
-						width: 100,
-						height: 100,
-						ctx: {
-							clearRect: jest.fn(),
-							save: jest.fn(),
-							restore: jest.fn(),
-							translate: jest.fn(),
-							scale: jest.fn(),
-							drawImage: jest.fn(),
-						},
-						context: {
-							clearRect: jest.fn(),
-							save: jest.fn(),
-							restore: jest.fn(),
-							translate: jest.fn(),
-							scale: jest.fn(),
-							drawImage: jest.fn(),
-						},
-						dirty: false,
-						update: jest.fn(),
 						destroy: jest.fn(),
 					}),
 					group: () => ({ children: [], add: () => {}, addAt: () => {}, remove: () => {} }),
@@ -967,7 +965,6 @@ describe('Cycloper abilities', () => {
 			setHex: jest.fn(() => Promise.resolve()),
 		};
 
-		game.Phaser = undefined;
 		game.grid.hexes = [
 			[],
 			[],

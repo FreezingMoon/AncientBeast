@@ -1,3 +1,8 @@
+/**
+ * @jest-environment jsdom
+ * @jest-environment-options {"resources": "usable"}
+ */
+
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
@@ -95,13 +100,10 @@ async function runBatch(
 	label: string,
 	patchFn?: (game: unknown) => () => void,
 ): Promise<MatchResult[]> {
-	jest.useFakeTimers();
 	const abilities = await loadAbilities();
 	const results: MatchResult[] = [];
 
 	for (let i = 0; i < count; i++) {
-		jest.clearAllTimers();
-		jest.setSystemTime(0);
 		const _t0 = realPerf.now();
 		const game = await createGame(abilities);
 		const _createMs = realPerf.now() - _t0;
@@ -129,7 +131,6 @@ async function runBatch(
 	}
 	ttyWrite('\n');
 
-	jest.useRealTimers();
 	return results;
 }
 
@@ -141,6 +142,27 @@ const BASELINE_PATH = path.resolve(process.cwd(), 'simulation-baseline.json');
 //   SIM_BASELINE=100 SIM_VARIANT=50 bun run simulate
 const BASELINE_COUNT = parseInt(process.env.SIM_BASELINE || '20', 10);
 const VARIANT_COUNT = parseInt(process.env.SIM_VARIANT || '10', 10);
+
+/**
+ * Budget the whole batch, rather than inheriting a fixed ceiling.
+ *
+ * Since the native-Phaser move a match runs on a real stepped clock, so it costs
+ * real wall-clock time — measured at ~20-40 s per game, with occasional long
+ * ones. The old fixed 600 s ceiling was sized for the fake-timer engine and no
+ * longer described the work: the default batch is 20 + (6 variants x 10) = 80
+ * matches, roughly 35-40 minutes. Jest then killed the run partway and reported
+ * it as a failure, which is indistinguishable from a real regression.
+ *
+ * Scaling with the configured counts keeps `bun run simulate` meaningful at any
+ * size, and lets a caller trade wall-clock for statistical confidence via the
+ * env vars without also having to edit this file.
+ */
+const TOTAL_MATCHES = BASELINE_COUNT + VARIANT_COUNT * variants.length;
+/** Generous per-match allowance; a match that overruns is worth finishing. */
+const PER_MATCH_BUDGET_MS = 60_000;
+/** Startup, variant patching and report rendering. */
+const BATCH_OVERHEAD_MS = 120_000;
+jest.setTimeout(TOTAL_MATCHES * PER_MATCH_BUDGET_MS + BATCH_OVERHEAD_MS);
 
 describe('Bot simulation', () => {
 	test('run simulation and suggest improvements', async () => {

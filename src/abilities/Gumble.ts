@@ -8,6 +8,7 @@ import { Creature } from '../creature';
 import Game from '../game';
 import { Hex } from '../utility/hex';
 import { Trap } from '../utility/trap';
+import { shakeBoard } from '../game-display/camera';
 
 type GumbleRuntimeFlags = {
 	deathAnimationType?: string;
@@ -287,13 +288,12 @@ export default (G: Game) => {
 				const ability = this;
 				ability.end();
 
-				G.gameEngine.cameras.main.shake(
-					0.02,
-					333,
-					true,
-					G.gameEngine.cameras.main.SHAKE_VERTICAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.02,
+					durationMs: 333,
+					force: true,
+					axis: 'vertical',
+				});
 
 				const targets = ability.getTargets(hexes);
 				// Deal double damage to enemies if upgraded
@@ -377,13 +377,12 @@ export default (G: Game) => {
 			// activate() :
 			activate: function (target: Creature) {
 				this.end();
-				G.gameEngine.cameras.main.shake(
-					0.01,
-					100,
-					true,
-					G.gameEngine.cameras.main.SHAKE_VERTICAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 100,
+					force: true,
+					axis: 'vertical',
+				});
 
 				if (!target) {
 					G.activeCreature?.queryMove();
@@ -447,13 +446,12 @@ export default (G: Game) => {
 			activate: function (path, args) {
 				const ability = this;
 				ability.end();
-				G.gameEngine.cameras.main.shake(
-					0.02,
-					300,
-					true,
-					G.gameEngine.cameras.main.SHAKE_HORIZONTAL,
-					true,
-				);
+				shakeBoard({
+					amplitude: 0.02,
+					durationMs: 300,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				let target = arrayUtils.last(path).creature;
 				{

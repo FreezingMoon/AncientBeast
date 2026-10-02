@@ -1,85 +1,25 @@
+/**
+ * @jest-environment jsdom
+ * @jest-environment-options {"resources": "usable"}
+ */
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { jest, describe, test, expect } from '@jest/globals';
 
 // Mock heavy external deps before importing the engine (same as simulate tests).
 jest.mock('pixi', () => ({}), { virtual: true });
 jest.mock('p2', () => ({}), { virtual: true });
-jest.mock('phaser', () => ({
-	// Phaser 4 exposes the scene base class as `Scene`; AB's scene extends it.
-	Scene: class SceneMock {
-		sys: { settings: { key: ''; data: Record<string, unknown> } };
-		constructor(config: any) {
-			this.sys.settings.key = config?.key ?? '';
-		}
-	},
-	Math: {
-		Vector2: class Vector2Mock {
-			x: number;
-			y: number;
-			constructor(x?: number, y?: number) {
-				this.x = x ?? 0;
-				this.y = y ?? 0;
-			}
-			set(x: number, y?: number): this {
-				this.x = x;
-				this.y = y ?? x;
-				return this;
-			}
-			setTo(x: number, y?: number): this {
-				return this.set(x, y);
-			}
-			clone(): this {
-				return new (this.constructor as any)(this.x, this.y);
-			}
-			copy(src: any): this {
-				this.x = src.x;
-				this.y = src.y;
-				return this;
-			}
-		},
-	},
-	GameObjects: {
-		Polygon: class PolygonGameObjectMock {
-			constructor(_scene?: unknown, _x?: number, _y?: number, points?: unknown) {
-				(this as any).points = points ?? [];
-			}
-			contains() {
-				return true;
-			}
-		},
-	},
-	// Phaser 4 moved the geometry classes out of `GameObjects`; hex hit areas
-	// now build a `Geom.Polygon`.
-	Geom: {
-		Polygon: class GeomPolygonMock {
-			constructor(points?: unknown) {
-				(this as any).points = points ?? [];
-			}
-			contains() {
-				return true;
-			}
-		},
-	},
-	BlendModes: { ADD: 1, NORMAL: 0 },
-	AUTO: 0,
-	CANVAS: 1,
-	Scale: {
-		NONE: 0,
-		FIT: 1,
-		ENVELOP: 2,
-		NO_CENTER: 0,
-		CENTER_BOTH: 1,
-		WIDTH_CONTROLS_HEIGHT: 3,
-		HEIGHT_CONTROLS_WIDTH: 4,
-		RESIZE: 5,
-	},
-	Signal: class SignalMock {
-		add() {}
-		remove() {}
-		dispatch() {}
-	},
-	default: class PhaserMock {},
-}));
+// Phaser is NOT mocked here. The authoritative server runs the real engine now
+// (see `createHeadlessGame`), so a `jest.mock('phaser')` stub would satisfy every
+// assertion below while proving nothing about the engine that actually runs in
+// production. `loadRealPhaser()` in `beforeAll` discards the stub that
+// `test/phaser-runtime-setup.js` installs via `setPhaserNamespace()` — that
+// installer deliberately shares `loadPhaser()`'s memo slot, so it has to be
+// dropped explicitly.
+//
+// `resources: 'usable'` comes from the docblock above: Phaser's TextureManager
+// blocks its own boot on decoding two base64 PNGs, and jsdom only fires an
+// image's `load` when it may resolve `src`.
 
 // The authoritative server does not render, so stub the DOM-coupled UI module
 // (same role botgeria's makeUiStub plays, applied at module load so setup()'s
@@ -110,6 +50,7 @@ jest.mock('../../ui/interface', () => {
 	return { UI: UIStub };
 });
 
+import { loadRealPhaser } from '../../phaser/runtime';
 import {
 	createHeadlessGame,
 	applyIntent,
@@ -176,7 +117,8 @@ function stopTimers(game: any) {
 const CONFIG: Partial<HeadlessConfig> = { players: [0, 1] };
 
 describe('Authoritative server engine', () => {
-	beforeAll(() => {
+	beforeAll(async () => {
+		await loadRealPhaser();
 		// Mock setTimeout globally to make tests deterministic
 		const timerMap = new Map<number, () => void>();
 		let timerId = 0;
@@ -200,32 +142,48 @@ describe('Authoritative server engine', () => {
 
 	test('same ordered intents converge on independent engine instances', async () => {
 		const abilities = await loadAbilities();
+
+		// Sequentially, not interleaved. One live engine per process is a real
+		// constraint, not a convenience: `src/timing/clock.ts`,
+		// `src/game-display/camera.ts` and the virtual clock behind
+		// `createHeadlessDriver()` are all module-level singletons, and the clock
+		// in particular is the single global `Date.now` slot that every driver
+		// writes. Two engines pumped in the same process therefore read each
+		// other's time the moment a timer callback from one resolves while the
+		// other is active, which desynchronises them by a turn.
+		//
+		// That matches how the engine is actually used — one match in the browser,
+		// one game per lobby on the server, one at a time in the simulation — and
+		// `replayIntents` below is already the sequential shape.
 		const g1 = await createHeadlessGame(abilities, { config: CONFIG });
-		const g2 = await createHeadlessGame(abilities, { config: CONFIG });
 		stopTimers(g1);
-		stopTimers(g2);
 
 		const intents: Intent[] = [];
 		for (let i = 0; i < 12; i++) {
 			await settle(g1);
-			await settle(g2);
 
 			const hex = findReachableHex(g1);
 			const intent: Intent = hex ? { kind: 'move', target: hex } : { kind: 'skip' };
 			intents.push(intent);
 
 			applyIntent(g1, intent);
-			applyIntent(g2, intent);
 			await settle(g1);
-			await settle(g2);
+		}
+		const firstRun = serializeState(g1);
+		stopTimers(g1);
 
-			// The authoritative invariant: applying the *same* input through the
-			// *same* engine on two independent instances yields identical state.
-			// If this ever fails, the engine has hidden nondeterminism and the
-			// server-authoritative model cannot hold.
-			expect(serializeState(g1)).toEqual(serializeState(g2));
+		// The authoritative invariant: the same config and the same *ordered*
+		// intents, fed to an independent engine, produce identical state. If this
+		// ever fails, the engine has hidden nondeterminism and the
+		// server-authoritative model cannot hold.
+		const g2 = await createHeadlessGame(abilities, { config: CONFIG });
+		stopTimers(g2);
+		for (const intent of intents) {
+			applyIntent(g2, intent);
+			await settle(g2);
 		}
 
+		expect(serializeState(g2)).toEqual(firstRun);
 		expect(intents.length).toBe(12);
 	}, 120_000);
 
