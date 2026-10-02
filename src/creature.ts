@@ -2705,7 +2705,12 @@ class CreatureSprite {
 		const healthIndicatorText = gameEngine.add.text(
 			player.flipped ? HEX_WIDTH_PX * 0.5 : HEX_WIDTH_PX * (size - 0.5),
 			60,
-			health as any as string,
+			// `health` is a number and `setHealth` owns the real value; the
+			// placeholder only has to be renderable. Stringify it here rather than
+			// casting: the cast let Phaser coerce it implicitly, and this is the
+			// same laundered cast that let a CanvasSurface reach `add.sprite` as a
+			// texture key and silently fall back to the missing-texture placeholder.
+			String(health),
 			{
 				font: 'bold 15pt Play',
 				color: '#fff',
@@ -3960,13 +3965,17 @@ class CreatureSprite {
 			);
 			frameBackground.ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
 			frameBackground.ctx.fillRect(0, 0, frameBackground.width, frameBackground.height);
+			// Commit the wash before drawing the artwork over it: `drawTexture`
+			// commits too, but it returns early without committing when the source
+			// texture is missing, and the wash would then never reach the GPU.
+			frameBackground.commit();
 			frameBackground.drawTexture('frame', 0, 0);
 			frame.destroy();
 
 			const noActionFrame = this._gameEngine.add.sprite(
 				0,
 				50,
-				frameBackground as any as string,
+				frameBackground.key,
 				undefined,
 				this._hintGrp,
 			);
@@ -4111,6 +4120,10 @@ class CreatureSprite {
 			);
 			frameBackground.ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
 			frameBackground.ctx.fillRect(0, 0, frameBackground.width, frameBackground.height);
+			// Commit the wash before drawing the artwork over it: `drawTexture`
+			// commits too, but it returns early without committing when the source
+			// texture is missing, and the wash would then never reach the GPU.
+			frameBackground.commit();
 			frameBackground.drawTexture('frame', 0, 0);
 			// Destroy the temporary frame sprite after using it as a texture source
 			// to prevent it from lingering in the upper-left corner of the canvas
@@ -4118,7 +4131,7 @@ class CreatureSprite {
 			const combinedSprite = this._gameEngine.add.sprite(
 				0,
 				50,
-				frameBackground as any as string,
+				frameBackground.key,
 				undefined,
 				this._hintGrp,
 			);

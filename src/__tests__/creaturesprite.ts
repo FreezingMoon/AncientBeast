@@ -54,14 +54,28 @@ function createEngineMock(resident: Map<string, { width: number; height: number 
 
 	const createSprite = (key: string) => {
 		const sprite: any = {
+			type: 'Sprite',
 			x: 0,
 			y: 0,
 			alpha: 1,
 			depth: 0,
+			// `exists` and the `anchor`/`scale`/`data`/`parent`/`position` shims
+			// below are Phaser 2 CE members that `creature.ts` still calls; it is
+			// mid-migration off them. They stay until it no longer does. The
+			// native members alongside them are what the migrated hint code uses.
 			exists: true,
+			active: true,
+			visible: true,
+			originX: 0.5,
+			originY: 0.5,
+			displayOriginX: 0,
+			displayOriginY: 0,
+			scaleX: 1,
+			scaleY: 1,
 			width: 0,
 			height: 0,
 			key: PLACEHOLDER.key,
+			text: '',
 			texture: { width: 0, height: 0 },
 			anchor: { setTo: () => undefined },
 			scale: { setTo: () => undefined },
@@ -74,6 +88,36 @@ function createEngineMock(resident: Map<string, { width: number; height: number 
 				},
 				clone: () => ({ x: sprite.x, y: sprite.y }),
 			},
+			setOrigin: (ox: number, oy?: number) => {
+				sprite.originX = ox;
+				sprite.originY = oy === undefined ? ox : oy;
+				sprite.displayOriginX = sprite.originX * sprite.width;
+				sprite.displayOriginY = sprite.originY * sprite.height;
+				return sprite;
+			},
+			setScale: (sx: number, sy?: number) => {
+				sprite.scaleX = sx;
+				sprite.scaleY = sy === undefined ? sx : sy;
+				return sprite;
+			},
+			setPosition: (x: number, y: number) => {
+				sprite.x = x;
+				sprite.y = y;
+				return sprite;
+			},
+			setActive: (value: boolean) => {
+				sprite.active = value;
+				sprite.exists = value;
+				return sprite;
+			},
+			setVisible: (value: boolean) => {
+				sprite.visible = value;
+				return sprite;
+			},
+			// `_enableSkipTurnInput` makes the hint clickable; the double only has
+			// to accept the call, since input routing is `src/input/input.ts`.
+			setInteractive: () => sprite,
+			disableInteractive: () => sprite,
 			loadTexture: (nextKey: string) => {
 				const texture = resolve(nextKey);
 				sprite.key = texture.key;
@@ -83,8 +127,12 @@ function createEngineMock(resident: Map<string, { width: number; height: number 
 			},
 			destroy: () => {
 				sprite.exists = false;
+				sprite.active = false;
 			},
 		};
+		// Native name for the same operation; `hint()` is migrated, the cardboard
+		// rebind is not.
+		sprite.setTexture = sprite.loadTexture;
 		sprite.loadTexture(key);
 		return sprite;
 	};
@@ -147,20 +195,59 @@ function createEngineMock(resident: Map<string, { width: number; height: number 
 		groups: { creatureGroup: createGroup() },
 		add: {
 			group: (parent?: any) => createGroup(parent),
-			sprite: (x: number, y: number, key: string) => createSprite(key),
+			sprite: jest.fn((x: number, y: number, key: unknown, frame?: string, parent?: any) => {
+				// A texture argument that is not a key string cannot resolve, and
+				// Phaser does not complain: it binds the `__MISSING` placeholder.
+				// The stub models that by feeding whatever it was given to
+				// `resolve`, so a surface object lands on the placeholder exactly
+				// as it does on a real renderer.
+				const sprite = createSprite(key as string);
+				sprite.x = x;
+				sprite.y = y;
+				// A real `add.sprite` parents into the group it is given, and the
+				// hint stacks and clears itself by walking that group.
+				return parent ? parent.add(sprite) : sprite;
+			}),
 			image: (x: number, y: number, key: string) => createSprite(key),
 			text: (x: number, y: number) => {
 				const sprite = createSprite('');
 				sprite.x = x;
 				sprite.y = y;
+				sprite.type = 'Text';
+				sprite.text = '';
 				return sprite;
 			},
 		},
-		tween: () => ({
-			to: () => undefined,
-			start: () => undefined,
-			onComplete: { add: () => undefined },
-		}),
+		/**
+		 * Chainable tween stub.
+		 *
+		 * `hint()` chains `.to().to().start()`, yoyos, and hooks both
+		 * `onUpdateCallback` and `onComplete.add`, so every link has to return the
+		 * tween rather than undefined. The callbacks are never fired: these tests
+		 * assert on what `hint()` *builds*, not on the animation it would play.
+		 */
+		tween: (_target?: unknown) => {
+			const tween: any = {
+				isRunning: false,
+				isDestroyed: false,
+				stop: () => tween,
+				pause: () => tween,
+				play: () => tween,
+				yoyo: () => tween,
+				repeat: () => tween,
+				delay: () => tween,
+				onUpdateCallback: () => tween,
+				onComplete: { add: () => undefined },
+				onStart: { add: () => undefined },
+				onStop: { add: () => undefined },
+			};
+			tween.to = () => tween;
+			tween.start = () => {
+				tween.isRunning = true;
+				return tween;
+			};
+			return tween;
+		},
 		cache: { getImage: () => null },
 	};
 }
@@ -190,32 +277,70 @@ const getCreatureObjMock = () => ({
 	materializationSickness: true,
 });
 
-const getGameMock = (engine: any) => ({
-	turn: 0,
-	creatures: [] as unknown[],
-	effects: [],
-	players: [{}, {}],
-	queue: { update: jest.fn() },
-	updateQueueDisplay: jest.fn(),
-	grid: {
-		hexes: getHexesMock(),
-		allhexes: [] as unknown[],
-		creatureGroup: engine.groups.creatureGroup,
-		healthIndicatorUiGroup: { add: jest.fn(), remove: jest.fn() },
-		orderCreatureZ: jest.fn(),
-		fadeOutTempCreature: jest.fn(),
-		refreshActiveCreatureXray: jest.fn(),
-	},
-	gameEngine: engine,
-	animations: {
-		initInfernalCardboardEffect: jest.fn(),
-		tickInfernalCardboardEffect: jest.fn(),
-		disposeInfernalCardboardEffect: jest.fn(),
-		rekeyInfernalCardboardEffect: jest.fn(),
-	},
-	signals: { metaPowers: { add: jest.fn() } },
-	UI: { selectedAbility: -1 },
-});
+const getGameMock = (engine: any, resident: Map<string, { width: number; height: number }>) => {
+	// A texture manager, because the hint backdrops are canvas surfaces and a
+	// surface only resolves if it was actually registered. Without this the
+	// surface reports a headless key that resolves to nothing, and the stub
+	// cannot tell "handed a real key" from "handed the surface object" - both
+	// land on the placeholder, which is exactly the bug.
+	const context2d = {
+		fillStyle: '',
+		clearRect: () => undefined,
+		fillRect: () => undefined,
+		drawImage: () => undefined,
+	} as unknown as CanvasRenderingContext2D;
+	const surfaces = new Map<string, { key: string; getContext: () => CanvasRenderingContext2D }>();
+	return {
+		turn: 0,
+		creatures: [] as unknown[],
+		effects: [],
+		players: [{}, {}],
+		queue: { update: jest.fn() },
+		updateQueueDisplay: jest.fn(),
+		Phaser: {
+			textures: {
+				// No `game.renderer.gl` here, so `CanvasSurface.commit()` is a
+				// no-op and there is nothing to upload — same as a headless run.
+				createCanvas: (key: string, width: number, height: number) => {
+					resident.set(key, { width, height });
+					const texture = { key, getContext: () => context2d, canvas: { width, height } };
+					surfaces.set(key, texture);
+					return texture;
+				},
+				get: (key: string) => {
+					const surface = surfaces.get(key);
+					if (surface) {
+						return { key, getSourceImage: () => ({ width: 0, height: 0 }) };
+					}
+					const texture = resident.get(key);
+					return texture ? { key, getSourceImage: () => ({ ...texture }) } : undefined;
+				},
+				remove: (key: string) => {
+					surfaces.delete(key);
+					resident.delete(key);
+				},
+			},
+		},
+		grid: {
+			hexes: getHexesMock(),
+			allhexes: [] as unknown[],
+			creatureGroup: engine.groups.creatureGroup,
+			healthIndicatorUiGroup: { add: jest.fn(), remove: jest.fn() },
+			orderCreatureZ: jest.fn(),
+			fadeOutTempCreature: jest.fn(),
+			refreshActiveCreatureXray: jest.fn(),
+		},
+		gameEngine: engine,
+		animations: {
+			initInfernalCardboardEffect: jest.fn(),
+			tickInfernalCardboardEffect: jest.fn(),
+			disposeInfernalCardboardEffect: jest.fn(),
+			rekeyInfernalCardboardEffect: jest.fn(),
+		},
+		signals: { metaPowers: { add: jest.fn() } },
+		UI: { selectedAbility: -1 },
+	};
+};
 
 describe('CreatureSprite cardboard', () => {
 	let resident: Map<string, { width: number; height: number }>;
@@ -227,7 +352,7 @@ describe('CreatureSprite cardboard', () => {
 	beforeEach(() => {
 		resident = new Map();
 		engine = createEngineMock(resident);
-		game = getGameMock(engine);
+		game = getGameMock(engine, resident);
 		loading = [];
 		// Stand in for the Phaser loader: requests are parked until the test
 		// resolves them, exactly as a real download would be.
@@ -306,5 +431,95 @@ describe('CreatureSprite cardboard', () => {
 		resident.set('Abolished', CARDBOARD);
 		expect(() => notifyTextureLoaded('Abolished')).not.toThrow();
 		expect(sprite.key).toBe(PLACEHOLDER.key);
+	});
+});
+
+/**
+ * The skip-turn and no-action hints paint their own backdrop: a canvas surface
+ * filled with a translucent wash, the `frame` artwork drawn over it, and that
+ * surface handed to a sprite. The migration passed the surface *object* where
+ * Phaser wants a texture *key*, laundered through `as any as string` so
+ * TypeScript would not object. Phaser 4 does not throw on an unknown key — it
+ * silently binds the 32x32 `__MISSING` placeholder — so the hints came up
+ * with no backdrop at all, at the placeholder's size.
+ *
+ * The cast is what let it through, so the assertion is on the type of the
+ * argument rather than on any particular key: every texture handed to a sprite
+ * must be a string, because that is the only thing a texture key can be.
+ */
+describe('CreatureSprite hint backdrop', () => {
+	let resident: Map<string, { width: number; height: number }>;
+	let engine: ReturnType<typeof createEngineMock>;
+	let game: ReturnType<typeof getGameMock>;
+
+	/** The texture argument of every `add.sprite` call, in order. */
+	const spriteTextureArgs = (): unknown[] =>
+		(engine.add.sprite as unknown as jest.Mock).mock.calls.map((call) => call[2]);
+
+	/** The hint group is private; tests reach it through one declared alias. */
+	const hintGroup = (creature: any) => (creature.creatureSprite as any)._hintGrp;
+
+	beforeEach(() => {
+		resident = new Map();
+		// The hint frames are drawn from the real `frame` texture, so it has to
+		// resolve; otherwise the surface would be placeholder-sized and the test
+		// would pass for the wrong reason.
+		resident.set('frame', { width: 128, height: 128 });
+		resident.set('skip', { width: 512, height: 512 });
+		engine = createEngineMock(resident);
+		game = getGameMock(engine, resident);
+		setOnDemandLoader(
+			() => undefined,
+			(key) => resident.has(key),
+		);
+	});
+
+	afterEach(() => {
+		resetOnDemandTextures();
+		setOnDemandLoader(undefined, undefined);
+	});
+
+	test('the skip-turn backdrop is a registered texture key, not a surface', () => {
+		// @ts-expect-error partial Creature options
+		const creature = new Creature(getCreatureObjMock(), game);
+		creature.creatureSprite.hint('Skip turn', 'confirm');
+
+		const keys = spriteTextureArgs();
+		expect(keys.length).toBeGreaterThan(0);
+		for (const key of keys) {
+			expect(typeof key).toBe('string');
+			expect(String(key).length).toBeGreaterThan(0);
+		}
+
+		// The backdrop is the sprite built from the canvas surface, which is
+		// sized from the real `frame` texture. Before the fix it was handed the
+		// surface object instead of its key, so it resolved to the 32x32
+		// placeholder and came out at the wrong size with no artwork.
+		const survivors = hintGroup(creature).children.filter((sprite: any) => sprite.exists !== false);
+		expect(survivors.length).toBeGreaterThan(0);
+		expect(survivors.every((sprite: any) => sprite.key !== PLACEHOLDER.key)).toBe(true);
+		expect(survivors.some((sprite: any) => sprite.width === 128)).toBe(true);
+	});
+
+	test('the no-action backdrop is a registered texture key, not a surface', () => {
+		// @ts-expect-error partial Creature options
+		const creature = new Creature(getCreatureObjMock(), game);
+		creature.creatureSprite.hint('Cannot move', 'no_action');
+
+		for (const key of spriteTextureArgs()) {
+			expect(typeof key).toBe('string');
+		}
+	});
+
+	test('the throwaway sizing sprite is not left in the hint group', () => {
+		// The `frame` sprite exists only to report its own size for the canvas,
+		// and is destroyed immediately; a leftover would draw a stray frame in
+		// the corner of the hint.
+		// @ts-expect-error partial Creature options
+		const creature = new Creature(getCreatureObjMock(), game);
+		creature.creatureSprite.hint('Skip turn', 'confirm');
+
+		const survivors = hintGroup(creature).children.filter((sprite: any) => sprite.exists !== false);
+		expect(survivors.every((sprite: any) => sprite.key !== 'frame')).toBe(true);
 	});
 });
