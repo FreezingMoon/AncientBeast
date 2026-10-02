@@ -178,6 +178,8 @@ export interface GroupHandle {
 	exists: boolean;
 	children: any[];
 	length: number;
+	/** Phaser 2 `Group.total`: the group's child count. */
+	total: number;
 	position: {
 		set(x: number, y: number): void;
 	};

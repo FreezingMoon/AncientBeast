@@ -650,6 +650,21 @@ export function wrapGroup(container: Phaser.GameObjects.Container): GroupHandle 
 		get length() {
 			return container.list.length;
 		},
+		/**
+		 * Phaser 2's `Group.total`: how many children the group holds.
+		 *
+		 * Phaser 4's `Container` has no such member, and an unhandled read fell
+		 * through the forwarding proxy to `undefined` rather than throwing. That is
+		 * the dangerous shape of a missing member: arithmetic on it yields `NaN`
+		 * instead of an error. `CreatureSprite.hint` stacks its hints with
+		 * `group.total - group.getIndex(hint) - 1`, so every hint — the text plus
+		 * its frame and icon — was given a `NaN` y, which Phaser cannot place and
+		 * silently draws nothing. `length` is the same count, but keep both
+		 * spellings: `total` is the name the Phaser 2 call sites use.
+		 */
+		get total() {
+			return container.list.length;
+		},
 		get exists() {
 			return container.active;
 		},
@@ -684,6 +699,17 @@ export function wrapGroup(container: Phaser.GameObjects.Container): GroupHandle 
 		forEach: (callback: (child: AnyObject) => void, context?: AnyObject) => {
 			container.each((child) => callback.call(context, wrapGameObject(child)));
 		},
+		/**
+		 * A child's position in the group, or -1 when it is not a member.
+		 *
+		 * Phaser 4's `Container.getIndex` means the same thing, but the facade has
+		 * to answer it itself: every callback above hands gameplay a *facade*, and
+		 * forwarding that straight to the real container looks the facade up in
+		 * the child list, never finds it, and returns -1. `CreatureSprite.hint`
+		 * stacks hints with `total - getIndex(hint) - 1`, so a -1 flattened the
+		 * stack: every hint landed on the same offset instead of climbing.
+		 */
+		getIndex: (child: AnyObject) => container.list.indexOf(unwrap(child)),
 		update: () => {
 			container.iterate((child) => child.preUpdate?.(0, 0));
 		},
