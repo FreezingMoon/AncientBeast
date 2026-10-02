@@ -427,14 +427,6 @@ function makeGroup(x = 0, y = 0): GroupHandle {
 				children.push(child);
 			}
 		},
-		setChildIndex: (child: any, index: number) => {
-			const i = children.indexOf(child);
-			if (i === -1) return;
-			children.splice(i, 1);
-			children.splice(index, 0, child);
-		},
-		getChildIndex: (child: any) => children.indexOf(child),
-		/** Phaser 2 spelling of `getChildIndex`. */
 		getIndex: (child: any) => children.indexOf(child),
 		// Phaser 4 sorts by `depth`; Phaser 2 call sites pass a property name.
 		// `order < 0` means "ascending" here to match the real adapter, which

@@ -199,9 +199,7 @@ export interface GroupHandle {
 	forEach(callback: (child: any) => void, context?: any): void;
 	sendToBack(child: any): void;
 	bringToTop(child: any): void;
-	setChildIndex(child: any, index: number): void;
 	/** Render order key; Phaser 4 owns ordering through the native `depth`. */
-	getChildIndex(child: any): number;
 	sort(property?: string, order?: number): void;
 	update(): void;
 	alignIn(center?: any, align?: number): void;

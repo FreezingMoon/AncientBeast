@@ -1456,7 +1456,7 @@ type InfernalGroupMock = {
 	addAt: (sprite: InfernalSpriteMock, index: number) => InfernalSpriteMock;
 	add: (sprite: InfernalSpriteMock) => InfernalSpriteMock;
 	remove: (sprite: InfernalSpriteMock, destroy?: boolean) => void;
-	getChildIndex: (sprite: InfernalSpriteMock) => number;
+	getIndex: (sprite: InfernalSpriteMock) => number;
 };
 
 /** A bare group mock, used both for the creature group and the smoke layer. */
@@ -1493,7 +1493,7 @@ const createInfernalGroupMock = () =>
 				sprite.destroy();
 			}
 		},
-		getChildIndex(sprite: InfernalSpriteMock) {
+		getIndex(sprite: InfernalSpriteMock) {
 			return this.children.indexOf(sprite);
 		},
 	} as InfernalGroupMock);

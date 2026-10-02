@@ -1867,7 +1867,11 @@ export class Animations {
 			trailSprites: [],
 		};
 
-		const spriteIndex = group.getChildIndex(sprite);
+		// A list position, not the sprite's `depth`: both values feed `addAt`
+		// below, which indexes the group's child list. `orderCreatureZ` derives
+		// depth from the grid band, so a depth of 440 used to be clamped onto a
+		// three-child group and the haze layers landed in the wrong place.
+		const spriteIndex = group.getIndex(sprite);
 		const dir = sprite.scaleX < 0 ? -1 : 1;
 		const hazeTex = sprite.texture as unknown as ShatterTexture & {
 			baseTexture?: { source?: CanvasImageSource };

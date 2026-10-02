@@ -512,10 +512,14 @@ export class Hex {
 		const refRight = refBounds.x + refBounds.width;
 		const refBottom = refBounds.y + refBounds.height;
 		const creatureGroup = grid.creatureGroup;
-		let refZ = -1;
-		try {
-			refZ = creatureGroup.getChildIndex(referenceCreature.grp);
-		} catch {
+		// `getIndex` is a child's position in the group's draw list, and -1 when it
+		// is not a member. This must not be confused with the child's `depth`:
+		// `orderCreatureZ` assigns depth from the grid band, so it encodes the
+		// creature's *row* rather than its stack order. Reading depth here made
+		// this "in front of" gate compare grid rows, so overlapping creatures on
+		// the wrong side of the reference were never xrayed.
+		let refZ = creatureGroup.getIndex(referenceCreature.grp);
+		if (refZ === -1) {
 			// Reference creature not in group yet, treat as always in front
 			refZ = Infinity;
 		}
@@ -525,10 +529,8 @@ export class Hex {
 			if (candidate === referenceCreature) return;
 			if (seen.has(candidate.id)) return;
 
-			let candZ = -1;
-			try {
-				candZ = creatureGroup.getChildIndex(candidate.grp);
-			} catch {
+			const candZ = creatureGroup.getIndex(candidate.grp);
+			if (candZ === -1) {
 				// Candidate not in group, skip it
 				return;
 			}

@@ -715,17 +715,13 @@ export function wrapGroup(container: Phaser.GameObjects.Container): GroupHandle 
 		},
 
 		// Render order: Phaser 4 owns it through the native `depth` property.
+		// There is deliberately no `getChildIndex`/`setChildIndex` here. Phaser 2
+		// spelled the list position `getChildIndex`; this facade answered it with
+		// the child's `depth`, which the hex grid sets from the grid band. Every
+		// caller wanted a real list index for `addAt` or a stack-order compare, so
+		// the two were silently different axes. `getIndex` (below) is the honest
+		// spelling and returns -1 for non-members, which those callers now test for.
 		sort: (property = 'depth', order = 1) => sortChildrenByDepth(container, property, order),
-		getChildIndex: (child: AnyObject) => {
-			const target = unwrap<AnyObject>(child);
-			if (!container.list.includes(target as Phaser.GameObjects.GameObject)) {
-				throw new Error('Child is not a member of this group');
-			}
-			return target.depth;
-		},
-		setChildIndex: (child: AnyObject, index: number) => {
-			unwrap<AnyObject>(child).setDepth(index);
-		},
 		// Phaser 2 re-ordered siblings inside the group; the container's own
 		// ordering methods do exactly that, and leave `depth` alone so the
 		// hex grid's depth bands stay authoritative.
