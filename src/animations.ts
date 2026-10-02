@@ -221,10 +221,10 @@ export class Animations {
 		scaleX: number,
 		scaleY: number,
 	): void {
-		overlay.anchor.setTo(0.5, 1);
+		overlay.setOrigin(0.5, 1);
 		overlay.x = x;
 		overlay.y = y;
-		overlay.scale.setTo(scaleX, scaleY);
+		overlay.setScale(scaleX, scaleY);
 	}
 
 	private _retryInfernalCardboardBitmaps(
@@ -290,7 +290,7 @@ export class Animations {
 				}
 				ctx.putImageData(imageData, 0, 0);
 				state.hazeBmd.commit();
-				state.hazeSprite.loadTexture(state.hazeBmd.key);
+				state.hazeSprite.setTexture(state.hazeBmd.key);
 				this._anchorInfernalOverlay(state.hazeSprite, sprite.x, sprite.y, dir, 1);
 				state.hazeSprite.tint = 0xffffff;
 				state.hazeReady = true;
@@ -329,7 +329,7 @@ export class Animations {
 				ctx.putImageData(imageData, 0, 0);
 				state.heatBmd.commit();
 				state.heatReady = true;
-				state.heatLayerSprite.loadTexture(state.heatBmd.key);
+				state.heatLayerSprite.setTexture(state.heatBmd.key);
 				this._anchorInfernalOverlay(
 					state.heatLayerSprite,
 					sprite.x,
@@ -485,10 +485,10 @@ export class Animations {
 	private _setHexForcedHidden(hexes: Hex[], hidden: boolean) {
 		hexes.forEach((hexagon) => {
 			hexagon.forcedHidden = hidden;
-			if (hexagon.display?.exists) {
+			if (hexagon.display?.active) {
 				hexagon.display.visible = !hidden;
 			}
-			if (hexagon.overlay?.exists) {
+			if (hexagon.overlay?.active) {
 				hexagon.overlay.visible = !hidden;
 			}
 			if (hidden) {
@@ -503,10 +503,10 @@ export class Animations {
 		hexes.forEach((hexagon) => {
 			hexagon.forcedDisplayAlpha = clearOverride ? undefined : alpha;
 			hexagon.forcedCreatureOverlayAlpha = clearOverride ? undefined : alpha;
-			if (hexagon.display?.exists) {
+			if (hexagon.display?.active) {
 				hexagon.display.alpha = alpha;
 			}
-			if (hexagon.overlay?.exists) {
+			if (hexagon.overlay?.active) {
 				const shouldAffectOverlay = this._shouldAffectOverlayAlpha(hexagon);
 				if (shouldAffectOverlay) {
 					hexagon.overlay.alpha = alpha;
@@ -523,8 +523,8 @@ export class Animations {
 	): Promise<void[]> {
 		return Promise.all(
 			hexes.map((hexagon) => {
-				const hasDisplay = Boolean(hexagon.display?.exists);
-				const hasOverlay = Boolean(hexagon.overlay?.exists);
+				const hasDisplay = Boolean(hexagon.display?.active);
+				const hasOverlay = Boolean(hexagon.overlay?.active);
 				if (!hasDisplay && !hasOverlay) {
 					return Promise.resolve();
 				}
@@ -597,10 +597,10 @@ export class Animations {
 				hexagon.forcedDisplayAlpha = undefined;
 				hexagon.forcedCreatureOverlayAlpha = undefined;
 				hexagon.forcedHidden = false;
-				if (hexagon.display?.exists) {
+				if (hexagon.display?.active) {
 					hexagon.display.visible = true;
 				}
-				if (hexagon.overlay?.exists) {
+				if (hexagon.overlay?.active) {
 					hexagon.overlay.visible = true;
 				}
 				hexagon.cleanDisplayVisualState('teleportHidden');
@@ -649,8 +649,11 @@ export class Animations {
 	) {
 		const base = display;
 
-		if (base.anchor.y !== 1) {
-			base.anchor.y = 1;
+		// `setOrigin` rather than assigning `originY`: Phaser 4 derives
+		// `displayOriginY` from it, and the placement below is measured against
+		// that. Writing the property would leave the display origin stale.
+		if (base.originY !== 1) {
+			base.setOrigin(base.originX, 1);
 			base.y += base.height / 2 + BONFIRE_BASELINE_Y_COMPENSATION_PX;
 		}
 		base.scale.y = 0.62;
@@ -662,9 +665,9 @@ export class Animations {
 		const randInt = (n: number) => Math.floor(rand(n));
 
 		const baseGlow = trapGroup.create(bx, by, 'trap_bonfire-spring') as SpriteHandle;
-		baseGlow.anchor.setTo(0.5, 1);
+		baseGlow.setOrigin(0.5, 1);
 		baseGlow.alpha = 0.4;
-		baseGlow.scale.setTo(1.08, 0.72);
+		baseGlow.setScale(1.08, 0.72);
 		idleTweens.push(
 			this._yoyo(baseGlow.scale, { x: 1.14, y: 0.8 }, 180 + randInt(120), Easing.Quadratic.InOut),
 			this._yoyo(baseGlow, { alpha: 0.34 }, 180 + randInt(120), Easing.Linear.None),
@@ -672,9 +675,9 @@ export class Animations {
 		overlaySprites.push(baseGlow);
 
 		const core = trapGroup.create(bx, by - 6, 'trap_bonfire-spring') as SpriteHandle;
-		core.anchor.setTo(0.5, 1);
+		core.setOrigin(0.5, 1);
 		core.alpha = 0.58;
-		core.scale.setTo(0.76, 0.98);
+		core.setScale(0.76, 0.98);
 		idleTweens.push(
 			this._yoyo(core.scale, { x: 0.81, y: 1.1 }, 220 + randInt(120), Easing.Quadratic.InOut),
 			this._yoyo(core, { alpha: 0.5 }, 220 + randInt(120), Easing.Linear.None),
@@ -682,9 +685,9 @@ export class Animations {
 		overlaySprites.push(core);
 
 		const bridge = trapGroup.create(bx, by - 10, 'trap_bonfire-spring') as SpriteHandle;
-		bridge.anchor.setTo(0.5, 1);
+		bridge.setOrigin(0.5, 1);
 		bridge.alpha = 0.34;
-		bridge.scale.setTo(0.56, 1.14);
+		bridge.setScale(0.56, 1.14);
 		const bridgeDrift = 0.8 + rand(0.8);
 		bridge.x = bx - bridgeDrift;
 		idleTweens.push(
@@ -718,13 +721,13 @@ export class Animations {
 		for (const c of clusters) {
 			const emberX = bx + c.dx * 0.94;
 			const emberSkirt = trapGroup.create(emberX, by + 1, 'trap_bonfire-spring') as SpriteHandle;
-			emberSkirt.anchor.setTo(0.5, 1);
+			emberSkirt.setOrigin(0.5, 1);
 			emberSkirt.alpha = 0.32;
-			emberSkirt.scale.setTo(1.02, 0.44 + c.bodyScaleY * 0.08);
+			emberSkirt.setScale(1.02, 0.44 + c.bodyScaleY * 0.08);
 			idleTweens.push(
 				this._yoyo(
 					emberSkirt.scale,
-					{ x: emberSkirt.scale.x * 1.12, y: emberSkirt.scale.y * 1.08 },
+					{ x: emberSkirt.scaleX * 1.12, y: emberSkirt.scaleY * 1.08 },
 					260 + randInt(110),
 					Easing.Quadratic.InOut,
 				),
@@ -739,12 +742,9 @@ export class Animations {
 				const isFloorRow = row.dy >= -5;
 
 				const depthBody = trapGroup.create(cx, by + row.dy, 'trap_bonfire-spring') as SpriteHandle;
-				depthBody.anchor.setTo(0.5, 1);
+				depthBody.setOrigin(0.5, 1);
 				depthBody.alpha = 0.62 * row.alphaMul;
-				depthBody.scale.setTo(
-					(isFloorRow ? 0.86 : 0.72) * row.scaleMul,
-					c.bodyScaleY * row.scaleMul,
-				);
+				depthBody.setScale((isFloorRow ? 0.86 : 0.72) * row.scaleMul, c.bodyScaleY * row.scaleMul);
 				const depthSway = 0.012 + rand(0.012);
 				depthBody.rotation = -depthSway;
 				idleTweens.push(
@@ -774,12 +774,9 @@ export class Animations {
 					by + row.dy - 4,
 					'trap_bonfire-spring',
 				) as SpriteHandle;
-				depthTongue.anchor.setTo(0.5, 1);
+				depthTongue.setOrigin(0.5, 1);
 				depthTongue.alpha = 0.34 * row.alphaMul;
-				depthTongue.scale.setTo(
-					c.tongueScaleX * 0.66 * row.scaleMul,
-					c.tongueScaleY * row.scaleMul,
-				);
+				depthTongue.setScale(c.tongueScaleX * 0.66 * row.scaleMul, c.tongueScaleY * row.scaleMul);
 				const depthTongueDrift = 0.012 + rand(0.012);
 				depthTongue.rotation = -depthTongueDrift;
 				idleTweens.push(
@@ -812,9 +809,9 @@ export class Animations {
 		for (const c of clusters) {
 			const cx = bx + c.dx;
 			const body = trapGroup.create(cx, by - 4, 'trap_bonfire-spring') as SpriteHandle;
-			body.anchor.setTo(0.5, 1);
+			body.setOrigin(0.5, 1);
 			body.alpha = 0.72;
-			body.scale.setTo(0.78, c.bodyScaleY);
+			body.setScale(0.78, c.bodyScaleY);
 			const bodySway = 0.02 + rand(0.02);
 			body.rotation = -bodySway;
 			idleTweens.push(
@@ -830,9 +827,9 @@ export class Animations {
 			overlaySprites.push(body);
 
 			const tongue = trapGroup.create(cx, by - 8, 'trap_bonfire-spring') as SpriteHandle;
-			tongue.anchor.setTo(0.5, 1);
+			tongue.setOrigin(0.5, 1);
 			tongue.alpha = 0.36;
-			tongue.scale.setTo(c.tongueScaleX, c.tongueScaleY);
+			tongue.setScale(c.tongueScaleX, c.tongueScaleY);
 			const tongueDrift = 0.015 + rand(0.015);
 			tongue.rotation = -tongueDrift;
 			idleTweens.push(
@@ -848,9 +845,9 @@ export class Animations {
 			overlaySprites.push(tongue);
 
 			const tip = trapGroup.create(cx, by - 10, 'trap_bonfire-spring') as SpriteHandle;
-			tip.anchor.setTo(0.5, 1);
+			tip.setOrigin(0.5, 1);
 			tip.alpha = 0.48;
-			tip.scale.setTo(c.tongueScaleX * 0.55, c.tongueScaleY * 0.95);
+			tip.setScale(c.tongueScaleX * 0.55, c.tongueScaleY * 0.95);
 			const tipSway = 0.09 + rand(0.04);
 			const tipDriftX = 0.8 + rand(1.0);
 			tip.x = cx - tipDriftX;
@@ -882,10 +879,10 @@ export class Animations {
 		const randInt = (n: number) => Math.floor(Math.random() * n);
 
 		const innerGlow = trapGroup.create(bx, by, 'trap_scorched-ground') as SpriteHandle;
-		innerGlow.anchor.setTo(0.5);
+		innerGlow.setOrigin(0.5, 0.5);
 		innerGlow.alpha = 0.3;
 		innerGlow.tint = 0xffa347;
-		innerGlow.scale.setTo(1.07, 1.06);
+		innerGlow.setScale(1.07, 1.06);
 		innerGlow.blendMode = BLEND_MODE_ADD;
 		idleTweens.push(
 			this._yoyo(innerGlow, { alpha: 0.43 }, 480 + randInt(200), Easing.Linear.None),
@@ -894,10 +891,10 @@ export class Animations {
 		overlaySprites.push(innerGlow);
 
 		const outerAura = trapGroup.create(bx, by, 'trap_scorched-ground') as SpriteHandle;
-		outerAura.anchor.setTo(0.5);
+		outerAura.setOrigin(0.5, 0.5);
 		outerAura.alpha = 0.19;
 		outerAura.tint = 0xff7a1f;
-		outerAura.scale.setTo(1.24, 1.22);
+		outerAura.setScale(1.24, 1.22);
 		outerAura.blendMode = BLEND_MODE_ADD;
 		idleTweens.push(
 			this._yoyo(outerAura, { alpha: 0.3 }, 700 + randInt(260), Easing.Linear.None),
@@ -1102,20 +1099,22 @@ export class Animations {
 				const curtainSprites = originTraps.flatMap((trap) =>
 					trap
 						.getVisualSprites()
-						.filter((sprite) => sprite.exists)
+						.filter((sprite) => sprite.active)
 						.map((sprite) => ({ trap, sprite })),
 				);
 
 				curtainSprites.forEach(({ sprite }) => {
-					if (sprite.anchor.y !== 1) {
-						sprite.anchor.y = 1;
+					// See the note in `reanchorBasiliskBase`: the display origin has
+					// to be refreshed too, so this goes through `setOrigin`.
+					if (sprite.originY !== 1) {
+						sprite.setOrigin(sprite.originX, 1);
 						sprite.y += sprite.height / 2;
 					}
 				});
 
 				const baseScales = curtainSprites.map(({ sprite }) => ({
-					x: sprite.scale.x,
-					y: sprite.scale.y,
+					x: sprite.scaleX,
+					y: sprite.scaleY,
 				}));
 				const baselineHeight = Math.max(
 					1,
@@ -1456,7 +1455,7 @@ export class Animations {
 			sprite = game.grid.creatureGroup.create(emissionPoint.x, emissionPoint.y, spriteId),
 			duration = dist * 75;
 
-		sprite.anchor.setTo(0.5);
+		sprite.setOrigin(0.5, 0.5);
 		sprite.rotation = -Math.PI / 3 + (args.direction * Math.PI) / 3;
 		const tween = game.gameEngine
 			.tween(sprite)
@@ -1524,8 +1523,8 @@ export class Animations {
 	melt(creature: Creature, opts: AnimationOptions) {
 		const speed = !opts.overrideSpeed ? 650 : opts.overrideSpeed;
 		const sprite = creature.sprite;
-		const startScaleX = sprite.scale.x;
-		const startScaleY = sprite.scale.y;
+		const startScaleX = sprite.scaleX;
+		const startScaleY = sprite.scaleY;
 
 		creature.healthHide();
 		creature.creatureSprite.setAngle(0, 0);
@@ -1552,8 +1551,8 @@ export class Animations {
 	rise(creature: Creature, opts: AnimationOptions) {
 		const speed = !opts.overrideSpeed ? 650 : opts.overrideSpeed;
 		const sprite = creature.sprite;
-		const startScaleX = sprite.scale.x;
-		const startScaleY = sprite.scale.y;
+		const startScaleX = sprite.scaleX;
+		const startScaleY = sprite.scaleY;
 
 		creature.healthHide();
 		creature.creatureSprite.setAngle(0, 0);
@@ -1614,7 +1613,7 @@ export class Animations {
 			width: rawFrame.cutWidth ?? rawFrame.canvasData?.width ?? rawFrame.width ?? texW,
 			height: rawFrame.cutHeight ?? rawFrame.canvasData?.height ?? rawFrame.height ?? texH,
 		};
-		const isFlipped = sprite.scale.x < 0;
+		const isFlipped = sprite.scaleX < 0;
 
 		// Validate the source image via CreatureSprite's resolver so that a
 		// stale proxy (which could hand back an array or undefined) doesn't make
@@ -1693,7 +1692,7 @@ export class Animations {
 				const x = spriteLeft + shardScreenX + sw / 2;
 				const y = spriteTop + sy + sh / 2;
 				const shard = game.grid.creatureGroup.create(x, y, bmd.key);
-				shard.anchor.setTo(0.5, 0.5);
+				shard.setOrigin(0.5, 0.5);
 				shard.angle = -18 + Math.random() * 36;
 
 				const driftX = -40 + Math.random() * 80;
@@ -1759,7 +1758,7 @@ export class Animations {
 			const baseX = spriteLeft + texW / 2;
 			const baseY = spriteTop + texH / 2;
 			const baseSprite = game.grid.creatureGroup.create(baseX, baseY, baseBmd.key);
-			baseSprite.anchor.setTo(0.5, 0.5);
+			baseSprite.setOrigin(0.5, 0.5);
 			if (isFlipped) {
 				baseSprite.scale.x = -1;
 			}
@@ -1869,7 +1868,7 @@ export class Animations {
 		};
 
 		const spriteIndex = group.getChildIndex(sprite);
-		const dir = sprite.scale.x < 0 ? -1 : 1;
+		const dir = sprite.scaleX < 0 ? -1 : 1;
 		const hazeTex = sprite.texture as unknown as ShatterTexture & {
 			baseTexture?: { source?: CanvasImageSource };
 		};
@@ -1926,7 +1925,7 @@ export class Animations {
 				}
 				ctx.putImageData(imageData, 0, 0);
 				state.hazeBmd.commit();
-				state.hazeSprite.loadTexture(state.hazeBmd.key);
+				state.hazeSprite.setTexture(state.hazeBmd.key);
 				this._anchorInfernalOverlay(state.hazeSprite, sprite.x, sprite.y, dir, 1);
 				state.hazeSprite.tint = 0xffffff;
 				state.hazeReady = true;
@@ -1986,7 +1985,7 @@ export class Animations {
 		state.heatLayerSprite = heatLayerSprite;
 		state.trailSprites.push(heatLayerSprite);
 		if (state.heatReady && state.heatBmd) {
-			heatLayerSprite.loadTexture(state.heatBmd.key);
+			heatLayerSprite.setTexture(state.heatBmd.key);
 			this._anchorInfernalOverlay(
 				heatLayerSprite,
 				sprite.x,
@@ -2025,7 +2024,7 @@ export class Animations {
 			return;
 		}
 		const { sprite, group } = this._getLiveInfernalCardboardTarget(creature, state.sprite);
-		if (!sprite || !group || !state.sprite.exists || !state.group.exists) {
+		if (!sprite || !group || !state.sprite.active || !state.group.active) {
 			this.disposeInfernalCardboardEffect(creature);
 			return;
 		}
@@ -2041,7 +2040,7 @@ export class Animations {
 			return;
 		}
 
-		const dir = sprite.scale.x < 0 ? -1 : 1;
+		const dir = sprite.scaleX < 0 ? -1 : 1;
 
 		// `init` runs while the cardboard is still at the origin and unflipped:
 		// `setDir` places and faces it afterwards. The overlays are created there
@@ -2142,9 +2141,9 @@ export class Animations {
 		// Re-read the facing every tick. A unit that turns around mid-walk would
 		// otherwise leave its smoke facing the direction it was travelling when
 		// each smoke spawned, trailing backwards cardboard.
-		const dir = sprite.scale.x < 0 ? -1 : 1;
+		const dir = sprite.scaleX < 0 ? -1 : 1;
 		for (const entry of state.smoke) {
-			if (!entry.sprite.exists) {
+			if (!entry.sprite.active) {
 				continue;
 			}
 			if (teleported) {
@@ -2158,10 +2157,10 @@ export class Animations {
 				entry.anchorX += (worldX - entry.anchorX) * follow;
 				entry.anchorY += (worldY - entry.anchorY) * follow;
 			}
-			entry.sprite.position.set(entry.anchorX + entry.offset.x, entry.anchorY + entry.offset.y);
+			entry.sprite.setPosition(entry.anchorX + entry.offset.x, entry.anchorY + entry.offset.y);
 			// The tween carries only the growth magnitude, so the facing sign is
 			// applied here to keep tracking the unit's current direction.
-			entry.sprite.scale.setTo(dir * entry.growth.x, entry.growth.y);
+			entry.sprite.setScale(dir * entry.growth.x, entry.growth.y);
 		}
 	}
 
@@ -2179,7 +2178,7 @@ export class Animations {
 			return;
 		}
 
-		const dir = sprite.scale.x < 0 ? -1 : 1;
+		const dir = sprite.scaleX < 0 ? -1 : 1;
 		const frameSeconds = Math.min(deltaMs() / 1000, 0.1);
 		// How far the unit travelled since the previous tick, smoothed so a single
 		// jittery frame cannot spike the smoke's brightness. Measured in world
@@ -2309,7 +2308,7 @@ export class Animations {
 			smoke.tint = 0xff9c52;
 			smoke.blendMode = BLEND_MODE_ADD;
 			if (state.heatBmd) {
-				smoke.loadTexture(state.heatBmd.key);
+				smoke.setTexture(state.heatBmd.key);
 				// `loadTexture` swaps the frame the origin is measured from, and may
 				// reset the scale, so re-assert both from the intended values.
 				this._anchorInfernalOverlay(smoke, smokeX, smokeY, dir * growth.x, growth.y);

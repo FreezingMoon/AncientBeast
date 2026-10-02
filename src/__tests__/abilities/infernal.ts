@@ -563,7 +563,7 @@ describe('Infernal cardboard FX regression', () => {
 		expect(haze?.y).toBe(sprite.y);
 		expect(haze?.x).toBe(sprite.x);
 		expect(heatLayer?.y).toBe(sprite.y);
-		expect(heatLayer?.scale.y).toBeCloseTo(1, 2);
+		expect(heatLayer?.scaleY).toBeCloseTo(1, 2);
 
 		game.Phaser.time.now = 30;
 		game.Phaser.time.elapsedMS = 16;
@@ -574,7 +574,7 @@ describe('Infernal cardboard FX regression', () => {
 		expect(heatLayer?.alpha).toBe(0);
 		expect(haze?.y).toBe(sprite.y);
 		expect(heatLayer?.y).toBe(sprite.y);
-		expect(heatLayer?.scale.y).toBeCloseTo(1, 2);
+		expect(heatLayer?.scaleY).toBeCloseTo(1, 2);
 	});
 
 	test('tick retries BitmapData setup when the sprite texture becomes drawable later', () => {
@@ -594,7 +594,7 @@ describe('Infernal cardboard FX regression', () => {
 		expect(haze?.alpha).toBe(0);
 		expect(heatLayer?.alpha).toBe(0);
 		expect(heatLayer?.y).toBe(sprite.y);
-		expect(heatLayer?.scale.y).toBeCloseTo(1, 2);
+		expect(heatLayer?.scaleY).toBeCloseTo(1, 2);
 
 		sprite.texture.baseTexture = {
 			source: { width: 120, height: 180 } as unknown as CanvasImageSource,
@@ -604,19 +604,19 @@ describe('Infernal cardboard FX regression', () => {
 		setAbClockTime(30, 16);
 		animations.tickInfernalCardboardEffect(creature);
 
-		expect(haze?.loadTexture).toHaveBeenCalledTimes(1);
-		expect(heatLayer?.loadTexture).toHaveBeenCalledTimes(1);
+		expect(haze?.setTexture).toHaveBeenCalledTimes(1);
+		expect(heatLayer?.setTexture).toHaveBeenCalledTimes(1);
 		expect(haze?.alpha).toBeGreaterThan(0);
 		// The heat layer pulses with the haze rather than sitting at a fixed value,
 		// so this can only be bounded, not pinned to one number.
 		expect(heatLayer?.alpha).toBeGreaterThan(0.05);
 		expect(heatLayer?.alpha).toBeLessThanOrEqual(0.3);
 		expect(heatLayer?.y).toBe(sprite.y);
-		expect(heatLayer?.scale.y).toBeCloseTo(1, 2);
-		// `loadTexture` swaps the frame the origin is measured from, so both
+		expect(heatLayer?.scaleY).toBeCloseTo(1, 2);
+		// `setTexture` swaps the frame the origin is measured from, so both
 		// overlays have to be re-bottom-anchored onto the cardboard afterwards.
-		expect(haze?.anchor.y).toBe(1);
-		expect(heatLayer?.anchor.y).toBe(1);
+		expect(haze?.originY).toBe(1);
+		expect(heatLayer?.originY).toBe(1);
 		expect(haze?.y).toBe(sprite.y);
 		expect(heatLayer?.y).toBe(sprite.y);
 	});
@@ -644,12 +644,12 @@ describe('Infernal cardboard FX regression', () => {
 
 		firstOverlays.forEach((overlay) => {
 			expect(overlay.destroy).toHaveBeenCalledTimes(1);
-			expect(overlay.exists).toBe(false);
+			expect(overlay.active).toBe(false);
 		});
 
 		const secondHeatLayer = splitInfernalOverlays(second.group, second.sprite).heatLayer;
 		expect(secondHeatLayer).toBeDefined();
-		expect(secondHeatLayer?.scale.x).toBe(1);
+		expect(secondHeatLayer?.scaleX).toBe(1);
 
 		// First tick after re-init snaps the fresh overlays onto the cardboard.
 		game.Phaser.time.now = 50;
@@ -657,7 +657,7 @@ describe('Infernal cardboard FX regression', () => {
 		setAbClockTime(50, 17);
 		animations.tickInfernalCardboardEffect(creature);
 
-		second.sprite.scale.x = -1;
+		second.sprite.scaleX = -1;
 		second.sprite.x = 101;
 		second.sprite.y = 55;
 		game.Phaser.time.now = 65;
@@ -665,7 +665,7 @@ describe('Infernal cardboard FX regression', () => {
 		setAbClockTime(65, 17);
 		animations.tickInfernalCardboardEffect(creature);
 
-		expect(secondHeatLayer?.scale.x).toBe(-1);
+		expect(secondHeatLayer?.scaleX).toBe(-1);
 		// The overlays chase the cardboard, so after one frame at a new position
 		// they are still in transit rather than snapped onto it.
 		expect(secondHeatLayer?.x).toBeGreaterThan(80);
@@ -706,12 +706,12 @@ describe('Infernal cardboard FX regression', () => {
 
 		// The first tick places and flips them; only then may they show.
 		sprite.x = 240;
-		sprite.scale.x = -1;
+		sprite.scaleX = -1;
 		setAbClockTime(16, 16);
 		animations.tickInfernalCardboardEffect(creature);
 
 		expect(haze?.x).toBe(240);
-		expect(haze?.scale.x).toBe(-1);
+		expect(haze?.scaleX).toBe(-1);
 		expect(haze?.alpha).toBeGreaterThan(0);
 		expect(heatLayer?.alpha).toBeGreaterThan(0);
 	});
@@ -768,8 +768,8 @@ describe('Infernal cardboard FX regression', () => {
 		// Stationary, so undimmed: the full 0.11-0.15 band.
 		expect(peakTarget.alpha).toBeGreaterThanOrEqual(0.11);
 		expect(peakTarget.alpha).toBeLessThanOrEqual(0.15);
-		expect(smoke?.anchor.y).toBe(1);
-		expect(smoke?.anchor.x).toBe(0.5);
+		expect(smoke?.originY).toBe(1);
+		expect(smoke?.originX).toBe(0.5);
 
 		// Walk right. A walk tweens the creature *group*; the sprite's own x/y never
 		// change, so driving travel through the sprite measures nothing.
@@ -857,18 +857,18 @@ describe('Infernal cardboard FX regression', () => {
 		const smokeGroup = game.grid.infernalSmokeGroup as InfernalGroupMock;
 		const smoke = smokeGroup.children[0];
 		expect(smoke).toBeDefined();
-		expect(smoke!.scale.x).toBeGreaterThan(0);
+		expect(smoke!.scaleX).toBeGreaterThan(0);
 
 		// The unit turns around.
-		sprite.scale.x = -1;
+		sprite.scaleX = -1;
 		setAbClockTime(32, 16);
 		animations.tickInfernalCardboardEffect(creature);
 
 		// The smoke faces the same way, and keeps its magnitude rather than
 		// snapping to -1.
-		expect(smoke!.scale.x).toBeLessThan(0);
-		expect(Math.abs(smoke!.scale.x)).toBeGreaterThan(0.9);
-		expect(Math.abs(smoke!.scale.x)).toBeLessThan(1.3);
+		expect(smoke!.scaleX).toBeLessThan(0);
+		expect(Math.abs(smoke!.scaleX)).toBeGreaterThan(0.9);
+		expect(Math.abs(smoke!.scaleX)).toBeLessThan(1.3);
 	});
 
 	smokeTest('smoke is dimmer while the unit walks than while it stands', () => {
@@ -1359,7 +1359,7 @@ describe('Infernal cardboard FX regression', () => {
 
 		originalOverlays.forEach((overlay) => {
 			expect(overlay.destroy).toHaveBeenCalledTimes(1);
-			expect(overlay.exists).toBe(false);
+			expect(overlay.active).toBe(false);
 		});
 		expect(live.group.children).toContain(live.sprite);
 		expect(live.group.children.length).toBeGreaterThan(1);
@@ -1402,7 +1402,7 @@ describe('Infernal cardboard FX regression', () => {
 
 		originalOverlays.forEach((overlay) => {
 			expect(overlay.destroy).toHaveBeenCalledTimes(1);
-			expect(overlay.exists).toBe(false);
+			expect(overlay.active).toBe(false);
 		});
 		expect(replacement.children.length).toBeGreaterThan(1);
 		expect(replacement.children).toContain(sprite);
@@ -1421,14 +1421,23 @@ type InfernalSpriteMock = {
 	blendMode: number | null;
 	exists: boolean;
 	parent: InfernalGroupMock;
-	anchor: { setTo: (x: number, y: number) => void; x: number; y: number };
-	scale: { setTo: (x: number, y: number) => void; x: number; y: number };
+	/** Native Phaser 4 members, replacing the facade's `anchor`/`scale` shims. */
+	originX: number;
+	originY: number;
+	displayOriginX: number;
+	displayOriginY: number;
+	scaleX: number;
+	scaleY: number;
+	active: boolean;
+	setOrigin: (x: number, y?: number) => InfernalSpriteMock;
+	setScale: (x: number, y?: number) => InfernalSpriteMock;
+	setPosition: (x: number, y: number) => InfernalSpriteMock;
+	setTexture: jest.Mock;
 	texture: {
 		width: number;
 		height: number;
 		baseTexture?: { source?: CanvasImageSource };
 	};
-	loadTexture: jest.Mock;
 	destroy: jest.Mock;
 	/** Attached after construction; see `createInfernalOverlayMock`. */
 	position?: { x: number; y: number; set: (x: number, y: number) => void };
@@ -1436,7 +1445,10 @@ type InfernalSpriteMock = {
 
 type InfernalGroupMock = {
 	children: InfernalSpriteMock[];
+	/** Phaser 2's existence flag, retained for the members still on the facade. */
 	exists: boolean;
+	/** Phaser 4's equivalent; what the migrated code now reads. */
+	active: boolean;
 	/** Group-local offset; the creature group is positioned as a unit. */
 	x: number;
 	y: number;
@@ -1452,6 +1464,7 @@ const createInfernalGroupMock = () =>
 	({
 		children: [] as InfernalSpriteMock[],
 		exists: true,
+		active: true,
 		x: 0,
 		y: 0,
 		create(createX: number, createY: number, key: string) {
@@ -1521,14 +1534,7 @@ const createInfernalOverlayMock = (
 			this.y = anchorY;
 		},
 	};
-	const scale = {
-		x: scaleX,
-		y: 1,
-		setTo(nextX: number, nextY: number) {
-			this.x = nextX;
-			this.y = nextY;
-		},
-	};
+	const scale = {};
 
 	const sprite = {
 		x,
@@ -1538,18 +1544,42 @@ const createInfernalOverlayMock = (
 		tint: 0xffffff,
 		blendMode: null,
 		exists: true,
+		active: true,
 		parent: group,
-		anchor,
-		scale,
+		originX: anchor.x,
+		originY: anchor.y,
+		displayOriginX: 0,
+		displayOriginY: 0,
+		scaleX,
+		scaleY: 1,
 		texture: {
 			frame: { x: 0, y: 0, width: 120, height: 180 },
 			width: 120,
 			height: 180,
 			baseTexture: undefined,
 		},
-		loadTexture: jest.fn(),
+		setOrigin: (ox: number, oy?: number) => {
+			sprite.originX = ox;
+			sprite.originY = oy === undefined ? ox : oy;
+			sprite.displayOriginX = sprite.originX * sprite.texture.width;
+			sprite.displayOriginY = sprite.originY * sprite.texture.height;
+			return sprite;
+		},
+		setScale: (sx: number, sy?: number) => {
+			sprite.scaleX = sx;
+			sprite.scaleY = sy === undefined ? sx : sy;
+			return sprite;
+		},
+		setPosition: (px: number, py: number) => {
+			sprite.x = px;
+			sprite.y = py;
+			return sprite;
+		},
+		setTexture: jest.fn(),
 		destroy: jest.fn(function (this: InfernalSpriteMock) {
+			// Phaser 4 deactivates a destroyed object; the suite reads `active`.
 			this.exists = false;
+			this.active = false;
 			this.parent.children = this.parent.children.filter((child) => child !== this);
 		}),
 	} as InfernalSpriteMock;
@@ -1579,7 +1609,7 @@ const createInfernalOverlayMock = (
  * The heat layer is inserted immediately below the cardboard and the haze layer
  * immediately above it, while rising smoke are pushed further back still. That
  * adjacency is the only reliable way to tell the two overlays apart now that
- * both render at scale.y === 1 and the haze tint is overwritten by loadTexture.
+ * both render at scaleY === 1 and the haze tint is overwritten by setTexture.
  */
 const splitInfernalOverlays = (group: InfernalGroupMock, sprite: InfernalSpriteMock) => {
 	const spriteIndex = group.children.indexOf(sprite);

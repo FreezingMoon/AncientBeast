@@ -1208,7 +1208,7 @@ export default class Game {
 		// Re-apply (0, 0) after anchoring: Phaser 4 keeps the rendered top-left
 		// and shifts x/y by half the texture, which would leave the backdrop
 		// hanging off the top-left corner of the viewport.
-		bg.anchor.setTo(0, 0);
+		bg.setOrigin(0, 0);
 		bg.x = 0;
 		bg.y = 0;
 		bg.setDisplaySize(1920, 1080);
@@ -1612,9 +1612,11 @@ export default class Game {
 				}
 			}
 			const sprite = creature.sprite;
-			if (sprite && sprite.position && typeof sprite.position.set === 'function') {
+			// Replay must not throw, so this stays guarded: a sprite that is gone
+			// or still mid-teardown is skipped rather than failing the resync.
+			if (sprite && typeof sprite.setPosition === 'function') {
 				try {
-					sprite.position.set(snap.x, snap.y);
+					sprite.setPosition(snap.x, snap.y);
 				} catch {
 					/* non-fatal */
 				}

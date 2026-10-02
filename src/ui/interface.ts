@@ -963,8 +963,8 @@ export class UI {
 										// Hover path: return to 0.5 so circles remain as they were.
 										// Hotkey path: end at 0 and clean up since no hover is active.
 										const finalScale = isHovered ? 0.5 : 0;
-										hex.display.scale.setTo(0.5);
-										hex.display.anchor.setTo(0.5, 0.5);
+										hex.display.setScale(0.5, 0.5);
+										hex.display.setOrigin(0.5, 0.5);
 										game.gameEngine
 											.tween(hex.display.scale)
 											.to({ x: 1.0, y: 1.0 }, 180, Easing.Quadratic.Out, true, idx * 20)
@@ -974,7 +974,7 @@ export class UI {
 													.to({ x: finalScale, y: finalScale }, 180, Easing.Quadratic.In, true)
 													.onComplete.addOnce(() => {
 														if (!isHovered) {
-															hex.display.anchor.setTo(0, 0);
+															hex.display.setOrigin(0, 0);
 															// Only clean this hex individually so circles from a
 															// concurrently hovered ability remain unaffected.
 															hex.cleanDisplayVisualState('abilityRange');
@@ -1042,8 +1042,8 @@ export class UI {
 								if (ability._abilityRangeHexes?.length) {
 									ability._abilityRangeHexes.forEach((hex) => {
 										this.game.gameEngine.removeTweensFrom(hex.display.scale);
-										hex.display.scale.setTo(0);
-										hex.display.anchor.setTo(0, 0);
+										hex.display.setScale(0, 0);
+										hex.display.setOrigin(0, 0);
 										hex.cleanDisplayVisualState('abilityRange');
 									});
 								}
@@ -1079,8 +1079,8 @@ export class UI {
 								if (ab.message === game.msg.abilities.noTarget && ab._abilityRangeHexes?.length) {
 									ab._abilityRangeHexes.forEach((hex) => {
 										hex.displayVisualState('abilityRange');
-										hex.display.scale.setTo(0.5);
-										hex.display.anchor.setTo(0.5, 0.5);
+										hex.display.setScale(0.5, 0.5);
+										hex.display.setOrigin(0.5, 0.5);
 									});
 								}
 							}
@@ -1115,8 +1115,8 @@ export class UI {
 									ab._abilityRangeHexes.forEach((hex) => {
 										// Kill any running tween (including ones that would restore to 0.5).
 										this.game.gameEngine.removeTweensFrom(hex.display.scale);
-										hex.display.scale.setTo(0);
-										hex.display.anchor.setTo(0, 0);
+										hex.display.setScale(0, 0);
+										hex.display.setOrigin(0, 0);
 										hex.cleanDisplayVisualState('abilityRange');
 									});
 								}
@@ -3317,8 +3317,8 @@ export class UI {
 						hex.displayVisualState('abilityRange');
 					}
 					this.game.gameEngine.removeTweensFrom(hex.display.scale);
-					hex.display.scale.setTo(0.5);
-					hex.display.anchor.setTo(0.5, 0.5);
+					hex.display.setScale(0.5, 0.5);
+					hex.display.setOrigin(0.5, 0.5);
 					this.game.gameEngine
 						.tween(hex.display.scale)
 						.to({ x: 1.0, y: 1.0 }, 180, Easing.Quadratic.Out, true, idx * 20)
@@ -3327,7 +3327,7 @@ export class UI {
 								.tween(hex.display.scale)
 								.to({ x: 0, y: 0 }, 180, Easing.Quadratic.In, true)
 								.onComplete.addOnce(() => {
-									hex.display.anchor.setTo(0, 0);
+									hex.display.setOrigin(0, 0);
 									hex.cleanDisplayVisualState('abilityRange');
 								});
 						});
