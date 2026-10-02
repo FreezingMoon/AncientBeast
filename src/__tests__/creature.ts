@@ -740,6 +740,7 @@ type MockGame = {
 };
 
 type MockPhaser = {
+	/** Retained only for the members still on the facade; see the comment below. */
 	position: { set: jest.Mock };
 	isRunning?: boolean;
 	add: () => MockPhaser;
@@ -747,7 +748,6 @@ type MockPhaser = {
 	forEach: () => MockPhaser;
 	group: () => MockPhaser;
 	removeChild: () => MockPhaser;
-	setTo: () => MockPhaser;
 	start: () => MockPhaser;
 	text: () => MockPhaser;
 	to: () => MockPhaser;
@@ -757,12 +757,22 @@ type MockPhaser = {
 	onUpdateCallback: () => MockPhaser;
 	stop?: jest.Mock;
 	update: jest.Mock;
-	anchor: MockPhaser;
-	data: Record<string, unknown>;
 	onComplete: MockPhaser;
 	parent: MockPhaser;
 	sprite: MockPhaser;
-	scale: MockPhaser;
+	/** Native Phaser 4 members, replacing the facade's `anchor`/`scale` shims. */
+	setOrigin: () => MockPhaser;
+	setScale: () => MockPhaser;
+	setPosition: () => MockPhaser;
+	setActive: () => MockPhaser;
+	active: boolean;
+	originX: number;
+	originY: number;
+	scaleX: number;
+	scaleY: number;
+	key?: string;
+	/** Phaser 4 has no DataManager; gameplay no longer reads it. */
+	data: Record<string, unknown>;
 	texture: { width: number; height: number };
 };
 
@@ -886,7 +896,18 @@ const getGameMock = () => {
 };
 
 const getPhaserMock = () => {
-	const self = { position: { set: jest.fn() } } as MockPhaser;
+	const self = {
+		position: { set: jest.fn() },
+		active: true,
+		originX: 0.5,
+		originY: 0.5,
+		scaleX: 1,
+		scaleY: 1,
+		setOrigin: jest.fn().mockReturnThis(),
+		setScale: jest.fn().mockReturnThis(),
+		setPosition: jest.fn().mockReturnThis(),
+		setActive: jest.fn().mockReturnThis(),
+	} as unknown as MockPhaser;
 
 	const makeTween = () => {
 		const tween = {
@@ -913,7 +934,6 @@ const getPhaserMock = () => {
 	self.forEach = () => self;
 	self.group = () => self;
 	self.removeChild = () => self;
-	self.setTo = () => self;
 	self.start = () => self;
 	self.text = () => self;
 	self.to = () => self;
@@ -922,12 +942,10 @@ const getPhaserMock = () => {
 	self.repeat = () => self;
 	self.onUpdateCallback = () => self;
 	self.update = jest.fn();
-	self.anchor = self;
 	self.data = {};
 	self.onComplete = self;
 	self.parent = self;
 	self.sprite = self;
-	self.scale = self;
 	self.texture = {
 		width: 10,
 		height: 10,

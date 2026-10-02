@@ -1142,7 +1142,7 @@ export class Creature {
 		const dashedTexture = `hex_dashed_p${this.player.id}`;
 		this.hexagons.forEach((hex) => {
 			if (hex.display.key !== dashedTexture) {
-				hex.display.loadTexture(dashedTexture);
+				hex.display.setTexture(dashedTexture);
 			}
 		});
 	}
@@ -1151,7 +1151,7 @@ export class Creature {
 		const playerTexture = `hex_p${this.player.id}`;
 		this.hexagons.forEach((hex) => {
 			if (hex.display.key !== playerTexture) {
-				hex.display.loadTexture(playerTexture);
+				hex.display.setTexture(playerTexture);
 			}
 		});
 	}
@@ -1795,7 +1795,7 @@ export class Creature {
 			// On lower-end machines, reduce the plasma field rendering cost by
 			// lowering its internal render resolution.
 			this._plasmaFieldBaseOffsetX = computeCardboardCenterOffset(gameEngine, cardboard);
-			const offsetXMirror = (cardboard.scale.x < 0 ? -1 : 1) * this._plasmaFieldBaseOffsetX;
+			const offsetXMirror = (cardboard.scaleX < 0 ? -1 : 1) * this._plasmaFieldBaseOffsetX;
 
 			const opts: Record<string, unknown> = {
 				parent: this.creatureSprite.grp,
@@ -1826,7 +1826,7 @@ export class Creature {
 			// per-frame closure.
 			const positionHook = () => {
 				if (this.plasmaField) {
-					const dir = this.creatureSprite.sprite.scale.x < 0 ? -1 : 1;
+					const dir = this.creatureSprite.sprite.scaleX < 0 ? -1 : 1;
 					this.plasmaField.positionTo(
 						this.creatureSprite.sprite,
 						dir * this._plasmaFieldBaseOffsetX,
@@ -2654,7 +2654,7 @@ class CreatureSprite {
 		// Adding sprite
 		const spriteKey = isDarkPriest ? getDarkPriestCardboardKey(creature.player) : creature.name;
 		const sprite = group.create(0, 0, spriteKey);
-		sprite.anchor.setTo(0.5, 1);
+		sprite.setOrigin(0.5, 1);
 		// Placed by `setDir()` below, once the sprite and the hint group are
 		// both reachable — see `_place()` for the offset maths.
 
@@ -2698,7 +2698,7 @@ class CreatureSprite {
 		// pill half a pill-width (26px) west of the text centred on it. Re-apply
 		// the intended top-left. See Hex#pinTopLeft for the same fix
 		// on the hex artwork.
-		healthIndicatorSprite.anchor.setTo(0, 0);
+		healthIndicatorSprite.setOrigin(0, 0);
 		healthIndicatorSprite.x = healthIndicatorX;
 		healthIndicatorSprite.y = healthIndicatorY;
 
@@ -2720,7 +2720,7 @@ class CreatureSprite {
 			},
 			healthIndicatorGroup,
 		);
-		healthIndicatorText.anchor.setTo(0.5, 0.5);
+		healthIndicatorText.setOrigin(0.5, 0.5);
 		healthIndicatorGroup.visible = false;
 
 		this._group = group;
@@ -2880,7 +2880,7 @@ class CreatureSprite {
 
 	setPx(pos: { x: number; y: number }, durationMS = 0): Promise<CreatureSprite> {
 		if (durationMS === 0) {
-			this._group.position.set(pos.x, pos.y);
+			this._group.setPosition(pos.x, pos.y);
 			return new Promise((resolve) => {
 				resolve(this);
 			});
@@ -2891,7 +2891,7 @@ class CreatureSprite {
 
 	setDir(dir: 1 | -1) {
 		this._dir = dir;
-		this._sprite.scale.setTo(dir, 1);
+		this._sprite.setScale(dir, 1);
 		this._place();
 		this._healthIndicatorSprite.x = dir === -1 ? 19 : 19 + HEX_WIDTH_PX * (this._creatureSize - 1);
 		this._healthIndicatorText.x =
@@ -2952,7 +2952,7 @@ class CreatureSprite {
 			// Only the placeholder is worth swapping: a sprite parked on an xray
 			// bitmap is restored by `_finalizeXrayOff()` instead.
 			if (this._isOnPlaceholderTexture()) {
-				this._sprite.loadTexture(spriteKey);
+				this._sprite.setTexture(spriteKey);
 			}
 			this._place();
 		});
@@ -3015,7 +3015,7 @@ class CreatureSprite {
 		this._xrayOriginalAlpha = null;
 		this._xrayRefAlpha = null;
 		this._xrayMaskAlpha = null;
-		this._sprite.loadTexture(this._originalTextureKey);
+		this._sprite.setTexture(this._originalTextureKey);
 	}
 
 	/**
@@ -3109,7 +3109,7 @@ class CreatureSprite {
 		if (!this._safeDrawXray(this._xrayRefCreatures, bmd)) {
 			return;
 		}
-		this._sprite.loadTexture(bmd.key);
+		this._sprite.setTexture(bmd.key);
 	}
 
 	private _resolveFrameSourceRect(
@@ -3507,7 +3507,7 @@ class CreatureSprite {
 		const src = this._xrayOriginalAlpha;
 		const dst = out.data;
 		// The bitmap is written in the obstructor's own texture space: the
-		// renderer mirrors it through `sprite.scale.x`, so the cardboard
+		// renderer mirrors it through `sprite.scaleX`, so the cardboard
 		// snapshot is copied 1:1. Pre-mirroring it here would flip a flipped
 		// (blue) unit's cardboard a second time and it would face backwards
 		// for as long as it stays xrayed.
@@ -3620,8 +3620,8 @@ class CreatureSprite {
 		}
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const spriteObj: any = (this as any)._healthIndicatorSprite;
-		if (spriteObj && typeof spriteObj.loadTexture === 'function') {
-			spriteObj.loadTexture(`p${this._creatureTeam}_${type}`);
+		if (spriteObj && typeof spriteObj.setTexture === 'function') {
+			spriteObj.setTexture(`p${this._creatureTeam}_${type}`);
 		}
 	}
 
@@ -3709,7 +3709,7 @@ class CreatureSprite {
 
 	private restartNoActionHintBounce() {
 		if (this._noActionHintElements.length > 0) {
-			this._noActionHintElements = this._noActionHintElements.filter((hint) => hint.exists);
+			this._noActionHintElements = this._noActionHintElements.filter((hint) => hint.active);
 			this._noActionHintElements.forEach((hint) => {
 				if (typeof hintState(hint).baseY !== 'number') {
 					hintState(hint).baseY = hint.y;
@@ -3728,7 +3728,7 @@ class CreatureSprite {
 					.yoyo(true)
 					.repeat(-1);
 				hintState(hint).tweenBounce.onUpdateCallback(() => {
-					if (!hint.exists) {
+					if (!hint.active) {
 						return;
 					}
 					hint.y = hintState(hint).baseY + bounceSrc.offset;
@@ -3737,7 +3737,7 @@ class CreatureSprite {
 			return;
 		}
 
-		if (!this._noActionHintGroup || !this._noActionHintGroup.exists) {
+		if (!this._noActionHintGroup || !this._noActionHintGroup.active) {
 			return;
 		}
 
@@ -3757,7 +3757,7 @@ class CreatureSprite {
 			.yoyo(true)
 			.repeat(-1);
 		this._noActionHintTween.onUpdateCallback(() => {
-			if (!this._noActionHintGroup || !this._noActionHintGroup.exists) {
+			if (!this._noActionHintGroup || !this._noActionHintGroup.active) {
 				return;
 			}
 			this._noActionHintGroup.y = bounceSrc.offset;
@@ -3770,7 +3770,7 @@ class CreatureSprite {
 			this._noActionHintTween = null;
 		}
 
-		if (this._noActionHintGroup && this._noActionHintGroup.exists) {
+		if (this._noActionHintGroup && this._noActionHintGroup.active) {
 			this._noActionHintGroup.destroy(true);
 		}
 		this._noActionHintGroup = null;
@@ -3863,7 +3863,7 @@ class CreatureSprite {
 			this._hintGrp.forEach(
 				(hint: any) => {
 					const state = peekHintState(hint);
-					if (!hint.exists || !state) {
+					if (!hint.active || !state) {
 						return;
 					}
 
@@ -3907,7 +3907,7 @@ class CreatureSprite {
 			const existingConfirmHints: any[] = [];
 			this._hintGrp.forEach(
 				(hint: any) => {
-					if (!hint.exists || hintState(hint).hintType !== 'confirm') {
+					if (!hint.active || hintState(hint).hintType !== 'confirm') {
 						return;
 					}
 
@@ -3949,7 +3949,7 @@ class CreatureSprite {
 				return;
 			}
 
-			if (this._noActionHintElements.some((hint) => hint.exists)) {
+			if (this._noActionHintElements.some((hint) => hint.active)) {
 				this.restartNoActionHintBounce();
 				return;
 			}
@@ -3979,7 +3979,7 @@ class CreatureSprite {
 				undefined,
 				this._hintGrp,
 			);
-			noActionFrame.anchor.setTo(0.5, 0.175);
+			noActionFrame.setOrigin(0.5, 0.175);
 			noActionFrame.setScale(0.75);
 			noActionFrame.alpha = 0;
 			noActionFrame.visible = true;
@@ -3994,7 +3994,7 @@ class CreatureSprite {
 			this._enableSkipTurnInput(noActionFrame);
 
 			const noActionIcon = this._gameEngine.add.sprite(0, 29, 'skip', undefined, this._hintGrp);
-			noActionIcon.anchor.setTo(0.5, 0.745);
+			noActionIcon.setOrigin(0.5, 0.745);
 			noActionIcon.setScale(0.15);
 			noActionIcon.alpha = 0;
 			noActionIcon.visible = true;
@@ -4009,7 +4009,7 @@ class CreatureSprite {
 			this._enableSkipTurnInput(noActionIcon);
 
 			const noActionText = this._gameEngine.add.text(0, 50, text, style, this._hintGrp);
-			noActionText.anchor.setTo(0.5, 0.5);
+			noActionText.setOrigin(0.5, 0.5);
 			noActionText.alpha = 0;
 			hintState(noActionText).hintType = 'no_action';
 			hintState(noActionText).tweenAlpha = null;
@@ -4084,7 +4084,7 @@ class CreatureSprite {
 		);
 
 		const hint = this._gameEngine.add.text(0, 50, text, style, this._hintGrp);
-		hint.anchor.setTo(0.5, 0.5);
+		hint.setOrigin(0.5, 0.5);
 
 		hint.alpha = isSkipTurnConfirm ? 1 : 0;
 		hintState(hint).hintType = hintType;
@@ -4135,7 +4135,7 @@ class CreatureSprite {
 				undefined,
 				this._hintGrp,
 			);
-			combinedSprite.anchor.setTo(0.5, 0.175);
+			combinedSprite.setOrigin(0.5, 0.175);
 			combinedSprite.setScale(0.75);
 			combinedSprite.alpha = isSkipTurnConfirm ? 1 : 0;
 			combinedSprite.visible = true;
@@ -4154,7 +4154,7 @@ class CreatureSprite {
 
 			// Add "Skip turn" icon
 			const skipTurnIcon = this._gameEngine.add.sprite(0, 29, 'skip', undefined, this._hintGrp);
-			skipTurnIcon.anchor.setTo(0.5, 0.745);
+			skipTurnIcon.setOrigin(0.5, 0.745);
 			skipTurnIcon.setScale(0.15);
 			skipTurnIcon.alpha = isSkipTurnConfirm ? 1 : 0;
 			skipTurnIcon.visible = true;
@@ -4217,7 +4217,7 @@ class CreatureSprite {
 	stopNoActionHintBounce() {
 		this._noActionHintElements.forEach((hint) => {
 			const state = peekHintState(hint);
-			if (!hint.exists || !state) {
+			if (!hint.active || !state) {
 				return;
 			}
 
@@ -4230,13 +4230,13 @@ class CreatureSprite {
 				hint.y = state.baseY;
 			}
 		});
-		this._noActionHintElements = this._noActionHintElements.filter((hint) => hint.exists);
+		this._noActionHintElements = this._noActionHintElements.filter((hint) => hint.active);
 
 		if (this._noActionHintTween) {
 			this._noActionHintTween.stop();
 			this._noActionHintTween = null;
 		}
-		if (this._noActionHintGroup && this._noActionHintGroup.exists) {
+		if (this._noActionHintGroup && this._noActionHintGroup.active) {
 			this._noActionHintGroup.y = 0;
 		}
 	}
@@ -4244,7 +4244,7 @@ class CreatureSprite {
 	fadeOutNoActionHints() {
 		const tooltipSpeed = 250;
 		const tooltipTransition = Easing.Linear.None;
-		const noActionHints = this._noActionHintElements.filter((hint) => hint.exists);
+		const noActionHints = this._noActionHintElements.filter((hint) => hint.active);
 		this._noActionHintElements = [];
 
 		// Tag as deleted immediately so any concurrent hint('Skip turn','confirm') call
@@ -4286,7 +4286,7 @@ class CreatureSprite {
 				.to({ alpha: 0 }, tooltipSpeed, tooltipTransition)
 				.start();
 			hintState(hint).tweenAlpha.onComplete.add(() => {
-				if (hint.exists) {
+				if (hint.active) {
 					hint.destroy();
 				}
 			});
@@ -4296,7 +4296,7 @@ class CreatureSprite {
 			this._noActionHintTween.stop();
 			this._noActionHintTween = null;
 		}
-		if (this._noActionHintGroup && this._noActionHintGroup.exists) {
+		if (this._noActionHintGroup && this._noActionHintGroup.active) {
 			const group = this._noActionHintGroup;
 			this._noActionHintGroup = null;
 

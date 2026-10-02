@@ -59,10 +59,9 @@ function createEngineMock(resident: Map<string, { width: number; height: number 
 			y: 0,
 			alpha: 1,
 			depth: 0,
-			// `exists` and the `anchor`/`scale`/`data`/`parent`/`position` shims
-			// below are Phaser 2 CE members that `creature.ts` still calls; it is
-			// mid-migration off them. They stay until it no longer does. The
-			// native members alongside them are what the migrated hint code uses.
+			// `exists`, `data`, `parent` and `position` are Phaser 2 CE members
+			// still read by the rest of `creature.ts`; they go when the group
+			// migration does. The rest is native Phaser 4 shape.
 			exists: true,
 			active: true,
 			visible: true,
@@ -144,6 +143,11 @@ function createEngineMock(resident: Map<string, { width: number; height: number 
 			alpha: 1,
 			depth: 0,
 			exists: true,
+			active: true,
+			originX: 0.5,
+			originY: 0.5,
+			scaleX: 1,
+			scaleY: 1,
 			children: [] as any[],
 			length: 0,
 			total: 0,
@@ -180,6 +184,28 @@ function createEngineMock(resident: Map<string, { width: number; height: number 
 				[...group.children].forEach((child) => callback.call(context, child));
 			},
 			getIndex: (child: any) => group.children.indexOf(child),
+			// Native names for the members the engine facade used to translate.
+			// `setPosition` replaces the `position.set` shim.
+			setPosition: (x: number, y: number) => {
+				group.x = x;
+				group.y = y;
+				return group;
+			},
+			setOrigin: (ox: number, oy?: number) => {
+				group.originX = ox;
+				group.originY = oy === undefined ? ox : oy;
+				return group;
+			},
+			setScale: (sx: number, sy?: number) => {
+				group.scaleX = sx;
+				group.scaleY = sy === undefined ? sx : sy;
+				return group;
+			},
+			setActive: (value: boolean) => {
+				group.active = value;
+				group.exists = value;
+				return group;
+			},
 			setDepth: (value: number) => {
 				group.depth = value;
 			},
