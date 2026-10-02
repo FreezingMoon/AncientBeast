@@ -748,7 +748,7 @@ export class Hex {
 	 * frame space, so it stays centred on the frame whichever origin is set.
 	 */
 	private pinTopLeft(sprite: SpriteHandle, x: number, y: number) {
-		sprite.anchor.setTo(0, 0);
+		sprite.setOrigin(0, 0);
 		sprite.x = x;
 		sprite.y = y;
 	}
@@ -766,7 +766,7 @@ export class Hex {
 	updateStyle() {
 		const loadTextureIfChanged = (sprite: SpriteHandle, key: string) => {
 			if (sprite.key !== key) {
-				sprite.loadTexture(key);
+				sprite.setTexture(key);
 			}
 		};
 
@@ -791,7 +791,7 @@ export class Hex {
 			this.grid.displayHexesGroup.bringToTop(this.display);
 		} else if (this.displayClasses.match(/\babilityRange\b/)) {
 			loadTextureIfChanged(this.display, 'ability_range');
-			this.display.anchor.setTo(0.5, 0.5);
+			this.display.setOrigin(0.5, 0.5);
 			this.grid.displayHexesGroup.bringToTop(this.display);
 		} else if (this.displayClasses.match(/\badj\b/)) {
 			loadTextureIfChanged(this.display, 'hex_path');
@@ -828,20 +828,20 @@ export class Hex {
 			this.display.alignIn(this.hitBox, ALIGN_CENTER);
 			this.overlay.alignIn(this.hitBox, ALIGN_CENTER);
 		} else if (this.displayClasses.match(/shrunken/)) {
-			this.display.scale.setTo(shrinkScale);
-			this.overlay.scale.setTo(shrinkScale);
+			this.display.setScale(shrinkScale, shrinkScale);
+			this.overlay.setScale(shrinkScale, shrinkScale);
 			this.display.alignIn(this.hitBox, ALIGN_CENTER);
 			this.overlay.alignIn(this.hitBox, ALIGN_CENTER);
 		} else {
-			this.display.scale.setTo(1);
-			this.overlay.scale.setTo(1);
+			this.display.setScale(1, 1);
+			this.overlay.setScale(1, 1);
 			this.pinTopLeft(this.display, this.drawPoint.x, this.drawPoint.y);
 			this.overlay.alignIn(this.hitBox, ALIGN_CENTER);
 		}
 
 		// Display Coord
 		if (this.displayClasses.match(/showGrid/g)) {
-			if (!(this.coordText && this.coordText.exists)) {
+			if (!(this.coordText && this.coordText.active)) {
 				this.coordText = this.game.gameEngine.add.text(
 					0,
 					0,
@@ -857,11 +857,11 @@ export class Hex {
 					this.coordText.stroke = '#ffffff';
 					this.coordText.strokeThickness = 5;
 				}
-				this.coordText.anchor.setTo(0.5);
+				this.coordText.setOrigin(0.5, 0.5);
 				this.coordText.x = this.originalDisplayPos.x - HEX_DISPLAY_X_HACK + 45;
 				this.coordText.y = this.originalDisplayPos.y + 63;
 			}
-		} else if (this.coordText && this.coordText.exists) {
+		} else if (this.coordText && this.coordText.active) {
 			this.coordText.destroy();
 		}
 
@@ -899,7 +899,7 @@ export class Hex {
 			}
 		} else {
 			loadTextureIfChanged(this.overlay, 'input');
-			this.overlay.anchor.set(0.5, 0.5);
+			this.overlay.setOrigin(0.5, 0.5);
 			if (!this.isSpinning) {
 				this.startSpinning();
 			}

@@ -20,6 +20,7 @@ import { createGameChannels } from '../../game-events/factory';
 import { GHOST_PREVIEW_ALPHA } from '../../utility/const';
 import { Creature } from '../../creature';
 import { notifyTextureLoaded, resetOnDemandTextures, setOnDemandLoader } from '../../assets';
+import { createSpriteMock } from '../../../test/sprite-mock';
 
 describe('HexGrid previewCreature query guards', () => {
 	beforeAll(() => {
@@ -162,18 +163,18 @@ describe('HexGrid previewCreature depth banding', () => {
 		};
 	});
 
-	const makePreviewSprite = () => ({
-		depth: 0,
-		posy: undefined as number | undefined,
-		alpha: 0,
-		anchor: { setTo: jest.fn() },
-		scale: { setTo: jest.fn() },
-		texture: { width: 112, height: 200 },
-		setDepth: jest.fn(function (this: { depth: number }, value: number) {
-			this.depth = value;
-		}),
-		loadTexture: jest.fn(),
-	});
+	const makePreviewSprite = () => {
+		const sprite = createSpriteMock({
+			depth: 0,
+			alpha: 0,
+			width: 112,
+			height: 200,
+			// `orderCreatureZ` reads the texture frame's height off the sprite;
+			// the double carries it as `width`/`height` the way Phaser 4 does.
+			extra: { posy: undefined as number | undefined, texture: { width: 112, height: 200 } },
+		});
+		return sprite;
+	};
 
 	/**
 	 * Minimal grid whose orderCreatureZ() is the real implementation, so the
@@ -224,7 +225,13 @@ describe('HexGrid previewCreature depth banding', () => {
 			restoreReachableHexVisual: jest.fn(),
 			creatureGroup: {
 				create: jest.fn(() => {
-					const sprite = makePreviewSprite();
+					const sprite = createSpriteMock({
+						depth: 0,
+						alpha: 0,
+						width: 112,
+						height: 200,
+						extra: { posy: undefined, texture: { width: 112, height: 200 } },
+					});
 					createdSprites.push(sprite);
 					return sprite;
 				}),
@@ -302,7 +309,7 @@ describe('HexGrid previewCreature depth banding', () => {
 		HexGrid.prototype.previewCreature.call(gridMock, { x: 1, y: 1 }, priestData, activePlayer);
 
 		expect(gridMock.creatureGroup.create).not.toHaveBeenCalled();
-		expect(overlay.loadTexture).toHaveBeenCalled();
+		expect(overlay.setTexture).toHaveBeenCalled();
 	});
 
 	test('the ghost is held at the ghost opacity, with no tween to animate it', () => {
@@ -427,18 +434,13 @@ describe('HexGrid previewCreature lazy cardboard loading', () => {
 			restoreReachableHexVisual: jest.fn(),
 			creatureGroup: {
 				create: jest.fn(() => {
-					const sprite = {
+					const sprite = createSpriteMock({
 						depth: 0,
-						posy: undefined as number | undefined,
 						alpha: 0,
-						anchor: { setTo: jest.fn() },
-						scale: { setTo: jest.fn() },
-						texture: { width: 112, height: 200 },
-						setDepth: jest.fn(function (this: { depth: number }, v: number) {
-							this.depth = v;
-						}),
-						loadTexture: jest.fn(),
-					};
+						width: 112,
+						height: 200,
+						extra: { posy: undefined, texture: { width: 112, height: 200 } },
+					});
 					createdSprites.push(sprite);
 					return sprite;
 				}),
@@ -547,7 +549,7 @@ describe('HexGrid xray hover behavior', () => {
 		const blocker = makeCreature(3, { left: 22, top: 22, right: 38, bottom: 38 });
 
 		const trapSprite = {
-			exists: true,
+			active: true,
 			getBounds: jest.fn(() => ({ left: 20, top: 20, right: 40, bottom: 40 })),
 		};
 
@@ -597,7 +599,7 @@ describe('HexGrid xray hover behavior', () => {
 		const farCreature = makeCreature(3, { left: 100, top: 100, right: 120, bottom: 120 });
 
 		const trapSprite = {
-			exists: true,
+			active: true,
 			getBounds: jest.fn(() => ({ left: 20, top: 20, right: 40, bottom: 40 })),
 		};
 
@@ -640,7 +642,7 @@ describe('HexGrid xray hover behavior', () => {
 		const blocker = makeCreature(3, { left: 18, top: 18, right: 42, bottom: 42 });
 
 		const trapSprite = {
-			exists: true,
+			active: true,
 			getBounds: jest.fn(() => ({ left: 20, top: 20, right: 40, bottom: 40 })),
 		};
 
@@ -689,7 +691,7 @@ describe('HexGrid xray hover behavior', () => {
 		const blocker = makeCreature(3, { left: 18, top: 18, right: 42, bottom: 42 });
 
 		const trapSprite = {
-			exists: true,
+			active: true,
 			getBounds: jest.fn(() => ({ left: 20, top: 20, right: 40, bottom: 40 })),
 		};
 
@@ -739,7 +741,7 @@ describe('HexGrid xray hover behavior', () => {
 		const farCreature = makeCreature(3, { left: 100, top: 100, right: 120, bottom: 120 });
 
 		const dropSprite = {
-			exists: true,
+			active: true,
 			getBounds: jest.fn(() => ({ left: 20, top: 20, right: 40, bottom: 40 })),
 		};
 
@@ -897,7 +899,7 @@ describe('HexGrid xray hover behavior', () => {
 		const blocker = makeCreature(3, { left: 19, top: 19, right: 41, bottom: 41 });
 
 		const trapSprite = {
-			exists: true,
+			active: true,
 			getBounds: jest.fn(() => ({ left: 20, top: 20, right: 40, bottom: 40 })),
 		};
 
@@ -954,11 +956,11 @@ describe('HexGrid xray hover behavior', () => {
 		const blocker = makeCreature(2, { left: 18, top: 18, right: 42, bottom: 42 });
 
 		const trapSprite = {
-			exists: true,
+			active: true,
 			getBounds: jest.fn(() => ({ left: 20, top: 20, right: 30, bottom: 34 })),
 		};
 		const dropSprite = {
-			exists: true,
+			active: true,
 			getBounds: jest.fn(() => ({ left: 24, top: 22, right: 40, bottom: 40 })),
 		};
 

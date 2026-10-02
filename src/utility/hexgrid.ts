@@ -1671,14 +1671,14 @@ export class HexGrid {
 		const hoveredTrapSprites = this.game.traps
 			.filter((trap) => trap.x === hex.x && trap.y === hex.y)
 			.flatMap((trap) => trap.getVisualSprites())
-			.filter((sprite) => sprite.exists && typeof sprite.getBounds === 'function');
+			.filter((sprite) => sprite.active && typeof sprite.getBounds === 'function');
 		const hoveredTrap =
 			hoveredTrapSprites.length > 0 ||
 			this.game.traps.some((trap) => trap.x === hex.x && trap.y === hex.y);
 		const hoveredDropSprites = (this.game.drops ?? [])
 			.filter((drop) => drop.x === hex.x && drop.y === hex.y && !drop.pickedUp)
 			.map((drop) => drop.display)
-			.filter((sprite) => sprite.exists && typeof sprite.getBounds === 'function');
+			.filter((sprite) => sprite.active && typeof sprite.getBounds === 'function');
 		const hoveredDrop = hoveredDropSprites.length > 0 || Boolean(hex.drop);
 		const hoveredRevealSprites = [...hoveredTrapSprites, ...hoveredDropSprites];
 		const hoveredRevealCreature = hoveredCreature instanceof Creature ? hoveredCreature : undefined;
@@ -2501,7 +2501,7 @@ export class HexGrid {
 				// If sprite does not exist
 				// Adding sprite
 				this.materialize_overlay = this.creatureGroup.create(0, 0, cardboard);
-				this.materialize_overlay.anchor.setTo(0.5, 1);
+				this.materialize_overlay.setOrigin(0.5, 1);
 				this.materialize_overlay.posy = pos.y;
 				// A freshly created sprite keeps depth 0, which renders it behind
 				// every creature and trap on the board. orderCreatureZ() only
@@ -2509,7 +2509,7 @@ export class HexGrid {
 				// has to be slotted into its depth band explicitly.
 				this.orderCreatureZ();
 			} else {
-				this.materialize_overlay.loadTexture(cardboard);
+				this.materialize_overlay.setTexture(cardboard);
 				if (this.materialize_overlay.posy != pos.y) {
 					this.materialize_overlay.posy = pos.y;
 					this.orderCreatureZ();
@@ -2520,12 +2520,12 @@ export class HexGrid {
 				// If sprite does not exists
 				// Adding sprite
 				this.secondary_overlay = this.creatureGroup.create(0, 0, cardboard);
-				this.secondary_overlay.anchor.setTo(0.5, 1);
+				this.secondary_overlay.setOrigin(0.5, 1);
 				this.secondary_overlay.posy = pos.y;
 				// Same as the primary overlay: slot the new sprite into its band.
 				this.orderCreatureZ();
 			} else {
-				this.secondary_overlay.loadTexture(cardboard);
+				this.secondary_overlay.setTexture(cardboard);
 				if (this.secondary_overlay.posy != pos.y) {
 					this.secondary_overlay.posy = pos.y;
 					this.orderCreatureZ();
@@ -2559,9 +2559,9 @@ export class HexGrid {
 		preview.alpha = GHOST_PREVIEW_ALPHA;
 
 		if (player.flipped) {
-			preview.scale.setTo(-1, 1);
+			preview.setScale(-1, 1);
 		} else {
-			preview.scale.setTo(1, 1);
+			preview.setScale(1, 1);
 		}
 
 		// Clean overlay from the previous preview position before painting the new one.

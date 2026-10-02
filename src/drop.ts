@@ -79,8 +79,8 @@ export class Drop {
 			this.name,
 		);
 		this.display.alpha = 0;
-		this.display.anchor.setTo(0.5, 0.5);
-		this.display.scale.setTo(1.5, 1.5);
+		this.display.setOrigin(0.5, 0.5);
+		this.display.setScale(1.5, 1.5);
 
 		game.gameEngine
 			.tween(this.display)

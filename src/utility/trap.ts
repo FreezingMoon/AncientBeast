@@ -66,11 +66,11 @@ export class Trap {
 		const targetGroup = enabled ? this.game.grid.creatureGroup : this.game.grid.trapGroup;
 		this._moveSpriteToGroup(this.display, targetGroup);
 		this._overlaySprites.forEach((sprite) => {
-			if (sprite && sprite.exists) {
+			if (sprite && sprite.active) {
 				this._moveSpriteToGroup(sprite, targetGroup);
 			}
 		});
-		if (this.displayOver && this.displayOver.exists) {
+		if (this.displayOver && this.displayOver.active) {
 			this._moveSpriteToGroup(this.displayOver, targetGroup);
 		}
 	}
@@ -138,7 +138,7 @@ export class Trap {
 		// Bonfire-spring is moved above units only while a creature occupies the same hex.
 		const targetGroup = game.grid.trapGroup;
 		this.display = targetGroup.create(px.x + HEX_WIDTH_PX / 2, px.y + 60, spriteName);
-		this.display.anchor.setTo(0.5);
+		this.display.setOrigin(0.5, 0.5);
 
 		if (type === 'bonfire-spring') {
 			game.animations.startBonfireSpringTrapAnimation(
@@ -192,8 +192,8 @@ export class Trap {
 		const destroySprite = (sprite: SpriteHandle, animation: string) => {
 			if (animation === 'shrinkDown') {
 				// Flame animation may have already set anchor to bottom; only compensate once.
-				if (sprite.anchor.y !== 1) {
-					sprite.anchor.y = 1;
+				if (sprite.originY !== 1) {
+					sprite.originY = 1;
 					sprite.y += sprite.height / 2;
 				}
 
@@ -225,7 +225,7 @@ export class Trap {
 
 	getVisualSprites(): SpriteHandle[] {
 		const sprites = [this.display, ...this._overlaySprites];
-		return sprites.filter((sprite): sprite is SpriteHandle => Boolean(sprite && sprite.exists));
+		return sprites.filter((sprite): sprite is SpriteHandle => Boolean(sprite && sprite.active));
 	}
 
 	pauseIdleAnimation() {
@@ -234,7 +234,7 @@ export class Trap {
 	}
 
 	resumeIdleAnimation() {
-		if (!this.display || !this.display.exists) {
+		if (!this.display || !this.display.active) {
 			return;
 		}
 
@@ -243,7 +243,7 @@ export class Trap {
 		}
 
 		this._overlaySprites.forEach((sprite) => {
-			if (sprite && sprite.exists) {
+			if (sprite && sprite.active) {
 				sprite.destroy();
 			}
 		});
