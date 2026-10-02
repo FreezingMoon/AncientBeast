@@ -473,7 +473,7 @@ const playMeatSickleHookEffect = (
 			// The sprite is mirrored when the creature is flipped, so the wrist
 			// pixel (measured from the image's left edge) is mirrored too — the
 			// emit point must come from the side the creature is actually facing.
-			const flipped = sourceSprite.scale.x < 0;
+			const flipped = sourceSprite.scaleX < 0;
 			// Pixels on the cardboard image, so this needs the frame size rather
 			// than the source size.
 			const sourceSize = getFrameSize(sourceSprite);
@@ -520,11 +520,11 @@ const playMeatSickleHookEffect = (
 		MEAT_SICKLE_CHAIN_KEY,
 	);
 	fxGroup.add(chain);
-	chain.anchor.setTo(0, 0.5);
+	chain.setOrigin(0, 0.5);
 	chain.visible = false;
 
 	const hook = fxGroup.create(launchPoint.x, launchPoint.y, MEAT_SICKLE_HOOK_KEY);
-	hook.anchor.setTo(0.5, 0.5);
+	hook.setOrigin(0.5, 0.5);
 	hook.alpha = 0;
 
 	let active = true;

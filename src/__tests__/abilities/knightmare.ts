@@ -315,9 +315,19 @@ describe('Knightmare Icicle Spear', () => {
 		};
 
 		const sprite = {
-			anchor: {
-				setTo: jest.fn(),
-			},
+			originX: 0.5,
+			originY: 0.5,
+			displayOriginX: 0,
+			displayOriginY: 0,
+			setOrigin: jest.fn(function (
+				this: { originX: number; originY: number },
+				ox: number,
+				oy?: number,
+			) {
+				this.originX = ox;
+				this.originY = oy === undefined ? ox : oy;
+				return this;
+			}),
 			destroy: jest.fn(),
 			rotation: 0,
 		};

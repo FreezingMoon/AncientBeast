@@ -86,8 +86,10 @@ describe('Vehemoth Falling Arrow damage fallback', () => {
 				sprite: {
 					x: number;
 					y: number;
-					anchor: { x: number; y: number };
-					scale: { x: number; y: number };
+					originX: number;
+					originY: number;
+					scaleX: number;
+					scaleY: number;
 					texture: { width: number; height: number };
 				};
 				setDir: ReturnType<typeof jest.fn>;
@@ -136,7 +138,11 @@ describe('Vehemoth Falling Arrow damage fallback', () => {
 			grid: {
 				creatureGroup: {
 					create: jest.fn(() => ({
-						anchor: { setTo: jest.fn() },
+						originX: 0.5,
+						originY: 0.5,
+						displayOriginX: 0,
+						displayOriginY: 0,
+						setOrigin: jest.fn().mockReturnThis(),
 						destroy: jest.fn(),
 						mask: null,
 					})),
@@ -189,8 +195,14 @@ describe('Vehemoth Falling Arrow damage fallback', () => {
 				})),
 				tileSprite: jest.fn(() => ({})),
 				socket: jest.fn(() => ({
-					anchor: { setTo: jest.fn() },
-					scale: { setTo: jest.fn() },
+					originX: 0.5,
+					originY: 0.5,
+					displayOriginX: 0,
+					displayOriginY: 0,
+					scaleX: 1,
+					scaleY: 1,
+					setOrigin: jest.fn().mockReturnThis(),
+					setScale: jest.fn().mockReturnThis(),
 					angle: 0,
 					destroy: jest.fn(),
 				})),
@@ -224,8 +236,10 @@ describe('Vehemoth Falling Arrow damage fallback', () => {
 					sprite: {
 						x: 0,
 						y: 0,
-						anchor: { x: 0.5, y: 1 },
-						scale: { x: 1, y: 1 },
+						originX: 0.5,
+						originY: 1,
+						scaleX: 1,
+						scaleY: 1,
 						texture: { width: 100, height: 100 },
 					},
 					setDir: jest.fn(),

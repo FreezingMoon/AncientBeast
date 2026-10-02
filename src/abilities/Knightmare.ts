@@ -586,7 +586,7 @@ export default (G: Game) => {
 					// (creature size 2: 2 * HEX_WIDTH_PX - 150 = 30)
 					const duration = Math.max(1, travelledStepCount) * 75;
 					const sprite = G.grid.creatureGroup.create(startX, startY, 'effects_icicle-spear');
-					sprite.anchor.setTo(0.5);
+					sprite.setOrigin(0.5, 0.5);
 					const dx = aimPoint.x - startX;
 					const dy = aimPoint.y - startY;
 					sprite.rotation = Math.atan2(dy, dx);

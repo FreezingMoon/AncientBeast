@@ -604,11 +604,11 @@ export default (G: Game) => {
 					// size, not the source image size.
 					const creatureSize = getFrameSize(creatureSprite);
 					const localOffsetX =
-						(cardboardNoseLocalX - creatureSprite.anchor.x * creatureSize.width) *
-						creatureSprite.scale.x;
+						(cardboardNoseLocalX - creatureSprite.originX * creatureSize.width) *
+						creatureSprite.scaleX;
 					const localOffsetY =
-						(cardboardNoseLocalY - creatureSprite.anchor.y * creatureSize.height) *
-						creatureSprite.scale.y;
+						(cardboardNoseLocalY - creatureSprite.originY * creatureSize.height) *
+						creatureSprite.scaleY;
 					const noseWorldX = creatureGroup.x + creatureSprite.x + localOffsetX;
 					const noseWorldY = creatureGroup.y + creatureSprite.y + localOffsetY;
 
@@ -617,7 +617,7 @@ export default (G: Game) => {
 					const startX = noseWorldX - Math.cos(shotAngle) * emergenceInsetPx;
 					const startY = noseWorldY - Math.sin(shotAngle) * emergenceInsetPx;
 					const sprite = G.grid.creatureGroup.create(startX, startY, 'effects_ice-bolt');
-					sprite.anchor.setTo(0, 0.5); // Center-left
+					sprite.setOrigin(0, 0.5); // Center-left
 					sprite.rotation = shotAngle;
 
 					const travelDistance = Math.hypot(impactPoint.x - startX, impactPoint.y - startY);
