@@ -2506,6 +2506,57 @@ export class Creature {
 	}
 }
 
+/**
+ * Per-hint bookkeeping: the type tag and the three tweens that drive it.
+ *
+ * Phaser 2 CE gave every game object a `DataManager` and this subsystem hung
+ * all of its state off `hint.data.*`. Phaser 4 has no equivalent, and the
+ * engine facade had been answering `data` with an untyped bag, so nothing
+ * checked these names and every read was `any`. A `WeakMap` keyed by the hint
+ * itself is the native-phaser-4 replacement: entries die with the element, and
+ * the shape is declared once rather than inferred at 114 call sites.
+ */
+type HintState = {
+	/** `null` until the element is registered; see {@link hintState}. */
+	hintType: CreatureHintType | 'confirm_deleted';
+	tweenAlpha: any | null;
+	tweenPos: any | null;
+	tweenBounce: any | null;
+	/** Resting y, captured on first bounce so a stop returns the hint to it. */
+	baseY?: number;
+	/** `confirm` hints that must not animate into place, e.g. skip turn. */
+	skipTurnStatic: boolean;
+};
+
+const hintStates = new WeakMap<object, HintState>();
+
+/** Reads the state for a hint element, if it has ever been registered. */
+function peekHintState(hint: object): HintState | undefined {
+	return hintStates.get(hint);
+}
+
+/**
+ * Reads the state for a hint element, registering a blank one on first use.
+ *
+ * Every hint element the code creates is registered as it is built, so this
+ * only ever fills in for the two paths that deliberately clear all three
+ * tweens at once: `hint()` and the skip-turn confirm branch.
+ */
+function hintState(hint: object): HintState {
+	let state = hintStates.get(hint);
+	if (!state) {
+		state = {
+			hintType: 'confirm_deleted',
+			tweenAlpha: null,
+			tweenPos: null,
+			tweenBounce: null,
+			skipTurnStatic: false,
+		};
+		hintStates.set(hint, state);
+	}
+	return state;
+}
+
 class CreatureSprite {
 	/**
 	 * Whether a sprite is still parked on Phaser's placeholder texture.
@@ -3655,27 +3706,27 @@ class CreatureSprite {
 		if (this._noActionHintElements.length > 0) {
 			this._noActionHintElements = this._noActionHintElements.filter((hint) => hint.exists);
 			this._noActionHintElements.forEach((hint) => {
-				if (typeof hint.data?.baseY !== 'number') {
-					hint.data.baseY = hint.y;
+				if (typeof hintState(hint).baseY !== 'number') {
+					hintState(hint).baseY = hint.y;
 				}
 
-				if (hint.data?.tweenBounce) {
+				if (hintState(hint).tweenBounce) {
 					return;
 				}
 
 				const bounceSrc = { offset: 0 };
 				const bounceTgt = { offset: -10 };
-				hint.y = hint.data.baseY;
-				hint.data.tweenBounce = this._gameEngine
+				hint.y = hintState(hint).baseY;
+				hintState(hint).tweenBounce = this._gameEngine
 					.tween(bounceSrc)
 					.to(bounceTgt, 350, Easing.Quadratic.InOut, true)
 					.yoyo(true)
 					.repeat(-1);
-				hint.data.tweenBounce.onUpdateCallback(() => {
+				hintState(hint).tweenBounce.onUpdateCallback(() => {
 					if (!hint.exists) {
 						return;
 					}
-					hint.y = hint.data.baseY + bounceSrc.offset;
+					hint.y = hintState(hint).baseY + bounceSrc.offset;
 				});
 			});
 			return;
@@ -3728,25 +3779,25 @@ class CreatureSprite {
 		const noActionBounceHeight = 10;
 		const noActionBounceSpeed = 350;
 		const startNoActionBounce = (hintElement: any) => {
-			if (hintElement.data.tweenBounce && hintElement.data.tweenBounce.isRunning) {
+			if (hintState(hintElement).tweenBounce && hintState(hintElement).tweenBounce.isRunning) {
 				return;
 			}
 
-			if (typeof hintElement.data.baseY !== 'number') {
-				hintElement.data.baseY = hintElement.y;
+			if (typeof hintState(hintElement).baseY !== 'number') {
+				hintState(hintElement).baseY = hintElement.y;
 			}
 
-			hintElement.y = hintElement.data.baseY;
+			hintElement.y = hintState(hintElement).baseY;
 			const bounceSrc = { offset: 0 };
 			const bounceTgt = { offset: -noActionBounceHeight };
 
-			hintElement.data.tweenBounce = this._gameEngine
+			hintState(hintElement).tweenBounce = this._gameEngine
 				.tween(bounceSrc)
 				.to(bounceTgt, noActionBounceSpeed, Easing.Quadratic.InOut, true)
 				.yoyo(true)
 				.repeat(-1);
-			hintElement.data.tweenBounce.onUpdateCallback(() => {
-				hintElement.y = hintElement.data.baseY + bounceSrc.offset;
+			hintState(hintElement).tweenBounce.onUpdateCallback(() => {
+				hintElement.y = hintState(hintElement).baseY + bounceSrc.offset;
 			});
 		};
 
@@ -3779,6 +3830,14 @@ class CreatureSprite {
 				color: '#ffffff',
 				stroke: '#000000',
 			},
+			no_action_icon: {
+				color: '#ffffff',
+				stroke: '#000000',
+			},
+			no_action_bg: {
+				color: '#ffffff',
+				stroke: '#000000',
+			},
 		};
 
 		const style = {
@@ -3798,11 +3857,12 @@ class CreatureSprite {
 			let hasSkipTurnLabel = false;
 			this._hintGrp.forEach(
 				(hint: any) => {
-					if (!hint.exists || !hint.data) {
+					const state = peekHintState(hint);
+					if (!hint.exists || !state) {
 						return;
 					}
 
-					if (hint.data.hintType !== 'confirm' && !this.isNoActionHintType(hint.data.hintType)) {
+					if (state.hintType !== 'confirm' && !this.isNoActionHintType(state.hintType)) {
 						return;
 					}
 
@@ -3818,21 +3878,21 @@ class CreatureSprite {
 			if (existingSkipHints.length > 0 && hasSkipTurnLabel) {
 				this._noActionHintElements = [];
 				existingSkipHints.forEach((hint) => {
-					if (hint.data.tweenBounce) {
-						hint.data.tweenBounce.stop();
-						hint.data.tweenBounce = null;
+					if (hintState(hint).tweenBounce) {
+						hintState(hint).tweenBounce.stop();
+						hintState(hint).tweenBounce = null;
 					}
-					if (hint.data.tweenPos) {
-						hint.data.tweenPos.stop();
-						hint.data.tweenPos = null;
+					if (hintState(hint).tweenPos) {
+						hintState(hint).tweenPos.stop();
+						hintState(hint).tweenPos = null;
 					}
-					if (hint.data.tweenAlpha) {
-						hint.data.tweenAlpha.stop();
-						hint.data.tweenAlpha = null;
+					if (hintState(hint).tweenAlpha) {
+						hintState(hint).tweenAlpha.stop();
+						hintState(hint).tweenAlpha = null;
 					}
 					hint.alpha = 1;
-					hint.data.hintType = 'confirm';
-					hint.data.skipTurnStatic = true;
+					hintState(hint).hintType = 'confirm';
+					hintState(hint).skipTurnStatic = true;
 				});
 				return;
 			}
@@ -3842,7 +3902,7 @@ class CreatureSprite {
 			const existingConfirmHints: any[] = [];
 			this._hintGrp.forEach(
 				(hint: any) => {
-					if (!hint.exists || hint.data?.hintType !== 'confirm') {
+					if (!hint.exists || hintState(hint).hintType !== 'confirm') {
 						return;
 					}
 
@@ -3857,24 +3917,24 @@ class CreatureSprite {
 				this._noActionHintElements = [];
 
 				existingConfirmHints.forEach((hint) => {
-					if (hint.data?.tweenPos) {
-						hint.data.tweenPos.stop();
-						hint.data.tweenPos = null;
+					if (hintState(hint).tweenPos) {
+						hintState(hint).tweenPos.stop();
+						hintState(hint).tweenPos = null;
 					}
-					if (hint.data?.tweenAlpha) {
-						hint.data.tweenAlpha.stop();
-						hint.data.tweenAlpha = null;
+					if (hintState(hint).tweenAlpha) {
+						hintState(hint).tweenAlpha.stop();
+						hintState(hint).tweenAlpha = null;
 					}
 					hint.alpha = 1;
 
 					// Phaser 4 replaced `instanceof Phaser.Text` with the native
 					// game object `type`, which the engine handle forwards.
 					if (hint.type === 'Text') {
-						hint.data.hintType = 'no_action';
+						hintState(hint).hintType = 'no_action';
 					} else if (hint.key === 'skip') {
-						hint.data.hintType = 'no_action_icon';
+						hintState(hint).hintType = 'no_action_icon';
 					} else {
-						hint.data.hintType = 'no_action_bg';
+						hintState(hint).hintType = 'no_action_bg';
 					}
 
 					this._noActionHintElements.push(hint);
@@ -3914,10 +3974,10 @@ class CreatureSprite {
 			noActionFrame.setScale(0.75);
 			noActionFrame.alpha = 0;
 			noActionFrame.visible = true;
-			noActionFrame.data.hintType = 'no_action_bg';
-			noActionFrame.data.tweenAlpha = null;
-			noActionFrame.data.tweenPos = null;
-			noActionFrame.data.tweenBounce = null;
+			hintState(noActionFrame).hintType = 'no_action_bg';
+			hintState(noActionFrame).tweenAlpha = null;
+			hintState(noActionFrame).tweenPos = null;
+			hintState(noActionFrame).tweenBounce = null;
 			this._gameEngine
 				.tween(noActionFrame)
 				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
@@ -3929,10 +3989,10 @@ class CreatureSprite {
 			noActionIcon.setScale(0.15);
 			noActionIcon.alpha = 0;
 			noActionIcon.visible = true;
-			noActionIcon.data.hintType = 'no_action_icon';
-			noActionIcon.data.tweenAlpha = null;
-			noActionIcon.data.tweenPos = null;
-			noActionIcon.data.tweenBounce = null;
+			hintState(noActionIcon).hintType = 'no_action_icon';
+			hintState(noActionIcon).tweenAlpha = null;
+			hintState(noActionIcon).tweenPos = null;
+			hintState(noActionIcon).tweenBounce = null;
 			this._gameEngine
 				.tween(noActionIcon)
 				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
@@ -3942,10 +4002,10 @@ class CreatureSprite {
 			const noActionText = this._gameEngine.add.text(0, 50, text, style, this._hintGrp);
 			noActionText.anchor.setTo(0.5, 0.5);
 			noActionText.alpha = 0;
-			noActionText.data.hintType = 'no_action';
-			noActionText.data.tweenAlpha = null;
-			noActionText.data.tweenPos = null;
-			noActionText.data.tweenBounce = null;
+			hintState(noActionText).hintType = 'no_action';
+			hintState(noActionText).tweenAlpha = null;
+			hintState(noActionText).tweenPos = null;
+			hintState(noActionText).tweenBounce = null;
 			this._gameEngine
 				.tween(noActionText)
 				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
@@ -3957,26 +4017,27 @@ class CreatureSprite {
 				(hint: any) => {
 					const index = this._hintGrp.total - this._hintGrp.getIndex(hint) - 1;
 					const offset = -50 * index;
+					const state = hintState(hint);
 
-					if (hint.data.tweenBounce) {
-						hint.data.tweenBounce.stop();
-						hint.data.tweenBounce = null;
+					if (state.tweenBounce) {
+						state.tweenBounce.stop();
+						state.tweenBounce = null;
 					}
 
-					if (hint.data.tweenPos) {
-						hint.data.tweenPos.stop();
-						hint.data.tweenPos = null;
+					if (state.tweenPos) {
+						state.tweenPos.stop();
+						state.tweenPos = null;
 					}
 
 					hint.x = 0;
 
-					if (this.isNoActionHintType(hint.data.hintType)) {
+					if (this.isNoActionHintType(state.hintType)) {
 						hint.y = offset;
 						startNoActionBounce(hint);
 						return;
 					}
 
-					hint.data.tweenPos = this._gameEngine
+					state.tweenPos = this._gameEngine
 						.tween(hint)
 						.to({ y: offset }, tooltipSpeed, tooltipTransition)
 						.start();
@@ -3992,19 +4053,22 @@ class CreatureSprite {
 		// Animation length reduced from 250 to 100 to prevent animation overlap
 		this._hintGrp.forEach(
 			(hint: any) => {
-				if (hint.data.hintType === 'confirm' || this.isNoActionHintType(hint.data.hintType)) {
-					if (hint.data.tweenBounce) {
-						hint.data.tweenBounce.stop();
-						hint.data.tweenBounce = null;
-					}
-
-					hint.data.hintType = 'confirm_deleted';
-					hint.data.tweenAlpha = this._gameEngine
-						.tween(hint)
-						.to({ alpha: 0 }, 100, tooltipTransition)
-						.start();
-					hint.data.tweenAlpha.onComplete.add(() => hint.destroy());
+				const state = peekHintState(hint);
+				if (!state || (state.hintType !== 'confirm' && !this.isNoActionHintType(state.hintType))) {
+					return;
 				}
+
+				if (state.tweenBounce) {
+					state.tweenBounce.stop();
+					state.tweenBounce = null;
+				}
+
+				state.hintType = 'confirm_deleted';
+				state.tweenAlpha = this._gameEngine
+					.tween(hint)
+					.to({ alpha: 0 }, 100, tooltipTransition)
+					.start();
+				state.tweenAlpha.onComplete.add(() => hint.destroy());
 			},
 			this,
 			true,
@@ -4014,27 +4078,27 @@ class CreatureSprite {
 		hint.anchor.setTo(0.5, 0.5);
 
 		hint.alpha = isSkipTurnConfirm ? 1 : 0;
-		hint.data.hintType = hintType;
-		hint.data.tweenAlpha = null;
-		hint.data.tweenPos = null;
-		hint.data.tweenBounce = null;
-		hint.data.skipTurnStatic = isSkipTurnConfirm;
+		hintState(hint).hintType = hintType;
+		hintState(hint).tweenAlpha = null;
+		hintState(hint).tweenPos = null;
+		hintState(hint).tweenBounce = null;
+		hintState(hint).skipTurnStatic = isSkipTurnConfirm;
 
 		if (hintType === 'confirm') {
 			if (!isSkipTurnConfirm) {
-				hint.data.tweenAlpha = this._gameEngine
+				hintState(hint).tweenAlpha = this._gameEngine
 					.tween(hint)
 					.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
 					.start();
 			}
 		} else {
-			hint.data.tweenAlpha = this._gameEngine
+			hintState(hint).tweenAlpha = this._gameEngine
 				.tween(hint)
 				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
 				.to({ alpha: 1 }, tooltipDisplaySpeed, tooltipTransition)
 				.to({ alpha: 0 }, tooltipSpeed, tooltipTransition)
 				.start();
-			hint.data.tweenAlpha.onComplete.add(() => hint.destroy());
+			hintState(hint).tweenAlpha.onComplete.add(() => hint.destroy());
 		}
 
 		if (hintType === 'confirm') {
@@ -4062,11 +4126,11 @@ class CreatureSprite {
 			combinedSprite.setScale(0.75);
 			combinedSprite.alpha = isSkipTurnConfirm ? 1 : 0;
 			combinedSprite.visible = true;
-			combinedSprite.data.hintType = hintType;
-			combinedSprite.data.tweenAlpha = null;
-			combinedSprite.data.tweenPos = null;
-			combinedSprite.data.tweenBounce = null;
-			combinedSprite.data.skipTurnStatic = isSkipTurnConfirm;
+			hintState(combinedSprite).hintType = hintType;
+			hintState(combinedSprite).tweenAlpha = null;
+			hintState(combinedSprite).tweenPos = null;
+			hintState(combinedSprite).tweenBounce = null;
+			hintState(combinedSprite).skipTurnStatic = isSkipTurnConfirm;
 			if (!isSkipTurnConfirm) {
 				this._gameEngine
 					.tween(combinedSprite)
@@ -4081,11 +4145,11 @@ class CreatureSprite {
 			skipTurnIcon.setScale(0.15);
 			skipTurnIcon.alpha = isSkipTurnConfirm ? 1 : 0;
 			skipTurnIcon.visible = true;
-			skipTurnIcon.data.hintType = hintType;
-			skipTurnIcon.data.tweenAlpha = null;
-			skipTurnIcon.data.tweenPos = null;
-			skipTurnIcon.data.tweenBounce = null;
-			skipTurnIcon.data.skipTurnStatic = isSkipTurnConfirm;
+			hintState(skipTurnIcon).hintType = hintType;
+			hintState(skipTurnIcon).tweenAlpha = null;
+			hintState(skipTurnIcon).tweenPos = null;
+			hintState(skipTurnIcon).tweenBounce = null;
+			hintState(skipTurnIcon).skipTurnStatic = isSkipTurnConfirm;
 			if (!isSkipTurnConfirm) {
 				this._gameEngine
 					.tween(skipTurnIcon)
@@ -4100,20 +4164,21 @@ class CreatureSprite {
 			(hint: any) => {
 				const index = this._hintGrp.total - this._hintGrp.getIndex(hint) - 1;
 				const offset = -50 * index;
+				const state = hintState(hint);
 
-				if (hint.data.tweenBounce) {
-					hint.data.tweenBounce.stop();
-					hint.data.tweenBounce = null;
+				if (state.tweenBounce) {
+					state.tweenBounce.stop();
+					state.tweenBounce = null;
 				}
 
-				if (hint.data.tweenPos) {
-					hint.data.tweenPos.stop();
-					hint.data.tweenPos = null;
+				if (state.tweenPos) {
+					state.tweenPos.stop();
+					state.tweenPos = null;
 				}
 
 				hint.x = 0;
 
-				if (hint.data.hintType === 'no_action') {
+				if (state.hintType === 'no_action') {
 					this.setSkipButtonNoActionVisibility(true);
 					// Keep no-action hints stable on first show: place immediately, then bounce.
 					hint.y = offset;
@@ -4121,12 +4186,12 @@ class CreatureSprite {
 					return;
 				}
 
-				if (hint.data.skipTurnStatic) {
+				if (state.skipTurnStatic) {
 					hint.y = offset;
 					return;
 				}
 
-				hint.data.tweenPos = this._gameEngine
+				state.tweenPos = this._gameEngine
 					.tween(hint)
 					.to({ y: offset }, tooltipSpeed, tooltipTransition)
 					.start();
@@ -4138,17 +4203,18 @@ class CreatureSprite {
 
 	stopNoActionHintBounce() {
 		this._noActionHintElements.forEach((hint) => {
-			if (!hint.exists || !hint.data) {
+			const state = peekHintState(hint);
+			if (!hint.exists || !state) {
 				return;
 			}
 
-			if (hint.data.tweenBounce) {
-				hint.data.tweenBounce.stop();
-				hint.data.tweenBounce = null;
+			if (state.tweenBounce) {
+				state.tweenBounce.stop();
+				state.tweenBounce = null;
 			}
 
-			if (typeof hint.data.baseY === 'number') {
-				hint.y = hint.data.baseY;
+			if (typeof state.baseY === 'number') {
+				hint.y = state.baseY;
 			}
 		});
 		this._noActionHintElements = this._noActionHintElements.filter((hint) => hint.exists);
@@ -4172,40 +4238,41 @@ class CreatureSprite {
 		// (e.g. from cleanup queryMove on turn-end) does not detect these as live hints
 		// and spawn a second marker on top of the fading one.
 		noActionHints.forEach((hint) => {
-			if (hint.data) {
-				hint.data.hintType = 'confirm_deleted';
+			const state = peekHintState(hint);
+			if (state) {
+				state.hintType = 'confirm_deleted';
 			}
 		});
 
 		noActionHints.forEach((hint) => {
-			if (!hint.data) {
+			if (!peekHintState(hint)) {
 				return;
 			}
 
-			if (hint.data.tweenBounce) {
-				hint.data.tweenBounce.stop();
-				hint.data.tweenBounce = null;
+			if (hintState(hint).tweenBounce) {
+				hintState(hint).tweenBounce.stop();
+				hintState(hint).tweenBounce = null;
 			}
-			if (hint.data.tweenPos) {
-				hint.data.tweenPos.stop();
-				hint.data.tweenPos = null;
+			if (hintState(hint).tweenPos) {
+				hintState(hint).tweenPos.stop();
+				hintState(hint).tweenPos = null;
 			}
-			if (hint.data.tweenAlpha) {
-				hint.data.tweenAlpha.stop();
-				hint.data.tweenAlpha = null;
+			if (hintState(hint).tweenAlpha) {
+				hintState(hint).tweenAlpha.stop();
+				hintState(hint).tweenAlpha = null;
 			}
 
 			const targetY = hint.y - 30;
-			hint.data.tweenPos = this._gameEngine
+			hintState(hint).tweenPos = this._gameEngine
 				.tween(hint)
 				.to({ y: targetY }, tooltipSpeed, tooltipTransition)
 				.start();
 
-			hint.data.tweenAlpha = this._gameEngine
+			hintState(hint).tweenAlpha = this._gameEngine
 				.tween(hint)
 				.to({ alpha: 0 }, tooltipSpeed, tooltipTransition)
 				.start();
-			hint.data.tweenAlpha.onComplete.add(() => {
+			hintState(hint).tweenAlpha.onComplete.add(() => {
 				if (hint.exists) {
 					hint.destroy();
 				}
@@ -4241,31 +4308,41 @@ class CreatureSprite {
 
 		this._hintGrp.forEach(
 			(hint: any) => {
-				if (!hint.data || typeof hint.data.hintType !== 'string') {
+				// An element with no recorded type was never one of ours (the group
+				// also holds the health/frame sprites), so it is not ours to clear.
+				const state = peekHintState(hint);
+				if (!state || !state.hintType) {
 					return;
 				}
 
-				const isNoAction = this.isNoActionHintType(hint.data.hintType);
+				// An earlier clear already tagged this one and started its fade.
+				// Re-tagging it would orphan that tween and let the element be
+				// destroyed twice.
+				if (state.hintType === 'confirm_deleted') {
+					return;
+				}
+
+				const isNoAction = this.isNoActionHintType(state.hintType);
 				if (
-					!hintTypes.includes(hint.data.hintType) &&
+					!hintTypes.includes(state.hintType) &&
 					!(isNoAction && hintTypes.includes('no_action'))
 				) {
 					return;
 				}
 
-				hint.data.hintType = 'confirm_deleted';
-				if (hint.data.tweenBounce) {
-					hint.data.tweenBounce.stop();
-					hint.data.tweenBounce = null;
+				state.hintType = 'confirm_deleted';
+				if (state.tweenBounce) {
+					state.tweenBounce.stop();
+					state.tweenBounce = null;
 				}
-				if (hint.data.tweenAlpha) {
-					hint.data.tweenAlpha.stop();
+				if (state.tweenAlpha) {
+					state.tweenAlpha.stop();
 				}
-				hint.data.tweenAlpha = this._gameEngine
+				state.tweenAlpha = this._gameEngine
 					.tween(hint)
 					.to({ alpha: 0 }, 100, tooltipTransition)
 					.start();
-				hint.data.tweenAlpha.onComplete.add(() => hint.destroy());
+				state.tweenAlpha.onComplete.add(() => hint.destroy());
 			},
 			this,
 			true,
@@ -4301,6 +4378,14 @@ export type CreatureHintType =
 	| 'healing'
 	| 'msg_effects'
 	| 'creature_name'
-	| 'no_action';
+	| 'no_action'
+	/**
+	 * The two satellites of a `no_action` hint. They are separate elements in the
+	 * hint group so they can be faded and bounced independently, so each needs
+	 * its own tag even though {@link CreatureSprite.isNoActionHintType} treats all
+	 * three alike.
+	 */
+	| 'no_action_icon'
+	| 'no_action_bg';
 
 type HealthBubbleType = 'plasma' | 'frozen' | 'health';
