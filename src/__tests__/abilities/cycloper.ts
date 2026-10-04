@@ -51,6 +51,7 @@ jest.mock('../../creature', () => {
 		pickupDrop = jest.fn();
 		cleanHex = jest.fn();
 		updateHex = jest.fn();
+		queryMove = jest.fn();
 		tracePosition = jest.fn();
 		faceHex = jest.fn();
 		creatureSprite = {
@@ -998,5 +999,242 @@ describe('Cycloper abilities', () => {
 		expect(target._nextGameTurnActive).toBe(5);
 		expect(game.updateQueueDisplay).toHaveBeenCalled();
 		expect(powerAperture.end).toHaveBeenCalled();
+	});
+
+	/**
+	 * The destination query used to be deferred by one tick for everyone. A bot
+	 * confirms the direction query from inside its own resolver and drops the
+	 * pending action as soon as that resolver returns, so a destination query
+	 * opened on the next tick had nothing left to resolve it: the bot sat on a
+	 * frozen query until its decision budget ran out and the ultimate was never
+	 * used. Bots must get the destination query inline.
+	 */
+	const setUpApertureTargetQuery = (botDriven: boolean) => {
+		const cycloper = new (Creature as any)({
+			id: 15,
+			team: 0,
+			type: 'W0',
+			x: 3,
+			y: 3,
+			hexagons: [{ x: 3, y: 3 }],
+			player: { id: 0, flipped: false, creatures: [] },
+			health: 60,
+			energy: 100,
+			stats: { health: 60, energy: 100 },
+		});
+		game.activeCreature = cycloper;
+
+		const target = new (Creature as any)({
+			id: 204,
+			team: 1,
+			type: 'A1',
+			x: 5,
+			y: 3,
+			hexagons: [{ x: 5, y: 3 }],
+			player: { id: 1, flipped: true, creatures: [] },
+			health: 20,
+			stats: { health: 20, energy: 50 },
+		});
+
+		const destinationHex = {
+			x: 2,
+			y: 3,
+			pos: { x: 2, y: 3 },
+			creature: null,
+			isWalkable: () => true,
+		};
+
+		// queryDirection() is stubbed, so the only getDirectionChoices call left is
+		// the destination scan inside beginDestinationQuery().
+		game.grid.getDirectionChoices.mockReturnValue({
+			choices: [[destinationHex]],
+			hexesDashed: [],
+		});
+		game.grid.hexes = [
+			[],
+			[],
+			[],
+			[
+				{ x: 0, y: 3 },
+				{ x: 1, y: 3 },
+				{ x: 2, y: 3, isWalkable: () => true },
+			],
+		];
+		game.grid.getHexLine.mockReturnValue([
+			{ x: 3, y: 3, creature: cycloper },
+			{ x: 4, y: 3, creature: null },
+			{ x: 5, y: 3, creature: target },
+		]);
+		game.grid.hexExists = jest.fn(() => true);
+		game.grid.lastQueryOpt = { previous: true };
+		game.grid.selectedHex = { x: 1, y: 1 };
+
+		if (botDriven) {
+			game.botController = { shouldAutoResolveQuery: jest.fn(() => true) };
+		}
+
+		const powerAperture = {
+			...game.abilities[15][3],
+			creature: cycloper,
+			isUpgraded: () => false,
+			testRequirements: () => true,
+			message: '',
+		};
+
+		powerAperture.query();
+		game.grid.queryDirection.mock.calls[0][0].fnOnConfirm(
+			[
+				{ x: 4, y: 3, creature: null },
+				{ x: 5, y: 3, creature: target },
+			],
+			{ direction: 1 },
+		);
+
+		return powerAperture;
+	};
+
+	test('Power Aperture opens the destination query inline when a bot is driving', () => {
+		const powerAperture = setUpApertureTargetQuery(true);
+
+		expect(game.grid.queryHexes).toHaveBeenCalledTimes(1);
+		expect(game.grid.queryHexes.mock.calls[0][0].hexes).toEqual([
+			expect.objectContaining({ x: 2, y: 3 }),
+		]);
+		expect(powerAperture._awaitingApertureDestination).toBe(true);
+	});
+
+	test('Power Aperture keeps deferring the destination query for players', () => {
+		const powerAperture = setUpApertureTargetQuery(false);
+
+		expect(game.grid.queryHexes).not.toHaveBeenCalled();
+		jest.runOnlyPendingTimers();
+		expect(game.grid.queryHexes).toHaveBeenCalledTimes(1);
+		expect(powerAperture._awaitingApertureDestination).toBe(true);
+	});
+
+	/**
+	 * Power Aperture runs a ~2.4 s two-phase teleport, and `end()` used to run only
+	 * once that finished. Nothing froze input in the meantime, so the Cycloper
+	 * stayed both actionable and unspent for the whole animation — a bot, which
+	 * re-decides on a timer and gates only on `game.freezedInput`, walked straight
+	 * back into the query and cast the ultimate several times per turn, dragging
+	 * the same victim over and over. The cast has to commit up front, the way
+	 * Riot Shield does, and hand control back when the target lands.
+	 */
+	test('Power Aperture freezes input for the teleport and releases it once the target lands', async () => {
+		const cycloper = new (Creature as any)({
+			id: 15,
+			team: 0,
+			type: 'W0',
+			x: 3,
+			y: 3,
+			hexagons: [{ x: 3, y: 3 }],
+			player: { id: 0, flipped: false, creatures: [] },
+			health: 60,
+			energy: 100,
+			stats: { health: 60, energy: 100, reqEnergy: 0 },
+		});
+		cycloper.queryMove = jest.fn(() => {
+			game._deferredQueryMovePending -= 1;
+			game.freezedInput = false;
+		});
+		game.activeCreature = cycloper;
+		game.freezedInput = false;
+		game._deferredQueryMovePending = 0;
+
+		const target = new (Creature as any)({
+			id: 205,
+			team: 1,
+			type: 'A1',
+			x: 5,
+			y: 3,
+			hexagons: [{ x: 5, y: 3 }],
+			player: { id: 1, flipped: true, creatures: [] },
+			health: 20,
+			stats: { health: 20, energy: 50 },
+		});
+		target.pos = { x: 5, y: 3 };
+		target.sprite = {
+			texture: {
+				crop: { x: 0, y: 0, width: 100, height: 100 },
+				frame: { x: 0, y: 0, width: 100, height: 100 },
+				baseTexture: { source: {} },
+				width: 100,
+				height: 100,
+			},
+			scale: { x: 1 },
+			anchor: { y: 0 },
+			width: 100,
+			height: 100,
+			x: 0,
+			y: 0,
+		};
+		target.creatureSprite = {
+			getPos: () => ({ x: 0, y: 0 }),
+			setDir: jest.fn(),
+			setAlpha: jest.fn(),
+			setHex: jest.fn(() => Promise.resolve()),
+		};
+
+		game.grid.hexes = [
+			[],
+			[],
+			[],
+			[
+				{ x: 0, y: 3 },
+				{ x: 1, y: 3 },
+				{ x: 2, y: 3 },
+				{ x: 3, y: 3 },
+				{ x: 4, y: 3 },
+				{ x: 5, y: 3 },
+			],
+		];
+
+		const powerAperture = {
+			...game.abilities[15][3],
+			creature: cycloper,
+			_energySelfUpgraded: 20,
+			costs: { energy: 1 },
+			end: jest.fn((_disableLogMsg?: boolean, deferredEnding?: boolean) => {
+				if (deferredEnding) {
+					game.freezedInput = true;
+					game._deferredQueryMovePending += 1;
+				}
+			}),
+		};
+
+		powerAperture.activate(target, { x: 5, y: 3, pos: { x: 5, y: 3 } });
+
+		// Committed: energy spent, ability spent, input frozen for the animation.
+		// The flat part of the cost (`costs.energy`) is charged by the real
+		// `end()` through `applyCost()`, which the stub below stands in for.
+		expect(powerAperture.end).toHaveBeenCalledWith(false, true);
+		expect(game.freezedInput).toBe(true);
+		expect(cycloper.energy).toBe(81);
+		expect(cycloper.queryMove).not.toHaveBeenCalled();
+
+		jest.runAllTimers();
+		await Promise.resolve();
+		jest.runAllTimers();
+		await Promise.resolve();
+
+		// Landed: the freeze is released through the Cycloper's own queryMove,
+		// and `end()` is not called a second time.
+		expect(cycloper.queryMove).toHaveBeenCalledTimes(1);
+		expect(game.freezedInput).toBe(false);
+		expect(powerAperture.end).toHaveBeenCalledTimes(1);
+		expect(cycloper.energy).toBe(81);
+	});
+
+	test('Power Aperture clears the destination flag when the target query is reopened', () => {
+		const powerAperture = setUpApertureTargetQuery(true);
+		expect(powerAperture._awaitingApertureDestination).toBe(true);
+
+		game.grid.getDirectionChoices.mockReturnValue({
+			choices: [[{ x: 5, y: 3, direction: 1 }]],
+			hexesDashed: [],
+		});
+		powerAperture.query();
+		expect(powerAperture._awaitingApertureDestination).toBe(false);
 	});
 });

@@ -22,6 +22,8 @@ type DirectionArgs = { direction?: number };
 type CreatureDataEntry = UnitData[number];
 type CycloperAbilityState = {
 	_noAffordableApertureTargetInRange?: boolean;
+	/** True while Power Aperture's destination query is open (bot scoring hint). */
+	_awaitingApertureDestination?: boolean;
 };
 type AcrylicWallRuntimeFlags = {
 	hideFromQueue?: boolean;
@@ -1773,6 +1775,8 @@ export default (G: Game) => {
 			query: function () {
 				const ability = this;
 				const cycloper = this.creature;
+				// Re-entering the target query means any destination query was cancelled.
+				(this as CycloperAbilityState)._awaitingApertureDestination = false;
 				const baseRange = this.range.regular;
 				const useCurrentHealthCost = this.isUpgraded();
 				const abilityRange = baseRange + (isRiotShieldUpgraded(cycloper) ? 1 : 0);
@@ -1925,8 +1929,12 @@ export default (G: Game) => {
 						G.grid.updateDisplay();
 					}
 
+					// Bots flag the destination query so their strategy scores drop hexes
+					// instead of targets.
+					(ability as CycloperAbilityState)._awaitingApertureDestination = true;
+
 					// Defer queryHexes to next frame to ensure queryDirection/queryChoice handlers are fully removed
-					setTimeout(() => {
+					const openDestinationQuery = () => {
 						G.grid.queryHexes({
 							fnOnConfirm: function (hex) {
 								const preview = G.grid.materialize_overlay;
@@ -1996,7 +2004,20 @@ export default (G: Game) => {
 							},
 							ownCreatureHexShade: true,
 						});
-					}, 0); // End setTimeout
+					};
+
+					// A bot confirms the direction query from inside its own resolver and
+					// releases the pending action the moment that resolver returns, so a
+					// destination query opened on the next tick has nothing left to resolve
+					// it: input stays frozen and the bot burns its remaining decisions
+					// without ever firing the ultimate. Open it inline so the bot chains onto
+					// it, and keep the deferral for players, where it exists to let the
+					// queryDirection handlers go away before the new ones are installed.
+					if (G.botController?.shouldAutoResolveQuery?.()) {
+						openDestinationQuery();
+					} else {
+						setTimeout(openDestinationQuery, 0); // End setTimeout
+					}
 				};
 
 				G.grid.queryDirection({
@@ -2075,6 +2096,8 @@ export default (G: Game) => {
 					return;
 				}
 
+				(this as CycloperAbilityState)._awaitingApertureDestination = false;
+
 				const restoreTargetVisibility = () => {
 					target.grp.alpha = 1;
 					target.grp.visible = true;
@@ -2103,7 +2126,11 @@ export default (G: Game) => {
 					return;
 				}
 
-				const finalizeAbility = () => {
+				/**
+				 * The part of the cost that scales with the victim. The flat part
+				 * (`costs.energy`) is charged by `end()` through `applyCost()`.
+				 */
+				const deductVariableEnergyCost = () => {
 					const extraCost = Math.max(0, energyCost - (this.costs?.energy || 0));
 					if (extraCost > 0) {
 						this.creature.energy = Math.max(0, this.creature.energy - extraCost);
@@ -2111,7 +2138,9 @@ export default (G: Game) => {
 							G.UI.energyBar.animSize(this.creature.energy / this.creature.stats.energy);
 						}
 					}
+				};
 
+				const finalizeAbility = () => {
 					G.grid.forEachHex((gridHex: Hex) => {
 						gridHex.cleanOverlayVisualState();
 						gridHex.cleanDisplayVisualState();
@@ -2121,8 +2150,23 @@ export default (G: Game) => {
 						G.grid.updateDisplay();
 					}
 
-					this.end();
+					// The turn was already ended when the cast was committed, so
+					// this only releases the freeze it took.
+					this.creature.queryMove();
 				};
+
+				// Commit to the cast before anything is hidden or moved: pay the
+				// energy, mark the ability spent and freeze input for the whole
+				// ~2.4 s teleport, the same deferred ending Riot Shield uses.
+				//
+				// Nothing used to freeze here, because `end()` only ran once the
+				// animation finished — so the Cycloper stayed actionable, and
+				// unspent, for its own 2.4 s. A bot, which re-decides on a timer and
+				// gates only on `game.freezedInput`, walked straight back into this
+				// query and cast the ultimate several times per turn, dragging the
+				// same victim over and over until its decisions ran out.
+				deductVariableEnergyCost();
+				this.end(false, true);
 
 				if (G.grid.materialize_overlay) {
 					G.grid.materialize_overlay.destroy();
