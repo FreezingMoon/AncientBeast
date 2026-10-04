@@ -51,9 +51,9 @@ jobs:
        - name: Run tests
          run: bun run test
 
-        # Headless-engine smoke test: the simulation drives the real engine
-        # through NullEngine, so it catches adapter regressions that the unit
-        # tests (which use lightweight mocks) cannot.
+        # Headless-engine smoke test: the simulation drives real Phaser 4 through
+        # the same adapter the browser uses, so it catches engine-adapter
+        # regressions that the unit tests (which use lightweight mocks) cannot.
        - name: Simulation smoke test
          run: bun run simulate
          env:

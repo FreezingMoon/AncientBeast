@@ -24,9 +24,8 @@ export type PhaserNamespace = typeof import('phaser');
  *
  * This is a stable enum member (`SKIP_CHECK = 0, NORMAL = 0, ADD = 1`), not a
  * runtime object, so it is mirrored here instead of read through
- * {@link getPhaser}. That keeps additive blending usable on the headless
- * `NullEngine` path (unit tests, the authoritative Devvit server), which never
- * loads Phaser at all.
+ * {@link getPhaser}. That keeps additive blending usable before Phaser's
+ * namespace has loaded, which is the case for unit tests.
  */
 export const BLEND_MODE_ADD = 1;
 
@@ -104,11 +103,11 @@ export function loadRealPhaser(): Promise<PhaserNamespace> {
  * The loaded Phaser namespace, or `null` when the engine was never loaded.
  *
  * Use this for values that only matter to the rendered game (display objects,
- * geometry, blend modes) and whose absence is harmless off-screen. The headless
- * `NullEngine` path — unit tests and the authoritative Devvit server — runs the
- * same gameplay code without Phaser, and skips work that only a real renderer
- * would consume. Reach for {@link getPhaser} instead wherever a missing value
- * would be a genuine bug.
+ * geometry, blend modes) and whose absence is harmless off-screen. Unit tests
+ * install a Phaser mock through `test/phaser-runtime-setup.js` and so run the
+ * same gameplay code, skipping work that only a real renderer would consume.
+ * Reach for {@link getPhaser} instead wherever a missing value would be a
+ * genuine bug.
  */
 export function tryGetPhaser(): PhaserNamespace | null {
 	return phaserNamespace;

@@ -11,7 +11,7 @@
  * hint group vanished, with no error anywhere.
  *
  * The gap survived the migration because every fake group AB tests against
- * (`test/phaser-mock`, `NullEngine`, `src/__tests__/creaturesprite.ts`) defines
+ * (`test/phaser-mock`, `src/__tests__/creaturesprite.ts`) defines
  * `total` itself, so the suites exercise a shape the real facade never had.
  * This pins the real facade instead.
  */
