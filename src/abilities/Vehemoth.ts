@@ -616,7 +616,13 @@ export default (G: Game) => {
 					const emergenceInsetPx = 18;
 					const startX = noseWorldX - Math.cos(shotAngle) * emergenceInsetPx;
 					const startY = noseWorldY - Math.sin(shotAngle) * emergenceInsetPx;
-					const sprite = G.grid.creatureGroup.create(startX, startY, 'effects_ice-bolt');
+					const sprite = G.gameEngine.add.sprite(
+						startX,
+						startY,
+						'effects_ice-bolt',
+						undefined,
+						G.grid.creatureGroup,
+					);
 					sprite.setOrigin(0, 0.5); // Center-left
 					sprite.rotation = shotAngle;
 

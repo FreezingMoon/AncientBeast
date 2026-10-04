@@ -145,6 +145,14 @@ describe('Knightmare Frigid Tower', () => {
 			gameEngine: {
 				add: {
 					graphics: () => ({}),
+					sprite: () => ({
+						setOrigin: () => {},
+						rotation: 0,
+						alpha: 1,
+						x: 0,
+						y: 0,
+						destroy: () => {},
+					}),
 					bitmapData: () => ({}),
 					group: () => ({ children: [], add: () => {}, addAt: () => {}, remove: () => {} }),
 					tileSprite: () => ({}),
@@ -237,6 +245,14 @@ describe('Knightmare Icy Talons', () => {
 			gameEngine: {
 				add: {
 					graphics: () => ({}),
+					sprite: () => ({
+						setOrigin: () => {},
+						rotation: 0,
+						alpha: 1,
+						x: 0,
+						y: 0,
+						destroy: () => {},
+					}),
 					bitmapData: () => ({}),
 					group: () => ({ children: [], add: () => {}, addAt: () => {}, remove: () => {} }),
 					tileSprite: () => ({}),
@@ -371,6 +387,14 @@ describe('Knightmare Icicle Spear', () => {
 			gameEngine: {
 				add: {
 					graphics: () => ({}),
+					sprite: () => ({
+						setOrigin: () => {},
+						rotation: 0,
+						alpha: 1,
+						x: 0,
+						y: 0,
+						destroy: () => {},
+					}),
 					bitmapData: () => ({}),
 					group: () => ({ children: [], add: () => {}, addAt: () => {}, remove: () => {} }),
 					tileSprite: () => ({}),

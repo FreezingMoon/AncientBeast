@@ -2664,7 +2664,7 @@ class CreatureSprite {
 
 		// Adding sprite
 		const spriteKey = isDarkPriest ? getDarkPriestCardboardKey(creature.player) : creature.name;
-		const sprite = group.create(0, 0, spriteKey);
+		const sprite = gameEngine.add.sprite(0, 0, spriteKey, undefined, group);
 		sprite.setOrigin(0.5, 1);
 		// Placed by `setDir()` below, once the sprite and the hint group are
 		// both reachable — see `_place()` for the offset maths.
@@ -2694,10 +2694,12 @@ class CreatureSprite {
 
 		const healthIndicatorX = player.flipped ? 19 : 19 + HEX_WIDTH_PX * (size - 1);
 		const healthIndicatorY = 49;
-		const healthIndicatorSprite = healthIndicatorGroup.create(
+		const healthIndicatorSprite = gameEngine.add.sprite(
 			healthIndicatorX,
 			healthIndicatorY,
 			'p' + team + '_health',
+			undefined,
+			healthIndicatorGroup,
 		);
 		// Phaser 4 sprites default to origin (0.5, 0.5) — centred on the
 		// coordinates — but the indicator positions below were tuned for

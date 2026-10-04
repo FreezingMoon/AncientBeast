@@ -158,6 +158,15 @@ describe('Vehemoth Falling Arrow damage fallback', () => {
 		(game as any).gameEngine = {
 			cameras: { main: { shake: jest.fn() } },
 			add: {
+				sprite: jest.fn(() => ({
+					setOrigin: jest.fn(),
+					rotation: 0,
+					alpha: 1,
+					x: 0,
+					y: 0,
+					mask: null,
+					destroy: jest.fn(),
+				})),
 				graphics: jest.fn(() => ({
 					beginFill: jest.fn(),
 					drawRect: jest.fn(),
@@ -281,12 +290,17 @@ describe('Vehemoth Falling Arrow damage fallback', () => {
 		// A Graphics mask in the creature group is drawn by the WebGL renderer, so
 		// it flashed a white slab over the board and hid the projectile itself.
 		expect((game as any).gameEngine.add.graphics).not.toHaveBeenCalled();
-		expect(game.grid.creatureGroup.create).toHaveBeenCalledWith(
+		// The bolt is created through the engine, which parents it into the
+		// creature group; `Group.create` has no Phaser 4 equivalent.
+		const addSprite = (game as any).gameEngine.add.sprite;
+		expect(addSprite).toHaveBeenCalledWith(
 			expect.any(Number),
 			expect.any(Number),
 			'effects_ice-bolt',
+			undefined,
+			game.grid.creatureGroup,
 		);
-		const sprite = game.grid.creatureGroup.create.mock.results[0].value as { mask: unknown };
+		const sprite = addSprite.mock.results[0].value as { mask: unknown };
 		expect(sprite.mask).toBeNull();
 	});
 });

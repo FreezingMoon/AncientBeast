@@ -137,7 +137,13 @@ export class Trap {
 		// Traps are created in the base trap layer.
 		// Bonfire-spring is moved above units only while a creature occupies the same hex.
 		const targetGroup = game.grid.trapGroup;
-		this.display = targetGroup.create(px.x + HEX_WIDTH_PX / 2, px.y + 60, spriteName);
+		this.display = game.gameEngine.add.sprite(
+			px.x + HEX_WIDTH_PX / 2,
+			px.y + 60,
+			spriteName,
+			undefined,
+			targetGroup,
+		);
 		this.display.setOrigin(0.5, 0.5);
 
 		if (type === 'bonfire-spring') {

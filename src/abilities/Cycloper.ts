@@ -223,10 +223,12 @@ function createOpticBurstLaserEffect(
 	const targetPointX = targetX + 45;
 	const targetPointY = (targetHex?.displayPos?.y ?? target.y) - 65;
 
-	const impactSprite = G.grid.creatureGroup.create(
+	const impactSprite = G.gameEngine.add.sprite(
 		targetPointX,
 		targetPointY,
 		'effects_optic-burst',
+		undefined,
+		G.grid.creatureGroup,
 	);
 	impactSprite.setOrigin(0.5);
 	impactSprite.tint = 0x55ff77;
@@ -443,10 +445,12 @@ function createPowerAperturePhase1Effect(
 		target.creatureSprite.setAlpha(0, 0);
 	}
 
-	const impactSprite = G.grid.creatureGroup.create(
+	const impactSprite = G.gameEngine.add.sprite(
 		targetCapPoint.x,
 		targetCapPoint.y,
 		'effects_optic-burst',
+		undefined,
+		G.grid.creatureGroup,
 	);
 	impactSprite.setOrigin(0.5, 0.5);
 	impactSprite.tint = laserColor;
@@ -470,10 +474,12 @@ function createPowerAperturePhase1Effect(
 		const spawnProgress = tile.phase1StartProgress;
 		const spawnScatterX = normalX * tile.phase1Scatter;
 		const spawnScatterY = normalY * tile.phase1Scatter;
-		tile.sprite = G.grid.creatureGroup.create(
+		tile.sprite = G.gameEngine.add.sprite(
 			tile.sourceX + lineDeltaX * spawnProgress + spawnScatterX,
 			tile.sourceY + lineDeltaY * spawnProgress + spawnScatterY,
 			tile.bitmapData,
+			undefined,
+			G.grid.creatureGroup,
 		);
 		tile.sprite.setOrigin(0.5, 0.5);
 		tile.sprite.alpha = 0.45 + tile.dissolveSeed * 0.35;
@@ -636,10 +642,12 @@ function createPowerAperturePhase2Effect(
 		target.creatureSprite.setAlpha(0, 0);
 	}
 
-	const impactSprite = G.grid.creatureGroup.create(
+	const impactSprite = G.gameEngine.add.sprite(
 		destinationCapPoint.x,
 		destinationCapPoint.y,
 		'effects_optic-burst',
+		undefined,
+		G.grid.creatureGroup,
 	);
 	impactSprite.setOrigin(0.5, 0.5);
 	impactSprite.tint = laserColor;
@@ -655,10 +663,12 @@ function createPowerAperturePhase2Effect(
 	}
 
 	tiles.forEach((tile) => {
-		tile.sprite = G.grid.creatureGroup.create(
+		tile.sprite = G.gameEngine.add.sprite(
 			destinationCapPoint.x,
 			destinationCapPoint.y,
 			tile.bitmapData,
+			undefined,
+			G.grid.creatureGroup,
 		);
 		tile.sprite.setOrigin(0.5, 0.5);
 		tile.sprite.alpha = 0;
@@ -1080,7 +1090,13 @@ function createAcrylicWall3DPrintEffect(
 	G.grid.creatureGroup.add(beamGraphics);
 
 	// Create horizontal green flash
-	const flashSprite = G.grid.creatureGroup.create(wallCenterX, wallBottomY, 'effects_optic-burst');
+	const flashSprite = G.gameEngine.add.sprite(
+		wallCenterX,
+		wallBottomY,
+		'effects_optic-burst',
+		undefined,
+		G.grid.creatureGroup,
+	);
 	flashSprite.setOrigin(0.5, 0.5);
 	flashSprite.tint = laserColor;
 	flashSprite.alpha = 0.96;

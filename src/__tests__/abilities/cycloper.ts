@@ -237,6 +237,16 @@ describe('Cycloper abilities', () => {
 						mask: null,
 						destroy: jest.fn(),
 					}),
+					sprite: () => ({
+						setOrigin: jest.fn(),
+						setScale: jest.fn(),
+						angle: 0,
+						tint: 0,
+						alpha: 0,
+						x: 0,
+						y: 0,
+						destroy: jest.fn(),
+					}),
 					group: () => ({ children: [], add: () => {}, addAt: () => {}, remove: () => {} }),
 					tileSprite: () => ({}),
 					socket: () => ({

@@ -224,6 +224,21 @@ describe('Infernal Molten Hurl movement safety', () => {
 			freezedInput: false,
 			gameEngine: {
 				add: {
+					sprite: () => ({
+						setOrigin: jest.fn(),
+						setScale: jest.fn(),
+						setTexture: jest.fn(),
+						alpha: 0,
+						tint: 0,
+						rotation: 0,
+						blendMode: 0,
+						x: 0,
+						y: 0,
+						scale: { x: 1, y: 1 },
+						mask: null,
+						key: '',
+						destroy: jest.fn(),
+					}),
 					graphics: () => ({
 						beginFill: jest.fn(),
 						drawRect: jest.fn(),
@@ -336,6 +351,21 @@ describe('Infernal Molten Hurl movement safety', () => {
 			freezedInput: false,
 			gameEngine: {
 				add: {
+					sprite: () => ({
+						setOrigin: jest.fn(),
+						setScale: jest.fn(),
+						setTexture: jest.fn(),
+						alpha: 0,
+						tint: 0,
+						rotation: 0,
+						blendMode: 0,
+						x: 0,
+						y: 0,
+						scale: { x: 1, y: 1 },
+						mask: null,
+						key: '',
+						destroy: jest.fn(),
+					}),
 					graphics: () => ({
 						beginFill: jest.fn(),
 						drawRect: jest.fn(),
@@ -431,6 +461,21 @@ describe('Infernal trap damage safety', () => {
 			},
 			gameEngine: {
 				add: {
+					sprite: () => ({
+						setOrigin: jest.fn(),
+						setScale: jest.fn(),
+						setTexture: jest.fn(),
+						alpha: 0,
+						tint: 0,
+						rotation: 0,
+						blendMode: 0,
+						x: 0,
+						y: 0,
+						scale: { x: 1, y: 1 },
+						mask: null,
+						key: '',
+						destroy: jest.fn(),
+					}),
 					graphics: () => ({
 						beginFill: jest.fn(),
 						drawRect: jest.fn(),
@@ -1734,6 +1779,28 @@ const getInfernalAnimationsGameMock = () => {
 				add: jest.fn(),
 				loop: jest.fn(),
 				remove: jest.fn(),
+			},
+			// Overlay creation moved from `group.create` to `gameEngine.add.sprite`,
+			// so the factory builds the same overlay mock and parents it for us.
+			add: {
+				sprite: jest.fn(
+					(
+						spriteX: number,
+						spriteY: number,
+						key: string,
+						_frame?: string,
+						parent?: InfernalGroupMock,
+					) => {
+						const sprite = createInfernalOverlayMock(parent as InfernalGroupMock, {
+							x: spriteX,
+							y: spriteY,
+							key,
+							scaleX: 1,
+						});
+						parent?.add(sprite);
+						return sprite;
+					},
+				),
 			},
 			tween: jest.fn(() => makeTween()),
 		},

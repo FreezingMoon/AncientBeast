@@ -523,7 +523,13 @@ const playMeatSickleHookEffect = (
 	chain.setOrigin(0, 0.5);
 	chain.visible = false;
 
-	const hook = fxGroup.create(launchPoint.x, launchPoint.y, MEAT_SICKLE_HOOK_KEY);
+	const hook = G.gameEngine.add.sprite(
+		launchPoint.x,
+		launchPoint.y,
+		MEAT_SICKLE_HOOK_KEY,
+		undefined,
+		fxGroup,
+	);
 	hook.setOrigin(0.5, 0.5);
 	hook.alpha = 0;
 

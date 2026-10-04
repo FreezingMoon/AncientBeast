@@ -1047,7 +1047,10 @@ const getPhaserMock = () => {
 	};
 
 	return {
-		add: self,
+		// `gameEngine.add.sprite(...)` replaced `group.create(...)`, so `add`
+		// must expose `sprite` as a factory. `self.sprite` is a plain value, so
+		// the function gets its own member rather than aliasing that field.
+		add: Object.assign(() => self, self, { sprite: () => self }),
 		cache: { getImage: () => null },
 		make: self,
 		tween: () => makeTween(),

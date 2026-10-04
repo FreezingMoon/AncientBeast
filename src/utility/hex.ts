@@ -268,7 +268,7 @@ export class Hex {
 			const x = this.originalDisplayPos.x - HEX_DISPLAY_X_HACK;
 			const y = this.originalDisplayPos.y;
 
-			this.hitBox = grid.hexesGroup.create(x, y, 'hex');
+			this.hitBox = game.gameEngine.add.sprite(x, y, 'hex', undefined, grid.hexesGroup);
 			this.hitBox.alpha = 0;
 			// A hex is the board's only interactive surface, so it is made
 			// interactive once here and left enabled; the turn gate decides what a
@@ -288,9 +288,8 @@ export class Hex {
 				const [radius_w, radius_h] = [0.58 * this.width, 0.69 * this.height];
 				const [offset_x, offset_y] = [radius_w + 2, radius_h + 9];
 				// The hexagonal hit area only drives pointer hit-testing in a real
-				// renderer; the headless `NullEngine` ignores it. Skip building it
-				// when Phaser was never loaded (unit tests, authoritative server),
-				// so this stays off the Phaser critical path there.
+				// renderer. Skip building it when Phaser was never loaded, so this
+				// stays off the Phaser critical path for unit tests.
 				const phaser = tryGetPhaser();
 				if (phaser) {
 					const { Math: PhaserMath, Geom } = phaser;
@@ -314,13 +313,13 @@ export class Hex {
 				}
 			}
 
-			this.display = grid.displayHexesGroup.create(x, y, 'hex');
+			this.display = game.gameEngine.add.sprite(x, y, 'hex', undefined, grid.displayHexesGroup);
 			this.display.alpha = 0;
 			// Pin the artwork now rather than waiting for the first updateStyle(),
 			// otherwise the hex renders one frame high while centred on its origin.
 			this.pinTopLeft(this.display, x, y);
 
-			this.overlay = grid.overlayHexesGroup.create(x, y, 'hex');
+			this.overlay = game.gameEngine.add.sprite(x, y, 'hex', undefined, grid.overlayHexesGroup);
 			this.overlay.alpha = 0;
 
 			// Binding Events

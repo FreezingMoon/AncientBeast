@@ -300,6 +300,15 @@ class TweenAdapter implements TweenHandle {
 		initialTween.destroy();
 	}
 
+	/**
+	 * Total play-through time of every queued step, excluding loop counts and
+	 * loop delays — the same figure Phaser 4 reports as `Tween.duration`.
+	 * Zero until `to()` queues a step.
+	 */
+	get duration(): number {
+		return this.chainSteps.reduce((total, step) => total + step.duration, 0);
+	}
+
 	private buildChain(): Phaser.Tweens.TweenChain | null {
 		if (this.chainSteps.length === 0) {
 			return null;

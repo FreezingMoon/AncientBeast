@@ -387,7 +387,7 @@ export class PlasmaField {
 	/**
 	 * The GPU quad, when this field is running on the shader path.
 	 *
-	 * `null` on the CPU fallback (CANVAS renderer, headless NullEngine, or when
+	 * `null` on the CPU fallback (CANVAS renderer, the HEADLESS renderer, or when
 	 * `staticMode` needs a single baked frame). The two paths are mutually
 	 * exclusive — `sprite` is whichever one is live, so callers above this class
 	 * (positioning, visibility, scale) do not need to care which is in use.
@@ -521,9 +521,7 @@ export class PlasmaField {
 		this.bmd = createCanvasSurface(this._surfaceSource, this.w, this.h);
 		// The handle is a live texture, so the sprite samples the pixels written
 		// into it below rather than falling back to the missing-texture image.
-		const sprite = this.parent.create
-			? (this.parent.create(x, y, this.bmd.key) as SpriteHandle)
-			: this._engine.add.sprite(x, y, this.bmd.key);
+		const sprite = this._engine.add.sprite(x, y, this.bmd.key, undefined, this.parent);
 		sprite.setOrigin(0.5, 0.5);
 		sprite.setScale(this.settings.scaleX, this.settings.scaleY);
 		sprite.alpha = this.alpha;
@@ -531,7 +529,7 @@ export class PlasmaField {
 		// not ADD (ADD is 1 in both Phaser 2 CE and Phaser 4), and multiplying
 		// muddies the highlight instead of blooming it — so use the constant.
 		// `BLEND_MODE_ADD` mirrors `BlendModes.ADD` rather than reading it off the
-		// Phaser namespace, so this also works on the headless NullEngine path.
+		// Phaser namespace, so this also works before Phaser has loaded.
 		sprite.blendMode = BLEND_MODE_ADD;
 		return sprite;
 	}

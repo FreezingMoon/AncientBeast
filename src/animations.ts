@@ -1,6 +1,6 @@
 import { BLEND_MODE_ADD } from './phaser/runtime';
 import { createGameCanvasSurface, type CanvasSurface } from './game-display/canvas-surface';
-import type { SpriteHandle, GroupHandle } from './engine/types';
+import type { SpriteHandle, GroupHandle, TweenHandle } from './engine/types';
 import { Easing } from './utility/easing';
 import * as arrayUtils from './utility/arrayUtils';
 import { extractTextureFrameInfo, createBitmapDataFromTexture } from './utility/bitmapUtils';
@@ -673,7 +673,13 @@ export class Animations {
 		const rand = (n: number) => Math.random() * n;
 		const randInt = (n: number) => Math.floor(rand(n));
 
-		const baseGlow = trapGroup.create(bx, by, 'trap_bonfire-spring') as SpriteHandle;
+		const baseGlow = this.game.gameEngine.add.sprite(
+			bx,
+			by,
+			'trap_bonfire-spring',
+			undefined,
+			trapGroup,
+		);
 		baseGlow.setOrigin(0.5, 1);
 		baseGlow.alpha = 0.4;
 		baseGlow.setScale(1.08, 0.72);
@@ -683,7 +689,13 @@ export class Animations {
 		);
 		overlaySprites.push(baseGlow);
 
-		const core = trapGroup.create(bx, by - 6, 'trap_bonfire-spring') as SpriteHandle;
+		const core = this.game.gameEngine.add.sprite(
+			bx,
+			by - 6,
+			'trap_bonfire-spring',
+			undefined,
+			trapGroup,
+		);
 		core.setOrigin(0.5, 1);
 		core.alpha = 0.58;
 		core.setScale(0.76, 0.98);
@@ -693,7 +705,13 @@ export class Animations {
 		);
 		overlaySprites.push(core);
 
-		const bridge = trapGroup.create(bx, by - 10, 'trap_bonfire-spring') as SpriteHandle;
+		const bridge = this.game.gameEngine.add.sprite(
+			bx,
+			by - 10,
+			'trap_bonfire-spring',
+			undefined,
+			trapGroup,
+		);
 		bridge.setOrigin(0.5, 1);
 		bridge.alpha = 0.34;
 		bridge.setScale(0.56, 1.14);
@@ -729,7 +747,13 @@ export class Animations {
 
 		for (const c of clusters) {
 			const emberX = bx + c.dx * 0.94;
-			const emberSkirt = trapGroup.create(emberX, by + 1, 'trap_bonfire-spring') as SpriteHandle;
+			const emberSkirt = this.game.gameEngine.add.sprite(
+				emberX,
+				by + 1,
+				'trap_bonfire-spring',
+				undefined,
+				trapGroup,
+			);
 			emberSkirt.setOrigin(0.5, 1);
 			emberSkirt.alpha = 0.32;
 			emberSkirt.setScale(1.02, 0.44 + c.bodyScaleY * 0.08);
@@ -750,7 +774,13 @@ export class Animations {
 				const cx = bx + c.dx * row.dxScale;
 				const isFloorRow = row.dy >= -5;
 
-				const depthBody = trapGroup.create(cx, by + row.dy, 'trap_bonfire-spring') as SpriteHandle;
+				const depthBody = this.game.gameEngine.add.sprite(
+					cx,
+					by + row.dy,
+					'trap_bonfire-spring',
+					undefined,
+					trapGroup,
+				);
 				depthBody.setOrigin(0.5, 1);
 				depthBody.alpha = 0.62 * row.alphaMul;
 				depthBody.setScale((isFloorRow ? 0.86 : 0.72) * row.scaleMul, c.bodyScaleY * row.scaleMul);
@@ -778,11 +808,13 @@ export class Animations {
 				);
 				overlaySprites.push(depthBody);
 
-				const depthTongue = trapGroup.create(
+				const depthTongue = this.game.gameEngine.add.sprite(
 					cx,
 					by + row.dy - 4,
 					'trap_bonfire-spring',
-				) as SpriteHandle;
+					undefined,
+					trapGroup,
+				);
 				depthTongue.setOrigin(0.5, 1);
 				depthTongue.alpha = 0.34 * row.alphaMul;
 				depthTongue.setScale(c.tongueScaleX * 0.66 * row.scaleMul, c.tongueScaleY * row.scaleMul);
@@ -817,7 +849,13 @@ export class Animations {
 
 		for (const c of clusters) {
 			const cx = bx + c.dx;
-			const body = trapGroup.create(cx, by - 4, 'trap_bonfire-spring') as SpriteHandle;
+			const body = this.game.gameEngine.add.sprite(
+				cx,
+				by - 4,
+				'trap_bonfire-spring',
+				undefined,
+				trapGroup,
+			);
 			body.setOrigin(0.5, 1);
 			body.alpha = 0.72;
 			body.setScale(0.78, c.bodyScaleY);
@@ -835,7 +873,13 @@ export class Animations {
 			);
 			overlaySprites.push(body);
 
-			const tongue = trapGroup.create(cx, by - 8, 'trap_bonfire-spring') as SpriteHandle;
+			const tongue = this.game.gameEngine.add.sprite(
+				cx,
+				by - 8,
+				'trap_bonfire-spring',
+				undefined,
+				trapGroup,
+			);
 			tongue.setOrigin(0.5, 1);
 			tongue.alpha = 0.36;
 			tongue.setScale(c.tongueScaleX, c.tongueScaleY);
@@ -853,7 +897,13 @@ export class Animations {
 			);
 			overlaySprites.push(tongue);
 
-			const tip = trapGroup.create(cx, by - 10, 'trap_bonfire-spring') as SpriteHandle;
+			const tip = this.game.gameEngine.add.sprite(
+				cx,
+				by - 10,
+				'trap_bonfire-spring',
+				undefined,
+				trapGroup,
+			);
 			tip.setOrigin(0.5, 1);
 			tip.alpha = 0.48;
 			tip.setScale(c.tongueScaleX * 0.55, c.tongueScaleY * 0.95);
@@ -887,7 +937,13 @@ export class Animations {
 		const by = display.y;
 		const randInt = (n: number) => Math.floor(Math.random() * n);
 
-		const innerGlow = trapGroup.create(bx, by, 'trap_scorched-ground') as SpriteHandle;
+		const innerGlow = this.game.gameEngine.add.sprite(
+			bx,
+			by,
+			'trap_scorched-ground',
+			undefined,
+			trapGroup,
+		);
 		innerGlow.setOrigin(0.5, 0.5);
 		innerGlow.alpha = 0.3;
 		innerGlow.tint = 0xffa347;
@@ -899,7 +955,13 @@ export class Animations {
 		);
 		overlaySprites.push(innerGlow);
 
-		const outerAura = trapGroup.create(bx, by, 'trap_scorched-ground') as SpriteHandle;
+		const outerAura = this.game.gameEngine.add.sprite(
+			bx,
+			by,
+			'trap_scorched-ground',
+			undefined,
+			trapGroup,
+		);
 		outerAura.setOrigin(0.5, 0.5);
 		outerAura.alpha = 0.19;
 		outerAura.tint = 0xff7a1f;
@@ -1436,7 +1498,7 @@ export class Animations {
 		args: { direction: number },
 		startX: number,
 		startY: number,
-	) {
+	): [TweenHandle, SpriteHandle, number] {
 		// Get the target's position on the projectile's path that is closest
 		const emissionPointX = this2.creature.legacyProjectileEmissionPoint.x + startX;
 		let distance = Number.MAX_SAFE_INTEGER;
@@ -1461,7 +1523,13 @@ export class Animations {
 				y: path[baseDist].displayPos.y - 20,
 			},
 			// Sprite id here
-			sprite = game.grid.creatureGroup.create(emissionPoint.x, emissionPoint.y, spriteId),
+			sprite = game.gameEngine.add.sprite(
+				emissionPoint.x,
+				emissionPoint.y,
+				spriteId,
+				undefined,
+				game.grid.creatureGroup,
+			),
 			duration = dist * 75;
 
 		sprite.setOrigin(0.5, 0.5);
@@ -1700,7 +1768,7 @@ export class Animations {
 				const shardScreenX = isFlipped ? texW - sx - sw : sx;
 				const x = spriteLeft + shardScreenX + sw / 2;
 				const y = spriteTop + sy + sh / 2;
-				const shard = game.grid.creatureGroup.create(x, y, bmd.key);
+				const shard = game.gameEngine.add.sprite(x, y, bmd.key, undefined, game.grid.creatureGroup);
 				shard.setOrigin(0.5, 0.5);
 				shard.angle = -18 + Math.random() * 36;
 
@@ -1766,7 +1834,13 @@ export class Animations {
 
 			const baseX = spriteLeft + texW / 2;
 			const baseY = spriteTop + texH / 2;
-			const baseSprite = game.grid.creatureGroup.create(baseX, baseY, baseBmd.key);
+			const baseSprite = game.gameEngine.add.sprite(
+				baseX,
+				baseY,
+				baseBmd.key,
+				undefined,
+				game.grid.creatureGroup,
+			);
 			baseSprite.setOrigin(0.5, 0.5);
 			if (isFlipped) {
 				baseSprite.scale.x = -1;
@@ -1898,7 +1972,13 @@ export class Animations {
 		// Exactly on the cardboard's own position. With the overlays at scale.y 1 an
 		// offset is not a look choice but an additive double-image, which is what
 		// reads as the unit being blurry.
-		const hazeSprite = group.create(sprite.x, sprite.y, sprite.key);
+		const hazeSprite = this.game.gameEngine.add.sprite(
+			sprite.x,
+			sprite.y,
+			sprite.key,
+			undefined,
+			group,
+		);
 		this._anchorInfernalOverlay(hazeSprite, sprite.x, sprite.y, dir, 1);
 		hazeSprite.alpha = 0;
 		hazeSprite.tint = 0xff8f3a;
@@ -1985,7 +2065,13 @@ export class Animations {
 		}
 
 		// Keep expanded heat distortion behind the cardboard to prevent ghost overlays.
-		const heatLayerSprite = group.create(sprite.x, sprite.y, sprite.key);
+		const heatLayerSprite = this.game.gameEngine.add.sprite(
+			sprite.x,
+			sprite.y,
+			sprite.key,
+			undefined,
+			group,
+		);
 		this._anchorInfernalOverlay(
 			heatLayerSprite,
 			sprite.x,
@@ -2310,7 +2396,13 @@ export class Animations {
 			state.heatUniforms = advanceShaderTime(state.heatUniforms, deltaSeconds);
 			const smokeX = state.group.x + sprite.x;
 			const smokeY = state.group.y + sprite.y;
-			const smoke = smokeGroup.create(smokeX, smokeY, sprite.key);
+			const smoke = this.game.gameEngine.add.sprite(
+				smokeX,
+				smokeY,
+				sprite.key,
+				undefined,
+				smokeGroup,
+			);
 			const growth = { x: 1 + rand(0.06), y: 0.96 + rand(0.1) };
 			this._anchorInfernalOverlay(smoke, smokeX, smokeY, dir * growth.x, growth.y);
 			// Born invisible and eased up to its peak. Appearing at full alpha steps

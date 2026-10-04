@@ -73,10 +73,12 @@ export class Drop {
 			.forEach((drop) => drop.destroy());
 		this.game.drops.push(this);
 
-		this.display = game.grid.dropGroup.create(
+		this.display = game.gameEngine.add.sprite(
 			this.hex.displayPos.x + 45,
 			this.hex.displayPos.y + 15,
 			this.name,
+			undefined,
+			game.grid.dropGroup,
 		);
 		this.display.alpha = 0;
 		this.display.setOrigin(0.5, 0.5);

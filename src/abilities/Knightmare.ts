@@ -585,7 +585,13 @@ export default (G: Game) => {
 					// Tongue is at +150 from group origin when facing right, +30 when facing left
 					// (creature size 2: 2 * HEX_WIDTH_PX - 150 = 30)
 					const duration = Math.max(1, travelledStepCount) * 75;
-					const sprite = G.grid.creatureGroup.create(startX, startY, 'effects_icicle-spear');
+					const sprite = G.gameEngine.add.sprite(
+						startX,
+						startY,
+						'effects_icicle-spear',
+						undefined,
+						G.grid.creatureGroup,
+					);
 					sprite.setOrigin(0.5, 0.5);
 					const dx = aimPoint.x - startX;
 					const dy = aimPoint.y - startY;

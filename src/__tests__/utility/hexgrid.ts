@@ -56,6 +56,8 @@ describe('HexGrid previewCreature query guards', () => {
 						tween: jest.fn(),
 					},
 				},
+				// Overlay creation moved from `creatureGroup.create` to the engine.
+				gameEngine: { add: { sprite: createOverlay } },
 			},
 			hexes: [[{}, oldHexB, oldHexA, {}, invalidTargetHex]],
 			lastQueryOpt: {
@@ -65,9 +67,7 @@ describe('HexGrid previewCreature query guards', () => {
 			secondary_overlay: undefined,
 			cleanHex,
 			restoreReachableHexVisual,
-			creatureGroup: {
-				create: createOverlay,
-			},
+			creatureGroup: {},
 		};
 
 		HexGrid.prototype.previewCreature.call(
@@ -115,6 +115,8 @@ describe('HexGrid previewCreature query guards', () => {
 						tween: jest.fn(),
 					},
 				},
+				// Overlay creation moved from `creatureGroup.create` to the engine.
+				gameEngine: { add: { sprite: createOverlay } },
 			},
 			hexes: [[{}, oldHex, {}]],
 			lastQueryOpt: {
@@ -124,9 +126,7 @@ describe('HexGrid previewCreature query guards', () => {
 			secondary_overlay: undefined,
 			cleanHex,
 			restoreReachableHexVisual,
-			creatureGroup: {
-				create: createOverlay,
-			},
+			creatureGroup: {},
 		};
 
 		HexGrid.prototype.previewCreature.call(
@@ -215,7 +215,23 @@ describe('HexGrid previewCreature depth banding', () => {
 				creatures: [],
 				traps: [],
 				drops: [],
-				gameEngine: { tween, removeTweensFrom },
+				gameEngine: {
+					tween,
+					removeTweensFrom,
+					add: {
+						sprite: jest.fn(() => {
+							const sprite = createSpriteMock({
+								depth: 0,
+								alpha: 0,
+								width: 112,
+								height: 200,
+								extra: { posy: undefined, texture: { width: 112, height: 200 } },
+							});
+							createdSprites.push(sprite);
+							return sprite;
+						}),
+					},
+				},
 			},
 			hexes,
 			lastQueryOpt: { hexes: [] },
@@ -224,17 +240,6 @@ describe('HexGrid previewCreature depth banding', () => {
 			cleanHex: jest.fn(),
 			restoreReachableHexVisual: jest.fn(),
 			creatureGroup: {
-				create: jest.fn(() => {
-					const sprite = createSpriteMock({
-						depth: 0,
-						alpha: 0,
-						width: 112,
-						height: 200,
-						extra: { posy: undefined, texture: { width: 112, height: 200 } },
-					});
-					createdSprites.push(sprite);
-					return sprite;
-				}),
 				list: [],
 			},
 			trapGroup: { list: [] },
@@ -308,7 +313,7 @@ describe('HexGrid previewCreature depth banding', () => {
 
 		HexGrid.prototype.previewCreature.call(gridMock, { x: 1, y: 1 }, priestData, activePlayer);
 
-		expect(gridMock.creatureGroup.create).not.toHaveBeenCalled();
+		expect(gridMock.game.gameEngine.add.sprite).not.toHaveBeenCalled();
 		expect(overlay.setTexture).toHaveBeenCalled();
 	});
 
@@ -424,7 +429,22 @@ describe('HexGrid previewCreature lazy cardboard loading', () => {
 				creatures: [],
 				traps: [],
 				drops: [],
-				gameEngine: { tween: () => tweenChain },
+				gameEngine: {
+					tween: () => tweenChain,
+					add: {
+						sprite: jest.fn(() => {
+							const sprite = createSpriteMock({
+								depth: 0,
+								alpha: 0,
+								width: 112,
+								height: 200,
+								extra: { posy: undefined, texture: { width: 112, height: 200 } },
+							});
+							createdSprites.push(sprite);
+							return sprite;
+						}),
+					},
+				},
 			},
 			hexes,
 			lastQueryOpt: { hexes: [] },
@@ -433,17 +453,6 @@ describe('HexGrid previewCreature lazy cardboard loading', () => {
 			cleanHex: jest.fn(),
 			restoreReachableHexVisual: jest.fn(),
 			creatureGroup: {
-				create: jest.fn(() => {
-					const sprite = createSpriteMock({
-						depth: 0,
-						alpha: 0,
-						width: 112,
-						height: 200,
-						extra: { posy: undefined, texture: { width: 112, height: 200 } },
-					});
-					createdSprites.push(sprite);
-					return sprite;
-				}),
 				list: [],
 			},
 			trapGroup: { list: [] },

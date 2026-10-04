@@ -28,6 +28,15 @@ export interface SignalHandle {
 // ─── Tween ────────────────────────────────────────────────────────────────────
 
 export interface TweenHandle {
+	/**
+	 * Total time in milliseconds for the tween to play through once, excluding
+	 * loop counts and loop delays.
+	 *
+	 * Mirrors Phaser 4's `Tween.duration`, and zero until `to()` supplies one:
+	 * Phaser only computes it in `initTweenData`, so reading it before the
+	 * first `to()` yields 0 there too.
+	 */
+	duration: number;
 	to(
 		props: Record<string, any>,
 		duration: number,
@@ -193,7 +202,6 @@ export interface GroupHandle {
 	addAt(child: any, index: number): any;
 	remove(child: any, destroy?: boolean): void;
 	removeAll(destroy?: boolean): void;
-	create(x: number, y: number, key: TextureKeyLike, frame?: string, exists?: boolean): SpriteHandle;
 	/** Native `Container.each`; hands back the same stable handle each visit. */
 	each(callback: (child: any) => void, context?: any): void;
 	sendToBack(child: any): void;
@@ -329,7 +337,7 @@ export interface GameEngine {
 	 * Whether `add.shader` produces a working fragment shader.
 	 *
 	 * False on the CANVAS renderer (Phaser 4's `ShaderCanvasRenderer` is an empty
-	 * stub, so a shader silently renders nothing) and on the headless NullEngine.
+	 * stub, so a shader silently renders nothing) and under `Phaser.HEADLESS`.
 	 * Callers that can render acceptably without a shader must check this and
 	 * fall back rather than assume a blank quad is a rendering bug.
 	 */

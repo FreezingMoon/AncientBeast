@@ -672,12 +672,6 @@ export function wrapGroup(container: Phaser.GameObjects.Container): GroupHandle 
 			container.setActive(value);
 		},
 
-		create: (x: number, y: number, key: TextureKeyLike, frame?: string, exists?: boolean) => {
-			const child = container.scene.add.sprite(x, y, key!, frame);
-			if (exists === false) child.setActive(false);
-			container.add(child);
-			return wrapGameObject(child);
-		},
 		add: (child: AnyObject) => {
 			container.add(unwrap(child));
 			return child;

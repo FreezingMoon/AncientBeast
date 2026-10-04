@@ -2500,7 +2500,13 @@ export class HexGrid {
 			if (!this.materialize_overlay) {
 				// If sprite does not exist
 				// Adding sprite
-				this.materialize_overlay = this.creatureGroup.create(0, 0, cardboard);
+				this.materialize_overlay = this.game.gameEngine.add.sprite(
+					0,
+					0,
+					cardboard,
+					undefined,
+					this.creatureGroup,
+				);
 				this.materialize_overlay.setOrigin(0.5, 1);
 				this.materialize_overlay.posy = pos.y;
 				// A freshly created sprite keeps depth 0, which renders it behind
@@ -2519,7 +2525,13 @@ export class HexGrid {
 			if (!this.secondary_overlay) {
 				// If sprite does not exists
 				// Adding sprite
-				this.secondary_overlay = this.creatureGroup.create(0, 0, cardboard);
+				this.secondary_overlay = this.game.gameEngine.add.sprite(
+					0,
+					0,
+					cardboard,
+					undefined,
+					this.creatureGroup,
+				);
 				this.secondary_overlay.setOrigin(0.5, 1);
 				this.secondary_overlay.posy = pos.y;
 				// Same as the primary overlay: slot the new sprite into its band.
