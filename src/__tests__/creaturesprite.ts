@@ -180,7 +180,10 @@ function createEngineMock(resident: Map<string, { width: number; height: number 
 				sprite.y = y;
 				return group.add(sprite);
 			},
-			forEach: (callback: (child: any) => void, context?: any) => {
+			// Native `Container.each`. Phaser 2's `forEach` took a third
+			// `skipList` argument; `creature.ts` dropped it, so the double has
+			// no reason to carry the extra shape.
+			each: (callback: (child: any) => void, context?: any) => {
 				[...group.children].forEach((child) => callback.call(context, child));
 			},
 			getIndex: (child: any) => group.children.indexOf(child),

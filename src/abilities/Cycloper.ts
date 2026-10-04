@@ -234,7 +234,7 @@ function createOpticBurstLaserEffect(
 	impactSprite.scale.setTo(1.4, 1.4);
 
 	const beamGraphics: any = G.gameEngine.add.graphics(0, 0);
-	G.grid.creatureGroup.addChild(beamGraphics);
+	G.grid.creatureGroup.add(beamGraphics);
 
 	const travelSteps = baseDist <= 0 ? 1 : baseDist;
 	const straightTravelDurationMs = Math.max(60, Math.min(110, travelSteps * 20));
@@ -483,7 +483,7 @@ function createPowerAperturePhase1Effect(
 	});
 
 	const beamGraphics: any = G.gameEngine.add.graphics(0, 0);
-	G.grid.creatureGroup.addChild(beamGraphics);
+	G.grid.creatureGroup.add(beamGraphics);
 
 	runTimedAnimation({
 		durationMs: laserDurationMs,
@@ -668,7 +668,7 @@ function createPowerAperturePhase2Effect(
 	});
 
 	const beamGraphics: any = G.gameEngine.add.graphics(0, 0);
-	G.grid.creatureGroup.addChild(beamGraphics);
+	G.grid.creatureGroup.add(beamGraphics);
 
 	runTimedAnimation({
 		durationMs: laserDurationMs,
@@ -1077,7 +1077,7 @@ function createAcrylicWall3DPrintEffect(
 
 	// Create beam graphics for laser line
 	const beamGraphics: any = G.gameEngine.add.graphics(0, 0);
-	G.grid.creatureGroup.addChild(beamGraphics);
+	G.grid.creatureGroup.add(beamGraphics);
 
 	// Create horizontal green flash
 	const flashSprite = G.grid.creatureGroup.create(wallCenterX, wallBottomY, 'effects_optic-burst');

@@ -827,7 +827,7 @@ type MockPhaser = {
 	isRunning?: boolean;
 	add: () => MockPhaser;
 	create: () => MockPhaser;
-	forEach: () => MockPhaser;
+	each: () => MockPhaser;
 	group: () => MockPhaser;
 	removeChild: () => MockPhaser;
 	start: () => MockPhaser;
@@ -1026,7 +1026,7 @@ const getPhaserMock = () => {
 
 	self.add = () => self;
 	self.create = () => self;
-	self.forEach = () => self;
+	self.each = () => self;
 	self.group = () => self;
 	self.removeChild = () => self;
 	self.start = () => self;

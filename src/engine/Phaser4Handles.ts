@@ -696,6 +696,25 @@ export function wrapGroup(container: Phaser.GameObjects.Container): GroupHandle 
 		removeAll: (destroy?: boolean) => {
 			container.removeAll(destroy);
 		},
+		/**
+		 * Native `Container.each`, but handing back *stable* handles.
+		 *
+		 * `wrapGameObject` memoises one proxy per game object, so every visit
+		 * yields the identical handle. That identity is load-bearing:
+		 * `CreatureSprite` keeps hint state in a `WeakMap` keyed by the handle
+		 * it registered at creation time, so its clear/fade callbacks can only
+		 * find their own state if `each` passes back that same handle.
+		 *
+		 * Forwarding `each` straight to Phaser 4 hands back the raw game
+		 * object instead, every `peekHintState` misses, and each callback
+		 * returns on its first guard line — `clearHints` silently became a
+		 * no-op that left every hint on screen at full alpha. The fake groups in
+		 * the test doubles did not catch it because they hand back the very
+		 * object they were given, which is the raw shape, not the facade's.
+		 */
+		each: (callback: (child: AnyObject) => void, context?: AnyObject) => {
+			container.each((child) => callback.call(context, wrapGameObject(child)));
+		},
 		forEach: (callback: (child: AnyObject) => void, context?: AnyObject) => {
 			container.each((child) => callback.call(context, wrapGameObject(child)));
 		},

@@ -3905,7 +3905,7 @@ class CreatureSprite {
 		if (isSkipTurnConfirm) {
 			const existingSkipHints: any[] = [];
 			let hasSkipTurnLabel = false;
-			this._hintGrp.forEach(
+			this._hintGrp.each(
 				(hint: any) => {
 					const state = peekHintState(hint);
 					if (!hint.active || !state) {
@@ -3950,7 +3950,7 @@ class CreatureSprite {
 
 		if (hintType === 'no_action') {
 			const existingConfirmHints: any[] = [];
-			this._hintGrp.forEach(
+			this._hintGrp.each(
 				(hint: any) => {
 					if (!hint.active || hintState(hint).hintType !== 'confirm') {
 						return;
@@ -3959,7 +3959,6 @@ class CreatureSprite {
 					existingConfirmHints.push(hint);
 				},
 				this,
-				true,
 			);
 
 			if (existingConfirmHints.length > 0) {
@@ -4067,7 +4066,7 @@ class CreatureSprite {
 
 			this._noActionHintElements = [noActionFrame, noActionIcon, noActionText];
 
-			this._hintGrp.forEach(
+			this._hintGrp.each(
 				(hint: any) => {
 					const index = this._hintGrp.total - this._hintGrp.getIndex(hint) - 1;
 					const offset = -50 * index;
@@ -4105,7 +4104,7 @@ class CreatureSprite {
 
 		// Remove constant element
 		// Animation length reduced from 250 to 100 to prevent animation overlap
-		this._hintGrp.forEach(
+		this._hintGrp.each(
 			(hint: any) => {
 				const state = peekHintState(hint);
 				if (!state || (state.hintType !== 'confirm' && !this.isNoActionHintType(state.hintType))) {
@@ -4218,7 +4217,7 @@ class CreatureSprite {
 		}
 
 		// Stacking
-		this._hintGrp.forEach(
+		this._hintGrp.each(
 			(hint: any) => {
 				const index = this._hintGrp.total - this._hintGrp.getIndex(hint) - 1;
 				const offset = -50 * index;
@@ -4364,7 +4363,7 @@ class CreatureSprite {
 			this.destroyNoActionHintGroup();
 		}
 
-		this._hintGrp.forEach(
+		this._hintGrp.each(
 			(hint: any) => {
 				// An element with no recorded type was never one of ours (the group
 				// also holds the health/frame sprites), so it is not ours to clear.
