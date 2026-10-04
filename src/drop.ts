@@ -131,7 +131,9 @@ export class Drop {
 			// Replace last comma with "and"
 			.replace(/, ([^,]*)$/, ' and $1');
 
-		game.log(`Gains ${gainedMessage}`);
+		// The list itself reads as the creature's own, so mark the line with the
+		// player's color rather than naming it again.
+		game.log(`Gains ${gainedMessage} %CreatureColor${creature.id}%▲%EndCreatureColor%`);
 
 		creature.player.score.push({
 			type: 'pickupDrop',
