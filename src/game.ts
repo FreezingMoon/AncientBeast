@@ -1800,6 +1800,16 @@ export default class Game {
 			}
 		}
 
+		// Player-colored fragments: %CreatureColor<id>%text%EndCreatureColor%
+		stringLog = stringLog.replace(
+			/%CreatureColor(\d+)%([\s\S]*?)%EndCreatureColor%/g,
+			(match, id, text) => {
+				const colored = this.creatures[Number(id)];
+				return colored ? "<span class='" + colored.player.color + "'>" + text + '</span>' : text;
+			},
+		);
+		stringConsole = stringConsole.replace(/%CreatureColor\d+%([\s\S]*?)%EndCreatureColor%/g, '$1');
+
 		if (!DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG) {
 			console.log(stringConsole);
 		}

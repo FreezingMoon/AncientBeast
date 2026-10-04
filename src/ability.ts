@@ -430,7 +430,8 @@ export class Ability {
 		// Configure score update for player
 		// When the ability is upgraded, add a single score bonus unique to that ability
 		if (this.isUpgraded() && this.usesLeftBeforeUpgrade() == 0) {
-			game.log(this.title + ' has been upgraded');
+			const upgradeMark = '%CreatureColor' + this.creature.id + '%▲%EndCreatureColor%';
+			game.log(this.title + ' has been upgraded ' + upgradeMark);
 			// Upgrade bonus uniqueness managed by preventing multiple bonuses
 			// with the same ability ID (which is an index 0,1,2,3 into the creature's abilities) and the creature ID
 			const bonus: ScoreEvent = {
