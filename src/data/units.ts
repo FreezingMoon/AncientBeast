@@ -861,7 +861,7 @@ export const unitData: UnitDataStructure = [
 			initiative: 100,
 			offense: 12,
 			defense: 8,
-			movement: 4,
+			movement: 3,
 			pierce: 6,
 			slash: 6,
 			crush: 6,
