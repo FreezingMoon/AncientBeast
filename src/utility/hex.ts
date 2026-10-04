@@ -6,7 +6,7 @@ import { HexGrid } from './hexgrid';
 import Game from '../game';
 import { tryGetPhaser } from '../phaser/runtime';
 import type { TweenHandle, SpriteHandle } from '../engine/types';
-import { ALIGN_CENTER } from '../engine/Phaser4Handles';
+import { alignIn, ALIGN_CENTER } from '../game-display/anchor';
 import { DEBUG } from '../debug';
 import { getPointFacade } from './pointfacade';
 import * as Const from './const';
@@ -811,9 +811,10 @@ export class Hex {
 	 *    top-left.
 	 *
 	 * Getting the hit area wrong also misplaced the overlay, which is positioned
-	 * with `alignIn(this.hitBox, ...)` — that is the targeting cursor that spins
-	 * while choosing a target. Both therefore have to be pinned, and to the same
-	 * point, or the cursor and the hex it sits on drift apart.
+	 * with `alignIn(this.overlay, this.hitBox, ...)` — that is the targeting
+	 * cursor that spins while choosing a target. Both therefore have to be
+	 * pinned, and to the same point, or the cursor and the hex it sits on drift
+	 * apart.
 	 *
 	 * The `hitArea` polygon is unaffected: it is expressed in the sprite's own
 	 * frame space, so it stays centred on the frame whichever origin is set.
@@ -891,18 +892,18 @@ export class Hex {
 
 		if (this.displayClasses.match(/\babilityRange\b/)) {
 			// Scale is managed externally by tweens; only ensure positioning.
-			this.display.alignIn(this.hitBox, ALIGN_CENTER);
-			this.overlay.alignIn(this.hitBox, ALIGN_CENTER);
+			alignIn(this.display, this.hitBox, ALIGN_CENTER);
+			alignIn(this.overlay, this.hitBox, ALIGN_CENTER);
 		} else if (this.displayClasses.match(/shrunken/)) {
 			this.display.setScale(shrinkScale, shrinkScale);
 			this.overlay.setScale(shrinkScale, shrinkScale);
-			this.display.alignIn(this.hitBox, ALIGN_CENTER);
-			this.overlay.alignIn(this.hitBox, ALIGN_CENTER);
+			alignIn(this.display, this.hitBox, ALIGN_CENTER);
+			alignIn(this.overlay, this.hitBox, ALIGN_CENTER);
 		} else {
 			this.display.setScale(1, 1);
 			this.overlay.setScale(1, 1);
 			this.pinTopLeft(this.display, this.drawPoint.x, this.drawPoint.y);
-			this.overlay.alignIn(this.hitBox, ALIGN_CENTER);
+			alignIn(this.overlay, this.hitBox, ALIGN_CENTER);
 		}
 
 		// Display Coord

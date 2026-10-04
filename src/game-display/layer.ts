@@ -196,7 +196,7 @@ export interface LayerHandleFactory {
 export interface LayerHandleLike {
 	x: number;
 	y: number;
-	scale: { set(x: number, y: number): unknown };
+	setScale(x: number, y: number): unknown;
 }
 
 /**
@@ -213,7 +213,7 @@ export function createBoardLayersWithFactory<TLayer extends LayerHandleLike>(fac
 			layer.y = BOARD_ORIGIN_Y;
 		}
 		if (spec.scaleY !== undefined) {
-			layer.scale.set(1, spec.scaleY);
+			layer.setScale(1, spec.scaleY);
 		}
 		return layer;
 	});

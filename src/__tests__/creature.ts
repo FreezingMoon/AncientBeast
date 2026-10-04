@@ -829,7 +829,7 @@ type MockPhaser = {
 	create: () => MockPhaser;
 	each: () => MockPhaser;
 	group: () => MockPhaser;
-	removeChild: () => MockPhaser;
+	remove: () => MockPhaser;
 	start: () => MockPhaser;
 	text: () => MockPhaser;
 	to: () => MockPhaser;
@@ -1028,7 +1028,7 @@ const getPhaserMock = () => {
 	self.create = () => self;
 	self.each = () => self;
 	self.group = () => self;
-	self.removeChild = () => self;
+	self.remove = () => self;
 	self.start = () => self;
 	self.text = () => self;
 	self.to = () => self;

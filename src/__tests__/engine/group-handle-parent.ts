@@ -4,9 +4,11 @@
  *
  * Phaser 2 game objects reported their parent as `parent`, and gameplay code
  * tears groups down through it — `CreatureSprite.destroy()` runs
- * `this._group.parent?.removeChild(this._group)`, which is how the
+ * `this._group.parent?.remove(this._group, true)`, which is how the
  * unmaterialized placeholder creature created for the Dark Priest's summon
- * gets detached when the real unit takes its id.
+ * gets detached when the real unit takes its id. Phaser 2 spelled the detach
+ * `removeChild`; Phaser 4's `Container` has no such member, so the call site
+ * now uses `remove`, the same method the destroy comment already described.
  *
  * Phaser 4 renamed the property to `parentContainer`, and the group facade had
  * no accessor for it, so the lookup fell through to the raw object, where a
@@ -90,7 +92,7 @@ describe('Phaser 4 group handle parent', () => {
 		parentContainer.list.push(childContainer);
 		childContainer.parentContainer = parentContainer;
 
-		(parentGroup.removeChild as (child: unknown) => void)(childGroup);
+		(parentGroup.remove as (child: unknown) => void)(childGroup);
 
 		expect(parentContainer.list).toEqual([]);
 		expect(childGroup.parent).toBeNull();

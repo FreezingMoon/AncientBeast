@@ -13,7 +13,8 @@ type MockLayer = {
 	name: string;
 	parent: MockLayer | null;
 	list: { depth?: number }[];
-	scale: { x: number; y: number; set(x: number, y: number): void };
+	setScale(x: number, y: number): void;
+	scale: { x: number; y: number };
 	x: number;
 	y: number;
 };
@@ -25,14 +26,11 @@ const createFactory = () => ({
 				name,
 				parent: parent ?? null,
 				list: [],
-				scale: {
-					x: 1,
-					y: 1,
-					set(x: number, y: number) {
-						this.x = x;
-						this.y = y;
-					},
+				setScale(x: number, y: number) {
+					layer.scale.x = x;
+					layer.scale.y = y;
 				},
+				scale: { x: 1, y: 1 },
 				x: 0,
 				y: 0,
 			};

@@ -1130,13 +1130,13 @@ describe('HexGrid display group layering', () => {
 			name: string;
 			parent?: MockGroup;
 			children: MockGroup[];
-			scale: { set: jest.Mock };
+			setScale: jest.Mock;
 		};
 		const createGroup = (parent?: MockGroup, name = ''): MockGroup => {
 			const group: MockGroup = {
 				name,
 				children: [],
-				scale: { set: jest.fn() },
+				setScale: jest.fn(),
 			};
 			if (parent) {
 				parent.children.push(group);
@@ -1172,14 +1172,14 @@ describe('HexGrid display group layering', () => {
 		type MockGroup = {
 			name: string;
 			children: MockGroup[];
-			scale: { set: jest.Mock };
+			setScale: jest.Mock;
 		};
 
 		const createGroup = (parent?: MockGroup, name = ''): MockGroup => {
 			const group: MockGroup = {
 				name,
 				children: [],
-				scale: { set: jest.fn() },
+				setScale: jest.fn(),
 			};
 			if (parent) {
 				parent.children.push(group);

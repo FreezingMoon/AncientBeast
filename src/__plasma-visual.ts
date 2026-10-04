@@ -65,7 +65,7 @@ type Hack = {
 	time: number;
 	draw(): void;
 	setPlasmaFraction(fraction: number): void;
-	sprite: { visible: boolean; y: number; scale: { set(x: number, y: number): void } };
+	sprite: { visible: boolean; y: number; setScale(x: number, y: number): void };
 };
 
 const win = window as unknown as Record<string, unknown>;
@@ -120,7 +120,7 @@ async function boot(game: Phaser.Game) {
 			cpuFields.push(cpu);
 
 			for (const f of [gpu, cpu]) {
-				(f.sprite as unknown as Hack['sprite']).scale.set(SCALE, SCALE);
+				(f.sprite as unknown as Hack['sprite']).setScale(SCALE, SCALE);
 			}
 		}
 

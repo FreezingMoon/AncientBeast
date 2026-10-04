@@ -4422,9 +4422,9 @@ class CreatureSprite {
 		}
 		// Phaser 2's `removeChild` only detached the container, leaving the
 		// cardboard, the hint group and their tweens alive with no owner — the
-		// wall's sprite outlived the wall. `remove(child, true)` destroys the
-		// whole subtree instead.
-		this._group.parent?.removeChild(this._group, true);
+		// wall's sprite outlived the wall. Phaser 4 spells it `remove`, and
+		// `remove(child, true)` destroys the whole subtree.
+		this._group.parent?.remove(this._group, true);
 	}
 }
 

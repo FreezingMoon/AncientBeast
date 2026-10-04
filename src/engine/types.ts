@@ -191,18 +191,19 @@ export interface GroupHandle {
 	};
 	add(child: any): any;
 	addAt(child: any, index: number): any;
-	addChild(child: any): any;
 	remove(child: any, destroy?: boolean): void;
-	removeChild(child: any, destroy?: boolean): void;
 	removeAll(destroy?: boolean): void;
 	create(x: number, y: number, key: TextureKeyLike, frame?: string, exists?: boolean): SpriteHandle;
-	forEach(callback: (child: any) => void, context?: any): void;
+	/** Native `Container.each`; hands back the same stable handle each visit. */
+	each(callback: (child: any) => void, context?: any): void;
 	sendToBack(child: any): void;
 	bringToTop(child: any): void;
+	/** A child's position in the draw list, or -1 when it is not a member. */
+	getIndex(child: any): number;
+	setScale(x: number, y: number): void;
 	/** Render order key; Phaser 4 owns ordering through the native `depth`. */
 	sort(property?: string, order?: number): void;
 	update(): void;
-	alignIn(center?: any, align?: number): void;
 	toLocal(point: any, output?: any): any;
 	toGlobal(point: any, output?: any): any;
 	destroy(): void;
