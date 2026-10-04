@@ -1,5 +1,5 @@
 /**
- * @jest-environment jsdom
+ * @jest-environment <rootDir>/test/jsdom-environment.js
  * @jest-environment-options {"resources": "usable"}
  */
 
