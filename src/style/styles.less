@@ -2569,7 +2569,7 @@ span.pure {
 	opacity: 1;
 	position: absolute;
 	top: 0;
-	transition: 0.7s all ease-out;
+	transition: opacity 0.7s ease-out, visibility 0.7s;
 	visibility: visible;
 	width: 100%;
 	z-index: 100;
@@ -2577,6 +2577,7 @@ span.pure {
 	&.hide {
 		opacity: 0;
 		pointer-events: none;
+		transition: opacity 0.2s ease-in, visibility 0.2s;
 		visibility: hidden;
 	}
 }

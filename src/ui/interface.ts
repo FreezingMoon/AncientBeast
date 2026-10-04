@@ -1159,7 +1159,7 @@ export class UI {
 
 		// Scoreboard close button
 		$j('.togglescore.close-button').on('click', () => {
-			this.game.channels.ui.emit('toggleScore');
+			this.closeScoreboard();
 		});
 
 		// ProgressBar
