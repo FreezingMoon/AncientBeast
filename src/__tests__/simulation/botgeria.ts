@@ -101,7 +101,22 @@ function makeUiStub() {
 		logScrollEnabled: false,
 		plasmaBars: [],
 		// Keep well-typed nested stubs for the most common UI objects
-		chat: { hide: deepNoop(), addMsg: deepNoop(), suppressMessage: deepNoop() },
+		//
+		// `chat` needs the whole method surface `Chat` declares: gameplay code
+		// reaches it directly (`game.ts` logs, abilities suppress death spam,
+		// `hexgrid` expands/collapses it), so a partial stub turns any new call
+		// site into "X is not a function" rather than a silent no-op.
+		chat: {
+			isOverCreature: false,
+			show: deepNoop(),
+			hide: deepNoop(),
+			autoHide: deepNoop(),
+			toggle: deepNoop(),
+			showExpanded: deepNoop(),
+			hideExpanded: deepNoop(),
+			addMsg: deepNoop(),
+			suppressMessage: deepNoop(),
+		},
 		cardWrapper: { find: () => ({ hide: deepNoop(), show: deepNoop() }) },
 	};
 
@@ -158,9 +173,6 @@ export async function createGame(abilities: Array<(G: any) => void>): Promise<an
 	const { PlasmaField } = await import('../../plasma-field');
 	const game: any = new Game();
 
-	// Headless engine: the neutral `GameEngine` vocabulary with inert handles and
-	// no renderer. Gameplay code talks to `gameEngine`, never to raw Phaser, so
-	// the simulation never needs a Phaser instance at all.
 	// Real `Phaser.HEADLESS`, booted through the same `Game.createPhaser()` the
 	// browser uses. The driver goes in first: the scene's `TweenManager` samples
 	// the clock while `createPhaser()` builds the scene.
