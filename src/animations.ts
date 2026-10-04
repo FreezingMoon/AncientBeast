@@ -62,6 +62,15 @@ const INFERNAL_OVERLAY_FOLLOW = 26;
 const INFERNAL_OVERLAY_SNAP_DISTANCE = 96;
 
 /**
+ * Rate of the glow's slow breath, in rad/s, so one full pulse is `2π / 0.69`
+ * ~9.1s. Tuned down three times from the 1.87 it shipped at: a quarter slower,
+ * then another 30%, then another 30%. Each step was still quick enough to read
+ * as a pulse on a unit that is meant to look like it is smouldering rather than
+ * flashing.
+ */
+const INFERNAL_GLOW_PULSE_SPEED = 0.69;
+
+/**
  * The heat layer is bottom-anchored, so any vertical scale above 1 pushes a
  * full-cardboard copy above the silhouette with nothing occluding it: a static
  * ghost hovering over the unit, which does not move or breathe with it. Held at
@@ -1830,8 +1839,10 @@ export class Animations {
 			// Overrides the shader default: at 4.2 the glow strobed hard enough to
 			// read as a flicker. Raised from 0.55 along with the alphas, because a
 			// brighter glow at 0.55 was slow enough to look like a static wash
-			// rather than something molten.
-			uPulseSpeed: 1.87,
+			// rather than something molten, then dropped three times more to
+			// INFERNAL_GLOW_PULSE_SPEED: 1.87, 1.4 and 0.98 all cycled fast enough to
+			// read as a flutter instead of a smoulder.
+			uPulseSpeed: INFERNAL_GLOW_PULSE_SPEED,
 		};
 		const heatUniforms: ShaderUniformMap = {
 			uTime: 0,
@@ -2238,14 +2249,15 @@ export class Animations {
 			const deltaSeconds = Math.min(deltaMs() / 1000, 0.1);
 			state.luminescenceUniforms = advanceShaderTime(state.luminescenceUniforms, deltaSeconds);
 			const uTime = state.luminescenceUniforms.uTime as number;
-			const pulseSpeed = (state.luminescenceUniforms.uPulseSpeed as number) ?? 1.87;
+			const pulseSpeed =
+				(state.luminescenceUniforms.uPulseSpeed as number) ?? INFERNAL_GLOW_PULSE_SPEED;
 			// Two beats, not one. A single sine is a smooth swell: it reads as a
 			// lamp being dimmed rather than something alight, because the intensity
 			// only ever changes at one rate. Layering a faster, shallower beat over
 			// the slow breath makes it fluctuate unevenly, the way a real glow does,
 			// without returning to the hard strobe the shader's 4.2 default gave.
 			const slow = 0.5 + 0.5 * Math.sin(uTime * pulseSpeed + state.hazePulsePhaseRad);
-			// ~1.9Hz against the slow beat's 0.35Hz, and only a third of the
+			// ~0.6Hz against the slow beat's 0.11Hz, and only a third of the
 			// amplitude: enough that the intensity visibly wavers several times
 			// within each breath, shallow enough that it stays a glow.
 			const fast = 0.5 + 0.5 * Math.sin(uTime * pulseSpeed * 5.5 + state.hazePulsePhaseRad * 2.7);

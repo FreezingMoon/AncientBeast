@@ -1048,16 +1048,22 @@ describe('Infernal cardboard FX regression', () => {
 		expect(haze).toBeDefined();
 
 		const samples: number[] = [];
-		for (let frame = 0; frame < 600; frame++) {
+		// Long enough to hold several slow breaths at the current pulse rate: at
+		// 0.69 rad/s one breath is ~9.1s, so 29s covers three.
+		for (let frame = 0; frame < 1800; frame++) {
 			setAbClockTime(frame * 16, 16);
 			animations.tickInfernalCardboardEffect(creature);
 			samples.push((haze as InfernalSpriteMock).alpha);
 		}
 
-		// Count direction changes, ignoring noise below the eighth of the range so
-		// a flattening top does not register as extra fluctuation.
+		// Count direction changes, ignoring per-frame noise so a flattening top
+		// does not register as extra fluctuation. The threshold has to sit under
+		// the fast beat's own frame-to-frame swing, which shrinks with the pulse
+		// rate: at the old 2% of the range it filtered that swing out once the
+		// breath was slowed, and the count collapsed onto the slow beat's own two
+		// turns per breath.
 		const span = Math.max(...samples) - Math.min(...samples);
-		const threshold = span * 0.02;
+		const threshold = span * 0.005;
 		let turns = 0;
 		let direction = 0;
 		for (let i = 1; i < samples.length; i++) {
@@ -1071,9 +1077,10 @@ describe('Infernal cardboard FX regression', () => {
 			}
 			direction = sign;
 		}
-		// The slow beat alone turns around twice over ~10s of samples. The faster
-		// beat layered on top has to push that well past.
-		expect(turns).toBeGreaterThan(8);
+		// The slow beat alone turns around about six times over ~29s of samples.
+		// The faster beat layered on top has to push that well past, and measures in
+		// the thirties rather than the single digits.
+		expect(turns).toBeGreaterThan(20);
 		// And it must still be one bounded glow, not a strobe off the top.
 		expect(Math.max(...samples)).toBeLessThanOrEqual(0.66);
 		expect(Math.min(...samples)).toBeGreaterThanOrEqual(0.05);
@@ -1100,7 +1107,7 @@ describe('Infernal cardboard FX regression', () => {
 		const { haze } = splitInfernalOverlays(group, sprite);
 		expect(haze).toBeDefined();
 
-		const frames = 1800;
+		const frames = 2700;
 		const samples: number[] = [];
 		for (let frame = 0; frame < frames; frame++) {
 			setAbClockTime(frame * 16, 16);
@@ -1109,26 +1116,52 @@ describe('Infernal cardboard FX regression', () => {
 		}
 
 		// Find the lag the signal repeats at. Autocorrelation rather than counting
-		// troughs: the faster beat layered on top makes trough counting unreliable,
-		// while the repeat lag lands squarely on the slow breath.
-		const mean = samples.reduce((a, b) => a + b, 0) / samples.length;
-		let bestLag = 0;
-		let bestCorrelation = -Infinity;
-		for (let lag = 100; lag < 400; lag++) {
-			let correlation = 0;
-			for (let i = 0; i < samples.length - lag; i++) {
-				correlation += (samples[i] - mean) * (samples[i + lag] - mean);
+		// troughs: the faster beat layered on top makes trough counting unreliable.
+		// That faster beat is ~5.5x the slow one and 5.5 is not a whole number, so
+		// the pair only repeats every second breath and the unsmoothed signal has no
+		// clean peak at the slow period -- measured lag wandered anywhere from 1.7s
+		// to 5.9s depending on the random phase. A moving average a little over two
+		// fast beats wide (~3.6s) averages the fast beat away and leaves the breath.
+		const window = 227;
+		const half = Math.floor(window / 2);
+		const smoothed = samples.map((_, i) => {
+			let sum = 0;
+			for (let j = Math.max(0, i - half); j <= Math.min(samples.length - 1, i + half); j++) {
+				sum += samples[j];
 			}
+			return sum / (Math.min(samples.length - 1, i + half) - Math.max(0, i - half) + 1);
+		});
+		const mean = smoothed.reduce((a, b) => a + b, 0) / smoothed.length;
+		const correlations = new Map<number, number>();
+		let bestCorrelation = -Infinity;
+		for (let lag = 100; lag <= 750; lag++) {
+			let correlation = 0;
+			for (let i = 0; i < smoothed.length - lag; i++) {
+				correlation += (smoothed[i] - mean) * (smoothed[i + lag] - mean);
+			}
+			correlations.set(lag, correlation);
 			if (correlation > bestCorrelation) {
 				bestCorrelation = correlation;
+			}
+		}
+		// Take the first lag that is essentially at the peak rather than the peak
+		// itself. Twice the breath correlates just as well as once, since the pair
+		// really does repeat there, so an argmax lands on whichever of the two the
+		// window happens to favour -- at 0.98 rad/s the second breath sits squarely
+		// on this rate's own period and would read as a pass.
+		let bestLag = 750;
+		for (let lag = 100; lag <= 750; lag++) {
+			if ((correlations.get(lag) ?? 0) >= bestCorrelation * 0.99) {
 				bestLag = lag;
+				break;
 			}
 		}
 		const periodSeconds = (bestLag * 16) / 1000;
-		// ~3.1s, which is the 1.87 rad/s the effect sets. Undoing the slow-down to
-		// 2.2 measures ~2.6s and falls outside the range.
-		expect(periodSeconds).toBeGreaterThan(2.95);
-		expect(periodSeconds).toBeLessThan(3.35);
+		// ~8.9s, just under the 9.1s the 0.69 rad/s the effect sets works out to
+		// (the first lag at the peak is a frame or two early). Every earlier rate
+		// lands well outside the range: 0.98 measures ~6.3s and 1.4 ~4.5s.
+		expect(periodSeconds).toBeGreaterThan(8.6);
+		expect(periodSeconds).toBeLessThan(9.2);
 	});
 
 	test('the glow sweeps a wide swing between near-dark and bright', () => {
@@ -1154,7 +1187,9 @@ describe('Infernal cardboard FX regression', () => {
 
 		const hazeSamples: number[] = [];
 		const heatSamples: number[] = [];
-		for (let frame = 0; frame < 900; frame++) {
+		// Three whole breaths at the current 0.69 rad/s: over a shorter window the
+		// trough can fall outside it entirely and the swing reads as narrower.
+		for (let frame = 0; frame < 1800; frame++) {
 			setAbClockTime(frame * 16, 16);
 			animations.tickInfernalCardboardEffect(creature);
 			hazeSamples.push((haze as InfernalSpriteMock).alpha);
@@ -1279,7 +1314,7 @@ describe('Infernal cardboard FX regression', () => {
 		expect(heatLayer?.x).toBeLessThan(140);
 	});
 
-	test('glow pulse matches v0.5.1 rather than a tuned-down variant', () => {
+	test('glow pulse still spans the full alpha range rather than a flat wash', () => {
 		const game = getInfernalAnimationsGameMock();
 		const animations = new Animations(game as never);
 		const { group, sprite } = createInfernalSpriteMock({ x: 24, y: 60, scaleX: 1 });
@@ -1301,9 +1336,9 @@ describe('Infernal cardboard FX regression', () => {
 		// hands over a per-frame delta rather than cumulative elapsed time.
 		let min = Infinity;
 		let max = -Infinity;
-		// At 0.55 rad/s a full breath takes ~11s, so cover a long enough window to
-		// see the glow actually rise and fall.
-		for (let frame = 0; frame < 900; frame++) {
+		// At 0.69 rad/s a full breath takes ~9.1s, so cover a long enough
+		// window to see the glow actually rise and fall.
+		for (let frame = 0; frame < 1800; frame++) {
 			setAbClockTime(frame * 16, 16);
 			animations.tickInfernalCardboardEffect(creature);
 			const alpha = (haze as InfernalSpriteMock).alpha;
@@ -1322,10 +1357,11 @@ describe('Infernal cardboard FX regression', () => {
 		expect(heatLayer?.alpha).toBeGreaterThan(0.05);
 		expect(heatLayer?.alpha).toBeLessThanOrEqual(0.3);
 
-		// The effect overrides the shader's 4.2 default, which flickered. 2.2 is
-		// fast enough for the breath to be noticeable.
+		// The effect overrides the shader's 4.2 default, which flickered; the
+		// override is 0.69 rad/s, slow enough to read as a smoulder. The rate itself
+		// is pinned by 'the glow beats at the slowed pulse rate'.
 		expect(getEffectShader('infernal-luminescence')?.defaultUniforms.uPulseSpeed).toBe(4.2);
-		// 900 frames at 16ms is 14.4s, several breaths at 2.2 rad/s, so the pulse
+		// 1800 frames at 16ms is 28.8s, three breaths at 0.69 rad/s, so the pulse
 		// has moved through both extremes rather than sitting still. The swing is
 		// `0.39` of the range; requiring most of it means the glow is still
 		// breathing visibly rather than sitting at a flat level.
