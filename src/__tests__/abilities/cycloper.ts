@@ -148,10 +148,9 @@ describe('Cycloper abilities', () => {
 					add: jest.fn(),
 					addAt: jest.fn(),
 					remove: jest.fn(),
-					addChild: jest.fn(),
 					create: jest.fn(() => ({
-						anchor: { setTo: jest.fn() },
-						scale: { setTo: jest.fn() },
+						setOrigin: jest.fn(),
+						setScale: jest.fn(),
 						angle: 0,
 						tint: 0,
 						alpha: 0,
@@ -196,8 +195,8 @@ describe('Cycloper abilities', () => {
 				add: {
 					group: jest.fn(() => ({ x: 0, y: 0, alpha: 1, destroy: jest.fn() })),
 					sprite: jest.fn(() => ({
-						anchor: { setTo: jest.fn() },
-						scale: { setTo: jest.fn() },
+						setOrigin: jest.fn(),
+						setScale: jest.fn(),
 						angle: 0,
 					})),
 					tween: jest.fn(() => ({
@@ -241,8 +240,8 @@ describe('Cycloper abilities', () => {
 					group: () => ({ children: [], add: () => {}, addAt: () => {}, remove: () => {} }),
 					tileSprite: () => ({}),
 					socket: () => ({
-						anchor: { setTo: jest.fn() },
-						scale: { setTo: jest.fn() },
+						setOrigin: jest.fn(),
+						setScale: jest.fn(),
 						angle: 0,
 						destroy: jest.fn(),
 					}),

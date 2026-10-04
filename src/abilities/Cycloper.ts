@@ -228,10 +228,10 @@ function createOpticBurstLaserEffect(
 		targetPointY,
 		'effects_optic-burst',
 	);
-	impactSprite.anchor.setTo(0.5);
+	impactSprite.setOrigin(0.5);
 	impactSprite.tint = 0x55ff77;
 	impactSprite.alpha = 0;
-	impactSprite.scale.setTo(1.4, 1.4);
+	impactSprite.setScale(1.4, 1.4);
 
 	const beamGraphics: any = G.gameEngine.add.graphics(0, 0);
 	G.grid.creatureGroup.add(beamGraphics);
@@ -277,7 +277,7 @@ function createOpticBurstLaserEffect(
 				impactSprite.y = beamTip.y;
 				const glowPulse = 0.5 + 0.5 * Math.sin(sweepProgress * Math.PI * 6);
 				impactSprite.alpha = Math.min(0.9, 0.65 + glowPulse * 0.2);
-				impactSprite.scale.setTo(1.4 + glowPulse * 0.35, 1.4 + glowPulse * 0.35);
+				impactSprite.setScale(1.4 + glowPulse * 0.35, 1.4 + glowPulse * 0.35);
 			}
 		},
 		onDone: () => {
@@ -448,10 +448,10 @@ function createPowerAperturePhase1Effect(
 		targetCapPoint.y,
 		'effects_optic-burst',
 	);
-	impactSprite.anchor.setTo(0.5, 0.5);
+	impactSprite.setOrigin(0.5, 0.5);
 	impactSprite.tint = laserColor;
 	impactSprite.alpha = 0.8;
-	impactSprite.scale.setTo(2, 1.5);
+	impactSprite.setScale(2, 1.5);
 
 	if (!tiles.length) {
 		impactSprite.destroy();
@@ -475,10 +475,10 @@ function createPowerAperturePhase1Effect(
 			tile.sourceY + lineDeltaY * spawnProgress + spawnScatterY,
 			tile.bitmapData,
 		);
-		tile.sprite.anchor.setTo(0.5, 0.5);
+		tile.sprite.setOrigin(0.5, 0.5);
 		tile.sprite.alpha = 0.45 + tile.dissolveSeed * 0.35;
 		tile.sprite.tint = laserColor;
-		tile.sprite.scale.setTo(tile.renderScaleX, tile.renderScaleY);
+		tile.sprite.setScale(tile.renderScaleX, tile.renderScaleY);
 		tile.sprite.angle = 0;
 	});
 
@@ -509,7 +509,7 @@ function createPowerAperturePhase1Effect(
 			impactSprite.x = beamTip.x;
 			impactSprite.y = beamTip.y;
 			impactSprite.alpha = 0.55 + 0.35 * Math.sin(progress * Math.PI * 4) * 0.5;
-			impactSprite.scale.setTo(2 + suctionProgress * 0.4, 1.5 + suctionProgress * 0.25);
+			impactSprite.setScale(2 + suctionProgress * 0.4, 1.5 + suctionProgress * 0.25);
 
 			tiles.forEach((tile) => {
 				const lineDeltaX = targetCapPoint.x - tile.sourceX;
@@ -531,7 +531,7 @@ function createPowerAperturePhase1Effect(
 					lineDeltaY * motionProgress +
 					normalY * tile.phase1Scatter * scatterFalloff;
 				tile.sprite.alpha = Math.max(0, 1 - motionProgress * (0.85 + tile.dissolveSeed * 0.1));
-				tile.sprite.scale.setTo(tile.renderScaleX, tile.renderScaleY);
+				tile.sprite.setScale(tile.renderScaleX, tile.renderScaleY);
 			});
 		},
 		onDone: () => {
@@ -641,10 +641,10 @@ function createPowerAperturePhase2Effect(
 		destinationCapPoint.y,
 		'effects_optic-burst',
 	);
-	impactSprite.anchor.setTo(0.5, 0.5);
+	impactSprite.setOrigin(0.5, 0.5);
 	impactSprite.tint = laserColor;
 	impactSprite.alpha = 0.8;
-	impactSprite.scale.setTo(2.5, 1.8);
+	impactSprite.setScale(2.5, 1.8);
 
 	if (!tiles.length) {
 		impactSprite.destroy();
@@ -660,10 +660,10 @@ function createPowerAperturePhase2Effect(
 			destinationCapPoint.y,
 			tile.bitmapData,
 		);
-		tile.sprite.anchor.setTo(0.5, 0.5);
+		tile.sprite.setOrigin(0.5, 0.5);
 		tile.sprite.alpha = 0;
 		tile.sprite.tint = laserColor;
-		tile.sprite.scale.setTo(tile.renderScaleX, tile.renderScaleY);
+		tile.sprite.setScale(tile.renderScaleX, tile.renderScaleY);
 		tile.sprite.angle = 0;
 	});
 
@@ -697,7 +697,7 @@ function createPowerAperturePhase2Effect(
 			impactSprite.x = beamTip.x;
 			impactSprite.y = beamTip.y;
 			impactSprite.alpha = 0.6 + pulseIntensity * 0.3;
-			impactSprite.scale.setTo(2.5 + pulseIntensity * 0.6, 1.8 + pulseIntensity * 0.4);
+			impactSprite.setScale(2.5 + pulseIntensity * 0.6, 1.8 + pulseIntensity * 0.4);
 
 			tiles.forEach((tile) => {
 				const phaseSeed = Math.abs(Math.sin(tile.dissolveSeed * 97.13));
@@ -706,7 +706,7 @@ function createPowerAperturePhase2Effect(
 					tile.sprite.x = destinationCapPoint.x;
 					tile.sprite.y = destinationCapPoint.y;
 					tile.sprite.alpha = 0;
-					tile.sprite.scale.setTo(tile.renderScaleX, tile.renderScaleY);
+					tile.sprite.setScale(tile.renderScaleX, tile.renderScaleY);
 					return;
 				}
 
@@ -716,7 +716,7 @@ function createPowerAperturePhase2Effect(
 				tile.sprite.y =
 					destinationCapPoint.y + (tile.destinationY - destinationCapPoint.y) * adjustedProgress;
 				tile.sprite.alpha = Math.min(1, 0.82 + adjustedProgress * 0.18);
-				tile.sprite.scale.setTo(tile.renderScaleX, tile.renderScaleY);
+				tile.sprite.setScale(tile.renderScaleX, tile.renderScaleY);
 			});
 		},
 		onDone: () => {
@@ -1081,10 +1081,10 @@ function createAcrylicWall3DPrintEffect(
 
 	// Create horizontal green flash
 	const flashSprite = G.grid.creatureGroup.create(wallCenterX, wallBottomY, 'effects_optic-burst');
-	flashSprite.anchor.setTo(0.5, 0.5);
+	flashSprite.setOrigin(0.5, 0.5);
 	flashSprite.tint = laserColor;
 	flashSprite.alpha = 0.96;
-	flashSprite.scale.setTo(4.5, 0.7);
+	flashSprite.setScale(4.5, 0.7);
 
 	let settled = false;
 	let reveal: TimedAnimation | null = null;
