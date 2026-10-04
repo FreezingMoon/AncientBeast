@@ -124,6 +124,88 @@ describe('Creature', () => {
 		});
 	});
 
+	describe('creature.die()', () => {
+		/**
+		 * `getGameMock()` builds a 100x100 board of `jest.fn()`-bearing hexes, which
+		 * is most of this file's heap. Dying only ever touches the two hexes a
+		 * size-2 creature covers, so these tests get an 8x8 board instead.
+		 */
+		function getDieGameMock() {
+			const game = getGameMock();
+			const hexes = game.grid.hexes.slice(0, 8).map((row: unknown[]) => row.slice(0, 8));
+			game.grid.hexes = hexes;
+			game.grid.allhexes = hexes.flat(1);
+			return game;
+		}
+
+		/** A victim of `team`, distinct per call so each one can die once. */
+		function spawnVictim(game: ReturnType<typeof getGameMock>, team: number) {
+			const obj = getCreatureObjMock();
+			obj.team = team;
+			obj.x = 4 + team;
+			// @ts-ignore
+			return new Creature(obj, game);
+		}
+
+		function bloodEvents(player: { score: { type: string }[] }) {
+			return player.score.filter((s) => s.type === 'firstKill');
+		}
+
+		test('the first three kills of a match pay 45, then 30, then 15', () => {
+			const game = getDieGameMock();
+			const killer = spawnVictim(game, 0);
+
+			for (let i = 0; i < 3; i++) {
+				spawnVictim(game, 1).die(killer);
+			}
+
+			expect(game.bloodCount).toBe(3);
+			expect(bloodEvents(game.players[0])).toEqual([
+				{ type: 'firstKill', points: 45 },
+				{ type: 'firstKill', points: 30 },
+				{ type: 'firstKill', points: 15 },
+			]);
+		});
+
+		test('the ladder is match-wide, so different players can each take a tier', () => {
+			const game = getDieGameMock();
+
+			spawnVictim(game, 1).die(spawnVictim(game, 0));
+			spawnVictim(game, 0).die(spawnVictim(game, 1));
+			spawnVictim(game, 1).die(spawnVictim(game, 0));
+
+			expect(bloodEvents(game.players[0])).toEqual([
+				{ type: 'firstKill', points: 45 },
+				{ type: 'firstKill', points: 15 },
+			]);
+			expect(bloodEvents(game.players[1])).toEqual([{ type: 'firstKill', points: 30 }]);
+		});
+
+		test('a fourth kill pays nothing', () => {
+			const game = getDieGameMock();
+			const killer = spawnVictim(game, 0);
+
+			for (let i = 0; i < 4; i++) {
+				spawnVictim(game, 1).die(killer);
+			}
+
+			expect(game.bloodCount).toBe(3);
+			expect(bloodEvents(game.players[0])).toHaveLength(3);
+		});
+
+		test('a team kill is a deny and does not consume a tier', () => {
+			const game = getDieGameMock();
+			// Both creatures share a team, so both players read as the same side.
+			const friendly = spawnVictim(game, 0);
+
+			friendly.die(spawnVictim(game, 0));
+
+			expect(game.bloodCount).toBe(0);
+			expect(bloodEvents(game.players[0])).toHaveLength(0);
+			expect(game.players[0].score.some((s) => s.type === 'deny')).toBe(true);
+		});
+	});
+
 	describe('creature.wait()', () => {
 		test('a creature that has waited is delayed', () => {
 			const game = getGameMock();
@@ -776,8 +858,14 @@ type MockPhaser = {
 	texture: { width: number; height: number };
 };
 
-const getPlayerMock = () => {
-	return {};
+const getPlayerMock = (id = 0) => {
+	return {
+		id,
+		score: [] as { type: string; points?: number }[],
+		flipped: Boolean(id % 2),
+		isAnnihilated: () => false,
+		deactivate: jest.fn(),
+	};
 };
 
 const getRandomString = (length: number) => {
@@ -866,6 +954,9 @@ const getGameMock = () => {
 			initInfernalCardboardEffect: jest.fn(),
 			tickInfernalCardboardEffect: jest.fn(),
 			disposeInfernalCardboardEffect: jest.fn(),
+			death: jest.fn(),
+			melt: jest.fn(),
+			shatterDown: jest.fn(),
 		},
 		signals: {
 			metaPowers: {
@@ -884,6 +975,10 @@ const getGameMock = () => {
 		},
 		plasma_amount: 10,
 		onReset: jest.fn(),
+		onCreatureDeath: jest.fn(),
+		bloodCount: 0,
+		unitDrops: 0,
+		multiplayer: false,
 		onStartPhase: jest.fn(),
 		onEndPhase: jest.fn(),
 		onEffectAttach: jest.fn(),
@@ -891,7 +986,7 @@ const getGameMock = () => {
 		onHeal: jest.fn(),
 	};
 	self.grid.allhexes = self.grid.hexes.flat(1);
-	self.players = [getPlayerMock(), getPlayerMock()];
+	self.players = [getPlayerMock(0), getPlayerMock(1)];
 	return self;
 };
 

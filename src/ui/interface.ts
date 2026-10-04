@@ -2640,6 +2640,9 @@ export class UI {
 		}
 		$j('#winnerMessage').text('');
 
+		// 1 vs 1 has room next to the icons for the score names, so they are shown inline
+		this.$scoreboard.toggleClass('score-labels-inline', game.gameMode === 2);
+
 		const date = new Date().valueOf() - game.pauseTime;
 		const players = game.players;
 		const scores = players.map((pl) => pl.getScore().total);
@@ -2759,8 +2762,9 @@ export class UI {
 			},
 			{
 				cls: 'firstKill',
-				emoji: emoji.get('syringe'),
-				title: 'First blood',
+				// node-emoji has no shortcode for the drop of blood, so it is inlined.
+				emoji: '🩸',
+				title: 'Blood',
 			},
 			{
 				cls: 'kill',
@@ -2784,23 +2788,23 @@ export class UI {
 			},
 			{
 				cls: 'deny',
-				emoji: emoji.get('collision'),
+				emoji: emoji.get('syringe'),
 				title: 'Denies',
 			},
 			{
 				cls: 'pickupDrop',
 				emoji: emoji.get('cherries'),
-				title: 'Drops picked',
+				title: 'Drops',
 			},
 			{
 				cls: 'timebonus',
 				emoji: emoji.get('alarm_clock'),
-				title: 'Time Bonus',
+				title: 'Time',
 			},
 			{
 				cls: 'creaturebonus',
 				emoji: emoji.get('chicken'),
-				title: 'Survivor Units',
+				title: 'Survivors',
 			},
 			{
 				cls: 'darkpriestbonus',
@@ -2814,7 +2818,7 @@ export class UI {
 			{
 				cls: 'upgrade',
 				emoji: emoji.get('medal'),
-				title: 'Ability Upgrades',
+				title: 'Upgrades',
 			},
 			{
 				cls: 'total',

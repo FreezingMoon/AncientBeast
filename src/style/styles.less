@@ -3483,8 +3483,49 @@ input {
 	padding-right: 14px !important;
 }
 
+/* Right-aligned so the score icons line up in one column, with the names
+   (inline in 1 vs 1, hover tooltips in 2 vs 2) hanging off to their left. */
 #scoreboard .scoreboard-inner--scores #score td:first-child {
 	width: 130px;
+	text-align: right;
+}
+
+/* 1 vs 1: only two score columns, so the row names fit next to their icons
+   instead of being hover-only tooltips. */
+#scoreboard.score-labels-inline .scoreboard-inner--scores #score {
+	.score-emoji-tooltip-wrap {
+		display: inline-flex;
+		flex-direction: row-reverse;
+		align-items: center;
+		gap: 6px;
+		vertical-align: middle;
+	}
+
+	.tooltiptext {
+		position: static;
+		visibility: visible;
+		transform: none;
+		opacity: 1;
+		white-space: nowrap;
+		padding: 0;
+		background: none;
+		backdrop-filter: none;
+		-webkit-backdrop-filter: none;
+		border: none;
+		border-radius: 0;
+		font-size: 13px;
+		font-weight: bold;
+		text-shadow: 1px 1px 0 #000, -1px -1px 0 #000;
+		animation: none;
+	}
+
+	.score-emoji-tooltip-wrap:hover .tooltiptext {
+		animation: none;
+	}
+
+	td:first-child {
+		width: 150px;
+	}
 }
 
 #scoreboard .scoreboardActions {

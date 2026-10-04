@@ -38,7 +38,18 @@ export type ScoreEvent = {
 	player?: PlayerID;
 	kills?: number;
 	ability?: AbilitySlot;
+	/** Points already resolved by the game, for events whose value depends on match state. */
+	points?: number;
 };
+
+/**
+ * Bonus for the first three kills of the match, in order: 45, then 30, then 15.
+ *
+ * The bonus shrinks rather than being all-or-nothing on the very first kill, so
+ * it is a race several players can take part in (first, second and third can all
+ * go to different players) or sweep entirely with one player.
+ */
+export const BLOOD_BONUS = [45, 30, 15];
 
 export type PlayerColor = 'red' | 'blue' | 'orange' | 'green';
 
@@ -241,7 +252,7 @@ export class Player {
 
 			switch (s.type) {
 				case 'firstKill':
-					points += 20;
+					points += s.points ?? 0;
 					break;
 				case 'kill':
 					// Prevent issues with non-leveled creatures, e.g. Dark Priest
@@ -256,7 +267,7 @@ export class Player {
 					points += 50;
 					break;
 				case 'annihilation':
-					points += 100;
+					points += 99;
 					break;
 				case 'deny':
 					points += -1 * s.creature.size * 5;

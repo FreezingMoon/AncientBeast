@@ -174,7 +174,7 @@ describe('Game reset lifecycle', () => {
 			animationQueue: [],
 			configData: {},
 			match: {},
-			firstKill: true,
+			bloodCount: 3,
 			freezedInput: true,
 			isReplayInProgress: true,
 			turnThrottle: true,

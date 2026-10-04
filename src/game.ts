@@ -207,7 +207,8 @@ export default class Game {
 	realms: Realm[];
 	availableMusic = [];
 	inputMethod = 'Mouse';
-	firstKill: boolean;
+	/** How many kills have already been paid a `BLOOD_BONUS` tier this match. */
+	bloodCount: number;
 	freezedInput: boolean;
 	isReplayInProgress: boolean;
 	turnThrottle: boolean;
@@ -580,7 +581,7 @@ export default class Game {
 		this.inputMethod = 'Mouse';
 		this.isAcceptingInput = () => !this.freezedInput;
 		// Gameplay properties
-		this.firstKill = false;
+		this.bloodCount = 0;
 		this.freezedInput = false;
 		this.isReplayInProgress = false;
 		this.turnThrottle = false;
@@ -2691,7 +2692,7 @@ export default class Game {
 		this.lobby = null;
 		this.lobbyCode = '';
 		this.lobbyState = null;
-		this.firstKill = false;
+		this.bloodCount = 0;
 		this.freezedInput = false;
 		this.isReplayInProgress = false;
 		this.turnThrottle = false;

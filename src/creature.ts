@@ -9,7 +9,13 @@ import { Drop, DropDefinition } from './drop';
 import { ensureCardboard, ensureDropTexture, isTextureReady } from './assets';
 import { Point, getPointFacade } from './utility/pointfacade';
 import { Effect } from './effect';
-import { Player, PlayerID, getDarkPriestCardboardKey, getDarkPriestDisplayOffsetX } from './player';
+import {
+	BLOOD_BONUS,
+	Player,
+	PlayerID,
+	getDarkPriestCardboardKey,
+	getDarkPriestDisplayOffsetX,
+} from './player';
 import { Damage, DamageResult } from './damage';
 import { AugmentedMatrix } from './utility/matrices';
 import { Trap } from './utility/trap';
@@ -2184,12 +2190,17 @@ export class Creature {
 			}
 		}
 
-		if (!game.firstKill && !isDeny) {
-			// First Kill
-			this.killer.score.push({
-				type: 'firstKill',
-			});
-			game.firstKill = true;
+		if (!isDeny) {
+			// Blood bonus: a shrinking 45/30/15 ladder shared by the whole match,
+			// so its tiers can go to different players or all to the same one.
+			const bloodBonus = BLOOD_BONUS[game.bloodCount];
+			if (bloodBonus !== undefined) {
+				this.killer.score.push({
+					type: 'firstKill',
+					points: bloodBonus,
+				});
+				game.bloodCount++;
+			}
 		}
 
 		if (this.isDarkPriest()) {
