@@ -2811,6 +2811,9 @@ class CreatureSprite {
 		// The health group is a separate Phaser object rendered on top of the
 		// sprite, so canvas-surface tricks can't hide it — we must set its
 		// alpha directly so the reference creature's badge shows through.
+		//
+		// This is the only place the badge's opacity is written. Anything else
+		// that sets it fights this fade: see `_finalizeXrayOff`.
 		const hiAlpha = 1.0 - (1.0 - 0.2) * this._xrayAlpha;
 		this._healthIndicatorGroup.alpha = hiAlpha;
 		if (this._xrayBmd && this._xrayRefCreatures.length > 0) {
@@ -2820,8 +2823,13 @@ class CreatureSprite {
 			} else if (!this._safeDrawXray(this._xrayRefCreatures, this._xrayBmd)) {
 				// Keep the original cardboard when a redraw can't produce
 				// pixels (missing source, blank mask) instead of stranding the
-				// sprite on a blank bitmap.
-				this._finalizeXrayOff();
+				// sprite on a blank bitmap. The xray request stays live so the
+				// next frame can retry — a reference's cardboard may not have
+				// finished loading. Tearing the whole effect down here instead
+				// is what made a faded badge pop to full opacity on every hover
+				// step, because `HexGrid.xray()` re-requests the xray for each
+				// hex the cursor crosses.
+				this._restoreOriginalTexture();
 			}
 		}
 
@@ -2965,8 +2973,14 @@ class CreatureSprite {
 			const nextRefCreatures = Array.isArray(referenceCreature)
 				? referenceCreature
 				: [referenceCreature];
+			// Test liveness with `_xrayTargetAlpha`, not `_isXray`. `HexGrid.xray()`
+			// opens every hover by clearing the xray on every creature and then
+			// re-requesting it for the ones still obscured, so `_isXray` is false by
+			// the time the same reference set comes back round and the memo below
+			// never hit. Each miss cost a full cardboard pixel snapshot per
+			// reference plus a canvas redraw — dozens of those per cursor sweep.
 			const hasSameReferences =
-				this._isXray &&
+				this._xrayTargetAlpha > 0 &&
 				this._xrayRefCreatures.length === nextRefCreatures.length &&
 				this._xrayRefCreatures.every((reference, index) => reference === nextRefCreatures[index]);
 			if (hasSameReferences) {
@@ -3004,18 +3018,38 @@ class CreatureSprite {
 		this._finalizeXrayOff();
 	}
 
+	/**
+	 * Swaps the sprite back to the untouched cardboard.
+	 *
+	 * Separate from {@link _finalizeXrayOff} because restoring the artwork is
+	 * also the right response to a single failed redraw: the cutout is retried
+	 * on the next frame, but the sprite must not sit on a blank bitmap in the
+	 * meantime.
+	 */
+	private _restoreOriginalTexture() {
+		if (this._destroyed) {
+			return;
+		}
+		this._sprite.setTexture(this._originalTextureKey);
+	}
+
 	/** Restores the original texture and frees all xray canvas resources. */
 	private _finalizeXrayOff() {
 		if (this._destroyed) {
 			this._freeXrayState();
 			return;
 		}
-		this._healthIndicatorGroup.alpha = 1;
+		// The health indicator's opacity is derived from `_xrayAlpha` every
+		// frame in `tickXray()`. Writing it here fought that fade: `_finalizeXrayOff`
+		// is reachable while an xray request is still live (see `tickXray`), so it
+		// slammed the faded badge to full opacity for one frame before the next
+		// `tickXray()` dragged it back down. Hovering across the board re-triggers
+		// that every step, which is the flicker.
 		this._xrayRefCreatures = [];
 		this._xrayOriginalAlpha = null;
 		this._xrayRefAlpha = null;
 		this._xrayMaskAlpha = null;
-		this._sprite.setTexture(this._originalTextureKey);
+		this._restoreOriginalTexture();
 	}
 
 	/**

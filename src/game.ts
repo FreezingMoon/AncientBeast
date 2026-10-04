@@ -3,7 +3,7 @@ import { Animations } from './animations';
 import { CreatureQueue } from './creature_queue';
 import { GameLog } from './utility/gamelog';
 import { SoundSys, SoundSysAudioBufferSourceNode } from './sound/soundsys';
-import { Hex } from './utility/hex';
+import { Hex, stopAllCursorSpinning } from './utility/hex';
 import { HexGrid } from './utility/hexgrid';
 import { Easing } from './utility/easing';
 import { getUrl, use as assetsUse, soundPaths, ensureCardboardReady, loadTexture } from './assets';
@@ -528,6 +528,7 @@ export default class Game {
 			this._stopPointerTracking = null;
 			resetPointerWithinBoard();
 			clearHoveredHex();
+			stopAllCursorSpinning();
 
 			// Reset game state (this.UI is already nulled above when its interval
 			// was cleared, kept here for clarity)
@@ -1011,6 +1012,10 @@ export default class Game {
 		// Clear existing Phaser objects if setup() was already called once
 		// This prevents duplicate input handlers in multiplayer scenarios
 		if (this.grid) {
+			// Before the world goes away: the board's targeting cursors turn in a
+			// loop shared between them, so leaving one registered would keep a
+			// removed sprite rotating for the rest of the session.
+			stopAllCursorSpinning();
 			this.gameEngine.world.removeAll(true);
 			this.grid = undefined;
 		}

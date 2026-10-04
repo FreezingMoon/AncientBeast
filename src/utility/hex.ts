@@ -69,6 +69,68 @@ function stripClassToken(classString: string, token: string): string {
 // Legacy leftward shift retained from the old version; see the constructor.
 const HEX_DISPLAY_X_HACK = 10;
 
+/** Degrees the targeting cursor turns per frame. */
+const CURSOR_SPIN_SPEED = 2;
+
+/**
+ * The targeting cursors that are currently on screen, and the single rAF loop
+ * that turns them.
+ *
+ * The cursor used to be one `requestAnimationFrame` loop per `Hex`, started
+ * from `updateStyle()`. That ran for *every* hex on the board, not just the one
+ * showing the cursor: `overlayClasses` carries no player token on a plain hex,
+ * so `updateStyle()` took the "this is the cursor" branch and started a loop
+ * that rotated a fully transparent sprite. `updateDisplay()` re-styles all 139
+ * hexes on every `queryHexes()` call, which meant ~8,000 `requestAnimationFrame`
+ * callbacks a second on an idle board — enough to make the board's own frame
+ * loop stutter, and to make every hover step visibly hitch.
+ *
+ * One loop over the on-screen cursors is enough, and it is what makes the
+ * cursor's motion continuous: `updateStyle()` runs several times per hover
+ * transition, and a per-hex loop had to be cancelled and restarted each time.
+ */
+const spinningCursors = new Set<Hex>();
+let cursorSpinFrame: number | null = null;
+
+function spinCursors(): void {
+	for (const hex of spinningCursors) {
+		// A cursor whose sprite has been taken out of the world (a board torn down
+		// while the cursor was on screen) must not be turned forever, so drop it
+		// from the set here rather than waiting for an `updateStyle()` that will
+		// never come.
+		if (!hex.overlay || hex.overlay.active === false) {
+			spinningCursors.delete(hex);
+			hex.isSpinning = false;
+			continue;
+		}
+		hex.overlay.angle += CURSOR_SPIN_SPEED;
+	}
+	if (spinningCursors.size === 0) {
+		cursorSpinFrame = null;
+		return;
+	}
+	cursorSpinFrame = requestAnimationFrame(spinCursors);
+}
+
+/**
+ * Stop every targeting cursor, dead or alive.
+ *
+ * The board is destroyed and rebuilt between matches (`Game.setup()` removes
+ * every Phaser object). Any cursor still in `spinningCursors` at that point
+ * would keep a removed sprite rotating — and the loop itself — for the rest of
+ * the session.
+ */
+export function stopAllCursorSpinning(): void {
+	spinningCursors.forEach((hex) => {
+		hex.isSpinning = false;
+	});
+	spinningCursors.clear();
+	if (cursorSpinFrame !== null) {
+		cancelAnimationFrame(cursorSpinFrame);
+		cursorSpinFrame = null;
+	}
+}
+
 /**
  * Object containing hex information and positions.
  */
@@ -137,14 +199,12 @@ export class Hex {
 	displayPos: { x: number; y: number };
 
 	/**
-	 * Set to true if cursor is outside movement range.
+	 * Set to true while the targeting cursor is turning.
+	 *
+	 * The turn itself is driven by the module-level `spinCursors` loop, shared by
+	 * every on-screen cursor, so there is no per-hex frame handle any more.
 	 */
 	isSpinning: boolean;
-
-	/**
-	 * Store ID of animation frame request.
-	 */
-	spinRequest: number;
 
 	originalDisplayPos: { x: number; y: number };
 	tween: TweenHandle | null;
@@ -193,7 +253,6 @@ export class Hex {
 		this.originalDisplayPos = $j.extend({}, this.displayPos);
 
 		this.isSpinning = false;
-		this.spinRequest = null;
 
 		this.tween = null;
 
@@ -701,29 +760,39 @@ export class Hex {
 
 	/**
 	 * Start spin effect for the targeting cursor
+	 *
+	 * Only ever called while the cursor is on screen — `updateStyle()` decides
+	 * that from the overlay's resolved alpha — so the shared loop advances a
+	 * handful of cursors rather than the whole board.
 	 */
 	startSpinning() {
+		if (this.isSpinning) {
+			return;
+		}
 		this.isSpinning = true;
-		const spinSpeed = 2;
-
-		const rotate = () => {
-			if (!this.isSpinning) return;
-			this.overlay.angle += spinSpeed;
-			this.spinRequest = requestAnimationFrame(rotate);
-		};
-
-		this.spinRequest = requestAnimationFrame(rotate);
+		spinningCursors.add(this);
+		if (cursorSpinFrame === null) {
+			cursorSpinFrame = requestAnimationFrame(spinCursors);
+		}
 	}
 
 	/**
 	 * Stop spin effect for the targeting cursor
+	 *
+	 * Deliberately leaves `overlay.angle` alone. Resetting it rewound the cursor
+	 * to 0° every time `updateStyle()` ran, and that runs several times per
+	 * hover step — so sweeping the cursor across the board made the cursor
+	 * snap back to a fixed orientation instead of turning.
 	 */
 	stopSpinning() {
+		if (!this.isSpinning) {
+			return;
+		}
 		this.isSpinning = false;
-		if (this.spinRequest) {
-			cancelAnimationFrame(this.spinRequest);
-			this.spinRequest = null;
-			this.overlay.angle = 0;
+		spinningCursors.delete(this);
+		if (spinningCursors.size === 0 && cursorSpinFrame !== null) {
+			cancelAnimationFrame(cursorSpinFrame);
+			cursorSpinFrame = null;
 		}
 	}
 
@@ -771,11 +840,6 @@ export class Hex {
 				sprite.setTexture(key);
 			}
 		};
-
-		// Reset spinning state
-		if (this.isSpinning) {
-			this.stopSpinning();
-		}
 
 		// Display Hex
 		let targetAlpha = this.reachable || Boolean(this.displayClasses.match(/creature/g));
@@ -902,9 +966,6 @@ export class Hex {
 		} else {
 			loadTextureIfChanged(this.overlay, 'input');
 			this.overlay.setOrigin(0.5, 0.5);
-			if (!this.isSpinning) {
-				this.startSpinning();
-			}
 		}
 
 		// Do not override overlay.alpha for active/selected hexes: the glowInterval
@@ -924,6 +985,17 @@ export class Hex {
 			if (this.forcedHidden) {
 				this.overlay.alpha = 0;
 			}
+		}
+
+		// The targeting cursor is the only hex overlay that turns, so it only
+		// turns while it is actually on screen. Deciding this from the overlay's
+		// resolved alpha — rather than from the absence of a player class, which
+		// is also true of every plain hex — keeps the shared spin loop down to
+		// the one or two cursors the player can see.
+		if (!isGlowControlled && this.overlay.key === 'input' && this.overlay.alpha > 0) {
+			this.startSpinning();
+		} else {
+			this.stopSpinning();
 		}
 	}
 
