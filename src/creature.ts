@@ -3952,16 +3952,13 @@ class CreatureSprite {
 
 		if (hintType === 'no_action') {
 			const existingConfirmHints: any[] = [];
-			this._hintGrp.each(
-				(hint: any) => {
-					if (!hint.active || hintState(hint).hintType !== 'confirm') {
-						return;
-					}
+			this._hintGrp.each((hint: any) => {
+				if (!hint.active || hintState(hint).hintType !== 'confirm') {
+					return;
+				}
 
-					existingConfirmHints.push(hint);
-				},
-				this,
-			);
+				existingConfirmHints.push(hint);
+			}, this);
 
 			if (existingConfirmHints.length > 0) {
 				this.destroyNoActionHintGroup();
