@@ -19,6 +19,12 @@ type MessageToSupress = {
 
 type HoverableCreature = Creature & { hideUnitStatsOnHover?: boolean };
 
+/**
+ * Slack allowed when deciding whether the log rests at its newest message.
+ * Layout is fractional, so an untouched bottom rarely lands on a whole pixel.
+ */
+const SCROLL_BOTTOM_SLACK = 4;
+
 export class Chat {
 	game: Game;
 	$chat: JQuery<HTMLElement>; //eslint-disable-line no-undef
@@ -30,6 +36,11 @@ export class Chat {
 	isOverCreature: boolean;
 	currentExpandedCreature: Creature;
 	messagesToSuppress: MessageToSupress[];
+	/**
+	 * True once the player has opened or closed the log themselves. Automatic
+	 * collapses defer to this so the log stays where the player put it.
+	 */
+	userToggled: boolean;
 
 	/**
 	 * Chat/Log Functions
@@ -66,6 +77,7 @@ export class Chat {
 		this.isExpanded = false;
 		this.currentExpandedCreature = null;
 		this.messagesToSuppress = [];
+		this.userToggled = false;
 
 		this.$expandedContent = $j('#unit-hover-panel');
 		$j('#combatwrapper, #bottompanel, #dash, #endscreen').on('click', () => {
@@ -85,42 +97,95 @@ export class Chat {
 		}
 	}
 
+	/**
+	 * `isOpen` drives Esc handling and the interface-view bookkeeping, so it has
+	 * to agree with what is on screen. Deriving it from the classes is the only
+	 * way to keep it honest: the three states (minimized, peek, focus) are
+	 * reachable from each other, and flipping a boolean per transition drifts
+	 * as soon as two of them meet.
+	 */
+	syncOpenState() {
+		this.isOpen = this.$chat.hasClass('focus') || this.$chat.hasClass('peek');
+	}
+
+	/** Scroll the log viewport to the newest message. */
+	scrollToLatest() {
+		const viewport = this.getViewport();
+		if (!viewport) {
+			return;
+		}
+		viewport.scrollTop = viewport.scrollHeight;
+	}
+
+	/** The scrolling element wrapping the log rows, if it is in the document. */
+	private getViewport(): HTMLElement | null {
+		const viewport = this.$content.parent()[0];
+		return viewport instanceof HTMLElement ? viewport : null;
+	}
+
+	/**
+	 * True when the player has scrolled the log back from the newest message.
+	 *
+	 * Measured against the viewport's own scrollable range rather than
+	 * `#chatcontent`'s height: the rows are absolutely positioned at the bottom of
+	 * the viewport, so the offset that shows the newest one is
+	 * `scrollHeight - clientHeight`.
+	 */
+	isScrolledAwayFromLatest(): boolean {
+		const viewport = this.getViewport();
+		if (!viewport) {
+			return false;
+		}
+		const distanceFromBottom = viewport.scrollHeight - viewport.clientHeight - viewport.scrollTop;
+		return distanceFromBottom > SCROLL_BOTTOM_SLACK;
+	}
+
 	show() {
 		this.$chat.addClass('focus');
-		this.isOpen = true;
-		this.$content.parent().scrollTop(this.$content.height());
+		this.syncOpenState();
+		this.scrollToLatest();
 	}
 
 	hide() {
 		this.$chat.removeClass('focus');
-		this.isOpen = false;
+		this.syncOpenState();
+	}
+
+	/**
+	 * Collapse the log on the game's behalf rather than the player's.
+	 *
+	 * Yields to an explicit toggle: once the player has set the log's visibility
+	 * themselves, an automatic collapse must not undo their click.
+	 */
+	autoHide() {
+		if (this.userToggled) {
+			return;
+		}
+		this.hide();
 	}
 
 	toggle() {
+		this.userToggled = true;
 		this.$chat.toggleClass('focus');
-		if (this.$chat.hasClass('peek')) {
-			this.$chat.removeClass('peek');
-		}
-		this.$content.parent().scrollTop(this.$content.height());
-		this.isOpen = !this.isOpen;
+		this.$chat.removeClass('peek');
+		this.syncOpenState();
+		this.scrollToLatest();
 		if (!this.isOpen) {
 			this.hideExpanded();
 		}
 	}
 
 	peekOpen() {
-		if (this.$chat.hasClass('focus') === false) {
+		if (!this.$chat.hasClass('focus')) {
 			this.$chat.addClass('peek');
-			this.$content.parent().scrollTop(this.$content.height());
-			this.isOpen = !this.isOpen;
+			this.syncOpenState();
+			this.scrollToLatest();
 		}
 	}
 
 	peekClose() {
-		if (this.$chat.hasClass('peek')) {
-			this.$chat.removeClass('peek');
-		}
-		this.isOpen = false;
+		this.$chat.removeClass('peek');
+		this.syncOpenState();
 		this.hideExpanded();
 	}
 
@@ -253,6 +318,12 @@ export class Chat {
 			return;
 		}
 
+		// Read the player's scroll position before touching the DOM. Appending a
+		// row grows the content past the viewport, so a check taken afterwards
+		// cannot tell the player's own scroll apart from the line that just
+		// arrived, and would mistake the newest message for a scroll-away.
+		const followLatest = !this.isOpen || !this.isScrolledAwayFromLatest();
+
 		// Check if the last message was the same as the current one
 		if (this.messages[messagesNo - 1] && this.messages[messagesNo - 1].message === msg) {
 			const lastMessage = this.messages[messagesNo - 1];
@@ -274,7 +345,12 @@ export class Chat {
 			this.$content.append(this.messages[this.messages.length - 1].DOMObject);
 		}
 
-		this.$content.parent().scrollTop(this.$content.height());
+		// Follow the log to its newest line, unless the player is reading back
+		// through it: snapping forward would throw away their place. A minimized
+		// log has no scrollable viewport to read, so it always pins to the bottom.
+		if (followLatest) {
+			this.scrollToLatest();
+		}
 	}
 
 	/**

@@ -215,8 +215,10 @@ export default class BotController {
 				// Frozen/dizzied unit — the creature's activate() interval will handle the skip
 				return;
 			}
-			// Minimize the combat log so it doesn't obstruct bot actions
-			this.game.UI?.chat?.hide();
+			// Minimize the combat log so it doesn't obstruct bot actions. This
+			// defers to a log the player has opened (or closed) themselves —
+			// force-collapsing it every turn made their toggle look broken.
+			this.game.UI?.chat?.autoHide();
 			this.queueDecision(
 				this.startTurnDelayMs >= 0 ? this.startTurnDelayMs : this.turnDelayMs * 4 + 150,
 			);
