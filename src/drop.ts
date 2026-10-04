@@ -128,8 +128,8 @@ export class Drop {
 		const gainedMessage = Object.keys(alterations)
 			.map((key) => `${alterations[key]} ${key}`)
 			.join(', ')
-			// Replace last comma with "and"
-			.replace(/, ([^,]*)$/, ' and $1');
+			// Replace last comma with "&"
+			.replace(/, ([^,]*)$/, ' & $1');
 
 		// The list itself reads as the creature's own, so mark the line with the
 		// player's color rather than naming it again.
