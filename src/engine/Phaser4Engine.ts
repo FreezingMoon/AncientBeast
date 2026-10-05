@@ -27,7 +27,10 @@ function requireTextureKey(key: TextureKeyLike): string {
 	if (key === undefined) {
 		throw new Error('A texture key is required to create this game object');
 	}
-	return key;
+	// A CPU-drawn surface is handed over by the key it registered under, exactly
+	// like any other texture; see `TextureKeyLike` for why it must be unwrapped
+	// here rather than passed to Phaser as-is.
+	return typeof key === 'string' ? key : key.key;
 }
 
 /**

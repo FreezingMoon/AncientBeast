@@ -31,6 +31,7 @@ import type {
 	GameEngine,
 	GroupHandle,
 	NativePassthrough,
+	RuntimeStateTween,
 	SpriteHandle,
 	TweenHandle,
 } from './engine/types';
@@ -2524,23 +2525,6 @@ export class Creature {
 }
 
 /**
- * A tween handle as the bounce animations read it.
- *
- * Both the health-indicator and no-action-hint bounces open with
- * `if (tween && tween.isRunning) return;` to avoid restarting a bounce that is
- * already playing. `TweenHandle` neither declares nor implements `isRunning` —
- * the engine's tween adapter exposes `start`/`stop`/`duration` and no state flag
- * — so those reads are always `undefined`, the guards never fire, and the bounce
- * is restarted on every `setHealthBounce(true)` / `restartNoActionHintBounce()`.
- *
- * The flag is declared here so the reads keep compiling and the dead guard stays
- * visible in the type. Whether the guard *should* short-circuit is a behaviour
- * question for the bounce code, not for the type: Phaser 4's own equivalent is
- * `Tween#isPlaying()`.
- */
-type BounceTween = TweenHandle & { isRunning?: boolean };
-
-/**
  * Per-hint bookkeeping: the type tag and the three tweens that drive it.
  *
  * Phaser 2 CE gave every game object a `DataManager` and this subsystem hung
@@ -2555,7 +2539,7 @@ type HintState = {
 	hintType: CreatureHintType | 'confirm_deleted';
 	tweenAlpha: TweenHandle | null;
 	tweenPos: TweenHandle | null;
-	tweenBounce: BounceTween | null;
+	tweenBounce: RuntimeStateTween | null;
 	/** Resting y, captured on first bounce so a stop returns the hint to it. */
 	baseY?: number;
 	/** `confirm` hints that must not animate into place, e.g. skip turn. */
@@ -2612,10 +2596,10 @@ class CreatureSprite {
 	private _healthIndicatorGroup: GroupHandle;
 	private _healthIndicatorSprite: SpriteHandle;
 	private _healthIndicatorText: SpriteHandle;
-	private _healthIndicatorTween: BounceTween | null | undefined;
+	private _healthIndicatorTween: RuntimeStateTween | null | undefined;
 	private _noActionHintElements: SpriteHandle[] = [];
 	private _noActionHintGroup: SpriteHandle | null = null;
-	private _noActionHintTween: BounceTween | null = null;
+	private _noActionHintTween: RuntimeStateTween | null = null;
 	private _healthBounceOffset = 0; // y-offset driven by the bounce tween
 	private _healthUiGroup: GroupHandle; // elevated layer for active/hovered indicators
 	private _healthInUiGroup = false; // whether the indicator is currently elevated

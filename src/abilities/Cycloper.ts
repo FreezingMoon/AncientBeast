@@ -1,5 +1,5 @@
 import { runTimedAnimation } from '../timing/clock';
-import { createGameCanvasSurface } from '../game-display/canvas-surface';
+import { createGameCanvasSurface, type CanvasSurface } from '../game-display/canvas-surface';
 import type { TimedAnimation } from '../timing/clock';
 import { Easing } from '../utility/easing';
 import { Damage } from '../damage';
@@ -11,6 +11,7 @@ import { extractTextureFrameInfo, createBitmapDataFromTexture } from '../utility
 import Game from '../game';
 import type { Ability } from '../ability';
 import type { UnitData } from '../data/types';
+import type { RuntimeStateTween, SpriteHandle } from '../engine/types';
 
 const CYCLOPER_UNIT_ID = 15;
 const ACRYLIC_WALL_UNIT_ID = 999;
@@ -40,8 +41,12 @@ type ShatterTexture = {
 	baseTexture?: { source?: CanvasImageSource };
 };
 type PowerApertureTile = {
-	sprite: any;
-	bitmapData: any;
+	/**
+	 * Filled in once the tile is drawn into place; the tile is created with a
+	 * placeholder because its position depends on the draw pass it is born in.
+	 */
+	sprite: SpriteHandle;
+	bitmapData: CanvasSurface;
 	angle: number;
 	dissolveSeed: number;
 	spinDirection: 1 | -1;
@@ -135,7 +140,7 @@ function blendTint(fromColor: number, toColor: number, progress: number) {
 }
 
 function drawCycloperBeamLayered(
-	beamGraphics: any,
+	beamGraphics: SpriteHandle,
 	startX: number,
 	startY: number,
 	baseAngle: number,
@@ -235,7 +240,7 @@ function createOpticBurstLaserEffect(
 	impactSprite.alpha = 0;
 	impactSprite.setScale(1.4, 1.4);
 
-	const beamGraphics: any = G.gameEngine.add.graphics(0, 0);
+	const beamGraphics = G.gameEngine.add.graphics(0, 0);
 	G.grid.creatureGroup.add(beamGraphics);
 
 	const travelSteps = baseDist <= 0 ? 1 : baseDist;
@@ -320,7 +325,7 @@ function createOpticBurstLaserEffect(
 
 function createPowerApertureTiles(
 	G: Game,
-	targetSprite: any,
+	targetSprite: SpriteHandle,
 	spriteLeft: number,
 	spriteTop: number,
 	displayWidth: number,
@@ -368,7 +373,7 @@ function createPowerApertureTiles(
 			const destinationY = spriteTop + tileCenterY * scaleY;
 
 			tiles.push({
-				sprite: null as unknown as any,
+				sprite: null as unknown as SpriteHandle,
 				bitmapData,
 				angle: -18 + Math.random() * 36,
 				dissolveSeed: Math.random(),
@@ -477,7 +482,7 @@ function createPowerAperturePhase1Effect(
 		tile.sprite = G.gameEngine.add.sprite(
 			tile.sourceX + lineDeltaX * spawnProgress + spawnScatterX,
 			tile.sourceY + lineDeltaY * spawnProgress + spawnScatterY,
-			tile.bitmapData,
+			tile.bitmapData.key,
 			undefined,
 			G.grid.creatureGroup,
 		);
@@ -488,7 +493,7 @@ function createPowerAperturePhase1Effect(
 		tile.sprite.angle = 0;
 	});
 
-	const beamGraphics: any = G.gameEngine.add.graphics(0, 0);
+	const beamGraphics = G.gameEngine.add.graphics(0, 0);
 	G.grid.creatureGroup.add(beamGraphics);
 
 	runTimedAnimation({
@@ -666,7 +671,7 @@ function createPowerAperturePhase2Effect(
 		tile.sprite = G.gameEngine.add.sprite(
 			destinationCapPoint.x,
 			destinationCapPoint.y,
-			tile.bitmapData,
+			tile.bitmapData.key,
 			undefined,
 			G.grid.creatureGroup,
 		);
@@ -677,7 +682,7 @@ function createPowerAperturePhase2Effect(
 		tile.sprite.angle = 0;
 	});
 
-	const beamGraphics: any = G.gameEngine.add.graphics(0, 0);
+	const beamGraphics = G.gameEngine.add.graphics(0, 0);
 	G.grid.creatureGroup.add(beamGraphics);
 
 	runTimedAnimation({
@@ -1086,7 +1091,7 @@ function createAcrylicWall3DPrintEffect(
 	wallSprite.setCrop(0, wallHeight, wallWidth, 0);
 
 	// Create beam graphics for laser line
-	const beamGraphics: any = G.gameEngine.add.graphics(0, 0);
+	const beamGraphics = G.gameEngine.add.graphics(0, 0);
 	G.grid.creatureGroup.add(beamGraphics);
 
 	// Create horizontal green flash
@@ -1898,7 +1903,7 @@ export default (G: Game) => {
 					};
 
 					const targetStats = G.retrieveCreatureStats(target.type);
-					let activeTweens: any[] = [];
+					let activeTweens: RuntimeStateTween[] = [];
 
 					const cleanupTweens = () => {
 						activeTweens.forEach((tween) => {

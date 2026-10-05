@@ -219,7 +219,7 @@ export function wrapGameObject(gameObject: Phaser.GameObjects.GameObject): Sprit
 			if (key === undefined) {
 				throw new Error('loadTexture requires a texture key');
 			}
-			go.setTexture(key, frame);
+			go.setTexture(typeof key === 'string' ? key : key.key, frame);
 		},
 		/**
 		 * Phaser 4's interactive object, exposed as-is.

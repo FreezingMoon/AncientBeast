@@ -82,6 +82,24 @@ export interface TweenHandle {
 	onUpdateCallback(cb: (...args: unknown[]) => void, context?: unknown): TweenHandle;
 }
 
+/**
+ * A `TweenHandle` as the legacy bounce/cleanup call sites read it.
+ *
+ * Several places open with `if (tween.isRunning)` to avoid restarting work that
+ * is already playing. The tween adapter above exposes `start`/`stop`/`duration`
+ * and no state flag at all, so `isRunning` is always `undefined`, those guards
+ * never fire, and the code behind them runs on every call. Phaser 4's own
+ * equivalent is `Tween#isPlaying()`.
+ *
+ * Declared here rather than papered over with `any` at each site, so the reads
+ * keep compiling and the shape of the gap is recorded once.
+ */
+export type RuntimeStateTween = TweenHandle & {
+	isRunning?: boolean;
+	/** Phaser 2's `Tween.stop(destroy)`; the flag is accepted but unused here. */
+	stop(destroy?: boolean): TweenHandle;
+};
+
 // ─── Sprite / Game Object ─────────────────────────────────────────────────────
 
 /**
@@ -253,15 +271,32 @@ export interface GroupHandle {
 // ─── Texture keys ─────────────────────────────────────────────────────────────
 
 /**
+ * The registered-key side of a CPU-drawn surface.
+ *
+ * `src/game-display/canvas-surface.ts` owns the full `CanvasSurface`; a texture
+ * key only needs the string the surface registered under, so the engine layer
+ * states that minimum itself and keeps its own file free of Phaser types.
+ */
+export interface SurfaceTextureKey {
+	readonly key: string;
+}
+
+/**
  * Anything acceptable where a texture key is expected.
  *
  * Phaser 2 CE's texture-key parameters were loosely typed enough to take a
  * `BitmapData`, and AB's per-pixel effects leaned on that. Under native Phaser
  * 4 the CPU-drawn surfaces are `CanvasTexture`s registered in the
  * `TextureManager` (see `src/game-display/canvas-surface.ts`), so a surface is
- * now passed as its key like any other texture.
+ * now passed as its key like any other texture — either the surface itself or
+ * the string it registered under.
+ *
+ * Phaser only ever sees the string. `TextureManager#get` coerces any key it
+ * cannot recognise to `__MISSING`, so handing it a surface object directly would
+ * quietly render the missing-texture box rather than the drawn surface; the
+ * adapter resolves both spellings to one key before calling into Phaser.
  */
-export type TextureKeyLike = string | undefined;
+export type TextureKeyLike = string | SurfaceTextureKey | undefined;
 
 // ─── World / display list ─────────────────────────────────────────────────────
 
