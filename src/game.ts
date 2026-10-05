@@ -25,6 +25,7 @@ import { resetClock, setClockScene } from './timing/clock';
 import type Phaser from 'phaser';
 import { loadPhaser, getPhaser } from './phaser/runtime';
 import { applyBoardScale, refreshScale } from './game-display/scale';
+import { startCursorAutoHide } from './game-display/cursor-auto-hide';
 import { createGameConfig } from './phaser/boot';
 import { LobbyClient } from './multiplayer';
 import { createLobbyProvider } from './multiplayer/provider';
@@ -222,6 +223,11 @@ export default class Game {
 
 	/** Unsubscribes the scene's pointer-boundary listeners. See phaserSceneCreated. */
 	private _stopPointerTracking: (() => void) | null = null;
+	/**
+	 * Releases the bot-only-match cursor auto-hider. See `setup` and
+	 * `destroyPhaser`.
+	 */
+	private _stopCursorAutoHide: (() => void) | null = null;
 	/**
 	 * The concrete Phaser-backed engine adapter, captured at construction.
 	 *
@@ -530,6 +536,10 @@ export default class Game {
 			resetPointerWithinBoard();
 			clearHoveredHex();
 			stopAllCursorSpinning();
+			// Release the bot-only-match cursor auto-hider so its listener does not
+			// outlive the canvas it was toggling (a rematch re-armed it in setup()).
+			this._stopCursorAutoHide?.();
+			this._stopCursorAutoHide = null;
 
 			// Reset game state (this.UI is already nulled above when its interval
 			// was cleared, kept here for clarity)
@@ -1199,6 +1209,20 @@ export default class Game {
 		}
 		if (DEBUG_DISABLE_MUSIC) {
 			this.musicPlayer.audio.pause();
+		}
+
+		// In a demo ("bot only") match every seat is an AI — there is no local
+		// human at all — so the whole round is a spectator event and the cursor
+		// blanks after a few seconds of inactivity: a "watching video" feel that
+		// restores on the first mouse move. A player-vs-bot match is *not* demo
+		// mode: that local human still needs the cursor on their turns, so it is
+		// left alone. (See destroyPhaser for the matching teardown.)
+		if (
+			!this.multiplayer &&
+			this.players.length > 0 &&
+			this.players.every((player) => player.controller === 'bot')
+		) {
+			this._stopCursorAutoHide = startCursorAutoHide();
 		}
 	}
 

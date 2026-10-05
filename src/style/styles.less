@@ -20,6 +20,14 @@
 	margin-bottom: 0 !important;
 }
 
+// In a demo ("bot only") match — every seat is an AI, no human player — blank the
+// pointer after a spell of inactivity: a "watching video" feel while the bots play.
+// Any pointer movement restores it; the `!important` lets it win over the inline
+// `cursor` styles the board's hover handlers and turn state keep setting.
+.ab-cursor-hidden {
+	cursor: none !important;
+}
+
 #grid {
 	width: 90.1em;
 	height: 45em;
