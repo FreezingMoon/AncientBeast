@@ -176,7 +176,30 @@ async function runBatch(
 
 // ─── The test ─────────────────────────────────────────────────────────────────
 
+/**
+ * Checked-in reference baseline. Read every run and never written unless
+ * `SIM_WRITE_BASELINE=1`, so promoting a new baseline stays a deliberate act
+ * instead of something that happens because a run reached phase 1.
+ */
 const BASELINE_PATH = path.resolve(process.cwd(), 'simulation-baseline.json');
+/** This run's baseline, always written and git-ignored. */
+const LATEST_PATH = path.resolve(process.cwd(), 'simulation-latest.json');
+
+interface RecordedBaseline {
+	metrics: QualityMetrics;
+	timestamp?: string;
+}
+
+/** Read the committed reference baseline, or null if absent/unreadable. */
+function readReferenceBaseline(): RecordedBaseline | null {
+	try {
+		const parsed = JSON.parse(fs.readFileSync(BASELINE_PATH, 'utf8')) as RecordedBaseline;
+		if (!parsed?.metrics || typeof parsed.metrics.decisiveness !== 'number') return null;
+		return parsed;
+	} catch {
+		return null;
+	}
+}
 /**
  * Per-run results file. The name carries the pid on purpose: two simulations
  * running in the same checkout (a second agent session, a CI matrix row sharing a
@@ -215,17 +238,30 @@ describe('Bot simulation', () => {
 		console.log(`📝  Appending arm results to ${RESULTS_PATH}`);
 
 		// ── Phase 1: baseline ──────────────────────────────────────────────────
+		// Read the committed reference before this run produces its own numbers, so
+		// the report can show before/after rather than only after.
+		const reference = readReferenceBaseline();
+
 		ttyWrite(`\n📊  Phase 1: ${BASELINE_COUNT} baseline matches\n`);
 		const baselineResults = await runBatch(BASELINE_COUNT, 'baseline');
 		const baselineMetrics: QualityMetrics = aggregateMetrics(baselineResults);
 		console.log('Baseline: ' + formatMetrics('baseline', baselineMetrics));
 		recordResult('baseline', baselineMetrics);
 
-		fs.writeFileSync(
-			BASELINE_PATH,
-			JSON.stringify({ metrics: baselineMetrics, timestamp: new Date().toISOString() }, null, 2),
+		const baselineRecord = JSON.stringify(
+			{ metrics: baselineMetrics, timestamp: new Date().toISOString() },
+			null,
+			2,
 		);
-		console.log(`✅  Saved baseline to ${BASELINE_PATH}`);
+		// Always refresh the throwaway copy so the next run has something to diff
+		// against even when the committed reference is stale.
+		fs.writeFileSync(LATEST_PATH, baselineRecord);
+		console.log(`✅  Saved this run's baseline to ${LATEST_PATH}`);
+
+		if (process.env.SIM_WRITE_BASELINE) {
+			fs.writeFileSync(BASELINE_PATH, baselineRecord);
+			console.log(`📌  Promoted this run to the reference baseline ${BASELINE_PATH}`);
+		}
 
 		// ── Phase 2: variants ─────────────────────────────────────────────────
 		ttyWrite(`\n🔬  Phase 2: ${variants.length} variants × ${VARIANT_COUNT} matches\n`);
@@ -240,7 +276,7 @@ describe('Bot simulation', () => {
 		}
 
 		// ── Phase 3: report ───────────────────────────────────────────────────
-		printReport(baselineMetrics, variantResults);
+		printReport(baselineMetrics, variantResults, reference ?? undefined);
 		recordResult(
 			'__invariants__',
 			{

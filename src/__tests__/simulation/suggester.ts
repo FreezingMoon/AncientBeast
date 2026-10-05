@@ -17,7 +17,13 @@
  *   2. The emitted suggestion quotes the value observed at patch time, so the
  *      "from" side cannot drift away from the code.
  */
-import { compareMetrics, formatMetrics, MIN_SAMPLE_FOR_VERDICT, Verdict } from './stats';
+import {
+	compareMetrics,
+	formatBaselineDelta,
+	formatMetrics,
+	MIN_SAMPLE_FOR_VERDICT,
+	Verdict,
+} from './stats';
 import type { QualityMetrics } from './stats';
 
 export interface Variant {
@@ -108,6 +114,7 @@ export interface VariantRunResult {
 export function printReport(
 	baselineMetrics: QualityMetrics,
 	variantResults: VariantRunResult[],
+	reference?: { metrics: QualityMetrics; timestamp?: string },
 ): void {
 	const line = '─'.repeat(80);
 	const byVerdict = (v: Verdict) => variantResults.filter((r) => r.verdict === v);
@@ -116,6 +123,10 @@ export function printReport(
 	console.log('SIMULATION REPORT');
 	console.log(line);
 	console.log(formatMetrics('baseline', baselineMetrics));
+	console.log('\nBaseline vs recorded reference:');
+	console.log(
+		formatBaselineDelta(reference?.metrics ?? null, baselineMetrics, reference?.timestamp),
+	);
 
 	if (baselineMetrics.matchCount < MIN_SAMPLE_FOR_VERDICT) {
 		console.log(

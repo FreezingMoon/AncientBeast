@@ -546,7 +546,7 @@ export class Creature {
 		this.creatureSprite.setAlpha(GHOST_PREVIEW_ALPHA, 0);
 		game.grid.fadeOutTempCreature(undefined, fadeMs);
 		this.creatureSprite.setAlpha(1, fadeMs);
-		setTimeout(() => {
+		game.defer(() => {
 			if (this.dead) {
 				return;
 			}
@@ -559,8 +559,7 @@ export class Creature {
 
 		// Ghost creatures in front so the materializing unit is spotlighted
 		this.hexagons.forEach((hex) => hex.ghostOverlap(this));
-		setTimeout(() => {
-			if (!game.grid) return;
+		game.defer(() => {
 			if (game.grid.lastXrayHex) {
 				game.grid.xray(game.grid.lastXrayHex);
 			} else {
@@ -635,12 +634,7 @@ export class Creature {
 				this.hint('♣', 'damage');
 			}
 
-			setTimeout(() => {
-				// The board can be torn down inside this one-second delay — a rematch or
-				// an exit calls `destroyPhaser()`, which nulls `game.UI`. This timer is
-				// not tracked, so unlike `checkTime` there is nothing to cancel it, and
-				// the callback would dereference a dead UI and throw. Guard instead.
-				if (!game?.UI) return;
+			game.defer(() => {
 				game.UI.energyBar.animSize(this.energy / stats.energy);
 				game.UI.healthBar.animSize(this.health / stats.health);
 			}, 1000);
@@ -659,13 +653,12 @@ export class Creature {
 		// Frozen or dizzy effect
 		if (this.isFrozen() || this.isDizzy()) {
 			varReset();
-			const interval = setInterval(() => {
-				if (!game.turnThrottle) {
-					clearInterval(interval);
-					game.skipTurn({
-						tooltip: this.isFrozen() ? 'Frozen' : 'Dizzy',
-					});
-				}
+			game.poll(() => {
+				if (game.turnThrottle) return;
+				game.skipTurn({
+					tooltip: this.isFrozen() ? 'Frozen' : 'Dizzy',
+				});
+				return true;
 			}, 50);
 			return;
 		}
@@ -673,19 +666,12 @@ export class Creature {
 		// Dazzled effect — ronin units whose Dark Priest has been killed in 2vs2
 		if (this.player.hasLost) {
 			varReset();
-			const interval = setInterval(() => {
-				// Teardown (rematch or exit) can land before this poll resolves; the
-				// interval is untracked, and `skipTurn()` on a torn-down game throws.
-				if (!game.grid || !game.UI) {
-					clearInterval(interval);
-					return;
-				}
-				if (!game.turnThrottle) {
-					clearInterval(interval);
-					game.skipTurn({
-						tooltip: 'Dazzled',
-					});
-				}
+			game.poll(() => {
+				if (game.turnThrottle) return;
+				game.skipTurn({
+					tooltip: 'Dazzled',
+				});
+				return true;
 			}, 50);
 			return;
 		}
@@ -694,63 +680,14 @@ export class Creature {
 		if (this._brbState) {
 			varReset();
 			const brbState = this._brbState;
-			const brbInterval = setInterval(() => {
-				if (!game.turnThrottle) {
-					clearInterval(brbInterval);
-
-					// Trap hex is occupied — skip this turn and try again next
-					if (brbState.gooTrap.hex.creature) {
-						game.skipTurn({ tooltip: 'BRB' });
-						return;
-					}
-
-					// Hex is free — revive!
-					this._brbSpent = false; // reset so ability can fire again if Gumble dies later
-					this._brbState = null;
-					this.x = brbState.gooTrap.x;
-					this.y = brbState.gooTrap.y;
-					this.pos = { x: this.x, y: this.y };
-					this.health = this.stats.health;
-					this.energy = this.stats.energy;
-					this.endurance = this.stats.endurance;
-					this.updateHex();
-					this.facePlayerDefault();
-
-					// Revive with rise animation (inverse of melt)
-					const reviveFadeMs = 1000;
-					this.creatureSprite.setAngle(0, 0);
-					this.creatureSprite.setHex(brbState.gooTrap.hex, 0);
-
-					// Fade trap out while Gumble rises back in
-					brbState.gooTrap.hide(reviveFadeMs);
-					setTimeout(() => brbState.gooTrap.destroy(), reviveFadeMs);
-					this.healthShow();
-					this.updateHealth();
-
-					game.animations.rise(this, {
-						callback: () => {
-							game.updateQueueDisplay();
-							game.grid.updateDisplay();
-						},
-						overrideSpeed: reviveFadeMs,
-					});
-
-					game.log('%CreatureName' + this.id + '% rises from the goo!');
-					this.hint('Back!', 'msg_effects');
-
-					setTimeout(() => {
-						// Teardown can land inside this fade delay. `destroyPhaser()`
-						// nulls `grid` and `UI`, this timeout is not tracked, so
-						// `queryMove()` below would dereference a dead grid.
-						if (!game.grid) return;
-						game.startTimer();
-						this.queryMove(null);
-					}, reviveFadeMs);
-				}
+			// `poll` stops itself at teardown, so this no longer needs its own
+			// clearInterval or a guard for a dead board.
+			game.poll(() => {
+				if (game.turnThrottle) return;
+				return this._finishBRB(brbState);
 			}, 50);
 			return;
 		}
-
 		if (!this.hasWait) {
 			varReset();
 
@@ -761,16 +698,11 @@ export class Creature {
 
 		this.materializationSickness = false;
 
-		const interval = setInterval(() => {
-			// Teardown (rematch or exit) nulls `grid` and `UI`, and this interval is
-			// untracked, so everything below dereferenced a dead board: `UI.btnFlee`
-			// on a null UI, and `queryMove()` on a null grid.
-			if (!game.grid || !game.UI) {
-				clearInterval(interval);
-				return;
-			}
+		// `poll` fires once after the delay and then stops (returning true).
+		// Scheduling it this way means teardown during the delay cancels it outright
+		// instead of the callback arriving to dereference a dead board.
+		game.poll(() => {
 			// if (!game.freezedInput) { remove for muliplayer
-			clearInterval(interval);
 			if (game.turn >= game.minimumTurnBeforeFleeing) {
 				game.UI.btnFlee?.changeState('normal');
 			}
@@ -779,6 +711,7 @@ export class Creature {
 			this.queryMove(null);
 			game.grid?.refreshHoverState();
 			// }
+			return true;
 		}, 1000);
 
 		// Apply active-unit xray immediately; queryMove() starts after a delay and
@@ -788,6 +721,64 @@ export class Creature {
 
 		// Elevate health indicator above all creatures while this unit is active
 		this.startBounce();
+	}
+
+	/**
+	 * Resolve Gumble's BRB (Gooey Body) state once the turn throttle clears.
+	 *
+	 * Split out of `activate()` so the poll that drives it is a one-liner. Returns
+	 * true when the caller should stop polling — either the trap hex was still
+	 * occupied, or the revive was started.
+	 */
+	private _finishBRB(brbState: NonNullable<Creature['_brbState']>): boolean {
+		const game = this.game;
+
+		// Trap hex is occupied — skip this turn and try again next
+		if (brbState.gooTrap.hex.creature) {
+			game.skipTurn({ tooltip: 'BRB' });
+			return false;
+		}
+
+		// Hex is free — revive!
+		this._brbSpent = false; // reset so ability can fire again if Gumble dies later
+		this._brbState = null;
+		this.x = brbState.gooTrap.x;
+		this.y = brbState.gooTrap.y;
+		this.pos = { x: this.x, y: this.y };
+		this.health = this.stats.health;
+		this.energy = this.stats.energy;
+		this.endurance = this.stats.endurance;
+		this.updateHex();
+		this.facePlayerDefault();
+
+		// Revive with rise animation (inverse of melt)
+		const reviveFadeMs = 1000;
+		this.creatureSprite.setAngle(0, 0);
+		this.creatureSprite.setHex(brbState.gooTrap.hex, 0);
+
+		// Fade trap out while Gumble rises back in
+		brbState.gooTrap.hide(reviveFadeMs);
+		game.defer(() => brbState.gooTrap.destroy(), reviveFadeMs);
+		this.healthShow();
+		this.updateHealth();
+
+		game.animations.rise(this, {
+			callback: () => {
+				game.updateQueueDisplay();
+				game.grid.updateDisplay();
+			},
+			overrideSpeed: reviveFadeMs,
+		});
+
+		game.log('%CreatureName' + this.id + '% rises from the goo!');
+		this.hint('Back!', 'msg_effects');
+
+		game.defer(() => {
+			game.startTimer();
+			this.queryMove(null);
+		}, reviveFadeMs);
+
+		return true;
 	}
 
 	/**
@@ -1758,6 +1749,11 @@ export class Creature {
 	}
 
 	updateHealth(noAnimBar = false) {
+		// Reached from deferred callbacks (turn hand-off, animation callbacks) that
+		// can outlive teardown, and `destroyPhaser()` nulls `UI` and `grid`. A dead
+		// board has no health bar to resize.
+		if (this.game.tornDown || !this.game.UI) return;
+
 		// Dead creatures stay in `game.creatures` and their effects stay in
 		// `game.effects`, so a round-start effect teardown can refresh a sprite
 		// whose Phaser objects are already freed (see CreatureSprite.destroyed).

@@ -398,16 +398,14 @@ export default (G: Game) => {
 								axis: 'horizontal',
 							});
 
-							const interval = setInterval(function () {
-								if (!G.freezedInput) {
-									clearInterval(interval);
-
-									if (ability.isUpgraded()) {
-										ability._pushTarget(target, pushPath, args);
-									} else if (G.activeCreature?.player?.controller !== 'bot') {
-										G.activeCreature?.queryMove();
-									}
+							G.poll(function () {
+								if (G.freezedInput) return;
+								if (ability.isUpgraded()) {
+									ability._pushTarget(target, pushPath, args);
+								} else if (G.activeCreature?.player?.controller !== 'bot') {
+									G.activeCreature?.queryMove();
 								}
+								return true;
 							}, 100);
 						},
 					});
@@ -497,13 +495,12 @@ export default (G: Game) => {
 
 				/* Regardless of the outcome, we want to restore the player's UI and control
 				when all movement is complete. */
-				const interval = setInterval(function () {
-					if (!G.freezedInput) {
-						clearInterval(interval);
-						if (G.activeCreature?.player?.controller !== 'bot') {
-							G.activeCreature?.queryMove();
-						}
+				G.poll(function () {
+					if (G.freezedInput) return;
+					if (G.activeCreature?.player?.controller !== 'bot') {
+						G.activeCreature?.queryMove();
 					}
+					return true;
 				}, 100);
 
 				// Sense check if we can still push with the Nutcase, or into the target.

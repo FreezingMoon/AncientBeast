@@ -137,3 +137,55 @@ export function formatMetrics(label: string, m: QualityMetrics): string {
 		`timeout=${(m.timeoutRate * 100).toFixed(1)}%`
 	);
 }
+
+/** Percentage change from `from` to `to`, or `null` when there is no base. */
+function pct(from: number, to: number): string {
+	if (from === to) return 'same';
+	if (from === 0) return to === 0 ? 'same' : `+inf (from 0)`;
+	const delta = ((to - from) / from) * 100;
+	return `${delta >= 0 ? '+' : ''}${delta.toFixed(1)}%`;
+}
+
+/**
+ * One line comparing a run's baseline against a previously recorded one.
+ *
+ * This is the before/after view: `simulation-baseline.json` is the checked-in
+ * reference, `simulation-latest.json` is whatever the last run produced. Reading
+ * them side by side is the only cheap way to tell a real balance change from
+ * run-to-run noise, which at these sample sizes is large enough to invent
+ * "improvements" on its own.
+ */
+export function formatBaselineDelta(
+	reference: QualityMetrics | null,
+	current: QualityMetrics,
+	referenceTimestamp?: string,
+): string {
+	if (!reference) {
+		return (
+			`  no recorded reference baseline — this run establishes it ` +
+			`(decisiveness=${current.decisiveness.toFixed(1)}, ` +
+			`avgTurns=${current.avgTurns.toFixed(1)}, ` +
+			`timeout=${(current.timeoutRate * 100).toFixed(1)}%)`
+		);
+	}
+	const when = referenceTimestamp ? ` (recorded ${referenceTimestamp})` : '';
+	return (
+		`  reference${when}: n=${reference.matchCount} ` +
+		`decisiveness=${reference.decisiveness.toFixed(1)} ` +
+		`avgTurns=${reference.avgTurns.toFixed(1)} ` +
+		`timeout=${(reference.timeoutRate * 100).toFixed(1)}%\n` +
+		`  this run:               n=${current.matchCount} ` +
+		`decisiveness=${current.decisiveness.toFixed(1)} ` +
+		`avgTurns=${current.avgTurns.toFixed(1)} ` +
+		`timeout=${(current.timeoutRate * 100).toFixed(1)}%\n` +
+		`  delta:                  decisiveness ${pct(
+			reference.decisiveness,
+			current.decisiveness,
+		)}, ` +
+		`avgTurns ${pct(reference.avgTurns, current.avgTurns)}, ` +
+		`timeout ${pct(reference.timeoutRate, current.timeoutRate)}` +
+		(reference.matchCount < MIN_SAMPLE_FOR_VERDICT || current.matchCount < MIN_SAMPLE_FOR_VERDICT
+			? `\n  ⚠️  One side is below n=${MIN_SAMPLE_FOR_VERDICT}; treat the delta as noise.`
+			: '')
+	);
+}

@@ -318,6 +318,67 @@ export default class Game {
 
 	pauseStartTime?: Date;
 
+	/**
+	 * True once `destroyPhaser()` has torn this instance down, false again once a
+	 * new match is set up on it.
+	 *
+	 * Teardown nulls `grid` and `UI` so late callbacks notice they are dead, but
+	 * gameplay schedules untracked `setTimeout`/`setInterval` work that nothing
+	 * cancels, so those callbacks fire against a dead board and throw. Every
+	 * deferred entry point checks this, and `defer`/`poll` below both check it and
+	 * unregister on teardown, so the usual case needs no guard at all.
+	 */
+	tornDown = false;
+
+	/**
+	 * Handles for deferred work scheduled through `defer`/`poll`, cleared on
+	 * teardown. Timers created with bare `setTimeout` cannot be reached this way.
+	 */
+	private _deferredTimers = new Set<ReturnType<typeof setTimeout>>();
+
+	/**
+	 * `setTimeout` that is cancelled by teardown and skipped if the board is
+	 * already gone. Prefer this over a bare `setTimeout` for gameplay callbacks.
+	 */
+	defer(callback: () => void, ms: number): void {
+		if (this.tornDown) return;
+		const handle = setTimeout(() => {
+			this._deferredTimers.delete(handle);
+			if (this.tornDown) return;
+			callback();
+		}, ms);
+		this._deferredTimers.add(handle);
+	}
+
+	/**
+	 * `setInterval` that stops at teardown and stops early if `callback` returns
+	 * true. Prefer this over a bare `setInterval` for gameplay polling.
+	 */
+	poll(callback: () => boolean | void, ms: number): void {
+		if (this.tornDown) return;
+		const handle = setInterval(() => {
+			if (this.tornDown || callback() === true) {
+				clearInterval(handle);
+				this._deferredTimers.delete(handle);
+			}
+		}, ms);
+		this._deferredTimers.add(handle);
+	}
+
+	/**
+	 * Cancel every timer scheduled through `defer`/`poll`.
+	 *
+	 * Both are registered as timeouts, so one store is enough; clearing by
+	 * `clearTimeout` also stops the intervals. Called from `destroyPhaser()`.
+	 */
+	private _cancelDeferredTimers(): void {
+		for (const handle of this._deferredTimers) {
+			clearTimeout(handle);
+			clearInterval(handle);
+		}
+		this._deferredTimers.clear();
+	}
+
 	timePool?: number;
 	turnTimePool?: number;
 
@@ -461,6 +522,10 @@ export default class Game {
 	}
 
 	destroyPhaser() {
+		// Raise the flag and cancel tracked deferred work first, so a `defer`/`poll`
+		// callback cannot start while the rest of teardown is still running.
+		this.tornDown = true;
+		this._cancelDeferredTimers();
 		if (this.Phaser) {
 			const phaser = this.Phaser;
 
@@ -1020,6 +1085,11 @@ export default class Game {
 	 * Launch the game with the given number of player.
 	 */
 	setup(gameMode: number) {
+		// A rematch reuses this instance, so clear the teardown state before
+		// anything schedules deferred work against the new board.
+		this.tornDown = false;
+		this._deferredTimers.clear();
+
 		// Clear existing Phaser objects if setup() was already called once
 		// This prevents duplicate input handlers in multiplayer scenarios
 		if (this.grid) {
@@ -2177,6 +2247,11 @@ export default class Game {
 	}
 
 	triggerAbility(trigger, arg, retValue?) {
+		// Reached from deferred callbacks that can outlive teardown. Every ability
+		// requirement below queries the board, so bailing here covers the whole fan-out
+		// rather than each ability's own deref.
+		if (this.tornDown || !this.grid) return retValue;
+
 		const [triggeredCreature, required] = arg;
 
 		// For triggered creature

@@ -281,23 +281,15 @@ export default (G: Game) => {
 
 						G.onStepIn(this.creature, this.creature.hexagons[0], false);
 
-						let ticks = 0;
-						const interval = setInterval(function () {
-							// Teardown (rematch or exit) nulls `G.UI` and `G.grid` while
-							// this waits on input, and nothing cancels the interval, so
-							// the callback used to throw on a dead board. The tick bound
-							// also stops an input that stays frozen forever from spinning
-							// this for the rest of the session.
-							if (!G.UI || !G.grid || ++ticks > 300) {
-								clearInterval(interval);
-								return;
-							}
+						// `poll` stops itself when the board is torn down, so this no
+						// longer has to check for a dead UI/grid or clear its own interval.
+						G.poll(function () {
 							if (!G.freezedInput) {
-								clearInterval(interval);
 								G.UI.selectAbility(-1);
 								if (G.activeCreature?.player?.controller !== 'bot') {
 									G.activeCreature?.queryMove();
 								}
+								return true;
 							}
 						}, 100);
 					},
