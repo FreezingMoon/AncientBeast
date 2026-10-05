@@ -177,7 +177,16 @@ async function runBatch(
 // ─── The test ─────────────────────────────────────────────────────────────────
 
 const BASELINE_PATH = path.resolve(process.cwd(), 'simulation-baseline.json');
-const RESULTS_PATH = path.resolve(process.cwd(), 'simulation-results.jsonl');
+/**
+ * Per-run results file. The name carries the pid on purpose: two simulations
+ * running in the same checkout (a second agent session, a CI matrix row sharing a
+ * volume) otherwise append to one file and interleave each other's arms, which
+ * makes the results unreadable and silently wrong. Override with SIM_RESULTS.
+ */
+const RESULTS_PATH = path.resolve(
+	process.cwd(),
+	process.env.SIM_RESULTS ?? `simulation-results-${process.pid}.jsonl`,
+);
 // Default counts are intentionally small (~10-30 s per game).
 // For tighter statistical confidence, increase via env vars:
 //   SIM_BASELINE=100 SIM_VARIANT=50 bun run simulate
@@ -203,6 +212,7 @@ describe('Bot simulation', () => {
 	test('run simulation and report balance deltas', async () => {
 		// Fresh results file per run; append-only within it.
 		fs.writeFileSync(RESULTS_PATH, '');
+		console.log(`📝  Appending arm results to ${RESULTS_PATH}`);
 
 		// ── Phase 1: baseline ──────────────────────────────────────────────────
 		ttyWrite(`\n📊  Phase 1: ${BASELINE_COUNT} baseline matches\n`);

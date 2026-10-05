@@ -102,6 +102,16 @@ function makeUiStub() {
 		_abilityPanelAnimating: false,
 		logScrollEnabled: false,
 		plasmaBars: [],
+		// `Game.destroyPhaser()` clears this handle during teardown. The deep
+		// no-op proxy would otherwise hand it back a Proxy object, `!= null` would
+		// pass, and jsdom's `clearInterval` would throw "Cannot convert object to
+		// primitive value" — aborting destroyPhaser *before* it reaches
+		// `phaser.destroy()`. That made teardown a silent no-op, so every match
+		// leaked a whole Phaser scene and a long run died at the 4 GB heap ceiling.
+		// Timer handles must read as "nothing scheduled" here.
+		glowInterval: undefined,
+		cardFlipTimeoutId: null,
+		scoreboardConfirmTimer: null,
 		// Keep well-typed nested stubs for the most common UI objects
 		//
 		// `chat` needs the whole method surface `Chat` declares: gameplay code
@@ -670,11 +680,7 @@ export function checkMatchInvariants(result: MatchResult, game: unknown): string
 			if (sum !== s) {
 				problems.push(
 					`score[${i}] total=${s} but categories sum to ${sum}: ` +
-						JSON.stringify(
-							Object.fromEntries(
-								Object.entries(b).filter(([, v]) => v !== 0),
-							),
-						),
+						JSON.stringify(Object.fromEntries(Object.entries(b).filter(([, v]) => v !== 0))),
 				);
 			}
 		}
@@ -767,8 +773,8 @@ export async function runMatch(game: unknown): Promise<MatchResult> {
 
 	(game as any).checkTime = origCheckTime;
 
-	const breakdowns = ((game as any).players as any[]).map((p: { getScore: () => Record<string, number> }) =>
-		p.getScore(),
+	const breakdowns = ((game as any).players as any[]).map(
+		(p: { getScore: () => Record<string, number> }) => p.getScore(),
 	);
 	const scores = breakdowns.map((b) => b.total);
 	let winnerIdx: number | null = null;
@@ -810,7 +816,12 @@ export function disposeGame(game: unknown): void {
 		(game as any)?.destroyPhaser?.();
 	} catch (error) {
 		(process.stderr as any).write(
-			`  [teardown warning: ${(error as Error)?.message ?? String(error)}]\n`,
+			`  [teardown warning: ${(error as Error)?.message ?? String(error)}]\n` +
+				`${((error as Error)?.stack ?? '')
+					.split('\n')
+					.slice(1, 6)
+					.map((l) => `      ${l.trim()}\n`)
+					.join('')}`,
 		);
 	}
 }

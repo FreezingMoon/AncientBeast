@@ -77,12 +77,19 @@ function makeVariant(sweep: Sweep): Variant {
 			};
 		},
 		get suggestion() {
-			const from = observed === null ? '<current>' : String(observed);
+			// Deliberately no "change X to Y" diff. `observed` is the value in force
+			// during the run, and the harness lowers some timing defaults for speed
+			// (`createGame` sets stalePendingActionMs to 20 against a shipped 2200).
+			// A diff built from that would tell someone to edit a number that is not
+			// in the source. Name the field, give the target, and label the baseline
+			// as what the run actually saw.
+			const baseline = observed === null ? 'unknown' : String(observed);
 			return (
-				`In src/bot.ts → BotController, change:\n` +
-				`  ${sweep.field} = ${from};\n` +
-				`to:\n` +
-				`  ${sweep.field} = ${sweep.value};`
+				`In src/bot.ts → BotController, set:\n` +
+				`  ${sweep.field} = ${sweep.value};\n` +
+				`Baseline observed in this run: ${baseline}. ` +
+				`Check the shipped default in src/bot.ts first — the harness lowers ` +
+				`some timing values to keep matches fast.`
 			);
 		},
 	};

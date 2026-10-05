@@ -70,11 +70,16 @@ function sweetSpot(turns: number): number {
 
 /**
  * Relative change from `base` to `next`, or `null` when the comparison carries
- * no information (either side is 0, so no ratio exists).
+ * no information.
+ *
+ * A zero baseline needs care. Returning `null` for both "no change" and "zero to
+ * something" made a variant that introduced a 13 % timeout rate invisible to the
+ * regression check, and it got reported as an improvement. From zero, any
+ * increase is a regression: the prior rate could not have been beaten.
  */
 function relativeDelta(base: number, next: number): number | null {
 	if (base === next) return 0;
-	if (base === 0) return null;
+	if (base === 0) return next > 0 ? Number.POSITIVE_INFINITY : null;
 	return (next - base) / base;
 }
 
