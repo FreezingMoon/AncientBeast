@@ -1502,6 +1502,10 @@ export class Animations {
 		// Get the target's position on the projectile's path that is closest
 		const emissionPointX = this2.creature.legacyProjectileEmissionPoint.x + startX;
 		let distance = Number.MAX_SAFE_INTEGER;
+		if (!path.length) {
+			// Nothing to animate along. Without this, `path[0]` below throws.
+			return;
+		}
 		let targetX = path[0].displayPos.x;
 		for (const hex of path) {
 			if (typeof hex.creature != 'undefined' && hex.creature.id == target.id) {
@@ -1514,13 +1518,18 @@ export class Animations {
 		const game = this.game,
 			baseDist = arrayUtils.filterCreature(path.slice(0), false, false).length,
 			dist = baseDist == 0 ? 1 : baseDist,
+			// `baseDist` counts creature-free hexes but indexes `path` directly.
+			// When creatures and empty hexes interleave, the last creature-free
+			// hex is not at index `baseDist - 1`, so `path[baseDist]` could be
+			// undefined and the projectile target threw. Clamp instead.
+			targetHexIdx = Math.min(baseDist, path.length - 1),
 			emissionPoint = {
 				x: this2.creature.legacyProjectileEmissionPoint.x + startX,
 				y: this2.creature.legacyProjectileEmissionPoint.y + startY,
 			},
 			targetPoint = {
 				x: targetX + 45,
-				y: path[baseDist].displayPos.y - 20,
+				y: path[targetHexIdx].displayPos.y - 20,
 			},
 			// Sprite id here
 			sprite = game.gameEngine.add.sprite(

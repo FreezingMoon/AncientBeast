@@ -636,6 +636,11 @@ export class Creature {
 			}
 
 			setTimeout(() => {
+				// The board can be torn down inside this one-second delay — a rematch or
+				// an exit calls `destroyPhaser()`, which nulls `game.UI`. This timer is
+				// not tracked, so unlike `checkTime` there is nothing to cancel it, and
+				// the callback would dereference a dead UI and throw. Guard instead.
+				if (!game?.UI) return;
 				game.UI.energyBar.animSize(this.energy / stats.energy);
 				game.UI.healthBar.animSize(this.health / stats.health);
 			}, 1000);
@@ -669,6 +674,12 @@ export class Creature {
 		if (this.player.hasLost) {
 			varReset();
 			const interval = setInterval(() => {
+				// Teardown (rematch or exit) can land before this poll resolves; the
+				// interval is untracked, and `skipTurn()` on a torn-down game throws.
+				if (!game.grid || !game.UI) {
+					clearInterval(interval);
+					return;
+				}
 				if (!game.turnThrottle) {
 					clearInterval(interval);
 					game.skipTurn({
@@ -728,6 +739,10 @@ export class Creature {
 					this.hint('Back!', 'msg_effects');
 
 					setTimeout(() => {
+						// Teardown can land inside this fade delay. `destroyPhaser()`
+						// nulls `grid` and `UI`, this timeout is not tracked, so
+						// `queryMove()` below would dereference a dead grid.
+						if (!game.grid) return;
 						game.startTimer();
 						this.queryMove(null);
 					}, reviveFadeMs);
@@ -747,6 +762,13 @@ export class Creature {
 		this.materializationSickness = false;
 
 		const interval = setInterval(() => {
+			// Teardown (rematch or exit) nulls `grid` and `UI`, and this interval is
+			// untracked, so everything below dereferenced a dead board: `UI.btnFlee`
+			// on a null UI, and `queryMove()` on a null grid.
+			if (!game.grid || !game.UI) {
+				clearInterval(interval);
+				return;
+			}
 			// if (!game.freezedInput) { remove for muliplayer
 			clearInterval(interval);
 			if (game.turn >= game.minimumTurnBeforeFleeing) {
@@ -761,7 +783,7 @@ export class Creature {
 
 		// Apply active-unit xray immediately; queryMove() starts after a delay and
 		// can otherwise leave one-hex units visually hidden during turn handoff.
-		game.grid.refreshActiveCreatureXray();
+		game.grid?.refreshActiveCreatureXray();
 		this.xray(false);
 
 		// Elevate health indicator above all creatures while this unit is active
@@ -1446,11 +1468,15 @@ export class Creature {
 	 * @returns{Hex[]} Array of adjacent hexagons
 	 */
 	adjacentHexes(distance: number): Hex[] {
+		// Ability requirements query this from deferred callbacks that can outlive
+		// teardown, which nulls `game.grid`. No board means no neighbours.
+		if (!this.game.grid) return [];
 		const hash = hashOffsetCoords;
 		const closed = new Set<number>(this.hexagons.map(hash));
 		const close = (point: Point) => closed.add(hash(point));
 		const isClosed = (point: Point) => closed.has(hash(point));
-		const isInBounds = (point: Point) => this.game.grid.isInBounds(point);
+		const grid = this.game.grid;
+		const isInBounds = (point: Point) => grid.isInBounds(point);
 
 		let atCurrRadius = this.hexagons;
 		let atNextRadius = [];
@@ -2316,10 +2342,15 @@ export class Creature {
 	 * Shortcut convenience function to grid.getHexMap
 	 */
 	getHexMap(map: AugmentedMatrix, invertFlipped: boolean) {
+		// Ability queries are fired from deferred callbacks that can outlive
+		// teardown, which nulls `game.grid`. `grid === null` means the board is
+		// gone, not that the caller should crash.
+		const grid = this.game.grid;
+		if (!grid) return null;
 		const x = (this.player.flipped ? !invertFlipped : invertFlipped)
 			? this.x + 1 - this.size
 			: this.x;
-		return this.game.grid.getHexMap(
+		return grid.getHexMap(
 			x,
 			this.y - map.origin[1],
 			0 - map.origin[0],

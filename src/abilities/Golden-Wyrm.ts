@@ -166,7 +166,9 @@ export default (G: Game) => {
 						if (this.isUpgraded()) {
 							this.setUsed(false);
 							// Refresh UI to show ability still able to be used.
-							this.game.UI.selectAbility(-1);
+							// Guarded: this runs from a deferred damage callback that can
+							// outlive teardown, which nulls `game.UI`.
+							this.game.UI?.selectAbility(-1);
 						}
 					}
 				} else {

@@ -473,7 +473,17 @@ export default (G: Game) => {
 
 						G.onStepIn(ability.creature, ability.creature.hexagons[0], false);
 
+						let ticks = 0;
 						const interval = setInterval(function () {
+							// Teardown (rematch or exit) nulls `G.UI` and `G.grid` while
+							// this waits on input, and nothing cancels the interval, so
+							// the callback used to throw on a dead board. The tick bound
+							// also stops a permanently frozen input from spinning this
+							// for the rest of the session.
+							if (!G.UI || !G.grid || ++ticks > 300) {
+								clearInterval(interval);
+								return;
+							}
 							if (!G.freezedInput) {
 								clearInterval(interval);
 								G.UI.selectAbility(-1);

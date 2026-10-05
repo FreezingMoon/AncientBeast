@@ -400,6 +400,11 @@ export class Ability {
 	setUsed(val: boolean): void {
 		const game = this.game;
 
+		// `destroyPhaser()` nulls `UI` on teardown, and `setUsed` runs from deferred
+		// ability callbacks that outlive it. Nothing cancels those, so the panel
+		// lookup below would throw on a dead UI.
+		if (!game.UI) return;
+
 		if (val) {
 			this.used = true;
 			// Avoid dimmed passive for current creature

@@ -321,7 +321,17 @@ export default (G) => {
 				const magmaSpawn = this.creature;
 
 				const finalizeHurl = () => {
+					let ticks = 0;
 					const interval = setInterval(function () {
+						// Two bounds this poll previously lacked. Teardown (rematch or
+						// exit) nulls `G.UI` and `G.grid` while this is still waiting on
+						// input, and the callback then threw on a dead board. And an
+						// input that stays frozen forever left the interval spinning for
+						// the rest of the session.
+						if (!G.UI || !G.grid || ++ticks > 300) {
+							clearInterval(interval);
+							return;
+						}
 						if (!G.freezedInput) {
 							clearInterval(interval);
 							G.UI.selectAbility(-1);

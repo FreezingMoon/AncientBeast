@@ -203,6 +203,35 @@ function clearPreviewTweens(game: { gameEngine?: GameEngine }, overlay: any): vo
  * Object containing grid and methods concerning the whole grid.
  * Should only have one instance during the game.
  */
+/**
+ * Bounds for a sprite that can still be measured, or `null`.
+ *
+ * A sprite whose texture has been unloaded — which is what teardown mid-hover
+ * leaves behind — has a null frame, and Phaser's `getBounds()` then throws from
+ * inside `realWidth` rather than returning anything. Hover/xray is cosmetic, so
+ * an unmeasurable sprite is reported as unmeasurable instead of crashing the
+ * xray pass. Checking `frame.source` catches the common case without relying on
+ * Phaser throwing, and the catch covers the rest.
+ */
+function safeSpriteBounds(sprite: unknown): {
+	left: number;
+	right: number;
+	top: number;
+	bottom: number;
+} | null {
+	if (!sprite || typeof (sprite as { getBounds?: unknown }).getBounds !== 'function') return null;
+	if (!(sprite as { frame?: { source?: unknown } }).frame?.source) return null;
+	try {
+		return (
+			sprite as {
+				getBounds: () => { left: number; right: number; top: number; bottom: number };
+			}
+		).getBounds();
+	} catch {
+		return null;
+	}
+}
+
 export class HexGrid {
 	game: Game;
 
@@ -1739,9 +1768,13 @@ export class HexGrid {
 					candidate.hexagons.some((h) => h.x === hex.x && h.y === hex.y);
 
 				if (!isOnTrapHex) {
-					const candidateBounds = candidate.sprite.getBounds();
+					const candidateBounds = safeSpriteBounds(candidate.sprite);
+					// Unmeasurable sprite: treat as non-overlapping rather than
+					// xraying on a guess.
+					if (!candidateBounds) return;
 					const overlapsReveal = hoveredRevealSprites.some((sprite) => {
-						const revealBounds = sprite.getBounds();
+						const revealBounds = safeSpriteBounds(sprite);
+						if (!revealBounds) return false;
 						return !(
 							candidateBounds.right <= revealBounds.left ||
 							candidateBounds.left >= revealBounds.right ||
