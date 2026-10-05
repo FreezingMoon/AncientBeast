@@ -26,7 +26,7 @@ import {
 	offsetNeighbors,
 } from './utility/const';
 import { CreatureType, Level, Realm, Unit, UnitName } from './data/types';
-import { PlasmaField, detectWeakHardware, detectVeryWeakHardware } from './plasma-field';
+import { PlasmaField, detectWeakHardware, detectVeryWeakHardware } from './plasma/field';
 import type {
 	GameEngine,
 	GroupHandle,

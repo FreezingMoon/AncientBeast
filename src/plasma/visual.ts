@@ -18,8 +18,8 @@
  */
 
 import Phaser from 'phaser';
-import { PlasmaField } from './plasma-field';
-import type { GroupHandle } from './engine/types';
+import { PlasmaField } from './field';
+import type { GroupHandle } from '../engine/types';
 
 const log = document.getElementById('log') as HTMLElement;
 const lines: string[] = [];
@@ -78,7 +78,7 @@ async function boot(game: Phaser.Game) {
 	}
 
 	try {
-		const { Phaser4Engine } = await import('./engine/Phaser4Engine');
+		const { Phaser4Engine } = await import('../engine/Phaser4Engine');
 		const engine = new Phaser4Engine(game, scene);
 
 		// A DARK checkerboard, like the real board. A light one was a mistake: additive

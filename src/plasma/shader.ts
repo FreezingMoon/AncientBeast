@@ -22,7 +22,7 @@
  *    must fall back to the CPU path (see `plasma-field.ts`).
  */
 
-import { PLASMA_LOOK_GLSL } from './plasma-look';
+import { PLASMA_LOOK_GLSL } from './look';
 
 /**
  * Fragment shader source.

@@ -18,7 +18,7 @@ jest.mock('phaser', () =>
 
 import { BlendModes } from 'phaser';
 import type { GameEngine } from '../../engine/types';
-import { PlasmaField } from '../../plasma-field';
+import { PlasmaField } from '../../plasma/field';
 import { createCanvasSurface } from '../../game-display/canvas-surface';
 
 /**

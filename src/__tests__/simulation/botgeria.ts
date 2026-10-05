@@ -9,6 +9,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 
+import { performance as realPerf } from 'perf_hooks';
+
 // ─── UI module mock ──────────────────────────────────────────────────────────
 // `Game.setup()` instantiates the real jQuery-bound UI, which needs the full
 // game DOM. The harness replaces `game.UI` with a stub anyway, so the real
@@ -170,7 +172,7 @@ export async function createGame(abilities: Array<(G: any) => void>): Promise<an
 
 	const GameModule = await import('../../game');
 	const Game = GameModule.default;
-	const { PlasmaField } = await import('../../plasma-field');
+	const { PlasmaField } = await import('../../plasma/field');
 	const game: any = new Game();
 
 	// Real `Phaser.HEADLESS`, booted through the same `Game.createPhaser()` the
@@ -616,10 +618,96 @@ export interface MatchResult {
 	turns: number;
 	winnerIdx: number | null; // null = draw / timeout
 	scores: number[];
+	/** Per-category score subtotals per player; `total` equals `scores[i]`. */
+	breakdowns: Record<string, number>[];
 	endedByTimeout: boolean;
 }
 
 const MAX_SIM_TURNS = 40; // hard cap — 4 rounds is plenty; outlier games beyond this are timeouts
+
+/**
+ * Cheap structural checks on a finished match.
+ *
+ * The suite's only assertion used to be "the batch produced N results", so a game
+ * that booted, ran to the turn cap and produced nonsense scores counted as a pass.
+ * These invariants are the ones that separate "the harness ran" from "the game
+ * actually played a match": they cost nothing and catch broken score maths,
+ * truncated state and mislabelled winners.
+ *
+ * Returns a list of human-readable problems; empty means the match looks sound.
+ */
+export function checkMatchInvariants(result: MatchResult, game: unknown): string[] {
+	const problems: string[] = [];
+	const g = game as any;
+
+	if (!Number.isFinite(result.turns) || result.turns <= 0) {
+		problems.push(`turns=${result.turns} (expected a positive integer)`);
+	}
+	if (!Number.isInteger(result.turns)) {
+		problems.push(`turns=${result.turns} is not an integer`);
+	}
+
+	if (result.scores.length !== 2) {
+		problems.push(`expected 2 player scores, got ${result.scores.length}`);
+	}
+	result.scores.forEach((s, i) => {
+		if (!Number.isFinite(s)) {
+			problems.push(`score[${i}]=${s} is not finite (NaN leak?)`);
+			return;
+		}
+		// NOTE: a negative total is *legal* — `deny` is a team-kill penalty scored
+		// as `-size * 5` (src/player.ts). Do not flag it.
+		if (!Number.isInteger(s)) {
+			problems.push(`score[${i}]=${s} is not an integer (unrounded event?)`);
+		}
+		// The subtotals must reconstruct the total, and a zero-size deny is the
+		// only way to reach a subtotal that is 0 while an event was recorded.
+		const b = result.breakdowns?.[i];
+		if (b) {
+			const sum = Object.entries(b)
+				.filter(([k]) => k !== 'total')
+				.reduce((acc, [, v]) => acc + v, 0);
+			if (sum !== s) {
+				problems.push(
+					`score[${i}] total=${s} but categories sum to ${sum}: ` +
+						JSON.stringify(
+							Object.fromEntries(
+								Object.entries(b).filter(([, v]) => v !== 0),
+							),
+						),
+				);
+			}
+		}
+	});
+
+	// winnerIdx is only ever set on a completed game, and only for a unique max.
+	if (result.endedByTimeout && result.winnerIdx !== null) {
+		problems.push(`endedByTimeout but winnerIdx=${result.winnerIdx}`);
+	}
+	if (result.winnerIdx !== null) {
+		const winnerScore = result.scores[result.winnerIdx];
+		const tied = result.scores.filter((s) => s === winnerScore).length;
+		if (tied > 1) {
+			problems.push(`winnerIdx=${result.winnerIdx} but score ${winnerScore} is tied`);
+		}
+		const max = Math.max(...result.scores);
+		if (winnerScore !== max) {
+			problems.push(`winnerIdx=${result.winnerIdx} scored ${winnerScore}, max is ${max}`);
+		}
+	}
+
+	// A game that never left turn 0/1 did not actually play; treating it as a
+	// legit short match hides a boot or activation failure.
+	if (result.endedByTimeout && result.turns <= 1) {
+		problems.push(`timed out at turn ${result.turns} without playing`);
+	}
+
+	if (!result.endedByTimeout && g?.gameState !== 'ended') {
+		problems.push(`winner declared but gameState=${g?.gameState}`);
+	}
+
+	return problems;
+}
 
 /**
  * Advance a running game to completion.
@@ -641,7 +729,10 @@ export async function runMatch(game: unknown): Promise<MatchResult> {
 	// Prevents extremely long stalemates where both bots are stuck in a loop.
 	const STAGNATION_ROUNDS = 15;
 	// Wall-clock bail-out, so a match that never terminates cannot hang the run.
-	const wallStart = (globalThis as any).realPerf?.now?.() ?? 0;
+	// This must read the real clock directly: the previous `globalThis.realPerf`
+	// was never assigned by anything, so the guard below evaluated `0 - 0 > MAX_WALL_MS`
+	// and could never fire.
+	const wallStart = realPerf.now();
 	const MAX_WALL_MS = 120_000; // 2 minutes per game
 
 	let _dbgTick = 0;
@@ -655,25 +746,31 @@ export async function runMatch(game: unknown): Promise<MatchResult> {
 		) {
 			break;
 		}
-		const _t0 = (globalThis as any).realPerf?.now?.() ?? 0;
+		const _t0 = realPerf.now();
 		(game as any).headlessDriver?.stepFrames(FRAMES_PER_SLICE);
 		// A real macrotask, not a microtask: AB paces turns through `setTimeout`,
 		// and draining microtasks alone never lets those fire.
 		await new Promise((resolve) => setTimeout(resolve, 0));
-		const _dtSlice = ((globalThis as any).realPerf?.now?.() ?? 0) - _t0;
+		const _dtSlice = realPerf.now() - _t0;
 		if (_dbgTick < 20)
 			(process.stderr as any).write(
 				`  [slice${_dbgTick} t=${(game as any).turn} ${_dtSlice.toFixed(0)}ms]\n`,
 			);
 		_dbgTick++;
-		if (((globalThis as any).realPerf?.now?.() ?? 0) - wallStart > MAX_WALL_MS) break;
+		if (realPerf.now() - wallStart > MAX_WALL_MS) {
+			(process.stderr as any).write(
+				`  [wall-clock bail-out at turn ${(game as any).turn} after ${MAX_WALL_MS}ms]\n`,
+			);
+			break;
+		}
 	}
 
 	(game as any).checkTime = origCheckTime;
 
-	const scores = ((game as any).players as any[]).map(
-		(p: { getScore: () => { total: number } }) => p.getScore().total,
+	const breakdowns = ((game as any).players as any[]).map((p: { getScore: () => Record<string, number> }) =>
+		p.getScore(),
 	);
+	const scores = breakdowns.map((b) => b.total);
 	let winnerIdx: number | null = null;
 	const endedByTimeout = (game as any).gameState !== 'ended';
 
@@ -689,6 +786,31 @@ export async function runMatch(game: unknown): Promise<MatchResult> {
 		turns: (game as any).turn,
 		winnerIdx,
 		scores,
+		breakdowns,
 		endedByTimeout,
 	};
+}
+
+/**
+ * Tear down a game created by `createGame`.
+ *
+ * Every match builds a full Phaser game, scene, display list and tween pool.
+ * Without this the harness accumulated all of them: a 78-match run grew the heap
+ * to the 4 GB V8 ceiling and died with `Reached heap limit Allocation failed —
+ * JavaScript heap out of memory` partway through the variant sweep. The crash was
+ * reported as a bare SIGABRT with every buffered console line lost, so it read
+ * like an infrastructure failure rather than the leak it was.
+ *
+ * `destroyPhaser` is a no-op when Phaser never booted, so this is safe to call
+ * unconditionally. Teardown errors are swallowed on purpose: a failure here must
+ * not discard the match result the caller already has.
+ */
+export function disposeGame(game: unknown): void {
+	try {
+		(game as any)?.destroyPhaser?.();
+	} catch (error) {
+		(process.stderr as any).write(
+			`  [teardown warning: ${(error as Error)?.message ?? String(error)}]\n`,
+		);
+	}
 }

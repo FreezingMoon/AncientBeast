@@ -11,18 +11,18 @@
  * short-lived burst flash is triggered whenever the shield counters an attack.
  */
 
-import { PLASMA_LOOK, plasmaLookFor } from './plasma-look';
-import type { Creature } from './creature';
-import type { GameEngine, SpriteHandle, GroupHandle, ShaderHandle } from './engine/types';
-import { BLEND_MODE_ADD } from './phaser/runtime';
-import { PLASMA_FRAGMENT_SOURCE } from './plasma-shader';
-import { every } from './timing/clock';
+import { PLASMA_LOOK, plasmaLookFor } from './look';
+import type { Creature } from '../creature';
+import type { GameEngine, SpriteHandle, GroupHandle, ShaderHandle } from '../engine/types';
+import { BLEND_MODE_ADD } from '../phaser/runtime';
+import { PLASMA_FRAGMENT_SOURCE } from './shader';
+import { every } from '../timing/clock';
 import {
 	createCanvasSurface,
 	type CanvasSurface,
 	type SurfaceSource,
-} from './game-display/canvas-surface';
-import type { Timer } from './timing/clock';
+} from '../game-display/canvas-surface';
+import type { Timer } from '../timing/clock';
 
 export interface PlasmaFieldSettings {
 	transparency: number;

@@ -3,259 +3,143 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * suggester.ts — variant definitions and improvement reporter.
+ *
+ * Variants override a *named field* on BotController. They deliberately do not
+ * re-implement `getAggressionFactor()`: the previous versions pasted a modified
+ * copy of the method, which silently dropped the `engagementPressure` term. Every
+ * result was therefore a two- or three-variable change reported as a
+ * single-variable one, and three of the six variants were no-ops because their
+ * target literal already matched the shipped value.
+ *
+ * Two invariants keep that from recurring:
+ *   1. `patch` throws if the field is missing, so renaming a field in bot.ts
+ *      fails the run instead of quietly measuring nothing.
+ *   2. The emitted suggestion quotes the value observed at patch time, so the
+ *      "from" side cannot drift away from the code.
  */
-import type { MatchResult } from './botgeria';
-import { aggregateMetrics, isSignificantlyBetter, formatMetrics, QualityMetrics } from './stats';
+import { compareMetrics, formatMetrics, MIN_SAMPLE_FOR_VERDICT, Verdict } from './stats';
+import type { QualityMetrics } from './stats';
+
 export interface Variant {
 	/** Human-readable label, also used in suggestions output. */
-	label: string;
-	/** Apply the patch — returns a cleanup function that restores originals. */
-	patch(game: Record<string, unknown>): () => void;
+	readonly label: string;
+	/** Apply the patch — returns a cleanup function that restores the original. */
+	patch(game: any): () => void;
 	/** Code snippet to emit when this variant is better than baseline. */
-	suggestion: string;
+	readonly suggestion: string;
 }
 
-export const variants: Variant[] = [
-	// stalePendingActionMs — higher (more patient)
-	{
-		label: 'stalePendingActionMs = 3000',
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		patch: (game: Record<string, unknown>) => {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const orig = ((game as any).botController as any)?.stalePendingActionMs;
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			((game as any).botController as any).stalePendingActionMs = 3000;
-			return () => {
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				((game as any).botController as any).stalePendingActionMs = orig;
-			};
-		},
-		suggestion:
-			'In src/bot.ts → BotController, change:\n' +
-			'  stalePendingActionMs = 2200;\n' +
-			'to:\n' +
-			'  stalePendingActionMs = 3000;',
-	},
-	// Age pressure coefficient — more aggressive
-	{
-		label: 'agePressure coeff = 0.8 (more aggressive with age)',
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		patch: (game: Record<string, unknown>) => {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const origFn = ((game as any).botController as any).getAggressionFactor.bind(
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				(game as any).botController,
-			);
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			((game as any).botController as any).getAggressionFactor = (
-				creature: Record<string, unknown>,
-			) => {
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				const ageFactor = Math.max(0, ((creature as any).turnsActive as number) - 4) * 0.8;
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				const stagnantRounds =
-					((game as any).turn as number) -
-					(((game as any).botController as any).lastDamageRound as number);
-				const stagnationFactor = Math.max(0, stagnantRounds - 3) * 1.5;
-				return Math.min(10, ageFactor + stagnationFactor);
-			};
-			return () => {
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				((game as any).botController as any).getAggressionFactor = origFn;
-			};
-		},
-		suggestion:
-			'In src/bot.ts → BotController, change:\n' +
-			'  const ageFactor = Math.max(0, creature.turnsActive - 4) * 0.8;\n' +
-			'to:\n' +
-			'  const ageFactor = Math.max(0, creature.turnsActive - 4) * 0.8;',
-	},
-	// Age pressure coefficient — less aggressive
-	{
-		label: 'agePressure coeff = 0.3 (more patient with age)',
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		patch: (game: Record<string, unknown>) => {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const origFn = ((game as any).botController as any).getAggressionFactor.bind(
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				(game as any).botController,
-			);
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			((game as any).botController as any).getAggressionFactor = (
-				creature: Record<string, unknown>,
-			) => {
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				const ageFactor = Math.max(0, ((creature as any).turnsActive as number) - 4) * 0.3;
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				const stagnantRounds =
-					((game as any).turn as number) -
-					(((game as any).botController as any).lastDamageRound as number);
-				const stagnationFactor = Math.max(0, stagnantRounds - 3) * 1.5;
-				return Math.min(10, ageFactor + stagnationFactor);
-			};
-			return () => {
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				((game as any).botController as any).getAggressionFactor = origFn;
-			};
-		},
-		suggestion:
-			'In src/bot.ts → BotController.getAggressionFactor(), change:\n' +
-			'  const ageFactor = Math.max(0, creature.turnsActive - 4) * 0.5;\n' +
-			'to:\n' +
-			'  const ageFactor = Math.max(0, creature.turnsActive - 4) * 0.3;',
-	},
-	// Stagnation pressure coefficient — escalate stagnation faster
-	{
-		label: 'stagnationPressure coeff = 2.5 (break stalemates faster)',
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		patch: (game: Record<string, unknown>) => {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const origFn = ((game as any).botController as any).getAggressionFactor.bind(
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				(game as any).botController,
-			);
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			((game as any).botController as any).getAggressionFactor = (
-				creature: Record<string, unknown>,
-			) => {
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				const ageFactor = Math.max(0, ((creature as any).turnsActive as number) - 4) * 0.5;
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				const stagnantRounds =
-					((game as any).turn as number) -
-					(((game as any).botController as any).lastDamageRound as number);
-				const stagnationFactor = Math.max(0, stagnantRounds - 3) * 2.5;
-				return Math.min(10, ageFactor + stagnationFactor);
-			};
-			return () => {
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				((game as any).botController as any).getAggressionFactor = origFn;
-			};
-		},
-		suggestion:
-			'In src/bot.ts → BotController.getAggressionFactor(), change:\n' +
-			'  const stagnationFactor = Math.max(0, stagnantRounds - 3) * 1.5;\n' +
-			'to:\n' +
-			'  const stagnationFactor = Math.max(0, stagnantRounds - 3) * 2.5;',
-	},
-	// Stagnation pressure — more patient
-	{
-		label: 'stagnationPressure coeff = 0.8 (allow longer stand-offs)',
-		patch: (game: Record<string, unknown>) => {
-			const origFn = ((game as any).botController as any).getAggressionFactor.bind(
-				(game as any).botController,
-			);
-			((game as any).botController as any).getAggressionFactor = (
-				creature: Record<string, unknown>,
-			) => {
-				const ageFactor = Math.max(0, (creature as any).turnsActive - 4) * 0.5;
-				const stagnantRounds =
-					(game as any).turn - ((game as any).botController as any).lastDamageRound;
-				const stagnationFactor = Math.max(0, stagnantRounds - 3) * 0.8;
-				return Math.min(10, ageFactor + stagnationFactor);
-			};
-			return () => {
-				((game as any).botController as any).getAggressionFactor = origFn;
-			};
-		},
-		suggestion:
-			'In src/bot.ts → BotController.getAggressionFactor(), change:\n' +
-			'  const stagnationFactor = Math.max(0, stagnantRounds - 3) * 1.5;\n' +
-			'to:\n' +
-			'  const stagnationFactor = Math.max(0, stagnantRounds - 3) * 0.8;',
-	},
-	// Decision budget — more decisions per turn
-	{
-		label: 'max decisionCount = 12 (more actions per turn)',
-		patch: (game: Record<string, unknown>) => {
-			// Monkey-patch takeTurn on the prototype to use a higher cap
-			const proto = Object.getPrototypeOf((game as Record<string, unknown>).botController);
-			const origMethod = proto.takeTurn;
-			proto.takeTurn = function (this: Record<string, unknown>) {
-				// Temporarily override the instance's decisionCount check via a flag,
-				// then call the original. The original checks this.decisionCount >= 10,
-				// so we save/restore and substitute a higher cap by patching the check.
-				const origDecisionCount = this.decisionCount;
-				// Scale existing count so the effective cap is 12 instead of 10.
-				// If decisionCount is 10 (would stop), scale to 12 (lets through).
-				// Cap ratio: 10 → 12. Only adjust if at the boundary.
-				const orig = Object.getOwnPropertyDescriptor(this, 'decisionCount');
-				const REAL_CAP = 10;
-				const NEW_CAP = 12;
-				if (
-					(this.decisionCount as number) >= REAL_CAP &&
-					(this.decisionCount as number) < NEW_CAP
-				) {
-					// Temporarily bring it below the real cap so takeTurn doesn't skip
-					this.decisionCount = REAL_CAP - 1;
-					const result = origMethod.call(this);
-					// After the call decisionCount was incremented; clamp to origDecisionCount+1
-					if ((this.decisionCount as number) <= REAL_CAP) {
-						this.decisionCount = (origDecisionCount as number) + 1;
-					}
-					return result;
-				}
-				return origMethod.call(this);
-			};
-			return () => {
-				proto.takeTurn = origMethod;
-			};
-		},
-		suggestion:
-			'In src/bot.ts → BotController.takeTurn(), change:\n' +
-			'  if (this.decisionCount >= 10) {\n' +
-			'to:\n' +
-			'  if (this.decisionCount >= 12) {',
-	},
+interface Sweep {
+	/** BotController field to override. Must exist on the class. */
+	field: string;
+	/** Candidate value. */
+	value: number;
+	/** Why this value might help; shown beside the label. */
+	note: string;
+}
+
+const SWEEPS: Sweep[] = [
+	{ field: 'agePressureCoeff', value: 0.5, note: 'gentler with age' },
+	{ field: 'agePressureCoeff', value: 1.2, note: 'harsher with age' },
+	{ field: 'stagnationPressureCoeff', value: 1.5, note: 'slower to break stalemates' },
+	{ field: 'stagnationPressureCoeff', value: 3.5, note: 'breaks stalemates faster' },
+	{ field: 'engagementPressureCoeff', value: 0.5, note: 'ignore team engagement' },
+	{ field: 'engagementPressureCoeff', value: 2.0, note: 'weight team engagement more' },
+	{ field: 'maxDecisionCount', value: 8, note: 'fewer actions per turn' },
+	{ field: 'maxDecisionCount', value: 16, note: 'more actions per turn' },
+	{ field: 'stalePendingActionMs', value: 1200, note: 'impatient on stale input' },
+	{ field: 'stalePendingActionMs', value: 3000, note: 'patient on stale input' },
 ];
+
+function makeVariant(sweep: Sweep): Variant {
+	// Captured during patch(), so the emitted diff quotes the value that was
+	// actually in force rather than a literal baked into this file.
+	let observed: number | null = null;
+
+	return {
+		label: `${sweep.field} = ${sweep.value} (${sweep.note})`,
+		patch(game: any) {
+			const controller = game?.botController;
+			if (!controller) {
+				throw new Error(`no botController on game; cannot sweep ${sweep.field}`);
+			}
+			if (!(sweep.field in controller)) {
+				throw new Error(
+					`BotController has no field "${sweep.field}" — the sweep list is stale. ` +
+						`Rename it in src/bot.ts or drop it from SWEEPS.`,
+				);
+			}
+			const original = controller[sweep.field];
+			observed = original;
+			controller[sweep.field] = sweep.value;
+			return () => {
+				controller[sweep.field] = original;
+			};
+		},
+		get suggestion() {
+			const from = observed === null ? '<current>' : String(observed);
+			return (
+				`In src/bot.ts → BotController, change:\n` +
+				`  ${sweep.field} = ${from};\n` +
+				`to:\n` +
+				`  ${sweep.field} = ${sweep.value};`
+			);
+		},
+	};
+}
+
+export const variants: Variant[] = SWEEPS.map(makeVariant);
+
 // ─── Runner ──────────────────────────────────────────────────────────────────
 export interface VariantRunResult {
 	variant: Variant;
 	metrics: QualityMetrics;
-	isBetter: boolean;
+	verdict: Verdict;
 }
-export async function runVariants(
-	baseline: QualityMetrics,
-	runBatch: (
-		patch: (game: Record<string, unknown>) => () => void,
-		count: number,
-	) => Promise<MatchResult[]>,
-	matchesPerVariant = 1000,
-): Promise<VariantRunResult[]> {
-	const results: VariantRunResult[] = [];
-	for (const variant of variants) {
-		console.log(`  Running variant: ${variant.label} …`);
-		const matches = await runBatch(variant.patch, matchesPerVariant);
-		const metrics = aggregateMetrics(matches);
-		const isBetter = isSignificantlyBetter(baseline, metrics);
-		results.push({ variant, metrics, isBetter });
-	}
-	return results;
-}
+
 /** Print a formatted comparison table and suggestions to stdout. */
 export function printReport(
 	baselineMetrics: QualityMetrics,
 	variantResults: VariantRunResult[],
 ): void {
 	const line = '─'.repeat(80);
+	const byVerdict = (v: Verdict) => variantResults.filter((r) => r.verdict === v);
+
 	console.log('\n' + line);
 	console.log('SIMULATION REPORT');
 	console.log(line);
 	console.log(formatMetrics('baseline', baselineMetrics));
-	const better = variantResults.filter((r) => r.isBetter);
-	const unchanged = variantResults.filter((r) => !r.isBetter);
 
-	if (unchanged.length > 0) {
-		console.log('\nNo significant improvement:');
-		for (const r of unchanged) {
+	if (baselineMetrics.matchCount < MIN_SAMPLE_FOR_VERDICT) {
+		console.log(
+			`\n⚠️  Baseline sample is n=${baselineMetrics.matchCount}, below the ` +
+				`n=${MIN_SAMPLE_FOR_VERDICT} needed to call any variant better or worse.\n` +
+				`   Every result below is noise. Raise SIM_BASELINE / SIM_VARIANT.`,
+		);
+	}
+
+	const better = byVerdict('better');
+	const worse = byVerdict('worse');
+	const rest = byVerdict('inconclusive');
+
+	if (rest.length > 0) {
+		console.log('\nInconclusive (no metric moved far enough, or too small a sample):');
+		for (const r of rest) {
+			console.log('  ' + formatMetrics(r.variant.label, r.metrics));
+		}
+	}
+
+	if (worse.length > 0) {
+		console.log('\n📉 REGRESSIONS — do not ship these:');
+		for (const r of worse) {
 			console.log('  ' + formatMetrics(r.variant.label, r.metrics));
 		}
 	}
 
 	if (better.length === 0) {
-		console.log('\n✅  Baseline is already near-optimal — no suggestions.\n');
+		console.log('\n✅  No variant beat the baseline beyond the noise floor.\n');
 	} else {
-		console.log('\n🚀  SUGGESTED IMPROVEMENTS (≥5 % better on at least one metric):');
+		console.log('\n🚀  SUGGESTED IMPROVEMENTS (≥5 % better, with no metric regressing):');
 		for (const r of better) {
 			console.log('\n' + '─'.repeat(60));
 			console.log(formatMetrics(r.variant.label, r.metrics));

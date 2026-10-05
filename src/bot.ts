@@ -149,6 +149,21 @@ export default class BotController {
 	failedAbilityIds = new Set<number>();
 	isResolvingQuery = false;
 	stalePendingActionMs = 2200;
+	/**
+	 * Aggression coefficients. These live as named fields rather than inline
+	 * literals so the simulation harness can sweep them by assignment. Copying
+	 * `getAggressionFactor` wholesale to tweak one number is how the sweep
+	 * silently dropped `engagementPressure` and tested a two-variable change
+	 * while reporting it as one.
+	 */
+	/** Aggression gained per turn a creature has been active past turn 4. */
+	agePressureCoeff = 0.8;
+	/** Aggression gained per global damage-free round past round 3. */
+	stagnationPressureCoeff = 2.5;
+	/** Weight applied to team engagement pressure. */
+	engagementPressureCoeff = 1.25;
+	/** Decisions allowed within one creature turn before the bot gives up. */
+	maxDecisionCount = 12;
 	/** Delay before the onSelect callback fires in resolveQuery (ms). */
 	selectDelayMs = 50;
 	/** Delay before the onConfirm callback fires in resolveQuery (ms). */
@@ -244,17 +259,22 @@ export default class BotController {
 	 * (turns it has personally taken) and when no damage has been dealt
 	 * globally for a while, breaking stagnant stand-offs.
 	 *
-	 * - Age pressure: rises after the creature has taken 4 turns (+0.5 per turn).
-	 * - Stagnation pressure: rises after 3 global damage-free rounds (+1.5 per round).
+	 * - Age pressure: rises after the creature has taken 4 turns (+`agePressureCoeff` per turn).
+	 * - Stagnation pressure: rises after 3 global damage-free rounds
+	 *   (+`stagnationPressureCoeff` per round).
+	 * - Engagement pressure: rewards committing to a fight the team is already in.
 	 */
 	getAggressionFactor(creature: Creature): number {
 		const turnsActive = Number(creature.turnsActive ?? 0);
-		const ageFactor = Math.max(0, turnsActive - 4) * 0.8;
+		const ageFactor = Math.max(0, turnsActive - 4) * this.agePressureCoeff;
 		const currentTurn = Number(this.game.turn ?? 0);
 		const stagnantRounds = currentTurn - this.lastDamageRound;
-		const stagnationFactor = Math.max(0, stagnantRounds - 3) * 2.5;
+		const stagnationFactor = Math.max(0, stagnantRounds - 3) * this.stagnationPressureCoeff;
 		const engagementPressure = Math.max(0, this.getTeamEngagementPressure(creature));
-		return Math.min(10, ageFactor + stagnationFactor + engagementPressure * 1.25);
+		return Math.min(
+			10,
+			ageFactor + stagnationFactor + engagementPressure * this.engagementPressureCoeff,
+		);
 	}
 
 	getLateMatchAggressionFactor(creature: Creature): number {
@@ -454,7 +474,7 @@ export default class BotController {
 			return;
 		}
 
-		if (this.decisionCount >= 12) {
+		if (this.decisionCount >= this.maxDecisionCount) {
 			this.game.skipTurn({ noTooltip: true });
 			return;
 		}

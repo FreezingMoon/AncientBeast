@@ -17,7 +17,7 @@ import {
 } from './player';
 import { UI } from './ui/interface';
 import { Creature, CreatureHintType } from './creature';
-import { refreshPlasmaRenderScales } from './plasma-field';
+import { refreshPlasmaRenderScales } from './plasma/field';
 import { unitData } from './data/units';
 import type { GameChannels, MetaPowersState } from './game-events/channels.types';
 import { createGameChannels } from './game-events/factory';
