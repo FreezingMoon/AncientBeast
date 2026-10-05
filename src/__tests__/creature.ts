@@ -1,4 +1,4 @@
-import { jest, expect, describe, test, beforeEach, beforeAll } from '@jest/globals';
+import { jest, expect, describe, test, beforeEach, afterEach, beforeAll } from '@jest/globals';
 
 // The real Phaser bundle needs a canvas context at import time, which jsdom
 // does not provide; `plasma-field` reaches it for `BlendModes`.
@@ -121,6 +121,83 @@ describe('Creature', () => {
 			creature.activate();
 			creature.hinder();
 			expect(creature.canWait).toBe(false);
+		});
+	});
+
+	describe('activation query ownership', () => {
+		// activate() defers its opening movement query by a second so the
+		// activation animation plays first, and the dash is not input-gated — a
+		// player can open it and start an action inside that window. When they
+		// confirmed a Dark Priest materialize in it, the deferred queryMove()
+		// replaced the placement query *and* destroyed the temp creature that
+		// query was carrying, so the summon vanished with a "Canceled" hint
+		// instead of asking for a location. The deferred work now stands down
+		// when a fresh query has claimed the board since activation.
+		beforeEach(() => {
+			jest.useFakeTimers();
+		});
+
+		afterEach(() => {
+			jest.useRealTimers();
+		});
+
+		/**
+		 * `getGameMock()` builds a 100x100 board of `jest.fn()`-bearing hexes, which
+		 * is most of this file's heap. Nothing here looks at the board, so these
+		 * tests get an 8x8 one like the `creature.die()` suite does.
+		 */
+		function getQueryGameMock() {
+			const game = getGameMock();
+			const hexes = game.grid.hexes.slice(0, 8).map((row: unknown[]) => row.slice(0, 8));
+			game.grid.hexes = hexes;
+			game.grid.allhexes = hexes.flat(1);
+			return game;
+		}
+
+		test('still opens the movement query when nothing claimed the board meanwhile', () => {
+			const game = getQueryGameMock();
+			// @ts-ignore
+			const creature = new Creature(getCreatureObjMock(), game);
+			const queryMove = jest.spyOn(creature, 'queryMove');
+
+			creature.activate();
+			jest.advanceTimersByTime(1000);
+
+			expect(queryMove).toHaveBeenCalledWith(null);
+			expect(game.startTimer).toHaveBeenCalled();
+		});
+
+		test('stands down once the player has installed a query of their own', () => {
+			const game = getQueryGameMock();
+			// @ts-ignore
+			const creature = new Creature(getCreatureObjMock(), game);
+			const queryMove = jest.spyOn(creature, 'queryMove');
+
+			creature.activate();
+			// The materialize placement query: a fresh queryHexes() for the spawn
+			// range, with a temp creature queued behind it.
+			game.grid.queryHexes({ hexes: [] });
+			jest.advanceTimersByTime(1000);
+
+			expect(queryMove).not.toHaveBeenCalled();
+			// The activation's own duties still ran: the turn timer is started and
+			// the hover replay is refreshed, it just does not re-query the board.
+			expect(game.startTimer).toHaveBeenCalled();
+			expect(game.grid.refreshHoverState).toHaveBeenCalled();
+		});
+
+		test('a redo of the activation query is not mistaken for a takeover', () => {
+			const game = getQueryGameMock();
+			// @ts-ignore
+			const creature = new Creature(getCreatureObjMock(), game);
+			const queryMove = jest.spyOn(creature, 'queryMove');
+
+			creature.activate();
+			// hover replays re-run the live query rather than claiming the board.
+			game.grid.redoLastQuery();
+			jest.advanceTimersByTime(1000);
+
+			expect(queryMove).toHaveBeenCalledWith(null);
 		});
 	});
 
@@ -921,8 +998,14 @@ const getGameMock = () => {
 		players: [],
 		queue: { update: jest.fn() },
 		updateQueueDisplay: jest.fn(),
+		// Mirrors HexGrid.queryHexes(): a fresh query bumps the generation, which
+		// is how deferred turn-opening work detects that the board has already
+		// been claimed (see the activation query ownership tests above).
 		grid: {
-			queryHexes: jest.fn(),
+			queryGeneration: 0,
+			queryHexes: jest.fn(function (this: { queryGeneration: number }, _o: unknown) {
+				this.queryGeneration++;
+			}),
 			redoLastQuery: jest.fn(),
 			forEachHex: jest.fn(),
 			xray: jest.fn(),
@@ -934,6 +1017,7 @@ const getGameMock = () => {
 			allhexes: [] as unknown[],
 			getMovementRange: jest.fn(() => []),
 			refreshActiveCreatureXray: jest.fn(),
+			refreshHoverState: jest.fn(),
 			healthIndicatorUiGroup: { add: jest.fn(), remove: jest.fn() },
 		},
 		Phaser: getPhaserMock(),
@@ -975,6 +1059,19 @@ const getGameMock = () => {
 		},
 		plasma_amount: 10,
 		onReset: jest.fn(),
+		// Game.defer()/poll() as the real ones behave: plain timers, and poll()
+		// stops as soon as the callback reports it is done.
+		defer(callback: () => void, ms: number) {
+			setTimeout(callback, ms);
+		},
+		poll(callback: () => boolean | void, ms: number) {
+			const handle = setInterval(() => {
+				if (callback() === true) {
+					clearInterval(handle);
+				}
+			}, ms);
+		},
+		startTimer: jest.fn(),
 		onCreatureDeath: jest.fn(),
 		bloodCount: 0,
 		unitDrops: 0,

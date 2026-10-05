@@ -319,6 +319,19 @@ export class HexGrid {
 	lastQueryOpt: any;
 
 	/**
+	 * Bumped by every *fresh* query installed through queryHexes() — a redo of
+	 * the current query (`redoLastQuery()`) leaves it alone, since re-running the
+	 * same query is not a new claim on the board.
+	 *
+	 * Work that opens a turn defers its own queryMove() so the activation
+	 * animation plays first, and that query is stale the moment the player or a
+	 * bot takes the board in the meantime. Snapshotting this counter lets the
+	 * deferred work notice the takeover and stay out of the way instead of
+	 * replacing the live query.
+	 */
+	queryGeneration = 0;
+
+	/**
 	 * Helper to determine cursor style for multiplayer games.
 	 * When it's not the local player's turn, returns 'wait' instead of the normal cursor.
 	 * @param normalCursor The cursor to show when it's the local player's turn
@@ -1153,6 +1166,9 @@ export class HexGrid {
 		// redoLastQuery() passes the same lastQueryOpt reference, so reference
 		// equality distinguishes the two cases.
 		const isFreshQuery = o !== this.lastQueryOpt;
+		if (isFreshQuery) {
+			this.queryGeneration++;
+		}
 		const defaultOpt = {
 			fnOnConfirm: () => {
 				game.activeCreature?.queryMove();

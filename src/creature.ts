@@ -698,6 +698,17 @@ export class Creature {
 
 		this.materializationSickness = false;
 
+		// The opening movement query is deferred a second so the activation
+		// animation plays first, and by then the board may no longer be waiting for
+		// it: the dash is not input-gated, so a player can open it and start an
+		// action inside that window — most sharply a Dark Priest confirming a
+		// materialize, whose placement query carries a temp creature that
+		// queryMove() would destroy along with the query itself, cancelling the
+		// summon outright. Snapshot the query generation and only install the
+		// default movement query if nothing has claimed the board since; the timer
+		// and the hover replay below belong to the activation either way.
+		const queryGenerationAtActivation = game.grid?.queryGeneration;
+
 		// `poll` fires once after the delay and then stops (returning true).
 		// Scheduling it this way means teardown during the delay cancels it outright
 		// instead of the callback arriving to dereference a dead board.
@@ -708,7 +719,9 @@ export class Creature {
 			}
 
 			game.startTimer();
-			this.queryMove(null);
+			if (game.grid?.queryGeneration === queryGenerationAtActivation) {
+				this.queryMove(null);
+			}
 			game.grid?.refreshHoverState();
 			// }
 			return true;
