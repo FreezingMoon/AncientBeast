@@ -1041,14 +1041,6 @@ describe('HexGrid xray hover behavior', () => {
 			getVisualSprites: () => [row0Trap.display, row0TrapUnderFx, row0TrapOverFx],
 		};
 
-		const trapSort = jest.fn();
-		const creatureSort = jest.fn();
-		const dropSort = jest.fn();
-		const trapOverSort = jest.fn();
-
-		// The layers are stand-in containers with real `list` arrays, so the test
-		// observes the resulting order rather than that a `sort()` was called: the
-		// direction is the point, and only an actual sort can demonstrate it.
 		const trapGroup = { id: 'trap-group', list: [] as unknown[] };
 		const trapOverGroup = { id: 'trap-over-group', list: [] as unknown[] };
 		const creatureGroup = { list: [] as unknown[] };

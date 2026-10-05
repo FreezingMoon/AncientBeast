@@ -150,7 +150,15 @@ function buildLayers<TLayer>(
 ): BoardLayers<TLayer> {
 	const built = {} as Record<LayerName, TLayer>;
 	for (const spec of LAYER_SPEC) {
-		built[spec.name] = create(spec, spec.parent === null ? null : built[spec.parent]);
+		const parent = spec.parent === null ? null : built[spec.parent];
+		// `LAYER_SPEC` is ordered so a layer's parent is always built first. Check
+		// rather than assume, because "parent not built yet" is otherwise
+		// indistinguishable from "layer silently never added to its parent" —
+		// which would leave it at the scene origin, rendering in the wrong place.
+		if (spec.parent !== null && parent === undefined) {
+			throw new Error(`LAYER_SPEC lists "${spec.name}" before its parent "${spec.parent}"`);
+		}
+		built[spec.name] = create(spec, parent);
 	}
 	return built as BoardLayers<TLayer>;
 }
@@ -170,11 +178,11 @@ export function createBoardLayers(scene: Scene, world: Container): BoardLayers<C
 		if (spec.name === 'display') {
 			container.setPosition(BOARD_ORIGIN_X, BOARD_ORIGIN_Y);
 			world.add(container);
-		} else {
+		} else if (parent) {
 			if (spec.scaleY !== undefined) {
 				container.setScale(1, spec.scaleY);
 			}
-			parent!.add(container);
+			parent.add(container);
 		}
 		return container;
 	});

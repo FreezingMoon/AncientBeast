@@ -15,14 +15,39 @@
  * `input` here is the native interactive object.
  */
 
+// ─── Native passthrough ───────────────────────────────────────────────────────
+
+/**
+ * The one admitted `any` in the engine layer: native Phaser 4 members reached
+ * through a handle.
+ *
+ * A handle is a forwarding proxy, so gameplay reads `depth`, calls `setTint`,
+ * `setVisible`, `setInteractive` and whatever else Phaser 4 offers. Declaring
+ * that surface here would make this file a second, always-stale copy of
+ * Phaser's own types; typing the proxy's index signatures as `unknown` instead
+ * pushes ~200 type errors into call sites that legitimately call through the
+ * handle. So the index signatures below are the boundary: they are written in
+ * terms of this alias rather than a bare `any`, which keeps the hole visible
+ * in one named place instead of letting it spread across the codebase. Every
+ * *named* member of these interfaces is properly typed.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type NativePassthrough = any;
+
+/** A bare `{ x, y }` pair, as `toLocal`/`toGlobal` read one and write one. */
+export interface PointLike {
+	x: number;
+	y: number;
+}
+
 // ─── Signal (Phaser.Signal replacement) ───────────────────────────────────────
 
 export interface SignalHandle {
-	add(fn: (...args: any[]) => void, context?: any): void;
-	addOnce(fn: (...args: any[]) => void, context?: any): void;
-	remove(fn: (...args: any[]) => void, context?: any): void;
+	add(fn: (...args: unknown[]) => void, context?: unknown): void;
+	addOnce(fn: (...args: unknown[]) => void, context?: unknown): void;
+	remove(fn: (...args: unknown[]) => void, context?: unknown): void;
 	removeAll(): void;
-	dispatch(...args: any[]): void;
+	dispatch(...args: unknown[]): void;
 }
 
 // ─── Tween ────────────────────────────────────────────────────────────────────
@@ -38,7 +63,7 @@ export interface TweenHandle {
 	 */
 	duration: number;
 	to(
-		props: Record<string, any>,
+		props: Record<string, number>,
 		duration: number,
 		easing?: string | ((k: number) => number),
 		autoStart?: boolean,
@@ -51,10 +76,10 @@ export interface TweenHandle {
 	yoyo(enable?: boolean): TweenHandle;
 	repeat(count?: number): TweenHandle;
 	onComplete: {
-		add(cb: (...args: any[]) => void, context?: any): void;
-		addOnce(cb: (...args: any[]) => void, context?: any): void;
+		add(cb: (...args: unknown[]) => void, context?: unknown): void;
+		addOnce(cb: (...args: unknown[]) => void, context?: unknown): void;
 	};
-	onUpdateCallback(cb: (...args: any[]) => void, context?: any): TweenHandle;
+	onUpdateCallback(cb: (...args: unknown[]) => void, context?: unknown): TweenHandle;
 }
 
 // ─── Sprite / Game Object ─────────────────────────────────────────────────────
@@ -88,7 +113,7 @@ export interface BoundsRect {
 }
 
 export interface SpriteHandle {
-	[key: string]: any;
+	[key: string]: NativePassthrough;
 	x: number;
 	y: number;
 	alpha: number;
@@ -107,7 +132,7 @@ export interface SpriteHandle {
 	 * subscribed through `src/input/input.ts` rather than raw, so that AB's
 	 * gesture rules apply to every board surface.
 	 */
-	on(event: string, handler: (...args: any[]) => void, context?: unknown): unknown;
+	on(event: string, handler: (...args: unknown[]) => void, context?: unknown): unknown;
 	anchor: {
 		x: number;
 		y: number;
@@ -126,12 +151,13 @@ export interface SpriteHandle {
 		set(x: number, y: number): void;
 		clone(): { x: number; y: number };
 	};
-	data: Record<string, any>;
-	parent: any;
+	data: Record<string, NativePassthrough>;
+	parent: GroupHandle | undefined;
 	trace: { width: number; height: number };
 	loadTexture(key: TextureKeyLike, frame?: string): void;
-	alignIn(center: any, align?: number): void;
-	destroy(): void;
+	alignIn(center: GroupHandle | SpriteHandle, align?: number): void;
+	/** Phaser 4's `GameObject.destroy(fromScene?)`; the flag is forwarded as-is. */
+	destroy(fromScene?: boolean): void;
 	kill(): void;
 	revive(): void;
 	getBounds(): BoundsRect;
@@ -145,7 +171,7 @@ export interface SpriteHandle {
 	lineTo(x: number, y: number): void;
 	drawCircle(x: number, y: number, radius: number): void;
 	strokePath(): void;
-	mask: any;
+	mask: NativePassthrough;
 }
 
 // ─── Procedural shader ─────────────────────────────────────────────────────────
@@ -179,17 +205,20 @@ export interface ShaderHandle extends SpriteHandle {
 // ─── Group ────────────────────────────────────────────────────────────────────
 
 export interface GroupHandle {
-	[key: string]: any;
+	[key: string]: NativePassthrough;
 	x: number;
 	y: number;
 	alpha: number;
 	angle: number;
 	exists: boolean;
-	children: any[];
+	children: SpriteHandle[];
 	length: number;
 	/** Phaser 2 `Group.total`: the group's child count. */
 	total: number;
 	position: {
+		/** Readable position: Phaser 2's `Group.position` was a point-like object. */
+		readonly x: number;
+		readonly y: number;
 		set(x: number, y: number): void;
 	};
 	scale: {
@@ -198,22 +227,26 @@ export interface GroupHandle {
 		setTo(x: number, y?: number): void;
 		set(x: number, y?: number): void;
 	};
-	add(child: any): any;
-	addAt(child: any, index: number): any;
-	remove(child: any, destroy?: boolean): void;
+	/**
+	 * Groups nest: `add.group(parent)` parents a fresh group under `parent`, so a
+	 * member is either a sprite-like handle or another group handle.
+	 */
+	add<T extends SpriteHandle | GroupHandle>(child: T): T;
+	addAt<T extends SpriteHandle | GroupHandle>(child: T, index: number): T;
+	remove(child: SpriteHandle | GroupHandle, destroy?: boolean): void;
 	removeAll(destroy?: boolean): void;
 	/** Native `Container.each`; hands back the same stable handle each visit. */
-	each(callback: (child: any) => void, context?: any): void;
-	sendToBack(child: any): void;
-	bringToTop(child: any): void;
+	each(callback: (child: SpriteHandle) => void, context?: unknown): void;
+	sendToBack(child: SpriteHandle | GroupHandle): void;
+	bringToTop(child: SpriteHandle | GroupHandle): void;
 	/** A child's position in the draw list, or -1 when it is not a member. */
-	getIndex(child: any): number;
+	getIndex(child: SpriteHandle | GroupHandle): number;
 	setScale(x: number, y: number): void;
 	/** Render order key; Phaser 4 owns ordering through the native `depth`. */
 	sort(property?: string, order?: number): void;
 	update(): void;
-	toLocal(point: any, output?: any): any;
-	toGlobal(point: any, output?: any): any;
+	toLocal(point: PointLike, output?: PointLike): PointLike;
+	toGlobal(point: PointLike, output?: PointLike): PointLike;
 	destroy(): void;
 }
 
@@ -229,6 +262,24 @@ export interface GroupHandle {
  * now passed as its key like any other texture.
  */
 export type TextureKeyLike = string | undefined;
+
+// ─── World / display list ─────────────────────────────────────────────────────
+
+/**
+ * The scene display list — the stand-in for Phaser 2's `game.world`.
+ *
+ * `Phaser4Engine` deliberately exposes the scene's whole display list here
+ * rather than the `GameScene.world` container: teardown (`removeAll`) has to
+ * reach every display object, not only the ones parented under that container.
+ * Callers with no group of their own still use it as a parent, since `add`
+ * lands on the same display list either way.
+ */
+export interface WorldHandle {
+	removeAll(destroy?: boolean): void;
+	readonly width: number;
+	readonly height: number;
+	add(gameObject: NativePassthrough): unknown;
+}
 
 // ─── Camera ───────────────────────────────────────────────────────────────────
 
@@ -275,7 +326,7 @@ export interface GameEngine {
 			frame?: string,
 			parent?: GroupHandle,
 		): SpriteHandle;
-		text(x: number, y: number, text: string, style?: any, parent?: GroupHandle): SpriteHandle;
+		text(x: number, y: number, text: string, style?: unknown, parent?: GroupHandle): SpriteHandle;
 		graphics(x?: number, y?: number, parent?: GroupHandle): SpriteHandle;
 		group(parent?: GroupHandle, name?: string): GroupHandle;
 		tileSprite(
@@ -322,10 +373,10 @@ export interface GameEngine {
 	};
 
 	// World / Display
-	world: any;
+	world: WorldHandle;
 
 	// Cache / Textures
-	cache: { getImage(key: string): any };
+	cache: { getImage(key: string): unknown };
 
 	// Device
 	device: { desktop: boolean };

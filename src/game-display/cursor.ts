@@ -1,5 +1,3 @@
-import type Phaser from 'phaser';
-
 /**
  * What these helpers need from a game object.
  *

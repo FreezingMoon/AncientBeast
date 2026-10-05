@@ -1,18 +1,34 @@
 import type Phaser from 'phaser';
-import { getPhaser } from '../phaser/runtime';
 import { wrapGameObject, wrapGroup } from './Phaser4Handles';
 import type {
 	GameEngine,
 	GroupHandle,
+	NativePassthrough,
 	ShaderConfigHandle,
 	ShaderHandle,
 	SpriteHandle,
 	TextureKeyLike,
 	TimerHandle,
 	TweenHandle,
+	WorldHandle,
 } from './types';
 
-type AnyObject = Record<string, any>;
+type AnyObject = Record<string, NativePassthrough>;
+
+/**
+ * Narrow a {@link TextureKeyLike} to the concrete key Phaser 4's factories want.
+ *
+ * `TextureKeyLike` admits `undefined` so a call site can forward an optional key
+ * without narrowing at every use. Every factory below does need a real key,
+ * though, and Phaser has no overload that tolerates its absence, so the gap is
+ * closed once here and reported as the programming error it is.
+ */
+function requireTextureKey(key: TextureKeyLike): string {
+	if (key === undefined) {
+		throw new Error('A texture key is required to create this game object');
+	}
+	return key;
+}
 
 /**
  * Phaser 4 engine adapter.
@@ -58,7 +74,7 @@ export class Phaser4Engine implements GameEngine {
 			socket: (x: number, y: number, key: TextureKeyLike, frame?: string): SpriteHandle =>
 				this.add.sprite(x, y, key, frame),
 			image: (x: number, y: number, key: TextureKeyLike, frame?: string): SpriteHandle =>
-				wrapGameObject(this.scene.add.image(x, y, key!, frame)),
+				wrapGameObject(this.scene.add.image(x, y, requireTextureKey(key), frame)),
 			sprite: (
 				x: number,
 				y: number,
@@ -66,7 +82,7 @@ export class Phaser4Engine implements GameEngine {
 				frame?: string,
 				parent?: GroupHandle,
 			): SpriteHandle => {
-				const sprite = wrapGameObject(this.scene.add.sprite(0, 0, key!, frame));
+				const sprite = wrapGameObject(this.scene.add.sprite(0, 0, requireTextureKey(key), frame));
 				if (parent) {
 					parent.add(sprite);
 					sprite.x = x;
@@ -94,9 +110,9 @@ export class Phaser4Engine implements GameEngine {
 				return txt;
 			},
 			graphics: (x?: number, y?: number, parent?: GroupHandle): SpriteHandle => {
-				const graphics = this.scene.add.graphics({ x, y });
+				const graphics = wrapGameObject(this.scene.add.graphics({ x, y }));
 				if (parent) parent.add(graphics);
-				return wrapGameObject(graphics);
+				return graphics;
 			},
 			/**
 			 * Phaser 2 `Group` was a transformable, ordered display container.
@@ -106,8 +122,11 @@ export class Phaser4Engine implements GameEngine {
 			group: (parent?: GroupHandle, name?: string): GroupHandle => {
 				const container = this.scene.add.container(0, 0);
 				if (name) container.setName(name);
-				if (parent) parent.add(container);
-				return wrapGroup(container);
+				// `wrapGroup` memoises, so this is the very handle returned below
+				// and the parent sees a member it can unwrap, not a raw Container.
+				const group = wrapGroup(container);
+				if (parent) parent.add(group);
+				return group;
 			},
 			tileSprite: (
 				x: number,
@@ -116,7 +135,8 @@ export class Phaser4Engine implements GameEngine {
 				h: number,
 				key: TextureKeyLike,
 				frame?: string,
-			): SpriteHandle => wrapGameObject(this.scene.add.tileSprite(x, y, w, h, key!, frame)),
+			): SpriteHandle =>
+				wrapGameObject(this.scene.add.tileSprite(x, y, w, h, requireTextureKey(key), frame)),
 			/**
 			 * Phaser 4's `Shader` game object: a quad running a fragment shader.
 			 *
@@ -149,6 +169,7 @@ export class Phaser4Engine implements GameEngine {
 						: {}),
 				};
 				const shader = this.scene.add.shader(shaderConfig, x, y, w, h);
+				const handle = wrapGameObject(shader) as unknown as ShaderHandle;
 				if (parent) {
 					// Groups are Containers, so children inherit the group's
 					// transform — the board display group is offset by (230, 380).
@@ -156,11 +177,11 @@ export class Phaser4Engine implements GameEngine {
 					// where it would keep rendering at un-offset coordinates as a
 					// second copy, so detach it before re-parenting.
 					this.scene.children.remove(shader);
-					parent.add(shader);
-					shader.x = x;
-					shader.y = y;
+					parent.add(handle);
+					handle.x = x;
+					handle.y = y;
 				}
-				return wrapGameObject(shader) as unknown as ShaderHandle;
+				return handle;
 			},
 		};
 	}
@@ -177,13 +198,13 @@ export class Phaser4Engine implements GameEngine {
 
 	get time() {
 		const clock = this.scene.time;
-		const self = this;
+		const readElapsedMS = () => this._elapsedMS;
 		return {
 			get now() {
 				return clock.now;
 			},
 			get elapsedMS() {
-				return self._elapsedMS;
+				return readElapsedMS();
 			},
 			add: (delay: number, cb: () => void): TimerHandle => clock.delayedCall(delay, cb),
 			loop: (delay: number, cb: () => void): TimerHandle =>
@@ -207,7 +228,7 @@ export class Phaser4Engine implements GameEngine {
 
 	// ─── World / display list ───────────────────────────────────────────────
 
-	get world() {
+	get world(): WorldHandle {
 		const displayList = this.scene.children;
 		const scene = this.scene;
 		return {
@@ -282,7 +303,7 @@ export class Phaser4Engine implements GameEngine {
 class TweenAdapter implements TweenHandle {
 	private readonly scene: Phaser.Scene;
 	private chainSteps: Array<{
-		props: Record<string, any>;
+		props: Record<string, number>;
 		duration: number;
 		ease?: string | ((k: number) => number);
 		delay?: number;
@@ -290,12 +311,12 @@ class TweenAdapter implements TweenHandle {
 		yoyo?: boolean;
 	}> = [];
 	private chain: Phaser.Tweens.TweenChain | null = null;
-	private readonly targets: any[];
+	private readonly targets: object[];
 	private _started = false;
 
 	constructor(scene: Phaser.Scene, initialTween: Phaser.Tweens.Tween) {
 		this.scene = scene;
-		this.targets = initialTween.targets as any[];
+		this.targets = initialTween.targets as object[];
 		initialTween.stop();
 		initialTween.destroy();
 	}
@@ -330,7 +351,7 @@ class TweenAdapter implements TweenHandle {
 	}
 
 	to(
-		props: Record<string, any>,
+		props: Record<string, number>,
 		duration: number,
 		easing?: string | ((k: number) => number),
 		autoStart = false,
@@ -393,48 +414,37 @@ class TweenAdapter implements TweenHandle {
 	}
 
 	get onComplete() {
-		const self = this;
 		return {
-			add: (cb: (...args: any[]) => void, context?: any) => {
-				if (self.chain) {
-					self.chain.on('complete', cb, context);
-				} else {
-					// No chain built yet (no steps). Attach when chain is created.
-					const originalStart = self.start.bind(self);
-					self.start = function () {
-						originalStart();
-						if (self.chain) self.chain.on('complete', cb, context);
-						return self;
-					} as typeof self.start;
-				}
-			},
-			addOnce: (cb: (...args: any[]) => void, context?: any) => {
-				if (self.chain) {
-					self.chain.once('complete', cb, context);
-				} else {
-					const originalStart = self.start.bind(self);
-					self.start = function () {
-						originalStart();
-						if (self.chain) self.chain.once('complete', cb, context);
-						return self;
-					} as typeof self.start;
-				}
-			},
+			add: (cb: (...args: unknown[]) => void, context?: unknown) =>
+				this.attachWhenStarted((chain) => chain.on('complete', cb, context)),
+			addOnce: (cb: (...args: unknown[]) => void, context?: unknown) =>
+				this.attachWhenStarted((chain) => chain.once('complete', cb, context)),
 		};
 	}
 
-	onUpdateCallback(cb: (...args: any[]) => void, context?: any): TweenHandle {
-		const self = this;
-		if (!self.chain) {
-			const originalStart = self.start.bind(self);
-			self.start = function () {
-				originalStart();
-				if (self.chain) self.chain.on('update', cb, context);
-				return self;
-			};
-		} else {
-			self.chain.on('update', cb, context);
+	onUpdateCallback(cb: (...args: unknown[]) => void, context?: unknown): TweenHandle {
+		this.attachWhenStarted((chain) => chain.on('update', cb, context));
+		return this;
+	}
+
+	/**
+	 * Listen on the tween chain now, or once one exists.
+	 *
+	 * Hooks are often registered before the first `to()`, so there is no chain to
+	 * listen to yet. In that case `start` is wrapped to attach as soon as the
+	 * chain is built. The arrow keeps `this` bound to this adapter, so neither
+	 * the listener nor the wrapper needs a `self` alias.
+	 */
+	private attachWhenStarted(attach: (chain: Phaser.Tweens.TweenChain) => void): void {
+		if (this.chain) {
+			attach(this.chain);
+			return;
 		}
-		return self;
+		const originalStart = this.start.bind(this);
+		this.start = ((): TweenHandle => {
+			originalStart();
+			if (this.chain) attach(this.chain);
+			return this;
+		}) as typeof this.start;
 	}
 }

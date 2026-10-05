@@ -5,7 +5,7 @@ import { Hex } from './hex';
 import { Player } from '../player';
 import { Creature } from '../creature';
 import { capitalize } from './string';
-import type { GroupHandle, SpriteHandle } from '../engine/types';
+import type { GroupHandle, SpriteHandle, TweenHandle } from '../engine/types';
 import { getPointFacade } from './pointfacade';
 import { HEX_WIDTH_PX, offsetCoordsToPx } from './const';
 
@@ -41,13 +41,13 @@ export class Trap {
 	onDestroyFn?: (destroyer?: Creature) => void;
 
 	//
-	display: any;
-	displayOver: any;
+	display: SpriteHandle;
+	displayOver: SpriteHandle;
 
 	/** Tweens running the idle sprite animation (e.g. flame flicker). Stopped on destroy. */
-	private _idleTweens: any[] = [];
+	private _idleTweens: TweenHandle[] = [];
 	/** Extra sprites created by the idle animation (e.g. flame layers). Destroyed with the trap. */
-	private _overlaySprites: any[] = [];
+	private _overlaySprites: SpriteHandle[] = [];
 
 	private _moveSpriteToGroup(sprite: SpriteHandle, targetGroup: GroupHandle) {
 		const sourceGroup = sprite.parent as GroupHandle | null;
@@ -58,7 +58,7 @@ export class Trap {
 		const worldPos = sourceGroup.toGlobal(sprite.position.clone());
 		sourceGroup.remove(sprite, false);
 		targetGroup.add(sprite);
-		const localPos = targetGroup.toLocal(worldPos, this.game.gameEngine.world);
+		const localPos = targetGroup.toLocal(worldPos);
 		sprite.setPosition(localPos.x, localPos.y);
 	}
 

@@ -445,7 +445,10 @@ export class PlasmaField {
 		this.settings = { ...DEFAULT_SETTINGS, ...opt };
 
 		this._surfaceSource = opt.surfaceSource;
-		this.parent = opt.parent || engine.world;
+		// `engine.world` is the scene display list — the stand-in for Phaser 2's
+		// `game.world` group — so it accepts the field's sprite and shader quad
+		// exactly as a real group handle would.
+		this.parent = opt.parent || (engine.world as unknown as GroupHandle);
 		this.creature = opt.creature || null;
 		this.onBurstEnd = null;
 

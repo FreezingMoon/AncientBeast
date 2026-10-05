@@ -290,10 +290,6 @@ async function boot(game: Phaser.Game) {
 		 * instead of only their averages.
 		 */
 		win.profile = async () => {
-			const g = gpuFields[0] as unknown as Hack;
-			const c = cpuFields[0] as unknown as Hack;
-			const cHome = c.sprite.y;
-
 			// bare board first, then each path alone. Kept in this order because it
 			// is the only sequencing whose captures have actually matched what is on
 			// screen; toggling visibility repeatedly and re-reading drifted out of
@@ -429,17 +425,18 @@ void main(void) {
 				);
 				await frames(3);
 				const on = grab();
-
+				if (!on) throw new Error('probeBlend: on capture returned null');
 				quad.destroy();
 				await frames(3);
 				const off = grab();
+				if (!off) throw new Error('probeBlend: off capture returned null');
 
 				// Sample the middle of where the quad was.
 				let sum = 0;
 				let n = 0;
 				for (let y = 385; y < 415; y++) {
 					for (let x = 285; x < 315; x++) {
-						sum += lum(on!, x, y) - lum(off!, x, y);
+						sum += lum(on, x, y) - lum(off, x, y);
 						n++;
 					}
 				}

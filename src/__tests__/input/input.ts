@@ -244,7 +244,8 @@ describe('the input gate', () => {
 		// turn that did not answer would leave a hand cursor over a board that is
 		// not accepting input.
 		document.body.innerHTML = '<canvas></canvas>';
-		const canvas = document.querySelector('canvas')!;
+		const canvas = document.querySelector('canvas');
+		if (!canvas) throw new Error('test setup: no canvas element found');
 		canvas.style.cursor = 'pointer';
 
 		expect(rejectIfTurnFrozen(idle)).toBe(false);

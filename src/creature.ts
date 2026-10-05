@@ -27,7 +27,13 @@ import {
 } from './utility/const';
 import { CreatureType, Level, Realm, Unit, UnitName } from './data/types';
 import { PlasmaField, detectWeakHardware, detectVeryWeakHardware } from './plasma-field';
-import type { GameEngine } from './engine/types';
+import type {
+	GameEngine,
+	GroupHandle,
+	NativePassthrough,
+	SpriteHandle,
+	TweenHandle,
+} from './engine/types';
 import { getFrameSize, MISSING_TEXTURE_KEY } from './game-display/texture';
 import { onPointerDown } from './input/input';
 import { setHandCursor } from './game-display/cursor';
@@ -53,7 +59,7 @@ const PLASMA_FIELD_HUE_BY_COLOR: Record<string, number> = {
  *
  * Returns 0 when the texture cannot be read (e.g. mocked environment).
  */
-function computeCardboardCenterOffset(gameEngine: GameEngine, sprite: any): number {
+function computeCardboardCenterOffset(gameEngine: GameEngine, sprite: SpriteHandle): number {
 	const key = sprite.key;
 	if (typeof key !== 'string') return 0;
 	const src = gameEngine.cache.getImage(key) as HTMLImageElement | HTMLCanvasElement | null;
@@ -2518,6 +2524,23 @@ export class Creature {
 }
 
 /**
+ * A tween handle as the bounce animations read it.
+ *
+ * Both the health-indicator and no-action-hint bounces open with
+ * `if (tween && tween.isRunning) return;` to avoid restarting a bounce that is
+ * already playing. `TweenHandle` neither declares nor implements `isRunning` —
+ * the engine's tween adapter exposes `start`/`stop`/`duration` and no state flag
+ * — so those reads are always `undefined`, the guards never fire, and the bounce
+ * is restarted on every `setHealthBounce(true)` / `restartNoActionHintBounce()`.
+ *
+ * The flag is declared here so the reads keep compiling and the dead guard stays
+ * visible in the type. Whether the guard *should* short-circuit is a behaviour
+ * question for the bounce code, not for the type: Phaser 4's own equivalent is
+ * `Tween#isPlaying()`.
+ */
+type BounceTween = TweenHandle & { isRunning?: boolean };
+
+/**
  * Per-hint bookkeeping: the type tag and the three tweens that drive it.
  *
  * Phaser 2 CE gave every game object a `DataManager` and this subsystem hung
@@ -2530,9 +2553,9 @@ export class Creature {
 type HintState = {
 	/** `null` until the element is registered; see {@link hintState}. */
 	hintType: CreatureHintType | 'confirm_deleted';
-	tweenAlpha: any | null;
-	tweenPos: any | null;
-	tweenBounce: any | null;
+	tweenAlpha: TweenHandle | null;
+	tweenPos: TweenHandle | null;
+	tweenBounce: BounceTween | null;
 	/** Resting y, captured on first bounce so a stop returns the hint to it. */
 	baseY?: number;
 	/** `confirm` hints that must not animate into place, e.g. skip turn. */
@@ -2582,19 +2605,19 @@ class CreatureSprite {
 	}
 
 	private _creature: Creature;
-	private _group: any;
-	private _sprite: any;
-	private _hintGrp: any;
+	private _group: GroupHandle;
+	private _sprite: SpriteHandle;
+	private _hintGrp: GroupHandle;
 
-	private _healthIndicatorGroup: any;
-	private _healthIndicatorSprite: any;
-	private _healthIndicatorText: any;
-	private _healthIndicatorTween: any | null;
-	private _noActionHintElements: any[] = [];
-	private _noActionHintGroup: any | null = null;
-	private _noActionHintTween: any | null = null;
+	private _healthIndicatorGroup: GroupHandle;
+	private _healthIndicatorSprite: SpriteHandle;
+	private _healthIndicatorText: SpriteHandle;
+	private _healthIndicatorTween: BounceTween | null | undefined;
+	private _noActionHintElements: SpriteHandle[] = [];
+	private _noActionHintGroup: SpriteHandle | null = null;
+	private _noActionHintTween: BounceTween | null = null;
 	private _healthBounceOffset = 0; // y-offset driven by the bounce tween
-	private _healthUiGroup: any; // elevated layer for active/hovered indicators
+	private _healthUiGroup: GroupHandle; // elevated layer for active/hovered indicators
 	private _healthInUiGroup = false; // whether the indicator is currently elevated
 
 	private _gameEngine: GameEngine;
@@ -2657,7 +2680,7 @@ class CreatureSprite {
 		this._creatureTeam = team;
 		this._frameInfo = { originX: display['offset-x'], originY: display['offset-y'] };
 
-		const group: any = gameEngine.add.group(game.grid.creatureGroup, 'creatureGrp_' + id);
+		const group = gameEngine.add.group(game.grid.creatureGroup, 'creatureGrp_' + id);
 		group.alpha = 0;
 
 		const isDarkPriest = type === '--';
@@ -3111,7 +3134,7 @@ class CreatureSprite {
 			xrayDepth: number;
 		} | null> = [];
 		for (const refCreature of refCreatures) {
-			const refSprite = (refCreature as Creature)?.sprite as any;
+			const refSprite = (refCreature as Creature)?.sprite;
 			// Trap/drop reveal markers are `{sprite, grp}` stand-ins without a
 			// `Creature` behind them; use the sprite's own key so the trap art
 			// resolves instead of the obstructor's texture.
@@ -3160,7 +3183,7 @@ class CreatureSprite {
 	}
 
 	private _resolveFrameSourceRect(
-		sprite: any,
+		sprite: SpriteHandle,
 		fallbackW: number,
 		fallbackH: number,
 	): { sx: number; sy: number; sw: number; sh: number } | null {
@@ -3238,7 +3261,7 @@ class CreatureSprite {
 	 */
 	private _drawSpriteFrame(
 		ctx: CanvasRenderingContext2D,
-		sprite: any,
+		sprite: SpriteHandle,
 		src: CanvasImageSource,
 		dx: number,
 		dy: number,
@@ -3316,7 +3339,10 @@ class CreatureSprite {
 		return false;
 	}
 
-	private _resolveSpriteDrawSource(sprite: any, cacheKey?: string): CanvasImageSource | null {
+	private _resolveSpriteDrawSource(
+		sprite: SpriteHandle,
+		cacheKey?: string,
+	): CanvasImageSource | null {
 		// Prefer the game-engine texture cache (the full cardboard pixels);
 		// fall back to the live Phaser texture chain. The facade must go last:
 		// once xrayed, its `baseTexture` view answers the xray bitmap itself,
@@ -3393,7 +3419,7 @@ class CreatureSprite {
 	 * see-through cutout follows the unit silhouette instead of a rectangle.
 	 */
 	private _snapshotCardboardPixels(
-		sprite: any,
+		sprite: SpriteHandle,
 		cacheKey?: string,
 	): { canvas: HTMLCanvasElement; rgba: Uint8ClampedArray; width: number; height: number } | null {
 		const src = this._resolveSpriteDrawSource(sprite, cacheKey);
@@ -3437,17 +3463,18 @@ class CreatureSprite {
 	 * Returns false when nothing drawable was produced, so callers can keep the
 	 * original cardboard instead of swapping in a blank bitmap.
 	 */
-	private _safeDrawXray(refCreatures: Creature[], bmd: any): boolean {
+	private _safeDrawXray(refCreatures: Creature[], bmd: CanvasSurface): boolean {
 		return this._drawXrayBmd(refCreatures, bmd);
 	}
 
-	private _drawXrayBmd(refCreatures: Creature[], bmd: any): boolean {
+	private _drawXrayBmd(refCreatures: Creature[], bmd: CanvasSurface): boolean {
 		const oSprite = this._sprite;
 		const oGroup = this._group;
 		const otw = bmd.width;
 		const oth = bmd.height;
-		const unwrapSprite = (handle: any) => (handle?.__unwrapped ?? handle) as any;
-		const hasLiveSceneObject = (handle: any) => {
+		const unwrapSprite = (handle: SpriteHandle): NativePassthrough =>
+			(handle?.__unwrapped ?? handle) as NativePassthrough;
+		const hasLiveSceneObject = (handle: SpriteHandle) => {
 			const raw = unwrapSprite(handle);
 			return Boolean(raw && raw.scene && raw.texture && raw.frame);
 		};
@@ -3463,7 +3490,7 @@ class CreatureSprite {
 		if (!this._xrayRefAlpha || this._xrayRefAlpha.size !== refCreatures.length) {
 			return false;
 		}
-		const ctx = bmd?.context as CanvasRenderingContext2D | undefined;
+		const ctx = bmd?.ctx as CanvasRenderingContext2D | undefined;
 		if (!ctx) {
 			return false;
 		}
@@ -3499,7 +3526,7 @@ class CreatureSprite {
 
 		for (const i of order) {
 			const refCreature = refCreatures[i];
-			const refSprite = (refCreature as Creature)?.sprite as any;
+			const refSprite = (refCreature as Creature)?.sprite;
 			if (!hasLiveSceneObject(refSprite)) {
 				continue;
 			}
@@ -3564,7 +3591,7 @@ class CreatureSprite {
 		// same offsets instead of re-deriving them per pixel.
 		const refPlacement = refCreatures.map((refCreature, refIndex) => {
 			const entry = this._xrayRefAlpha?.entries[refIndex] ?? null;
-			const refSprite = (refCreature as Creature)?.sprite as any;
+			const refSprite = (refCreature as Creature)?.sprite;
 			if (!entry || !refSprite) return null;
 			const refGrp = ((refCreature as Creature)?.grp ?? this._creature.game.grid.creatureGroup) as {
 				x?: unknown;
@@ -3610,7 +3637,6 @@ class CreatureSprite {
 						? (ry * refEntry.width + rx) * 4
 						: -1;
 				const blendT = this._xrayAlpha;
-				const invT = 1 - blendT;
 				const fadedA = Math.round((a * overlapAlpha) / 255);
 				if (refOff < 0 || refEntry.rgba[refOff + 3] <= 0) {
 					dst[d] = src[s];
@@ -3627,9 +3653,6 @@ class CreatureSprite {
 				// keeps midtones and weights the effect by the ref pixel's own
 				// alpha, so faint shadows/highlighter washes barely tint while
 				// opaque body pixels still read through.
-				const mr = refEntry.rgba[refOff] / 255;
-				const mg = refEntry.rgba[refOff + 1] / 255;
-				const mb = refEntry.rgba[refOff + 2] / 255;
 				const ma = refEntry.rgba[refOff + 3] / 255;
 				const t = blendT * ma;
 				const it = 1 - t;
@@ -3732,7 +3755,7 @@ class CreatureSprite {
 		return this._group.position;
 	}
 
-	private _enableSkipTurnInput(sprite: any) {
+	private _enableSkipTurnInput(sprite: SpriteHandle) {
 		sprite.setInteractive();
 		setHandCursor(sprite, true);
 		onPointerDown(sprite, () => {
@@ -3830,7 +3853,7 @@ class CreatureSprite {
 		// Keep no-action hint bounce synced with the health indicator bounce feel.
 		const noActionBounceHeight = 10;
 		const noActionBounceSpeed = 350;
-		const startNoActionBounce = (hintElement: any) => {
+		const startNoActionBounce = (hintElement: SpriteHandle) => {
 			if (hintState(hintElement).tweenBounce && hintState(hintElement).tweenBounce.isRunning) {
 				return;
 			}
@@ -3905,27 +3928,23 @@ class CreatureSprite {
 
 		const isSkipTurnConfirm = hintType === 'confirm' && text === 'Skip turn';
 		if (isSkipTurnConfirm) {
-			const existingSkipHints: any[] = [];
+			const existingSkipHints: SpriteHandle[] = [];
 			let hasSkipTurnLabel = false;
-			this._hintGrp.each(
-				(hint: any) => {
-					const state = peekHintState(hint);
-					if (!hint.active || !state) {
-						return;
-					}
+			this._hintGrp.each((hint: SpriteHandle) => {
+				const state = peekHintState(hint);
+				if (!hint.active || !state) {
+					return;
+				}
 
-					if (state.hintType !== 'confirm' && !this.isNoActionHintType(state.hintType)) {
-						return;
-					}
+				if (state.hintType !== 'confirm' && !this.isNoActionHintType(state.hintType)) {
+					return;
+				}
 
-					existingSkipHints.push(hint);
-					if (hint.type === 'Text' && hint.text === 'Skip turn') {
-						hasSkipTurnLabel = true;
-					}
-				},
-				this,
-				true,
-			);
+				existingSkipHints.push(hint);
+				if (hint.type === 'Text' && hint.text === 'Skip turn') {
+					hasSkipTurnLabel = true;
+				}
+			}, this);
 
 			if (existingSkipHints.length > 0 && hasSkipTurnLabel) {
 				this._noActionHintElements = [];
@@ -3951,8 +3970,8 @@ class CreatureSprite {
 		}
 
 		if (hintType === 'no_action') {
-			const existingConfirmHints: any[] = [];
-			this._hintGrp.each((hint: any) => {
+			const existingConfirmHints: SpriteHandle[] = [];
+			this._hintGrp.each((hint: SpriteHandle) => {
 				if (!hint.active || hintState(hint).hintType !== 'confirm') {
 					return;
 				}
@@ -4065,66 +4084,58 @@ class CreatureSprite {
 
 			this._noActionHintElements = [noActionFrame, noActionIcon, noActionText];
 
-			this._hintGrp.each(
-				(hint: any) => {
-					const index = this._hintGrp.total - this._hintGrp.getIndex(hint) - 1;
-					const offset = -50 * index;
-					const state = hintState(hint);
-
-					if (state.tweenBounce) {
-						state.tweenBounce.stop();
-						state.tweenBounce = null;
-					}
-
-					if (state.tweenPos) {
-						state.tweenPos.stop();
-						state.tweenPos = null;
-					}
-
-					hint.x = 0;
-
-					if (this.isNoActionHintType(state.hintType)) {
-						hint.y = offset;
-						startNoActionBounce(hint);
-						return;
-					}
-
-					state.tweenPos = this._gameEngine
-						.tween(hint)
-						.to({ y: offset }, tooltipSpeed, tooltipTransition)
-						.start();
-				},
-				this,
-				true,
-			);
-			this.restartNoActionHintBounce();
-			return;
-		}
-
-		// Remove constant element
-		// Animation length reduced from 250 to 100 to prevent animation overlap
-		this._hintGrp.each(
-			(hint: any) => {
-				const state = peekHintState(hint);
-				if (!state || (state.hintType !== 'confirm' && !this.isNoActionHintType(state.hintType))) {
-					return;
-				}
+			this._hintGrp.each((hint: SpriteHandle) => {
+				const index = this._hintGrp.total - this._hintGrp.getIndex(hint) - 1;
+				const offset = -50 * index;
+				const state = hintState(hint);
 
 				if (state.tweenBounce) {
 					state.tweenBounce.stop();
 					state.tweenBounce = null;
 				}
 
-				state.hintType = 'confirm_deleted';
-				state.tweenAlpha = this._gameEngine
+				if (state.tweenPos) {
+					state.tweenPos.stop();
+					state.tweenPos = null;
+				}
+
+				hint.x = 0;
+
+				if (this.isNoActionHintType(state.hintType)) {
+					hint.y = offset;
+					startNoActionBounce(hint);
+					return;
+				}
+
+				state.tweenPos = this._gameEngine
 					.tween(hint)
-					.to({ alpha: 0 }, 100, tooltipTransition)
+					.to({ y: offset }, tooltipSpeed, tooltipTransition)
 					.start();
-				state.tweenAlpha.onComplete.add(() => hint.destroy());
-			},
-			this,
-			true,
-		);
+			}, this);
+			this.restartNoActionHintBounce();
+			return;
+		}
+
+		// Remove constant element
+		// Animation length reduced from 250 to 100 to prevent animation overlap
+		this._hintGrp.each((hint: SpriteHandle) => {
+			const state = peekHintState(hint);
+			if (!state || (state.hintType !== 'confirm' && !this.isNoActionHintType(state.hintType))) {
+				return;
+			}
+
+			if (state.tweenBounce) {
+				state.tweenBounce.stop();
+				state.tweenBounce = null;
+			}
+
+			state.hintType = 'confirm_deleted';
+			state.tweenAlpha = this._gameEngine
+				.tween(hint)
+				.to({ alpha: 0 }, 100, tooltipTransition)
+				.start();
+			state.tweenAlpha.onComplete.add(() => hint.destroy());
+		}, this);
 
 		const hint = this._gameEngine.add.text(0, 50, text, style, this._hintGrp);
 		hint.setOrigin(0.5, 0.5);
@@ -4216,45 +4227,41 @@ class CreatureSprite {
 		}
 
 		// Stacking
-		this._hintGrp.each(
-			(hint: any) => {
-				const index = this._hintGrp.total - this._hintGrp.getIndex(hint) - 1;
-				const offset = -50 * index;
-				const state = hintState(hint);
+		this._hintGrp.each((hint: SpriteHandle) => {
+			const index = this._hintGrp.total - this._hintGrp.getIndex(hint) - 1;
+			const offset = -50 * index;
+			const state = hintState(hint);
 
-				if (state.tweenBounce) {
-					state.tweenBounce.stop();
-					state.tweenBounce = null;
-				}
+			if (state.tweenBounce) {
+				state.tweenBounce.stop();
+				state.tweenBounce = null;
+			}
 
-				if (state.tweenPos) {
-					state.tweenPos.stop();
-					state.tweenPos = null;
-				}
+			if (state.tweenPos) {
+				state.tweenPos.stop();
+				state.tweenPos = null;
+			}
 
-				hint.x = 0;
+			hint.x = 0;
 
-				if (state.hintType === 'no_action') {
-					this.setSkipButtonNoActionVisibility(true);
-					// Keep no-action hints stable on first show: place immediately, then bounce.
-					hint.y = offset;
-					startNoActionBounce(hint);
-					return;
-				}
+			if (state.hintType === 'no_action') {
+				this.setSkipButtonNoActionVisibility(true);
+				// Keep no-action hints stable on first show: place immediately, then bounce.
+				hint.y = offset;
+				startNoActionBounce(hint);
+				return;
+			}
 
-				if (state.skipTurnStatic) {
-					hint.y = offset;
-					return;
-				}
+			if (state.skipTurnStatic) {
+				hint.y = offset;
+				return;
+			}
 
-				state.tweenPos = this._gameEngine
-					.tween(hint)
-					.to({ y: offset }, tooltipSpeed, tooltipTransition)
-					.start();
-			},
-			this,
-			true,
-		);
+			state.tweenPos = this._gameEngine
+				.tween(hint)
+				.to({ y: offset }, tooltipSpeed, tooltipTransition)
+				.start();
+		}, this);
 	}
 
 	stopNoActionHintBounce() {
@@ -4362,47 +4369,40 @@ class CreatureSprite {
 			this.destroyNoActionHintGroup();
 		}
 
-		this._hintGrp.each(
-			(hint: any) => {
-				// An element with no recorded type was never one of ours (the group
-				// also holds the health/frame sprites), so it is not ours to clear.
-				const state = peekHintState(hint);
-				if (!state || !state.hintType) {
-					return;
-				}
+		this._hintGrp.each((hint: SpriteHandle) => {
+			// An element with no recorded type was never one of ours (the group
+			// also holds the health/frame sprites), so it is not ours to clear.
+			const state = peekHintState(hint);
+			if (!state || !state.hintType) {
+				return;
+			}
 
-				// An earlier clear already tagged this one and started its fade.
-				// Re-tagging it would orphan that tween and let the element be
-				// destroyed twice.
-				if (state.hintType === 'confirm_deleted') {
-					return;
-				}
+			// An earlier clear already tagged this one and started its fade.
+			// Re-tagging it would orphan that tween and let the element be
+			// destroyed twice.
+			if (state.hintType === 'confirm_deleted') {
+				return;
+			}
 
-				const isNoAction = this.isNoActionHintType(state.hintType);
-				if (
-					!hintTypes.includes(state.hintType) &&
-					!(isNoAction && hintTypes.includes('no_action'))
-				) {
-					return;
-				}
+			const isNoAction = this.isNoActionHintType(state.hintType);
+			if (!hintTypes.includes(state.hintType) && !(isNoAction && hintTypes.includes('no_action'))) {
+				return;
+			}
 
-				state.hintType = 'confirm_deleted';
-				if (state.tweenBounce) {
-					state.tweenBounce.stop();
-					state.tweenBounce = null;
-				}
-				if (state.tweenAlpha) {
-					state.tweenAlpha.stop();
-				}
-				state.tweenAlpha = this._gameEngine
-					.tween(hint)
-					.to({ alpha: 0 }, 100, tooltipTransition)
-					.start();
-				state.tweenAlpha.onComplete.add(() => hint.destroy());
-			},
-			this,
-			true,
-		);
+			state.hintType = 'confirm_deleted';
+			if (state.tweenBounce) {
+				state.tweenBounce.stop();
+				state.tweenBounce = null;
+			}
+			if (state.tweenAlpha) {
+				state.tweenAlpha.stop();
+			}
+			state.tweenAlpha = this._gameEngine
+				.tween(hint)
+				.to({ alpha: 0 }, 100, tooltipTransition)
+				.start();
+			state.tweenAlpha.onComplete.add(() => hint.destroy());
+		}, this);
 	}
 
 	destroy() {

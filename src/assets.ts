@@ -23,12 +23,13 @@ export { generatedSoundPaths as soundPaths };
  * duplicates are reported as a single warning.
  */
 export function use(phaser: Phaser.Game): string[] {
-	// In Phaser 4, the loader is on the active scene
-	const sceneManager = phaser.scene as any;
-	const load =
-		(phaser as { load?: Phaser.Loader.LoaderPlugin }).load ||
-		sceneManager?.load ||
-		sceneManager?.scenes?.[0]?.load;
+	// In Phaser 4 the loader hangs off the scene (`scene.load`) — neither `Game` nor
+	// the `SceneManager` carries one. The first two links below are the Phaser 2 CE
+	// shapes, kept as the documented upgrade path; each costs one optional read and
+	// is simply absent at runtime under Phaser 4.
+	const legacyGame = phaser as { load?: Phaser.Loader.LoaderPlugin };
+	const legacyScene = phaser.scene as unknown as { load?: Phaser.Loader.LoaderPlugin };
+	const load = legacyGame.load || legacyScene.load || phaser.scene?.scenes?.[0]?.load;
 	if (!load) {
 		console.warn('[assets.ts] Phaser loader not ready');
 		return [];

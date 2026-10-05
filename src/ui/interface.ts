@@ -28,6 +28,7 @@ import { getRandomSummonCandidates, getSummonCandidates } from '../utility/summo
 import { OpenCollectiveBanner, isThirdPartyContentBlocked } from './open-collective-banner';
 import { onPointerUp } from '../input/input';
 import { setHandCursor } from '../game-display/cursor';
+import type { SpriteHandle } from '../engine/types';
 
 const SECRET_VIEW_ID = 'ab-secret-view';
 
@@ -551,7 +552,7 @@ export class UI {
 	$grid: JQuery<HTMLElement>; //eslint-disable-line no-undef
 	$activebox: JQuery<HTMLElement>; //eslint-disable-line no-undef
 	$scoreboard: JQuery<HTMLElement>; //eslint-disable-line no-undef
-	brandlogo: any;
+	brandlogo: SpriteHandle;
 	active: boolean;
 	queue: Queue;
 	quickInfo: QuickInfo;
@@ -1927,7 +1928,7 @@ export class UI {
 			// (see closeDash): a racing open before the fade callback runs
 			// would otherwise be left unclickable.
 			this.dashFadeToken = null;
-			(this.$dash as any).css('pointer-events', '');
+			this.$dash.css('pointer-events', '');
 			this.$dash.show().css('opacity', 0);
 			this.$dash.transition(
 				{
@@ -3104,8 +3105,8 @@ export class UI {
 			// so right-clicks meant to close those views were landing on the
 			// dash instead and reopening it. Disable pointer-events during the
 			// fade so clicks fall through to the view underneath.
+			this.$dash.css('pointer-events', 'none');
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			(this.$dash as any).css('pointer-events', 'none');
 			(this.$dash as any).transition(
 				{
 					opacity: 0,

@@ -85,10 +85,14 @@ export class GameScene extends SceneBase {
 	}
 
 	/** Phaser 4 boots scenes with optional data; AB needs none. */
-	init(): void {}
+	init(): void {
+		// Intentionally empty: no boot data to read.
+	}
 
 	/** Asset queuing happens through `this.load`, so nothing to preload here. */
-	preload(): void {}
+	preload(): void {
+		// Intentionally empty: `AssetLoader` queues the batch from `create()`.
+	}
 
 	create(): void {
 		this.loader = this.load;

@@ -1,6 +1,6 @@
 import type Phaser from 'phaser';
 import { getPhaser } from '../phaser/runtime';
-import type { GroupHandle, SpriteHandle, TextureKeyLike } from './types';
+import type { GroupHandle, NativePassthrough, SpriteHandle, TextureKeyLike } from './types';
 
 /**
  * Phaser 4 game object / group / dynamic texture facades.
@@ -32,7 +32,7 @@ import type { GroupHandle, SpriteHandle, TextureKeyLike } from './types';
  * manipulate `depth` and the container's child list.
  */
 
-type AnyObject = Record<string, any>;
+type AnyObject = Record<string, NativePassthrough>;
 
 /**
  * Wraps a Phaser 4 texture so it answers the Phaser 2 dimension questions.
@@ -67,7 +67,7 @@ function makeTextureView(go: AnyObject): AnyObject {
 const wrappers = new WeakMap<object, SpriteHandle | GroupHandle>();
 
 /** Recover the Phaser object behind a facade. */
-export function unwrap<T = any>(handle: AnyObject): T {
+export function unwrap<T = NativePassthrough>(handle: AnyObject): T {
 	return (handle?.__unwrapped ?? handle) as T;
 }
 
@@ -212,7 +212,15 @@ export function wrapGameObject(gameObject: Phaser.GameObjects.GameObject): Sprit
 		// ── Texture / input ──────────────────────────────────────────────
 		// Accepts a live `CanvasSurface` as well as a key: the CPU-drawn
 		// surfaces (plasma field, x-ray, haze) are attached this way.
-		loadTexture: (key: TextureKeyLike, frame?: string) => go.setTexture(key!, frame),
+		// `TextureKeyLike` allows `undefined` so callers can pass an optional key
+		// straight through; Phaser's own `setTexture` has no such overload and
+		// requires the string, so the absence case has to be resolved here.
+		loadTexture: (key: TextureKeyLike, frame?: string) => {
+			if (key === undefined) {
+				throw new Error('loadTexture requires a texture key');
+			}
+			go.setTexture(key, frame);
+		},
 		/**
 		 * Phaser 4's interactive object, exposed as-is.
 		 *

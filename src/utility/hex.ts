@@ -13,13 +13,11 @@ import * as Const from './const';
 import { Effect } from '../effect';
 import { Player } from '../player';
 import {
-	clearHoveredHex,
 	isPointerWithinBoard,
 	onPointerOut,
 	onPointerOver,
 	onPointerUp,
 	rejectIfTurnFrozen,
-	setHoveredHex,
 } from '../input/input';
 import { setHandCursor } from '../game-display/cursor';
 
@@ -211,7 +209,8 @@ export class Hex {
 	hitBox: SpriteHandle;
 	display: SpriteHandle;
 	overlay: SpriteHandle;
-	coordText: any;
+	/** Debug-only coordinate label, created on demand and destroyed when the grid overlay is hidden. */
+	coordText: SpriteHandle | undefined;
 
 	/**
 	 *

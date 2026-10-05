@@ -182,9 +182,9 @@ type InfernalCardboardEffectState = {
 	heatBmd?: CanvasSurface;
 	heatFrame?: { x: number; y: number; width: number; height: number };
 	heatSource?: CanvasImageSource;
-	heatLayerSprite?: any;
-	tweens: any[];
-	trailSprites: any[];
+	heatLayerSprite?: SpriteHandle;
+	tweens: TweenHandle[];
+	trailSprites: SpriteHandle[];
 };
 
 const BONFIRE_BASELINE_Y_COMPENSATION_PX = -15;
@@ -360,7 +360,7 @@ export class Animations {
 
 	private _yoyo(
 		obj: object,
-		props: object,
+		props: Record<string, number>,
 		duration: number,
 		ease: (k: number) => number,
 		maxPhase = duration,
@@ -652,9 +652,9 @@ export class Animations {
 
 	startBonfireSpringTrapAnimation(
 		display: SpriteHandle,
-		trapGroup: any,
-		idleTweens: any[],
-		overlaySprites: any[],
+		trapGroup: GroupHandle,
+		idleTweens: TweenHandle[],
+		overlaySprites: SpriteHandle[],
 	) {
 		const base = display;
 
@@ -928,9 +928,9 @@ export class Animations {
 
 	startScorchedGroundTrapAnimation(
 		display: SpriteHandle,
-		trapGroup: any,
-		idleTweens: any[],
-		overlaySprites: any[],
+		trapGroup: GroupHandle,
+		idleTweens: TweenHandle[],
+		overlaySprites: SpriteHandle[],
 	) {
 		display.alpha = 1;
 		const bx = display.x;

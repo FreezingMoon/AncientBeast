@@ -17,7 +17,9 @@ export class Fullscreen {
 			return;
 		}
 		if (document.fullscreenElement) {
-			document.exitFullscreen().catch(() => {});
+			// Leaving fullscreen rejects when the document is not in fullscreen
+			// anyway (e.g. the user hit Esc first); there is nothing to report.
+			document.exitFullscreen().catch(() => undefined);
 		} else {
 			// Use document.documentElement for browser-native fullscreen (matches F11 behavior)
 			document.documentElement

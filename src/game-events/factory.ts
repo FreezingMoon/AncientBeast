@@ -15,9 +15,9 @@ import type { GameChannels, MetaPowersState, MetaPowerMessage } from './channels
  * context binding, no wildcard — nothing in AB's channel usage needs them.
  */
 class FallbackEmitter {
-	private listeners = new Map<string, Array<(...args: any[]) => void>>();
+	private listeners = new Map<string, Array<(...args: unknown[]) => void>>();
 
-	on(event: string, fn: (...args: any[]) => void): this {
+	on(event: string, fn: (...args: unknown[]) => void): this {
 		const existing = this.listeners.get(event);
 		if (existing) {
 			existing.push(fn);
@@ -27,7 +27,7 @@ class FallbackEmitter {
 		return this;
 	}
 
-	off(event: string, fn?: (...args: any[]) => void): this {
+	off(event: string, fn?: (...args: unknown[]) => void): this {
 		if (!fn) {
 			this.listeners.delete(event);
 			return this;

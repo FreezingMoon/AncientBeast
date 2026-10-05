@@ -1,4 +1,4 @@
-import { afterEach, beforeAll, beforeEach, describe, expect, jest, test } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
 
 // Mirrors INFERNAL_SMOKE_ENABLED in src/animations.ts. The smoke tests below are
 // skipped while the feature is off, so the tuning values stay verifiable.
@@ -818,7 +818,6 @@ describe('Infernal cardboard FX regression', () => {
 
 		// Walk right. A walk tweens the creature *group*; the sprite's own x/y never
 		// change, so driving travel through the sprite measures nothing.
-		const beforeX = smoke!.x;
 		group.x = 900;
 		setAbClockTime(32, 16);
 		animations.tickInfernalCardboardEffect(creature);
@@ -828,12 +827,13 @@ describe('Infernal cardboard FX regression', () => {
 		// anchor starts at the spawn point, so one frame of lag says nothing about
 		// the steady-state distance.
 		const walkPxPerFrame = 8;
+		if (!smoke) throw new Error('smoke vanished during walk');
 		let lag = 0;
 		for (let frame = 0; frame < 90; frame++) {
 			group.x += walkPxPerFrame;
 			setAbClockTime(48 + frame * 16, 16);
 			animations.tickInfernalCardboardEffect(creature);
-			lag = group.x + sprite.x - smoke!.x;
+			lag = group.x + sprite.x - smoke.x;
 		}
 
 		// The intent is a little lag: the smoke keeps up, but never quite reaches
@@ -902,7 +902,8 @@ describe('Infernal cardboard FX regression', () => {
 		const smokeGroup = game.grid.infernalSmokeGroup as InfernalGroupMock;
 		const smoke = smokeGroup.children[0];
 		expect(smoke).toBeDefined();
-		expect(smoke!.scaleX).toBeGreaterThan(0);
+		if (!smoke) throw new Error('smoke not spawned');
+		expect(smoke.scaleX).toBeGreaterThan(0);
 
 		// The unit turns around.
 		sprite.scaleX = -1;
@@ -911,9 +912,9 @@ describe('Infernal cardboard FX regression', () => {
 
 		// The smoke faces the same way, and keeps its magnitude rather than
 		// snapping to -1.
-		expect(smoke!.scaleX).toBeLessThan(0);
-		expect(Math.abs(smoke!.scaleX)).toBeGreaterThan(0.9);
-		expect(Math.abs(smoke!.scaleX)).toBeLessThan(1.3);
+		expect(smoke.scaleX).toBeLessThan(0);
+		expect(Math.abs(smoke.scaleX)).toBeGreaterThan(0.9);
+		expect(Math.abs(smoke.scaleX)).toBeLessThan(1.3);
 	});
 
 	smokeTest('smoke is dimmer while the unit walks than while it stands', () => {
@@ -1615,8 +1616,6 @@ const createInfernalOverlayMock = (
 			this.y = anchorY;
 		},
 	};
-	const scale = {};
-
 	const sprite = {
 		x,
 		y,
@@ -1740,9 +1739,6 @@ const getInfernalAnimationsGameMock = () => {
 			refresh: jest.fn(),
 		};
 	};
-
-	const nextSurfaceKey = 1;
-
 	const makeTween = () => {
 		const tween = {
 			to: jest.fn().mockReturnThis(),

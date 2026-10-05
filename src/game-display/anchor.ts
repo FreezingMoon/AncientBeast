@@ -1,7 +1,6 @@
 import type Phaser from 'phaser';
 
 type Container = Phaser.GameObjects.Container;
-type GameObject = Phaser.GameObjects.GameObject;
 
 /**
  * Alignment constants.

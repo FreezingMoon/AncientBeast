@@ -13,7 +13,6 @@ import type Phaser from 'phaser';
  * they live here now.
  */
 
-type GameObject = Phaser.GameObjects.GameObject;
 type Scene = Phaser.Scene;
 
 /**
@@ -26,7 +25,7 @@ type Scene = Phaser.Scene;
  * to unwrap, and would break the unit suites, which have neither.
  */
 export interface InteractiveTarget {
-	on(event: string, handler: (...args: any[]) => void, context?: unknown): unknown;
+	on(event: string, handler: (...args: unknown[]) => void, context?: unknown): unknown;
 	input?: {
 		cursor?: string;
 		hitArea?: unknown;
@@ -169,7 +168,8 @@ export function resetPointerWithinBoard(): void {
 export function trackPointerWithinBoard(scene: Scene | null | undefined): () => void {
 	const input = scene?.input;
 	if (!input || typeof input.on !== 'function') {
-		return () => {};
+		// Nothing was subscribed, so teardown is a no-op.
+		return () => undefined;
 	}
 	const onOver = () => {
 		pointerWithinBoard = true;

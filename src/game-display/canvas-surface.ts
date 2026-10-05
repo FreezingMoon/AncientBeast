@@ -101,20 +101,23 @@ function createRendererSurface(
 	if (!texture) {
 		throw new Error('createCanvasSurface: could not create a canvas texture');
 	}
+	// Bound to a const so the closures below keep the narrowed type; `texture` is
+	// a `let`, and narrowing does not survive into a callback.
+	const surface = texture;
 
-	const key = texture.key;
+	const key = surface.key;
 	const pushToGpu = commitsReachGpu(textures);
 	const commit = () => {
 		if (pushToGpu) {
-			commitCanvasTexture(texture!);
+			commitCanvasTexture(surface);
 		}
 	};
 	return {
 		key,
 		width,
 		height,
-		ctx: texture.getContext(),
-		canvas: texture.canvas,
+		ctx: surface.getContext(),
+		canvas: surface.canvas,
 		commit,
 		drawTexture: (textureKey, x, y) => {
 			const source = textures.get(textureKey);
@@ -126,7 +129,7 @@ function createRendererSurface(
 				console.warn(`CanvasSurface.drawTexture: texture "${textureKey}" has no source image`);
 				return;
 			}
-			texture!.getContext().drawImage(image as CanvasImageSource, x, y);
+			surface.getContext().drawImage(image as CanvasImageSource, x, y);
 			commit();
 		},
 		destroy: () => {
