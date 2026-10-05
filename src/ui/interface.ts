@@ -27,6 +27,7 @@ import { applyBuffDebuffStyle } from './buffs-debuffs';
 import { getRandomSummonCandidates, getSummonCandidates } from '../utility/summon-candidates';
 import { OpenCollectiveBanner, isThirdPartyContentBlocked } from './open-collective-banner';
 import { onPointerUp } from '../input/input';
+import { isScoreboardHotkey, isUtilityHotkey as isUtilityHotkeyEvent } from '../input/hotkey-gate';
 import { setHandCursor } from '../game-display/cursor';
 import type { SpriteHandle } from '../engine/types';
 
@@ -418,29 +419,6 @@ const confirmManualRefresh = (event: KeyboardEvent) => {
 	}
 	showDevReloadPrompt('manual-refresh');
 };
-
-const hasNoModifierKeys = (event: KeyboardEvent) =>
-	!event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey;
-
-const isFullscreenHotkey = (event: KeyboardEvent) =>
-	event.code === 'KeyF' && event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey;
-
-const isDashViewHotkey = (event: KeyboardEvent) =>
-	event.code === 'KeyD' && event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey;
-
-const isScoreViewHotkey = (event: KeyboardEvent) =>
-	(event.code === 'KeyT' && hasNoModifierKeys(event)) ||
-	(event.code === 'KeyS' && event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey);
-
-const isAudioViewHotkey = (event: KeyboardEvent) =>
-	event.code === 'KeyA' && event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey;
-
-const isViewSwitchHotkey = (event: KeyboardEvent) =>
-	isDashViewHotkey(event) || isScoreViewHotkey(event) || isAudioViewHotkey(event);
-
-const isScoreboardActionHotkey = (event: KeyboardEvent) =>
-	(event.code === 'KeyS' || event.code === 'KeyR' || event.code === 'KeyX') &&
-	hasNoModifierKeys(event);
 
 const createSecretViewOverlay = () => {
 	const overlay = document.createElement('div');
@@ -1406,28 +1384,18 @@ export class UI {
 				const keydownAction = ingameHotkeys[e.code] && ingameHotkeys[e.code].onkeydown;
 				const isScoreboardOpen = !this.$scoreboard.hasClass('hide');
 				const isInterfaceViewOpen = this.isInterfaceViewOpen();
-				const isScoreboardHotkey =
-					e.code === 'Escape' ||
-					isViewSwitchHotkey(e) ||
-					isFullscreenHotkey(e) ||
-					isScoreboardActionHotkey(e);
 
 				// While scoreboard is open, block gameplay/navigation hotkeys and keep only
 				// scoreboard-scoped actions (Save, Exit, fullscreen, view switching) plus Escape.
-				if (isScoreboardOpen && !isScoreboardHotkey) {
+				if (isScoreboardOpen && !isScoreboardHotkey(e)) {
 					return;
 				}
 
-				const isUtilityHotkey =
-					e.code === 'F11' ||
-					isFullscreenHotkey(e) ||
-					isViewSwitchHotkey(e) ||
-					(e.code === 'Escape' && isInterfaceViewOpen) ||
-					(isScoreboardActionHotkey(e) && isScoreboardOpen) ||
-					(e.code === 'KeyX' && e.shiftKey && e.ctrlKey && !e.metaKey && !e.altKey) ||
-					e.code === 'Backquote' ||
-					e.code === 'Backspace' ||
-					(e.code === 'KeyP' && e.metaKey && e.altKey && !e.ctrlKey && !e.shiftKey);
+				const isUtilityHotkey = isUtilityHotkeyEvent(e, {
+					dashOpen: this.dashopen,
+					interfaceViewOpen: isInterfaceViewOpen,
+					scoreboardOpen: isScoreboardOpen,
+				});
 
 				if (game.freezedInput && !isUtilityHotkey) {
 					return;
