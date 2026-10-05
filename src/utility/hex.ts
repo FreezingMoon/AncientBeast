@@ -777,10 +777,10 @@ export class Hex {
 	/**
 	 * Stop spin effect for the targeting cursor
 	 *
-	 * Deliberately leaves `overlay.angle` alone. Resetting it rewound the cursor
-	 * to 0° every time `updateStyle()` ran, and that runs several times per
-	 * hover step — so sweeping the cursor across the board made the cursor
-	 * snap back to a fixed orientation instead of turning.
+	 * Does not touch `overlay.angle`. `updateStyle()` runs several times per
+	 * hover step, so unwinding the angle here rewound the visible cursor to 0°
+	 * mid-sweep and it stopped reading as a turning cursor. The angle is reset
+	 * by `updateStyle()` on the transition instead — see the spin gate below.
 	 */
 	stopSpinning() {
 		if (!this.isSpinning) {
@@ -995,6 +995,19 @@ export class Hex {
 			this.startSpinning();
 		} else {
 			this.stopSpinning();
+			// Unwind the cursor angle as it leaves the cursor role, rather than on
+			// every `updateStyle()`. The angle is only ever non-zero here if this
+			// hex was the targeting cursor a moment ago, and the `then` branch above
+			// means a hex that stays the cursor is never reset — so the sweep stays
+			// smooth while still spinning.
+			//
+			// Skipping this left the accumulated angle on the sprite permanently:
+			// the overlay texture is a single reused sprite, so the hex that later
+			// became a possible target drew `hex_path` already turned by whatever
+			// angle the cursor stopped at.
+			if (this.overlay.angle !== 0) {
+				this.overlay.angle = 0;
+			}
 		}
 	}
 

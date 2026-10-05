@@ -55,27 +55,33 @@ export interface BoardPointer {
 /**
  * Whether a pointer event began on the game canvas.
  *
- * Phaser attaches its mouse handlers to the window, not the canvas, so a
- * right-click on a DOM overlay — the scoreboard, the music player — reaches
- * canvas listeners as a normal pointer event: the mousedown is consumed by the
- * overlay, the pointer never records a canvas downElement, and the subsequent
- * mouseup is hit-tested against canvas coordinates. The board would then open a
- * creature card from a click the user made on the scoreboard.
+ * Phaser attaches its mouse and touch handlers to the window, not just to the
+ * canvas, so a press on a DOM overlay — the scoreboard, the music player, a
+ * panel button — also reaches canvas listeners: the press is consumed by the
+ * overlay, the pointer never records a canvas `downElement`, and the release is
+ * hit-tested against canvas coordinates anyway. Every button is affected, not
+ * just the secondary ones; the original guard only covered those because a
+ * left-click on an overlay looked like it was "already swallowed", which it is
+ * not. On the score screen, clicking Save Log hovered and confirmed the hexes
+ * underneath the button and threw on `game.activeCreature.noActionPossible`.
  *
- * A genuine board gesture always has a canvas downElement, so requiring one is
- * what separates the two. Only the secondary buttons need this: a left-click on
- * an overlay is already swallowed by the overlay, and the default button is used
- * for touch, where `downElement` handling differs.
+ * A genuine board gesture always has a canvas `downElement`, and Phaser records
+ * it for touch as well as for the mouse (`Pointer#touchstart` sets it from
+ * `touch.target`), so requiring one is what separates the two. With no origin
+ * recorded at all there is nothing to compare, and only the primary button is
+ * let through: a pointer without one is a synthetic one, which is what the unit
+ * suites hand over, and a secondary button with no origin is the shape a
+ * right-click takes when the press went unseen.
  */
 export function isCanvasGesture(pointer: BoardPointer | null | undefined): boolean {
 	if (!pointer || typeof pointer !== 'object') {
 		return false;
 	}
-	if (pointer.button !== RIGHT_BUTTON && pointer.button !== MIDDLE_BUTTON) {
-		return true;
+	const element = pointer.downElement as { tagName?: string } | null | undefined;
+	if (!element) {
+		return pointer.button !== RIGHT_BUTTON && pointer.button !== MIDDLE_BUTTON;
 	}
-	const element = pointer.downElement as { tagName?: string } | undefined;
-	return Boolean(element && element.tagName === 'CANVAS');
+	return element.tagName === 'CANVAS';
 }
 
 // ─── Subscriptions ───────────────────────────────────────────────────────────
@@ -92,12 +98,25 @@ function subscribe(
 	gameObject: InteractiveTarget | null | undefined,
 	event: string,
 	handler: (pointer: BoardPointer, localX: number, localY: number) => void,
+	/**
+	 * Whether this event carries a press, and so has an origin to check.
+	 *
+	 * Only `down`/`up` do. Phaser assigns `downElement` in `Pointer#down` and
+	 * `Pointer#touchstart` and clears it in `Pointer#reset`, which gameplay
+	 * never calls; `pointer.button` likewise keeps whatever was last pressed.
+	 * Both are therefore stale during a plain mouse move, so gating `over`/`out`
+	 * on them drops hover as soon as a button has been used once — which is most
+	 * of a match — taking the cursor, ghost preview and ability hexes with it.
+	 * Hover has no press to trace back to a DOM overlay: Phaser only hit-tests
+	 * it against the canvas in the first place, because the hexes live there.
+	 */
+	hasPress = true,
 ): void {
 	if (!gameObject || typeof gameObject.on !== 'function') {
 		return;
 	}
 	gameObject.on(event, (pointer: unknown, localX: number, localY: number) => {
-		if (!isCanvasGesture(pointer as BoardPointer)) {
+		if (hasPress && !isCanvasGesture(pointer as BoardPointer)) {
 			return;
 		}
 		handler(pointer as BoardPointer, localX, localY);
@@ -120,20 +139,25 @@ export function onPointerDown(
 	subscribe(gameObject, 'pointerdown', handler);
 }
 
-/** Subscribe to pointer-over on a game object. */
+/**
+ * Subscribe to pointer-over on a game object.
+ *
+ * Not gated on `isCanvasGesture`: see `subscribe`'s `hasPress`. Hover carries no
+ * press, and the gate's state is stale by the time a move is processed.
+ */
 export function onPointerOver(
 	gameObject: InteractiveTarget | null | undefined,
 	handler: (pointer: BoardPointer, localX: number, localY: number) => void,
 ): void {
-	subscribe(gameObject, 'pointerover', handler);
+	subscribe(gameObject, 'pointerover', handler, false);
 }
 
-/** Subscribe to pointer-out on a game object. */
+/** Subscribe to pointer-out on a game object. Ungated, as with `onPointerOver`. */
 export function onPointerOut(
 	gameObject: InteractiveTarget | null | undefined,
 	handler: (pointer: BoardPointer, localX: number, localY: number) => void,
 ): void {
-	subscribe(gameObject, 'pointerout', handler);
+	subscribe(gameObject, 'pointerout', handler, false);
 }
 
 // ─── Pointer-inside-the-board tracking ───────────────────────────────────────

@@ -38,23 +38,22 @@ const canvasPointer = (button: number) => ({ button, downElement: { tagName: 'CA
 const overlayPointer = (button: number) => ({ button, downElement: { tagName: 'DIV' } });
 
 describe('isCanvasGesture', () => {
-	test('accepts a primary-button gesture regardless of origin', () => {
-		// A left-click on an overlay is already consumed by the overlay, and the
-		// default button is how touch arrives, so the origin is not consulted.
-		expect(isCanvasGesture({ button: 0, downElement: { tagName: 'DIV' } })).toBe(true);
-		expect(isCanvasGesture({ button: 0 })).toBe(true);
-	});
-
-	test('accepts a secondary-button gesture that began on the canvas', () => {
+	test('accepts a gesture that began on the canvas, on every button', () => {
+		expect(isCanvasGesture(canvasPointer(0))).toBe(true);
 		expect(isCanvasGesture(canvasPointer(2))).toBe(true);
 		expect(isCanvasGesture(canvasPointer(1))).toBe(true);
 	});
 
+	test('rejects a primary-button gesture that began on a DOM overlay', () => {
+		// The score screen's Save Log button is the reported case: pressing it
+		// hovered and confirmed the hexes underneath, because Phaser hit-tests
+		// the release against canvas coordinates whatever consumed the press.
+		expect(isCanvasGesture(overlayPointer(0))).toBe(false);
+	});
+
 	test('rejects a secondary-button gesture that began on a DOM overlay', () => {
-		// This is the case that would otherwise open a creature card from a
-		// right-click on the scoreboard: Phaser listens on the window, so the
-		// mouseup is hit-tested against canvas coordinates even though the mousedown
-		// happened on the overlay.
+		// The case this guard was written for: a right-click on the scoreboard
+		// opened the active creature's card from the backdrop handler.
 		expect(isCanvasGesture(overlayPointer(2))).toBe(false);
 		expect(isCanvasGesture(overlayPointer(1))).toBe(false);
 	});
@@ -63,6 +62,14 @@ describe('isCanvasGesture', () => {
 		// No downElement at all is the same shape of problem as a non-canvas one.
 		expect(isCanvasGesture({ button: 2 })).toBe(false);
 		expect(isCanvasGesture({ button: 2, downElement: null })).toBe(false);
+	});
+
+	test('accepts a primary-button gesture with no recorded down element', () => {
+		// Nothing to compare against, and the primary button is the only one a
+		// synthetic pointer can be: the unit suites build their pointers by hand
+		// rather than through Phaser's input.
+		expect(isCanvasGesture({ button: 0 })).toBe(true);
+		expect(isCanvasGesture({ button: 0, downElement: null })).toBe(true);
 	});
 
 	test('rejects nothing rather than throwing on a missing pointer', () => {
@@ -100,17 +107,36 @@ describe('pointer subscriptions', () => {
 		expect(handler).toHaveBeenCalledWith(pointer, 10, 20);
 	});
 
-	test('an overlay-originated right-click never reaches the handler', () => {
+	test('an overlay-originated gesture never reaches the handler', () => {
 		const go = createGameObjectMock();
 		const handler = jest.fn();
 		onPointerUp(go, handler);
 
 		go.emit('pointerup', overlayPointer(2), 0, 0);
+		go.emit('pointerup', overlayPointer(0), 0, 0);
 		expect(handler).not.toHaveBeenCalled();
 
-		// The same gesture on the canvas does reach it.
+		// The same gestures on the canvas do reach it.
 		go.emit('pointerup', canvasPointer(2), 0, 0);
-		expect(handler).toHaveBeenCalledTimes(1);
+		go.emit('pointerup', canvasPointer(0), 0, 0);
+		expect(handler).toHaveBeenCalledTimes(2);
+	});
+
+	test('hover is not gated on the press origin', () => {
+		const go = createGameObjectMock();
+		const handler = jest.fn();
+		onPointerOver(go, handler);
+		onPointerOut(go, handler);
+
+		// Phaser only records `downElement` on `down`/`touchstart` and clears it
+		// on `reset()`, and `button` keeps the last button pressed. Both are stale
+		// during a plain move, so a hover carrying them has to be let through —
+		// otherwise one right-click anywhere kills hover for the rest of the match
+		// and the cursor, ghost preview and ability hexes never appear again.
+		go.emit('pointerover', overlayPointer(0), 0, 0);
+		go.emit('pointerover', overlayPointer(2), 0, 0);
+		go.emit('pointerout', { button: 2, downElement: undefined }, 0, 0);
+		expect(handler).toHaveBeenCalledTimes(3);
 	});
 
 	test('a non-interactive object is ignored rather than throwing', () => {
