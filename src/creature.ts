@@ -1889,8 +1889,14 @@ export class Creature {
 
 	/**
 	 * Removes and frees the procedural Plasma Field visual, if present.
-	 * When a block burst is currently playing, the removal is deferred until
-	 * the burst finishes so the player actually gets to see the block flash.
+	 *
+	 * By default the field fades out first and is destroyed once it has collapsed,
+	 * which is what makes the shield disappear as the priest commits to an action
+	 * or runs its last plasma out. `setVisible(false)` keeps the field on the shared
+	 * ticker for the length of the fade, so a block flash still plays and still
+	 * decays rather than being frozen mid-flash — that is also why this no longer
+	 * needs a burst-specific deferral of its own.
+	 *
 	 * Call with `immediate = true` to tear the field down right away (used on
 	 * creature death / destroy where a deferred cleanup would leak visuals).
 	 */
@@ -1898,11 +1904,12 @@ export class Creature {
 		if (!this.plasmaField) return;
 		const field = this.plasmaField;
 
-		if (!immediate && field.burstPowerVisible > 0) {
-			// Don't overwrite existing onBurstEnd callback
-			if (!field.onBurstEnd) {
-				field.onBurstEnd = () => this.removePlasmaShield(true);
-			}
+		if (!immediate) {
+			// Not an overwrite guard like `onBurstEnd`: this is the *only* thing that
+			// sets `onHidden`, and re-arming it is a no-op while a fade is already in
+			// flight — `setVisible(false)` leaves a running fade alone.
+			field.onHidden = () => this.removePlasmaShield(true);
+			field.setVisible(false);
 			return;
 		}
 
@@ -1915,6 +1922,7 @@ export class Creature {
 		}
 
 		field.onBurstEnd = null;
+		field.onHidden = null;
 		field.destroy();
 		this.plasmaField = null;
 	}

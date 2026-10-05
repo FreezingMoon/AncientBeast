@@ -13,8 +13,15 @@
 
 import { PLASMA_LOOK, plasmaLookFor } from './look';
 import type { Creature } from '../creature';
-import type { GameEngine, SpriteHandle, GroupHandle, ShaderHandle } from '../engine/types';
+import type {
+	GameEngine,
+	SpriteHandle,
+	GroupHandle,
+	ShaderHandle,
+	TweenHandle,
+} from '../engine/types';
 import { BLEND_MODE_ADD } from '../phaser/runtime';
+import { Easing } from '../utility/easing';
 import { PLASMA_FRAGMENT_SOURCE } from './shader';
 import { every } from '../timing/clock';
 import {
@@ -52,6 +59,14 @@ export interface PlasmaFieldOptions extends Partial<PlasmaFieldSettings> {
 	fps?: number;
 	renderScale?: number;
 	staticMode?: boolean;
+	/**
+	 * How long the field takes to fade in when shown and to fade back out when
+	 * hidden, in milliseconds. `0` toggles instantly.
+	 *
+	 * An option rather than a constant only so tests and the visual harness can run
+	 * a fade without waiting on it.
+	 */
+	fadeMs?: number;
 	parent?: GroupHandle;
 	creature?: Creature;
 	/**
@@ -139,6 +154,21 @@ const DEFAULT_SETTINGS: PlasmaFieldSettings = {
 	scaleY: 1.4,
 	hueShift: 0.0,
 };
+
+/**
+ * Default show/hide fade, in milliseconds.
+ *
+ * The field is a large, soft, additive glow, so a hard toggle reads as a pop
+ * rather than as the shield forming and collapsing. Slower than a typical UI
+ * transition on purpose: it is the one thing moving on screen when a Dark
+ * Priest's plasma readout appears or goes away, and a shield that arrives
+ * instantly distracts from the board it sits over.
+ *
+ * One duration for both ends. The shield forms and dissolves as the same object,
+ * so giving the two directions different timings made a hover-out feel slower than
+ * the hover-in that undid it — the pair stopped reading as one motion.
+ */
+const DEFAULT_FADE_MS = 240;
 
 function clamp(v: number, lo: number, hi: number): number {
 	return Math.max(lo, Math.min(hi, v));
@@ -337,6 +367,10 @@ function _registerField(field: PlasmaField): void {
 		_resetSharedState();
 	}
 	_sharedEngine = field._engine;
+	// Registration can be deferred until the field is first shown, so hand the
+	// live adaptive tier over here rather than relying on the field having been
+	// in `_activeFields` when the tier last changed.
+	field.updateRenderScale(_adaptiveRenderScale);
 	_activeFields.add(field);
 	_ensureTicker();
 }
@@ -379,10 +413,36 @@ export class PlasmaField {
 	readonly sprite: SpriteHandle;
 	private creature: Creature | null;
 	onBurstEnd: (() => void) | null;
+
+	/**
+	 * Fires once the field has finished hiding, whether the fade ran or the hide
+	 * was instant.
+	 *
+	 * The teardown counterpart to {@link onBurstEnd}, and the reason a caller can
+	 * destroy the field *after* the shield has collapsed instead of cutting it off
+	 * mid-fade. Cleared by {@link destroy}, and by showing the field again: a show
+	 * means the field is wanted, so any teardown it had queued is cancelled.
+	 */
+	onHidden: (() => void) | null;
 	private fps: number;
 	private _staticMode: boolean;
 	private _plasmaFraction: number;
 	private _noCanvas = false;
+	private fadeMs: number;
+
+	/**
+	 * Live show/hide fade: 0 is fully transparent, 1 fully opaque.
+	 *
+	 * A plain object rather than a field on the class because it is the tween's
+	 * target, and a tween has to own the property it animates. Targeting the
+	 * field itself would mean `removeTweensFrom(this)`, which cannot tell the
+	 * fade apart from any other tween the field might own.
+	 */
+	private _fadeState: { fade: number };
+
+	/** Where the fade is heading. Distinguishes "heading to 0" from "sitting at 0". */
+	private _fadeTarget: number;
+	private _fadeTween: TweenHandle | null;
 
 	/**
 	 * The GPU quad, when this field is running on the shader path.
@@ -402,6 +462,11 @@ export class PlasmaField {
 	 */
 	get usesShader(): boolean {
 		return this._shader !== null;
+	}
+
+	/** The field's base alpha scaled by how far the show/hide fade has run. */
+	private get _effectiveAlpha(): number {
+		return this.alpha * this._fadeState.fade;
 	}
 
 	/**
@@ -441,6 +506,15 @@ export class PlasmaField {
 		this.outlinePower = 0;
 		this.fps = opt.fps || 24;
 		this._staticMode = !!opt.staticMode;
+		this.fadeMs = opt.fadeMs == null ? DEFAULT_FADE_MS : opt.fadeMs;
+		// An animated field is born transparent and hidden, then reveals itself
+		// through `setVisible(true)` — the one entry point for visibility. Starting
+		// it opaque instead would pop the shield on at full brightness for one
+		// frame, because the caller that shows it does so in the same tick it was
+		// created. A baked frame has nothing to fade, so `staticMode` starts lit.
+		this._fadeState = { fade: this._staticMode ? 1 : 0 };
+		this._fadeTarget = this._fadeState.fade;
+		this._fadeTween = null;
 
 		this.settings = { ...DEFAULT_SETTINGS, ...opt };
 
@@ -451,6 +525,7 @@ export class PlasmaField {
 		this.parent = opt.parent || (engine.world as unknown as GroupHandle);
 		this.creature = opt.creature || null;
 		this.onBurstEnd = null;
+		this.onHidden = null;
 
 		// Prefer the GPU. It is exact (the GLSL is a verified port of the loop
 		// below), renders at full resolution, and costs the same for four shields
@@ -471,7 +546,12 @@ export class PlasmaField {
 		if (this._staticMode) {
 			this.draw();
 		} else {
-			_registerField(this);
+			// Hidden and unregistered until `setVisible(true)`. It is deliberately
+			// not on the shared ticker yet: there is nothing on screen to animate,
+			// and paying for it would make every newly created field cost frames
+			// before anyone can see it.
+			this.sprite.visible = false;
+			this._applyFade();
 		}
 	}
 
@@ -527,7 +607,7 @@ export class PlasmaField {
 		const sprite = this._engine.add.sprite(x, y, this.bmd.key, undefined, this.parent);
 		sprite.setOrigin(0.5, 0.5);
 		sprite.setScale(this.settings.scaleX, this.settings.scaleY);
-		sprite.alpha = this.alpha;
+		sprite.alpha = this._effectiveAlpha;
 		// Additive blending is what gives the shield its glow. `2` is MULTIPLY,
 		// not ADD (ADD is 1 in both Phaser 2 CE and Phaser 4), and multiplying
 		// muddies the highlight instead of blooming it — so use the constant.
@@ -544,7 +624,7 @@ export class PlasmaField {
 		// rx/ry over a w x h bitmap, so divide to get the same ellipse once the
 		// quad's own aspect is accounted for.
 		setUniform('uTime', this.time);
-		setUniform('uAlpha', this.alpha);
+		setUniform('uAlpha', this._effectiveAlpha);
 		setUniform('uHueShift', set.hueShift);
 		setUniform('uRadius', [this.rx / this.w, this.ry / this.h]);
 		setUniform('uFlowSpeed', set.flowSpeed);
@@ -563,6 +643,115 @@ export class PlasmaField {
 		const look = plasmaLookFor(this._plasmaFraction);
 		setUniform('uBandWiden', look.bandWiden);
 		setUniform('uBandGain', look.bandGain);
+	}
+
+	/**
+	 * Put the current show/hide fade on screen, on whichever renderer is live.
+	 *
+	 * The CPU path's sprite is an ordinary `Sprite`, so `alpha` is the whole
+	 * story. The shader quad has no Alpha component at all — Phaser 4's
+	 * `setAlpha()` on it is a documented no-op — so opacity can only travel as
+	 * the `uAlpha` uniform the fragment shader multiplies its output by.
+	 */
+	private _applyFade(): void {
+		if (this._shader) {
+			this._shader.setUniform('uAlpha', this._effectiveAlpha);
+			return;
+		}
+		this.sprite.alpha = this._effectiveAlpha;
+	}
+
+	/**
+	 * Tween the fade to `target`, starting from wherever it currently sits.
+	 *
+	 * Starting from the live value is what makes a reversal look right: hovering
+	 * back onto a priest whose shield is half-dissolved brings that brightness
+	 * back up rather than restarting from nothing.
+	 *
+	 * The ease follows the direction rather than the caller. Brightening up starts
+	 * fast and settles (`Out`); dimming starts slow (`In`) because an `Out` fade to
+	 * zero loses most of its brightness in the first few frames — and that is
+	 * exactly when the shield is brightest and most noticeable, so it would read
+	 * as a flicker rather than a collapse.
+	 *
+	 * @param onDone Runs once the fade lands. Not called when a fade to the same
+	 *   target is already in flight — that fade's own `onDone` covers it.
+	 */
+	private _fadeTo(target: number, duration: number, onDone?: () => void): void {
+		// Already heading there. Hovering a priest's hex calls `setVisible` many
+		// times a second, and restarting the fade each time would hold the shield
+		// permanently part-dim instead of letting it settle.
+		if (this._fadeTarget === target && this._fadeTween !== null) {
+			return;
+		}
+		// Already there, and nothing running that could still be heading elsewhere.
+		if (this._fadeState.fade === target && this._fadeTween === null) {
+			onDone?.();
+			return;
+		}
+
+		// Record the destination before killing the running fade: the completion
+		// callback that hides the field checks it, and it has to see the new target
+		// even if the kill turns out to notify.
+		this._fadeTarget = target;
+		// Kill rather than reverse-and-continue, so only one tween ever owns the
+		// fade and a stale completion cannot hide a field that is showing again.
+		this._stopFadeTween();
+
+		if (duration <= 0) {
+			this._fadeState.fade = target;
+			this._applyFade();
+			onDone?.();
+			return;
+		}
+
+		const tween = this._engine
+			.tween(this._fadeState)
+			.to(
+				{ fade: target },
+				duration,
+				target > this._fadeState.fade ? Easing.Sinusoidal.Out : Easing.Sinusoidal.In,
+			)
+			.onUpdateCallback(() => this._applyFade());
+		tween.onComplete.addOnce(() => {
+			this._fadeTween = null;
+			onDone?.();
+		});
+		this._fadeTween = tween;
+		tween.start();
+	}
+
+	/** Drop the running fade tween, if any, without letting it complete. */
+	private _stopFadeTween(): void {
+		if (!this._fadeTween) return;
+		this._fadeTween = null;
+		// `killTweensOf` rather than `Tween.stop()`: the kill path drops the tween
+		// outright instead of dispatching a completion, so a fade being reversed or
+		// destroyed cannot run the callback that hides the field.
+		this._engine.removeTweensFrom(this._fadeState);
+	}
+
+	/** Hide for good: no longer on screen and no longer on the shared ticker. */
+	private _hideNow(): void {
+		this.sprite.visible = false;
+		// A hidden field is unregistered from the shared ticker, so nothing would
+		// ever decay its burst or fire `onBurstEnd`. Since the field is invisible
+		// anyway there is no flash left to play, so snap the burst to its end: a
+		// removal deferred while hidden completes immediately instead of waiting
+		// on a callback nothing can run.
+		this.burstPower = 0;
+		this.outlinePower = 0;
+		if (this.advanceBurst()) {
+			// Destroyed itself through `onBurstEnd`; that path owns the teardown.
+			return;
+		}
+		_unregisterField(this);
+
+		const onHidden = this.onHidden;
+		// Cleared before invoking, like `onBurstEnd`: the callback destroys this
+		// field, and a re-entrant hide would otherwise fire it a second time.
+		this.onHidden = null;
+		onHidden?.();
 	}
 
 	private band(s: number, center: number, width: number): number {
@@ -963,23 +1152,47 @@ export class PlasmaField {
 		this.sprite.y = target.y - offsetY;
 	}
 
+	/**
+	 * Show or hide the field, fading in and out rather than toggling.
+	 *
+	 * A hide is deliberately *deferred*: the field stays visible and stays on the
+	 * shared ticker until the fade reaches zero, because the tween is what dims it.
+	 * Hiding on the first frame instead would cut the collapse off before it began
+	 * and leave a burst flash that nothing can decay — `tick()` only runs for
+	 * registered, visible fields.
+	 */
 	setVisible(visible: boolean): void {
-		this.sprite.visible = visible;
-		if (visible && !this._staticMode) {
-			_registerField(this);
-		} else if (!visible && !this._staticMode) {
-			// A hidden field is unregistered from the shared ticker, so nothing
-			// would ever decay its burst or fire `onBurstEnd`. Since the field is
-			// invisible anyway there is no flash left to play, so snap the burst
-			// to its end: a removal deferred while hidden completes immediately
-			// instead of waiting on a callback nothing can run.
-			this.burstPower = 0;
-			this.outlinePower = 0;
-			if (this.advanceBurst()) {
-				return;
-			}
-			_unregisterField(this);
+		if (this._staticMode) {
+			// A baked frame has no animation to fade, so this stays a plain toggle.
+			this.sprite.visible = visible;
+			return;
 		}
+
+		if (visible) {
+			// Revealed before the fade starts: a sprite that is still hidden renders
+			// nothing, so fading in from invisible would animate an empty frame.
+			this.sprite.visible = true;
+			_registerField(this);
+			// Showing the field again cancels any teardown a caller had queued
+			// against it. Otherwise a shield the player hovered back onto would be
+			// destroyed by the `onHidden` of a removal they had already undone.
+			this.onHidden = null;
+			this._fadeTo(1, this.fadeMs);
+			return;
+		}
+
+		// Already fully faded out — nothing to wait for, and re-running the fade
+		// would keep the field on the ticker for no visible change.
+		if (this._fadeTarget === 0 && this._fadeState.fade <= 0) {
+			this._hideNow();
+			return;
+		}
+		this._fadeTo(0, this.fadeMs, () => {
+			// The field was shown again while it was dissolving. That wins: hiding
+			// it now would cut the fade-in short and leave it stuck at low alpha.
+			if (this._fadeTarget > 0) return;
+			this._hideNow();
+		});
 	}
 
 	burst(): void {
@@ -1003,7 +1216,11 @@ export class PlasmaField {
 
 	destroy(): void {
 		_unregisterField(this);
+		// A fade still in flight would keep writing to the sprite after it is gone,
+		// and its completion callback would then hide an already-dead field.
+		this._stopFadeTween();
 		this.onBurstEnd = null;
+		this.onHidden = null;
 		if (this.sprite && this.sprite.destroy) this.sprite.destroy();
 		// Only the CPU path owns a canvas surface; the GPU path has no backing
 		// texture to free (the shader quad holds its own).

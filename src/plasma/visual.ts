@@ -65,6 +65,7 @@ type Hack = {
 	time: number;
 	draw(): void;
 	setPlasmaFraction(fraction: number): void;
+	_fadeState: { fade: number };
 	sprite: { visible: boolean; y: number; setScale(x: number, y: number): void };
 };
 
@@ -127,6 +128,23 @@ async function boot(game: Phaser.Game) {
 		say(`gpu usesShader=${gpuFields.map((f) => f.usesShader).join(',')}`);
 		say(`cpu usesShader=${cpuFields.map((f) => f.usesShader).join(',')}`);
 
+		/**
+		 * Step one GPU frame with the field pinned fully opaque.
+		 *
+		 * An animated field is born transparent and brightens through
+		 * `setVisible`; this harness forces `visible` instead, so the fade has to be
+		 * pinned open *before* the tick that pushes `uAlpha` — otherwise every
+		 * measurement is of an invisible field. The shader quad has no Alpha
+		 * component, so `sprite.alpha` would be no help here.
+		 */
+		const tickGpuLit = (f: PlasmaField, time: number) => {
+			const h = f as unknown as Hack;
+			h._fadeState.fade = 1;
+			h.time = time;
+			(f as unknown as { tick: () => void }).tick();
+			h.sprite.visible = true;
+		};
+
 		/** Drive both paths to an explicit time so they stay comparable. */
 		const renderAt = (t: number) => {
 			for (const f of cpuFields) {
@@ -135,10 +153,7 @@ async function boot(game: Phaser.Game) {
 				h.draw();
 			}
 			for (const f of gpuFields) {
-				const h = f as unknown as Hack;
-				h.time = t - 1 / 24;
-				(f as unknown as { tick: () => void }).tick();
-				h.sprite.visible = true;
+				tickGpuLit(f, t - 1 / 24);
 			}
 		};
 		win.renderAt = renderAt;
@@ -273,10 +288,7 @@ async function boot(game: Phaser.Game) {
 
 		/** Put only GPU field `i` on screen, at the sample time. */
 		function renderGpuOnly(i: number) {
-			const g = gpuFields[i] as unknown as Hack;
-			g.time = 2.5 - 1 / 24;
-			(gpuFields[i] as unknown as { tick: () => void }).tick();
-			g.sprite.visible = true;
+			tickGpuLit(gpuFields[i], 2.5 - 1 / 24);
 		}
 
 		scene.time.delayedCall(120, () => {
@@ -299,10 +311,7 @@ async function boot(game: Phaser.Game) {
 			const bareImg = grab();
 
 			gpuFields.forEach((f) => {
-				const h = f as unknown as Hack;
-				h.time = 2.5 - 1 / 24;
-				(f as unknown as { tick: () => void }).tick();
-				h.sprite.visible = true;
+				tickGpuLit(f, 2.5 - 1 / 24);
 			});
 			await frames(3);
 			const gpuImg = grab();
