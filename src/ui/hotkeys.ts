@@ -89,6 +89,7 @@ export class Hotkeys {
 		}
 		if (!this.ui.dashopen) {
 			this.ui.flashAbilityBtn(1);
+			this.ui.flashAbilityCosts(1);
 			this.ui.abilitiesButtons[1].triggerClick();
 		} else {
 			this.ui.gridSelectUp();
@@ -104,6 +105,7 @@ export class Hotkeys {
 		}
 		if (!this.ui.dashopen) {
 			this.ui.flashAbilityBtn(2);
+			this.ui.flashAbilityCosts(2);
 			this.ui.abilitiesButtons[2].triggerClick();
 		}
 	}
@@ -158,6 +160,7 @@ export class Hotkeys {
 		}
 		if (!this.ui.dashopen) {
 			this.ui.flashAbilityBtn(3);
+			this.ui.flashAbilityCosts(3);
 			this.ui.abilitiesButtons[3].triggerClick();
 		} else {
 			this.ui.closeDash();

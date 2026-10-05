@@ -3073,6 +3073,22 @@ span.pure {
 	}
 }
 
+/*
+ * A cost preview drawn on top of a bar rather than in place of it: the outline
+ * marks the energy an ability needs and the black block covers the part of it
+ * the creature is short on, while the real fill stays visible underneath. It
+ * sits above the bar's own fill and below the tube's glass highlights. The bar
+ * it lives in has a 1px border, so the overlay is pulled back by that border to
+ * line its outline up with the bar's own.
+ */
+.progressbar .bar .costghost {
+	bottom: -1px;
+	left: -1px;
+	opacity: 0;
+	z-index: 2;
+	pointer-events: none;
+}
+
 /* Health bar: animated white-only sheen on ::before, fizz dots left intact on ::after */
 .progressbar .bar.healthbar .currentbar::before {
 	background-image:

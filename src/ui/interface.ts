@@ -58,6 +58,12 @@ type ScoreboardConfirmAction = 'restart' | 'exit';
 /** How long an armed destructive button stays red before it disarms itself. */
 const SCOREBOARD_CONFIRM_TIMEOUT_MS = 5000;
 
+/** How long the cost of an ability the hotkey cannot afford stays on screen. */
+const ABILITY_COST_FLASH_MS = 1000;
+
+/** Fade in/out duration of that cost preview. */
+const ABILITY_COST_FADE_MS = 250;
+
 type ConfirmUnloadState = {
 	ignoreNextConfirmUnload: boolean;
 };
@@ -573,6 +579,7 @@ export class UI {
 	dashAnimSpeed: number;
 	cardAssetCache: Map<string, HTMLImageElement>;
 	cardFlipTimeoutId: ReturnType<typeof setTimeout> | null;
+	abilityCostFlashTimeout: ReturnType<typeof setTimeout> | null;
 	materializeToggled: boolean;
 	glowInterval: ReturnType<typeof setInterval>;
 	hoveringNoActionCreature: boolean;
@@ -1565,6 +1572,7 @@ export class UI {
 		this.dashAnimSpeed = 250; // ms
 		this.cardAssetCache = new Map();
 		this.cardFlipTimeoutId = null;
+		this.abilityCostFlashTimeout = null;
 
 		this.materializeToggled = false;
 		this.lastTurnWarningSecond = null;
@@ -1729,26 +1737,50 @@ export class UI {
 		return process.env.NODE_ENV === 'development' && !this.game.multiplayer && !!this.metaPowers;
 	}
 
+	/**
+	 * How an ability's energy cost reads on the bar: the total it needs and the
+	 * part of that total the creature cannot cover.
+	 *
+	 * The total includes the energy every ability keeps in reserve, and the
+	 * shortfall is measured from the energy the creature has right now, so the
+	 * existing energy is always part of the reading.
+	 *
+	 * @returns {object} Fractions of the bar, or null when the ability has no
+	 * energy cost
+	 */
+	energyCostPreview(abilityId: number) {
+		const creature = this.game.activeCreature,
+			cost = creature?.abilities[abilityId]?.costs?.energy;
+
+		if (typeof cost !== 'number') {
+			return null;
+		}
+
+		const requiredEnergy = cost + creature.stats.reqEnergy;
+
+		return {
+			required: requiredEnergy / creature.stats.energy,
+			missing: requiredEnergy / creature.stats.energy - creature.energy / creature.stats.energy,
+			affordable: requiredEnergy <= creature.energy,
+		};
+	}
+
 	showAbilityCosts(abilityId: number) {
 		const game = this.game,
 			creature = game.activeCreature,
 			ab = creature.abilities[abilityId];
 
 		if (ab.costs !== undefined) {
-			if (typeof ab.costs.energy == 'number') {
-				const costsEnergy = ab.costs.energy + creature.stats.reqEnergy;
-				this.energyBar.previewSize(costsEnergy / creature.stats.energy);
+			const cost = this.energyCostPreview(abilityId);
+
+			if (cost) {
+				this.energyBar.previewSize(cost.required);
 				this.energyBar.setAvailableStyle();
 
-				if (costsEnergy > creature.energy) {
+				if (!cost.affordable) {
 					// Indicate the minimum energy required for the hovered ability
 					// if the requirement is not met
-					this.energyBar.setSize(costsEnergy / creature.stats.energy);
-					this.energyBar.previewSize(
-						costsEnergy / creature.stats.energy - creature.energy / creature.stats.energy,
-					);
-
-					this.energyBar.setUnavailableStyle();
+					this.energyBar.showUnavailableCost(cost.required, cost.missing);
 				}
 			} else {
 				this.energyBar.previewSize(0);
@@ -1770,6 +1802,63 @@ export class UI {
 
 		this.energyBar.previewSize(0);
 		this.healthBar.previewSize(0);
+	}
+
+	/**
+	 * Drop a pending cost flash and remove its overlay.
+	 */
+	private clearAbilityCostFlash() {
+		if (this.abilityCostFlashTimeout !== null) {
+			clearTimeout(this.abilityCostFlashTimeout);
+			this.abilityCostFlashTimeout = null;
+		}
+		this.energyBar.clearCostGhost();
+	}
+
+	/**
+	 * Briefly show what an ability costs when its hotkey is pressed while the
+	 * creature cannot afford it.
+	 *
+	 * A disabled ability button drops the click before it reaches the ability
+	 * (see Button#triggerClick), so the cost the hotkey silently refused would
+	 * only ever be visible to players who happen to hover the button. This draws
+	 * the same preview the hover does, on an overlay bar, so the energy the
+	 * creature does have never disappears.
+	 */
+	flashAbilityCosts(abilityId: number) {
+		// A selected ability or the dash already owns the preview.
+		if (this.selectedAbility !== -1 || this.dashopen) {
+			return;
+		}
+
+		const cost = this.energyCostPreview(abilityId);
+
+		// Only an energy shortfall is worth explaining; every other reason a
+		// hotkey is refused has its own feedback (icon flash, range circles,
+		// cancel icon).
+		if (!cost || cost.affordable) {
+			return;
+		}
+
+		this.energyBar.showCostGhost(cost.required, cost.missing);
+
+		if (this.abilityCostFlashTimeout === null) {
+			// Start hidden, otherwise the overlay is already opaque and the fade
+			// in is invisible.
+			this.energyBar.fadeCostGhost(false, 0);
+			this.energyBar.fadeCostGhost(true, ABILITY_COST_FADE_MS);
+		} else {
+			// Already up: only re-arm the timer. Re-fading would make the cost
+			// blink for as long as the key is held down.
+			clearTimeout(this.abilityCostFlashTimeout);
+		}
+
+		this.abilityCostFlashTimeout = setTimeout(() => {
+			this.abilityCostFlashTimeout = null;
+			this.energyBar.fadeCostGhost(false, ABILITY_COST_FADE_MS, () => {
+				this.energyBar.clearCostGhost();
+			});
+		}, ABILITY_COST_FLASH_MS);
 	}
 
 	selectPreviousAbility() {
@@ -3503,6 +3592,8 @@ export class UI {
 		const applyDataAndUnfold = () => {
 			$abilities.removeClass('p0 p1 p2 p3').addClass('p' + creature.player.id);
 
+			// A cost flash from the outgoing turn must not survive the swap.
+			this.clearAbilityCostFlash();
 			this.energyBar.setSize(creature.oldEnergy / creature.stats.energy);
 			this.healthBar.setSize(creature.oldHealth / creature.stats.health);
 
