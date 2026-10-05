@@ -315,6 +315,17 @@ class TweenAdapter implements TweenHandle {
 	}> = [];
 	private chain: Phaser.Tweens.TweenChain | null = null;
 	private readonly targets: object[];
+	/**
+	 * Per-frame listeners registered through {@link onUpdateCallback}.
+	 *
+	 * Held here rather than subscribed to a live chain, because `to()`, `yoyo()`
+	 * and `repeat()` each replace the chain wholesale; anything bound to the old
+	 * one would be dropped on the next rebuild.
+	 */
+	private readonly updateCallbacks: Array<{
+		fn: (...args: unknown[]) => void;
+		context: unknown;
+	}> = [];
 	private _started = false;
 
 	constructor(scene: Phaser.Scene, initialTween: Phaser.Tweens.Tween) {
@@ -351,6 +362,7 @@ class TweenAdapter implements TweenHandle {
 		if (this.chainSteps.length === 0) {
 			return null;
 		}
+		const update = this.spawnUpdateCallback();
 		const tweens = this.chainSteps.map((step, i) => ({
 			targets: this.targets,
 			duration: step.duration,
@@ -358,6 +370,7 @@ class TweenAdapter implements TweenHandle {
 			delay: step.delay ?? (i === 0 ? 0 : undefined),
 			repeat: step.repeat,
 			yoyo: step.yoyo,
+			onUpdate: update,
 			...step.props,
 		}));
 		return this.scene.tweens.chain({ tweens });
@@ -412,21 +425,13 @@ class TweenAdapter implements TweenHandle {
 
 	yoyo(enable = true): TweenHandle {
 		this.chainSteps.forEach((s) => (s.yoyo = enable));
-		if (this.chain) {
-			this.stopCurrentChain();
-			this.chain = this.buildChain();
-			if (this._started) this.chain?.play();
-		}
+		this.rebuildChain();
 		return this;
 	}
 
 	repeat(count = 1): TweenHandle {
 		this.chainSteps.forEach((s) => (s.repeat = count));
-		if (this.chain) {
-			this.stopCurrentChain();
-			this.chain = this.buildChain();
-			if (this._started) this.chain?.play();
-		}
+		this.rebuildChain();
 		return this;
 	}
 
@@ -439,9 +444,47 @@ class TweenAdapter implements TweenHandle {
 		};
 	}
 
+	/**
+	 * Phaser 4 dispatches `update` from the *child* tweens inside a chain
+	 * (`TweenData`/`TweenFrameData`), never from the `TweenChain` itself, so
+	 * `chain.on('update', …)` never fires. The listeners are therefore handed to
+	 * Phaser as each tween's own `onUpdate` config callback, which is dispatched
+	 * once per property write and is carried across chain rebuilds for free.
+	 *
+	 * Rebuilding to pick up a late listener is safe here: every caller registers
+	 * synchronously in the same expression as the tween it just built, so the
+	 * restart lands on a tween that had not advanced a frame yet.
+	 */
 	onUpdateCallback(cb: (...args: unknown[]) => void, context?: unknown): TweenHandle {
-		this.attachWhenStarted((chain) => chain.on('update', cb, context));
+		this.updateCallbacks.push({ fn: cb, context });
+		this.rebuildChain();
 		return this;
+	}
+
+	private spawnUpdateCallback():
+		| ((tween: unknown, target: unknown, key: string, current: unknown) => void)
+		| undefined {
+		if (this.updateCallbacks.length === 0) {
+			return undefined;
+		}
+		const listeners = this.updateCallbacks;
+		return (tween, target, key, current) => {
+			for (const { fn, context } of listeners) {
+				fn.call(context, tween, target, key, current);
+			}
+		};
+	}
+
+	/** Replace the chain with a freshly built one, preserving playback state. */
+	private rebuildChain(): void {
+		if (!this.chain) {
+			// Nothing to rebuild yet: `start()` will build the chain from
+			// `buildChain()`, which reads the listeners.
+			return;
+		}
+		this.stopCurrentChain();
+		this.chain = this.buildChain();
+		if (this._started) this.chain?.play();
 	}
 
 	/**

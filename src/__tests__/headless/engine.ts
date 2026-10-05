@@ -418,6 +418,40 @@ describe('tween isRunning tracks the real chain state', () => {
 	);
 
 	test(
+		'onUpdateCallback fires every frame, not just on the chain that was current at registration',
+		async () => {
+			const match = await boot();
+			const engine = new Phaser4Engine(match.game, match.scene);
+			const src = { alpha: 0 };
+			let frames = 0;
+			let lastSeen = 0;
+
+			const tween = engine.tween(src).to({ alpha: 1 }, 200, undefined, true);
+			// Registered after the chain exists, and again after a rebuild, because
+			// Phaser 4 rebuilds the chain on `yoyo`/`repeat` and anything bound to
+			// the previous one would silently stop being called.
+			tween.onUpdateCallback(() => {
+				frames += 1;
+				lastSeen = src.alpha;
+			});
+
+			match.stepFrames(3);
+			const afterFirst = frames;
+			expect(afterFirst).toBeGreaterThan(0);
+			expect(lastSeen).toBeGreaterThan(0);
+			expect(lastSeen).toBeLessThan(1);
+
+			tween.yoyo(true).repeat(-1);
+			const afterRebuild = frames;
+			match.stepFrames(3);
+
+			expect(frames).toBeGreaterThan(afterRebuild);
+			expect(afterRebuild).toBe(afterFirst);
+		},
+		BOOT_TIMEOUT,
+	);
+
+	test(
 		'a finite tween stops reading as running once it has finished',
 		async () => {
 			const match = await boot();
