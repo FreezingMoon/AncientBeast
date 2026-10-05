@@ -11,7 +11,7 @@ import { extractTextureFrameInfo, createBitmapDataFromTexture } from '../utility
 import Game from '../game';
 import type { Ability } from '../ability';
 import type { UnitData } from '../data/types';
-import type { RuntimeStateTween, SpriteHandle } from '../engine/types';
+import type { SpriteHandle } from '../engine/types';
 
 const CYCLOPER_UNIT_ID = 15;
 const ACRYLIC_WALL_UNIT_ID = 999;
@@ -1903,19 +1903,8 @@ export default (G: Game) => {
 					};
 
 					const targetStats = G.retrieveCreatureStats(target.type);
-					let activeTweens: RuntimeStateTween[] = [];
-
-					const cleanupTweens = () => {
-						activeTweens.forEach((tween) => {
-							if (tween.isRunning) {
-								tween.stop(true);
-							}
-						});
-						activeTweens = [];
-					};
 
 					const restoreState = () => {
-						cleanupTweens();
 						if (target.sprite) {
 							target.sprite.alpha = 1;
 							target.sprite.visible = true;
@@ -1961,7 +1950,6 @@ export default (G: Game) => {
 								const preview = G.grid.materialize_overlay;
 								const oldPreview = G.grid.secondary_overlay;
 
-								cleanupTweens();
 								// Immediately remove all grid path visualizations
 								G.grid.forEachHex((gridHex: Hex) => {
 									gridHex.cleanOverlayVisualState();
@@ -2004,7 +1992,6 @@ export default (G: Game) => {
 								if (target.sprite) {
 									target.sprite.alpha = 0;
 								}
-								cleanupTweens();
 								G.grid.previewCreature(hex.pos, targetStats, target.player);
 							},
 							hexes: extendedDestinations,

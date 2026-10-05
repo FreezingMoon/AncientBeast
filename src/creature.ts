@@ -31,7 +31,6 @@ import type {
 	GameEngine,
 	GroupHandle,
 	NativePassthrough,
-	RuntimeStateTween,
 	SpriteHandle,
 	TweenHandle,
 } from './engine/types';
@@ -2539,7 +2538,7 @@ type HintState = {
 	hintType: CreatureHintType | 'confirm_deleted';
 	tweenAlpha: TweenHandle | null;
 	tweenPos: TweenHandle | null;
-	tweenBounce: RuntimeStateTween | null;
+	tweenBounce: TweenHandle | null;
 	/** Resting y, captured on first bounce so a stop returns the hint to it. */
 	baseY?: number;
 	/** `confirm` hints that must not animate into place, e.g. skip turn. */
@@ -2596,10 +2595,10 @@ class CreatureSprite {
 	private _healthIndicatorGroup: GroupHandle;
 	private _healthIndicatorSprite: SpriteHandle;
 	private _healthIndicatorText: SpriteHandle;
-	private _healthIndicatorTween: RuntimeStateTween | null | undefined;
+	private _healthIndicatorTween: TweenHandle | null | undefined;
 	private _noActionHintElements: SpriteHandle[] = [];
 	private _noActionHintGroup: SpriteHandle | null = null;
-	private _noActionHintTween: RuntimeStateTween | null = null;
+	private _noActionHintTween: TweenHandle | null = null;
 	private _healthBounceOffset = 0; // y-offset driven by the bounce tween
 	private _healthUiGroup: GroupHandle; // elevated layer for active/hovered indicators
 	private _healthInUiGroup = false; // whether the indicator is currently elevated
@@ -3705,34 +3704,35 @@ class CreatureSprite {
 	}
 
 	setHealthBounce(enable: boolean) {
-		if (enable) {
-			const bounceHeight = 10;
-			const durationMS = 350;
-
-			if (this._healthIndicatorTween && this._healthIndicatorTween.isRunning) {
-				return;
-			}
-
-			if (!this._healthIndicatorTween || !this._healthIndicatorTween.isRunning) {
-				const bounceTgt = { offset: -bounceHeight };
-				const bounceSrc = { offset: 0 };
-				this._healthBounceOffset = 0;
-
-				this._healthIndicatorTween = this._gameEngine
-					.tween(bounceSrc)
-					.to(bounceTgt, durationMS, Easing.Quadratic.InOut, true)
-					.yoyo(true)
-					.repeat(-1);
-				this._healthIndicatorTween.onUpdateCallback(() => {
-					this._healthBounceOffset = bounceSrc.offset;
-				});
-			}
-		} else {
-			if (this._healthIndicatorTween && this._healthIndicatorTween.isRunning) {
+		if (!enable) {
+			if (this._healthIndicatorTween?.isRunning) {
 				this._healthIndicatorTween.stop();
 				this._healthBounceOffset = 0;
 			}
+			return;
 		}
+
+		// A second hover-in must not replace the bounce already playing. This reads
+		// the tween chain's real state, so it only short-circuits while that one
+		// runs — a bounce that has been stopped is correctly replaced below.
+		if (this._healthIndicatorTween?.isRunning) {
+			return;
+		}
+
+		const bounceHeight = 10;
+		const durationMS = 350;
+		const bounceTgt = { offset: -bounceHeight };
+		const bounceSrc = { offset: 0 };
+		this._healthBounceOffset = 0;
+
+		this._healthIndicatorTween = this._gameEngine
+			.tween(bounceSrc)
+			.to(bounceTgt, durationMS, Easing.Quadratic.InOut, true)
+			.yoyo(true)
+			.repeat(-1);
+		this._healthIndicatorTween.onUpdateCallback(() => {
+			this._healthBounceOffset = bounceSrc.offset;
+		});
 	}
 
 	getPos() {
@@ -3795,7 +3795,7 @@ class CreatureSprite {
 			return;
 		}
 
-		if (this._noActionHintTween && this._noActionHintTween.isRunning) {
+		if (this._noActionHintTween?.isRunning) {
 			return;
 		}
 
@@ -3838,7 +3838,7 @@ class CreatureSprite {
 		const noActionBounceHeight = 10;
 		const noActionBounceSpeed = 350;
 		const startNoActionBounce = (hintElement: SpriteHandle) => {
-			if (hintState(hintElement).tweenBounce && hintState(hintElement).tweenBounce.isRunning) {
+			if (hintState(hintElement).tweenBounce?.isRunning) {
 				return;
 			}
 

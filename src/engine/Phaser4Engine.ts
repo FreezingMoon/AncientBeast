@@ -333,6 +333,20 @@ class TweenAdapter implements TweenHandle {
 		return this.chainSteps.reduce((total, step) => total + step.duration, 0);
 	}
 
+	/**
+	 * Whether the chain is playing right now.
+	 *
+	 * The bounce and cleanup code guards on this to avoid restarting work that is
+	 * already running, and `src/__tests__/creature.ts` pins the contract against a
+	 * mock: true while playing, false once `stop()` has been called. Phaser 4's own
+	 * flag is `BaseTween#isPlaying()`, which reports false while a tween is paused,
+	 * pending removal (which is what `stop()` sets) or finished. A chain that has
+	 * not been built yet has nothing to play, so it reads as not running.
+	 */
+	get isRunning(): boolean {
+		return this.chain?.isPlaying() ?? false;
+	}
+
 	private buildChain(): Phaser.Tweens.TweenChain | null {
 		if (this.chainSteps.length === 0) {
 			return null;

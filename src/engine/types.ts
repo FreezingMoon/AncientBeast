@@ -80,25 +80,15 @@ export interface TweenHandle {
 		addOnce(cb: (...args: unknown[]) => void, context?: unknown): void;
 	};
 	onUpdateCallback(cb: (...args: unknown[]) => void, context?: unknown): TweenHandle;
+	/**
+	 * Whether the tween is playing right now.
+	 *
+	 * False before `start()`, after `stop()`, and once the chain has run out —
+	 * the same reading as Phaser 4's `BaseTween#isPlaying()`, which the adapter
+	 * forwards. Callers use it to avoid restarting work that is already running.
+	 */
+	readonly isRunning: boolean;
 }
-
-/**
- * A `TweenHandle` as the legacy bounce/cleanup call sites read it.
- *
- * Several places open with `if (tween.isRunning)` to avoid restarting work that
- * is already playing. The tween adapter above exposes `start`/`stop`/`duration`
- * and no state flag at all, so `isRunning` is always `undefined`, those guards
- * never fire, and the code behind them runs on every call. Phaser 4's own
- * equivalent is `Tween#isPlaying()`.
- *
- * Declared here rather than papered over with `any` at each site, so the reads
- * keep compiling and the shape of the gap is recorded once.
- */
-export type RuntimeStateTween = TweenHandle & {
-	isRunning?: boolean;
-	/** Phaser 2's `Tween.stop(destroy)`; the flag is accepted but unused here. */
-	stop(destroy?: boolean): TweenHandle;
-};
 
 // ─── Sprite / Game Object ─────────────────────────────────────────────────────
 

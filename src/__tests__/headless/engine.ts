@@ -34,6 +34,12 @@
 import { afterEach, beforeAll, describe, expect, jest, test } from '@jest/globals';
 import { bootHeadlessMatch, HEADLESS_FRAME_MS, type HeadlessMatch } from '../../phaser/headless';
 import { loadRealPhaser } from '../../phaser/runtime';
+import { Phaser4Engine } from '../../engine/Phaser4Engine';
+
+/** Whether a sprite is part-way along a 0 -> 100 tween. */
+function isPartWay(sp: { x: number }): boolean {
+	return sp.x > 0 && sp.x < 100;
+}
 
 /** Phaser's base64 defaults must finish decoding before a scene can start. */
 const BOOT_TIMEOUT = 60_000;
@@ -334,6 +340,98 @@ describe('settle', () => {
 			expect(settled).toBe(false);
 			expect(match.now).toBeGreaterThanOrEqual(320);
 			expect(match.frames).toBeLessThan(1_000);
+		},
+		BOOT_TIMEOUT,
+	);
+});
+
+describe('tween isRunning tracks the real chain state', () => {
+	/**
+	 * The adapter's `isRunning` is what the bounce and cleanup guards read to avoid
+	 * restarting work that is already running. `src/__tests__/creature.ts` pins that
+	 * guard logic against a *mock* tween, which means the guard could pass while the
+	 * real adapter underneath reported `undefined` and never fired. These cover the
+	 * adapter itself, against a real `Phaser.Tweens.TweenChain`.
+	 */
+	test(
+		'a tween reads as not running before start, running while playing, and not running once stopped',
+		async () => {
+			const match = await boot();
+			const engine = new Phaser4Engine(match.game, match.scene);
+			const sprite = match.scene.add.sprite(0, 0, '__DEFAULT');
+			const tween = engine.tween(sprite).to({ x: 100 }, 200);
+
+			// Built but never started: there is a chain to come, nothing running yet.
+			expect(tween.isRunning).toBe(false);
+
+			tween.start();
+			match.stepFrames(2);
+			expect(isPartWay(sprite)).toBe(true);
+			expect(tween.isRunning).toBe(true);
+
+			tween.stop();
+			expect(tween.isRunning).toBe(false);
+		},
+		BOOT_TIMEOUT,
+	);
+
+	test(
+		'an auto-starting tween is running without a separate start()',
+		async () => {
+			const match = await boot();
+			const engine = new Phaser4Engine(match.game, match.scene);
+			const sprite = match.scene.add.sprite(0, 0, '__DEFAULT');
+
+			engine.tween(sprite).to({ x: 100 }, 200, undefined, true);
+			match.stepFrames(2);
+
+			expect(isPartWay(sprite)).toBe(true);
+		},
+		BOOT_TIMEOUT,
+	);
+
+	test(
+		'the infinite yoyo bounce stays running for as long as it is left alone',
+		async () => {
+			const match = await boot();
+			const engine = new Phaser4Engine(match.game, match.scene);
+			const bounceSrc = { offset: 0 };
+
+			// The exact shape `CreatureSprite.setHealthBounce` builds: auto-starting,
+			// yoyo, infinite repeat. `yoyo()` and `repeat()` each rebuild the chain,
+			// so this is also the case where a lost `play()` on the rebuilt chain
+			// would surface as "not running".
+			const bounce = engine
+				.tween(bounceSrc)
+				.to({ offset: -10 }, 350, undefined, true)
+				.yoyo(true)
+				.repeat(-1);
+
+			match.stepFrames(4);
+			expect(bounce.isRunning).toBe(true);
+
+			// Well past one 350ms cycle, so the yoyo has wrapped at least once.
+			match.stepFrames(60);
+			expect(bounce.isRunning).toBe(true);
+		},
+		BOOT_TIMEOUT,
+	);
+
+	test(
+		'a finite tween stops reading as running once it has finished',
+		async () => {
+			const match = await boot();
+			const engine = new Phaser4Engine(match.game, match.scene);
+			const sprite = match.scene.add.sprite(0, 0, '__DEFAULT');
+			const tween = engine.tween(sprite).to({ x: 100 }, 100).start();
+
+			match.stepFrames(1);
+			expect(tween.isRunning).toBe(true);
+
+			await match.settle();
+
+			expect(sprite.x).toBe(100);
+			expect(tween.isRunning).toBe(false);
 		},
 		BOOT_TIMEOUT,
 	);
