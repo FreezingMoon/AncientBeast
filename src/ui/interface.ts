@@ -51,6 +51,12 @@ const DEV_RELOAD_PROMPT_BODY = 'Insert coin to continue';
 const MANUAL_REFRESH_PROMPT_TITLE = 'A game is in progress';
 const MANUAL_REFRESH_PROMPT_BODY = 'Reload now and abandon this match?';
 
+/** Scoreboard buttons that discard the match and therefore need a second activation. */
+type ScoreboardConfirmAction = 'restart' | 'exit';
+
+/** How long an armed destructive button stays red before it disarms itself. */
+const SCOREBOARD_CONFIRM_TIMEOUT_MS = 5000;
+
 type ConfirmUnloadState = {
 	ignoreNextConfirmUnload: boolean;
 };
@@ -605,6 +611,9 @@ export class UI {
 	_abilityPanelAnimating: boolean;
 	ignoreNextConfirmUnload: boolean;
 	scoreboardGameOver: boolean;
+	/** Destructive scoreboard action awaiting its second activation, if any. */
+	scoreboardConfirmAction: ScoreboardConfirmAction | null;
+	scoreboardConfirmTimer: ReturnType<typeof setTimeout> | null;
 	// Guards the deferred pointer-events disable in closeDash(): a re-open
 	// before the fade callback runs must not have pointer-events yanked by
 	// the stale close's timeout.
@@ -625,6 +634,8 @@ export class UI {
 		this.$grid = $j(this.makeCreatureGrid(document.getElementById('creaturerasterwrapper')));
 		this.$activebox = $j('#activebox');
 		this.$scoreboard = $j('#scoreboard');
+		this.scoreboardConfirmAction = null;
+		this.scoreboardConfirmTimer = null;
 		// The logo is revealed while holding Ctrl; keep it horizontally centered
 		// on the viewport instead of hardcoding an off-center x.
 		this.brandlogo = game.gameEngine.add.image(this.getBrandLogoCenterX(), 200, 'AncientBeastLogo');
@@ -835,7 +846,13 @@ export class UI {
 				$button: $j('#save.button'),
 				hasShortcut: true,
 				click: () => {
+					// Saving the log is not destructive, so it never joins the
+					// confirmation dance — it just drops a pending arm.
+					this.disarmScoreboardConfirm();
 					game.gamelog.save();
+				},
+				mouseleave: () => {
+					this.disarmScoreboardConfirm();
 				},
 				state: ButtonStateEnum.hidden,
 			},
@@ -848,6 +865,12 @@ export class UI {
 				$button: $j('#restart.button'),
 				hasShortcut: true,
 				click: () => {
+					// Restarting throws the match away, so the first activation only
+					// arms the button (red outline) and the second one commits.
+					if (!this.confirmScoreboardAction('restart')) {
+						return;
+					}
+
 					game.gamelog.add({
 						action: 'restart',
 					});
@@ -869,6 +892,9 @@ export class UI {
 						console.error('[Game] Could not restart the match', error);
 					});
 				},
+				mouseleave: () => {
+					this.disarmScoreboardConfirm('restart');
+				},
 				state: ButtonStateEnum.hidden,
 			},
 			{ isAcceptingInput: this.configuration.isAcceptingInput },
@@ -883,10 +909,19 @@ export class UI {
 					if (this.dashopen) {
 						return;
 					}
+
+					// Same two-step guard as restart: leaving discards the match.
+					if (!this.confirmScoreboardAction('exit')) {
+						return;
+					}
+
 					game.gamelog.add({
 						action: 'exit',
 					});
 					game.resetGame();
+				},
+				mouseleave: () => {
+					this.disarmScoreboardConfirm('exit');
 				},
 				state: ButtonStateEnum.normal,
 			},
@@ -1638,6 +1673,7 @@ export class UI {
 
 		$j('#tabwrapper a').removeAttr('href'); // Empty links
 
+		this.disarmScoreboardConfirm();
 		this.btnExit.changeState(ButtonStateEnum.hidden);
 		this.btnSaveLog.changeState(ButtonStateEnum.hidden);
 		this.btnRestartMatch.changeState(ButtonStateEnum.hidden);
@@ -2926,6 +2962,54 @@ export class UI {
 		}
 	}
 
+	private getScoreboardConfirmButton(action: ScoreboardConfirmAction): Button {
+		return action === 'restart' ? this.btnRestartMatch : this.btnExit;
+	}
+
+	/**
+	 * Two-step gate for the scoreboard's destructive actions (restart, exit).
+	 * Returns true only on the second activation, when the caller may proceed.
+	 */
+	confirmScoreboardAction(action: ScoreboardConfirmAction): boolean {
+		if (this.scoreboardConfirmAction === action) {
+			this.disarmScoreboardConfirm(action);
+			return true;
+		}
+
+		// Arming a new action cancels the previous one: only one button is ever red.
+		this.disarmScoreboardConfirm();
+		this.scoreboardConfirmAction = action;
+		this.getScoreboardConfirmButton(action).$button.addClass('confirm');
+		this.scoreboardConfirmTimer = setTimeout(() => {
+			this.disarmScoreboardConfirm();
+		}, SCOREBOARD_CONFIRM_TIMEOUT_MS);
+
+		return false;
+	}
+
+	/**
+	 * Un-arm a destructive scoreboard button. Without an argument every armed
+	 * button is cancelled, which is what happens when the scoreboard is closed or
+	 * a non-destructive action is used.
+	 */
+	disarmScoreboardConfirm(action?: ScoreboardConfirmAction) {
+		if (action !== undefined && action !== this.scoreboardConfirmAction) {
+			return;
+		}
+
+		if (this.scoreboardConfirmTimer !== null) {
+			clearTimeout(this.scoreboardConfirmTimer);
+			this.scoreboardConfirmTimer = null;
+		}
+
+		if (this.scoreboardConfirmAction === null) {
+			return;
+		}
+
+		this.getScoreboardConfirmButton(this.scoreboardConfirmAction).$button.removeClass('confirm');
+		this.scoreboardConfirmAction = null;
+	}
+
 	toggleScoreboard(gameOver, disconnectReason?: string) {
 		// If the scoreboard is already displayed, hide it and return
 		if (!this.$scoreboard.hasClass('hide')) {
@@ -2937,6 +3021,7 @@ export class UI {
 		this.closeDash();
 		this.toggleMusicPlayer(false);
 
+		this.disarmScoreboardConfirm();
 		this.scoreboardGameOver = gameOver;
 		this.btnSaveLog.changeState(ButtonStateEnum.normal);
 		this.btnRestartMatch.changeState(ButtonStateEnum.normal);
@@ -3040,6 +3125,7 @@ export class UI {
 			return;
 		}
 		this.scoreboardGameOver = false;
+		this.disarmScoreboardConfirm();
 		this.btnSaveLog.changeState(ButtonStateEnum.hidden);
 		this.btnRestartMatch.changeState(ButtonStateEnum.hidden);
 		this.btnExit.changeState(ButtonStateEnum.hidden);
