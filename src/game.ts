@@ -1677,8 +1677,20 @@ export default class Game {
 		// same transition, causing races between the two players' turn state.
 		const previousActiveCreature = this.activeCreature;
 
-		this.UI.closeDash();
-		this.UI.btnToggleDash.changeState('normal');
+		// The dash belongs to the turn being handed over, so it is dismissed
+		// whenever the next queued creature is a different one. Match start is
+		// the exception: setup() parks activeCreature on the first queued
+		// creature as a placeholder and then calls nextCreature() at turn 0,
+		// which only defers to nextRound() — which calls straight back in here
+		// for the real first turn. Both entries used to dismiss the dash, and
+		// the second one lands a few hundred milliseconds after setup(), long
+		// enough for a player who opened the dash during the match start to
+		// watch it slam shut again over that very same creature.
+		if (this.queue.queue[0] !== this.activeCreature) {
+			this.UI.closeDash();
+			this.UI.btnToggleDash.changeState('normal');
+		}
+
 		this.grid.clearAllXray(); // Clear Xray without re-triggering ghostOverlap
 
 		if (this.gameState == 'ended') {

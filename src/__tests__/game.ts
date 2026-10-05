@@ -911,6 +911,99 @@ describe('Game nextCreature turn-update broadcast ownership', () => {
 	});
 });
 
+describe('Game nextCreature dash dismissal', () => {
+	// The dash holds the outgoing turn's creature, so it is dismissed when the
+	// hand-over is to a different creature. A match start is not a hand-over:
+	// setup() parks activeCreature on the first queued creature as a placeholder
+	// and calls nextCreature() at turn 0, which only defers to nextRound() —
+	// which calls straight back in for the real first turn. Both entries used to
+	// dismiss the dash, and the second landed a few hundred milliseconds after
+	// setup(), slamming shut a dash the player had opened during the match start
+	// over that very same creature.
+	beforeEach(() => {
+		jest.useFakeTimers();
+	});
+
+	afterEach(() => {
+		jest.useRealTimers();
+	});
+
+	const makeDashMockGame = (
+		activeCreature: Record<string, unknown>,
+		overrides: Record<string, unknown> = {},
+	): Game =>
+		({
+			UI: {
+				closeDash: jest.fn(),
+				btnToggleDash: { changeState: jest.fn() },
+				updateActivebox: jest.fn(),
+				updateQueueDisplay: jest.fn(),
+				_abilityPanelAnimating: false,
+			},
+			grid: { clearAllXray: jest.fn(), suppressNextHoverRefresh: false },
+			gameState: 'playing',
+			stopTimer: jest.fn(),
+			queue: {
+				isCurrentEmpty: jest.fn(() => false),
+				queue: [activeCreature],
+			},
+			turn: 0,
+			activeCreature,
+			soundsys: { playHeartBeat: jest.fn() },
+			log: jest.fn(),
+			channels: createGameChannels(),
+			multiplayer: false,
+			updateQueueDisplay: jest.fn(),
+			onStartOfRound: jest.fn(),
+			// nextRound() re-enters nextCreature(); keep the prototype reachable
+			// so the trampoline runs its real continuation.
+			nextRound: Game.prototype.nextRound,
+			nextCreature: Game.prototype.nextCreature,
+			...overrides,
+		} as unknown as Game);
+
+	const makeCreature = (id: number) => ({
+		id,
+		type: '--',
+		dead: false,
+		player: { id: 0 },
+		updateHealth: jest.fn(),
+		activate: jest.fn(),
+	});
+
+	test('leaves the dash alone while the match start hands over to the same creature', () => {
+		const first = makeCreature(1);
+		const game = makeDashMockGame(first);
+
+		// setup()'s entry at turn 0...
+		game.nextCreature();
+		jest.runAllTimers();
+
+		// ...then the trampoline's nextRound() bumping the turn to 1 and calling
+		// back in with the same creature still queued.
+		expect(game.turn).toBe(1);
+		expect(game.UI.closeDash).not.toHaveBeenCalled();
+		expect(game.UI.btnToggleDash.changeState).not.toHaveBeenCalledWith('normal');
+	});
+
+	test('still dismisses the dash when the hand-over reaches a different creature', () => {
+		const game = makeDashMockGame(makeCreature(1), {
+			turn: 1,
+			// A different creature is now at the head of the queue.
+			queue: {
+				isCurrentEmpty: jest.fn(() => false),
+				queue: [makeCreature(2)],
+			},
+		});
+
+		game.nextCreature();
+		jest.runAllTimers();
+
+		expect(game.UI.closeDash).toHaveBeenCalled();
+		expect(game.UI.btnToggleDash.changeState).toHaveBeenCalledWith('normal');
+	});
+});
+
 describe('Game.applyMoveRecord — shared by action() replay and live multiplayer relay', () => {
 	// Regression coverage for movement desyncing: this is the single place that
 	// turns a recorded/relayed "move" action into a real Creature.moveTo() call,
