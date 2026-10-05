@@ -1458,7 +1458,8 @@ div.section.info {
 	}
 }
 
-// No-target feedback: ::after isolates the icon so filter:invert skips bg-color and frame.
+// Refusal feedback (unmet requirement, already used, no target):
+// ::after isolates the icon so filter:invert skips bg-color and frame.
 #abilities .button.iconInvertFlash {
 	background-image: none !important;
 	&::before { z-index: 2; }

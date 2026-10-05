@@ -1833,9 +1833,9 @@ export class UI {
 
 		const cost = this.energyCostPreview(abilityId);
 
-		// Only an energy shortfall is worth explaining; every other reason a
-		// hotkey is refused has its own feedback (icon flash, range circles,
-		// cancel icon).
+		// Only an energy shortfall is worth explaining on the bar itself; every
+		// refusal flashes the icon (see flashAbilityBtn), and targetless ones
+		// also pulse the range circles.
 		if (!cost || cost.affordable) {
 			return;
 		}
@@ -3498,17 +3498,43 @@ export class UI {
 		setTimeout(() => $btn.removeClass('cancelIcon'), 1000);
 	}
 
+	/**
+	 * True when activating ability `i` is impossible right now, whatever the
+	 * reason: an unmet requirement (energy, plasma, endurance, stats, movement,
+	 * targets) or an ability that is already spent.
+	 *
+	 * checkAbilities() paints those buttons `disabled`, and a disabled button
+	 * drops the click before the ability ever sees it, so without this the icon
+	 * would give no feedback at all. Mirrors checkAbilities() so every refusal
+	 * flashes the icon instead of only "already used" and "no targets".
+	 *
+	 * @param i {number} Ability slot, 0 being the passive slot.
+	 */
+	isAbilityBlocked(i: number): boolean {
+		const game = this.game;
+		const ab = game.activeCreature?.abilities[i];
+		if (!ab) {
+			return false;
+		}
+		if (ab.used) {
+			return true;
+		}
+
+		// The passive slot has no player-activated requirements: its require() is a
+		// trigger gate, not something the player can satisfy, and checkAbilities()
+		// always writes a message on it. `passiveCycle` means other abilities are
+		// usable, so only `passiveUnavailable` counts as a refusal.
+		if (i === 0) {
+			return ab.message === game.msg.abilities.passiveUnavailable;
+		}
+
+		return !ab.require();
+	}
+
 	flashAbilityBtn(i: number) {
-		const ab = this.game.activeCreature?.abilities[i];
-		if (
-			!ab ||
-			!(
-				ab.message === this.game.msg.abilities.noTarget ||
-				ab.used ||
-				ab.message === this.game.msg.abilities.passiveUnavailable
-			)
-		)
+		if (!this.isAbilityBlocked(i)) {
 			return;
+		}
 		const $btn = this.abilitiesButtons[i].$button;
 
 		// During bot turns, skip the blink animation and just show cancelIcon briefly
