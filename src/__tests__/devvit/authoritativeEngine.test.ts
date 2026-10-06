@@ -36,6 +36,10 @@ jest.mock('../../ui/interface', () => {
 					dashopen: false,
 					materializeToggled: false,
 					_abilityPanelAnimating: false,
+					// `destroyPhaser()` clears the real UI's glow
+					// interval on teardown; the stub must report
+					// "none" rather than fabricate a handle.
+					glowInterval: undefined,
 				},
 				{
 					get: (t, p) => (p in t ? (t as any)[p] : deepNoop()),
@@ -57,6 +61,7 @@ import {
 	settle,
 	serializeState,
 	replayIntents,
+	destroyHeadlessGame,
 	type HeadlessConfig,
 } from '../../devvit/headlessGame';
 import type { Intent } from '../../devvit/authoritativeTypes';
@@ -116,6 +121,19 @@ function stopTimers(game: any) {
 
 const CONFIG: Partial<HeadlessConfig> = { players: [0, 1] };
 
+/**
+ * Every game this suite boots, torn down in `afterAll`. Destroying in
+ * reverse creation order matters: each headless driver replaces the
+ * process's wall clock on boot and puts back whatever it found on
+ * restore, so the last driver installed has to be the first restored
+ * for the worker's `Date.now` to end up as it was found.
+ */
+const liveGames: any[] = [];
+
+/** The host timers, captured before `beforeAll` stubs them out. */
+const realSetTimeout = globalThis.setTimeout;
+const realClearTimeout = globalThis.clearTimeout;
+
 describe('Authoritative server engine', () => {
 	beforeAll(async () => {
 		await loadRealPhaser();
@@ -140,6 +158,17 @@ describe('Authoritative server engine', () => {
 		}) as typeof clearTimeout;
 	});
 
+	afterAll(() => {
+		// Put the host timers back before tearing the games down, so
+		// anything teardown schedules runs on the real event loop.
+		globalThis.setTimeout = realSetTimeout;
+		globalThis.clearTimeout = realClearTimeout;
+		for (let i = liveGames.length - 1; i >= 0; i--) {
+			destroyHeadlessGame(liveGames[i]);
+		}
+		liveGames.length = 0;
+	});
+
 	test('same ordered intents converge on independent engine instances', async () => {
 		const abilities = await loadAbilities();
 
@@ -156,6 +185,7 @@ describe('Authoritative server engine', () => {
 		// one game per lobby on the server, one at a time in the simulation — and
 		// `replayIntents` below is already the sequential shape.
 		const g1 = await createHeadlessGame(abilities, { config: CONFIG });
+		liveGames.push(g1);
 		stopTimers(g1);
 
 		const intents: Intent[] = [];
@@ -177,6 +207,7 @@ describe('Authoritative server engine', () => {
 		// ever fails, the engine has hidden nondeterminism and the
 		// server-authoritative model cannot hold.
 		const g2 = await createHeadlessGame(abilities, { config: CONFIG });
+		liveGames.push(g2);
 		stopTimers(g2);
 		for (const intent of intents) {
 			applyIntent(g2, intent);
@@ -190,6 +221,7 @@ describe('Authoritative server engine', () => {
 	test('replaying the persisted intent log reconstructs authoritative state', async () => {
 		const abilities = await loadAbilities();
 		const g = await createHeadlessGame(abilities, { config: CONFIG });
+		liveGames.push(g);
 		stopTimers(g);
 
 		const intents: Intent[] = [];
@@ -206,6 +238,7 @@ describe('Authoritative server engine', () => {
 
 		// Serverless-safe reconstruction: no live instance, just config + log.
 		const rebuilt = await replayIntents(abilities, CONFIG, intents);
+		liveGames.push(rebuilt);
 		stopTimers(rebuilt);
 
 		expect(serializeState(rebuilt)).toEqual(directState);

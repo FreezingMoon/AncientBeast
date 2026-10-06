@@ -67,6 +67,15 @@ export class EngineAuthoritativeProcessor {
 		const log = await this.store.getLog(code);
 		const abilities = await this.resolveAbilities();
 		const engine = await LobbyEngine.fromLog(config, log, abilities);
-		return engine.getState();
+		try {
+			return engine.getState();
+		} finally {
+			// The reconstruction exists only to produce this snapshot.
+			// Left alive it keeps a whole game engine — clock interval,
+			// deferred work, Phaser instance — running for the rest of
+			// the process: one leak per `step()`, and enough live
+			// handles to stop a test worker from exiting gracefully.
+			engine.destroy();
+		}
 	}
 }

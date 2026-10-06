@@ -4,6 +4,7 @@ import {
 	applyIntent,
 	settle,
 	serializeState,
+	destroyHeadlessGame,
 	type HeadlessConfig,
 } from './headlessGame';
 import type { AuthoritativeState, Intent } from './authoritativeTypes';
@@ -81,5 +82,19 @@ export class LobbyEngine {
 
 	getLog(): readonly Intent[] {
 		return this.intents;
+	}
+
+	/**
+	 * Tear the engine's game down and release every handle it holds
+	 * (clock interval, deferred work, Phaser instance, virtual clock).
+	 *
+	 * Reconstructions are short-lived by design — a serverless host
+	 * rebuilds from the log, reads one snapshot, and is done — so an
+	 * engine that is not destroyed leaks a live game for the rest of
+	 * the process. `create()`-built engines that stay live for a lobby
+	 * should be destroyed when the lobby closes.
+	 */
+	destroy(): void {
+		destroyHeadlessGame(this.game);
 	}
 }

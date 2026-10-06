@@ -129,6 +129,13 @@ function makeUiStub() {
 		materializeToggled: false,
 		_abilityPanelAnimating: false,
 		logScrollEnabled: false,
+		// The real UI starts a glow `setInterval` in its constructor
+		// (see `ui/interface.ts`). The headless engine replaces that
+		// UI with this stub, so the stub must report "no interval"
+		// rather than fabricate one: `destroyPhaser()` clears
+		// `glowInterval` on teardown, and a fabricated handle would
+		// throw (or leak) instead of being a no-op.
+		glowInterval: undefined,
 		plasmaBars: [],
 		chat: { hide: deepNoop(), addMsg: deepNoop(), suppressMessage: deepNoop() },
 		cardWrapper: { find: () => ({ hide: deepNoop(), show: deepNoop() }) },
@@ -298,7 +305,43 @@ export async function createHeadlessGame(
 	// `setup()` builds the real `Animations` on top of the real scene. Movement
 	// is therefore tween-driven, and `settle()` advances the frames that move
 	// those tweens along — the same path the browser takes, minus the pixels.
-	game.setup(config.gameMode);
+	// `setup()`'s own `nextCreature()` call is the one stock
+	// entry point the per-game patch below cannot reach,
+	// because it runs before the patch is installed. The
+	// stock implementation answers it with a
+	// visibility-aware ~300ms `setTimeout` — wall-clock
+	// time a virtual clock cannot advance. On any replay
+	// long enough to outlive that delay, the turn hand-over
+	// it carries lands at a wall-clock-dependent point, so
+	// two replays of the same intent log diverge. Capture
+	// the timers `setup()` schedules and drop the long
+	// ones: the patched 1ms flow takes over from the next
+	// call (a move completing, a skip, a delay), which is
+	// the path a fast match already takes.
+	const droppedTimers: Array<ReturnType<typeof setTimeout>> = [];
+	const hostSetTimeout = globalThis.setTimeout;
+	(globalThis as { setTimeout: typeof setTimeout }).setTimeout = ((
+		callback: (...args: unknown[]) => void,
+		delay?: number,
+		...rest: unknown[]
+	) => {
+		const handle = hostSetTimeout(callback, delay, ...rest);
+		// The stock hand-over is the only long timer
+		// `setup()` schedules; anything else keeps its
+		// schedule.
+		if (delay !== undefined && delay >= 100) {
+			droppedTimers.push(handle);
+		}
+		return handle;
+	}) as typeof setTimeout;
+	try {
+		game.setup(config.gameMode);
+	} finally {
+		(globalThis as { setTimeout: typeof setTimeout }).setTimeout = hostSetTimeout;
+	}
+	for (const handle of droppedTimers) {
+		clearTimeout(handle);
+	}
 
 	// Collapse ability animation delays (350ms/500ms) to ~1ms so the engine
 	// advances without real-time waiting. Logic is untouched — only cosmetic
@@ -348,9 +391,14 @@ export async function createHeadlessGame(
 				}
 			}
 			const iv = setInterval(() => {
-				if (!g.freezedInput) {
+				// A bare `setInterval` nothing else can reach: it only ever
+				// clears itself, so a game torn down while still frozen (a
+				// match that ended mid-animation) would poll forever and
+				// keep the process's event loop busy. `tornDown` is raised
+				// by `destroyPhaser()`, which is what teardown calls.
+				if (!g.freezedInput || g.tornDown) {
 					clearInterval(iv);
-					opt.callback();
+					if (!g.tornDown) opt.callback();
 				}
 			}, 1);
 		};
@@ -445,6 +493,15 @@ export async function createHeadlessGame(
 		(HexClass.prototype as { _simGetterPatched?: boolean })._simGetterPatched = true;
 	}
 
+	// `setup()` built the real UI, whose constructor starts a glow
+	// `setInterval`. That instance is replaced by the stub below, so
+	// its interval has to be stopped here — otherwise every headless
+	// game leaks a live `setInterval` for the rest of the process's
+	// life, on any host that runs the real UI (the Devvit server
+	// does; the Jest suites mock the UI module instead).
+	if (game.UI?.glowInterval != null) {
+		clearInterval(game.UI.glowInterval);
+	}
 	game.UI = makeUiStub();
 
 	game.grid.allhexes.forEach((hex: any) => {
@@ -543,6 +600,27 @@ export async function createHeadlessGame(
 	});
 
 	return game;
+}
+
+/**
+ * Tear down a game built by {@link createHeadlessGame}.
+ *
+ * Clearing `timeInterval` (what the simulation's `stopTimers` does)
+ * is not enough: a game also holds the `defer`/`poll` work `setup()`
+ * scheduled, plus the Phaser instance itself, and its headless driver
+ * has replaced the wall clock and frame callbacks for the whole
+ * process. `destroyPhaser()` is the engine's own teardown — it raises
+ * `tornDown`, cancels the deferred work, detaches the loader
+ * subscriptions and destroys the Phaser game — and restoring the
+ * driver puts the clock back. Without this, every match a process
+ * boots keeps a live `setInterval` firing for the rest of that
+ * process's life, which is enough for a Jest worker to fail to exit
+ * gracefully.
+ */
+export function destroyHeadlessGame(game: any): void {
+	if (!game) return;
+	game.destroyPhaser?.();
+	game.headlessDriver?.restore?.();
 }
 
 // ─── Step loop ───────────────────────────────────────────────────────────────

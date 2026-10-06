@@ -943,6 +943,10 @@ describe('Game nextCreature dash dismissal', () => {
 			grid: { clearAllXray: jest.fn(), suppressNextHoverRefresh: false },
 			gameState: 'playing',
 			stopTimer: jest.fn(),
+			// `nextRound()` consults the bot controller before
+			// handing the turn over; this mock's subject is the
+			// dash, so a bare stub keeps that call inert.
+			botController: { maybeForceOffensive: jest.fn() },
 			queue: {
 				isCurrentEmpty: jest.fn(() => false),
 				queue: [activeCreature],
