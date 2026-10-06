@@ -26,7 +26,7 @@ import {
 	offsetNeighbors,
 } from './utility/const';
 import { CreatureType, Level, Realm, Unit, UnitName } from './data/types';
-import { PlasmaField, detectWeakHardware, detectVeryWeakHardware } from './plasma/field';
+import { PlasmaField, detectWeakHardware, detectVeryWeakHardware } from './vfx/plasma/field';
 import type {
 	GameEngine,
 	GroupHandle,
@@ -2338,10 +2338,18 @@ export class Creature {
 		game.updateQueueDisplay();
 		game.grid.updateDisplay();
 
+		// If the active creature belongs to the player whose Dark Priest just died,
+		// end its turn immediately — it's now dazzled and shouldn't act further.
+		if (game.activeCreature?.player === this.player) {
+			game.nextCreature();
+			return;
+		}
+
+		// End turn if current active creature die
 		if (game.activeCreature === this) {
 			game.nextCreature();
 			return;
-		} // End turn if current active creature die
+		}
 
 		// As hex occupation changes, path must be recalculated for the current creature not the dying one
 		game.activeCreature?.queryMove();
