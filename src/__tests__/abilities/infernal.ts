@@ -222,6 +222,13 @@ describe('Infernal Molten Hurl movement safety', () => {
 			UI: { selectAbility },
 			activeCreature: { queryMove },
 			freezedInput: false,
+			poll(callback: () => boolean | void, ms: number) {
+				const handle = setInterval(() => {
+					if (callback() === true) {
+						clearInterval(handle);
+					}
+				}, ms);
+			},
 			gameEngine: {
 				add: {
 					sprite: () => ({
@@ -349,6 +356,13 @@ describe('Infernal Molten Hurl movement safety', () => {
 			UI: { selectAbility },
 			activeCreature: { queryMove },
 			freezedInput: false,
+			poll(callback: () => boolean | void, ms: number) {
+				const handle = setInterval(() => {
+					if (callback() === true) {
+						clearInterval(handle);
+					}
+				}, ms);
+			},
 			gameEngine: {
 				add: {
 					sprite: () => ({

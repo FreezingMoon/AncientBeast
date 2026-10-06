@@ -540,6 +540,8 @@ describe('HexGrid xray hover behavior', () => {
 			id,
 			xray: jest.fn(),
 			sprite: {
+				active: true,
+				frame: { source: {} },
 				getBounds: jest.fn(() => bounds),
 			},
 			grp: { id },
@@ -559,6 +561,7 @@ describe('HexGrid xray hover behavior', () => {
 
 		const trapSprite = {
 			active: true,
+			frame: { source: {} },
 			getBounds: jest.fn(() => ({ left: 20, top: 20, right: 40, bottom: 40 })),
 		};
 
@@ -609,6 +612,7 @@ describe('HexGrid xray hover behavior', () => {
 
 		const trapSprite = {
 			active: true,
+			frame: { source: {} },
 			getBounds: jest.fn(() => ({ left: 20, top: 20, right: 40, bottom: 40 })),
 		};
 
@@ -652,6 +656,7 @@ describe('HexGrid xray hover behavior', () => {
 
 		const trapSprite = {
 			active: true,
+			frame: { source: {} },
 			getBounds: jest.fn(() => ({ left: 20, top: 20, right: 40, bottom: 40 })),
 		};
 
@@ -701,6 +706,7 @@ describe('HexGrid xray hover behavior', () => {
 
 		const trapSprite = {
 			active: true,
+			frame: { source: {} },
 			getBounds: jest.fn(() => ({ left: 20, top: 20, right: 40, bottom: 40 })),
 		};
 
@@ -751,6 +757,7 @@ describe('HexGrid xray hover behavior', () => {
 
 		const dropSprite = {
 			active: true,
+			frame: { source: {} },
 			getBounds: jest.fn(() => ({ left: 20, top: 20, right: 40, bottom: 40 })),
 		};
 
@@ -909,6 +916,7 @@ describe('HexGrid xray hover behavior', () => {
 
 		const trapSprite = {
 			active: true,
+			frame: { source: {} },
 			getBounds: jest.fn(() => ({ left: 20, top: 20, right: 40, bottom: 40 })),
 		};
 
@@ -966,10 +974,12 @@ describe('HexGrid xray hover behavior', () => {
 
 		const trapSprite = {
 			active: true,
+			frame: { source: {} },
 			getBounds: jest.fn(() => ({ left: 20, top: 20, right: 30, bottom: 34 })),
 		};
 		const dropSprite = {
 			active: true,
+			frame: { source: {} },
 			getBounds: jest.fn(() => ({ left: 24, top: 22, right: 40, bottom: 40 })),
 		};
 
