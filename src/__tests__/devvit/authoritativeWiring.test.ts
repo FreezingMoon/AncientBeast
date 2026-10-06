@@ -23,6 +23,10 @@ jest.mock('../../ui/interface', () => {
 					dashopen: false,
 					materializeToggled: false,
 					_abilityPanelAnimating: false,
+					// `destroyPhaser()` clears the real UI's glow
+					// interval on teardown; the stub must report
+					// "none" rather than fabricate a handle.
+					glowInterval: undefined,
 				},
 				{
 					get: (t, p) => (p in t ? (t as any)[p] : deepNoop()),
@@ -42,6 +46,7 @@ import {
 	settle,
 	serializeState,
 	replayIntents,
+	destroyHeadlessGame,
 	type HeadlessConfig,
 } from '../../devvit/headlessGame';
 import { loadRealPhaser } from '../../phaser/runtime';
@@ -105,9 +110,25 @@ function stopTimers(game: any) {
 
 const CONFIG: Partial<HeadlessConfig> = { players: [0, 1] };
 
+/**
+ * Every game this suite boots, torn down in `afterAll`. Destroying in
+ * reverse creation order matters: each headless driver replaces the
+ * process's wall clock on boot and puts back whatever it found on
+ * restore, so the last driver installed has to be the first restored
+ * for the worker's `Date.now` to end up as it was found.
+ */
+const liveGames: any[] = [];
+
 describe('Authoritative client wiring (transport-agnostic)', () => {
 	beforeAll(async () => {
 		await loadRealPhaser();
+	});
+
+	afterAll(() => {
+		for (let i = liveGames.length - 1; i >= 0; i--) {
+			destroyHeadlessGame(liveGames[i]);
+		}
+		liveGames.length = 0;
 	});
 
 	test('two clients converge on the broadcast authoritative state via the processor', async () => {
@@ -117,6 +138,7 @@ describe('Authoritative client wiring (transport-agnostic)', () => {
 		// transport-agnostic processor backed by a pluggable intent store.
 		const clientA = await createHeadlessGame(abilities, { config: CONFIG });
 		const clientB = await createHeadlessGame(abilities, { config: CONFIG });
+		liveGames.push(clientA, clientB);
 		stopTimers(clientA);
 		stopTimers(clientB);
 
@@ -171,6 +193,7 @@ describe('Authoritative client wiring (transport-agnostic)', () => {
 		const intents: Intent[] = [];
 		for (let i = 0; i < 12; i++) {
 			const scratch = await createHeadlessGame(abilities, { config: CONFIG });
+			liveGames.push(scratch);
 			stopTimers(scratch);
 			await settle(scratch);
 			const hex = findReachableHex(scratch);
@@ -184,10 +207,11 @@ describe('Authoritative client wiring (transport-agnostic)', () => {
 		// and confirm it equals the processor's own reconstruction (both go
 		// through LobbyEngine.fromLog, so they must be identical).
 		const rebuilt = await replayIntents(abilities, CONFIG, intents);
+		liveGames.push(rebuilt);
 		stopTimers(rebuilt);
 
-		const liveState = await processor.getState(code, CONFIG);
 		const rebuiltState = serializeState(rebuilt);
+		const liveState = await processor.getState(code, CONFIG);
 		expect(rebuiltState).toEqual(liveState);
 	}, 120_000);
 });

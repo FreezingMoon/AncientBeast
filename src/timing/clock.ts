@@ -172,6 +172,7 @@ export function runTimedAnimation(opts: {
 
 	let timer: Timer | null = null;
 	let finished = false;
+	let firstTick = true;
 
 	const stop = () => {
 		finished = true;
@@ -184,7 +185,8 @@ export function runTimedAnimation(opts: {
 			return;
 		}
 
-		const elapsedMs = now() - startedAt;
+		const elapsedMs = firstTick ? 0 : now() - startedAt;
+		firstTick = false;
 		const progress = durationMs <= 0 ? 1 : Math.min(1, elapsedMs / durationMs);
 
 		try {
