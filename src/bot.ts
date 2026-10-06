@@ -176,6 +176,14 @@ export default class BotController {
 	startTurnDelayMs = -1; // -1 = use default formula
 	/** The game round during which damage was last dealt to any creature. */
 	lastDamageRound = 0;
+	/** Total damage dealt by each team (index 0 = team 0/2, index 1 = team 1/3). */
+	teamDamageDealt = [0, 0];
+	/** Which team is currently forced offensive (0 or 1), -1 = none. */
+	forcedOffensiveTeam = -1;
+	/** Round when forced offensive mode was activated. */
+	forcedOffensiveSince = 0;
+	/** Minimum stagnant rounds before forcing one side offensive. */
+	forcedOffensiveThreshold = 3;
 
 	constructor(game: Game) {
 		this.game = game;
@@ -250,8 +258,41 @@ export default class BotController {
 	/**
 	 * Called whenever any creature takes damage. Resets the stagnation clock.
 	 */
-	notifyDamage() {
-		this.lastDamageRound = this.game.turn;
+	notifyDamage(damageAmount = 0, attacker?: Creature) {
+		const currentTurn = Number(this.game.turn ?? 0);
+		this.lastDamageRound = currentTurn;
+		if (attacker && damageAmount > 0) {
+			const teamIdx = attacker.team % 2 === 0 ? 0 : 1;
+			this.teamDamageDealt[teamIdx] += damageAmount;
+		}
+		// Check if we should force one side offensive due to stagnation
+		this.maybeForceOffensive();
+	}
+
+	/**
+	 * After N damage-free rounds, force the less aggressive team to go offensive.
+	 * Only one team gets the boost at a time, alternating if stagnation persists.
+	 * Called each round from Game.nextRound() to check stagnation even without damage.
+	 */
+	maybeForceOffensive(): void {
+		const currentTurn = Number(this.game.turn ?? 0);
+		const stagnantRounds = currentTurn - this.lastDamageRound;
+
+		if (stagnantRounds >= this.forcedOffensiveThreshold) {
+			if (this.forcedOffensiveTeam === -1) {
+				// First time hitting threshold - pick the team that dealt LESS damage
+				const lessAggressiveTeam = this.teamDamageDealt[0] <= this.teamDamageDealt[1] ? 0 : 1;
+				this.forcedOffensiveTeam = lessAggressiveTeam;
+				this.forcedOffensiveSince = currentTurn;
+			} else if (currentTurn - this.forcedOffensiveSince >= 5) {
+				// Stuck for 5+ rounds with same team - swap to the other team
+				this.forcedOffensiveTeam = this.forcedOffensiveTeam === 0 ? 1 : 0;
+				this.forcedOffensiveSince = currentTurn;
+			}
+		} else {
+			// Damage happened recently, reset forced offensive
+			this.forcedOffensiveTeam = -1;
+		}
 	}
 
 	/**
@@ -262,6 +303,8 @@ export default class BotController {
 	 * - Age pressure: rises after the creature has taken 4 turns (+`agePressureCoeff` per turn).
 	 * - Stagnation pressure: rises after 3 global damage-free rounds
 	 *   (+`stagnationPressureCoeff` per round).
+	 * - Anti-chicken pressure: after 3+ stagnant rounds, ONLY the less aggressive team
+	 *   gets a large aggression boost to break the stalemate.
 	 * - Engagement pressure: rewards committing to a fight the team is already in.
 	 */
 	getAggressionFactor(creature: Creature): number {
@@ -270,10 +313,22 @@ export default class BotController {
 		const currentTurn = Number(this.game.turn ?? 0);
 		const stagnantRounds = currentTurn - this.lastDamageRound;
 		const stagnationFactor = Math.max(0, stagnantRounds - 3) * this.stagnationPressureCoeff;
+
+		// Anti-chicken: asymmetric boost for the forced offensive team
+		const creatureTeamIdx = creature.team % 2 === 0 ? 0 : 1;
+		const antiChickenFactor =
+			this.forcedOffensiveTeam === creatureTeamIdx &&
+			stagnantRounds >= this.forcedOffensiveThreshold
+				? 8 + stagnantRounds * 1.5 // Strong boost that grows with stagnation
+				: 0;
+
 		const engagementPressure = Math.max(0, this.getTeamEngagementPressure(creature));
 		return Math.min(
 			10,
-			ageFactor + stagnationFactor + engagementPressure * this.engagementPressureCoeff,
+			ageFactor +
+				stagnationFactor +
+				antiChickenFactor +
+				engagementPressure * this.engagementPressureCoeff,
 		);
 	}
 

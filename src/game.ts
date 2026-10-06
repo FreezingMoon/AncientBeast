@@ -1753,6 +1753,7 @@ export default class Game {
 		this.turn++;
 		this.log(`Round ${this.turn}`, 'roundmarker', true);
 		this.onStartOfRound();
+		this.botController.maybeForceOffensive();
 		this.nextCreature(remote);
 	}
 
@@ -1794,8 +1795,17 @@ export default class Game {
 		this.stopTimer();
 		// Delay (skipped while backgrounded — see getVisibilityAwareDelay)
 		setTimeout(() => {
+			// This chain outlives the call that scheduled it by
+			// hundreds of milliseconds, so `destroyPhaser()` can run
+			// first — a rematch tearing the old match down, or a
+			// headless match released the moment it settled. `UI` is
+			// nulled by that teardown and `tornDown` is the designed
+			// "dead board" signal every deferred entry point reads, so
+			// notice it here rather than write to a torn-down game.
+			if (this.tornDown) return;
 			const interval = setInterval(() => {
 				clearInterval(interval);
+				if (this.tornDown) return;
 
 				let differentPlayer = false;
 
@@ -2500,7 +2510,11 @@ export default class Game {
 	onDamage(/* creature, damage */) {
 		this.triggerAbility('onDamage', arguments);
 		this.triggerEffect('onDamage', arguments);
-		this.botController.notifyDamage();
+		const _creature = arguments[0];
+		const damage = arguments[1];
+		const damageAmount = damage?.amount ?? 0;
+		const attacker = damage?.attacker;
+		this.botController.notifyDamage(damageAmount, attacker);
 	}
 
 	// Removed individual args from definition because we are using the arguments variable.
