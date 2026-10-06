@@ -59,10 +59,15 @@ const PLASMA_FIELD_HUE_BY_COLOR: Record<string, number> = {
  *
  * Returns 0 when the texture cannot be read (e.g. mocked environment).
  */
-function computeCardboardCenterOffset(gameEngine: GameEngine, sprite: SpriteHandle): number {
+function computeCardboardCenterOffset(textures: any, sprite: SpriteHandle): number {
 	const key = sprite.key;
 	if (typeof key !== 'string') return 0;
-	const src = gameEngine.cache.getImage(key) as HTMLImageElement | HTMLCanvasElement | null;
+
+	// Use Texture Manager instead of Cache: textures are loaded into the
+	// Texture Manager for GPU rendering, not the Cache. The Cache may not
+	// have the decoded image data even after the loader's filecomplete event.
+	const texture = textures?.get(key);
+	const src = texture?.getSourceImage() as HTMLImageElement | HTMLCanvasElement | null;
 	if (!src || !(src.width > 0) || !(src.height > 0)) return 0;
 
 	const w = src.width;
@@ -826,6 +831,14 @@ export class Creature {
 			game.onEndPhase(this);
 		}
 		this.hasWait = this.isDelayed;
+	}
+
+	/**
+	 * Enable the plasma field display for the active turn.
+	 * Used at match start for the first active Dark Priest.
+	 */
+	setPlasmaFieldActiveTurn(enabled: boolean): void {
+		this._plasmaFieldActiveTurn = enabled;
 	}
 
 	get isInCurrentQueue() {
@@ -1841,7 +1854,10 @@ export class Creature {
 
 			// On lower-end machines, reduce the plasma field rendering cost by
 			// lowering its internal render resolution.
-			this._plasmaFieldBaseOffsetX = computeCardboardCenterOffset(gameEngine, cardboard);
+			this._plasmaFieldBaseOffsetX = computeCardboardCenterOffset(
+				this.game.Phaser?.textures ?? null,
+				cardboard,
+			);
 			const offsetXMirror = (cardboard.scaleX < 0 ? -1 : 1) * this._plasmaFieldBaseOffsetX;
 
 			const opts: Record<string, unknown> = {
@@ -1867,30 +1883,62 @@ export class Creature {
 				{ ...opts, surfaceSource: { textures: this.game.Phaser?.textures ?? null } },
 			);
 
+			// Show the field IMMEDIATELY with instant fade (no 240ms delay) so it
+			// appears at the same time as other players' fields. The position
+			// hook will correct the horizontal offset once the texture is decoded.
+			const field = this.plasmaField;
+			const originalFadeMs = field.fadeMs;
+			field.fadeMs = 0;
+			field.setVisible(true);
+			// Force an immediate draw for the CPU path (which only draws on the
+			// shared 24 FPS ticker) so the field appears in the same frame it's
+			// created, not on the next ticker interval.
+			if (!field.usesShader) {
+				field.tick();
+			}
+			field.fadeMs = originalFadeMs;
+
 			// Keep the field centred on the priest without recreating it. The hook
 			// outlives the field it tracks, so it is unregistered on teardown —
 			// otherwise every shield re-show added another permanently-running
 			// per-frame closure.
 			const positionHook = () => {
-				if (this.plasmaField) {
-					const dir = this.creatureSprite.sprite.scaleX < 0 ? -1 : 1;
-					this.plasmaField.positionTo(
+				if (!this.plasmaField) return;
+				const dir = this.creatureSprite.sprite.scaleX < 0 ? -1 : 1;
+
+				// If the base offset wasn't computed correctly (e.g. texture
+				// wasn't fully decoded when the field was created), try to
+				// recompute it now. This fixes the red Dark Priest's plasma
+				// field appearing later than other players because player 0's
+				// Dark Priest is created first and its updateHealth() runs
+				// before textures are fully decoded.
+				if (this._plasmaFieldBaseOffsetX === 0) {
+					const recomputed = computeCardboardCenterOffset(
+						this.game.Phaser?.textures ?? null,
 						this.creatureSprite.sprite,
-						dir * this._plasmaFieldBaseOffsetX,
-						PLASMA_FIELD_OFFSET_Y,
 					);
-					// Line weight tracks remaining plasma, so a well-stocked priest
-					// reads as a fat, bright field and a nearly-spent one as thin
-					// wisps. Updated here rather than on show, because plasma is
-					// spent mid-turn and the hook already runs every frame.
-					this.plasmaField.setPlasmaFraction(this.getPlasmaFraction());
+					if (recomputed !== 0) {
+						this._plasmaFieldBaseOffsetX = recomputed;
+					}
 				}
+
+				this.plasmaField.positionTo(
+					this.creatureSprite.sprite,
+					dir * this._plasmaFieldBaseOffsetX,
+					PLASMA_FIELD_OFFSET_Y,
+				);
+
+				// Line weight tracks remaining plasma, so a well-stocked priest
+				// reads as a fat, bright field and a nearly-spent one as thin
+				// wisps. Updated here rather than on show, because plasma is
+				// spent mid-turn and the hook already runs every frame.
+				this.plasmaField.setPlasmaFraction(this.getPlasmaFraction());
 			};
 			this._plasmaFieldPositionHook = positionHook;
 			this.creatureSprite.addPostUpdateHook(positionHook);
+		} else {
+			this.plasmaField.setVisible(true);
 		}
-
-		this.plasmaField.setVisible(true);
 	}
 
 	/** Hide the field without tearing it down, so it can be reused (no reset). */

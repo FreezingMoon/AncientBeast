@@ -12,24 +12,24 @@
  */
 
 import { PLASMA_LOOK, plasmaLookFor } from './look';
-import type { Creature } from '../creature';
+import type { Creature } from '../../creature';
 import type {
 	GameEngine,
 	SpriteHandle,
 	GroupHandle,
 	ShaderHandle,
 	TweenHandle,
-} from '../engine/types';
-import { BLEND_MODE_ADD } from '../phaser/runtime';
-import { Easing } from '../utility/easing';
+} from '../../engine/types';
+import { BLEND_MODE_ADD } from '../../phaser/runtime';
+import { Easing } from '../../utility/easing';
 import { PLASMA_FRAGMENT_SOURCE } from './shader';
-import { every } from '../timing/clock';
+import { every } from '../../timing/clock';
 import {
 	createCanvasSurface,
 	type CanvasSurface,
 	type SurfaceSource,
-} from '../game-display/canvas-surface';
-import type { Timer } from '../timing/clock';
+} from '../../game-display/canvas-surface';
+import type { Timer } from '../../timing/clock';
 
 export interface PlasmaFieldSettings {
 	transparency: number;
@@ -99,14 +99,35 @@ export function detectVeryWeakHardware(): boolean {
 		if (typeof navigator !== 'undefined' && navigator.hardwareConcurrency) {
 			return navigator.hardwareConcurrency <= VERY_WEAK_CORE_THRESHOLD;
 		}
-	} catch {
-		// navigator may be unavailable in some environments.
-	}
+	} catch {}
 	return false;
 }
 
-const LOGICAL_GAME_WIDTH = 1920;
+/**
+ * Precompile the plasma field shader so the first field appears instantly.
+ * Call this after the Phaser engine is created but before any Dark Priest
+ * plasma fields are created (e.g. in setupAfterDarkPriestCards).
+ */
+export function precompilePlasmaShader(engine: GameEngine): void {
+	if (typeof engine.add?.shader === 'function' && engine.supportsShaders === true) {
+		// Create a dummy shader quad off-screen to force compilation.
+		// It will be destroyed immediately after.
+		const dummy = engine.add.shader(
+			{
+				name: 'ABPlasmaField',
+				fragmentSource: PLASMA_FRAGMENT_SOURCE,
+				setupUniforms: () => {},
+			},
+			-9999,
+			-9999,
+			1,
+			1,
+		);
+		dummy.destroy();
+	}
+}
 
+const LOGICAL_GAME_WIDTH = 1920;
 export function computePlasmaRenderScale(): number {
 	try {
 		if (typeof window !== 'undefined') {
@@ -428,7 +449,7 @@ export class PlasmaField {
 	private _staticMode: boolean;
 	private _plasmaFraction: number;
 	private _noCanvas = false;
-	private fadeMs: number;
+	fadeMs: number;
 
 	/**
 	 * Live show/hide fade: 0 is fully transparent, 1 fully opaque.

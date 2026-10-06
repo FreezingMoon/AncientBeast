@@ -17,7 +17,7 @@ import {
 } from './player';
 import { UI } from './ui/interface';
 import { Creature, CreatureHintType } from './creature';
-import { refreshPlasmaRenderScales } from './plasma/field';
+import { refreshPlasmaRenderScales, precompilePlasmaShader } from './vfx/plasma/field';
 import { unitData } from './data/units';
 import type { GameChannels, MetaPowersState } from './game-events/channels.types';
 import { createGameChannels } from './game-events/factory';
@@ -1000,6 +1000,12 @@ export default class Game {
 		if (this.gameState !== 'loaded') {
 			return;
 		}
+		// Precompile the plasma field shader so the first Dark Priest's
+		// shield appears instantly (avoids shader compilation delay on the
+		// first field created, which affects the red priest in player 0).
+		if (this._phaserEngine) {
+			precompilePlasmaShader(this._phaserEngine);
+		}
 		this.setup(this.gameMode);
 	}
 
@@ -1232,6 +1238,12 @@ export default class Game {
 
 		if (this.players.length && this.players[0].creatures.length) {
 			this.activeCreature = this.players[0].creatures[0]; // Prevent errors
+			// Show plasma field for the active Dark Priest immediately at match
+			// start, instead of waiting for the first activate() call which is
+			// delayed by nextCreature() → nextRound() → nextCreature() chain.
+			if (this.activeCreature.isDarkPriest()) {
+				this.activeCreature.setPlasmaFieldActiveTurn(true);
+			}
 		}
 
 		this.UI = new UI(
@@ -1251,6 +1263,10 @@ export default class Game {
 		this.timeInterval = setInterval(() => {
 			this.checkTime();
 		}, this.checkTimeFrequency);
+
+		for (const creature of this.creatures) {
+			creature.updateHealth();
+		}
 
 		this.nextCreature();
 
