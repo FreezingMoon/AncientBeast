@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Chain Lightning Visual</title>
+		<style>
+			body {
+				margin: 0;
+				background: #0a0a12;
+				color: #ddd;
+				font: 12px monospace;
+			}
+			#host {
+				width: 1200px;
+				height: 640px;
+			}
+			#log {
+				padding: 6px;
+				white-space: pre-wrap;
+			}
+			.panel {
+				display: flex;
+				gap: 12px;
+				flex-wrap: wrap;
+				padding: 6px;
+				align-items: flex-start;
+			}
+			.column {
+				display: flex;
+				flex-direction: column;
+				gap: 2px;
+				min-width: 220px;
+			}
+			.column h3 {
+				margin: 4px 0;
+				font-size: 12px;
+				color: #8fb3ff;
+			}
+			.slider {
+				display: grid;
+				grid-template-columns: 120px 1fr 44px;
+				gap: 6px;
+				align-items: center;
+				font-size: 11px;
+			}
+			.slider-name {
+				color: #aab;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+			.slider-value {
+				text-align: right;
+				color: #7fd;
+			}
+			input[type='range'] {
+				width: 100%;
+				accent-color: #3f8cff;
+			}
+			input[type='color'] {
+				width: 100%;
+				border: none;
+				background: none;
+				padding: 0;
+			}
+			button {
+				margin: 2px 4px 2px 0;
+				padding: 3px 10px;
+				background: #1c2a42;
+				color: #cfe0ff;
+				border: 1px solid #35507a;
+				border-radius: 3px;
+				font: 12px monospace;
+				cursor: pointer;
+			}
+			button:hover {
+				background: #27395c;
+			}
+			label.inline {
+				display: inline-flex;
+				gap: 4px;
+				align-items: center;
+				margin-right: 10px;
+			}
+			label.inline input {
+				accent-color: #3f8cff;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="host"></div>
+		<div class="panel">
+			<div class="column" style="min-width: 0">
+				<button id="strike">Strike</button>
+				<button id="measure">Measure</button>
+				<label class="inline"><input type="checkbox" id="auto" checked /> auto</label>
+				<label class="inline">
+					cadence
+					<input
+						type="range"
+						id="cadence"
+						min="250"
+						max="2500"
+						step="50"
+						value="1100"
+						style="width: 110px"
+					/>
+					<span id="cadenceVal">1100ms</span>
+				</label>
+				<label class="inline">
+					targets
+					<input type="range" id="targets" min="2" max="6" step="1" value="4" style="width: 80px" />
+					<span id="targetsVal">4</span>
+				</label>
+				<div id="log">booting…</div>
+			</div>
+			<div class="column">
+				<h3>Path</h3>
+				<div id="pathControls"></div>
+			</div>
+			<div class="column">
+				<h3>Line</h3>
+				<div id="lineControls"></div>
+			</div>
+			<div class="column">
+				<h3>Timing</h3>
+				<div id="timingControls"></div>
+			</div>
+			<div class="column">
+				<h3>Colour</h3>
+				<div id="colorControls"></div>
+			</div>
+		</div>
+		<script type="module" src="/src/vfx/lightning/visual.ts"></script>
+	</body>
+</html>

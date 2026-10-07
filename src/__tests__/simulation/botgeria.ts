@@ -182,7 +182,7 @@ export async function createGame(abilities: Array<(G: any) => void>): Promise<an
 
 	const GameModule = await import('../../game');
 	const Game = GameModule.default;
-	const { PlasmaField } = await import('../../plasma/field');
+	const { PlasmaField } = await import('../../vfx/plasma/field');
 	const game: any = new Game();
 
 	// Real `Phaser.HEADLESS`, booted through the same `Game.createPhaser()` the

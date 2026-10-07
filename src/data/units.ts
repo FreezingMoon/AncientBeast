@@ -625,7 +625,7 @@ export const unitData: UnitDataStructure = [
 				title: 'Chain Lightning',
 				desc: 'Releases a lightning bolt that will arch, shocking multiple adjacent creatures.',
 				info: '20 shock damage that can arch nearby.',
-				upgrade: 'The arches will not kill allies.',
+				upgrade: 'It can jump 1 empty hexagon.',
 				damages: {
 					shock: 20,
 				},

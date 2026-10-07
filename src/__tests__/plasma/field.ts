@@ -16,7 +16,7 @@
  * already in flight.
  */
 
-import { PlasmaField } from '../../plasma/field';
+import { PlasmaField } from '../../vfx/plasma/field';
 import type { GameEngine, TweenHandle } from '../../engine/types';
 
 /**

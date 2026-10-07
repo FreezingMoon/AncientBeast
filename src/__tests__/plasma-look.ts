@@ -9,7 +9,7 @@ jest.mock('phaser', () =>
 	).createPhaserMock(),
 );
 
-import { PLASMA_LOOK, plasmaLookFor } from '../plasma/look';
+import { PLASMA_LOOK, plasmaLookFor } from '../vfx/plasma/look';
 import { Creature } from '../creature';
 
 /**

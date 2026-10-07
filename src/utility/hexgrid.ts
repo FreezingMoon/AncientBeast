@@ -1189,7 +1189,7 @@ export class HexGrid {
 			hexesDashed: [],
 			shrunkenHexes: [],
 			hexesDeadZone: [],
-			size: 1,
+			size: 0,
 			id: 0,
 			flipped: false,
 			hideNonTarget: false,
