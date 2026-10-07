@@ -228,6 +228,65 @@ export function chainLightningLook(overrides?: Partial<ChainLightningLook>): Cha
 	return overrides ? { ...CHAIN_LIGHTNING_LOOK, ...overrides } : { ...CHAIN_LIGHTNING_LOOK };
 }
 
+/** Player color to hex color mapping for electro shocker. */
+const PLAYER_COLOR_HEX: Record<string, number> = {
+	red: 0xff5555,
+	blue: 0x8888ff,
+	orange: 0xffaa55,
+	green: 0x55ff55,
+};
+
+/** Reference look for the Dark Priest's Electro Shocker ability. */
+export const ELECTRO_SHOCKER_LOOK: ChainLightningLook = {
+	segmentLength: 18,
+	zigzagAmplitude: 0.6,
+	zigzagAlternate: 0.06,
+	jitter: 1.4,
+	arc: 0.15,
+	endpointBlend: 0.3,
+
+	lines: 6,
+
+	radiusJitter: 0.5,
+	blueRadius: 3.5,
+	blueAlpha: 0.55,
+	whiteRadius: 1.2,
+	whiteAlpha: 0.95,
+	flicker: 0.65,
+	flickerHz: 12,
+	drift: 14,
+	embers: 5,
+	emberRadius: 1.5,
+	emberDrift: 30,
+
+	travelMs: 215,
+	lifetimeMs: 850,
+	fadeInMs: 35,
+	impactFlashMs: 280,
+	impactFlashRadius: 30,
+
+	blueColor: 0x8888ff,
+	whiteColor: 0xffffff,
+};
+
+/**
+ * Merge caller overrides onto the electro shocker reference look.
+ *
+ * Pass `playerColor` ('red' | 'blue' | 'orange' | 'green') to use
+ * player color coding for the bolt's blue layer instead of the default blue.
+ */
+export function electroShockerLook(
+	overrides?: Partial<ChainLightningLook> & { playerColor?: string },
+): ChainLightningLook {
+	const base = { ...ELECTRO_SHOCKER_LOOK };
+	const playerColor = overrides?.playerColor;
+	if (playerColor && PLAYER_COLOR_HEX[playerColor]) {
+		base.blueColor = PLAYER_COLOR_HEX[playerColor];
+	}
+	const { playerColor: _, ...lookOverrides } = overrides ?? {};
+	return lookOverrides ? { ...base, ...lookOverrides } : base;
+}
+
 /** Clamp to [lo, hi]. */
 export function clamp(value: number, lo: number, hi: number): number {
 	return value < lo ? lo : value > hi ? hi : value;

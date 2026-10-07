@@ -123,6 +123,14 @@ interface LineRender {
 	total: number;
 	/** Per-vertex crackle: undulation direction and phase. */
 	crackle: Array<{ dx: number; dy: number; phase: number }>;
+	/** Endpoint drift animation for spread channels. */
+	endDrift?: {
+		baseX: number;
+		baseY: number;
+		angle: number;
+		radius: number;
+		phase: number;
+	};
 }
 
 export interface ChainLightningBoltOptions {
@@ -355,16 +363,38 @@ export class ChainLightningBolt {
 		// own zig-zag and a slightly different arch, so the channels
 		// spread apart in the middle of the hop instead of tracking
 		// each other — which is what a real lightning channel does.
+		// Additionally, fan out the endpoints so each channel strikes
+		// a different spot on the target, and let them jitter.
 		const random = this._random;
 		const look = this._look;
 		this._lines = [];
 		for (let i = 0; i < look.lines; i++) {
+			// Fan out endpoint for each channel around the target
+			const spreadAngle = (i / Math.max(1, look.lines - 1) - 0.5) * Math.PI * 0.8;
+			const spreadRadius = look.impactFlashRadius * 1.2;
+			const spreadX = Math.cos(spreadAngle) * spreadRadius * (0.5 + 0.5 * random());
+			const spreadY = Math.sin(spreadAngle) * spreadRadius * (0.5 + 0.5 * random());
+			const lineEnd = { x: end.x + spreadX, y: end.y + spreadY };
+
+			// Per-channel endpoint drift animation: each endpoint wiggles independently
+			const endDriftAngle = random() * Math.PI * 2;
+			const endDriftRadius = spreadRadius * 0.4;
+
 			const lineLook: ChainLightningLook = {
 				...look,
 				arc: look.arc * (0.7 + 0.6 * random()),
 				zigzagAmplitude: look.zigzagAmplitude * (0.85 + 0.3 * random()),
 			};
-			this._lines.push(this._buildLine(generateZigzagPath(start, end, lineLook, random)));
+			const line = this._buildLine(generateZigzagPath(start, lineEnd, lineLook, random));
+			// Store drift params on the line for animation
+			line.endDrift = {
+				baseX: lineEnd.x,
+				baseY: lineEnd.y,
+				angle: endDriftAngle,
+				radius: endDriftRadius,
+				phase: random() * Math.PI * 2,
+			};
+			this._lines.push(line);
 		}
 
 		// Bounding box over every channel, with room for the
@@ -578,18 +608,29 @@ export class ChainLightningBolt {
 		// Crackled vertex positions: interior vertices undulate
 		// around their path position, a little faster than the
 		// flicker so the writhe and the shimmer read separately.
+		// Also animate the spread endpoints with independent drift.
 		const crackleRate = flickerRate * 1.3;
-		const lines = this._lines.map((line) => ({
-			line,
-			pts: line.path.map((vertex, i) => {
-				if (i === 0 || i === line.path.length - 1 || look.drift <= 0) {
+		const endDriftSpeed = 0.008;
+		const lines = this._lines.map((line) => {
+			const drift = line.endDrift;
+			const path = line.path.map((vertex, i) => {
+				if (i === 0 || look.drift <= 0) {
 					return vertex;
+				}
+				if (i === line.path.length - 1 && drift) {
+					// Animate the spread endpoint
+					const driftOffset = Math.sin(elapsedMs * endDriftSpeed + drift.phase) * drift.radius;
+					return {
+						x: drift.baseX + Math.cos(drift.angle) * driftOffset,
+						y: drift.baseY + Math.sin(drift.angle) * driftOffset,
+					};
 				}
 				const c = line.crackle[i];
 				const w = Math.sin(elapsedMs * crackleRate + c.phase) * look.drift * 0.5;
 				return { x: vertex.x + c.dx * w, y: vertex.y + c.dy * w };
-			}),
-		}));
+			});
+			return { line, pts: path };
+		});
 
 		// The bolt: every channel stroked edge by edge into
 		// each layer, each edge igniting as the strike head
@@ -693,10 +734,8 @@ export class ChainLightningBolt {
 		// actually there — at takeoff for the caster, on arrival
 		// for the target — so nothing lights up at a target
 		// before the bolt has reached it.
-		for (const endpoint of [
-			{ point: this._start, igniteAt: 0 },
-			{ point: this._end, igniteAt: look.travelMs },
-		]) {
+		// Start flash at caster
+		for (const endpoint of [{ point: this._start, igniteAt: 0 }]) {
 			const age = elapsedMs - endpoint.igniteAt;
 			if (age < 0) {
 				continue;
@@ -722,6 +761,45 @@ export class ChainLightningBolt {
 				whiteStamp,
 				endpoint.point.x - coreRadius,
 				endpoint.point.y - coreRadius,
+				coreRadius * 2,
+				coreRadius * 2,
+			);
+		}
+		// Target flashes: one per channel at its animated spread endpoint
+		for (const line of this._lines) {
+			const drift = line.endDrift;
+			if (!drift) continue;
+			// Animate endpoint drift
+			const driftSpeed = 0.008;
+			const driftOffset = Math.sin(elapsedMs * driftSpeed + drift.phase) * drift.radius;
+			const animatedX = drift.baseX + Math.cos(drift.angle) * driftOffset;
+			const animatedY = drift.baseY + Math.sin(drift.angle) * driftOffset;
+			const surfaceEnd = { x: animatedX - this._originX, y: animatedY - this._originY };
+			const age = elapsedMs - look.travelMs;
+			if (age < 0) {
+				continue;
+			}
+			const flashFade = clamp(age / look.impactFlashMs, 0, 1);
+			if (flashFade >= 1) {
+				continue;
+			}
+			const flashAlpha = (1 - flashFade) * (1 - flashFade);
+			const grow = 0.55 + 0.45 * flashFade;
+			const radius = look.impactFlashRadius * grow * 0.7;
+			const coreRadius = radius * 0.5;
+			blueCtx.globalAlpha = Math.min(1, flashAlpha * look.blueAlpha * 1.2);
+			blueCtx.drawImage(
+				blueStamp,
+				surfaceEnd.x - radius,
+				surfaceEnd.y - radius,
+				radius * 2,
+				radius * 2,
+			);
+			whiteCtx.globalAlpha = Math.min(1, flashAlpha * look.whiteAlpha * 1.2);
+			whiteCtx.drawImage(
+				whiteStamp,
+				surfaceEnd.x - coreRadius,
+				surfaceEnd.y - coreRadius,
 				coreRadius * 2,
 				coreRadius * 2,
 			);
