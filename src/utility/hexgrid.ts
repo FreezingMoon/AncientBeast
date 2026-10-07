@@ -1542,6 +1542,13 @@ export class HexGrid {
 				return;
 			}
 
+			// The active creature can be cleared by endGame() (e.g. when the Dark
+			// Priest dies mid-animation) while a stale hover query is still firing
+			// its mouse-move handler — there is no board left to render a hover for.
+			if (!game.activeCreature) {
+				return;
+			}
+
 			let { x } = hex;
 			const { y } = hex;
 

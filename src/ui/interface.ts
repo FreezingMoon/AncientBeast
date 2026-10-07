@@ -14,6 +14,7 @@ import { getUrl } from '../assets';
 import { MetaPowers } from './meta-powers';
 import { Queue } from './queue';
 import { QuickInfo } from './quickinfo';
+import { getBrandText, markGameUpdateAvailable, onGameUpdateAvailable } from './game-update';
 import { pretty as version } from '../utility/version';
 import { getDevvitAppVersion } from '../utility/clientVersion';
 import { capitalize } from '../utility/string';
@@ -46,9 +47,7 @@ const BRAND_LOGO_DEPTH = 100000;
 const META_TOGGLE_SELECTOR = '#chatbox, #chatcontent';
 const GAME_IN_PROGRESS_UNLOAD_CONFIRMATION =
 	'A game is in progress and cannot be restored, are you sure you want to leave?';
-const DEV_RELOAD_PROMPT_ID = 'ab-dev-reload-prompt';
-const DEV_RELOAD_PROMPT_TITLE = 'New changes have been compiled!';
-const DEV_RELOAD_PROMPT_BODY = 'Insert coin to continue';
+const RELOAD_PROMPT_ID = 'ab-dev-reload-prompt';
 const MANUAL_REFRESH_PROMPT_TITLE = 'A game is in progress';
 const MANUAL_REFRESH_PROMPT_BODY = 'Reload now and abandon this match?';
 
@@ -71,11 +70,11 @@ type ConfirmUnloadState = {
 let getActiveConfirmUnloadState: () => ConfirmUnloadState | null = () => null;
 let hasWebpackReloadConfirmListener = false;
 let hasManualRefreshConfirmListener = false;
-let devReloadPromptOverlay: HTMLDivElement | null = null;
-let removeDevReloadPromptEscListener: (() => void) | null = null;
-let allowNextDevReloadWithoutPrompt = false;
-
-type ReloadPromptVariant = 'dev' | 'manual-refresh';
+/** Window key holding the registered manual-refresh capture handler. */
+const MANUAL_REFRESH_LISTENER_KEY = '__abManualRefreshListener';
+let reloadPromptOverlay: HTMLDivElement | null = null;
+let removeReloadPromptEscListener: (() => void) | null = null;
+let allowNextReloadWithoutPrompt = false;
 
 const isManualReloadShortcut = (event: KeyboardEvent) => {
 	if (event.key === 'F5') {
@@ -96,28 +95,28 @@ const savedModalFunctions = {
 	prompt: window.prompt,
 };
 
-let isDevReloadPromptVisible = false;
+let isRefreshPromptVisible = false;
 
 const suppressBrowserModalWhilePromptVisible = () => {
 	window.alert = (message?: unknown) => {
-		if (isDevReloadPromptVisible) {
-			console.warn('[Dev Reload] Suppressed alert:', message);
+		if (isRefreshPromptVisible) {
+			console.warn('[Refresh Prompt] Suppressed alert:', message);
 			return undefined;
 		}
 		return savedModalFunctions.alert(message);
 	};
 
 	window.confirm = (message?: string) => {
-		if (isDevReloadPromptVisible) {
-			console.warn('[Dev Reload] Suppressed confirm:', message);
+		if (isRefreshPromptVisible) {
+			console.warn('[Refresh Prompt] Suppressed confirm:', message);
 			return false;
 		}
 		return savedModalFunctions.confirm(message);
 	};
 
 	window.prompt = (message?: string, defaultValue?: string) => {
-		if (isDevReloadPromptVisible) {
-			console.warn('[Dev Reload] Suppressed prompt:', message);
+		if (isRefreshPromptVisible) {
+			console.warn('[Refresh Prompt] Suppressed prompt:', message);
 			return null;
 		}
 		return savedModalFunctions.prompt(message, defaultValue);
@@ -135,8 +134,8 @@ const setBeforeUnloadReturnValue = (event: BeforeUnloadEvent, value: string) => 
 };
 
 const confirmUnload = (event: BeforeUnloadEvent) => {
-	if (allowNextDevReloadWithoutPrompt) {
-		allowNextDevReloadWithoutPrompt = false;
+	if (allowNextReloadWithoutPrompt) {
+		allowNextReloadWithoutPrompt = false;
 		clearBeforeUnloadReturnValue(event);
 		return;
 	}
@@ -146,7 +145,7 @@ const confirmUnload = (event: BeforeUnloadEvent) => {
 		return;
 	}
 
-	if (isDevReloadPromptVisible) {
+	if (isRefreshPromptVisible) {
 		clearBeforeUnloadReturnValue(event);
 		return;
 	}
@@ -162,22 +161,28 @@ const confirmUnload = (event: BeforeUnloadEvent) => {
 	return GAME_IN_PROGRESS_UNLOAD_CONFIRMATION;
 };
 
-const closeDevReloadPrompt = () => {
-	if (!devReloadPromptOverlay) {
+/**
+ * Whether a match has been started (the unload guard is armed).
+ * Used by the dev-only vite reload guard in `script.ts`.
+ */
+export const isMatchRunning = () => Boolean(getActiveConfirmUnloadState());
+
+const closeRefreshPrompt = () => {
+	if (!reloadPromptOverlay) {
 		return;
 	}
 
-	isDevReloadPromptVisible = false;
-	devReloadPromptOverlay.remove();
-	devReloadPromptOverlay = null;
+	isRefreshPromptVisible = false;
+	reloadPromptOverlay.remove();
+	reloadPromptOverlay = null;
 
-	if (removeDevReloadPromptEscListener) {
-		removeDevReloadPromptEscListener();
-		removeDevReloadPromptEscListener = null;
+	if (removeReloadPromptEscListener) {
+		removeReloadPromptEscListener();
+		removeReloadPromptEscListener = null;
 	}
 };
 
-const createDevReloadButton = (
+const createRefreshButton = (
 	label: string,
 	onClick: () => void,
 	hotkey: string,
@@ -205,31 +210,10 @@ const createDevReloadButton = (
 	return button;
 };
 
-const showDevReloadPrompt = (variant: ReloadPromptVariant = 'dev') => {
-	const titleText =
-		variant === 'manual-refresh' ? MANUAL_REFRESH_PROMPT_TITLE : DEV_RELOAD_PROMPT_TITLE;
-	const bodyText =
-		variant === 'manual-refresh' ? MANUAL_REFRESH_PROMPT_BODY : DEV_RELOAD_PROMPT_BODY;
-
-	if (devReloadPromptOverlay) {
-		isDevReloadPromptVisible = true;
-		devReloadPromptOverlay.style.cssText =
-			'position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);pointer-events:auto;contain:layout style paint;';
-
-		const titleNode = devReloadPromptOverlay.querySelector('[data-dev-reload-title="true"]');
-		if (titleNode) {
-			titleNode.textContent = titleText;
-		}
-
-		const bodyNode = devReloadPromptOverlay.querySelector('[data-dev-reload-body="true"]');
-		if (bodyNode) {
-			bodyNode.textContent = bodyText;
-		}
-
-		if (devReloadPromptOverlay.parentElement !== document.body) {
-			document.body.appendChild(devReloadPromptOverlay);
-		}
-		return devReloadPromptOverlay;
+const showRefreshPrompt = () => {
+	if (reloadPromptOverlay) {
+		isRefreshPromptVisible = true;
+		return reloadPromptOverlay;
 	}
 
 	const activeConfirmUnloadState = getActiveConfirmUnloadState();
@@ -238,10 +222,10 @@ const showDevReloadPrompt = (variant: ReloadPromptVariant = 'dev') => {
 	}
 
 	const overlay = document.createElement('div');
-	overlay.id = DEV_RELOAD_PROMPT_ID;
+	overlay.id = RELOAD_PROMPT_ID;
 	overlay.setAttribute('role', 'dialog');
 	overlay.setAttribute('aria-modal', 'true');
-	overlay.setAttribute('aria-label', 'Dev reload prompt');
+	overlay.setAttribute('aria-label', 'Refresh prompt');
 	overlay.style.cssText =
 		'position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);pointer-events:auto;contain:layout style paint;';
 
@@ -257,11 +241,11 @@ const showDevReloadPrompt = (variant: ReloadPromptVariant = 'dev') => {
 	const closeButton = document.createElement('button');
 	closeButton.type = 'button';
 	closeButton.className = 'close-button';
-	closeButton.setAttribute('aria-label', 'Close dev reload prompt');
+	closeButton.setAttribute('aria-label', 'Close refresh prompt');
 	closeButton.addEventListener('click', (event) => {
 		event.preventDefault();
 		event.stopPropagation();
-		closeDevReloadPrompt();
+		closeRefreshPrompt();
 	});
 
 	closeWrapper.appendChild(closeButton);
@@ -278,7 +262,7 @@ const showDevReloadPrompt = (variant: ReloadPromptVariant = 'dev') => {
 		}
 
 		if (event.key === 'Escape') {
-			closeDevReloadPrompt();
+			closeRefreshPrompt();
 			return;
 		}
 
@@ -302,20 +286,18 @@ const showDevReloadPrompt = (variant: ReloadPromptVariant = 'dev') => {
 	};
 
 	const title = document.createElement('p');
-	title.dataset.devReloadTitle = 'true';
 	title.style.cssText = 'margin:0 0 12px;font-size:24px;line-height:1.2;text-align:center;';
-	title.textContent = titleText;
+	title.textContent = MANUAL_REFRESH_PROMPT_TITLE;
 
 	const body = document.createElement('p');
-	body.dataset.devReloadBody = 'true';
 	body.style.cssText = 'margin:0 0 20px;text-align:center;line-height:1.45;';
-	body.textContent = bodyText;
+	body.textContent = MANUAL_REFRESH_PROMPT_BODY;
 
 	const actions = document.createElement('div');
 	actions.className = 'dev-reload-actions';
 
 	actions.appendChild(
-		createDevReloadButton(
+		createRefreshButton(
 			'Save',
 			() => {
 				window.AB?.saveLog?.();
@@ -324,23 +306,23 @@ const showDevReloadPrompt = (variant: ReloadPromptVariant = 'dev') => {
 		),
 	);
 	actions.appendChild(
-		createDevReloadButton(
+		createRefreshButton(
 			'Reload',
 			() => {
 				// Re-resolve state at click time — the overlay is created once and reused,
 				// so the creation-time closure may point to a stale UI instance.
 				const currentState = getActiveConfirmUnloadState();
-				allowNextDevReloadWithoutPrompt = true;
+				allowNextReloadWithoutPrompt = true;
 				if (currentState) {
 					currentState.ignoreNextConfirmUnload = true;
 				}
-				closeDevReloadPrompt();
+				closeRefreshPrompt();
 				const previousOnBeforeUnload = window.onbeforeunload;
 				window.onbeforeunload = null;
 				// Watchdog: if the page doesn't unload within 3 s (reload was silently
 				// blocked by the browser), reset bypass flags so Ctrl+R shows the modal again.
 				setTimeout(() => {
-					allowNextDevReloadWithoutPrompt = false;
+					allowNextReloadWithoutPrompt = false;
 					if (currentState) {
 						currentState.ignoreNextConfirmUnload = false;
 					}
@@ -354,10 +336,10 @@ const showDevReloadPrompt = (variant: ReloadPromptVariant = 'dev') => {
 		),
 	);
 	actions.appendChild(
-		createDevReloadButton(
+		createRefreshButton(
 			'Continue',
 			() => {
-				closeDevReloadPrompt();
+				closeRefreshPrompt();
 			},
 			'C',
 			'secondary',
@@ -371,35 +353,35 @@ const showDevReloadPrompt = (variant: ReloadPromptVariant = 'dev') => {
 	overlay.appendChild(modal);
 	overlay.addEventListener('click', (event) => {
 		if (event.target === overlay) {
-			closeDevReloadPrompt();
+			closeRefreshPrompt();
 		}
 	});
 	overlay.addEventListener('contextmenu', (event) => {
 		event.preventDefault();
 		event.stopPropagation();
-		closeDevReloadPrompt();
+		closeRefreshPrompt();
 	});
 	document.body.appendChild(overlay);
 	window.addEventListener('keydown', handlePromptKeydown, true);
-	removeDevReloadPromptEscListener = () => {
+	removeReloadPromptEscListener = () => {
 		window.removeEventListener('keydown', handlePromptKeydown, true);
 	};
-	devReloadPromptOverlay = overlay;
-	isDevReloadPromptVisible = true;
+	reloadPromptOverlay = overlay;
+	isRefreshPromptVisible = true;
 
 	return overlay;
 };
 
+// New game files were compiled: never interrupt a live match with a
+// dialog — one freezes the game invisibly while fullscreen. The
+// corner card swaps its brand text for a "Refresh game" hint instead
+// and the match keeps running on the loaded build.
 const confirmWebpackDevReload = (messageEvent: MessageEvent) => {
-	if (allowNextDevReloadWithoutPrompt) {
-		return;
-	}
-
 	if (messageEvent.data?.type !== 'webpackInvalid') {
 		return;
 	}
 
-	showDevReloadPrompt();
+	markGameUpdateAvailable();
 };
 
 const confirmManualRefresh = (event: KeyboardEvent) => {
@@ -409,7 +391,7 @@ const confirmManualRefresh = (event: KeyboardEvent) => {
 
 	// A reload is already in flight — let the native shortcut through so it
 	// can bypass the beforeunload guard and complete the reload.
-	if (allowNextDevReloadWithoutPrompt) {
+	if (allowNextReloadWithoutPrompt) {
 		return;
 	}
 
@@ -423,7 +405,7 @@ const confirmManualRefresh = (event: KeyboardEvent) => {
 	if (typeof event.stopImmediatePropagation === 'function') {
 		event.stopImmediatePropagation();
 	}
-	showDevReloadPrompt('manual-refresh');
+	showRefreshPrompt();
 };
 
 const createSecretViewOverlay = () => {
@@ -3730,6 +3712,14 @@ export class UI {
 		const game = this.game,
 			creature = game.activeCreature;
 
+		// The ability that just upgraded belongs to a creature whose turn may
+		// already be over — when its Dark Priest died mid-animation, endGame()
+		// clears activeCreature before this deferred callback lands. Nothing to
+		// update against a dead board.
+		if (!creature) {
+			return;
+		}
+
 		// Change ability buttons
 		this.abilitiesButtons.forEach((btn) => {
 			const ab = creature.abilities[btn.abilityId];
@@ -4068,6 +4058,18 @@ export class UI {
 		}
 
 		if (!hasManualRefreshConfirmListener) {
+			// Dedupe across module copies (tests re-import this module, and HMR
+			// can replace it): a stale capture handler would swallow every
+			// refresh shortcut with stopImmediatePropagation and open a prompt
+			// bound to a UI instance that is no longer active.
+			const previousListener = (window as unknown as Record<string, unknown>)[
+				MANUAL_REFRESH_LISTENER_KEY
+			] as ((event: KeyboardEvent) => void) | undefined;
+			if (previousListener) {
+				window.removeEventListener('keydown', previousListener, true);
+			}
+			(window as unknown as Record<string, unknown>)[MANUAL_REFRESH_LISTENER_KEY] =
+				confirmManualRefresh;
 			window.addEventListener('keydown', confirmManualRefresh, true);
 			hasManualRefreshConfirmListener = true;
 		}
@@ -4145,7 +4147,7 @@ export class UI {
 		const playerFormatter = (player) => {
 			const playerTimeStatus =
 				ui.game.turnTimePool < 0 && ui.game.timePool < 0
-					? '<p>Ancient Beast</p>'
+					? `<p>${getBrandText()}</p>`
 					: '<p><span class="activePlayer turntime">&#8734;</span> / <span class="timepool">&#8734;</span></p>';
 
 			return `<div class="vignette active p${player.id}">
@@ -4178,13 +4180,13 @@ export class UI {
 			const devvit = getDevvitAppVersion();
 			const devvitLine = devvit ? `<p>r${devvit}</p>` : '';
 			return `<div class="vignette hex">
-			<div class="hexinfo frame">
-			<p class="name">Ancient Beast</p>
-			<p>${version}</p>
-			${devvitLine}
-			</div>
-			</div>
-			`;
+		<div class="hexinfo frame">
+		<p class="name">${getBrandText()}</p>
+		<p>${version}</p>
+		${devvitLine}
+		</div>
+		</div>
+		`;
 		};
 
 		/**
@@ -4227,6 +4229,10 @@ export class UI {
 		const showDefault = () => {
 			showCurrentPlayer();
 		};
+
+		// Repaint the corner card the moment new game files land, so the
+		// "Refresh game" hint shows up without waiting for the next hover.
+		onGameUpdateAvailable(showDefault);
 
 		const showQuickInfoForActiveCreature = () => {
 			showDefault();
