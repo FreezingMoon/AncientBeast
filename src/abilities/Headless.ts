@@ -324,6 +324,7 @@ export default (G: Game) => {
 					headless.moveTo(hex, {
 						ignoreMovementPoint: true,
 						ignorePath: true,
+						afterimages: true,
 						callback: function () {
 							const interval = setInterval(function () {
 								if (!G.freezedInput) {
@@ -344,6 +345,7 @@ export default (G: Game) => {
 					target.moveTo(hex, {
 						ignoreMovementPoint: true,
 						ignorePath: true,
+						afterimages: true,
 						callback: function () {
 							const interval = setInterval(function () {
 								if (!G.freezedInput) {

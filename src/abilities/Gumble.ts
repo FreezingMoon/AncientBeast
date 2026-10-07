@@ -557,6 +557,7 @@ export default (G: Game) => {
 						target.moveTo(dir[1], {
 							ignoreMovementPoint: true,
 							ignorePath: true,
+							afterimages: true,
 							callback: function () {
 								G.activeCreature?.queryMove();
 							},

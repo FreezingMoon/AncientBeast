@@ -219,6 +219,7 @@ export default (G: Game) => {
 							},
 							ignoreMovementPoint: true,
 							ignorePath: true,
+							afterimages: true,
 							overrideSpeed: 800, // Custom speed for knockback
 							animation: 'push',
 						});

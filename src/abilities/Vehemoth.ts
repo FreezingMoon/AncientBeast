@@ -252,6 +252,7 @@ export default (G: Game) => {
 
 					vehemoth.moveTo(destination, {
 						overrideSpeed: 100,
+						afterimages: true,
 						callback: function () {
 							let knockbackHex = arrayUtils.last(knockbackHexes);
 
@@ -277,6 +278,7 @@ export default (G: Game) => {
 								}
 
 								target.moveTo(knockbackHex, {
+									afterimages: true,
 									callback: function () {
 										resumeQueryMove();
 									},

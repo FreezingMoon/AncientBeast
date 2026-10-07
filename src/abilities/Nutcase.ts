@@ -387,6 +387,7 @@ export default (G: Game) => {
 					nutcase.moveTo(destination, {
 						overrideSpeed: 100,
 						ignoreMovementPoint: true,
+						afterimages: true,
 						turnAroundOnComplete: !isChargingBackwards,
 						callback: function () {
 							// Damage before any other creature movement is complete and before push.
@@ -520,6 +521,7 @@ export default (G: Game) => {
 					overrideSpeed: 500,
 					ignorePath: true,
 					ignoreMovementPoint: true,
+					afterimages: true,
 					turnAroundOnComplete: false,
 				};
 
@@ -624,6 +626,7 @@ export default (G: Game) => {
 				target.moveTo(G.grid.hexes[crea.y][targetX], {
 					ignorePath: true,
 					ignoreMovementPoint: true,
+					afterimages: true,
 					callback: function () {
 						target.updateHex();
 						target.takeDamage(damage);

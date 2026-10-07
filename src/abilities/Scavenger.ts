@@ -367,8 +367,10 @@ export default (G: Game) => {
 
 				// Substract from movement points
 				crea.remainingMove -= distance * trg.size;
-				// Ability animation speed should be slower than regular movement (flight) speed
-				const escortSpeed = crea.animation.walk_speed * 5;
+				// Ability animation speed should be slower than regular movement (flight) speed.
+				// The Scavenger trails afterimages, so its carry also moves at the
+				// boosted pace — a fifth quicker than the flat 5× it shipped with.
+				const escortSpeed = crea.animation.walk_speed * 4;
 				crea.moveTo(creaDest, {
 					animation: 'fly',
 					callback: function () {

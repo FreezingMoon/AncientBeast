@@ -14,6 +14,7 @@ import { QuadraticCurve } from './utility/curve';
 import { DEBUG_ENABLE_FAST_WALKING, DEBUG_WALK_SPEED_MS } from './debug';
 import { isDocumentHidden } from './utility/time';
 import { after, deltaMs, now } from './timing/clock';
+import { spawnAfterimageTrail, AFTERIMAGE_SPEED_BOOST } from './vertigo';
 
 // to fix @ts-expect-error 2554: properly type the arguments for the trigger functions in `game.ts`
 
@@ -24,6 +25,14 @@ import { after, deltaMs, now } from './timing/clock';
  * crawl. Half pace per hex reads as flight.
  */
 const FLIGHT_SPEED_FACTOR = 0.5;
+
+type ShatterTexture = {
+	crop?: { x: number; y: number; width: number; height: number };
+	frame?: { x: number; y: number; width: number; height: number };
+	baseTexture?: { source?: CanvasImageSource };
+	width?: number;
+	height?: number;
+};
 
 type AnimationOptions = {
 	customMovementPoint?: number;
@@ -39,14 +48,13 @@ type AnimationOptions = {
 	pushed?: boolean;
 	turnAroundOnComplete?: boolean;
 	flipped?: boolean;
-};
-
-type ShatterTexture = {
-	crop?: { x: number; y: number; width: number; height: number };
-	frame?: { x: number; y: number; width: number; height: number };
-	baseTexture?: { source?: CanvasImageSource };
-	width?: number;
-	height?: number;
+	/**
+	 * The moved creature trails afterimages for this move,
+	 * even though the unit itself is not an afterimage
+	 * unit. Set by abilities that dash, drag or knock
+	 * their target around.
+	 */
+	afterimages?: boolean;
 };
 
 /**
@@ -1005,6 +1013,21 @@ export class Animations {
 			speed = DEBUG_WALK_SPEED_MS;
 		}
 
+		// Afterimage units walk a fifth faster than their cardboard's
+		// own pace, matching the flight boost in fly().
+		if (creature.hasAfterimages && !opts.overrideSpeed) {
+			speed /= 1 + AFTERIMAGE_SPEED_BOOST;
+		}
+
+		// The afterimage trail samples the unit's live position across
+		// the whole walk — the unit's own afterimages, or a move an
+		// ability granted them (a dash, a drag, a knockback). Skipped
+		// in a backgrounded tab, matching the walk itself, which
+		// collapses to instant there.
+		if ((creature.hasAfterimages || opts.afterimages) && !isDocumentHidden()) {
+			spawnAfterimageTrail(game, creature, speed * path.length);
+		}
+
 		const anim = () => {
 			const hex = path[hexId];
 
@@ -1096,16 +1119,31 @@ export class Animations {
 		// duration made a full-movement flight read as a teleport. Scale the tween
 		// with the distance covered instead: half the per-hex pace of walking, so a
 		// rested unit that banks movement visibly crosses the map without crawling.
+		// An afterimage unit flies a fifth faster still — its trail is the point
+		// of the effect — so its per-hex pace share drops by the boost.
 		// `Math.max(distance, 1)` keeps a single-hex (or same-hex) move animating.
+		const isFlier = creature.movementType() === 'flying';
+		const flightSpeedFactor = creature.hasAfterimages
+			? FLIGHT_SPEED_FACTOR / (1 + AFTERIMAGE_SPEED_BOOST)
+			: FLIGHT_SPEED_FACTOR;
+
 		const durationMS = !opts.overrideSpeed
-			? creature.animation.walk_speed * FLIGHT_SPEED_FACTOR * Math.max(distance, 1)
+			? creature.animation.walk_speed * flightSpeedFactor * Math.max(distance, 1)
 			: opts.overrideSpeed;
+
+		// The afterimage trail samples the unit's live position across
+		// the crossing — the unit's own afterimages, or a move an
+		// ability granted them (a dash, a drag, a knockback).
+		// Skipped in a backgrounded tab, matching the flight
+		// tween itself, which collapses to instant there.
+		if ((creature.hasAfterimages || opts.afterimages) && !isDocumentHidden()) {
+			spawnAfterimageTrail(game, creature, durationMS);
+		}
 
 		// A true flier (Scavenger) loops its wingbeat for the whole crossing instead
 		// of a step per hex, since the flight is one uninterrupted tween with no
 		// footfalls to hear. The landing is still marked by the usual step.
-		const flightSound =
-			creature.movementType() === 'flying' ? game.soundsys.playSFXLoop('sounds/flight') : undefined;
+		const flightSound = isFlier ? game.soundsys.playSFXLoop('sounds/flight') : undefined;
 
 		creature.creatureSprite.setHex(currentHex, isDocumentHidden() ? 0 : durationMS).then(() => {
 			game.soundsys.stopSFX(flightSound);

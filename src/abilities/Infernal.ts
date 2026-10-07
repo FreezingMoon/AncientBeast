@@ -119,15 +119,15 @@ export default (G) => {
 			// 	query() :
 			query: function () {
 				const ability = this;
-				const magmaSpawn = this.creature;
+				const crea = this.creature;
 
 				G.grid.queryCreature({
 					fnOnConfirm: (...args) => {
 						ability.animation(...args);
 					},
 					team: this._targetTeam,
-					id: magmaSpawn.id,
-					flipped: magmaSpawn.player.flipped,
+					id: crea.id,
+					flipped: crea.player.flipped,
 					hexes: this.creature.getHexMap(matrices.frontnback3hex),
 				});
 			},
@@ -211,7 +211,7 @@ export default (G) => {
 			// 	query() :
 			query: function () {
 				const ability = this;
-				const magmaSpawn = this.creature;
+				const crea = this.creature;
 
 				this.map.origin = [0, 2];
 
@@ -221,9 +221,9 @@ export default (G) => {
 					},
 					team: Team.Both,
 					requireCreature: 0,
-					id: magmaSpawn.id,
-					flipped: magmaSpawn.player.flipped,
-					choices: [magmaSpawn.getHexMap(this.map), magmaSpawn.getHexMap(this.map, true)],
+					id: crea.id,
+					flipped: crea.player.flipped,
+					choices: [crea.getHexMap(this.map), crea.getHexMap(this.map, true)],
 				});
 			},
 
@@ -280,8 +280,8 @@ export default (G) => {
 					return false;
 				}
 
-				const magmaSpawn = this.creature;
-				const x = magmaSpawn.player.flipped ? magmaSpawn.x - magmaSpawn.size + 1 : magmaSpawn.x;
+				const crea = this.creature;
+				const x = crea.player.flipped ? crea.x - crea.size + 1 : crea.x;
 
 				if (
 					!this.testDirection({
@@ -298,19 +298,19 @@ export default (G) => {
 			// 	query() :
 			query: function () {
 				const ability = this;
-				const magmaSpawn = this.creature;
+				const crea = this.creature;
 
-				const x = magmaSpawn.player.flipped ? magmaSpawn.x - magmaSpawn.size + 1 : magmaSpawn.x;
+				const x = crea.player.flipped ? crea.x - crea.size + 1 : crea.x;
 
 				G.grid.queryDirection({
 					fnOnConfirm: (...args) => {
 						ability.animation(...args);
 					},
 					team: this._targetTeam,
-					id: magmaSpawn.id,
+					id: crea.id,
 					requireCreature: true,
 					x: x,
-					y: magmaSpawn.y,
+					y: crea.y,
 					directions: this.directions,
 				});
 			},
@@ -318,7 +318,7 @@ export default (G) => {
 			//	activate() :
 			activate: function (path, args) {
 				const ability = this;
-				const magmaSpawn = this.creature;
+				const crea = this.creature;
 
 				const finalizeHurl = () => {
 					// `poll` stops itself when the board is torn down, so this no
@@ -347,25 +347,25 @@ export default (G) => {
 
 				// NOTE: Destroy traps currently under self
 				getPointFacade()
-					.getTrapsAt(magmaSpawn)
+					.getTrapsAt(crea)
 					.forEach((trap) => trap.destroy());
 
 				// Movement
 				const hurl = (_path) => {
 					const target = arrayUtils.last(_path).creature;
 
-					const magmaHex = magmaSpawn.hexagons[args.direction === 4 ? magmaSpawn.size - 1 : 0];
+					const magmaHex = crea.hexagons[args.direction === 4 ? crea.size - 1 : 0];
 					arrayUtils.filterCreature(_path, false, false);
 					_path.unshift(magmaHex); // Prevent error on empty path
 
-					const offset = args.direction === 4 ? magmaSpawn.size - 1 : 0;
+					const offset = args.direction === 4 ? crea.size - 1 : 0;
 					let destination;
 					for (let i = _path.length - 1; i >= 0; i--) {
 						const candidate = _path[i];
 						const x = candidate.x + offset;
 						const candidateHex = G.grid.hexes[candidate.y]?.[x];
 
-						if (candidateHex && candidateHex.isWalkable(magmaSpawn.size, magmaSpawn.id, true)) {
+						if (candidateHex && candidateHex.isWalkable(crea.size, crea.id, true)) {
 							destination = candidateHex;
 							break;
 						}
@@ -376,9 +376,10 @@ export default (G) => {
 						return;
 					}
 
-					magmaSpawn.moveTo(destination, {
+					crea.moveTo(destination, {
 						ignoreMovementPoint: true,
 						ignorePath: true,
+						afterimages: true,
 						callback: function () {
 							// Destroy traps along path
 							_path.forEach(function (hex) {
@@ -400,10 +401,10 @@ export default (G) => {
 							let continueHurl = false;
 							if (ability.isUpgraded() && targetKilled) {
 								const nextPath = G.grid.getHexLine(target.x, target.y, args.direction, false);
-								arrayUtils.filterCreature(nextPath, true, true, magmaSpawn.id);
+								arrayUtils.filterCreature(nextPath, true, true, crea.id);
 								const nextTarget = arrayUtils.last(nextPath).creature;
 								// Continue only if there's a next enemy creature
-								if (nextTarget && isTeam(magmaSpawn, nextTarget, ability._targetTeam)) {
+								if (nextTarget && isTeam(crea, nextTarget, ability._targetTeam)) {
 									continueHurl = true;
 									hurl(nextPath);
 								}

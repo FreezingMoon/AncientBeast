@@ -828,6 +828,7 @@ export default (G: Game) => {
 						target.moveTo(pushHex, {
 							ignoreMovementPoint: true,
 							ignorePath: true,
+							afterimages: true,
 							animation: 'push',
 							callback: function () {
 								G.activeCreature?.queryMove();
@@ -1114,6 +1115,7 @@ export default (G: Game) => {
 							target.moveTo(landingHex, {
 								ignoreMovementPoint: true,
 								ignorePath: true,
+								afterimages: true,
 								callback: function () {
 									teardownMeatSickleEffect();
 									if (movementDrain > 0) {

@@ -45,6 +45,13 @@ type UnitDataStructure = readonly {
 	movementType?: Movement;
 	display?: UnitDisplayInfo;
 	set?: 'α' | 'β' | '';
+	/**
+	 * The unit leaves fading cardboard afterimages behind it while it
+	 * moves, and moves a fifth faster for it. Meant for fast units
+	 * (the Scavenger's flight, the Impaler's charge); abilities that
+	 * dash a unit can opt in the same way.
+	 */
+	afterimages?: boolean;
 
 	ability_info: {
 		title: string;
@@ -567,6 +574,7 @@ export const unitData: UnitDataStructure = [
 			initiative: 5,
 			frost: 5,
 		},
+		afterimages: true,
 		animation: {
 			walk_speed: 200,
 		},
@@ -3657,6 +3665,7 @@ export const unitData: UnitDataStructure = [
 			defense: 2,
 		},
 		movementType: 'flying',
+		afterimages: true,
 		animation: {
 			walk_speed: 180,
 		},

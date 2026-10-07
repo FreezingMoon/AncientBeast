@@ -259,6 +259,7 @@ export default (G: Game) => {
 				ability.creature.moveTo(hex, {
 					ignoreMovementPoint: true,
 					ignorePath: true,
+					afterimages: true,
 					callback: function () {
 						G.activeCreature?.queryMove();
 						shakeBoard({

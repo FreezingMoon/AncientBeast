@@ -204,7 +204,7 @@ describe('Infernal Molten Hurl movement safety', () => {
 			opts.callback();
 		});
 
-		const magmaSpawn = {
+		const crea = {
 			id: 4,
 			size: 3,
 			player: { flipped: false },
@@ -298,7 +298,7 @@ describe('Infernal Molten Hurl movement safety', () => {
 		const abilityDef = (game.abilities[4] as Array<Record<string, unknown>>)[3];
 		const moltenHurl = {
 			...(abilityDef as object),
-			creature: magmaSpawn,
+			creature: crea,
 			damages: { burn: 10, crush: 10 },
 			end: jest.fn(),
 			isUpgraded: () => false,
@@ -338,7 +338,7 @@ describe('Infernal Molten Hurl movement safety', () => {
 		}
 
 		const moveTo = jest.fn();
-		const magmaSpawn = {
+		const crea = {
 			id: 4,
 			size: 3,
 			player: { flipped: false },
@@ -432,7 +432,7 @@ describe('Infernal Molten Hurl movement safety', () => {
 		const abilityDef = (game.abilities[4] as Array<Record<string, unknown>>)[3];
 		const moltenHurl = {
 			...(abilityDef as object),
-			creature: magmaSpawn,
+			creature: crea,
 			damages: { burn: 10, crush: 10 },
 			end: jest.fn(),
 			isUpgraded: () => false,

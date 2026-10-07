@@ -270,6 +270,7 @@ export default (G: Game) => {
 				this.creature.moveTo(hex, {
 					ignoreMovementPoint: true,
 					ignorePath: true,
+					afterimages: true,
 					callback: () => {
 						// Shake the screen upon landing to simulate the jump
 						shakeBoard({
@@ -425,6 +426,7 @@ export default (G: Game) => {
 							},
 							ignoreMovementPoint: true,
 							ignorePath: true,
+							afterimages: true,
 							overrideSpeed: 500, // Custom speed for knockback
 							animation: 'push',
 						});

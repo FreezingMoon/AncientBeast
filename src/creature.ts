@@ -225,6 +225,8 @@ export class Creature {
 	display: UnitDisplayInfo;
 	drop: DropDefinition;
 	_movementType: Movement;
+	/** Set from the unit's `afterimages` flag in `data/units.ts`. */
+	private _afterimages = false;
 	temp: boolean;
 	hexagons: Hex[];
 	team: PlayerID;
@@ -342,6 +344,8 @@ export class Creature {
 		if (obj.movementType) {
 			this._movementType = obj.movementType;
 		}
+
+		this._afterimages = Boolean(obj.afterimages);
 
 		this.hexagons = [];
 
@@ -751,10 +755,13 @@ export class Creature {
 	private _finishBRB(brbState: NonNullable<Creature['_brbState']>): boolean {
 		const game = this.game;
 
-		// Trap hex is occupied — skip this turn and try again next
+		// Trap hex is occupied — skip this turn. Stop polling so the next
+		// activation (when Gumble's turn comes around again) re-checks;
+		// otherwise the poll keeps firing skipTurn every second, showing
+		// "BRB" non-stop and stalling the queue (notably in bot/sim games).
 		if (brbState.gooTrap.hex.creature) {
 			game.skipTurn({ tooltip: 'BRB' });
-			return false;
+			return true;
 		}
 
 		// Hex is free — revive!
@@ -977,17 +984,23 @@ export class Creature {
 					}
 
 					if (game.grid.materialize_overlay) {
-						const creature = game.retrieveCreatureStats(game.activeCreature.type);
-						game.gameEngine
-							.tween(game.grid.materialize_overlay)
-							.to(
-								{
-									alpha: 0,
-								},
-								creature.animation.walk_speed,
-								Easing.Linear.None,
-							)
-							.start();
+						// The active creature can be cleared by endGame() (e.g. when the
+						// Dark Priest dies mid-animation) while a stale query is still
+						// pending — there is no creature left to preview against, so
+						// skip just the overlay fade rather than aborting the move.
+						if (game.activeCreature) {
+							const creature = game.retrieveCreatureStats(game.activeCreature.type);
+							game.gameEngine
+								.tween(game.grid.materialize_overlay)
+								.to(
+									{
+										alpha: 0,
+									},
+									creature.animation.walk_speed,
+									Easing.Linear.None,
+								)
+								.start();
+						}
 					}
 
 					// Calculate the path once here so the exact same route is recorded
@@ -1072,7 +1085,13 @@ export class Creature {
 			if (!game.grid.isRefreshingHoverState) {
 				game.grid.redoLastQuery();
 			}
-			const creature = game.retrieveCreatureStats(game.activeCreature.type);
+			// The active creature can be cleared by endGame() (e.g. when the Dark
+			// Priest dies mid-animation) while a stale hover query is still pending.
+			const activeCreature = game.activeCreature;
+			if (!activeCreature) {
+				return;
+			}
+			const creature = game.retrieveCreatureStats(activeCreature.type);
 			game.grid.previewCreature(hex, creature, game.activePlayer);
 			args.creature.tracePosition({
 				x: hex.x,
@@ -1143,6 +1162,12 @@ export class Creature {
 			return; // Break if not walkable
 		}
 
+		// The active creature can be cleared by endGame() (e.g. when the Dark
+		// Priest dies mid-animation) while a stale hover query is still pending,
+		// so guard before reading its type — there is no preview to draw.
+		if (!game.activeCreature) {
+			return;
+		}
 		const creat = game.retrieveCreatureStats(game.activeCreature.type);
 		game.grid.previewCreature(hex.pos, creat, game.activePlayer);
 
@@ -1375,7 +1400,14 @@ export class Creature {
 		// Otherwise previewCreature() can erase penultimate adj hexes that overlap
 		// the previous destination after the new path has already been drawn.
 		const last = arrayUtils.last(path) as { x: number; y: number };
-		const creature = this.game.retrieveCreatureStats(this.game.activeCreature.type);
+		// The active creature can be cleared by endGame() (e.g. when the Dark
+		// Priest dies mid-animation) while a stale hover query is still pending,
+		// so guard before reading its type — there is no preview to draw.
+		const activeCreature = this.game.activeCreature;
+		if (!activeCreature) {
+			return;
+		}
+		const creature = this.game.retrieveCreatureStats(activeCreature.type);
 		this.game.grid.previewCreature(last, creature, this.game.activePlayer);
 
 		path.forEach((item: { x: number; y: number }) => {
@@ -2483,6 +2515,14 @@ export class Creature {
 		}
 
 		return this._movementType;
+	}
+
+	/**
+	 * Does this unit trail cardboard afterimages while it moves,
+	 * and move a fifth faster for it? Set per unit in `data/units.ts`.
+	 */
+	get hasAfterimages(): boolean {
+		return this._afterimages;
 	}
 
 	/**

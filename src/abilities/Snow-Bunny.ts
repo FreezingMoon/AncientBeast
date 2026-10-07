@@ -480,6 +480,7 @@ export default (G: Game) => {
 					target.moveTo(pushHex, {
 						ignoreMovementPoint: true,
 						ignorePath: true,
+						afterimages: true,
 						callback: resumeTurn,
 						animation: 'push',
 					});
