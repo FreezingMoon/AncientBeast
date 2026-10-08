@@ -21,6 +21,8 @@ export class Damage {
 	isFromTrap: boolean | undefined = undefined;
 	// Damage from Burning Spirit / Greater Pyre (Abolished)
 	isFromBurningSpirit: boolean | undefined = undefined;
+	// Damage from Greater Pyre - skip passive effect application
+	isFromGreaterPyre: boolean | undefined = undefined;
 
 	noLog = false;
 

@@ -29,6 +29,11 @@ export default (G: Game) => {
 					return;
 				}
 
+				// Skip passive for Greater Pyre - it handles effects manually
+				if (damage.isFromGreaterPyre) {
+					return;
+				}
+
 				const caster = this.creature;
 				const game = G;
 
@@ -447,23 +452,79 @@ export default (G: Game) => {
 				const crea = this.creature;
 				const aoe = crea.adjacentHexes(1);
 				const targets = ability.getTargets(aoe);
-				const targetCount = targets.length;
 
 				if (this.isUpgraded()) {
 					this.damages.burn = 30;
 				}
 
+				// Total hexes affected = sum of hexesHit across all targets
+				const totalHexesHit = targets.reduce((sum, item) => sum + item.hexesHit, 0);
+
 				targets.forEach(function (item) {
+					const hexesHit = item.hexesHit;
+
+					// Apply debuff once per hexagon affected
+					for (let i = 0; i < hexesHit; i++) {
+						item.target.addEffect(
+							new Effect(
+								'Burning Spirit',
+								ability.creature,
+								item.target,
+								'',
+								{
+									turnLifetime: -1,
+									alterations: {
+										burn: -1,
+									},
+								},
+								G,
+							),
+							undefined,
+							undefined,
+							false,
+							true, // disableHint
+						);
+					}
+
+					// Damage with area = hexesHit for this target
 					const dmg = new Damage(
 						ability.creature, // Attacker
 						ability.damages, // Damage Type
-						targetCount, // Area = number of targets hit
+						hexesHit, // Area = hexes of this target affected
 						[], // Effects
 						G,
 					);
 					dmg.isFromBurningSpirit = true;
+					dmg.isFromGreaterPyre = true;
 					item.target.takeDamage(dmg);
 				});
+
+				// Apply buff to caster = total hexes hit
+				if (totalHexesHit > 0) {
+					for (let i = 0; i < totalHexesHit; i++) {
+						crea.addEffect(
+							new Effect(
+								'Burning Spirit',
+								crea,
+								crea,
+								'',
+								{
+									turnLifetime: -1,
+									alterations: {
+										burn: 1,
+									},
+								},
+								G,
+							),
+							undefined,
+							undefined,
+							false,
+							true, // disableHint
+						);
+					}
+					// Show buff count on caster
+					crea.hint(`❤️‍🔥 x${totalHexesHit}`, 'msg_effects');
+				}
 			},
 		},
 	];
