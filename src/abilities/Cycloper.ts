@@ -1311,7 +1311,8 @@ function createAcrylicWall3DPrintEffect(
 
 	// Emission point glow sprite (smaller, at eye) - in group coords
 	const emissionGlowSprite = G.gameEngine.add.sprite(
-		0, 0,
+		0,
+		0,
 		'effects_optic-burst',
 		undefined,
 		creatureGroup,
