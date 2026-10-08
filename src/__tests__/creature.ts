@@ -1099,6 +1099,10 @@ const getPhaserMock = () => {
 		setScale: jest.fn().mockReturnThis(),
 		setPosition: jest.fn().mockReturnThis(),
 		setActive: jest.fn().mockReturnThis(),
+		// Coordinate space conversion (no-op for test double)
+		// Returns a point-like object with x/y to match Phaser.Math.Vector2 shape.
+		toGlobal: (point: { x: number; y: number }) => ({ x: point.x, y: point.y }),
+		toLocal: (point: { x: number; y: number }) => ({ x: point.x, y: point.y }),
 	} as unknown as MockPhaser;
 
 	const makeTween = () => {

@@ -99,7 +99,7 @@ function getCycloperEyeEmissionPoint(cycloper: Creature) {
 	const creatureSprite = cycloper.creatureSprite.sprite;
 	const creatureSize = getFrameSize(creatureSprite);
 	const originX = cycloper.display['offset-x'] ?? 0;
-	const originY = cycloper.display['offset-y'] ?? -150;
+	const originY = cycloper.display['offset-y'] ?? -145;
 	const dir = cycloper.player.flipped ? -1 : 1;
 	const spriteLocalX =
 		(dir === 1 ? originX : HEX_WIDTH_PX * cycloper.size - creatureSize.width - originX) +
@@ -109,7 +109,7 @@ function getCycloperEyeEmissionPoint(cycloper: Creature) {
 	// Eye offsets are local sprite offsets from the pivot (origin 0.5, 1 = bottom center).
 	// Derived from the old world offsets (50/40, -113) minus the sprite local pos above.
 	const eyeLocalX = 5 * (creatureSprite.scaleX > 0 ? 1 : -1);
-	const eyeLocalY = -83;
+	const eyeLocalY = -149; // old world -113 minus spriteLocalY (36)
 
 	// The tilt animation tweens the GROUP's angle, not the sprite's angle.
 	// Read the group's angle to track the tilt.

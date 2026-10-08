@@ -323,9 +323,28 @@ export default (G: Game) => {
 					if (!(creatureOrHex instanceof Creature)) {
 						creature = creatureOrHex.creature;
 					}
+
 					creature.takeDamage(new Damage(effect.attacker, ability.damages, 1, [], G), {
 						isFromTrap: true,
 					});
+
+					// Stack fire emoji on same hint line: clear previous fire hint, show new count
+					let fireCount = 1;
+					creature.creatureSprite._hintGrp.each((hint: any) => {
+						const state = hint && (hint as any).__hintState;
+						if (
+							state &&
+							state.hintType === 'msg_effects' &&
+							hint.text &&
+							hint.text.startsWith('🔥')
+						) {
+							fireCount = (hint.text.match(/🔥/g) || []).length + 1;
+							hint.destroy();
+						}
+					}, creature.creatureSprite);
+
+					creature.hint('🔥'.repeat(fireCount), 'msg_effects');
+
 					// @ts-expect-error 'this' defauls to type 'any'
 					this.trap.destroy();
 					effect.deleteEffect();

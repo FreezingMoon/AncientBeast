@@ -216,6 +216,10 @@ function createEngineMock(resident: Map<string, { width: number; height: number 
 			destroy: () => {
 				group.exists = false;
 			},
+			// Coordinate space conversion (no-op for test doubles — no nested scale)
+			// Returns a point-like object with x/y to match Phaser.Math.Vector2 shape.
+			toGlobal: (point: { x: number; y: number }) => ({ x: point.x, y: point.y }),
+			toLocal: (point: { x: number; y: number }) => ({ x: point.x, y: point.y }),
 		};
 		return group;
 	};

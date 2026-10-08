@@ -111,7 +111,7 @@ jest.mock('../../creature', () => {
 			this.player =
 				init.player ?? ({ id: this.team, flipped: false, creatures: [] } as CreatureMock['player']);
 			this.energy = init.energy ?? this.stats.energy ?? 100;
-			this.display = init.display ?? { width: 90, height: 120, 'offset-x': 0, 'offset-y': -150 };
+			this.display = init.display ?? { width: 90, height: 120, 'offset-x': 0, 'offset-y': -145 };
 		}
 	}
 

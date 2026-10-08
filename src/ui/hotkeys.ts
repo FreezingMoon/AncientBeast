@@ -294,7 +294,16 @@ export class Hotkeys {
 		this.ui.fullscreen.toggle();
 	}
 
-	pressSpace() {
+	pressSpace(event: KeyboardEvent) {
+		// Browsers repeat `keydown` while a key is held, and again after any
+		// cooldown expires, so a single held Spacebar would otherwise confirm
+		// (and shout) the hovered unit over and over. Skip the synthetic repeats.
+		// jQuery re-wraps the native KeyboardEvent and drops most of its
+		// properties (including `repeat`), so read it off the original event.
+		if ((event as unknown as { originalEvent?: { repeat?: boolean } }).originalEvent?.repeat) {
+			return;
+		}
+
 		if (this.ui.dashopen) {
 			this.ui.materializeButton.triggerClick();
 		} else {
@@ -416,8 +425,8 @@ export function getHotKeys(hk) {
 			},
 		},
 		Space: {
-			onkeydown() {
-				hk.pressSpace();
+			onkeydown(event) {
+				hk.pressSpace(event);
 			},
 		},
 		F11: {

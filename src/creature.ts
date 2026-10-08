@@ -2463,6 +2463,11 @@ export class Creature {
 		}
 
 		const customDeathAnimation = (this as CreatureRuntimeFlags).deathAnimationType;
+		// Release the hints before the animation swings the cardboard
+		// group: every death animation arcs, rotates and fades the whole
+		// group, and the hints about this unit are children of it, so
+		// they used to be dragged down the same curve.
+		this.creatureSprite.releaseHints();
 		if (customDeathAnimation === 'shatterDown') {
 			game.animations.shatterDown(this, opts);
 		} else if (customDeathAnimation === 'melt') {
@@ -2838,6 +2843,14 @@ class CreatureSprite {
 	private _xrayRefCreatures: Creature[] = []; // all ref creatures whose shape we cut out
 
 	private _postUpdateHooks: Array<() => void> = [];
+
+	/**
+	 * Whether {@link releaseHints} has moved the hint group out of
+	 * the creature group. `destroy()` then has to tear the released
+	 * group down itself, since the creature group teardown no longer
+	 * reaches it.
+	 */
+	private _hintsReleased = false;
 
 	/**
 	 * True once the Phaser objects owned by this sprite have been torn down.
@@ -4590,6 +4603,59 @@ class CreatureSprite {
 		}, this);
 	}
 
+	/**
+	 * Detaches the hint group from this creature's cardboard group,
+	 * leaving it floating at the same world position.
+	 *
+	 * The death animations swing the whole cardboard group — arc,
+	 * rotate, fade — and every hint parked in the hint group (damage
+	 * numbers, effect names, the skip-turn frame) is a child of it,
+	 * so a unit dying on a trap dragged the hints about it down the
+	 * same curve. Releasing the group first lets the hints fade out
+	 * where they were shown while the cardboard falls away alone.
+	 * The released group is torn down by `destroy()`, which the
+	 * creature group teardown can no longer reach.
+	 */
+	releaseHints(): void {
+		if (this._destroyed || this._hintsReleased) return;
+
+		const parent = this._hintGrp.parent as GroupHandle | null;
+		if (!parent || parent !== this._group) {
+			// Not parented to the creature group: either the headless
+			// doubles that never wire a parent chain, or an already
+			// released group. Nothing to detach either way.
+			return;
+		}
+
+		// The static layer the creature group lives in.
+		const layer = this._group.parent as GroupHandle | null;
+		if (!layer) {
+			return;
+		}
+
+		// The creature group and the display layer may have different scales
+		// (e.g., board vertical scale 0.75 on gridGroup). Convert the hint
+		// group's local position through world space to preserve the exact
+		// rendered position when reparenting.
+		const worldPos = this._group.toGlobal({ x: this._hintGrp.x, y: this._hintGrp.y });
+		const layerPos = layer.toLocal(worldPos);
+
+		parent.remove(this._hintGrp, false);
+		layer.add(this._hintGrp);
+		this._hintGrp.setPosition(layerPos.x, layerPos.y);
+		// Keep the released group in the dying unit's depth band so
+		// `orderCreatureZ`'s layer sort doesn't sink it behind the
+		// units it used to render among.
+		this._hintGrp.depth = this._group.depth;
+		this._hintsReleased = true;
+
+		// Hints that outlive the cardboard (skip turn, no action) must
+		// not linger at the death spot with no unit behind them: fade
+		// them out in place. Transient hints (damage, effect names)
+		// already fade and destroy themselves on their own tweens.
+		this.clearHints(['confirm', 'no_action']);
+	}
+
 	destroy() {
 		if (this._destroyed) return;
 		this._destroyed = true;
@@ -4603,6 +4669,13 @@ class CreatureSprite {
 		if (this._healthInUiGroup) {
 			this._healthUiGroup?.remove(this._healthIndicatorGroup, true);
 			this._healthInUiGroup = false;
+		}
+		// The death animations release the hint group into the static
+		// creature layer (see `releaseHints`), so the teardown below no
+		// longer reaches it — destroy it here or the fading hints leak.
+		if (this._hintsReleased) {
+			this._hintsReleased = false;
+			this._hintGrp.parent?.remove(this._hintGrp, true);
 		}
 		// Phaser 2's `removeChild` only detached the container, leaving the
 		// cardboard, the hint group and their tweens alive with no owner — the
