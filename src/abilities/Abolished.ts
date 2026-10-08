@@ -53,20 +53,13 @@ export default (G: Game) => {
 					true, // disableHint
 				);
 
-				// Show single fireheart on each target debuffed (emoji only)
-				target.hint('❤️‍🔥', 'msg_effects');
+				// Only show separate debuff hint if damage doesn't already include emoji
+				// (Greater Pyre, Fiery Touch, and traps already show it on damage line)
+				if (!damage.isFromBurningSpirit && !damage.isFromTrap) {
+					target.hint('❤️‍🔥', 'msg_effects');
+				}
 
 				if (this.isUpgraded()) {
-					// Track per-attack using Damage instance (shared across all targets in AoE)
-					if (!caster._lastBurningSpiritDamage || caster._lastBurningSpiritDamage !== damage) {
-						caster._lastBurningSpiritDamage = damage;
-						// Only show hint when hitting multiple targets at once (AoE)
-						const hitCount = damage.area || 1;
-						if (hitCount > 1) {
-							caster.hint('❤️‍🔥'.repeat(hitCount), 'msg_effects');
-						}
-					}
-
 					// Add self-buff WITHOUT default hint
 					caster.addEffect(
 						new Effect(
@@ -87,6 +80,11 @@ export default (G: Game) => {
 						false,
 						true, // disableHint
 					);
+
+					// Show fireheart on caster for each buff gained from upgraded passive
+					// For AoE attacks like Greater Pyre, damage.area = number of targets hit
+					const buffCount = damage.area || 1;
+					caster.hint('❤️‍🔥'.repeat(buffCount), 'msg_effects');
 				}
 			},
 		},
@@ -185,6 +183,7 @@ export default (G: Game) => {
 				const tween = projectileInstance[0];
 				const sprite = projectileInstance[1];
 				const damage = this._getDamage(path);
+				damage.isFromBurningSpirit = true;
 
 				tween.onComplete.add(function () {
 					// `this` refers to the animation object, _not_ the ability
@@ -448,21 +447,22 @@ export default (G: Game) => {
 				const crea = this.creature;
 				const aoe = crea.adjacentHexes(1);
 				const targets = ability.getTargets(aoe);
+				const targetCount = targets.length;
 
 				if (this.isUpgraded()) {
 					this.damages.burn = 30;
 				}
 
 				targets.forEach(function (item) {
-					item.target.takeDamage(
-						new Damage(
-							ability.creature, // Attacker
-							ability.damages, // Damage Type
-							1, // Area
-							[], // Effects
-							G,
-						),
+					const dmg = new Damage(
+						ability.creature, // Attacker
+						ability.damages, // Damage Type
+						targetCount, // Area = number of targets hit
+						[], // Effects
+						G,
 					);
+					dmg.isFromBurningSpirit = true;
+					item.target.takeDamage(dmg);
 				});
 			},
 		},

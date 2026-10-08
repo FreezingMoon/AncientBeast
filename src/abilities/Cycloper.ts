@@ -260,14 +260,45 @@ function createOpticBurstLaserEffect(
 	impactSprite.alpha = 0;
 	impactSprite.setScale(1.4, 1.4);
 
+	// Emission point glow sprite (smaller, at eye)
+	const emissionGlowSprite = G.gameEngine.add.sprite(
+		targetPointX,
+		targetPointY,
+		'effects_optic-burst',
+		undefined,
+		G.grid.creatureGroup,
+	);
+	emissionGlowSprite.setOrigin(0.5);
+	emissionGlowSprite.tint = 0x55ff77;
+	emissionGlowSprite.alpha = 0;
+	emissionGlowSprite.setScale(0.5, 0.5);
+
+	// Add beam graphics to the creature's group (same parent as sprite)
+	// We'll manually sync its rotation with the sprite's tilt each frame
+	const creatureGroup = ability.creature.creatureSprite.grp;
 	const beamGraphics = G.gameEngine.add.graphics(0, 0);
-	G.grid.creatureGroup.add(beamGraphics);
+	creatureGroup.add(beamGraphics);
 
 	const travelSteps = baseDist <= 0 ? 1 : baseDist;
 	const straightTravelDurationMs = Math.max(60, Math.min(110, travelSteps * 20));
 	const sweepDurationMs = Math.max(320, travelSteps * 95);
 	const beamDurationMs = straightTravelDurationMs + sweepDurationMs;
 	const totalSweepRadians = ((ability.creature.player.flipped ? -1 : 1) * (2.5 * Math.PI)) / 180;
+
+	// Pre-calculate sprite local position and eye offset in group coordinates
+	const creatureSprite = ability.creature.creatureSprite.sprite;
+	const creatureSize = getFrameSize(creatureSprite);
+	const originX = ability.creature.display['offset-x'] ?? 0;
+	const originY = ability.creature.display['offset-y'] ?? -145;
+	const dir = ability.creature.player.flipped ? -1 : 1;
+	const spriteLocalX =
+		(dir === 1 ? originX : HEX_WIDTH_PX * ability.creature.size - creatureSize.width - originX) +
+		creatureSize.width / 2;
+	const spriteLocalY = originY + creatureSize.height;
+
+	// Eye offset from sprite's pivot (origin 0.5, 1 = bottom center)
+	const eyeLocalX = 5 * (creatureSprite.scaleX > 0 ? 1 : -1);
+	const eyeLocalY = -149;
 
 	runTimedAnimation({
 		durationMs: beamDurationMs,
@@ -281,22 +312,35 @@ function createOpticBurstLaserEffect(
 			const sweepRadians = isStraightTravelPhase ? 0 : totalSweepRadians * sweepProgress;
 
 			ability.creature.faceHex(target);
-			const currentEyeEmissionPoint = getCycloperEyeEmissionPoint(ability.creature);
-			// Recompute angle and length each frame so the beam stays anchored to
-			// the eye and aimed at the target as the Cycloper's head rocks with
-			// the tilt animation — a stale length would let the beam drift off
-			// the target mid-swing.
-			const currentDx = targetPointX - currentEyeEmissionPoint.x;
-			const currentDy = targetPointY - currentEyeEmissionPoint.y;
+
+			// Sync beam graphics rotation with sprite's tilt angle
+			const spriteAngleRad = (creatureSprite.angle ?? 0) * (Math.PI / 180);
+			beamGraphics.angle = creatureSprite.angle ?? 0;
+
+			// Eye position in group coordinates: sprite local pos + rotated eye offset
+			const cos = Math.cos(spriteAngleRad);
+			const sin = Math.sin(spriteAngleRad);
+			const rotEyeX = eyeLocalX * cos - eyeLocalY * sin;
+			const rotEyeY = eyeLocalX * sin + eyeLocalY * cos;
+			const eyeGroupX = spriteLocalX + rotEyeX;
+			const eyeGroupY = spriteLocalY + rotEyeY;
+
+			// Target position in group coordinates
+			const targetGroupX = targetPointX - ability.creature.creatureSprite.grp.x;
+			const targetGroupY = targetPointY - ability.creature.creatureSprite.grp.y;
+
+			const currentDx = targetGroupX - eyeGroupX;
+			const currentDy = targetGroupY - eyeGroupY;
 			const currentAngle = Math.atan2(currentDy, currentDx);
 			const currentLength = isStraightTravelPhase
 				? Math.hypot(currentDx, currentDy) * straightProgress
 				: Math.hypot(currentDx, currentDy);
+
 			beamGraphics.clear();
 			const beamTip = drawCycloperBeamLayered(
 				beamGraphics,
-				currentEyeEmissionPoint.x,
-				currentEyeEmissionPoint.y,
+				eyeGroupX,
+				eyeGroupY,
 				currentAngle,
 				currentLength,
 				sweepRadians,
@@ -304,16 +348,31 @@ function createOpticBurstLaserEffect(
 
 			if (isStraightTravelPhase) {
 				impactSprite.alpha = 0;
+				emissionGlowSprite.alpha = 0;
 			} else {
-				impactSprite.x = beamTip.x;
-				impactSprite.y = beamTip.y;
+				// Convert beamTip from group coords to world coords (rotate by graphics angle)
+				const grp = ability.creature.creatureSprite.grp;
+				const spriteAngleRad = (creatureSprite.angle ?? 0) * (Math.PI / 180);
+				const cos = Math.cos(spriteAngleRad);
+				const sin = Math.sin(spriteAngleRad);
+				const rotatedTipX = beamTip.x * cos - beamTip.y * sin;
+				const rotatedTipY = beamTip.x * sin + beamTip.y * cos;
+				impactSprite.x = rotatedTipX + grp.x;
+				impactSprite.y = rotatedTipY + grp.y;
 				const glowPulse = 0.5 + 0.5 * Math.sin(sweepProgress * Math.PI * 6);
 				impactSprite.alpha = Math.min(0.9, 0.65 + glowPulse * 0.2);
 				impactSprite.setScale(1.4 + glowPulse * 0.35, 1.4 + glowPulse * 0.35);
+
+				// Emission glow at eye position (already world coords)
+				emissionGlowSprite.x = eyeGroupX + grp.x;
+				emissionGlowSprite.y = eyeGroupY + grp.y;
+				emissionGlowSprite.alpha = Math.min(0.7, 0.45 + glowPulse * 0.15);
+				emissionGlowSprite.setScale(0.5 + glowPulse * 0.15, 0.5 + glowPulse * 0.15);
 			}
 		},
 		onDone: () => {
 			beamGraphics.destroy();
+			emissionGlowSprite.destroy();
 
 			G.gameEngine
 				.tween(impactSprite.scale)
@@ -517,35 +576,91 @@ function createPowerAperturePhase1Effect(
 		tile.sprite.angle = 0;
 	});
 
+	// Emission point glow sprite (smaller, at eye)
+	const emissionGlowSprite = G.gameEngine.add.sprite(
+		targetCapPoint.x,
+		targetCapPoint.y,
+		'effects_optic-burst',
+		undefined,
+		G.grid.creatureGroup,
+	);
+	emissionGlowSprite.setOrigin(0.5, 0.5);
+	emissionGlowSprite.tint = laserColor;
+	emissionGlowSprite.alpha = 0;
+	emissionGlowSprite.setScale(0.5, 0.5);
+
+	// Add beam graphics to the Cycloper's group (same parent as sprite)
+	// We'll manually sync its rotation with the sprite's tilt each frame
+	const creatureGroup = cycloper.creatureSprite.grp;
 	const beamGraphics = G.gameEngine.add.graphics(0, 0);
-	G.grid.creatureGroup.add(beamGraphics);
+	creatureGroup.add(beamGraphics);
+
+	// Pre-calculate sprite local position and eye offset in group coordinates
+	const creatureSprite = cycloper.creatureSprite.sprite;
+	const creatureSize = getFrameSize(creatureSprite);
+	const originX = cycloper.display['offset-x'] ?? 0;
+	const originY = cycloper.display['offset-y'] ?? -145;
+	const dir = cycloper.player.flipped ? -1 : 1;
+	const spriteLocalX =
+		(dir === 1 ? originX : HEX_WIDTH_PX * cycloper.size - creatureSize.width - originX) +
+		creatureSize.width / 2;
+	const spriteLocalY = originY + creatureSize.height;
+
+	// Eye offset from sprite's pivot (origin 0.5, 1 = bottom center)
+	const eyeLocalX = 5 * (creatureSprite.scaleX > 0 ? 1 : -1);
+	const eyeLocalY = -149;
 
 	runTimedAnimation({
 		durationMs: laserDurationMs,
 		onFrame: (elapsed, progress) => {
 			const suctionProgress = progress;
 
-			const currentEyeEmissionPoint = getCycloperEyeEmissionPoint(cycloper);
+			// Sync beam graphics rotation with sprite's tilt angle
+			const spriteAngleRad = (creatureSprite.angle ?? 0) * (Math.PI / 180);
+			beamGraphics.angle = creatureSprite.angle ?? 0;
+
+			// Eye position in group coordinates: sprite local pos + rotated eye offset
+			const cos = Math.cos(spriteAngleRad);
+			const sin = Math.sin(spriteAngleRad);
+			const rotEyeX = eyeLocalX * cos - eyeLocalY * sin;
+			const rotEyeY = eyeLocalX * sin + eyeLocalY * cos;
+			const eyeGroupX = spriteLocalX + rotEyeX;
+			const eyeGroupY = spriteLocalY + rotEyeY;
+
+			// Target position in group coordinates
+			const targetGroupX = targetCapPoint.x - cycloper.creatureSprite.grp.x;
+			const targetGroupY = targetCapPoint.y - cycloper.creatureSprite.grp.y;
+
 			beamGraphics.clear();
 			const beamTip = drawCycloperBeamLayered(
 				beamGraphics,
-				currentEyeEmissionPoint.x,
-				currentEyeEmissionPoint.y,
-				Math.atan2(
-					targetCapPoint.y - currentEyeEmissionPoint.y,
-					targetCapPoint.x - currentEyeEmissionPoint.x,
-				),
-				Math.hypot(
-					targetCapPoint.x - currentEyeEmissionPoint.x,
-					targetCapPoint.y - currentEyeEmissionPoint.y,
-				),
+				eyeGroupX,
+				eyeGroupY,
+				Math.atan2(targetGroupY - eyeGroupY, targetGroupX - eyeGroupX),
+				Math.hypot(targetGroupX - eyeGroupX, targetGroupY - eyeGroupY),
 				0,
 			);
 
-			impactSprite.x = beamTip.x;
-			impactSprite.y = beamTip.y;
+			// Convert beamTip from group coords to world coords (rotate by graphics angle)
+			const grp1 = cycloper.creatureSprite.grp;
+			const spriteAngleRad1 = (creatureSprite.angle ?? 0) * (Math.PI / 180);
+			const cos1 = Math.cos(spriteAngleRad1);
+			const sin1 = Math.sin(spriteAngleRad1);
+			const rotatedTipX1 = beamTip.x * cos1 - beamTip.y * sin1;
+			const rotatedTipY1 = beamTip.x * sin1 + beamTip.y * cos1;
+			impactSprite.x = rotatedTipX1 + grp1.x;
+			impactSprite.y = rotatedTipY1 + grp1.y;
 			impactSprite.alpha = 0.55 + 0.35 * Math.sin(progress * Math.PI * 4) * 0.5;
 			impactSprite.setScale(2 + suctionProgress * 0.4, 1.5 + suctionProgress * 0.25);
+
+			// Emission glow at eye position (already world coords)
+			emissionGlowSprite.x = eyeGroupX + grp1.x;
+			emissionGlowSprite.y = eyeGroupY + grp1.y;
+			emissionGlowSprite.alpha = 0.4 + 0.2 * Math.sin(progress * Math.PI * 4);
+			emissionGlowSprite.setScale(
+				0.5 + 0.1 * Math.sin(progress * Math.PI * 4),
+				0.5 + 0.1 * Math.sin(progress * Math.PI * 4),
+			);
 
 			tiles.forEach((tile) => {
 				const lineDeltaX = targetCapPoint.x - tile.sourceX;
@@ -577,6 +692,7 @@ function createPowerAperturePhase1Effect(
 			});
 			beamGraphics.destroy();
 			impactSprite.destroy();
+			emissionGlowSprite.destroy();
 			if (onComplete) {
 				onComplete();
 			}
@@ -706,27 +822,76 @@ function createPowerAperturePhase2Effect(
 		tile.sprite.angle = 0;
 	});
 
+	// Emission point glow sprite (smaller, at eye)
+	const emissionGlowSprite = G.gameEngine.add.sprite(
+		destinationCapPoint.x,
+		destinationCapPoint.y,
+		'effects_optic-burst',
+		undefined,
+		G.grid.creatureGroup,
+	);
+	emissionGlowSprite.setOrigin(0.5, 0.5);
+	emissionGlowSprite.tint = laserColor;
+	emissionGlowSprite.alpha = 0;
+	emissionGlowSprite.setScale(0.5, 0.5);
+
+	// Add beam graphics to the Cycloper's group (same parent as sprite)
+	// We'll manually sync its rotation with the sprite's tilt each frame
+	const creatureGroup = cycloper.creatureSprite.grp;
 	const beamGraphics = G.gameEngine.add.graphics(0, 0);
-	G.grid.creatureGroup.add(beamGraphics);
+	creatureGroup.add(beamGraphics);
+
+	// Pre-calculate sprite local position and eye offset in group coordinates
+	const creatureSprite = cycloper.creatureSprite.sprite;
+	const creatureSize = getFrameSize(creatureSprite);
+	const originX = cycloper.display['offset-x'] ?? 0;
+	const originY = cycloper.display['offset-y'] ?? -145;
+	const dir = cycloper.player.flipped ? -1 : 1;
+	const spriteLocalX =
+		(dir === 1 ? originX : HEX_WIDTH_PX * cycloper.size - creatureSize.width - originX) +
+		creatureSize.width / 2;
+	const spriteLocalY = originY + creatureSize.height;
+
+	// Eye offset from sprite's pivot (origin 0.5, 1 = bottom center)
+	const eyeLocalX = 5 * (creatureSprite.scaleX > 0 ? 1 : -1);
+	const eyeLocalY = -149;
 
 	runTimedAnimation({
 		durationMs: laserDurationMs,
 		onFrame: (elapsed, progress) => {
+			// Sync beam graphics rotation with sprite's tilt angle
+			const spriteAngleRad = (creatureSprite.angle ?? 0) * (Math.PI / 180);
+			beamGraphics.angle = creatureSprite.angle ?? 0;
+
+			// Eye position in group coordinates: sprite local pos + rotated eye offset
+			const cos = Math.cos(spriteAngleRad);
+			const sin = Math.sin(spriteAngleRad);
+			const rotEyeX = eyeLocalX * cos - eyeLocalY * sin;
+			const rotEyeY = eyeLocalX * sin + eyeLocalY * cos;
+			const eyeGroupX = spriteLocalX + rotEyeX;
+			const eyeGroupY = spriteLocalY + rotEyeY;
+
+			// Target position in group coordinates
+			const targetGroupX = destinationCapPoint.x - cycloper.creatureSprite.grp.x;
+			const targetGroupY = destinationCapPoint.y - cycloper.creatureSprite.grp.y;
+
 			beamGraphics.clear();
-			const currentEyeEmissionPoint = getCycloperEyeEmissionPoint(cycloper);
 			const beamTip = drawCycloperBeamLayered(
 				beamGraphics,
-				currentEyeEmissionPoint.x,
-				currentEyeEmissionPoint.y,
-				Math.atan2(
-					destinationCapPoint.y - currentEyeEmissionPoint.y,
-					destinationCapPoint.x - currentEyeEmissionPoint.x,
-				),
-				Math.hypot(
-					destinationCapPoint.x - currentEyeEmissionPoint.x,
-					destinationCapPoint.y - currentEyeEmissionPoint.y,
-				),
+				eyeGroupX,
+				eyeGroupY,
+				Math.atan2(targetGroupY - eyeGroupY, targetGroupX - eyeGroupX),
+				Math.hypot(targetGroupX - eyeGroupX, targetGroupY - eyeGroupY),
 				0,
+			);
+
+			// Emission glow at eye position
+			emissionGlowSprite.x = eyeGroupX + cycloper.creatureSprite.grp.x;
+			emissionGlowSprite.y = eyeGroupY + cycloper.creatureSprite.grp.y;
+			emissionGlowSprite.alpha = 0.4 + 0.2 * Math.sin(progress * Math.PI * 4);
+			emissionGlowSprite.setScale(
+				0.5 + 0.1 * Math.sin(progress * Math.PI * 4),
+				0.5 + 0.1 * Math.sin(progress * Math.PI * 4),
 			);
 			const reassembleProgress = Math.min(1, elapsed / reformDurationMs);
 			const pulseIntensity = 0.5 + 0.5 * Math.sin(progress * Math.PI * 4);
@@ -734,8 +899,15 @@ function createPowerAperturePhase2Effect(
 			const revealStartMs = laserDurationMs - 400;
 			const revealProgress = Math.min(1, Math.max(0, elapsed - revealStartMs) / 400);
 			applyTargetReformState(revealProgress, revealProgress);
-			impactSprite.x = beamTip.x;
-			impactSprite.y = beamTip.y;
+			// Convert beamTip from group coords to world coords (rotate by graphics angle)
+			const grp2 = cycloper.creatureSprite.grp;
+			const spriteAngleRad2 = (creatureSprite.angle ?? 0) * (Math.PI / 180);
+			const cos2 = Math.cos(spriteAngleRad2);
+			const sin2 = Math.sin(spriteAngleRad2);
+			const rotatedTipX2 = beamTip.x * cos2 - beamTip.y * sin2;
+			const rotatedTipY2 = beamTip.x * sin2 + beamTip.y * cos2;
+			impactSprite.x = rotatedTipX2 + grp2.x;
+			impactSprite.y = rotatedTipY2 + grp2.y;
 			impactSprite.alpha = 0.6 + pulseIntensity * 0.3;
 			impactSprite.setScale(2.5 + pulseIntensity * 0.6, 1.8 + pulseIntensity * 0.4);
 
@@ -762,6 +934,7 @@ function createPowerAperturePhase2Effect(
 		onDone: () => {
 			beamGraphics.destroy();
 			impactSprite.destroy();
+			emissionGlowSprite.destroy();
 
 			tiles.forEach((tile) => {
 				tile.sprite.destroy();
@@ -1115,17 +1288,46 @@ function createAcrylicWall3DPrintEffect(
 	// Crop to zero-height at the texture bottom; the loop grows it upward.
 	wallSprite.setCrop(0, wallHeight, wallWidth, 0);
 
-	// Create beam graphics for laser line
+	// Add beam graphics to the Cycloper's group (same parent as sprite)
+	// We'll manually sync its rotation with the sprite's tilt each frame
+	const creatureGroup = cycloper.creatureSprite.grp;
 	const beamGraphics = G.gameEngine.add.graphics(0, 0);
-	G.grid.creatureGroup.add(beamGraphics);
+	creatureGroup.add(beamGraphics);
 
-	// Create horizontal green flash
-	const flashSprite = G.gameEngine.add.sprite(
-		wallCenterX,
-		wallBottomY,
+	// Pre-calculate sprite local position and eye offset in group coordinates
+	const creatureSprite = cycloper.creatureSprite.sprite;
+	const creatureSize = getFrameSize(creatureSprite);
+	const originX = cycloper.display['offset-x'] ?? 0;
+	const originY = cycloper.display['offset-y'] ?? -145;
+	const dir = cycloper.player.flipped ? -1 : 1;
+	const spriteLocalX =
+		(dir === 1 ? originX : HEX_WIDTH_PX * cycloper.size - creatureSize.width - originX) +
+		creatureSize.width / 2;
+	const spriteLocalY = originY + creatureSize.height;
+
+	// Eye offset from sprite's pivot (origin 0.5, 1 = bottom center)
+	const eyeLocalX = 5 * (creatureSprite.scaleX > 0 ? 1 : -1);
+	const eyeLocalY = -149;
+
+	// Emission point glow sprite (smaller, at eye) - in group coords
+	const emissionGlowSprite = G.gameEngine.add.sprite(
+		0, 0,
 		'effects_optic-burst',
 		undefined,
-		G.grid.creatureGroup,
+		creatureGroup,
+	);
+	emissionGlowSprite.setOrigin(0.5, 0.5);
+	emissionGlowSprite.tint = laserColor;
+	emissionGlowSprite.alpha = 0;
+	emissionGlowSprite.setScale(0.5, 0.5);
+
+	// Create horizontal green flash (in group coords)
+	const flashSprite = G.gameEngine.add.sprite(
+		wallCenterX - cycloper.creatureSprite.grp.x,
+		wallBottomY - cycloper.creatureSprite.grp.y,
+		'effects_optic-burst',
+		undefined,
+		creatureGroup,
 	);
 	flashSprite.setOrigin(0.5, 0.5);
 	flashSprite.tint = laserColor;
@@ -1162,6 +1364,7 @@ function createAcrylicWall3DPrintEffect(
 		}
 		beamGraphics.destroy();
 		flashSprite.destroy();
+		emissionGlowSprite.destroy();
 		if (onComplete) {
 			onComplete();
 		}
@@ -1189,18 +1392,42 @@ function createAcrylicWall3DPrintEffect(
 				wallSprite.setCrop(0, wallHeight - revealHeight, wallWidth, revealHeight);
 			}
 
-			// Move flash upward along the wall
-			flashSprite.y = currentFlashY;
+			// Move flash upward along the wall (in group coords)
+			const flashGroupY = currentFlashY - cycloper.creatureSprite.grp.y;
+			flashSprite.y = flashGroupY;
 
 			// Keep Cycloper facing the print direction for the full effect duration.
 			cycloper.faceHex(wall);
-			const currentEyeEmissionPoint = getCycloperEyeEmissionPoint(cycloper);
 
-			// Draw laser beam from eye to flash
+			// Sync beam graphics rotation with sprite's tilt angle
+			const spriteAngleRad = (creatureSprite.angle ?? 0) * (Math.PI / 180);
+			beamGraphics.angle = creatureSprite.angle ?? 0;
+
+			// Eye position in group coordinates: sprite local pos + rotated eye offset
+			const cos = Math.cos(spriteAngleRad);
+			const sin = Math.sin(spriteAngleRad);
+			const rotEyeX = eyeLocalX * cos - eyeLocalY * sin;
+			const rotEyeY = eyeLocalX * sin + eyeLocalY * cos;
+			const eyeGroupX = spriteLocalX + rotEyeX;
+			const eyeGroupY = spriteLocalY + rotEyeY;
+
+			// Flash position in group coordinates
+			const flashGroupX = wallCenterX - cycloper.creatureSprite.grp.x;
+
+			// Emission glow at eye position (in group coords)
+			emissionGlowSprite.x = eyeGroupX;
+			emissionGlowSprite.y = eyeGroupY;
+			emissionGlowSprite.alpha = 0.4 + 0.2 * Math.sin(progress * Math.PI * 4);
+			emissionGlowSprite.setScale(
+				0.5 + 0.1 * Math.sin(progress * Math.PI * 4),
+				0.5 + 0.1 * Math.sin(progress * Math.PI * 4),
+			);
+
+			// Draw laser beam from eye to flash (both in group coords)
 			beamGraphics.clear();
 			beamGraphics.lineStyle(5, laserColor, 0.95);
-			beamGraphics.moveTo(currentEyeEmissionPoint.x, currentEyeEmissionPoint.y);
-			beamGraphics.lineTo(wallCenterX, currentFlashY);
+			beamGraphics.moveTo(eyeGroupX, eyeGroupY);
+			beamGraphics.lineTo(flashGroupX, flashGroupY);
 			beamGraphics.strokePath();
 		} catch (error) {
 			console.error('Acrylic wall print effect failed', error);

@@ -56,7 +56,10 @@ jest.mock('../../creature', () => {
 		tracePosition = jest.fn();
 		faceHex = jest.fn();
 		creatureSprite = {
-			grp: { angle: 0 },
+			grp: {
+				angle: 0,
+				add: jest.fn((child) => child),
+			},
 			sprite: {
 				originX: 0.5,
 				originY: 1,

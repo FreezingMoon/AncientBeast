@@ -800,8 +800,8 @@ export const unitData: UnitDataStructure = [
 		ability_info: [
 			{
 				title: 'Burning Spirit',
-				desc: "Hits reduce the target's burn mastery.",
-				info: '-1 burn mastery each successful strike.',
+				desc: "Hits reduce the target's burn mastery, area attacks can be even more efficient.",
+				info: '-1 burn mastery for every hexagon hit.',
 				upgrade: '1 burn mastery to self on hit.',
 			},
 			{

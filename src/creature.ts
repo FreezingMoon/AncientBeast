@@ -293,6 +293,8 @@ export class Creature {
 
 	// Burning Spirit passive: track last Damage instance to aggregate multi-target attacks (Abolished)
 	_lastBurningSpiritDamage: Damage | undefined;
+	// Bonfire Spring trap: track number of traps triggered in current movement (Abolished)
+	_bonfireSpringCount: number | undefined;
 
 	creatureSprite: CreatureSprite;
 
@@ -1726,7 +1728,19 @@ export class Creature {
 
 			// Display
 			const nbrDisplayed = dmgAmount ? '-' + dmgAmount : 0;
-			this.hint(nbrDisplayed + '', 'damage');
+			let emoji = '';
+			if (damage.isFromTrap) {
+				// Bonfire Spring: show count if multiple traps triggered
+				const count = this._bonfireSpringCount || 1;
+				emoji = ' ❤️‍🔥'.repeat(count);
+				// Reset counter after showing
+				this._bonfireSpringCount = 0;
+			} else if (damage.isFromBurningSpirit) {
+				// Greater Pyre / Burning Spirit: show fire hearts equal to area (targets hit)
+				const count = damage.area || 1;
+				emoji = ' ❤️‍🔥'.repeat(count);
+			}
+			this.hint(nbrDisplayed + emoji, 'damage');
 
 			if (!damage.noLog) {
 				game.log('%CreatureName' + this.id + '% is hit : ' + nbrDisplayed + ' health');

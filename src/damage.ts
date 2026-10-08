@@ -19,6 +19,8 @@ export class Damage {
 	target: Creature | undefined = undefined;
 	melee: boolean | undefined = undefined;
 	isFromTrap: boolean | undefined = undefined;
+	// Damage from Burning Spirit / Greater Pyre (Abolished)
+	isFromBurningSpirit: boolean | undefined = undefined;
 
 	noLog = false;
 
