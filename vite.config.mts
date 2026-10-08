@@ -252,6 +252,7 @@ export default defineConfig(({ mode, command }) => {
       },
     },
     server: {
+      hmr: false,
       port: 8080,
       open: true,
       host: true,

@@ -14,7 +14,6 @@ import { getUrl } from '../assets';
 import { MetaPowers } from './meta-powers';
 import { Queue } from './queue';
 import { QuickInfo } from './quickinfo';
-import { getBrandText, markGameUpdateAvailable, onGameUpdateAvailable } from './game-update';
 import { pretty as version } from '../utility/version';
 import { getDevvitAppVersion } from '../utility/clientVersion';
 import { capitalize } from '../utility/string';
@@ -68,7 +67,6 @@ type ConfirmUnloadState = {
 };
 
 let getActiveConfirmUnloadState: () => ConfirmUnloadState | null = () => null;
-let hasWebpackReloadConfirmListener = false;
 let hasManualRefreshConfirmListener = false;
 /** Window key holding the registered manual-refresh capture handler. */
 const MANUAL_REFRESH_LISTENER_KEY = '__abManualRefreshListener';
@@ -370,18 +368,6 @@ const showRefreshPrompt = () => {
 	isRefreshPromptVisible = true;
 
 	return overlay;
-};
-
-// New game files were compiled: never interrupt a live match with a
-// dialog — one freezes the game invisibly while fullscreen. The
-// corner card swaps its brand text for a "Refresh game" hint instead
-// and the match keeps running on the loaded build.
-const confirmWebpackDevReload = (messageEvent: MessageEvent) => {
-	if (messageEvent.data?.type !== 'webpackInvalid') {
-		return;
-	}
-
-	markGameUpdateAvailable();
 };
 
 const confirmManualRefresh = (event: KeyboardEvent) => {
@@ -4052,11 +4038,6 @@ export class UI {
 		getActiveConfirmUnloadState = () => this;
 		window.onbeforeunload = confirmUnload;
 
-		if (process.env.NODE_ENV === 'development' && !hasWebpackReloadConfirmListener) {
-			window.addEventListener('message', confirmWebpackDevReload);
-			hasWebpackReloadConfirmListener = true;
-		}
-
 		if (!hasManualRefreshConfirmListener) {
 			// Dedupe across module copies (tests re-import this module, and HMR
 			// can replace it): a stale capture handler would swallow every
@@ -4147,7 +4128,7 @@ export class UI {
 		const playerFormatter = (player) => {
 			const playerTimeStatus =
 				ui.game.turnTimePool < 0 && ui.game.timePool < 0
-					? `<p>${getBrandText()}</p>`
+					? `<p>Ancient Beast</p>`
 					: '<p><span class="activePlayer turntime">&#8734;</span> / <span class="timepool">&#8734;</span></p>';
 
 			return `<div class="vignette active p${player.id}">
@@ -4180,8 +4161,8 @@ export class UI {
 			const devvit = getDevvitAppVersion();
 			const devvitLine = devvit ? `<p>r${devvit}</p>` : '';
 			return `<div class="vignette hex">
-		<div class="hexinfo frame">
-		<p class="name">${getBrandText()}</p>
+	<div class="hexinfo frame">
+	<p class="name">Ancient Beast</p>
 		<p>${version}</p>
 		${devvitLine}
 		</div>
@@ -4229,10 +4210,6 @@ export class UI {
 		const showDefault = () => {
 			showCurrentPlayer();
 		};
-
-		// Repaint the corner card the moment new game files land, so the
-		// "Refresh game" hint shows up without waiting for the next hover.
-		onGameUpdateAvailable(showDefault);
 
 		const showQuickInfoForActiveCreature = () => {
 			showDefault();
