@@ -194,8 +194,14 @@ export class Player {
 		const game = this.game;
 		const baseCreatureData = game.retrieveCreatureStats(type);
 
-		// Create the full data for creature creation
-		const creatureData = $j.extend(baseCreatureData, pos, {
+		// Create the full data for creature creation.
+		// Clone the shared stats entry so summoning does not mutate
+		// `game.creatureData` (which `retrieveCreatureStats` returns by
+		// reference) — otherwise a later summon reads back the previous
+		// summon's `x`/`y`/`team`/`temp`, placing the new unit at the
+		// wrong location. This is most visible during replay, where the
+		// Dark Priest materializes several units in a row.
+		const creatureData = $j.extend({}, baseCreatureData, pos, {
 			team: this.id,
 			temp: false,
 		});

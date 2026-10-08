@@ -281,10 +281,17 @@ export default defineConfig(({ mode, command }) => {
       conditions: ['browser', 'import', 'require', 'default'],
     },
     define: {
-      'process.env': {},
       'process.env.NODE_ENV': JSON.stringify(mode),
       'process.env.ENABLE_SERVICE_WORKER': JSON.stringify(enableServiceWorker),
       'process.env.VITE_DEVVIT_TARGET': JSON.stringify(isDevvitTarget),
+      'process.env.DEBUG_MODE': JSON.stringify(env.DEBUG_MODE === 'true'),
+      'process.env.DEBUG_AUTO_START_GAME': JSON.stringify(env.DEBUG_AUTO_START_GAME === 'true'),
+      'process.env.DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG': JSON.stringify(env.DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG === 'true'),
+      'process.env.DEBUG_DISABLE_MUSIC': JSON.stringify(env.DEBUG_DISABLE_MUSIC === 'true'),
+      'process.env.DEBUG_DISABLE_HOTKEYS': JSON.stringify(env.DEBUG_DISABLE_HOTKEYS === 'true'),
+      'process.env.DEBUG_ENABLE_FAST_WALKING': JSON.stringify(env.DEBUG_ENABLE_FAST_WALKING === 'true'),
+      'process.env.DEBUG_WALK_SPEED_MS': JSON.stringify(env.DEBUG_WALK_SPEED_MS || '100'),
+      'process.env.DEBUG_GAME_LOG': JSON.stringify(env.DEBUG_GAME_LOG || ''),
       'global': 'globalThis',
     },
     optimizeDeps: {
