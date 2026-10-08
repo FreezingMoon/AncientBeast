@@ -291,6 +291,9 @@ export class Creature {
 	/** True after BRB has fired once; prevents Gooey Body re-triggering on the follow-up death. */
 	_brbSpent: boolean;
 
+	// Burning Spirit passive: track last Damage instance to aggregate multi-target attacks (Abolished)
+	_lastBurningSpiritDamage: Damage | undefined;
+
 	creatureSprite: CreatureSprite;
 
 	/** Procedural Plasma Field visual, shown for Dark Priests with plasma. */

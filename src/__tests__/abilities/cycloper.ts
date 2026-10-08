@@ -39,6 +39,7 @@ jest.mock('../../creature', () => {
 		size: number;
 		player: { id: number; flipped: boolean; creatures: unknown[]; plasma?: number };
 		energy: number;
+		display: { width: number; height: number; 'offset-x': number; 'offset-y': number };
 		takeDamage = jest.fn();
 		heal = jest.fn((amount: number) => {
 			this.health = Math.min(this.stats.health, this.health + amount);
@@ -55,6 +56,22 @@ jest.mock('../../creature', () => {
 		tracePosition = jest.fn();
 		faceHex = jest.fn();
 		creatureSprite = {
+			grp: { angle: 0 },
+			sprite: {
+				originX: 0.5,
+				originY: 1,
+				scaleX: 1,
+				scaleY: 1,
+				angle: 0,
+				x: 0,
+				y: 0,
+				frame: {
+					realWidth: 90,
+					realHeight: 120,
+				},
+				width: 90,
+				height: 120,
+			},
 			setDir: jest.fn(),
 			setAlpha: jest.fn(),
 			setHex: jest.fn(() => Promise.resolve()),
@@ -69,7 +86,10 @@ jest.mock('../../creature', () => {
 			scale: { x: 1, y: 1 },
 			angle: 0,
 			key: 'unit',
-			frame: 0,
+			frame: {
+				realWidth: 90,
+				realHeight: 120,
+			},
 			height: 120,
 			width: 90,
 			setCrop: jest.fn(),
@@ -91,6 +111,7 @@ jest.mock('../../creature', () => {
 			this.player =
 				init.player ?? ({ id: this.team, flipped: false, creatures: [] } as CreatureMock['player']);
 			this.energy = init.energy ?? this.stats.energy ?? 100;
+			this.display = init.display ?? { width: 90, height: 120, 'offset-x': 0, 'offset-y': -150 };
 		}
 	}
 
@@ -224,7 +245,7 @@ describe('Cycloper abilities', () => {
 			},
 			gameEngine: {
 				add: {
-					graphics: () => ({
+					graphics: jest.fn(() => ({
 						beginFill: jest.fn(),
 						drawRect: jest.fn(),
 						endFill: jest.fn(),
@@ -236,7 +257,7 @@ describe('Cycloper abilities', () => {
 						strokePath: jest.fn(),
 						mask: null,
 						destroy: jest.fn(),
-					}),
+					})),
 					sprite: () => ({
 						setOrigin: jest.fn(),
 						setScale: jest.fn(),

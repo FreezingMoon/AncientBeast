@@ -212,7 +212,7 @@ export default (G: Game) => {
 			_req: {
 				team: Team.Both,
 				directions: [0, 1, 0, 0, 1, 0],
-				distance: 1,
+				distance: 50,
 			},
 
 			_directions: [0, 0, 0, 0, 0, 0],
@@ -392,7 +392,7 @@ export default (G: Game) => {
 						ability.animation(...arguments);
 					},
 					team: Team.Both,
-					requireCreature: 0,
+					requireCreature: 1,
 					id: stomper.id,
 					flipped: stomper.player.flipped,
 					choices: [targets, targets2], // Target the front or back row
@@ -462,6 +462,7 @@ export default (G: Game) => {
 				ability.creature.moveTo(G.grid.hexes[stomper.y][lastTarget.x + offset], {
 					ignoreMovementPoint: true,
 					ignorePath: true,
+					afterimages: true,
 					callback: function () {
 						// Shake the screen upon landing to simulate the jump
 						shakeBoard({
@@ -509,7 +510,7 @@ export default (G: Game) => {
 						ability.animation(...arguments);
 					},
 					team: Team.Both,
-					requireCreature: 0,
+					requireCreature: 1,
 					id: stomper.id,
 					flipped: stomper.player.flipped,
 					choices: [

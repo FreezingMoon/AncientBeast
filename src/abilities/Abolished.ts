@@ -29,36 +29,63 @@ export default (G: Game) => {
 					return;
 				}
 
+				const caster = this.creature;
+				const game = G;
+
+				// Add effect WITHOUT default hint (we'll show emoji instead)
 				target.addEffect(
 					new Effect(
-						'Burning Spirit', // Name
-						this.creature, // Caster
-						target, // Target
-						'', // Trigger
+						'Burning Spirit',
+						caster,
+						target,
+						'',
 						{
 							turnLifetime: -1,
 							alterations: {
 								burn: -1,
 							},
-						}, // Optional arguments
-						G,
+						},
+						game,
 					),
+					undefined,
+					undefined,
+					false,
+					true, // disableHint
 				);
+
+				// Show single fireheart on each target debuffed (emoji only)
+				target.hint('❤️‍🔥', 'msg_effects');
+
 				if (this.isUpgraded()) {
-					this.creature.addEffect(
+					// Track per-attack using Damage instance (shared across all targets in AoE)
+					if (!caster._lastBurningSpiritDamage || caster._lastBurningSpiritDamage !== damage) {
+						caster._lastBurningSpiritDamage = damage;
+						// Only show hint when hitting multiple targets at once (AoE)
+						const hitCount = damage.area || 1;
+						if (hitCount > 1) {
+							caster.hint('❤️‍🔥'.repeat(hitCount), 'msg_effects');
+						}
+					}
+
+					// Add self-buff WITHOUT default hint
+					caster.addEffect(
 						new Effect(
-							'Burning Spirit', // Name
-							this.creature, // Caster
-							this.creature, // Target
-							'', // Trigger
+							'Burning Spirit',
+							caster,
+							caster,
+							'',
 							{
 								turnLifetime: -1,
 								alterations: {
 									burn: 1,
 								},
-							}, // Optional arguments
-							G,
+							},
+							game,
 						),
+						undefined,
+						undefined,
+						false,
+						true, // disableHint
 					);
 				}
 			},

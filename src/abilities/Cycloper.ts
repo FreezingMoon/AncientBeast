@@ -8,6 +8,8 @@ import { Hex } from '../utility/hex';
 import { Team, isTeam } from '../utility/team';
 import * as arrayUtils from '../utility/arrayUtils';
 import { extractTextureFrameInfo, createBitmapDataFromTexture } from '../utility/bitmapUtils';
+import { getFrameSize } from '../game-display/texture';
+import { HEX_WIDTH_PX } from '../utility/const';
 import Game from '../game';
 import type { Ability } from '../ability';
 import type { UnitData } from '../data/types';
@@ -84,15 +86,7 @@ function getCycloperOrigin(cycloper: Creature) {
 	return cycloper.player.flipped ? cycloper.hexagons[cycloper.size - 1] : cycloper.hexagons[0];
 }
 
-function getCycloperEyeOffsets(cycloper: Creature) {
-	return {
-		x: cycloper.sprite?.scale?.x > 0 ? 50 : 40,
-		y: -113,
-	};
-}
-
 function getCycloperEyeEmissionPoint(cycloper: Creature) {
-	const eyeOffsets = getCycloperEyeOffsets(cycloper);
 	const fallbackOrigin = getCycloperOrigin(cycloper);
 	const fallbackPoint = {
 		x: fallbackOrigin?.displayPos?.x ?? cycloper.x * 90,
@@ -100,11 +94,37 @@ function getCycloperEyeEmissionPoint(cycloper: Creature) {
 	};
 	const basePoint = cycloper.legacyProjectileEmissionPoint ?? fallbackPoint;
 
+	// Compute the sprite's local position within its group the same way
+	// CreatureSprite._place() does, using the actual frame size.
+	const creatureSprite = cycloper.creatureSprite.sprite;
+	const creatureSize = getFrameSize(creatureSprite);
+	const originX = cycloper.display['offset-x'] ?? 0;
+	const originY = cycloper.display['offset-y'] ?? -150;
+	const dir = cycloper.player.flipped ? -1 : 1;
+	const spriteLocalX =
+		(dir === 1 ? originX : HEX_WIDTH_PX * cycloper.size - creatureSize.width - originX) +
+		creatureSize.width / 2;
+	const spriteLocalY = originY + creatureSize.height;
+
+	// Eye offsets are local sprite offsets from the pivot (origin 0.5, 1 = bottom center).
+	// Derived from the old world offsets (50/40, -113) minus the sprite local pos above.
+	const eyeLocalX = 5 * (creatureSprite.scaleX > 0 ? 1 : -1);
+	const eyeLocalY = -83;
+
+	// The tilt animation tweens the GROUP's angle, not the sprite's angle.
+	// Read the group's angle to track the tilt.
+	const group = cycloper.creatureSprite.grp;
+	const angle = (group?.angle ?? 0) * (Math.PI / 180);
+	const cos = Math.cos(angle);
+	const sin = Math.sin(angle);
+	const rotX = eyeLocalX * cos - eyeLocalY * sin;
+	const rotY = eyeLocalX * sin + eyeLocalY * cos;
+
 	return {
-		x: basePoint.x + eyeOffsets.x,
-		y: basePoint.y + eyeOffsets.y,
-		offsetX: eyeOffsets.x,
-		offsetY: eyeOffsets.y,
+		x: basePoint.x + spriteLocalX + rotX,
+		y: basePoint.y + spriteLocalY + rotY,
+		offsetX: rotX,
+		offsetY: rotY,
 	};
 }
 
@@ -168,6 +188,7 @@ function drawCycloperBeamLayered(
 		beamGraphics.lineStyle(layer.width, layer.color, layer.alpha);
 		beamGraphics.moveTo(layerStartX, layerStartY);
 		beamGraphics.lineTo(layerEndX, layerEndY);
+		beamGraphics.strokePath();
 
 		// Rounded cap at the beam tip to avoid hard pixel edge.
 		const tipRadius = layer.width * 1.1;
@@ -198,7 +219,7 @@ function createOpticBurstLaserEffect(
 		return;
 	}
 
-	if (!G.gameEngine.add.graphics || typeof G.grid?.creatureGroup?.create !== 'function') {
+	if (!G.gameEngine.add.graphics || !G.grid?.creatureGroup) {
 		if (onComplete) {
 			onComplete();
 		}
@@ -207,7 +228,6 @@ function createOpticBurstLaserEffect(
 
 	const eyeEmissionPoint = getCycloperEyeEmissionPoint(ability.creature);
 	const emissionPointX = eyeEmissionPoint.x;
-	const emissionPointY = eyeEmissionPoint.y;
 
 	let distanceFromEye = Number.MAX_SAFE_INTEGER;
 	let targetX = path[0]?.displayPos?.x ?? target.x;
@@ -247,10 +267,6 @@ function createOpticBurstLaserEffect(
 	const straightTravelDurationMs = Math.max(60, Math.min(110, travelSteps * 20));
 	const sweepDurationMs = Math.max(320, travelSteps * 95);
 	const beamDurationMs = straightTravelDurationMs + sweepDurationMs;
-	const totalDx = targetPointX - emissionPointX;
-	const totalDy = targetPointY - emissionPointY;
-	const baseAngle = Math.atan2(totalDy, totalDx);
-	const totalLength = Math.sqrt(totalDx * totalDx + totalDy * totalDy);
 	const totalSweepRadians = ((ability.creature.player.flipped ? -1 : 1) * (2.5 * Math.PI)) / 180;
 
 	runTimedAnimation({
@@ -262,17 +278,26 @@ function createOpticBurstLaserEffect(
 				1,
 				Math.max(0, elapsed - straightTravelDurationMs) / sweepDurationMs,
 			);
-			const currentLength = isStraightTravelPhase ? totalLength * straightProgress : totalLength;
 			const sweepRadians = isStraightTravelPhase ? 0 : totalSweepRadians * sweepProgress;
 
 			ability.creature.faceHex(target);
 			const currentEyeEmissionPoint = getCycloperEyeEmissionPoint(ability.creature);
+			// Recompute angle and length each frame so the beam stays anchored to
+			// the eye and aimed at the target as the Cycloper's head rocks with
+			// the tilt animation — a stale length would let the beam drift off
+			// the target mid-swing.
+			const currentDx = targetPointX - currentEyeEmissionPoint.x;
+			const currentDy = targetPointY - currentEyeEmissionPoint.y;
+			const currentAngle = Math.atan2(currentDy, currentDx);
+			const currentLength = isStraightTravelPhase
+				? Math.hypot(currentDx, currentDy) * straightProgress
+				: Math.hypot(currentDx, currentDy);
 			beamGraphics.clear();
 			const beamTip = drawCycloperBeamLayered(
 				beamGraphics,
 				currentEyeEmissionPoint.x,
 				currentEyeEmissionPoint.y,
-				baseAngle,
+				currentAngle,
 				currentLength,
 				sweepRadians,
 			);
@@ -431,7 +456,6 @@ function createPowerAperturePhase1Effect(
 	const preservedSign = originalScaleX < 0 ? -1 : 1;
 	target.creatureSprite.setDir(preservedSign);
 	cycloper.faceHex(target);
-	const lockedEyeEmissionPoint = getCycloperEyeEmissionPoint(cycloper);
 	const tiles = createPowerApertureTiles(
 		G,
 		targetSprite,
@@ -501,18 +525,19 @@ function createPowerAperturePhase1Effect(
 		onFrame: (elapsed, progress) => {
 			const suctionProgress = progress;
 
+			const currentEyeEmissionPoint = getCycloperEyeEmissionPoint(cycloper);
 			beamGraphics.clear();
 			const beamTip = drawCycloperBeamLayered(
 				beamGraphics,
-				lockedEyeEmissionPoint.x,
-				lockedEyeEmissionPoint.y,
+				currentEyeEmissionPoint.x,
+				currentEyeEmissionPoint.y,
 				Math.atan2(
-					targetCapPoint.y - lockedEyeEmissionPoint.y,
-					targetCapPoint.x - lockedEyeEmissionPoint.x,
+					targetCapPoint.y - currentEyeEmissionPoint.y,
+					targetCapPoint.x - currentEyeEmissionPoint.x,
 				),
 				Math.hypot(
-					targetCapPoint.x - lockedEyeEmissionPoint.x,
-					targetCapPoint.y - lockedEyeEmissionPoint.y,
+					targetCapPoint.x - currentEyeEmissionPoint.x,
+					targetCapPoint.y - currentEyeEmissionPoint.y,
 				),
 				0,
 			);
@@ -587,7 +612,6 @@ function createPowerAperturePhase2Effect(
 	}
 	const preservedSign = originalScaleX < 0 ? -1 : 1;
 	target.creatureSprite.setDir(preservedSign);
-	const lockedEyeEmissionPoint = getCycloperEyeEmissionPoint(cycloper);
 
 	const applyTargetReformState = (alpha: number, tintProgress: number) => {
 		// Use only group alpha to avoid double-alpha (group × sprite = alpha²).
@@ -689,17 +713,18 @@ function createPowerAperturePhase2Effect(
 		durationMs: laserDurationMs,
 		onFrame: (elapsed, progress) => {
 			beamGraphics.clear();
+			const currentEyeEmissionPoint = getCycloperEyeEmissionPoint(cycloper);
 			const beamTip = drawCycloperBeamLayered(
 				beamGraphics,
-				lockedEyeEmissionPoint.x,
-				lockedEyeEmissionPoint.y,
+				currentEyeEmissionPoint.x,
+				currentEyeEmissionPoint.y,
 				Math.atan2(
-					destinationCapPoint.y - lockedEyeEmissionPoint.y,
-					destinationCapPoint.x - lockedEyeEmissionPoint.x,
+					destinationCapPoint.y - currentEyeEmissionPoint.y,
+					destinationCapPoint.x - currentEyeEmissionPoint.x,
 				),
 				Math.hypot(
-					destinationCapPoint.x - lockedEyeEmissionPoint.x,
-					destinationCapPoint.y - lockedEyeEmissionPoint.y,
+					destinationCapPoint.x - currentEyeEmissionPoint.x,
+					destinationCapPoint.y - currentEyeEmissionPoint.y,
 				),
 				0,
 			);
