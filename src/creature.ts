@@ -59,7 +59,10 @@ const PLASMA_FIELD_HUE_BY_COLOR: Record<string, number> = {
  *
  * Returns 0 when the texture cannot be read (e.g. mocked environment).
  */
-function computeCardboardCenterOffset(textures: any, sprite: SpriteHandle): number {
+function computeCardboardCenterOffset(
+	textures: Phaser.Textures.TextureManager | null,
+	sprite: SpriteHandle,
+): number {
 	const key = sprite.key;
 	if (typeof key !== 'string') return 0;
 
@@ -100,6 +103,22 @@ function computeCardboardCenterOffset(textures: any, sprite: SpriteHandle): numb
 		}
 	}
 	return 0;
+}
+
+/**
+ * Evaluates a stat alteration expression such as `5*2` or `10/3`
+ * without `eval`. String alterations only ever encode a single
+ * multiplication or division, so a strict numeric parse covers
+ * every expression the game data produces; anything else leaves
+ * the base value untouched.
+ */
+function applyStatExpression(base: number, expression: string): number {
+	const match = /^(-?\d+(?:\.\d+)?)\s*([*/])\s*(-?\d+(?:\.\d+)?)$/.exec(expression.trim());
+	if (!match) {
+		return base;
+	}
+	const operand = Number(match[3]);
+	return match[2] === '*' ? base * operand : base / operand;
 }
 import { UnitDisplayInfo, UnitSize } from './data/units';
 
@@ -1755,8 +1774,22 @@ export class Creature {
 
 			// Health display Update
 			// Note: update health after adding effects as some effects may affect
-			// health display
 			this.updateHealth();
+			// A cardboard tilt back from the blow, matching the lightning demo's
+			// hit reaction — a lean away from the attacker, not a back-and-forth
+			// slide. The tilt is on the creature group's angle so the silhouette
+			// stays on its hex while the body absorbs the hit, and it scales
+			// with the damage dealt: a hard hit rocks the cardboard further.
+			(
+				game as unknown as {
+					animations: {
+						tiltBackward: (c: Creature, o: { tiltDir?: number; tiltDamage?: number }) => void;
+					};
+				}
+			).animations.tiltBackward(this, {
+				tiltDir: this._tiltAwayFrom(damage.attacker),
+				tiltDamage: dmgAmount,
+			});
 			game.UI.updateFatigue();
 			/* Some of the active creature's abilities may become active/inactive depending
 			on new health/endurance values. */
@@ -1804,6 +1837,27 @@ export class Creature {
 			damageObj: damage,
 			kill: false,
 		}; // Not killed
+	}
+
+	/**
+	 * Facing direction a unit should lean *away* from when it takes damage from
+	 * `attacker`. The tilt is mirrored with the unit's own facing, so a unit
+	 * hit from the side it faces leans back, and one hit from behind leans
+	 * forward — the silhouette stays on its hex either way.
+	 *
+	 * `attacker` may be a creature or a trap/object without a position; traps
+	 * and unknown sources default to the unit's own facing, which is the
+	 * least surprising lean for a hit that has no clear origin side.
+	 */
+	private _tiltAwayFrom(attacker: Creature | { player: Player } | undefined): number {
+		if (!attacker || typeof (attacker as Creature).x !== 'number') {
+			return this.sprite.scaleX < 0 ? 1 : -1;
+		}
+		const a = attacker as Creature;
+		if (a.x === this.x && a.y === this.y) {
+			return this.sprite.scaleX < 0 ? 1 : -1;
+		}
+		return a.x < this.x ? 1 : -1;
 	}
 
 	updateHealth(noAnimBar = false) {
@@ -2170,12 +2224,12 @@ export class Creature {
 				if (typeof value === 'string') {
 					// Multiplication Buff
 					if (value.match(/\*/)) {
-						this.stats[key] = eval(this.stats[key] + value);
+						this.stats[key] = applyStatExpression(this.stats[key], this.stats[key] + value);
 					}
 
 					// Division Debuff
 					if (value.match(/\//)) {
-						this.stats[key] = eval(this.stats[key] + value);
+						this.stats[key] = applyStatExpression(this.stats[key], this.stats[key] + value);
 					}
 				}
 

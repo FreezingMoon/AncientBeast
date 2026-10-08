@@ -110,13 +110,17 @@ export function detectVeryWeakHardware(): boolean {
  */
 export function precompilePlasmaShader(engine: GameEngine): void {
 	if (typeof engine.add?.shader === 'function' && engine.supportsShaders === true) {
-		// Create a dummy shader quad off-screen to force compilation.
-		// It will be destroyed immediately after.
+		// Create a throwaway shader quad off-screen to force the plasma
+		// shader program to compile now, so the first real field doesn't
+		// stutter on its opening frame waiting on the driver. It is
+		// destroyed immediately after; it never renders anything.
 		const dummy = engine.add.shader(
 			{
 				name: 'ABPlasmaField',
 				fragmentSource: PLASMA_FRAGMENT_SOURCE,
-				setupUniforms: () => {},
+				// No uniforms: this dummy exists only to trigger compilation,
+				// not to draw a real field.
+				setupUniforms: () => undefined,
 			},
 			-9999,
 			-9999,

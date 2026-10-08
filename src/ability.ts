@@ -1,4 +1,3 @@
-import { Easing } from './utility/easing';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import $j from 'jquery';
 import { Damage, DamageResult } from './damage';
@@ -576,7 +575,6 @@ export class Ability {
 		game.freezedInput = true;
 
 		// Animate
-		const p0 = this.creature.sprite.x;
 
 		this.creature.facePlayerDefault();
 
@@ -603,11 +601,6 @@ export class Ability {
 		// mismatch that's very visible on effects tracking an exact emission
 		// point, like Meat Sickle's hook/chain.
 		const facingFlipped = this.creature.sprite.scale.x < 0;
-		let p1 = p0;
-		let p2 = p0;
-
-		p1 += facingFlipped ? 5 : -5;
-		p2 += facingFlipped ? -5 : 5;
 
 		// Play animations and sounds only for active abilities
 		if (this.getTrigger() === 'onQuery') {
@@ -627,12 +620,16 @@ export class Ability {
 			}
 
 			if (animationData.activateAnimation) {
-				game.gameEngine
-					.tween(this.creature.sprite)
-					.to({ x: p1 }, 250, Easing.Linear.None)
-					.to({ x: p2 }, 100, Easing.Linear.None)
-					.to({ x: p0 }, 150, Easing.Linear.None)
-					.start();
+				// A cardboard tilt forward into the strike, matching the lightning
+				// demo's hit reaction — a lean, not the old back-and-forth slide.
+				// The tilt is on the creature group's angle so the silhouette stays
+				// on its hex while the body commits; effects tracking an emission
+				// point read the sprite's own x/y, which the tilt does not move.
+				const tiltOpts = {
+					overrideSpeed: animationData.duration,
+					tiltDir: facingFlipped ? -1 : 1,
+				};
+				this.creature.game.animations.tiltForward(this.creature, tiltOpts);
 			}
 
 			setTimeout(() => {

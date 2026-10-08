@@ -19,6 +19,19 @@ import { spawnAfterimageTrail, AFTERIMAGE_SPEED_BOOST } from './vertigo';
 // to fix @ts-expect-error 2554: properly type the arguments for the trigger functions in `game.ts`
 
 /**
+ * Cardboard tilt tuning. A tilt is a rotation about the unit's base rather
+ * than a slide, so the silhouette stays on its hex while the body leans —
+ * forward into a strike, back from a blow. The lean scales with the damage
+ * that provoked it (capped at {@link TILT_MAX_DAMAGE}) and carries a random
+ * jitter so consecutive hits do not rock the cardboard identically.
+ */
+const TILT_BASE_DEGREES = 8;
+const TILT_PER_DAMAGE = 0.55;
+const TILT_MAX_DAMAGE = 50;
+const TILT_MAX_DEGREES = 34;
+const TILT_JITTER = 5;
+
+/**
  * Per-hex share of a creature's `walk_speed` used by {@link Animations.fly}. Flying
  * covers the whole path in one tween, so a flat `walk_speed` made it look like a
  * teleport; walking the same distance at the walking pace made it look like a
@@ -48,6 +61,18 @@ type AnimationOptions = {
 	pushed?: boolean;
 	turnAroundOnComplete?: boolean;
 	flipped?: boolean;
+	/**
+	 * Direction of a tilt, in facing units: 1 leans right, -1 left. A
+	 * caster tilts toward the target it faces; a unit hit from the right
+	 * leans away from it.
+	 */
+	tiltDir?: number;
+	/**
+	 * Damage that provoked a tilt, used to scale how far the cardboard
+	 * leans. More damage, harder the lean — capped at
+	 * {@link TILT_MAX_DAMAGE}.
+	 */
+	tiltDamage?: number;
 	/**
 	 * The moved creature trails afterimages for this move,
 	 * even though the unit itself is not an afterimage
@@ -2250,6 +2275,80 @@ export class Animations {
 		}
 		this._infernalCardboardFx.delete(oldKey);
 		this._infernalCardboardFx.set(this._infernalCardboardFxKey(creature), state);
+	}
+
+	/**
+	 * Cardboard tilt: a quick rotation about the unit's base, the way the
+	 * lightning demo's hit reaction leans a cardboard — forward when it acts,
+	 * backward when it takes a hit. A rotation reads as a lean rather than a
+	 * slide, so the silhouette stays on its hex while the body appears to
+	 * absorb the blow or commit to the strike.
+	 *
+	 * The angle is tweened on the creature *group* (see `setAngle`), never on
+	 * the sprite directly: the sprite's own x/y are fixed during a walk, so
+	 * tweening its `angle` would spin it in place while the group moved out
+	 * from under it. The group is what actually sits on the hex.
+	 *
+	 * The lean is never flat: a random jitter is folded in so no two hits
+	 * tilt the same way, and a hit scales with the damage dealt — more
+	 * damage, harder the cardboard leans — up to a cap, since a unit
+	 * crumpling from a glancing blow should not tilt as far as one taking
+	 * a body shot.
+	 */
+	tiltForward(creature: Creature, opts: AnimationOptions) {
+		const sprite = creature.creatureSprite;
+		if (!sprite || sprite.destroyed) {
+			return;
+		}
+		const speed = !opts.overrideSpeed ? 150 : opts.overrideSpeed;
+		const dir = opts.tiltDir ?? (sprite.sprite.scaleX < 0 ? -1 : 1);
+		const tilt = this._tiltAngle(0, dir);
+		const settle = Math.round(speed * 1.6);
+		const group = sprite.grp;
+		// Lean forward into the strike, then ease back to upright. One chain,
+		// one start: queued tweens do not play until `.start()` is called.
+		this.game.gameEngine
+			.tween(group)
+			.to({ angle: tilt }, speed, Easing.Cubic.Out)
+			.to({ angle: 0 }, settle, Easing.Cubic.Out)
+			.start();
+	}
+
+	/**
+	 * Backward tilt for a unit taking damage — the opposite lean of
+	 * {@link tiltForward}, as if the blow shoved the body back. The lean
+	 * scales with the damage dealt (capped at {@link TILT_MAX_DAMAGE}),
+	 * so a hard hit rocks the cardboard further than a tickle.
+	 */
+	tiltBackward(creature: Creature, opts: AnimationOptions) {
+		const sprite = creature.creatureSprite;
+		if (!sprite || sprite.destroyed) {
+			return;
+		}
+		const speed = !opts.overrideSpeed ? 150 : opts.overrideSpeed;
+		const dir = opts.tiltDir ?? (sprite.sprite.scaleX < 0 ? -1 : 1);
+		const tilt = this._tiltAngle(opts.tiltDamage ?? 0, dir);
+		const settle = Math.round(speed * 1.6);
+		const group = sprite.grp;
+		this.game.gameEngine
+			.tween(group)
+			.to({ angle: tilt }, speed, Easing.Cubic.Out)
+			.to({ angle: 0 }, settle, Easing.Cubic.Out)
+			.start();
+	}
+
+	/**
+	 * Peak lean angle for a tilt, in degrees. Scales with the damage that
+	 * provoked it, capped so a unit never crumples past a believable angle:
+	 * a base lean plus a share of the damage, with a random jitter folded in
+	 * so consecutive hits do not rock the cardboard identically.
+	 */
+	private _tiltAngle(damage: number, dir: number): number {
+		const damageShare = Math.min(damage, TILT_MAX_DAMAGE) / TILT_MAX_DAMAGE;
+		const tilt =
+			(TILT_BASE_DEGREES + TILT_PER_DAMAGE * damageShare + (Math.random() * 2 - 1) * TILT_JITTER) *
+			dir;
+		return Math.max(-TILT_MAX_DEGREES, Math.min(TILT_MAX_DEGREES, tilt));
 	}
 
 	/**
