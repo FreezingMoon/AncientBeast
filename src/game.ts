@@ -2756,28 +2756,45 @@ export default class Game {
 				const args = Array.isArray(o.args) ? [...o.args] : [];
 
 				if (o.target.type == 'hex') {
-					args.unshift(this.grid.hexes[o.target.y][o.target.x]);
-					ability.animation2({
-						callback: opt.callback,
-						arg: args,
-					});
-				} else if (o.target.type == 'creature') {
-					const targetCreature = this.creatures[o.target.crea];
-					if (targetCreature) {
-						args.unshift(targetCreature);
+					const hex = this.grid.hexes[o.target.y]?.[o.target.x];
+					if (hex) {
+						args.unshift(hex);
 						ability.animation2({
 							callback: opt.callback,
 							arg: args,
 						});
 					}
+				} else if (o.target.type == 'creature') {
+					const targetCreature = this.creatures[o.target.crea];
+					if (
+						targetCreature instanceof Creature &&
+						typeof targetCreature.takeDamage === 'function'
+					) {
+						args.unshift(targetCreature);
+						ability.animation2({
+							callback: opt.callback,
+							arg: args,
+						});
+					} else {
+						console.warn(
+							'[Replay] Invalid or missing target creature for ability',
+							o.id,
+							'target ID:',
+							o.target.crea,
+						);
+						opt.callback();
+					}
 				} else if (o.target.type == 'array') {
-					const array = o.target.array.map((item) => this.grid.hexes[item.y][item.x]);
-
-					args.unshift(array);
-					ability.animation2({
-						callback: opt.callback,
-						arg: args,
-					});
+					const array = o.target.array
+						.map((item) => this.grid.hexes[item.y]?.[item.x])
+						.filter(Boolean);
+					if (array.length > 0) {
+						args.unshift(array);
+						ability.animation2({
+							callback: opt.callback,
+							arg: args,
+						});
+					}
 				}
 				break;
 			}
