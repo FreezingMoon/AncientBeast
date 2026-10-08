@@ -25,11 +25,11 @@ import { spawnAfterimageTrail, AFTERIMAGE_SPEED_BOOST } from './vertigo';
  * that provoked it (capped at {@link TILT_MAX_DAMAGE}) and carries a random
  * jitter so consecutive hits do not rock the cardboard identically.
  */
-const TILT_BASE_DEGREES = 8;
-const TILT_PER_DAMAGE = 0.55;
+const TILT_BASE_DEGREES = 3;
+const TILT_PER_DAMAGE = 0.18;
 const TILT_MAX_DAMAGE = 50;
-const TILT_MAX_DEGREES = 34;
-const TILT_JITTER = 5;
+const TILT_MAX_DEGREES = 12;
+const TILT_JITTER = 2;
 
 /**
  * Per-hex share of a creature's `walk_speed` used by {@link Animations.fly}. Flying
@@ -2284,10 +2284,12 @@ export class Animations {
 	 * slide, so the silhouette stays on its hex while the body appears to
 	 * absorb the blow or commit to the strike.
 	 *
-	 * The angle is tweened on the creature *group* (see `setAngle`), never on
-	 * the sprite directly: the sprite's own x/y are fixed during a walk, so
-	 * tweening its `angle` would spin it in place while the group moved out
-	 * from under it. The group is what actually sits on the hex.
+	 * The angle is tweened on the cardboard *sprite* directly, anchored on its
+	 * base: the sprite is created with `setOrigin(0.5, 1)` (bottom-centre /
+	 * feet), so rotating its `angle` leans the body about the feet while its
+	 * x/y stay fixed on the hex. Tweening the group instead would swing the
+	 * whole stack (sprite + hints + health bar) about the hex origin instead
+	 * of rocking the unit in place.
 	 *
 	 * The lean is never flat: a random jitter is folded in so no two hits
 	 * tilt the same way, and a hit scales with the damage dealt — more
@@ -2300,15 +2302,15 @@ export class Animations {
 		if (!sprite || sprite.destroyed) {
 			return;
 		}
-		const speed = !opts.overrideSpeed ? 150 : opts.overrideSpeed;
+		const speed = !opts.overrideSpeed ? 90 : opts.overrideSpeed;
 		const dir = opts.tiltDir ?? (sprite.sprite.scaleX < 0 ? -1 : 1);
 		const tilt = this._tiltAngle(0, dir);
-		const settle = Math.round(speed * 1.6);
-		const group = sprite.grp;
+		const settle = Math.round(speed * 1.4);
+		const target = sprite.sprite;
 		// Lean forward into the strike, then ease back to upright. One chain,
 		// one start: queued tweens do not play until `.start()` is called.
 		this.game.gameEngine
-			.tween(group)
+			.tween(target)
 			.to({ angle: tilt }, speed, Easing.Cubic.Out)
 			.to({ angle: 0 }, settle, Easing.Cubic.Out)
 			.start();
@@ -2325,13 +2327,13 @@ export class Animations {
 		if (!sprite || sprite.destroyed) {
 			return;
 		}
-		const speed = !opts.overrideSpeed ? 150 : opts.overrideSpeed;
+		const speed = !opts.overrideSpeed ? 90 : opts.overrideSpeed;
 		const dir = opts.tiltDir ?? (sprite.sprite.scaleX < 0 ? -1 : 1);
 		const tilt = this._tiltAngle(opts.tiltDamage ?? 0, dir);
-		const settle = Math.round(speed * 1.6);
-		const group = sprite.grp;
+		const settle = Math.round(speed * 1.4);
+		const target = sprite.sprite;
 		this.game.gameEngine
-			.tween(group)
+			.tween(target)
 			.to({ angle: tilt }, speed, Easing.Cubic.Out)
 			.to({ angle: 0 }, settle, Easing.Cubic.Out)
 			.start();

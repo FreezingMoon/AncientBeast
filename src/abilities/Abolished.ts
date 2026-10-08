@@ -212,6 +212,11 @@ export default (G: Game) => {
 				return this.testRequirements();
 			},
 
+			getAnimationData: function () {
+				return {
+					noTilt: true,
+				};
+			},
 			query() {
 				const ability = this;
 				const crea = this.creature;

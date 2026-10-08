@@ -612,6 +612,7 @@ export class Ability {
 				duration: 500,
 				delay: 350,
 				activateAnimation: true,
+				noTilt: false,
 			};
 
 			if (this.getAnimationData) {
@@ -619,7 +620,7 @@ export class Ability {
 				animationData = $j.extend(animationData, this.getAnimationData(...[args]));
 			}
 
-			if (animationData.activateAnimation) {
+			if (animationData.activateAnimation && !animationData.noTilt) {
 				// A cardboard tilt forward into the strike, matching the lightning
 				// demo's hit reaction — a lean, not the old back-and-forth slide.
 				// The tilt is on the creature group's angle so the silhouette stays
