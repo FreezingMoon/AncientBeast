@@ -4,6 +4,7 @@ import { unitStrategies } from '../bot';
 import { Creature } from '../creature';
 import { Hex } from '../utility/hex';
 import { Team, isTeam } from '../utility/team';
+import * as matrices from '../utility/matrices';
 
 const ABILITY = {
 	BAD_DOGGIE: 0, // Passive melee attack
@@ -28,6 +29,119 @@ const MELEE_PREFERENCE_HEALTH_RATIO = 0.5; // Prefer melee if health is high
 // Targeting penalties - used for counter-strategy
 const HIGH_LEVEL_PENALTY_MULTIPLIER = 30; // Discourage attacking high-level units when we have energy
 const LOW_HEALTH_SPREAD_DETECTION_BONUS = 100; // Bonus for hitting low-health units spread across rows
+
+/**
+ * Gets all 3 rows (straitrow, bellowrow from y, bellowrow from y-2) for a given direction.
+ * Returns array of rows, each row being an array of hexes ordered closest to furthest.
+ */
+function getRocketRowsForDirection(activeCreature: Creature, isFront: boolean): Hex[][] {
+	const game = activeCreature.player.game;
+	const cx = isFront ? activeCreature.x : activeCreature.x - 1;
+	const flipped = !isFront; // queryChoice uses flipped = !isFront
+
+	const rows: Hex[][] = [];
+
+	// Row 1: bellowrow from y-2
+	const row1 = game.grid.getHexMap(cx, activeCreature.y - 2, 0, flipped, matrices.bellowrow);
+	rows.push(row1);
+
+	// Row 2: straitrow from y
+	const row2 = game.grid.getHexMap(cx, activeCreature.y, 0, flipped, matrices.straitrow);
+	rows.push(row2);
+
+	// Row 3: bellowrow from y
+	const row3 = game.grid.getHexMap(cx, activeCreature.y, 0, flipped, matrices.bellowrow);
+	rows.push(row3);
+
+	return rows;
+}
+
+/**
+ * Gets the last creature in a row (the one rocket would hit).
+ */
+function getLastCreatureInRow(row: Hex[], activeCreature: Creature): Creature | null {
+	for (let i = row.length - 1; i >= 0; i--) {
+		const h = row[i];
+		if (h.creature instanceof Creature && h.creature !== activeCreature) {
+			return h.creature;
+		}
+	}
+	return null;
+}
+
+/**
+ * Scores a single rocket target (creature or empty row).
+ */
+function scoreRocketTarget(
+	target: Creature | null,
+	activeCreature: Creature,
+	controller: BotController,
+): number {
+	// Empty row (no creature hit) - small positive score
+	if (!target) {
+		return 50;
+	}
+
+	// Heavy penalty for hitting allies
+	if (!isTeam(activeCreature, target, Team.Enemy)) {
+		return Number.NEGATIVE_INFINITY;
+	}
+
+	// Score enemy target
+	let score = 400 - target.health * 2;
+
+	// Prioritize high-level units (harder to deal with later)
+	const level = typeof target.level === 'number' ? target.level : 1;
+	score += level * 60;
+
+	// Bonus for energy-rich targets (they're more dangerous)
+	if (typeof target.stats.energy === 'number' && target.stats.energy > 0) {
+		score += Math.round((target.energy / target.stats.energy) * 80);
+	}
+
+	// Large bonus for lethal hits
+	if (target.health <= 20) {
+		score += 300;
+	}
+
+	const targetStrategy = unitStrategies[target.type as string];
+	score +=
+		targetStrategy?.getTargetingPenalty?.(
+			activeCreature,
+			target,
+			ABILITY.ROCKET_LAUNCHER,
+			controller,
+		) ?? 0;
+
+	return score;
+}
+
+/**
+ * Scores an entire firing direction (front or back) by evaluating all 3 rows.
+ * Returns total score for the direction, or NEGATIVE_INFINITY if any row hits an ally.
+ */
+function scoreRocketDirection(
+	activeCreature: Creature,
+	isFront: boolean,
+	controller: BotController,
+): number {
+	const rows = getRocketRowsForDirection(activeCreature, isFront);
+	let totalScore = 0;
+
+	for (const row of rows) {
+		const target = getLastCreatureInRow(row, activeCreature);
+		const rowScore = scoreRocketTarget(target, activeCreature, controller);
+
+		// If any row hits an ally, the entire direction is invalid
+		if (rowScore === Number.NEGATIVE_INFINITY) {
+			return Number.NEGATIVE_INFINITY;
+		}
+
+		totalScore += rowScore;
+	}
+
+	return totalScore;
+}
 
 /**
  * Returns true if Cyber Wolf should use the melee strategy (Metal Hand + Bad Doggie).
@@ -166,53 +280,20 @@ function scoreMetalHand(hex: Hex, activeCreature: Creature, _controller: BotCont
 
 /**
  * Scores targeting a hex for Rocket Launcher.
- * Rockets can hit multiple rows; we want to spread hits across different rows
- * or concentrate on high-priority targets.
+ * IMPORTANT: Rocket Launcher fires 3 rows in a direction (front/back).
+ * Picking ANY hex in a direction fires ALL 3 rows.
+ * This function scores the ENTIRE direction, not just the individual hex.
  */
 function scoreRocketLauncher(
 	hex: Hex,
 	activeCreature: Creature,
 	controller: BotController,
 ): number {
-	const target = hex.creature;
+	// Determine direction from hex x position (same logic as activate())
+	const isFront = hex.x >= activeCreature.x;
 
-	// Empty hexes are valid targets (area effect)
-	if (!(target instanceof Creature)) {
-		// Bonus for empty hexes if it creates a good setup for rockets
-		// (e.g., if they clear a path to reach more enemies)
-		return 50;
-	}
-
-	if (!isTeam(activeCreature, target, Team.Enemy)) {
-		return Number.NEGATIVE_INFINITY;
-	}
-
-	let score = 400 - target.health * 2;
-
-	// Prioritize high-level units (harder to deal with later)
-	const level = typeof target.level === 'number' ? target.level : 1;
-	score += level * 60;
-
-	// Bonus for energy-rich targets (they're more dangerous)
-	if (typeof target.stats.energy === 'number' && target.stats.energy > 0) {
-		score += Math.round((target.energy / target.stats.energy) * 80);
-	}
-
-	// Large bonus for lethal hits
-	if (target.health <= 20) {
-		score += 300;
-	}
-
-	const targetStrategy = unitStrategies[target.type as string];
-	score +=
-		targetStrategy?.getTargetingPenalty?.(
-			activeCreature,
-			target,
-			ABILITY.ROCKET_LAUNCHER,
-			controller,
-		) ?? 0;
-
-	return score;
+	// Score the entire direction (all 3 rows)
+	return scoreRocketDirection(activeCreature, isFront, controller);
 }
 
 /**
