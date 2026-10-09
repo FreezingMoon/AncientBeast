@@ -6,6 +6,136 @@ import { Effect } from '../effect';
 import Game from '../game';
 import { Creature } from '../creature';
 import { shakeBoard } from '../game-display/camera';
+import { runTimedAnimation } from '../timing/clock';
+import { getDepthAtBand } from '../game-display/layer';
+import { HEX_WIDTH_PX } from '../utility/const';
+
+/**
+ * Spawns expanding ground rings (seismic waves) that travel flat along the
+ * ground from the caster's front tile toward each target hex. Each ring
+ * expands outward as it moves, fading as it reaches the target.
+ */
+function createSeismicWave(creature: Creature, targetHexes: Hex[], G: Game): void {
+	if (!G.gameEngine?.add?.graphics || !G.grid?.creatureGroup) {
+		return;
+	}
+
+	const frontHex = creature.player.flipped
+		? creature.hexagons[creature.size - 1]
+		: creature.hexagons[0];
+
+	const waveHexes = targetHexes.filter(
+		(hex) => hex && hex.displayPos && frontHex && frontHex.displayPos,
+	);
+
+	if (waveHexes.length === 0) {
+		return;
+	}
+
+	const graphics = G.gameEngine.add.graphics(0, 0);
+	G.grid.creatureGroup.add(graphics);
+	// Place below creature cardboards — this is a ground-based effect
+	graphics.setDepth(getDepthAtBand(frontHex.y, 'EFFECT_UNDER_UNITS'));
+	G.grid.orderCreatureZ();
+
+	// displayPos is the top-left of the hex artwork; the visible centre sits
+	// half a hex-width east of it (see CreatureSprite._place).
+	const hexCenterX = HEX_WIDTH_PX / 2;
+
+	const waveColor = 0xffd54a; // bright gold
+	const waveColorGlow = 0xffe080; // soft gold halo
+	const waveDurationMs = 420;
+	const maxRadius = 40;
+	const archCount = 3;
+	const archSpacing = 16;
+	const archSegments = 12;
+
+	runTimedAnimation({
+		durationMs: waveDurationMs,
+		onFrame(elapsedMs) {
+			graphics.clear();
+
+			for (let i = 0; i < waveHexes.length; i++) {
+				const hex = waveHexes[i];
+				const ringProgress = Math.max(0, Math.min(1, elapsedMs / waveDurationMs));
+
+				if (ringProgress <= 0) continue;
+
+				// Interpolate position from front tile toward target
+				const startX = frontHex.displayPos.x + hexCenterX;
+				const startY = frontHex.displayPos.y + 25;
+				const targetX = hex.displayPos.x + hexCenterX;
+				const targetY = hex.displayPos.y + 25;
+
+				const currentX = startX + (targetX - startX) * ringProgress;
+				const currentY = startY + (targetY - startY) * ringProgress;
+
+				// Unit direction of travel
+				const dx = targetX - startX;
+				const dy = targetY - startY;
+				const dist = Math.hypot(dx, dy) || 1;
+				const dirX = dx / dist;
+				const dirY = dy / dist;
+				// Perpendicular (for the arch span)
+				const perpX = -dirY;
+				const perpY = dirX;
+
+				const alpha = (1 - ringProgress) * 0.9;
+
+				for (let a = 0; a < archCount; a++) {
+					// Each arch sits further along the travel direction
+					const archOffset = a * archSpacing;
+					const archX = currentX + dirX * archOffset;
+					const archY = currentY + dirY * archOffset;
+
+					// Cap width so the arches never span more than ~1 hex even at
+					// full progress; the leading arch is widest, trailing ones taper.
+					const archWidth = Math.min(ringProgress * maxRadius + a * 4, 40 - a * 4);
+					const bowDepth = archWidth * 0.45;
+
+					// Start and end of the arch (perpendicular to travel)
+					const startXp = archX + perpX * archWidth;
+					const startYp = archY + perpY * archWidth;
+					const endXp = archX + perpX * -archWidth;
+					const endYp = archY + perpY * -archWidth;
+					// Control point bows toward the target
+					const ctrlX = archX + dirX * bowDepth;
+					const ctrlY = archY + dirY * bowDepth;
+
+					const aAlpha = alpha * (a === 0 ? 1 : 0.5);
+
+					// Halo stroke (wide, low alpha) behind the bright core
+					graphics.lineStyle(6, waveColorGlow, aAlpha * 0.3);
+					graphics.moveTo(startXp, startYp);
+					for (let s = 1; s <= archSegments; s++) {
+						const t = s / archSegments;
+						const mt = 1 - t;
+						const px = mt * mt * startXp + 2 * mt * t * ctrlX + t * t * endXp;
+						const py = mt * mt * startYp + 2 * mt * t * ctrlY + t * t * endYp;
+						graphics.lineTo(px, py);
+					}
+
+					// Bright core stroke
+					graphics.lineStyle(2, waveColor, aAlpha);
+					graphics.moveTo(startXp, startYp);
+					for (let s = 1; s <= archSegments; s++) {
+						const t = s / archSegments;
+						const mt = 1 - t;
+						const px = mt * mt * startXp + 2 * mt * t * ctrlX + t * t * endXp;
+						const py = mt * mt * startYp + 2 * mt * t * ctrlY + t * t * endYp;
+						graphics.lineTo(px, py);
+					}
+				}
+
+				// Flush the buffered path so the arches render
+				graphics.strokePath();
+			}
+		},
+		onDone() {
+			graphics.destroy();
+		},
+	});
+}
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -175,6 +305,9 @@ export default (G: Game) => {
 				// If not upgraded take the first creature found (aka last in path)
 				if (!this.isUpgraded()) {
 					const targetCreature = target.find((hex) => hex.creature).creature;
+					const targetHex = target.find((hex) => hex.creature);
+
+					createSeismicWave(ability.creature, targetHex ? [targetHex] : [], G);
 
 					shakeBoard({
 						amplitude: 0.03,
@@ -185,11 +318,18 @@ export default (G: Game) => {
 					targetCreature.takeDamage(damage);
 				} else {
 					const set: Set<Creature> = new Set();
+					const waveHexes: Hex[] = [];
 					target.forEach(({ creature }) => {
 						if (creature) {
 							set.add(creature);
 						}
 					});
+					target.forEach((hex) => {
+						if (hex.creature) {
+							waveHexes.push(hex);
+						}
+					});
+					createSeismicWave(ability.creature, waveHexes, G);
 					set.forEach((creature) => {
 						shakeBoard({
 							amplitude: 0.03,
@@ -510,7 +650,7 @@ export default (G: Game) => {
 						ability.animation(...arguments);
 					},
 					team: Team.Both,
-					requireCreature: 1,
+					requireCreature: 0,
 					id: stomper.id,
 					flipped: stomper.player.flipped,
 					choices: [
