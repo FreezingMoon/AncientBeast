@@ -538,6 +538,7 @@ export default (G: Game) => {
 					args,
 					0,
 					25,
+					true,
 				);
 
 				tween.onComplete.add(function () {

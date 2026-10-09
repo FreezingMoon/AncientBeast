@@ -439,8 +439,9 @@ export default (G: Game) => {
 					'effects_blowing-wind',
 					path,
 					args,
-					52,
+					70,
 					-20,
+					true,
 				);
 				const tween = projectileInstance[0];
 				const sprite = projectileInstance[1];
@@ -555,6 +556,7 @@ export default (G: Game) => {
 					args,
 					52,
 					-20,
+					true,
 				);
 				const tween = projectileInstance[0];
 				const sprite = projectileInstance[1];

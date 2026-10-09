@@ -1,5 +1,6 @@
 import type Game from './game';
 import type { Creature } from './creature';
+import type { SpriteHandle } from './engine/types';
 import { Easing } from './utility/easing';
 
 /**
@@ -111,6 +112,78 @@ export function spawnAfterimageTrail(game: Game, creature: Creature, durationMS:
 			// sorting with it.
 			if (typeof group.depth === 'number') {
 				afterimage.setDepth(group.depth + 0.01);
+			}
+
+			engine
+				.tween(afterimage)
+				.to(
+					{ alpha: 0, y: afterimageY - AFTERIMAGE_RISE_PX },
+					AFTERIMAGE_LIFETIME_MS,
+					Easing.Sinusoidal.Out,
+					true,
+				)
+				.onComplete.add(() => {
+					afterimage.destroy();
+				});
+		});
+	}
+}
+
+/**
+ * Spawn a vertigo trail for a projectile sprite.
+ *
+ * The projectile travels in a straight line from startPos to endPos
+ * over `durationMS`. Afterimages are sampled along this path at
+ * regular intervals, each a copy of the projectile sprite that fades
+ * out and rises slightly.
+ *
+ * @param game The game instance
+ * @param sprite The projectile sprite to trail
+ * @param startPos Starting position {x, y}
+ * @param endPos Ending position {x, y}
+ * @param durationMS Duration of the projectile flight in ms
+ * @param rotation Rotation of the projectile (in radians)
+ */
+export function spawnProjectileVertigoTrail(
+	game: Game,
+	sprite: SpriteHandle,
+	startPos: { x: number; y: number },
+	endPos: { x: number; y: number },
+	durationMS: number,
+	rotation: number,
+): void {
+	const engine = game.gameEngine;
+	const textureKey = sprite.texture.key;
+
+	// One afterimage per interval, minimum 3 for short flights
+	const afterimageCount = Math.max(3, Math.ceil(durationMS / AFTERIMAGE_INTERVAL_MS));
+
+	for (let i = 0; i < afterimageCount; i++) {
+		const delay = i * AFTERIMAGE_INTERVAL_MS;
+		engine.time.add(delay, () => {
+			if (!sprite.exists) {
+				return;
+			}
+
+			// Interpolate position along the projectile's path
+			const t = Math.min(delay / durationMS, 1);
+			const afterimageX = startPos.x + (endPos.x - startPos.x) * t;
+			const afterimageY = startPos.y + (endPos.y - startPos.y) * t;
+
+			const afterimage = engine.add.sprite(
+				afterimageX,
+				afterimageY,
+				textureKey,
+				undefined,
+				game.grid.creatureGroup,
+			);
+			afterimage.setOrigin(0.5, 0.5);
+			afterimage.rotation = rotation;
+			afterimage.alpha = AFTERIMAGE_ALPHA;
+
+			// Match projectile's depth
+			if (typeof sprite.depth === 'number') {
+				afterimage.setDepth(sprite.depth - 0.01);
 			}
 
 			engine

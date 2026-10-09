@@ -184,6 +184,7 @@ export default (G: Game) => {
 					args,
 					startX,
 					-20,
+					true,
 				);
 				const tween = projectileInstance[0];
 				const sprite = projectileInstance[1];

@@ -36,7 +36,7 @@
         "babel-loader": "^9.2.1",
         "babel-plugin-transform-runtime": "^6.23.0",
         "babel-polyfill": "^6.26.0",
-        "canvas": "^3.2.3",
+        "canvas": "^3",
         "cross-env": "^7.0.3",
         "dotenv": "^16.6.1",
         "dotenv-defaults": "^5.0.2",
@@ -47,7 +47,7 @@
         "husky": "^8.0.3",
         "jest": "^29.7.0",
         "jest-environment-jsdom": "^30.5.2",
-        "jsdom": "^26.1.0",
+        "jsdom": "^26",
         "less": "^4.9.1",
         "lint-staged": "^13.3.0",
         "playwright-core": "^1.63.0",
@@ -1432,7 +1432,7 @@
 
     "no-case": ["no-case@3.0.4", "", { "dependencies": { "lower-case": "^2.0.2", "tslib": "^2.0.3" } }, "sha512-fgAN3jGAh+RoxUGZHTSOLJIqUc2wmoBwGR4tbpNAKmmovFoWq0OdRkb0VkldReO2a2iBT/OEulG9XSUc10r3zg=="],
 
-    "node-abi": ["node-abi@3.96.0", "", { "dependencies": { "semver": "^7.3.5" } }, "sha512-rebQ/lz7i0EkoLzUVSrKRzA69zMkwLp95kKMWoMDkkM00Suxz0D7zEQPwRml5fQum24mj7bPvmlgLAmu2JCiYg=="],
+    "node-abi": ["node-abi@3.98.0", "", { "dependencies": { "semver": "^7.3.5" } }, "sha512-Llh8noNw7s15m+rmIrZnZQbe4gLyasL9loT74rC92PkmwWKeEedKvc7o6pjp8B3MhrYT/Cl846NOYZbz1wmddw=="],
 
     "node-addon-api": ["node-addon-api@7.1.1", "", {}, "sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ=="],
 

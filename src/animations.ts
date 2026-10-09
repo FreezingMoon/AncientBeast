@@ -14,7 +14,11 @@ import { QuadraticCurve } from './utility/curve';
 import { DEBUG_ENABLE_FAST_WALKING, DEBUG_WALK_SPEED_MS } from './debug';
 import { isDocumentHidden } from './utility/time';
 import { after, deltaMs, now } from './timing/clock';
-import { spawnAfterimageTrail, AFTERIMAGE_SPEED_BOOST } from './vertigo';
+import {
+	spawnAfterimageTrail,
+	AFTERIMAGE_SPEED_BOOST,
+	spawnProjectileVertigoTrail,
+} from './vertigo';
 
 // to fix @ts-expect-error 2554: properly type the arguments for the trigger functions in `game.ts`
 
@@ -1561,6 +1565,7 @@ export class Animations {
 		args: { direction: number },
 		startX: number,
 		startY: number,
+		vertigo?: boolean,
 	): [TweenHandle, SpriteHandle, number] {
 		// Get the target's position on the projectile's path that is closest
 		const emissionPointX = this2.creature.legacyProjectileEmissionPoint.x + startX;
@@ -1605,7 +1610,8 @@ export class Animations {
 			duration = dist * 75;
 
 		sprite.setOrigin(0.5, 0.5);
-		sprite.rotation = -Math.PI / 3 + (args.direction * Math.PI) / 3;
+		const rotation = -Math.PI / 3 + (args.direction * Math.PI) / 3;
+		sprite.rotation = rotation;
 		const tween = game.gameEngine
 			.tween(sprite)
 			.to(
@@ -1617,6 +1623,13 @@ export class Animations {
 				Easing.Linear.None,
 			)
 			.start();
+
+		// Add vertigo trail if enabled
+		if (vertigo) {
+			// Use projectile's rotation (matches sprite.rotation) for trail orientation
+			const rotation = -Math.PI / 3 + (args.direction * Math.PI) / 3;
+			spawnProjectileVertigoTrail(game, sprite, emissionPoint, targetPoint, duration, rotation);
+		}
 
 		return [tween, sprite, dist];
 	}
