@@ -77,7 +77,18 @@ export class Chat {
 		this.isExpanded = false;
 		this.currentExpandedCreature = null;
 		this.messagesToSuppress = [];
+
+		this.messagesToSuppress = [];
 		this.userToggled = false;
+
+		// Listen for meta power changes to update glow effect
+		this.game.channels.metaPowers.on('toggleExecuteMonster', () => this.updateMetaPowersEffect());
+		this.game.channels.metaPowers.on('toggleResetCooldowns', () => this.updateMetaPowersEffect());
+		this.game.channels.metaPowers.on('toggleDisableMaterializationSickness', () =>
+			this.updateMetaPowersEffect(),
+		);
+		this.game.channels.metaPowers.on('toggleInfiniteEnergy', () => this.updateMetaPowersEffect());
+		this.updateMetaPowersEffect();
 
 		this.$expandedContent = $j('#unit-hover-panel');
 		$j('#combatwrapper, #bottompanel, #dash, #endscreen').on('click', () => {
@@ -104,6 +115,34 @@ export class Chat {
 	 * reachable from each other, and flipping a boolean per transition drifts
 	 * as soon as two of them meet.
 	 */
+
+	/**
+	 * Check if any meta powers are currently enabled
+	 */
+	areMetaPowersEnabled(): boolean {
+		if (!this.game || !this.game.metaPowersState) {
+			return false;
+		}
+		const state = this.game.metaPowersState;
+		return (
+			state.executeMonster ||
+			state.resetCooldowns ||
+			state.disableMaterializationSickness ||
+			state.infiniteEnergy
+		);
+	}
+
+	/**
+	 * Update meta powers glow effect on combat log
+	 */
+	updateMetaPowersEffect() {
+		if (this.areMetaPowersEnabled()) {
+			this.$chat.addClass('meta-powers-active');
+		} else {
+			this.$chat.removeClass('meta-powers-active');
+		}
+	}
+
 	syncOpenState() {
 		this.isOpen = this.$chat.hasClass('focus') || this.$chat.hasClass('peek');
 	}

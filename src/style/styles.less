@@ -4386,3 +4386,46 @@ body.devvit-mode .scrim {
 	transform: rotateY(-90deg) !important;
 	transition: none !important;
 }
+
+@keyframes rainbowGlow {
+	0% {
+		box-shadow: 0 0 8px rgba(255, 0, 0, 0.8), 0 0 16px rgba(255, 0, 0, 0.4);
+		outline-color: rgba(255, 0, 0, 0.8);
+	}
+	16.66% {
+		box-shadow: 0 0 8px rgba(255, 165, 0, 0.8), 0 0 16px rgba(255, 165, 0, 0.4);
+		outline-color: rgba(255, 165, 0, 0.8);
+	}
+	33.33% {
+		box-shadow: 0 0 8px rgba(255, 255, 0, 0.8), 0 0 16px rgba(255, 255, 0, 0.4);
+		outline-color: rgba(255, 255, 0, 0.8);
+	}
+	50% {
+		box-shadow: 0 0 8px rgba(0, 255, 0, 0.8), 0 0 16px rgba(0, 255, 0, 0.4);
+		outline-color: rgba(0, 255, 0, 0.8);
+	}
+	66.66% {
+		box-shadow: 0 0 8px rgba(0, 0, 255, 0.8), 0 0 16px rgba(0, 0, 255, 0.4);
+		outline-color: rgba(0, 0, 255, 0.8);
+	}
+	83.33% {
+		box-shadow: 0 0 8px rgba(238, 130, 238, 0.8), 0 0 16px rgba(238, 130, 238, 0.4);
+		outline-color: rgba(238, 130, 238, 0.8);
+	}
+	100% {
+		box-shadow: 0 0 8px rgba(255, 0, 0, 0.8), 0 0 16px rgba(255, 0, 0, 0.4);
+		outline-color: rgba(255, 0, 0, 0.8);
+	}
+}
+
+#chat.meta-powers-active {
+	animation: rainbowGlow 20s linear infinite;
+	outline: 2px solid transparent;
+	outline-offset: 0;
+}
+
+#chat.meta-powers-active.peek,
+#chat.meta-powers-active.focus,
+#chat.meta-powers-active.expanded {
+	outline: 2px solid transparent;
+}
