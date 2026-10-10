@@ -9,6 +9,9 @@ import { shakeBoard } from '../game-display/camera';
 import { runTimedAnimation } from '../timing/clock';
 import { getDepthAtBand } from '../game-display/layer';
 import { HEX_WIDTH_PX } from '../utility/const';
+import { getFrameSize } from '../game-display/texture';
+import { spawnChainLightning } from '../vfx/lightning/effect';
+import { earthShakerCrackLook, type LightningPoint } from '../vfx/lightning/look';
 
 /**
  * Spawns expanding ground rings (seismic waves) that travel flat along the
@@ -135,6 +138,161 @@ function createSeismicWave(creature: Creature, targetHexes: Hex[], G: Game): voi
 			graphics.destroy();
 		},
 	});
+}
+
+/**
+ * Spawns forked cracks (like forked lightning) that split from the
+ * Stomper's two front feet and crawl across the target area, leaving
+ * jagged glowing lines behind them. Each foot smashes into the ground
+ * and throws out its own fork of 2-3 diverging lines — the "forked
+ * lightning over the ground" read the ability's name promises.
+ *
+ * Uses the same `spawnChainLightning` renderer as the Impaler's chain
+ * lightning, but with a look tuned for a ground effect: warm amber
+ * tones, slow travel, and no embers or strike flashes.
+ *
+ * The cracks are parented to the board's creature group at the
+ * shallowest row they span, so the whole trail sits under every unit
+ * cardboard it crawls beneath — a ground effect, not an overhead
+ * bolt. `facing` is passed in by the caller, which computes it from grid
+ * coordinates and sets the sprite with setDir before this runs, so the
+ * emission points always track the front feet of the now-facing unit.
+ *
+ * Targets are sorted outward along the casting direction before being
+ * forked, so every hop progresses away from the Stomper — a crack never
+ * arcs back toward the caster, and there is no upward bow.
+ */
+function createEarthShakerCracks(
+	creature: Creature,
+	targetHexes: Hex[],
+	G: Game,
+	facing: 1 | -1,
+	onDone?: () => void,
+): void {
+	const finish = () => {
+		pending--;
+		if (pending <= 0) onDone?.();
+	};
+
+	if (!G.gameEngine || targetHexes.length === 0) {
+		onDone?.();
+		return;
+	}
+
+	const sprite = creature.sprite;
+	const grp = creature.grp;
+	if (!sprite || !grp) {
+		onDone?.();
+		return;
+	}
+
+	const { width, height } = getFrameSize(sprite);
+
+	// Two emission points: the Stomper's two front feet, on the ground
+	// under the leading edge of the cardboard. The sprite is anchored
+	// bottom-centre, so the ground line is exactly `grp.y + sprite.y`.
+	// `facing` is the direction the unit is actually turned to, so a
+	// backward cast emits from the genuinely-front feet.
+	const footBaseX = (grp.x ?? 0) + (sprite.x ?? 0) + (facing * width) / 2;
+	// The feet sit a little above the ground line — high enough to read
+	// as two distinct stomps on the cardboard's leading edge, not a single
+	// point buried at the bottom of the sprite.
+	const footY = (grp.y ?? 0) + (sprite.y ?? 0) - height * 0.12;
+	const emissionA: LightningPoint = { x: footBaseX, y: footY };
+	const emissionB: LightningPoint = { x: footBaseX - facing * 45, y: footY };
+
+	const hexCenterX = HEX_WIDTH_PX / 2;
+
+	// Sort by distance from the emission point, nearest first, so every
+	// hop progresses outward from the Stomper. A signed projection would
+	// put back-row targets ahead of front-row ones for a backward cast,
+	// making the chain arc from the front foot back toward the Stomper
+	// before continuing — the "bounces back" read. Absolute distance
+	// keeps the chain monotonic regardless of which way the unit faces.
+	const sorted = [...targetHexes].sort((a, b) => {
+		const da = (a.displayPos.x + hexCenterX - footBaseX) ** 2;
+		const db = (b.displayPos.x + hexCenterX - footBaseX) ** 2;
+		return da - db;
+	});
+
+	// Each front foot throws out its own fork of 2-3 diverging lines. The
+	// targets are round-robined across the feet so each foot covers a
+	// roughly equal share of the area, and each foot's targets are then
+	// forked so the lines spread outward like forked lightning rather
+	// than one line doubling back on itself.
+	const chains: Array<Array<Creature | LightningPoint>> = [];
+	const forkCount = Math.min(3, Math.max(1, Math.ceil(sorted.length / 2)));
+	for (let foot = 0; foot < 2; foot++) {
+		const emission = foot === 0 ? emissionA : emissionB;
+		const footTargets = sorted.filter((_, i) => i % 2 === foot);
+		for (let f = 0; f < forkCount && footTargets.length > 0; f++) {
+			const points = footTargets.filter((_, i) => i % forkCount === f).map(hexToGroundPoint);
+			if (points.length > 0) {
+				chains.push([emission, ...points]);
+			}
+		}
+	}
+
+	// Shallowest row the cracks span. In the oblique projection a lower
+	// row draws behind everything on the rows below it, so pinning the
+	// trail to the Stomper's own row band keeps the entire crack under
+	// every unit cardboard it passes — including the Stomper's own.
+	let shallowestRow = creature.y;
+	for (const hex of targetHexes) {
+		shallowestRow = Math.min(shallowestRow, hex.y);
+	}
+
+	const engine = G.gameEngine;
+	if (!engine) {
+		onDone?.();
+		return;
+	}
+	const look = earthShakerCrackLook();
+
+	// Re-sort the creature group so the crack sprites — banded at
+	// EFFECT_UNDER_UNITS — render *below* the cardboards (banded at UNITS).
+	// This has to happen *after* each hop's sprites actually exist:
+	// `spawnChainLightning` defers every hop through `after(delay, ...)`, so
+	// the sprites are not on the group when this function returns. Sorting
+	// before they land just puts them at the end of the list again, on top
+	// of the units they are meant to crawl under. `onHop` fires synchronously
+	// right after `bolt.start()` materialises its sprites, so it is the
+	// reliable moment to re-order; the final sort in `finish` covers the
+	// last hop.
+	const reSort = () => {
+		if (typeof G.grid.orderCreatureZ === 'function') {
+			G.grid.orderCreatureZ();
+		}
+	};
+
+	// Only count chains that actually have a hop (an emission point plus
+	// at least one target point), so a one-sided cast doesn't leave
+	// `onDone` waiting on a chain that never spawned.
+	let pending = 0;
+	for (const chain of chains) {
+		pending++;
+		spawnChainLightning(engine, chain, {
+			parent: G.grid.creatureGroup,
+			surfaceSource: { textures: G.Phaser?.textures },
+			depth: getDepthAtBand(shallowestRow, 'EFFECT_UNDER_UNITS'),
+			look,
+			onHop: reSort,
+			onEnd: () => {
+				reSort();
+				finish();
+			},
+		});
+	}
+	if (pending === 0) onDone?.();
+}
+
+/** A point on the ground under a target hex, in creature-group space. */
+function hexToGroundPoint(hex: Hex): LightningPoint {
+	const hexCenterX = HEX_WIDTH_PX / 2;
+	return {
+		x: hex.displayPos.x + hexCenterX,
+		y: hex.displayPos.y + 25,
+	};
 }
 
 /** Creates the abilities
@@ -663,13 +821,97 @@ export default (G: Game) => {
 			// activate() :
 			activate: function (hexes) {
 				const ability = this;
-				ability.end(); // Deferred ending
-				shakeBoard({
-					amplitude: 0.03,
-					durationMs: 400,
-					force: true,
-					axis: 'vertical',
-				});
+				const stomper = this.creature;
+
+				// Face the Stomper toward the area it's cracking. The
+				// animation2 pipeline already does this for creature/array
+				// args, but the Earth Shaker's query passes a plain hex
+				// array, so make the facing explicit here: a backward cast
+				// must emit from the feet that are genuinely forward once
+				// the unit has turned, not from the feet it was facing
+				// before the player selected the back row.
+				if (hexes && hexes.length > 0) {
+					// Face the Stomper toward the area it's cracking so the cracks
+					// emit from the front hexagon of the now-facing unit. Compute
+					// the facing directly from grid coordinates and set it with
+					// setDir — faceHex's early-returns bail out to
+					// facePlayerDefault (no flip) when the target lands on the
+					// Stomper's own tiles, which is exactly what a backward cast
+					// over the unit's own back row does.
+					let farthest = hexes[0];
+					let farthestDist = -Infinity;
+					for (const hex of hexes) {
+						if (hex && hex.displayPos) {
+							const dx = hex.displayPos.x - stomper.grp.x;
+							const dy = hex.displayPos.y - stomper.grp.y;
+							const dist = dx * dx + dy * dy;
+							if (dist > farthestDist) {
+								farthestDist = dist;
+								farthest = hex;
+							}
+						}
+					}
+					// facefrom is the hex the unit faces *from*, which for a
+					// flipped player is the leftmost tile — the same rule
+					// faceHex uses internally.
+					const facefrom =
+						stomper.player.flipped && stomper.hexagons?.[stomper.size - 1]
+							? stomper.hexagons[stomper.size - 1]
+							: stomper.hexagons?.[0];
+					let facing: 1 | -1 = 1;
+					if (farthest && facefrom && farthest.x != null && farthest.y != null) {
+						// faceHex's flip rule, applied directly so no early-return
+						// can silently un-flip the unit for a backward cast.
+						facing =
+							facefrom.y % 2 === 0
+								? farthest.x <= facefrom.x
+									? -1
+									: 1
+								: farthest.x < facefrom.x
+								? -1
+								: 1;
+					}
+
+					// `ability.end()` → `queryMove()` calls
+					// `facePlayerDefault()` (creature.ts:1088), which flips the
+					// unit back to its player's default facing. That reset runs
+					// *after* activate() returns, so calling setDir before end()
+					// here leaves the unit facing its old default by the time the
+					// cardboard is drawn — the backward cast looked like it never
+					// turned. Set the direction *after* end(), the same way
+					// Vehemoth's backward shot does (Vehemoth.ts:660-662), so the
+					// flip is the last word on the unit's facing.
+					ability.end(); // Deferred ending
+					stomper.creatureSprite.setDir(facing);
+
+					shakeBoard({
+						amplitude: 0.03,
+						durationMs: 400,
+						force: true,
+						axis: 'vertical',
+					});
+
+					// Two forked cracks split from the Stomper's front hexagon across
+					// the target area, leaving jagged glowing lines behind them — the
+					// "forked lightning over the ground" read the ability's name
+					// promises. The cracks crawl toward the hexes the ability covers,
+					// so they track the area even when it holds no creature.
+					const crackHexes = hexes.filter((hex) => hex && hex.displayPos);
+					if (crackHexes.length > 0) {
+						// Turn the Stomper back to its player's default facing once
+						// the crack trail has fully faded — driven by the chain's
+						// own `onEnd`, not a hardcoded timer, so a longer chain
+						// (more targets, staggered hops) keeps the unit turned
+						// until the last crack has actually vanished.
+						const defaultDir = stomper.player.flipped ? -1 : 1;
+						const turnBack = () => {
+							if (!stomper.dead && stomper.sprite?.scale?.x !== defaultDir) {
+								stomper.facePlayerDefault();
+							}
+						};
+						createEarthShakerCracks(stomper, crackHexes, G, facing, turnBack);
+					}
+				}
 
 				// Delay all creatures in area
 				const targets = ability.getTargets(hexes);

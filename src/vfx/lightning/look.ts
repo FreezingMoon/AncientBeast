@@ -228,6 +228,59 @@ export function chainLightningLook(overrides?: Partial<ChainLightningLook>): Cha
 	return overrides ? { ...CHAIN_LIGHTNING_LOOK, ...overrides } : { ...CHAIN_LIGHTNING_LOOK };
 }
 
+/**
+ * Reference look for the Stomper's Earth Shaker ability.
+ *
+ * Two forked cracks crawl from the Stomper's front feet across the
+ * target area, leaving jagged glowing lines behind them. The look is
+ * tuned for a ground effect: warm amber/gold tones, a single bright
+ * channel with a soft under-glow, a slow deliberate travel so the
+ * cracks read as splitting the earth rather than arcing as
+ * electricity, and no embers or endpoint flashes — the crack is
+ * the effect, not a strike.
+ */
+export const EARTH_SHAKER_CRACK_LOOK: ChainLightningLook = {
+	segmentLength: 22,
+	zigzagAmplitude: 0.6,
+	zigzagAlternate: 0.9,
+	jitter: 0.5,
+	// No upward arc: a ground crack travels flat along the earth and
+	// never lifts back toward the sky. `arc` is the screen-space bow that
+	// makes electricity read as arcing; a splitting fault has none.
+	arc: 0,
+	endpointBlend: 0.2,
+
+	lines: 1,
+
+	radiusJitter: 0.3,
+	blueRadius: 3.2,
+	blueAlpha: 0.65,
+	whiteRadius: 1.4,
+	whiteAlpha: 1,
+	flicker: 0.3,
+	flickerHz: 5,
+	drift: 3,
+	embers: 0,
+	emberRadius: 1.5,
+	emberDrift: 20,
+
+	travelMs: 260,
+	lifetimeMs: 520,
+	fadeInMs: 30,
+	impactFlashMs: 60,
+	impactFlashRadius: 10,
+
+	blueColor: 0x8a5a1a,
+	whiteColor: 0xffd54a,
+};
+
+/**
+ * Merge caller overrides onto the Earth Shaker crack reference look.
+ */
+export function earthShakerCrackLook(overrides?: Partial<ChainLightningLook>): ChainLightningLook {
+	return overrides ? { ...EARTH_SHAKER_CRACK_LOOK, ...overrides } : { ...EARTH_SHAKER_CRACK_LOOK };
+}
+
 /** Player color to hex color mapping for electro shocker. */
 const PLAYER_COLOR_HEX: Record<string, number> = {
 	red: 0xff5555,
