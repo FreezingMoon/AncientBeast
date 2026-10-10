@@ -687,7 +687,14 @@ export class HexGrid {
 					// Add all creature hexes.
 					const creature = arrayUtils.last(dir).creature;
 					dir.pop();
-					dir = arrayUtils.sortByDirection(dir.concat(creature.hexagons), direction);
+					// Sort along the direction the line actually travels on screen.
+					// `dir` was built with `options.flipped` applied to `getHexLine`, so
+					// the mirrored direction (5 - direction) must be used when the player
+					// is flipped — otherwise the creature hexes get appended to the wrong
+					// end of the line, putting the full-damage hexes at the far end and
+					// the reduced-effect (shrunken) hexes near the caster.
+					const sortDirection = options.flipped ? 5 - direction : direction;
+					dir = arrayUtils.sortByDirection(dir.concat(creature.hexagons), sortDirection);
 				}
 			}
 
@@ -1910,6 +1917,19 @@ export class HexGrid {
 		// Restore the base query display class after transient hover cleanup so
 		// sideways cursor movement does not leave a lighter/transparent-looking hex.
 		const queryOpt = this.lastQueryOpt as any;
+
+		// `cleanHex` above strips every display class, including `shrunken`, and
+		// the branches below only restore `dashed`/`adj`. A shrunken hex that was
+		// hovered therefore comes off hover at full size — its display sprite
+		// keeps the 0.5 scale set by `updateStyle()` only while the `shrunken`
+		// class is present, so re-adding it here puts the hex back at reduced,
+		// centered scale. This must run before the creature early-return below:
+		// a target unit's hexes at the end of a long path are shrunken too, and
+		// skipping them here would leave those last hexagons at full size.
+		if (Array.isArray(queryOpt.shrunkenHexes) && queryOpt.shrunkenHexes.indexOf(hex) !== -1) {
+			hex.displayVisualState('shrunken');
+		}
+
 		if (hex.creature instanceof Creature) {
 			return;
 		}

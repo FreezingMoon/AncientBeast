@@ -893,6 +893,12 @@ export class Hex {
 			alignIn(this.display, this.hitBox, ALIGN_CENTER);
 			alignIn(this.overlay, this.hitBox, ALIGN_CENTER);
 		} else if (this.displayClasses.match(/shrunken/)) {
+			// `alignIn` only moves the sprite; it never changes the origin. The
+			// display is pinned top-left (origin 0, 0) by `pinTopLeft`, so scaling
+			// it in place would render it in the top-left quadrant of the hit box
+			// rather than centered. Center the origin first, then scale and align.
+			this.display.setOrigin(0.5, 0.5);
+			this.overlay.setOrigin(0.5, 0.5);
 			this.display.setScale(shrinkScale, shrinkScale);
 			this.overlay.setScale(shrinkScale, shrinkScale);
 			alignIn(this.display, this.hitBox, ALIGN_CENTER);
