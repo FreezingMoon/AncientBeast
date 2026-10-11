@@ -11,7 +11,7 @@ const bottomOf = (rows: number) => Math.max(0, rows * ROW_HEIGHT - VIEWPORT_HEIG
 const fakeGame = () =>
 	({
 		startMatchTime: new Date(0),
-		channels: { ui: { on: jest.fn() } },
+		channels: { ui: { on: jest.fn() }, metaPowers: { on: jest.fn() } },
 	} as unknown as Game);
 
 /**
