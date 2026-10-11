@@ -598,8 +598,8 @@ export default (G: Game) => {
 					// Convert cardboard-local nose coordinates into world coordinates using
 					// the current sprite transform (position + anchor + scale).
 					// This keeps forward/backward shots aligned after setDir mirroring.
-					const cardboardNoseLocalX = 221;
-					const cardboardNoseLocalY = 127;
+					const cardboardNoseLocalX = 220;
+					const cardboardNoseLocalY = 128;
 					const creatureGroup = vehemoth.creatureSprite.grp;
 					const creatureSprite = vehemoth.creatureSprite.sprite;
 					// A pixel on the cardboard artwork, so this needs the frame
@@ -615,9 +615,9 @@ export default (G: Game) => {
 					const noseWorldY = creatureGroup.y + creatureSprite.y + localOffsetY;
 
 					const shotAngle = Math.atan2(impactPoint.y - noseWorldY, impactPoint.x - noseWorldX);
-					const emergenceInsetPx = 18;
-					const startX = noseWorldX - Math.cos(shotAngle) * emergenceInsetPx;
-					const startY = noseWorldY - Math.sin(shotAngle) * emergenceInsetPx;
+
+					const startX = noseWorldX;
+					const startY = noseWorldY;
 					const sprite = G.gameEngine.add.sprite(
 						startX,
 						startY,
@@ -637,11 +637,7 @@ export default (G: Game) => {
 					// Graphics mask left in the creature group paints its own fill — a
 					// screen-wide white slab over the board — instead of clipping.
 					const revealDuration = Math.max(100, Math.min(240, travelDistance * 0.25));
-					sprite.alpha = 0;
-					G.gameEngine
-						.tween(sprite)
-						.to({ alpha: 1 }, revealDuration, Easing.Quadratic.Out, true)
-						.start();
+					sprite.alpha = 1;
 
 					const tween = G.gameEngine
 						.tween(sprite)
