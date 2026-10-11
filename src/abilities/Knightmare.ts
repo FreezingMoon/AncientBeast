@@ -9,6 +9,7 @@ import { Direction, Hex } from '../utility/hex';
 import { isTeam } from '../utility/team';
 import Game from '../game';
 import { shakeBoard } from '../game-display/camera';
+import { getFrameSize } from '../game-display/texture';
 
 const isPlasmaFieldBlocker = (source: Creature, target: Creature) => {
 	return target.isDarkPriest() && target.hasCreaturePlayerGotPlasma();
@@ -474,13 +475,6 @@ export default (G: Game) => {
 				const direction: Direction = args?.direction ?? Direction.Right;
 				const flipped = ability.creature.player.flipped;
 
-				// Determine which screen direction the shot travels
-				// Non-flipped: 0,1,2 → right; 3,4,5 → left
-				// Flipped:     0,1,2 → left; 3,4,5 → right
-				const screenGoingRight = flipped
-					? direction >= Direction.DownLeft
-					: direction <= Direction.DownRight;
-
 				const isBackwardsShot = ability.isTargetingBackwards(direction);
 
 				// Use the clicked path directly instead of recalculating
@@ -568,8 +562,22 @@ export default (G: Game) => {
 						G.activeCreature?.queryMove();
 						return;
 					}
-					const startX = emissionPoint.x + (screenGoingRight ? 150 : 30);
-					const startY = emissionPoint.y - 130;
+					// Tongue tip on the Knightmare cardboard, in texture pixels (the
+					// artwork is authored facing right). Reading it through the live
+					// sprite transform — position, anchor, and the scale a `setDir`
+					// mirroring leaves behind — keeps the spear leaving the mouth for
+					// both players and in both facing directions, instead of a hand
+					// measured offset per colour.
+					const tongueTexX = 138;
+					const tongueTexY = 98;
+					const creatureSprite = ability.creature.creatureSprite.sprite;
+					const creatureSize = getFrameSize(creatureSprite);
+					const tongueLocalX =
+						(tongueTexX - creatureSprite.originX * creatureSize.width) * creatureSprite.scaleX;
+					const tongueLocalY =
+						(tongueTexY - creatureSprite.originY * creatureSize.height) * creatureSprite.scaleY;
+					const startX = emissionPoint.x + creatureSprite.x + tongueLocalX;
+					const startY = emissionPoint.y + creatureSprite.y + tongueLocalY;
 					const aimPoint = getIcicleHexCenterPoint(pathEndHex);
 					const blockerIndex = blockerHex ? travelPath.indexOf(blockerHex) : -1;
 					const travelledStepCount =
@@ -582,8 +590,6 @@ export default (G: Game) => {
 						x: startX + (aimPoint.x - startX) * travelProgress,
 						y: startY + (aimPoint.y - startY) * travelProgress,
 					};
-					// Tongue is at +150 from group origin when facing right, +30 when facing left
-					// (creature size 2: 2 * HEX_WIDTH_PX - 150 = 30)
 					const duration = Math.max(1, travelledStepCount) * 75;
 					const sprite = G.gameEngine.add.sprite(
 						startX,

@@ -437,6 +437,17 @@ describe('Knightmare Icicle Spear', () => {
 				facePlayerDefault: jest.fn(),
 				creatureSprite: {
 					setDir: jest.fn(),
+					grp: { x: 0, y: 0 },
+					sprite: {
+						x: 0,
+						y: 0,
+						originX: 0.5,
+						originY: 1,
+						scaleX: 1,
+						scaleY: 1,
+						texture: { width: 170, height: 250 },
+						frame: { realWidth: 170, realHeight: 250 },
+					},
 				},
 			},
 			damages: {
