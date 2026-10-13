@@ -463,19 +463,31 @@ export class Ability {
 		const game = this.game;
 		// Gamelog Event Registration
 		if (game.triggers.onQuery.test(this.getTrigger())) {
+			// The unit that owns this ability performed the action. Passing it
+			// explicitly keeps replay aligned when an ability fires for a
+			// creature other than the active one.
+			const performer = {
+				id: this.creature.id,
+				name: this.creature.name,
+				player: this.creature.player?.id ?? -1,
+			};
+
 			if (args[0] instanceof Hex) {
 				const hex = args[0];
 				const argsObj = args.slice(1);
-				game.gamelog.add({
-					action: 'ability',
-					target: {
-						type: 'hex',
-						x: hex.x,
-						y: hex.y,
+				game.gamelog.add(
+					{
+						action: 'ability',
+						target: {
+							type: 'hex',
+							x: hex.x,
+							y: hex.y,
+						},
+						id: this.id,
+						args: argsObj,
 					},
-					id: this.id,
-					args: argsObj,
-				});
+					performer,
+				);
 				if (game.multiplayer) {
 					game.sendMultiplayerAbility({
 						target: {
@@ -492,15 +504,18 @@ export class Ability {
 			if (args[0] instanceof Creature) {
 				const creature = args[0];
 				const argsObj = args.slice(1);
-				game.gamelog.add({
-					action: 'ability',
-					target: {
-						type: 'creature',
-						crea: creature.id,
+				game.gamelog.add(
+					{
+						action: 'ability',
+						target: {
+							type: 'creature',
+							crea: creature.id,
+						},
+						id: this.id,
+						args: argsObj,
 					},
-					id: this.id,
-					args: argsObj,
-				});
+					performer,
+				);
 				if (game.multiplayer) {
 					game.sendMultiplayerAbility({
 						target: {
@@ -518,15 +533,18 @@ export class Ability {
 
 				const array = args[0].map((item) => ({ x: item.x, y: item.y }));
 
-				game.gamelog.add({
-					action: 'ability',
-					target: {
-						type: 'array',
-						array: array,
+				game.gamelog.add(
+					{
+						action: 'ability',
+						target: {
+							type: 'array',
+							array: array,
+						},
+						id: this.id,
+						args: argsObj,
 					},
-					id: this.id,
-					args: argsObj,
-				});
+					performer,
+				);
 				if (game.multiplayer) {
 					game.sendMultiplayerAbility({
 						target: {

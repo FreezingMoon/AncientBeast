@@ -44,23 +44,79 @@ export class SerializableLog {
 	}
 }
 
+/**
+ * Identifies the creature that performed a logged action.
+ *
+ * Replaying a saved log has to apply each action to the creature that
+ * originally performed it, but the turn hand-off that follows a move or an
+ * ability is asynchronous, so once the replay is running `game.activeCreature`
+ * is not guaranteed to be that creature yet. Stamping the performer on every
+ * entry lets the replay wait for the right turn instead of guessing.
+ */
+export type LogPerformer = {
+	/** Creature id, only unique for the match the log was recorded in. */
+	id: number;
+	/** Unit name, e.g. "Gumble". */
+	name: string;
+	/** Owning player id (0-3). */
+	player: number;
+};
+
 export class GameLog {
 	onSave: (log: SerializableLog) => void;
 	onLoad: (log: SerializableLog) => void;
+	/**
+	 * Fallback performer source used when {@link add} is called without one.
+	 * Games wire this to `activeCreature`; abilities pass their own creature
+	 * explicitly because they are not always the active one.
+	 */
+	getActivePerformer?: () => LogPerformer | null;
 	actions: any[];
 
+	/**
+	 * True when this log was populated by `load()` (i.e. the match is a replay),
+	 * false when it was built up organically via `add()` during a freshly played
+	 * match, or cleared by `reset()`.
+	 *
+	 * Used by the `beforeunload` handler to avoid overwriting a clean stored
+	 * match log with a replay's (potentially modified) log — which can include
+	 * extra actions appended during live play after the replay finishes and
+	 * would prevent the same match from being replayed again.
+	 */
+	loadedFromLog = false;
+
 	// eslint-disable-next-line @typescript-eslint/no-empty-function
-	constructor(onSave = (_log: SerializableLog) => {}, onLoad = (_log: SerializableLog) => {}) {
+	constructor(
+		// eslint-disable-next-line @typescript-eslint/no-empty-function
+		onSave = (_log: SerializableLog) => {},
+		// eslint-disable-next-line @typescript-eslint/no-empty-function
+		onLoad = (_log: SerializableLog) => {},
+		getActivePerformer?: () => LogPerformer | null,
+	) {
 		this.onSave = onSave;
 		this.onLoad = onLoad;
+		this.getActivePerformer = getActivePerformer;
 		this.actions = [];
 	}
 
 	reset() {
 		this.actions = [];
+		this.loadedFromLog = false;
 	}
 
-	add(action: any) {
+	/**
+	 * @param performer Creature performing the action. Defaults to the
+	 *        `getActivePerformer` source given to the constructor. Existing
+	 *        callers that pass a pre-built record (e.g. a move) are left alone
+	 *        so the stamped value always reflects the real performer.
+	 */
+	add(action: any, performer?: LogPerformer | null) {
+		const resolved = performer ?? this.getActivePerformer?.() ?? null;
+
+		if (resolved && !action.performer) {
+			action.performer = resolved;
+		}
+
 		this.actions.push(action);
 	}
 
@@ -86,6 +142,7 @@ export class GameLog {
 		}
 
 		this.actions = [...log.actions];
+		this.loadedFromLog = true;
 		this.onLoad(log);
 		return log;
 	}

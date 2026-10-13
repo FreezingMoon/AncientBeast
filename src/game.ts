@@ -1,7 +1,7 @@
 import $j from 'jquery';
 import { Animations } from './animations';
 import { CreatureQueue } from './creature_queue';
-import { GameLog } from './utility/gamelog';
+import { GameLog, type LogPerformer } from './utility/gamelog';
 import { SoundSys, SoundSysAudioBufferSourceNode } from './sound/soundsys';
 import { Hex, stopAllCursorSpinning } from './utility/hex';
 import { HexGrid } from './utility/hexgrid';
@@ -641,6 +641,15 @@ export default class Game {
 		this.gamelog = new GameLog(
 			(log) => this.onLogSave(log),
 			(log) => this.onLogLoad(log),
+			() => {
+				const creature = this.activeCreature;
+				if (!creature) return null;
+				return {
+					id: creature.id,
+					name: creature.name,
+					player: creature.player?.id ?? -1,
+				};
+			},
 		);
 		this.configData = {};
 		this.match = {};
@@ -2257,6 +2266,7 @@ export default class Game {
 	 */
 	retrieveCreatureStats(type: CreatureType) {
 		const totalCreatures = this.creatureData.length;
+		let fallback: (typeof unitData)[number] | undefined;
 
 		for (let i = totalCreatures - 1; i >= 0; i--) {
 			if (
@@ -2267,9 +2277,16 @@ export default class Game {
 					// When type property is missing, create it using formula: concat(realm + level)
 					this.creatureData[i].type = this.creatureData[i].realm + this.creatureData[i].level;
 				}
-				return this.creatureData[i];
+				if (this.creatureData[i].playable) {
+					return this.creatureData[i];
+				}
+				if (!fallback) {
+					fallback = this.creatureData[i];
+				}
 			}
 		}
+
+		return fallback;
 	}
 
 	triggerAbility(trigger, arg, retValue?) {
@@ -2744,25 +2761,31 @@ export default class Game {
 				});
 				break;
 			case 'ability': {
-				// Reconstruct the live ability args. The recorded action stores
-				// `args` as everything AFTER the target (gamelog: `args.slice(1)`),
-				// so the full live arg array is `[target, ...o.args]`. This mirrors
-				// handleLobbyMessage's action-ability path; the previous
-				// `$j.makeArray(o.args[1])` reconstruction dropped `arg[1]` and all
-				// later args, breaking replay of multi-argument abilities.
 				const ability = this.activeCreature.abilities[o.id];
-				if (!ability) break;
+				if (!ability) {
+					opt.callback();
+					break;
+				}
 
 				const args = Array.isArray(o.args) ? [...o.args] : [];
 
 				if (o.target.type == 'hex') {
 					const hex = this.grid.hexes[o.target.y]?.[o.target.x];
-					if (hex) {
+					if (hex && Number.isFinite(hex.x) && Number.isFinite(hex.y)) {
 						args.unshift(hex);
 						ability.animation2({
 							callback: opt.callback,
 							arg: args,
 						});
+					} else {
+						console.warn(
+							'[Replay] Invalid or missing target hex for ability',
+							o.id,
+							'target:',
+							o.target.y,
+							o.target.x,
+						);
+						opt.callback();
 					}
 				} else if (o.target.type == 'creature') {
 					const targetCreature = this.creatures[o.target.crea];
@@ -2794,8 +2817,23 @@ export default class Game {
 							callback: opt.callback,
 							arg: args,
 						});
+					} else {
+						console.warn('[Replay] No valid target hexes for array-target ability', o.id);
+						opt.callback();
 					}
+				} else {
+					console.warn('[Replay] Unknown target type for ability', o.id, 'type:', o.target.type);
+					opt.callback();
 				}
+				break;
+			}
+			default: {
+				// 'restart' and 'exit' are recorded when a match is thrown away, so a
+				// stored log can end in one. They have no replayable effect, but
+				// without a case here the switch falls through and never calls back,
+				// which stalls the replay loop on that entry forever.
+				console.warn('[Replay] Ignoring action that cannot be replayed:', o.action);
+				opt.callback();
 				break;
 			}
 		}
@@ -2933,6 +2971,25 @@ export default class Game {
 			this.grid?.refreshHoverState();
 		};
 
+		/**
+		 * Whether `creature` is the one that recorded `performer`.
+		 *
+		 * `name` + owning player is the primary key because it survives a replay in
+		 * which creatures were assembled in a slightly different order (so ids no
+		 * longer line up). A player never has two units of the same type, so the pair
+		 * is unique. The id is only consulted when the log predates the performer
+		 * field and carries no name.
+		 */
+		const performerMatches = (performer: LogPerformer, creature: Creature | undefined) => {
+			if (!creature) return false;
+
+			if (typeof performer.name === 'string' && performer.name) {
+				return creature.name === performer.name && creature.player?.id === performer.player;
+			}
+
+			return typeof performer.id === 'number' && performer.id === creature.id;
+		};
+
 		const nextAction = () => {
 			if (actions.length === 0) {
 				this.isReplayInProgress = false;
@@ -2946,14 +3003,75 @@ export default class Game {
 				console.log(`${1 + numTotalActions - actions.length} / ${numTotalActions}`);
 			}
 
+			// Each action belongs to the creature that recorded it, and the turn that
+			// follows a move or an ability is handed over asynchronously. Applying the
+			// action to whatever creature happens to be active (the previous
+			// behaviour) silently targets the wrong unit once the replay drifts — a
+			// materialization then lands on the other player, units vanish, and
+			// abilities fire with arguments they were never meant to receive.
+			//
+			// Waiting for the recorded performer makes the replay self-correcting, but
+			// only if the turn is allowed to move on: ending a turn is often implicit
+			// and unlogged (a creature that moves out of movement points is skipped by
+			// the board, not recorded), so with nothing to advance it the replay
+			// stalls on the creature that just acted. Advancing the turn toward the
+			// recorded performer reproduces those silent hand-offs.
+			const performer = actions[0].performer as LogPerformer | undefined;
+			const performerWaitLimitMs = 5000;
+			let performerWaitedMs = 0;
+			// One hand-off per turn change: nextCreature() schedules its own delayed
+			// advance, so requesting again before the new unit is installed would
+			// stack several of them and skip past the target.
+			let turnHandOffPending = false;
+			let lastSeenCreature: Creature | undefined = this.activeCreature;
+
 			const interval = setInterval(() => {
-				if (!this.freezedInput && !this.turnThrottle) {
-					clearInterval(interval);
-					this.activeCreature?.queryMove();
-					this.action(actions.shift(), {
-						callback: nextAction,
-					});
+				if (this.freezedInput || this.turnThrottle) {
+					return;
 				}
+
+				const activeCreature = this.activeCreature;
+				if (activeCreature !== lastSeenCreature) {
+					// The turn moved on, so a further hand-off may be requested.
+					lastSeenCreature = activeCreature;
+					turnHandOffPending = false;
+				}
+
+				if (performer && !performerMatches(performer, this.activeCreature)) {
+					// Logs written before the performer field existed have no performer
+					// to match and fall through as before. When one exists, advance the
+					// board until its creature takes a turn — the unit is either still
+					// queued or was never rebuilt (an earlier action failed), and in
+					// the latter case waiting forever would stall the whole replay.
+					performerWaitedMs += 100;
+					if (performerWaitedMs > performerWaitLimitMs) {
+						clearInterval(interval);
+						console.warn(
+							'[Replay] Dropping action whose creature never became active.',
+							actions[0],
+						);
+						actions.shift();
+						nextAction();
+						return;
+					}
+
+					if (!turnHandOffPending && this.activeCreature) {
+						turnHandOffPending = true;
+						// Consume the acting creature's turn exactly as skipTurn() does.
+						// Without deactivate('turn-end') the unit stays at the front of
+						// the queue, so nextCreature() would only re-activate it and the
+						// board would never move on to the recorded performer.
+						this.activeCreature.deactivate('turn-end');
+						this.nextCreature();
+					}
+					return;
+				}
+
+				clearInterval(interval);
+				this.activeCreature?.queryMove();
+				this.action(actions.shift(), {
+					callback: nextAction,
+				});
 			}, 100);
 		};
 

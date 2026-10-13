@@ -71,5 +71,85 @@ describe('GameLog', () => {
 			const diffSeconds = Math.abs(date.getTime() / 1000 - log.date.getTime() / 1000);
 			expect(diffSeconds).toBeLessThan(10);
 		});
+
+		test('loadedFromLog is false by default on a new GameLog', () => {
+			const gl = new GameLog();
+			expect(gl.loadedFromLog).toBe(false);
+		});
+
+		test('loadedFromLog is true after gamelog.load(str)', () => {
+			const gl = new GameLog();
+			const str = gl.stringify();
+			expect(gl.loadedFromLog).toBe(false);
+			gl.load(str);
+			expect(gl.loadedFromLog).toBe(true);
+		});
+
+		test('loadedFromLog is false after gamelog.reset()', () => {
+			const gl = new GameLog();
+			const str = gl.stringify();
+			gl.load(str);
+			expect(gl.loadedFromLog).toBe(true);
+			gl.reset();
+			expect(gl.loadedFromLog).toBe(false);
+		});
+	});
+
+	describe('performer stamping', () => {
+		const performer = { id: 2, name: 'Gumble', player: 1 };
+
+		test('add(action, performer) stamps the performer onto the action', () => {
+			const gl = new GameLog();
+			gl.add({ action: 'skip' }, performer);
+			expect(gl.actions[0].performer).toEqual(performer);
+		});
+
+		test('add(action) falls back to the configured performer source', () => {
+			const current: typeof performer | null = performer;
+			const gl = new GameLog(
+				() => undefined,
+				() => undefined,
+				() => current,
+			);
+			gl.add({ action: 'move' });
+			expect(gl.actions[0].performer).toEqual(performer);
+		});
+
+		test('add(action) leaves actions alone when no performer source is configured', () => {
+			const gl = new GameLog();
+			gl.add({ action: 'move' });
+			expect(gl.actions[0].performer).toBeUndefined();
+		});
+
+		test('add(action, performer) does not overwrite an existing performer', () => {
+			const gl = new GameLog(
+				() => undefined,
+				() => undefined,
+				() => ({ id: 9, name: 'Other', player: 0 }),
+			);
+			gl.add({ action: 'skip', performer });
+			expect(gl.actions[0].performer).toEqual(performer);
+		});
+
+		test('explicitly passed null performer still consults the source', () => {
+			let current: typeof performer | null = null;
+			const gl = new GameLog(
+				() => undefined,
+				() => undefined,
+				() => current,
+			);
+			gl.add({ action: 'skip' }, null);
+			expect(gl.actions[0].performer).toBeUndefined();
+			current = performer;
+			gl.add({ action: 'skip' }, null);
+			expect(gl.actions[1].performer).toEqual(performer);
+		});
+
+		test('performers survive stringify/load', () => {
+			const gl = new GameLog();
+			gl.add({ action: 'skip' }, performer);
+			const log = gl.load(gl.stringify());
+			expect(log.actions[0].performer).toEqual(performer);
+		});
 	});
 });

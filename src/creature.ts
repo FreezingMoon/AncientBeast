@@ -1043,7 +1043,14 @@ export class Creature {
 						},
 						path: movePath.map((pathHex) => ({ x: pathHex.x, y: pathHex.y })),
 					};
-					game.gamelog.add(moveRecord);
+					// Stamp the mover so replay can wait for this creature's turn.
+					// `activeCreature` is normally the same one, but a move can be
+					// recorded from a creature that is only just becoming active.
+					game.gamelog.add(moveRecord, {
+						id: args.creature.id,
+						name: args.creature.name,
+						player: args.creature.player?.id ?? -1,
+					});
 					if (game.multiplayer) {
 						game.sendMultiplayerMove(moveRecord.target, moveRecord.path);
 					}

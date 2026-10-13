@@ -703,8 +703,10 @@ $j(() => {
 
 	const startGame = () => {
 		G.multiplayer = false;
-		// `loadGame` is async: it fetches the Phaser chunk on first use. Kick it off
-		// during the click so the fetch overlaps the rest of the match-start work.
+		// Starting a fresh live match (left-click Start) clears any replay state
+		// so a failed right-click replay doesn't prevent the new match's log
+		// from being persisted on unload.
+		G.gamelog.loadedFromLog = false;
 		void G.loadGame(getGameConfig()).catch((error) => {
 			console.error('[Game] Could not start the match', error);
 		});
@@ -715,7 +717,7 @@ $j(() => {
 	};
 
 	const storeLastMatchLog = () => {
-		if (!DEBUG || G.gameState === 'initialized') {
+		if (!DEBUG || G.gameState === 'initialized' || G.gamelog.loadedFromLog) {
 			return;
 		}
 

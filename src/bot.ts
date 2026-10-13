@@ -211,7 +211,7 @@ export default class BotController {
 	 * resolving and can be asked for its next decision.
 	 */
 	private onCreatureTurnIdle(payload: { creature: Creature }): void {
-		if (!this.isBotTurn()) {
+		if (!this.canActThisTurn()) {
 			return;
 		}
 
@@ -487,8 +487,27 @@ export default class BotController {
 		);
 	}
 
+	/**
+	 * Whether the bot may *act* this turn.
+	 *
+	 * Turn-taking is suppressed during replay (`game.isReplayInProgress`): the
+	 * replay scheduler drives each recorded action itself, and a bot that
+	 * independently picks and executes its own action would race it. The result
+	 * was a diverging board — the bot's random pick landed on a different unit
+	 * (or a different player's turn) than the recorded action, so later
+	 * materializations were attributed to the wrong player and units from the
+	 * original match went missing entirely.
+	 *
+	 * Kept separate from {@link isBotTurn} because that method also answers the
+	 * cosmetic "whose turn is this?" question for cursors and the ability panel,
+	 * which should look unchanged while a match is being replayed.
+	 */
+	private canActThisTurn(): boolean {
+		return this.isBotTurn() && !this.game.isReplayInProgress;
+	}
+
 	queueDecision(delay = 300) {
-		if (!this.isBotTurn()) {
+		if (!this.canActThisTurn()) {
 			return;
 		}
 
@@ -499,7 +518,7 @@ export default class BotController {
 	}
 
 	takeTurn() {
-		if (!this.isBotTurn()) {
+		if (!this.canActThisTurn()) {
 			return;
 		}
 
@@ -763,7 +782,7 @@ export default class BotController {
 	}
 
 	shouldAutoResolveQuery() {
-		return this.isBotTurn() && this.pendingAction !== null;
+		return this.canActThisTurn() && this.pendingAction !== null;
 	}
 
 	resolveQuery(queryOptions: { hexes: Hex[] }, handlers: QueryHandlers) {
