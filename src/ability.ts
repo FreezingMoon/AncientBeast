@@ -424,35 +424,48 @@ export class Ability {
 	 * correct within activate().
 	 */
 	postActivate(): void {
-		const game = this.game;
 		this.timesUsed++;
 		this.timesUsedThisTurn++;
 
 		// Update upgrade information
 		this.game.UI.updateAbilityUpgrades();
 
-		// Configure score update for player
-		// When the ability is upgraded, add a single score bonus unique to that ability
-		if (this.isUpgraded() && this.usesLeftBeforeUpgrade() == 0) {
-			const upgradeMark = '%CreatureColor' + this.creature.id + '%▲%EndCreatureColor%';
-			game.log(this.title + ' has been upgraded ' + upgradeMark);
-			// Upgrade bonus uniqueness managed by preventing multiple bonuses
-			// with the same ability ID (which is an index 0,1,2,3 into the creature's abilities) and the creature ID
-			const bonus: ScoreEvent = {
-				type: 'upgrade',
-				ability: this.id,
-				creature: this.creature,
-			};
+		// Only a use-based (active) ability can cross its threshold on one of its
+		// own activations: its uses are counted here. A passive upgrades with its
+		// creature's active rounds and is announced from the turn-end that crossed
+		// — announcing it here fired from whatever damage triggered it (logging the
+		// upgrade before the very hit it was reacting to) and repeated on every
+		// later trigger, since the round counter has not moved in between.
+		if (this.isUpgradedPerUse() && this.isUpgraded() && this.usesLeftBeforeUpgrade() == 0) {
+			this.announceUpgrade();
+		}
+	}
 
-			const matchingBonus = (score: ScoreEvent) =>
-				score.type === bonus.type &&
-				score.ability === bonus.ability &&
-				score.creature.id === bonus.creature.id;
+	/**
+	 * Announce and score an ability that has just crossed its upgrade threshold.
+	 * Reached once per ability: `postActivate` for use-based abilities, and the
+	 * creature's turn-end for round-based (passive) ones.
+	 */
+	announceUpgrade(): void {
+		const game = this.game;
+		const upgradeMark = '%CreatureColor' + this.creature.id + '%▲%EndCreatureColor%';
+		game.log(this.title + ' has been upgraded ' + upgradeMark);
+		// Upgrade bonus uniqueness managed by preventing multiple bonuses
+		// with the same ability ID (which is an index 0,1,2,3 into the creature's abilities) and the same creature ID
+		const bonus: ScoreEvent = {
+			type: 'upgrade',
+			ability: this.id,
+			creature: this.creature,
+		};
 
-			// Only add the bonus when it has not already been awarded
-			if (!this.creature.player.score.find(matchingBonus)) {
-				this.creature.player.score.push(bonus);
-			}
+		const matchingBonus = (score: ScoreEvent) =>
+			score.type === bonus.type &&
+			score.ability === bonus.ability &&
+			score.creature.id === bonus.creature.id;
+
+		// Only add the bonus when it has not already been awarded
+		if (!this.creature.player.score.find(matchingBonus)) {
+			this.creature.player.score.push(bonus);
 		}
 	}
 
@@ -594,16 +607,26 @@ export class Ability {
 
 		// Animate
 
-		this.creature.facePlayerDefault();
+		// Only an acting (onQuery) ability turns its creature towards its
+		// target: that re-facing is part of the windup and feeds the lunge's
+		// facing below (see `facingFlipped`). A passive trigger — Horn Head's
+		// Life Support firing back at the Plasma Field's counter damage, the
+		// priest's own Plasma Field, … — merely reacts, so re-facing its owner
+		// would snap the creature that is mid-animation back to its default
+		// facing: Horn Head wheeling around while its Meat Sickle hook was still
+		// flying at the shielded priest behind it.
+		if (this.getTrigger() === 'onQuery') {
+			this.creature.facePlayerDefault();
 
-		// Force creatures to face towards their target
-		if (args[0]) {
-			if (args[0] instanceof Creature) {
-				this.creature.faceHex(args[0]);
-			} else if (args[0] instanceof Array) {
-				for (const argument of args[0]) {
-					if (argument instanceof Creature || argument.creature) {
-						this.creature.faceHex(argument);
+			// Force creatures to face towards their target
+			if (args[0]) {
+				if (args[0] instanceof Creature) {
+					this.creature.faceHex(args[0]);
+				} else if (args[0] instanceof Array) {
+					for (const argument of args[0]) {
+						if (argument instanceof Creature || argument.creature) {
+							this.creature.faceHex(argument);
+						}
 					}
 				}
 			}
@@ -676,7 +699,12 @@ export class Ability {
 			}, getVisibilityAwareDelay(animationData.duration));
 		} else {
 			activateAbility();
-			if (game.animationQueue.length === 0) {
+			// A passive firing while another unit's deferred ability animation is
+			// still playing must not release the turn: the ability that called
+			// end(true, true) owns the hand-back until its effect is over — e.g. a
+			// dragged unit's onCreatureMove trigger firing mid-drag, which would
+			// unfreeze the turn while the Meat Sickle chain is still reeling.
+			if (game.animationQueue.length === 0 && !game._deferredQueryMovePending) {
 				if (game.multiplayer) {
 					game.freezedInput = game.UI.active ? false : true;
 				} else {

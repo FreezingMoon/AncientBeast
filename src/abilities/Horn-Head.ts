@@ -353,17 +353,6 @@ const uniqueHexes = (hexes: Hex[]) => {
 	});
 };
 
-const getMeatSickleDirectionLabel = (direction: Direction) => {
-	switch (direction) {
-		case Direction.Left:
-			return 'backward';
-		case Direction.Right:
-			return 'forward';
-		default:
-			return 'inline';
-	}
-};
-
 const preserveAbilityRangeHexes = (
 	ability: { _inDirectionTest?: boolean; _abilityRangeHexes?: Hex[] },
 	hexes: Hex[],
@@ -412,6 +401,18 @@ const applyMovementRestriction = (source: Creature, target: Creature, G: Game) =
 const MEAT_SICKLE_CHAIN_KEY = 'object_chain';
 const MEAT_SICKLE_HOOK_KEY = 'object_hook';
 
+/**
+ * How long the hook takes to fly from Horn Head's wrist to the target. The
+ * retract replays those same frames backwards, so it lasts as long as the fly.
+ */
+const MEAT_SICKLE_HOOK_FLY_MS = 350;
+
+/**
+ * How long the hook dwells on what it struck before flying home — long enough
+ * to read the hit (or the field block), short enough to keep the turn moving.
+ */
+const MEAT_SICKLE_HOOK_BEAT_MS = 150;
+
 const getMeatSickleSpritesAvailable = (G: Game) => {
 	const cache = G?.gameEngine?.cache;
 	if (!cache) {
@@ -422,6 +423,15 @@ const getMeatSickleSpritesAvailable = (G: Game) => {
 	return Boolean(chainImg && hookImg);
 };
 
+/**
+ * Chain + hook shot from Horn Head's wrist at `targetCreature`.
+ *
+ * `onComplete` keeps the hook latched on the target forever (the caller drags
+ * it and tears the effect down afterwards); without it nothing is dragged, so
+ * the hook dwells on what it struck, retracts back to the wrist, and only then
+ * calls `onSettled` — the turn hand-back hangs off that, so it can never land
+ * while the hook is still in the air.
+ */
 const playMeatSickleHookEffect = (
 	G: Game,
 	sourceCreature: Creature,
@@ -430,10 +440,14 @@ const playMeatSickleHookEffect = (
 	targetHex: Hex,
 	durationMs: number,
 	onComplete?: () => void,
+	onSettled?: () => void,
 ) => {
 	if (!getMeatSickleSpritesAvailable(G) || !G.grid?.creatureGroup) {
 		if (onComplete) {
 			onComplete();
+		}
+		if (onSettled) {
+			onSettled();
 		}
 		return;
 	}
@@ -568,6 +582,13 @@ const playMeatSickleHookEffect = (
 		hook.alpha = hookAlpha;
 	};
 
+	// Every frame the fly renders, recorded so the retract can replay them in
+	// reverse: the hook then comes home along exactly the path it flew out on —
+	// same easing, same alpha fade, and the same orientation it had in flight
+	// (spinning it to point back at the wrist turned the hook around and read as
+	// broken).
+	const flightFrames: { x: number; y: number; alpha: number }[] = [];
+
 	const startTime = Date.now();
 	const flyStep = () => {
 		if (!active) {
@@ -578,33 +599,61 @@ const playMeatSickleHookEffect = (
 		// Chain and hook extend together at the same speed during the launch. The
 		// hook starts transparent at the emission point and fades in as it travels.
 		const hookDistance = totalDistance * easing;
-		renderAt(
-			launchPoint.x + dirX * hookDistance,
-			launchPoint.y + dirY * hookDistance,
-			Math.min(1, progress * 2),
-		);
+		const hookAlpha = Math.min(1, progress * 2);
+		renderAt(launchPoint.x + dirX * hookDistance, launchPoint.y + dirY * hookDistance, hookAlpha);
+		flightFrames.push({ x: hook.x, y: hook.y, alpha: hookAlpha });
 
 		if (progress < 1) {
 			setTimeout(flyStep, 16);
 			return;
 		}
 
-		// Reeling phase: hook stays latched to the target (moving with it at the same
-		// speed) while the chain reels in behind it. We render at the target's live
-		// position every frame so the hook never drifts or swings loose.
 		hook.alpha = 1;
-		const track = () => {
-			if (!active) {
-				return;
-			}
-			const tc = getCreatureCenter(targetCreature, targetHex);
-			renderAt(tc.x, tc.y, 1);
-			setTimeout(track, 16);
-		};
-		track();
+
 		if (onComplete) {
+			// Reeling phase: hook stays latched to the target (moving with it at the
+			// same speed) while the chain reels in behind it. We render at the
+			// target's live position every frame so the hook never drifts or swings
+			// loose.
+			const track = () => {
+				if (!active) {
+					return;
+				}
+				const tc = getCreatureCenter(targetCreature, targetHex);
+				renderAt(tc.x, tc.y, 1);
+				setTimeout(track, 16);
+			};
+			track();
 			onComplete();
+			return;
 		}
+
+		// Nothing is dragged (the Plasma Field blocked the hook, or the target stood
+		// at melee range): the hook dwells on what it struck, then flies home along
+		// the recorded flight frames played backwards.
+		setTimeout(() => {
+			const retractStep = () => {
+				if (!active) {
+					return;
+				}
+				const frame = flightFrames.pop();
+
+				if (!frame) {
+					// Fully home: the sickle is back in Horn Head's hand.
+					hook.alpha = 0;
+					hook.visible = false;
+					chain.visible = false;
+					if (onSettled) {
+						onSettled();
+					}
+					return;
+				}
+
+				renderAt(frame.x, frame.y, frame.alpha);
+				setTimeout(retractStep, 16);
+			};
+			retractStep();
+		}, MEAT_SICKLE_HOOK_BEAT_MS);
 	};
 
 	flyStep();
@@ -1022,11 +1071,24 @@ export default (G: Game) => {
 
 				ability.end(true, true);
 
-				if (target.isDarkPriest() && target.hasCreaturePlayerGotPlasma()) {
-					target.takeDamage(new Damage(ability.creature, { slash: 1 }, 1, [], G));
-				}
+				// A shielded enemy Dark Priest blocks the hook outright, the same way
+				// it blocks Knightmare's icicle or Headless' line: the single slash
+				// below eats one plasma point (countering Horn Head if the field is
+				// upgraded) and the hook never takes hold, so there is no drag and no
+				// follow-up damage — two `takeDamage` calls would each trigger the
+				// Plasma Field and drain a second plasma point.
+				const plasmaFieldBlocksHook = Boolean(
+					target.isDarkPriest() && target.hasCreaturePlayerGotPlasma(),
+				);
 
-				const directionLabel = getMeatSickleDirectionLabel(direction);
+				if (plasmaFieldBlocksHook) {
+					// Log the cast first: the field's own "is shielded by Plasma Field"
+					// entry — and the upgraded field's counter damage — then follow it, in
+					// that order, instead of the whole block trailing the ability.
+					G.log(
+						`%CreatureName${ability.creature.id}% uses Meat Sickle on %CreatureName${target.id}%`,
+					);
+				}
 
 				const targetHookHex = line[targetIndex] ?? target.hexagons?.[0] ?? line[0];
 				const casterHookHex =
@@ -1039,6 +1101,31 @@ export default (G: Game) => {
 						cleanupMeatSickleEffect = null;
 					}
 				};
+
+				if (plasmaFieldBlocksHook) {
+					const cleanup = playMeatSickleHookEffect(
+						G,
+						this.creature,
+						casterHookHex,
+						target,
+						targetHookHex,
+						MEAT_SICKLE_HOOK_FLY_MS,
+						undefined,
+						() => {
+							// The hook flew out, was stopped by the field and is home
+							// again: hand the turn back now, never earlier.
+							if (typeof cleanup === 'function') {
+								cleanup();
+							}
+							G.activeCreature?.queryMove();
+						},
+					);
+					// The field eats the slash: one plasma point, its own "shielded by
+					// Plasma Field" log entry and any counter damage, all after the cast
+					// line above. Nothing else lands — the hook never took hold.
+					target.takeDamage(new Damage(ability.creature, { slash: 1 }, 1, [], G));
+					return;
+				}
 
 				let { landingHex, landingIndex } =
 					targetIndex >= 0
@@ -1067,15 +1154,22 @@ export default (G: Game) => {
 						casterHookHex,
 						target,
 						targetHookHex,
-						350,
+						MEAT_SICKLE_HOOK_FLY_MS,
+						undefined,
+						() => {
+							// The hook flew out, struck, and is home again: hand the turn
+							// back now, never earlier. Ending the query while the chain was
+							// still out turned the unit back to its default facing before
+							// the effect was over, and let the player walk Horn Head away
+							// mid-chain, leaving it dangling off the hex it was cast from.
+							if (typeof cleanup === 'function') {
+								cleanup();
+							}
+							G.activeCreature?.queryMove();
+						},
 					);
-					if (typeof cleanup === 'function') {
-						setTimeout(cleanup, 500);
-					}
 					G.log(
-						`%CreatureName${
-							ability.creature.id
-						}% uses Meat Sickle ${directionLabel} on %CreatureName${target.id}% (${
+						`%CreatureName${ability.creature.id}% uses Meat Sickle on %CreatureName${target.id}% (${
 							targetIndex === 0 ? 'melee hit' : 'no pull'
 						})`,
 					);
@@ -1089,7 +1183,9 @@ export default (G: Game) => {
 						applyMovementRestriction(ability.creature, target, G);
 					}
 
-					G.activeCreature?.queryMove();
+					// Horn Head holds the facing the cast turned it to — including a foe
+					// behind it — and the turn stays frozen until the hook is home; the
+					// settle callback above owns the hand-back.
 					return;
 				}
 
@@ -1103,12 +1199,10 @@ export default (G: Game) => {
 						casterHookHex,
 						target,
 						targetHookHex,
-						350,
+						MEAT_SICKLE_HOOK_FLY_MS,
 						() => {
 							G.log(
-								`%CreatureName${
-									ability.creature.id
-								}% uses Meat Sickle ${directionLabel} on %CreatureName${
+								`%CreatureName${ability.creature.id}% uses Meat Sickle on %CreatureName${
 									target.id
 								}% (pulled ${pulledHexes} hex${pulledHexes === 1 ? '' : 'es'})`,
 							);

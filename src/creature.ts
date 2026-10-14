@@ -752,7 +752,17 @@ export class Creature {
 			}
 
 			game.startTimer();
-			if (game.grid?.queryGeneration === queryGenerationAtActivation) {
+			// An ability animation in flight owns the turn hand-back: it installs
+			// the movement query itself once its effect is over. Handing the turn
+			// back from here would re-install the query and reset the unit's facing
+			// mid-animation — Horn Head wheeling back to his default facing while
+			// the Meat Sickle hook is still flying at a foe behind him — and let
+			// the player walk the caster away from the effect.
+			if (
+				game.grid?.queryGeneration === queryGenerationAtActivation &&
+				(game.animationQueue?.length ?? 0) === 0 &&
+				!game._deferredQueryMovePending
+			) {
 				this.queryMove(null);
 			}
 			game.grid?.refreshHoverState();
@@ -858,6 +868,18 @@ export class Creature {
 			this.queryMove(null);
 			this.turnsActive += 1;
 			this._nextGameTurnActive = game.turn + 1;
+			// Round-based (passive) abilities upgrade on active rounds, not uses,
+			// so they cross their threshold here — announce them on the turn-end
+			// that crossed, not on whatever damage triggers them next.
+			this.abilities.forEach((ability) => {
+				if (
+					!ability.isUpgradedPerUse() &&
+					ability.isUpgraded() &&
+					ability.usesLeftBeforeUpgrade() == 0
+				) {
+					ability.announceUpgrade();
+				}
+			});
 			// @ts-expect-error 2554
 			game.onEndPhase(this);
 		}
@@ -2348,7 +2370,7 @@ export class Creature {
 				game.nextCreature();
 				return;
 			}
-			game.activeCreature?.queryMove();
+			this.queryMoveAfterDeath();
 			return;
 		}
 
@@ -2515,7 +2537,26 @@ export class Creature {
 		}
 
 		// As hex occupation changes, path must be recalculated for the current creature not the dying one
-		game.activeCreature?.queryMove();
+		this.queryMoveAfterDeath();
+	}
+
+	/**
+	 * Hand the turn back to the active creature after this creature died.
+	 *
+	 * While a deferred ability animation is still playing (`Ability#end(true,
+	 * true)` incremented `game._deferredQueryMovePending` and only that ability's
+	 * own `queryMove()` releases it), the death must not hand the turn back
+	 * early: doing so turns the acting unit back to its default facing — e.g.
+	 * Horn Head's Meat Sickle wheeling around while its hook is still flying at
+	 * the foe it just killed behind it — and unfreezes input mid-animation. The
+	 * ability's pending `queryMove()` covers this when its effect is over.
+	 */
+	private queryMoveAfterDeath() {
+		if (this.game._deferredQueryMovePending > 0) {
+			return;
+		}
+
+		this.game.activeCreature?.queryMove();
 	}
 
 	isFatigued() {

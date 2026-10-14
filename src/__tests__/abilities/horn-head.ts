@@ -421,7 +421,6 @@ describe('Horn Head Meat Sickle landing validation', () => {
 			takeDamage: jest.fn(),
 			moveTo: jest.fn(),
 		};
-
 		const source = {
 			id: 8,
 			x: 0,
@@ -489,6 +488,102 @@ describe('Horn Head Meat Sickle landing validation', () => {
 		ability.activate.call(ability, [{ creature: target }], { direction: Direction.Right });
 
 		expect(target.moveTo).not.toHaveBeenCalled();
+		// The turn hand-back is driven by the hook effect's settle callback (in the
+		// browser that fires once the hook is home again); with no chain sprites to
+		// fly there is nothing to wait for, so it lands immediately. It must never
+		// fire while the chain is still out, which turned the unit back around and
+		// let the player walk Horn Head away mid-effect.
+		expect(game.activeCreature.queryMove).toHaveBeenCalledTimes(1);
+	});
+
+	// A shielded enemy Dark Priest blocks the hook outright, like it blocks
+	// Knightmare's icicle or Headless' line: the Plasma Field eats one slash
+	// (draining a single plasma point) and the hook never takes hold. A second
+	// hit would trigger the field again and drain another point, and a drag
+	// would move the priest despite the field being up.
+	test('a shielded Dark Priest blocks the hook: one shield tap, no drag, no follow-up damage', () => {
+		const target = {
+			id: 35,
+			size: 1,
+			stats: { movement: 3, moveable: true },
+			isDarkPriest: () => true,
+			hasCreaturePlayerGotPlasma: () => true,
+			replaceEffect: jest.fn(),
+			takeDamage: jest.fn(),
+			moveTo: jest.fn(),
+		};
+		const source = {
+			id: 8,
+			x: 0,
+			y: 0,
+			size: 2,
+			player: { flipped: false },
+		};
+
+		// The hex before the priest is walkable, so without the shield this
+		// would be a normal one-hex pull.
+		const line = [
+			{ x: 0, y: 0, creature: source, isWalkable: jest.fn(() => false) },
+			{ x: 1, y: 0, creature: null, isWalkable: jest.fn(() => true) },
+			{ x: 2, y: 0, creature: target, isWalkable: jest.fn(() => true) },
+		];
+
+		const game = {
+			abilities: {} as Record<number, unknown[]>,
+			grid: {
+				getHexLine: jest.fn(() => line),
+			},
+			activeCreature: {
+				queryMove: jest.fn(),
+			},
+			log: jest.fn(),
+			gameEngine: {
+				add: {
+					graphics: () => ({}),
+					bitmapData: () => ({}),
+					group: () => ({ children: [], add: () => {}, addAt: () => {}, remove: () => {} }),
+					tileSprite: () => ({}),
+				},
+				tween: () => ({
+					to: () => ({
+						start: () => ({ stop: () => ({}), onComplete: { add: () => {}, addOnce: () => {} } }),
+						stop: () => ({}),
+						onComplete: { add: () => {}, addOnce: () => {} },
+					}),
+					start: () => ({ stop: () => ({}), onComplete: { add: () => {}, addOnce: () => {} } }),
+					stop: () => ({}),
+					onComplete: { add: () => {}, addOnce: () => {} },
+				}),
+			},
+		};
+
+		globalThis.G = game as never;
+		loadHornHeadAbilities(game as never);
+
+		const baseAbility = (game.abilities[8] as Record<string, unknown>[]).find(
+			(ability) => typeof ability._getMaxDistance === 'function',
+		) as {
+			activate: (path: unknown[], args: { direction: Direction }) => void;
+		};
+		const ability = {
+			...baseAbility,
+			creature: source,
+			isUpgraded: () => false,
+			end: jest.fn(),
+			title: 'Meat Sickle',
+			damages: { pierce: 1 },
+		};
+
+		ability.activate.call(ability, [{ creature: target }], { direction: Direction.Right });
+
+		// Exactly one shield tap: two hits would trigger the Plasma Field twice
+		// and drain two plasma points.
+		expect(target.takeDamage).toHaveBeenCalledTimes(1);
+		expect(target.takeDamage).toHaveBeenCalledWith(
+			expect.objectContaining({ damages: { slash: 1 } }),
+		);
+		expect(target.moveTo).not.toHaveBeenCalled();
+		expect(target.replaceEffect).not.toHaveBeenCalled();
 		expect(game.activeCreature.queryMove).toHaveBeenCalledTimes(1);
 	});
 

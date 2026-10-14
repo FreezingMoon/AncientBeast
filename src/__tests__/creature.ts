@@ -281,6 +281,35 @@ describe('Creature', () => {
 			expect(bloodEvents(game.players[0])).toHaveLength(0);
 			expect(game.players[0].score.some((s) => s.type === 'deny')).toBe(true);
 		});
+
+		/**
+		 * The death itself used to hand the turn back to the active creature.
+		 * When the kill happens *during* a deferred ability animation — Horn
+		 * Head's Meat Sickle striking a foe behind it at melee range — that
+		 * turned the caster back to its default facing while its hook was still
+		 * flying, and unfroze input mid-animation. `Ability#end(true, true)`
+		 * makes the ability itself own the hand-back, so the death must not.
+		 */
+		test('a death does not hand the turn back while a deferred ability animation is pending', () => {
+			const game = getDieGameMock();
+			(game as unknown as { _deferredQueryMovePending: number })._deferredQueryMovePending = 1;
+			const active = { queryMove: jest.fn() };
+			(game as unknown as { activeCreature: unknown }).activeCreature = active;
+
+			spawnVictim(game, 1).die(spawnVictim(game, 0));
+
+			expect(active.queryMove).not.toHaveBeenCalled();
+		});
+
+		test('a death hands the turn back when no ability animation is pending', () => {
+			const game = getDieGameMock();
+			const active = { queryMove: jest.fn() };
+			(game as unknown as { activeCreature: unknown }).activeCreature = active;
+
+			spawnVictim(game, 1).die(spawnVictim(game, 0));
+
+			expect(active.queryMove).toHaveBeenCalledTimes(1);
+		});
 	});
 
 	describe('creature.wait()', () => {

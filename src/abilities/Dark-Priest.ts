@@ -36,27 +36,6 @@ export default (G: Game) => {
 					return damage; // Return Damage
 				}
 
-				if (this.isUpgraded() && damage.melee && !damage.counter) {
-					//counter damage
-					const counter = new Damage(
-						this.creature, // Attacker
-						{
-							pure: 9,
-						}, // Damage Type
-						1, // Area
-						[], // Effects
-						G,
-					);
-					counter.counter = true;
-					G.activeCreature?.takeDamage(counter);
-					shakeBoard({
-						amplitude: 0.03,
-						durationMs: 220,
-						force: true,
-						axis: 'horizontal',
-					});
-				}
-
 				this.creature.player.plasma -= 1;
 
 				// Burst the field *before* updateHealth so the existing shield on the
@@ -81,6 +60,32 @@ export default (G: Game) => {
 				this.end(true); // Disable message
 
 				G.log('%CreatureName' + this.creature.id + '% is shielded by Plasma Field');
+
+				// The upgraded field retaliates *after* announcing the block, so the
+				// combat log reads: the attack, the shield, then the counter damage
+				// (and whatever that in turn triggers) — not the counter damage and
+				// its fallout first.
+				if (this.isUpgraded() && damage.melee && !damage.counter) {
+					//counter damage
+					const counter = new Damage(
+						this.creature, // Attacker
+						{
+							pure: 9,
+						}, // Damage Type
+						1, // Area
+						[], // Effects
+						G,
+					);
+					counter.counter = true;
+					G.activeCreature?.takeDamage(counter);
+					shakeBoard({
+						amplitude: 0.03,
+						durationMs: 220,
+						force: true,
+						axis: 'horizontal',
+					});
+				}
+
 				return damage; // Return Damage
 			},
 		},
