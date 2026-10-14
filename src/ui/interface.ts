@@ -74,6 +74,18 @@ let reloadPromptOverlay: HTMLDivElement | null = null;
 let removeReloadPromptEscListener: (() => void) | null = null;
 let allowNextReloadWithoutPrompt = false;
 
+/**
+ * The document-level listeners installed by the UI constructor.
+ *
+ * Every match builds a fresh UI over a fresh Phaser game, so each constructor
+ * call must unbind its predecessor's handlers: unlike the namespaced jQuery
+ * hotkeys, a raw `addEventListener` on `document` survives the match it was
+ * opened for, and the stale handler then drives a UI whose logo — and whose
+ * whole scene — the teardown already destroyed.
+ */
+let hideLogoOnVisibilityChange: (() => void) | null = null;
+let hideLogoOnHotkey: ((event: KeyboardEvent) => void) | null = null;
+
 const isManualReloadShortcut = (event: KeyboardEvent) => {
 	if (event.key === 'F5') {
 		return true;
@@ -1677,6 +1689,16 @@ export class UI {
 			return;
 		}
 		logo.alpha = visible ? 1 : 0;
+		// The logo dies with its match: a rematch tears the previous Phaser game
+		// down outright, and everything that still hides the logo afterwards (the
+		// tab-switch and Ctrl+Shift+M handlers below, an in-flight hotkey) reaches
+		// into that destroyed world. Phaser 4's `GameObject.destroy()` clears
+		// `scene`, and the input methods dereference it unconditionally — hence a
+		// guard rather than an unconditional `disableInteractive()` on a dead
+		// object. Alpha is set above regardless, so a stale hide still holds.
+		if (!logo.scene) {
+			return;
+		}
 		if (visible) {
 			// `setInteractive` is what creates the interactive object the hand
 			// cursor is stored on, so the cursor has to be set afterwards.
@@ -4354,18 +4376,26 @@ export class UI {
 		};
 
 		// Hide the project logo when navigating away using a hotkey
-		document.addEventListener('visibilitychange', function () {
+		if (hideLogoOnVisibilityChange) {
+			document.removeEventListener('visibilitychange', hideLogoOnVisibilityChange);
+		}
+		hideLogoOnVisibilityChange = () => {
 			if (document.hidden) {
 				ui.setBrandLogoVisible(false);
 			}
-		});
+		};
+		document.addEventListener('visibilitychange', hideLogoOnVisibilityChange);
 
 		// Hide the project logo when navigating away using a hotkey (Ctrl+Shift+M)
-		document.addEventListener('keydown', (event) => {
+		if (hideLogoOnHotkey) {
+			document.removeEventListener('keydown', hideLogoOnHotkey);
+		}
+		hideLogoOnHotkey = (event) => {
 			if (event.ctrlKey && event.shiftKey && event.key === 'M') {
 				ui.setBrandLogoVisible(false);
 			}
-		});
+		};
+		document.addEventListener('keydown', hideLogoOnHotkey);
 
 		const SIGNAL_CREATURE_CLICK = 'vignettecreatureclick';
 		const SIGNAL_CREATURE_MOUSE_ENTER = 'vignettecreaturemouseenter';
