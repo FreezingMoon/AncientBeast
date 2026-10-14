@@ -1,102 +1,101 @@
 {
-  "name": "ancientbeast",
-  "version": "0.6.0",
-  "description": "Ancient Beast Game",
-  "main": "deploy/index.html",
-  "homepage": "https://AncientBeast.com",
-  "author": " Dread Knight <dk.vali@gmail.com>",
-  "license": " (CC-BY-SA-4.0 OR AGPL-3.0)",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/FreezingMoon/AncientBeast.git"
-  },
-  "bugs": {
-    "url": "https://github.com/FreezingMoon/AncientBeast/issues"
-  },
-  "keywords": [
-    "game",
-    "strategy",
-    "phaser"
-  ],
-  "funding": {
-    "type": "Donate",
-    "url": "https://opencollective.com/AncientBeast"
-  },
-  "dependencies": {
-    "@babel/runtime": "^7.29.7",
-    "@devvit/web": "0.13.7",
-    "@hono/node-server": "2.0.8",
-    "compression": "^1.8.1",
-    "devvit": "0.13.7",
-    "hono": "4.12.28",
-    "jquery": "^3.5.0",
-    "jquery.transit": "0.9.12",
-    "js-cookie": "^3.0.1",
-    "node-emoji": "^1.10.0",
-    "peerjs": "^1.5.4",
-    "phaser": "^4.2.1",
-    "semver": "^7.5.2"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.29.7",
-    "@babel/plugin-transform-runtime": "^7.29.7",
-    "@babel/preset-env": "^7.29.7",
-    "@babel/preset-typescript": "^7.29.7",
-    "@types/jest": "^29.5.14",
-    "@types/jquery": "^3.5.34",
-    "@types/jquery.transit": "^0.9.33",
-    "@types/js-cookie": "^3.0.6",
-    "@types/node": "^26.6.3",
-    "@types/underscore": "^1.11.5",
-    "@typescript-eslint/eslint-plugin": "^5.62.0",
-    "@typescript-eslint/parser": "^5.62.0",
-    "babel-jest": "^29.7.0",
-    "babel-loader": "^9.2.1",
-    "babel-plugin-transform-runtime": "^6.23.0",
-    "babel-polyfill": "^6.26.0",
-    "canvas": "^3",
-    "cross-env": "^7.0.3",
-    "dotenv": "^16.6.1",
-    "dotenv-defaults": "^5.0.2",
-    "esbuild": "^0.21.5",
-    "eslint": "^8.57.1",
-    "eslint-config-prettier": "^8.10.2",
-    "eslint-plugin-prettier": "^4.2.5",
-    "husky": "^8.0.3",
-    "jest": "^29.7.0",
-    "jest-environment-jsdom": "^30.5.2",
-    "jsdom": "^26",
-    "less": "^4.9.1",
-    "lint-staged": "^13.3.0",
-    "playwright-core": "^1.63.0",
-    "prettier": "^2.8.8",
-    "svgo": "^3.3.5",
-    "typescript": "^5.9.3",
-    "underscore": "^1.12.1",
-    "vite": "^8.0.14",
-    "vite-plugin-ejs": "^1.7.0",
-    "vite-plugin-static-copy": "^3.4.0"
-  },
-  "engines": {
-    "bun": ">=1.4.2"
-  },
-  "packageManager": "bun@1.4.2",
-  "scripts": {
-    "dev": "echo '🛠️  Starting Vite dev server with HMR' && vite",
-    "build": "echo '📦 Production build using Vite' && vite build",
-    "preview": "echo '🔍 Previewing production build locally' && vite preview",
-    "lint": "echo '✏️  Running ESLint and auto-fixing issues' && eslint --fix \"src/**/*.{js,ts}\"",
-    "test": "echo '🧪 Full test suite: typecheck, lint, build, then Jest' && tsc --noEmit --project tsconfig.typecheck.json && eslint --fix \"src/**/*.{js,ts}\" && vite build && jest",
-    "simulate": "echo '🤖 Running headless game simulation tests' && jest --config jest.simulation.config.js --runInBand",
-    "devvit:playtest": "echo '🎮 Cleaning SVGs for Devvit and starting playtest' && bun scripts/optimize-svgs.mjs assets/stats assets/icons assets/interface && devvit playtest",
-    "devvit:upload": "echo '📤 Cleaning SVGs for Devvit and uploading' && bun scripts/optimize-svgs.mjs assets/stats assets/icons assets/interface && devvit upload"
-  },
-  "lint-staged": {
-    "*.{ts,js}": [
-      "eslint --quiet --fix"
-    ],
-    "*.{ts,js,json,less,md}": [
-      "prettier --write"
-    ]
-  }
+	"name": "ancientbeast",
+	"version": "0.6.0",
+	"description": "Ancient Beast Game",
+	"main": "deploy/index.html",
+	"homepage": "https://AncientBeast.com",
+	"author": " Dread Knight <dk.vali@gmail.com>",
+	"license": " (CC-BY-SA-4.0 OR AGPL-3.0)",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/FreezingMoon/AncientBeast.git"
+	},
+	"bugs": {
+		"url": "https://github.com/FreezingMoon/AncientBeast/issues"
+	},
+	"keywords": [
+		"game",
+		"strategy",
+		"phaser"
+	],
+	"funding": {
+		"type": "Donate",
+		"url": "https://opencollective.com/AncientBeast"
+	},
+	"dependencies": {
+		"@babel/runtime": "^7.29.7",
+		"@devvit/web": "0.13.7",
+		"@hono/node-server": "2.0.8",
+		"compression": "^1.8.1",
+		"devvit": "0.13.7",
+		"hono": "4.12.28",
+		"jquery": "^3.5.0",
+		"jquery.transit": "0.9.12",
+		"js-cookie": "^3.0.1",
+		"node-emoji": "^1.10.0",
+		"peerjs": "^1.5.4",
+		"phaser": "^4.2.1",
+		"semver": "^7.5.2"
+	},
+	"devDependencies": {
+		"@babel/core": "^7.29.7",
+		"@babel/plugin-transform-runtime": "^7.29.7",
+		"@babel/preset-env": "^7.29.7",
+		"@babel/preset-typescript": "^7.29.7",
+		"@types/jest": "^29.5.14",
+		"@types/jquery": "^3.5.34",
+		"@types/jquery.transit": "^0.9.33",
+		"@types/js-cookie": "^3.0.6",
+		"@types/node": "^26.6.3",
+		"@types/underscore": "^1.11.5",
+		"@typescript-eslint/eslint-plugin": "^5.62.0",
+		"@typescript-eslint/parser": "^5.62.0",
+		"babel-jest": "^29.7.0",
+		"babel-loader": "^9.2.1",
+		"babel-plugin-transform-runtime": "^6.23.0",
+		"babel-polyfill": "^6.26.0",
+		"canvas": "^3",
+		"cross-env": "^7.0.3",
+		"dotenv": "^16.6.1",
+		"dotenv-defaults": "^5.0.2",
+		"esbuild": "^0.21.5",
+		"eslint": "^8.57.1",
+		"eslint-config-prettier": "^8.10.2",
+		"eslint-plugin-prettier": "^4.2.5",
+		"husky": "^8.0.3",
+		"jest": "^29.7.0",
+		"jest-environment-jsdom": "^30.5.2",
+		"jsdom": "^26",
+		"less": "^4.9.1",
+		"lint-staged": "^13.3.0",
+		"playwright-core": "^1.63.0",
+		"prettier": "^2.8.8",
+		"svgo": "^3.3.5",
+		"typescript": "^5.9.3",
+		"underscore": "^1.12.1",
+		"vite": "^8.0.14",
+		"vite-plugin-ejs": "^1.7.0",
+		"vite-plugin-static-copy": "^3.4.0"
+	},
+	"engines": {
+		"bun": ">=1.4.2"
+	},
+	"packageManager": "bun@1.4.2",
+	"scripts": {
+		"dev": "echo '🛠️  Starting Vite dev server with HMR' && vite",
+		"build": "echo '📦 Production build using Vite' && vite build",
+		"preview": "echo '🔍 Previewing production build locally' && vite preview",
+		"platform": "echo '🌐 Opening platform tools for supported websites & apps' && bun tools/platform.ts",
+		"lint": "echo '✏️  Running ESLint and auto-fixing issues' && eslint --fix \"src/**/*.{js,ts}\"",
+		"test": "echo '🧪 Full test suite: typecheck, lint, build, then Jest' && tsc --noEmit --project tsconfig.typecheck.json && eslint --fix \"src/**/*.{js,ts}\" && vite build && jest",
+		"simulate": "echo '🤖 Running headless game simulation tests' && jest --config jest.simulation.config.js --runInBand"
+	},
+	"lint-staged": {
+		"*.{ts,js}": [
+			"eslint --quiet --fix"
+		],
+		"*.{ts,js,json,less,md}": [
+			"prettier --write"
+		]
+	}
 }
