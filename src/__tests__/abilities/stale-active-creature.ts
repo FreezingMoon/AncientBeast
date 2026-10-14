@@ -130,3 +130,43 @@ describe('Ability with no active creature', () => {
 		expect(ability.query).toHaveBeenCalled();
 	});
 });
+
+/**
+ * The "Infinite Energy" meta power refuels the active creature mid-turn, yet the
+ * ability panel was painted while that creature could no longer afford
+ * anything: run an ability's energy down to zero and its button sits greyed out
+ * behind "Not enough energy". Granting the power used to only grow the energy
+ * bar, so the button stayed dark until the unit moved and the panel chanced to
+ * refresh again — the same staleness `onResetCooldownsToggled` already handles
+ * with a `selectAbility(-1)` repaint.
+ */
+describe('Ability when the Infinite Energy meta power is granted', () => {
+	test('repaints the ability panel instead of only the energy bar', () => {
+		const creature = makeCreature();
+		const game = makeGameWithoutActiveCreature(creature);
+		game.activeCreature = creature;
+		// Run the creature empty: every ability is now greyed out.
+		creature.energy = 0;
+
+		const ability = makeAbility(game, creature);
+
+		ability.onInfiniteEnergyToggled(true);
+
+		expect(creature.energy).toBe(creature.stats.energy);
+		expect(game.UI.energyBar.animSize).toHaveBeenCalledWith(1);
+		expect(game.UI.selectAbility).toHaveBeenCalledWith(-1);
+	});
+
+	test('marks the power off without refueling when it is revoked', () => {
+		const creature = makeCreature();
+		const game = makeGameWithoutActiveCreature(creature);
+		game.activeCreature = creature;
+		const ability = makeAbility(game, creature);
+
+		ability.onInfiniteEnergyToggled(false);
+
+		expect(ability._infiniteEnergy).toBe(false);
+		expect(creature.energy).toBe(4);
+		expect(game.UI.selectAbility).not.toHaveBeenCalled();
+	});
+});

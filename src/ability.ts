@@ -244,6 +244,10 @@ export class Ability {
 	/**
 	 * `toggleResetCooldowns`: keep this ability off cooldown, and retroactively
 	 * reset it if it is already spent.
+	 *
+	 * Only the cooldown is cleared. Paying a use took its cost out of the
+	 * creature's pool and that cost stays paid: restoring it would make the
+	 * spent ability affordable again, which is the "Infinite Energy" power's job.
 	 */
 	private onResetCooldownsToggled(enabled: boolean) {
 		this._disableCooldowns = enabled;
@@ -256,7 +260,14 @@ export class Ability {
 		}
 	}
 
-	/** `toggleInfiniteEnergy`: refuel the active creature as soon as it is granted. */
+	/**
+	 * `toggleInfiniteEnergy`: refuel the active creature as soon as it is
+	 * granted.
+	 *
+	 * The refuel also has to repaint the ability panel: run an ability empty and
+	 * its button was greyed out behind "Not enough energy", and nothing would
+	 * relight it until the unit moved and the panel happened to refresh again.
+	 */
 	private onInfiniteEnergyToggled(enabled: boolean) {
 		this._infiniteEnergy = enabled;
 
@@ -267,6 +278,11 @@ export class Ability {
 			if (active && active.id === this.creature.id && active.stats.energy > 0) {
 				active.energy = active.stats.energy;
 				this.game.UI?.energyBar.animSize(1);
+				// Re-test every requirement so the buttons this refuel makes
+				// affordable lose their disabled state right away. As with
+				// `onResetCooldownsToggled`, the selection is dropped: no ability
+				// can be mid-query while the meta powers panel is open.
+				this.game.UI?.selectAbility(-1);
 			}
 		}
 	}
