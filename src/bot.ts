@@ -387,7 +387,7 @@ export default class BotController {
 	}
 
 	private isLivingUnit(creature: Creature | undefined): boolean {
-		if (!creature || creature.dead || creature.temp || creature.undead) {
+		if (!creature || creature.dead || creature.temp) {
 			return false;
 		}
 		if ((creature as Creature & { hideFromCreatureCount?: boolean }).hideFromCreatureCount) {

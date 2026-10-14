@@ -228,7 +228,7 @@ describe('Creature', () => {
 			return player.score.filter((s) => s.type === 'firstKill');
 		}
 
-		test('the first three kills of a match pay 30, then 20, then 10', () => {
+		test('the first three kills of a match pay 25, then 20, then 15', () => {
 			const game = getDieGameMock();
 			const killer = spawnVictim(game, 0);
 
@@ -238,9 +238,9 @@ describe('Creature', () => {
 
 			expect(game.bloodCount).toBe(3);
 			expect(bloodEvents(game.players[0])).toEqual([
-				{ type: 'firstKill', points: 30 },
+				{ type: 'firstKill', points: 25 },
 				{ type: 'firstKill', points: 20 },
-				{ type: 'firstKill', points: 10 },
+				{ type: 'firstKill', points: 15 },
 			]);
 		});
 
@@ -252,8 +252,8 @@ describe('Creature', () => {
 			spawnVictim(game, 1).die(spawnVictim(game, 0));
 
 			expect(bloodEvents(game.players[0])).toEqual([
-				{ type: 'firstKill', points: 30 },
-				{ type: 'firstKill', points: 10 },
+				{ type: 'firstKill', points: 25 },
+				{ type: 'firstKill', points: 15 },
 			]);
 			expect(bloodEvents(game.players[1])).toEqual([{ type: 'firstKill', points: 20 }]);
 		});

@@ -253,7 +253,6 @@ export class Creature {
 
 	// Game
 	dead: boolean;
-	undead: boolean;
 	killer: Player;
 	hasWait: boolean;
 	travelDist: number;
@@ -2420,7 +2419,7 @@ export class Creature {
 		}
 
 		if (!isDeny) {
-			// Blood bonus: a shrinking 45/30/15 ladder shared by the whole match,
+			// Blood bonus: a shrinking 25/20/15 ladder shared by the whole match,
 			// so its tiers can go to different players or all to the same one.
 			const bloodBonus = BLOOD_BONUS[game.bloodCount];
 			if (bloodBonus !== undefined) {
@@ -2449,21 +2448,18 @@ export class Creature {
 			}
 		}
 
-		if (!this.undead) {
-			// Only if not undead
-			if (isDeny) {
-				// TEAM KILL (DENY)
-				this.killer.score.push({
-					type: 'deny',
-					creature: this,
-				});
-			} else {
-				// KILL
-				this.killer.score.push({
-					type: 'kill',
-					creature: this,
-				});
-			}
+		if (isDeny) {
+			// TEAM KILL (DENY)
+			this.killer.score.push({
+				type: 'deny',
+				creature: this,
+			});
+		} else {
+			// KILL
+			this.killer.score.push({
+				type: 'kill',
+				creature: this,
+			});
 		}
 
 		if (this.player.isAnnihilated()) {

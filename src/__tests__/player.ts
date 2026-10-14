@@ -31,8 +31,8 @@ function getPlayerMock(): Player {
 
 describe('Player#getScore', () => {
 	describe('blood bonus', () => {
-		test('is worth 30, then 20, then 10', () => {
-			expect(BLOOD_BONUS).toStrictEqual([30, 20, 10]);
+		test('is worth 25, then 20, then 15', () => {
+			expect(BLOOD_BONUS).toStrictEqual([25, 20, 15]);
 		});
 
 		test('sums every tier a single player stacked', () => {
@@ -56,9 +56,9 @@ describe('Player#getScore', () => {
 			second.score.push({ type: 'firstKill', points: BLOOD_BONUS[1] });
 			third.score.push({ type: 'firstKill', points: BLOOD_BONUS[2] });
 
-			expect(first.getScore().firstKill).toBe(30);
+			expect(first.getScore().firstKill).toBe(25);
 			expect(second.getScore().firstKill).toBe(20);
-			expect(third.getScore().firstKill).toBe(10);
+			expect(third.getScore().firstKill).toBe(15);
 		});
 
 		test('is worth nothing once the tiers are gone', () => {

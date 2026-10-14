@@ -43,13 +43,13 @@ export type ScoreEvent = {
 };
 
 /**
- * Bonus for the first three kills of the match, in order: 30, then 20, then 10.
+ * Bonus for the first three kills of the match, in order: 25, then 20, then 15.
  *
  * The bonus shrinks rather than being all-or-nothing on the very first kill, so
  * it is a race several players can take part in (first, second and third can all
  * go to different players) or sweep entirely with one player.
  */
-export const BLOOD_BONUS = [30, 20, 10];
+export const BLOOD_BONUS = [25, 20, 15];
 
 export type PlayerColor = 'red' | 'blue' | 'orange' | 'green';
 
@@ -174,11 +174,7 @@ export class Player {
 		for (let i = 0; i < count; i++) {
 			creature = creatures[i];
 
-			if (
-				!creature.dead &&
-				!creature.undead &&
-				!(creature as CreatureCountFlag).hideFromCreatureCount
-			) {
+			if (!creature.dead && !(creature as CreatureCountFlag).hideFromCreatureCount) {
 				nbr++;
 			}
 		}
