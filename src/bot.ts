@@ -53,6 +53,18 @@ export interface UnitBotStrategy {
 	): number | undefined;
 	/** Override the retreat health/energy threshold check. */
 	isRetreating?(creature: Creature, controller: BotController): boolean | undefined;
+	/**
+	 * Value of holding position (not moving) this turn.
+	 *
+	 * Acts as the bar the best reachable destination has to beat for the bot to
+	 * move at all: when the winner scores at or below this value the bot stands
+	 * still instead. Useful for units that gain from staying put, such as a
+	 * passive that only stacks while the unit does not move.
+	 *
+	 * Ignored while retreating — survival repositioning always wins. Return
+	 * `undefined` (or omit the hook) to always allow moving when able.
+	 */
+	getHoldPositionScore?(creature: Creature, controller: BotController): number | undefined;
 	/** Override the preferred board-x position for zone scoring. */
 	getPreferredX?(creature: Creature, controller: BotController): number | undefined;
 	/**
@@ -886,6 +898,17 @@ export default class BotController {
 				return undefined;
 			}
 
+			// Holding position can be worth more than the best reachable hex
+			// (e.g. a passive that only stacks while standing still). A unit
+			// strategy opts in via getHoldPositionScore; without one the bot
+			// keeps its usual "move when able" behaviour.
+			const holdScore = retreating
+				? undefined
+				: this.getStrategyFor(activeCreature)?.getHoldPositionScore?.(activeCreature, this);
+			if (holdScore !== undefined && best.score <= holdScore) {
+				return undefined;
+			}
+
 			return best.hex;
 		}
 
@@ -972,6 +995,7 @@ export default class BotController {
 		}
 
 		if (this.isRetreating(activeCreature)) {
+			// scoreRetreatHex applies its own (heavier) trap penalty.
 			return this.scoreRetreatHex(hex);
 		}
 
@@ -1020,29 +1044,63 @@ export default class BotController {
 			const preferredX = this.getPreferredX(activeCreature);
 			const zoneWeight = Math.max(1, 10 - aggression);
 			score -= Math.abs(hex.x - preferredX) * zoneWeight;
-
-			// Penalize trap exposure both on the destination and along the walk path.
-			score -= this.getMovePathTrapPenalty(activeCreature, hex);
 		}
+
+		// Trap exposure is cross-cutting: a unit strategy override replaces the
+		// scorer wholesale, so the penalty is applied here — once — on top of
+		// whatever score the unit produced. That keeps every strategy trap-aware
+		// (destination, walk path, and departure traps) without each one having
+		// to remember the penalty.
+		score -= this.getMovePathTrapPenalty(activeCreature, hex);
 
 		return score + this.getDefenselessTargetMovementBonus(activeCreature, hex);
 	}
 
-	private getMovePathTrapPenalty(
+	/**
+	 * Total trap-exposure penalty for moving to `destination`:
+	 * - damaging traps on the destination hex;
+	 * - damaging traps that fire on departure and sit on the hexes the creature
+	 *   currently occupies (Poisonous Vine, Hammered — paid by every move);
+	 * - damaging traps crossed along the walking path, unless `skipPathScan` is
+	 *   set (flying/teleport moves never cross them).
+	 *
+	 * Public so unit strategies can fold the same penalty into their own move
+	 * scoring instead of reimplementing (or silently dropping) it.
+	 */
+	getMovePathTrapPenalty(
 		creature: Creature,
 		destination: Hex,
-		opts: { retreating: boolean } = { retreating: false },
+		opts: { retreating?: boolean; skipPathScan?: boolean } = {},
 	): number {
+		const retreating = opts.retreating ?? false;
+		const trapOpts = { retreating };
 		let penalty = 0;
 		// Always check destination hex — getTrapsForHex falls back to hex.trap for unit tests.
 		this.getTrapsForHex(destination).forEach((trap) => {
-			penalty += this.getTrapExposurePenalty(creature, trap, true, opts);
+			penalty += this.getTrapExposurePenalty(creature, trap, true, trapOpts);
+		});
+
+		// Traps that fire on departure (Poisonous Vine, Hammered) sit on the
+		// hexes the creature already occupies, so every possible move pays that
+		// cost exactly once. Pricing it in here is what makes holding position a
+		// real alternative to moving out of a trap-wreathed hex.
+		creature.hexagons.forEach((originHex) => {
+			if (originHex.x === destination.x && originHex.y === destination.y) {
+				// A hex the unit already occupies can't be departed from.
+				return;
+			}
+			this.getTrapsForHex(originHex).forEach((trap) => {
+				if (!this.isLikelyDamagingDepartureTrap(trap)) {
+					return;
+				}
+				penalty += this.getTrapExposurePenalty(creature, trap, true, trapOpts);
+			});
 		});
 
 		// Skip the expensive A* path scan when no traps are registered in the game.
 		// game.traps is the authoritative source for live traps; unit tests that set
 		// hex.trap directly still get the destination check above.
-		if (!this.game.traps?.length) {
+		if (opts.skipPathScan || !this.game.traps?.length) {
 			return penalty;
 		}
 
@@ -1055,7 +1113,7 @@ export default class BotController {
 					return;
 				}
 				this.getTrapsForHex(pathHex).forEach((trap) => {
-					penalty += this.getTrapExposurePenalty(creature, trap, false, opts);
+					penalty += this.getTrapExposurePenalty(creature, trap, false, trapOpts);
 				});
 			});
 		} catch {
@@ -1122,9 +1180,28 @@ export default class BotController {
 		opts: { retreating: boolean },
 	): number {
 		const healthRatio = creature.health / creature.stats.health;
-		let penalty = Math.round(80 + (1 - healthRatio) * 270);
-
 		const enduranceRatio = creature.endurance / Math.max(1, creature.stats.endurance);
+
+		return this.computeTrapExposurePenalty(
+			{ healthRatio, enduranceRatio },
+			trap,
+			isDestination,
+			opts,
+		);
+	}
+
+	/**
+	 * Trap-exposure maths shared by creature moves and materializations.
+	 * `ratios` describe the unit that would be exposed to the trap.
+	 */
+	private computeTrapExposurePenalty(
+		ratios: { healthRatio: number; enduranceRatio: number },
+		trap: Trap,
+		isDestination: boolean,
+		opts: { retreating: boolean },
+	): number {
+		const { healthRatio, enduranceRatio } = ratios;
+		let penalty = Math.round(80 + (1 - healthRatio) * 270);
 
 		if (this.isLikelyDamagingTrap(trap)) {
 			penalty += healthRatio <= 0.35 ? 700 : 240;
@@ -1165,26 +1242,54 @@ export default class BotController {
 				return false;
 			}
 
-			const name = `${effect?.name ?? ''}`.toLowerCase();
-			const hint = `${effect?.specialHint ?? ''}`.toLowerCase();
-			if (/damage|burn|poison|shock|frost|mental|pure/.test(name + hint)) {
-				return true;
-			}
-
-			const effectFn = effect?.effectFn;
-			if (typeof effectFn !== 'function') {
-				return true;
-			}
-
-			const effectSource = Function.prototype.toString.call(effectFn);
-			if (/takeDamage|new Damage|applyDamage|damages/.test(effectSource)) {
-				return true;
-			}
-
-			// Step-triggered traps with opaque effect functions should still be
-			// treated as dangerous for movement planning.
-			return true;
+			return this.isDamagingTrapEffect(effect);
 		});
+	}
+
+	/**
+	 * True when the trap punishes the creature for *leaving* the hex it stands
+	 * on — Poisonous Vine being the prime example. Every move off the hex pays
+	 * that price, no matter the destination.
+	 */
+	private isLikelyDamagingDepartureTrap(trap: Trap): boolean {
+		const effects = trap.effects;
+		if (!Array.isArray(effects) || effects.length === 0) {
+			return false;
+		}
+
+		return effects.some((effect) => {
+			const trigger = `${effect?.trigger ?? ''}`;
+			// `onOtherStepOut` fires on other creatures leaving the hex, not on
+			// the one standing on it, so it must not match here.
+			if (!trigger.includes('onStepOut')) {
+				return false;
+			}
+
+			return this.isDamagingTrapEffect(effect);
+		});
+	}
+
+	/** Whether a step-triggered trap effect looks like it deals damage. */
+	private isDamagingTrapEffect(effect: Trap['effects'][number]): boolean {
+		const name = `${effect?.name ?? ''}`.toLowerCase();
+		const hint = `${effect?.specialHint ?? ''}`.toLowerCase();
+		if (/damage|burn|poison|shock|frost|mental|pure/.test(name + hint)) {
+			return true;
+		}
+
+		const effectFn = effect?.effectFn;
+		if (typeof effectFn !== 'function') {
+			return true;
+		}
+
+		const effectSource = Function.prototype.toString.call(effectFn);
+		if (/takeDamage|new Damage|applyDamage|damages/.test(effectSource)) {
+			return true;
+		}
+
+		// Step-triggered traps with opaque effect functions should still be
+		// treated as dangerous for movement planning.
+		return true;
 	}
 
 	scoreSummonHex(hex: Hex) {
@@ -1203,7 +1308,64 @@ export default class BotController {
 
 		let score = 200 - nearestEnemyDistance * 12;
 		score += adjacentEnemy ? 40 : 0;
+		// A summoned unit triggers every trap under its hexes the moment it
+		// materializes, so never drop a fresh unit onto fire, scorched ground or
+		// the like when somewhere safe is in range.
+		score -= this.getSummonTrapPenalty(hex);
 		return score;
+	}
+
+	/**
+	 * Penalty for materializing onto `hex` while damaging traps sit where the new
+	 * unit would land. A unit occupies `size` hexes and triggers the traps under
+	 * each of them, so the whole footprint — not just the confirmed hex — is
+	 * checked. The unit arrives at full health and endurance, so those ratios are
+	 * fixed.
+	 */
+	private getSummonTrapPenalty(hex: Hex): number {
+		const action = this.pendingAction;
+		if (action?.type !== 'summon') {
+			return 0;
+		}
+
+		let penalty = 0;
+		this.getSummonFootprintHexes(hex).forEach((footprintHex) => {
+			this.getTrapsForHex(footprintHex).forEach((trap) => {
+				penalty += this.computeTrapExposurePenalty(
+					{ healthRatio: 1, enduranceRatio: 1 },
+					trap,
+					true,
+					{ retreating: false },
+				);
+			});
+		});
+		return penalty;
+	}
+
+	/**
+	 * Hexes a unit of the given size occupies when its anchor lands on `hex`.
+	 * Mirrors how `HexGrid.queryHexes` slides the anchor along the row so the
+	 * footprint fits: away from the player's default side to the left, towards it
+	 * to the right. Falls back to the anchor hex when the grid is unavailable.
+	 */
+	private getSummonFootprintHexes(hex: Hex): Hex[] {
+		const activeCreature = this.game.activeCreature;
+		const summonType = this.pendingAction?.type === 'summon' ? this.pendingAction.summonType : '--';
+		const size = this.game.retrieveCreatureStats?.(summonType)?.size ?? 1;
+		const flipped = Boolean(activeCreature?.player?.flipped);
+		const row = this.game.grid?.hexes?.[hex.y];
+		if (!row) {
+			return [hex];
+		}
+
+		const footprint: Hex[] = [];
+		for (let i = 0; i < size; i++) {
+			const footprintHex = row[flipped ? hex.x + i : hex.x - i];
+			if (footprintHex) {
+				footprint.push(footprintHex);
+			}
+		}
+		return footprint.length > 0 ? footprint : [hex];
 	}
 
 	scoreAbilityHex(hex: Hex) {
@@ -1284,6 +1446,15 @@ export default class BotController {
 		}
 
 		return 100 - this.closestDistanceToEnemy(hex) * 10;
+	}
+
+	/**
+	 * Value of holding position this turn, as declared by the unit strategy.
+	 * Returns `undefined` when the strategy has no opinion, which keeps the
+	 * default "move whenever able" behaviour.
+	 */
+	getHoldPositionScore(creature: Creature): number | undefined {
+		return this.getStrategyFor(creature)?.getHoldPositionScore?.(creature, this);
 	}
 
 	/**

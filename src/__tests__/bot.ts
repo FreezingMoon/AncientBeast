@@ -83,6 +83,7 @@ const makeCreature = ({
 		endurance,
 		protectedFromFatigue: false,
 		isFatigued: () => false,
+		effects: [],
 	});
 	return creature as Creature & {
 		id: number;
@@ -112,6 +113,7 @@ const makeCreature = ({
 		endurance: number;
 		protectedFromFatigue: boolean;
 		isFatigued: () => boolean;
+		effects: unknown[];
 	};
 };
 
@@ -143,6 +145,7 @@ const makeHex = ({
 	y,
 	creature,
 	trap,
+	adjacentHex,
 }: {
 	x: number;
 	y: number;
@@ -155,14 +158,41 @@ const makeHex = ({
 			effectFn?: (...args: unknown[]) => unknown;
 		}>;
 	};
+	adjacentHex?: (radius: number) => Hex[];
 }) =>
 	({
 		x,
 		y,
 		creature,
 		trap,
-		adjacentHex: (_radius: number) => [] as Hex[],
+		adjacentHex: adjacentHex ?? ((_radius: number) => [] as Hex[]),
 	} as unknown as Hex);
+
+/** A Poisonous Vine trap: damages the unit standing on it when it steps out. */
+const makeDepartureTrap = () => ({
+	effects: [
+		{
+			trigger: 'onStepOut',
+			name: 'Poisonous Vine',
+			effectFn: () => {
+				/* noop */
+			},
+		},
+	],
+});
+
+/** A fire trap: damages whatever steps into it. */
+const makeEntryTrap = () => ({
+	effects: [
+		{
+			trigger: 'onStepIn',
+			name: 'burn damage',
+			effectFn: () => {
+				/* noop */
+			},
+		},
+	],
+});
 
 const makeAbility = (upgraded: boolean) =>
 	({
@@ -1045,5 +1075,134 @@ describe('BotController', () => {
 		const bot = new BotController(game);
 
 		expect(bot.isRetreating(activeCreature)).toBe(true);
+	});
+});
+
+describe('BotController trap handling', () => {
+	/** Creature pinned by a Poisonous Vine: leaving the hex triggers damage. */
+	const makeVinedAbolished = (health = 100) => {
+		const abolished = makeCreature({
+			id: 1,
+			team: 0,
+			x: 0,
+			y: 0,
+			controller: 'bot',
+			type: 'P7',
+			health,
+		});
+		abolished.level = 7;
+		// The vine sits under the hexes the unit occupies.
+		abolished.hexagons = [
+			{ x: 0, y: 0, pos: { x: 0, y: 0 }, trap: makeDepartureTrap() },
+		] as unknown as Creature['hexagons'];
+		return abolished;
+	};
+
+	test('departure traps are priced into every move, so holding can win', () => {
+		const abolished = makeVinedAbolished();
+		const farEnemy = makeCreature({ id: 2, team: 1, x: 10, y: 0 });
+
+		const plainHex = makeHex({ x: 2, y: 0 });
+		const otherPlainHex = makeHex({ x: 3, y: 0 });
+		const game = makeGame(abolished, [farEnemy]);
+		const bot = new BotController(game);
+		bot.pendingAction = { type: 'move' };
+
+		expect(bot.scoreMoveHex(plainHex)).toBeLessThan(bot.getHoldPositionScore(abolished) as number);
+		// Both candidates are dragged under the hold bar by the vine, so the bot
+		// stands its ground instead of stepping out for no gain.
+		expect(bot.chooseHexForCurrentQuery([plainHex, otherPlainHex])).toBeUndefined();
+	});
+
+	test('bot leaves a Poisonous Vine when the destination clearly beats staying', () => {
+		const abolished = makeVinedAbolished();
+		const farEnemy = makeCreature({ id: 2, team: 1, x: 10, y: 0 });
+
+		// Six allied hexes around the destination: cover worth more than the
+		// poison the departure triggers.
+		const cover = Array.from({ length: 6 }, (_, i) =>
+			makeCreature({ id: 10 + i, team: 0, x: 2, y: i }),
+		);
+		const shelteredHex = makeHex({
+			x: 2,
+			y: 0,
+			adjacentHex: () => cover.map((ally) => makeHex({ x: 2, y: 1, creature: ally })),
+		});
+		const plainHex = makeHex({ x: 4, y: 0 });
+
+		const game = makeGame(abolished, [farEnemy, ...cover]);
+		const bot = new BotController(game);
+		bot.pendingAction = { type: 'move' };
+
+		expect(bot.scoreMoveHex(shelteredHex)).toBeGreaterThan(bot.scoreMoveHex(plainHex));
+		expect(bot.chooseHexForCurrentQuery([shelteredHex, plainHex])).toBe(shelteredHex);
+	});
+
+	test('low-health bot waits rather than poison itself leaving a vine', () => {
+		const vined = makeVinedAbolished(18);
+		const farEnemy = makeCreature({ id: 2, team: 1, x: 10, y: 0 });
+
+		const hexA = makeHex({ x: 2, y: 0 });
+		const hexB = makeHex({ x: 3, y: 0 });
+		const game = makeGame(vined, [farEnemy]);
+		const bot = new BotController(game);
+		bot.pendingAction = { type: 'move' };
+
+		expect(bot.chooseHexForCurrentQuery([hexA, hexB])).toBeUndefined();
+	});
+
+	test('materialization prefers a safe hex over one covered by a fire trap', () => {
+		const darkPriest = makeCreature({
+			id: 1,
+			team: 0,
+			x: 1,
+			y: 1,
+			controller: 'bot',
+			type: '--',
+		});
+
+		const fireTrapHex = makeHex({ x: 3, y: 1, trap: makeEntryTrap() });
+		const safeHex = makeHex({ x: 3, y: 2 });
+		const farEnemy = makeCreature({ id: 2, team: 1, x: 12, y: 1 });
+		const game = makeGame(darkPriest, [farEnemy]);
+		const bot = new BotController(game);
+		bot.pendingAction = { type: 'summon', abilityIndex: 3, summonType: 'A1' };
+
+		expect(bot.scoreSummonHex(safeHex)).toBeGreaterThan(bot.scoreSummonHex(fireTrapHex));
+		expect(bot.chooseHexForCurrentQuery([fireTrapHex, safeHex])).toBe(safeHex);
+	});
+
+	test('materialization avoids traps covering any part of the new unit', () => {
+		// The summoned unit is size 3, so it also triggers traps sitting next to
+		// the confirmed hex — not just the one it is clicked on.
+		const darkPriest = makeCreature({
+			id: 1,
+			team: 0,
+			x: 1,
+			y: 1,
+			controller: 'bot',
+			type: '--',
+		});
+
+		const hexRows: Hex[][] = [];
+		for (let y = 0; y < 3; y++) {
+			hexRows.push(Array.from({ length: 16 }, (_, x) => makeHex({ x, y })));
+		}
+		// Fire sits one hex left of the anchor, squarely inside the footprint.
+		hexRows[1][4] = makeHex({ x: 4, y: 1, trap: makeEntryTrap() });
+
+		const underFire = hexRows[1][5];
+		const clean = hexRows[1][8];
+		const farEnemy = makeCreature({ id: 2, team: 1, x: 12, y: 1 });
+		const game = makeGame(darkPriest, [farEnemy]);
+		game.grid.hexes = hexRows;
+		// The summoned unit is size 3, so it triggers traps under all its hexes.
+		(game as unknown as { retrieveCreatureStats: () => { size: number } }).retrieveCreatureStats =
+			() => ({ size: 3 });
+		const bot = new BotController(game);
+		bot.pendingAction = { type: 'summon', abilityIndex: 3, summonType: 'A2' };
+
+		expect(bot.scoreSummonHex(clean)).toBeGreaterThan(bot.scoreSummonHex(underFire));
+		expect(bot.chooseHexForCurrentQuery([underFire, clean])).toBe(clean);
 	});
 });
