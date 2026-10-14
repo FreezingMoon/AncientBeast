@@ -361,6 +361,10 @@ export default (G: Game) => {
 			query: function () {
 				// Ask the creature to summon
 				G.UI.materializeToggled = true;
+				// Every usable activation rolls a fresh unit for the dash. A round
+				// can allow more than one materialization, so the previously viewed
+				// or materialized unit must not be restored on repeat activations.
+				G.UI.lastViewedCreature = '';
 				G.UI.toggleDash(true);
 			},
 

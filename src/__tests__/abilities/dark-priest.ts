@@ -160,6 +160,42 @@ describe('Dark Priest materialize query preview guards', () => {
 	});
 });
 
+describe('Godlet Printer activation leading to the dash view', () => {
+	test('starts a fresh random unit on every usable activation', () => {
+		const toggleDash = jest.fn();
+		const ui = {
+			materializeToggled: false,
+			lastViewedCreature: 'A1',
+			toggleDash,
+		};
+
+		const game = {
+			abilities: {} as Record<number, unknown[]>,
+			UI: ui,
+		};
+
+		globalThis.G = game as never;
+		loadDarkPriestAbilities(game as never);
+
+		const godletPrinter = game.abilities[0][3] as unknown as { query: () => void };
+
+		// First activation of the round.
+		godletPrinter.query();
+		expect(toggleDash).toHaveBeenCalledWith(true);
+		expect(ui.materializeToggled).toBe(true);
+		expect(ui.lastViewedCreature).toBe('');
+
+		// The first unit has been materialized, but the round still allows
+		// another one (e.g. cooldowns disabled), so the remembered unit must not
+		// be restored on the next activation.
+		ui.lastViewedCreature = 'A1';
+
+		godletPrinter.query();
+		expect(toggleDash).toHaveBeenCalledTimes(2);
+		expect(ui.lastViewedCreature).toBe('');
+	});
+});
+
 describe('Dark Priest Plasma Field reactions', () => {
 	test('consumes one plasma point and counters each adjacent hit while shielded', () => {
 		const runHits = (initialPlasma: number, hitCount: number) => {
