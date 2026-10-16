@@ -69,6 +69,7 @@ const ABILITY_FILES = [
 	'../../abilities/Impaler',
 	'../../abilities/Infernal',
 	'../../abilities/Knightmare',
+	'../../abilities/Miss-Creeper',
 	'../../abilities/Nutcase',
 	'../../abilities/Scavenger',
 	'../../abilities/Snow-Bunny',

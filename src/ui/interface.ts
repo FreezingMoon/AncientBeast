@@ -3202,7 +3202,10 @@ export class UI {
 			this.showCreature('--', game.activeCreature.team, '');
 		} else if (this.lastViewedCreature) {
 			const lastViewedCreatureStats = game.retrieveCreatureStats(this.lastViewedCreature);
-			if (lastViewedCreatureStats?.playable === true) {
+			if (
+				lastViewedCreatureStats?.playable === true ||
+				lastViewedCreatureStats?.playable === 'secret'
+			) {
 				this.showCreature(this.lastViewedCreature, game.activeCreature.team, '');
 			} else {
 				this.lastViewedCreature = '';

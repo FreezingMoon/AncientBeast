@@ -1,5 +1,5 @@
 import { expect, describe, test } from '@jest/globals';
-import { getRandomSummonCandidates } from '../../utility/summon-candidates';
+import { getRandomSummonCandidates, getSummonCandidates } from '../../utility/summon-candidates';
 import type Game from '../../game';
 import type { CreatureType } from '../../data/types';
 
@@ -77,5 +77,31 @@ describe('getRandomSummonCandidates', () => {
 		result.reverse();
 
 		expect(candidates).toEqual([A1, G2]);
+	});
+});
+
+describe('getSummonCandidates secret units', () => {
+	const G4 = 'G4' as unknown as CreatureType;
+
+	/**
+	 * Game stand-in where G4 is the secret unit (Miss Creeper, playable:
+	 * 'secret') and A1 is a regular one.
+	 */
+	function makeSecretGame(): Game {
+		return {
+			retrieveCreatureStats: (type: CreatureType) =>
+				type === G4 ? { playable: 'secret', size: 1 } : { playable: true, size: 1 },
+		} as unknown as Game;
+	}
+
+	test('secret units stay out of the default summon pool', () => {
+		expect(getSummonCandidates(makeSecretGame(), [A1, G4])).toEqual([A1]);
+	});
+
+	test('secret units are offered to the player once a caller opts in', () => {
+		expect(getSummonCandidates(makeSecretGame(), [A1, G4], { includeSecret: true })).toEqual([
+			A1,
+			G4,
+		]);
 	});
 });

@@ -1746,7 +1746,7 @@ export const unitData: UnitDataStructure = [
 	{
 		id: 19,
 		name: 'Miss Creeper',
-		playable: false,
+		playable: true,
 		level: 4,
 		realm: 'G',
 		size: 1,
@@ -1774,18 +1774,28 @@ export const unitData: UnitDataStructure = [
 		animation: {
 			walk_speed: 500,
 		},
+		display: {
+			width: 90,
+			height: 208,
+			'offset-x': 0,
+			'offset-y': -170,
+		},
 		ability_info: [
 			{
 				title: 'Muscous Pillar',
 				desc: 'Any nearby killed units restore health based on their own total amount pool.',
-				info: '5% of maximum health stat recovery.',
+				info: '20% of maximum health stat recovery.',
 				upgrade: 'Doubles the recovery bonus.',
 			},
 			{
 				title: 'Carving Nails',
-				desc: 'Claw swipe gesture on a nearby foe.',
-				info: '12 pierce + 12 slash damage on strike',
-				upgrade: '+4 pierce & +4 slash bonus.',
+				desc: 'Claw swipe gesture on a nearby foe, that cuts deeper with each new blow.',
+				info: '8 pierce + 8 slash, multiplies each hit.',
+				upgrade: 'restores 8 health each poke.',
+				damages: {
+					pierce: 8,
+					slash: 8,
+				},
 				costs: {
 					energy: 10,
 				},
@@ -1798,12 +1808,19 @@ export const unitData: UnitDataStructure = [
 				costs: {
 					energy: 20,
 				},
+				range: {
+					regular: 6,
+					upgraded: 10,
+				},
 			},
 			{
 				title: 'Tendril Feet',
 				desc: 'All nearby foes have their movement restrained and take a bit of damage.',
 				info: '20 crush damage and no movement.',
 				upgrade: 'Disables ability upgrades.',
+				damages: {
+					crush: 20,
+				},
 				costs: {
 					energy: 30,
 				},

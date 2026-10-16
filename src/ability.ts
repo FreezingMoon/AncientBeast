@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import $j from 'jquery';
 import { Damage, DamageResult } from './damage';
+import { Effect } from './effect';
 import { Direction, Hex } from './utility/hex';
 import { Creature, CreatureMasteries, Movement } from './creature';
 import { CreatureType } from './data/types';
@@ -47,6 +48,7 @@ export type Trigger =
 	| 'onStartPhase onDamage'
 	| 'onUnderAttack onAttack'
 	| 'onUnderAttack'
+	| 'onOtherCreatureDeath'
 	| 'noTrigger';
 
 export type PierceThroughBehavior = 'stop' | 'targetOnly' | 'pierce';
@@ -127,6 +129,8 @@ export class Ability {
 	// For example: _lastBonus is unique to Gumble.ts.
 	_lastBonus?: number;
 
+	/** Per-unit Carving Nails strike counts, by creature id. */
+	_strikes: Record<number, number>;
 	_disableCooldowns: boolean;
 	_infiniteEnergy: boolean;
 
@@ -165,6 +169,14 @@ export class Ability {
 	};
 	_pushTarget: (target: Creature, pushPath: Hex[], args: any) => void;
 
+	// Below methods exist in Miss-Creeper.ts
+	_isNearby: (creature: Creature) => boolean;
+	_isAdjacent: (target: Creature, creeper: Creature) => boolean;
+	_ringDistance: (hex: Hex, creeper: Creature) => number;
+	_getStepTowards: (target: Creature, creeper: Creature) => Hex | undefined;
+	_attract: (effect: Effect, target: Creature) => void;
+	_disableAbilityUpgrades: (target: Creature, tendrils: Effect) => void;
+
 	_isSecondLowJump: () => boolean;
 	_getHexRange: (stopOnCreature: boolean) => Hex[];
 
@@ -202,6 +214,9 @@ export class Ability {
 	 * while testDirections is aggregating per-direction hex lists. */
 	_inDirectionTest: boolean;
 
+	/** Unit ids already complained about for a missing ability module. */
+	private static reportedMissingAbilityModules = new Set<number>();
+
 	resetTimesUsed(): void {
 		this.timesUsedThisTurn = 0;
 	}
@@ -223,6 +238,24 @@ export class Ability {
 		$j.extend(true, this, game.abilities[data.id]?.[abilityID], data.ability_info[abilityID]);
 		if (this.requirements === undefined && this.costs !== undefined) {
 			this.requirements = this.costs;
+		}
+
+		/**
+		 * `src/script.ts` fills `game.abilities` once, at page load, from the
+		 * units that were playable *then*. A page that was already open when a
+		 * unit's `playable` flipped (secret → shipped, or a hot-reload mid-session)
+		 * therefore leaves that unit with empty ability shells: no `require`, no
+		 * `trigger`, no `activate`. Every later use then fails somewhere far from
+		 * the cause — `checkAbilities` throwing "ab.require is not a function",
+		 * the dash card keeping a previous unit's side B, a stuck ability panel.
+		 * Say it loudly here instead, once per unit.
+		 */
+		if (!game.abilities[data.id] && !Ability.reportedMissingAbilityModules.has(data.id)) {
+			Ability.reportedMissingAbilityModules.add(data.id);
+			console.error(
+				`[Ability] No ability module loaded for ${creature.name} (id ${data.id}). ` +
+					'Reload the page: G.abilities is built once, at load, from units that are already playable.',
+			);
 		}
 
 		// If set, abilities can be used multiple times in a single round.
