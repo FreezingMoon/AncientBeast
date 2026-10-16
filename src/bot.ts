@@ -26,6 +26,7 @@ import HeadlessStrategy from './bots/Headless';
 import NutcaseStrategy from './bots/Nutcase';
 import ScavengerStrategy from './bots/Scavenger';
 import ChimeraStrategy from './bots/Chimera';
+import MissCreeperStrategy from './bots/Miss-Creeper';
 
 /**
  * Optional per-unit behaviour overrides for BotController.
@@ -138,6 +139,7 @@ export const unitStrategies: Partial<Record<string, UnitBotStrategy>> = {
 	E2: NutcaseStrategy,
 	P3: ScavengerStrategy,
 	P6: ChimeraStrategy,
+	G4: MissCreeperStrategy,
 };
 
 type BotPendingAction =
