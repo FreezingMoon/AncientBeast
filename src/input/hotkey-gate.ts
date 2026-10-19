@@ -45,8 +45,15 @@ export const isScoreViewHotkey = (event: KeyboardEvent) =>
 export const isAudioViewHotkey = (event: KeyboardEvent) =>
 	event.code === 'KeyA' && isShiftOnly(event);
 
+/** The `?` key (Shift+/ on US layouts), or bare `/`, opens the hotkeys screen. */
+export const isHotkeysViewHotkey = (event: KeyboardEvent) =>
+	event.code === 'Slash' && hasNoModifierKeys(event);
+
 export const isViewSwitchHotkey = (event: KeyboardEvent) =>
-	isDashViewHotkey(event) || isScoreViewHotkey(event) || isAudioViewHotkey(event);
+	isDashViewHotkey(event) ||
+	isScoreViewHotkey(event) ||
+	isAudioViewHotkey(event) ||
+	isHotkeysViewHotkey(event);
 
 export const isScoreboardActionHotkey = (event: KeyboardEvent) =>
 	(event.code === 'KeyS' || event.code === 'KeyR' || event.code === 'KeyX') &&

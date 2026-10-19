@@ -471,13 +471,14 @@ const toggleSecretView = () => {
 	overlay.style.display = overlay.style.display === 'flex' ? 'none' : 'flex';
 };
 
-type InterfaceView = 'dash' | 'score' | 'audio' | 'secret';
+type InterfaceView = 'dash' | 'score' | 'audio' | 'secret' | 'hotkeys';
 
 const interfaceViewSignals = {
 	dash: 'toggleDash',
 	score: 'toggleScore',
 	audio: 'toggleMusicPlayer',
 	secret: 'toggleSecretView',
+	hotkeys: 'toggleHotkeys',
 } as const;
 
 type Config = {
@@ -522,6 +523,7 @@ export class UI {
 	$grid: JQuery<HTMLElement>; //eslint-disable-line no-undef
 	$activebox: JQuery<HTMLElement>; //eslint-disable-line no-undef
 	$scoreboard: JQuery<HTMLElement>; //eslint-disable-line no-undef
+	$hotkeys: JQuery<HTMLElement>; //eslint-disable-line no-undef
 	brandlogo: SpriteHandle;
 	active: boolean;
 	queue: Queue;
@@ -599,6 +601,7 @@ export class UI {
 		this.$grid = $j(this.makeCreatureGrid(document.getElementById('creaturerasterwrapper')));
 		this.$activebox = $j('#activebox');
 		this.$scoreboard = $j('#scoreboard');
+		this.$hotkeys = $j('#hotkeys');
 		this.scoreboardConfirmAction = null;
 		this.scoreboardConfirmTimer = null;
 		// The logo is revealed while holding Ctrl; keep it horizontally centered
@@ -1163,6 +1166,11 @@ export class UI {
 			this.closeScoreboard();
 		});
 
+		// Hotkeys screen close button
+		$j('.togglehotkeys.close-button').on('click', () => {
+			this.closeHotkeysScreen();
+		});
+
 		// ProgressBar
 		this.healthBar = new ProgressBar({
 			$bar: $j('#leftpanel .progressbar .bar.healthbar'),
@@ -1235,7 +1243,7 @@ export class UI {
 		//    (gestures without a preceding mousedown); otherwise a no-op, so a
 		//    single press can never close twice.
 		const openViews = () => {
-			const open: Array<'music' | 'score' | 'meta' | 'dash'> = [];
+			const open: Array<'music' | 'score' | 'meta' | 'dash' | 'hotkeys'> = [];
 			if (!this.$scoreboard.hasClass('hide')) {
 				open.push('score');
 			}
@@ -1248,10 +1256,13 @@ export class UI {
 			if (this.dashopen) {
 				open.push('dash');
 			}
+			if (!this.$hotkeys.hasClass('hide')) {
+				open.push('hotkeys');
+			}
 			return open;
 		};
-		const topmostOpenView = (): 'music' | 'score' | 'meta' | 'dash' | null => {
-			// Topmost mirrors z-order: scoreboard > music > meta > dash.
+		const topmostOpenView = (): 'music' | 'score' | 'meta' | 'dash' | 'hotkeys' | null => {
+			// Topmost mirrors z-order: scoreboard > music > meta > hotkeys > dash.
 			const open = openViews();
 			if (open.includes('score')) {
 				return 'score';
@@ -1262,18 +1273,23 @@ export class UI {
 			if (open.includes('meta')) {
 				return 'meta';
 			}
+			if (open.includes('hotkeys')) {
+				return 'hotkeys';
+			}
 			if (open.includes('dash')) {
 				return 'dash';
 			}
 			return null;
 		};
-		const closeViewName = (view: 'music' | 'score' | 'meta' | 'dash') => {
+		const closeViewName = (view: 'music' | 'score' | 'meta' | 'dash' | 'hotkeys') => {
 			if (view === 'music') {
 				this.toggleMusicPlayer(false);
 			} else if (view === 'score') {
 				this.closeScoreboard();
 			} else if (view === 'meta') {
 				this.metaPowers?._closeModal();
+			} else if (view === 'hotkeys') {
+				this.closeHotkeysScreen();
 			} else {
 				this.closeDash();
 			}
@@ -1642,6 +1658,7 @@ export class UI {
 		this.game.channels.ui.on('toggleScore', () => this.toggleScoreboard(false));
 		this.game.channels.ui.on('toggleMusicPlayer', () => this.toggleMusicPlayer());
 		this.game.channels.ui.on('toggleSecretView', () => toggleSecretView());
+		this.game.channels.ui.on('toggleHotkeys', () => this.toggleHotkeysScreen());
 		this.game.channels.ui.on('toggleMetaPowers', () => {
 			if (!this.canToggleMetaPowers()) {
 				return;
@@ -1657,6 +1674,7 @@ export class UI {
 			this.closeDash();
 			this.toggleMusicPlayer(false);
 			this.closeScoreboard();
+			this.closeHotkeysScreen();
 		});
 	}
 
@@ -2690,6 +2708,9 @@ export class UI {
 					toggleSecretView();
 				}
 				break;
+			case 'hotkeys':
+				this.closeHotkeysScreen();
+				break;
 		}
 	}
 
@@ -2710,6 +2731,8 @@ export class UI {
 				return !$j('#musicplayerwrapper').hasClass('hide');
 			case 'secret':
 				return document.getElementById(SECRET_VIEW_ID)?.style.display === 'flex';
+			case 'hotkeys':
+				return !this.$hotkeys.hasClass('hide');
 		}
 	}
 
@@ -3177,6 +3200,19 @@ export class UI {
 		this.btnRestartMatch.changeState(ButtonStateEnum.hidden);
 		this.btnExit.changeState(ButtonStateEnum.hidden);
 		this.$scoreboard.addClass('hide');
+	}
+
+	toggleHotkeysScreen() {
+		if (!this.$hotkeys.hasClass('hide')) {
+			this.closeHotkeysScreen();
+			return;
+		}
+		this.closeOpenInterfaceViews();
+		this.$hotkeys.removeClass('hide');
+	}
+
+	closeHotkeysScreen() {
+		this.$hotkeys.addClass('hide');
 	}
 
 	/**
