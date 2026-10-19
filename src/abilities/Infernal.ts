@@ -321,17 +321,23 @@ export default (G) => {
 				const crea = this.creature;
 
 				const finalizeHurl = () => {
-					// `poll` stops itself when the board is torn down, so this no
-					// longer has to check for a dead UI/grid or clear its own interval.
-					G.poll(function () {
-						if (!G.freezedInput) {
-							G.UI.selectAbility(-1);
-							if (G.activeCreature?.player?.controller !== 'bot') {
-								G.activeCreature?.queryMove();
-							}
-							return true;
+					const activeCreature = G.activeCreature;
+					G.UI.selectAbility(-1);
+					if (activeCreature?.dead || (!activeCreature && crea.dead)) {
+						if (G._deferredQueryMovePending > 0) {
+							G._deferredQueryMovePending--;
 						}
-					}, 100);
+						if (G._deferredQueryMovePending === 0 && G.animationQueue.length === 0) {
+							G.freezedInput = false;
+							G.grid?.refreshHoverState?.();
+						}
+						return;
+					}
+					if (activeCreature?.queryMove) {
+						activeCreature.queryMove();
+						return;
+					}
+					crea.queryMove();
 				};
 
 				ability.end(false, true);
