@@ -1630,6 +1630,11 @@ export class HexGrid {
 				hex = this.hexes[y][x]; // New coords
 				o.fnOnSelect(hex, o.args);
 			} else if (!hex.reachable) {
+				// Reset the query so the movement path traced on the previous reachable
+				// hex (tracePath's `adj` hexes) is cleaned instead of lingering as dark
+				// hexagons once the cursor leaves range. Mirrors what selectNormal does
+				// via redoLastQuery() before tracing a new path.
+				this.redoLastQuery();
 				// Clean the last preview position's hex overlays and reset tracking so
 				// that re-entering the spawn range doesn't leave a ghost outline behind.
 				clearPreviewOverlay(this.materialize_overlay);
