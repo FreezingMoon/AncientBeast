@@ -4432,9 +4432,7 @@ body.devvit-mode .scrim {
 
 // Hotkeys showcase screen (#308)
 .hotkeys-inner {
-	padding: 10px 30px 30px;
-	overflow-y: auto;
-	max-height: 500px;
+	padding: 10px 30px 20px;
 
 	h2 {
 		text-align: center;
@@ -4446,11 +4444,13 @@ body.devvit-mode .scrim {
 	display: flex;
 	gap: 30px;
 	justify-content: center;
+	align-items: flex-start;
 	flex-wrap: wrap;
 }
 
 .hotkeys-column {
-	min-width: 200px;
+	flex: 1 1 200px;
+	max-width: 320px;
 
 	h3 {
 		margin: 12px 0 6px;
@@ -4486,5 +4486,17 @@ body.devvit-mode .scrim {
 		min-width: 60px;
 		text-align: center;
 		white-space: nowrap;
+	}
+}
+
+@media screen and (min-width: 600px) {
+	.framed-modal--hotkeys {
+		max-width: 700px;
+		width: 640px;
+	}
+
+	.hotkeys-inner {
+		max-height: none;
+		overflow-y: visible;
 	}
 }
