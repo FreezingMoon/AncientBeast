@@ -137,7 +137,12 @@ function makeUiStub() {
 		// throw (or leak) instead of being a no-op.
 		glowInterval: undefined,
 		plasmaBars: [],
-		chat: { hide: deepNoop(), addMsg: deepNoop(), suppressMessage: deepNoop() },
+		chat: {
+			hide: deepNoop(),
+			addMsg: deepNoop(),
+			suppressMessage: deepNoop(),
+			autoHide: deepNoop(),
+		},
 		cardWrapper: { find: () => ({ hide: deepNoop(), show: deepNoop() }) },
 	};
 	return new Proxy(base, {
