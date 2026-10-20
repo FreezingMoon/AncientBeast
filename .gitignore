@@ -134,6 +134,5 @@ $RECYCLE.BIN/
 # `simulation-baseline.json` is deliberately NOT ignored: it is the checked-in
 # reference every run is compared against, promoted on purpose via
 # `SIM_WRITE_BASELINE=1`. `simulation-latest.json` is the throwaway current run.
-simulation-latest.json
-simulation-results.jsonl
-simulation-results-*.jsonl
+src/__tests__/simulation/results/
+!src/__tests__/simulation/results/simulation-baseline.json

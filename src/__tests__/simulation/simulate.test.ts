@@ -178,13 +178,47 @@ async function runBatch(
 // ─── The test ─────────────────────────────────────────────────────────────────
 
 /**
+ * Directory for all simulation artifacts: baseline, latest, and per-run
+ * results. Kept next to the simulation tests.
+ */
+const SIM_RESULTS_DIR = path.resolve(process.cwd(), 'src/__tests__/simulation/results');
+fs.mkdirSync(SIM_RESULTS_DIR, { recursive: true });
+
+/** Max per-run results files to keep; oldest are pruned when exceeded. */
+const MAX_RESULTS_FILES = 20;
+
+/** Delete the oldest simulation-results-*.jsonl files when there are too many. */
+function pruneResultsFiles(): void {
+	try {
+		const files = fs
+			.readdirSync(SIM_RESULTS_DIR)
+			.filter((f) => f.startsWith('simulation-results-') && f.endsWith('.jsonl'))
+			.map((f) => ({
+				name: f,
+				path: path.join(SIM_RESULTS_DIR, f),
+				mtime: fs.statSync(path.join(SIM_RESULTS_DIR, f)).mtimeMs,
+			}))
+			.sort((a, b) => b.mtime - a.mtime); // newest first
+
+		const toRemove = files.length - MAX_RESULTS_FILES;
+		if (toRemove > 0) {
+			files.splice(MAX_RESULTS_FILES).forEach((oldest) => {
+				fs.unlinkSync(oldest.path);
+			});
+		}
+	} catch {
+		// Directory may not exist yet or be unreadable — skip pruning.
+	}
+}
+
+/**
  * Checked-in reference baseline. Read every run and never written unless
  * `SIM_WRITE_BASELINE=1`, so promoting a new baseline stays a deliberate act
  * instead of something that happens because a run reached phase 1.
  */
-const BASELINE_PATH = path.resolve(process.cwd(), 'simulation-baseline.json');
+const BASELINE_PATH = path.resolve(SIM_RESULTS_DIR, 'simulation-baseline.json');
 /** This run's baseline, always written and git-ignored. */
-const LATEST_PATH = path.resolve(process.cwd(), 'simulation-latest.json');
+const LATEST_PATH = path.resolve(SIM_RESULTS_DIR, 'simulation-latest.json');
 
 interface RecordedBaseline {
 	metrics: QualityMetrics;
@@ -209,7 +243,8 @@ function readReferenceBaseline(): RecordedBaseline | null {
  */
 const RESULTS_PATH = path.resolve(
 	process.cwd(),
-	process.env.SIM_RESULTS ?? `simulation-results-${process.pid}.jsonl`,
+	process.env.SIM_RESULTS ??
+		path.join('src/__tests__/simulation/results', `simulation-results-${process.pid}.jsonl`),
 );
 // Default counts are intentionally small (~10-30 s per game).
 // For tighter statistical confidence, increase via env vars:
@@ -236,6 +271,7 @@ describe('Bot simulation', () => {
 	test('run simulation and report balance deltas', async () => {
 		// Fresh results file per run; append-only within it.
 		fs.writeFileSync(RESULTS_PATH, '');
+		pruneResultsFiles();
 		console.log(`📝  Appending arm results to ${RESULTS_PATH}`);
 
 		// ── Phase 1: baseline ──────────────────────────────────────────────────
