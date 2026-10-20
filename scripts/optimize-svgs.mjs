@@ -18,7 +18,7 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
 const svgoBin = join(root, 'node_modules', '.bin', 'svgo');
-const svgoConfig = join(root, 'svgo.config.mjs');
+const svgoConfig = join(root, 'platforms', 'devvit', 'svgo.config.mjs');
 
 const dirs = process.argv.slice(2).length
 	? process.argv.slice(2).map((d) => join(root, d))

@@ -7,7 +7,7 @@ import {
 	handleQueueLeave,
 	handleQueueStatus,
 	pruneActiveMatches,
-} from '../queue';
+} from './queue';
 
 // Mounted at /api/queue
 // NOTE: Devvit web views can only fetch() `/api/` endpoints — `/internal/` is reserved for

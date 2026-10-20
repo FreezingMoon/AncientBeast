@@ -9,7 +9,7 @@
 // lazy-require `context` / `requestExpandedMode` inside the click handler, exactly
 // like src/utility/clientVersion.ts does for the full game. By then the globals
 // exist and the call succeeds.
-import { getDevvitAppVersion, getGameVersion } from '../utility/clientVersion';
+import { getDevvitAppVersion, getGameVersion } from '../../src/utility/clientVersion';
 
 const LAUNCH_KEY = 'ab:devvitLaunch';
 const GAME_ENTRY = 'game';

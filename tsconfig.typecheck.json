@@ -4,5 +4,5 @@
 		"noEmit": true
 	},
 	"include": ["src", "types/global.d.ts", "assets"],
-	"exclude": ["node_modules", "src/devvit/game-entry.ts", "src/devvit/splash.ts"]
+	"exclude": ["node_modules", "platforms/devvit/game-entry.ts", "platforms/devvit/splash.ts"]
 }

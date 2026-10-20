@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Hono } from 'hono';
-import { authoritativeProcessor } from '../authoritativeRuntime';
-import type { Intent } from '../../devvit/authoritativeTypes';
+import { authoritativeProcessor } from './authoritativeRuntime';
+import type { Intent } from './authoritativeTypes';
 
 /**
  * Authoritative log route (transport-agnostic, engine-agnostic).

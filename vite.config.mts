@@ -247,8 +247,8 @@ export default defineConfig(({ mode, command }) => {
 	};
 
 	if (isDevvitTarget) {
-		entries.splash = resolve(rootDir, 'src/devvit/splash.ts');
-		entries.gameEntry = resolve(rootDir, 'src/devvit/game-entry.ts');
+		entries.splash = resolve(rootDir, 'platforms/devvit/splash.ts');
+		entries.gameEntry = resolve(rootDir, 'platforms/devvit/game-entry.ts');
 	}
 
 	return {

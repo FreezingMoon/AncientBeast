@@ -12,4 +12,4 @@ export type {
 	AuthoritativeState,
 	IntentStore,
 	InMemoryIntentStore,
-} from '../multiplayer/authoritative';
+} from '../../src/multiplayer/authoritative';

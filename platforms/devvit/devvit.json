@@ -8,7 +8,7 @@
     }
   },
   "post": {
-    "dir": "dist/client",
+    "dir": "../../dist/client",
     "entrypoints": {
       "default": {
         "entry": "splash.html",
@@ -21,8 +21,8 @@
     }
   },
   "server": {
-    "dir": "dist/server",
-    "entry": "index.cjs"
+    "dir": "../../dist/server",
+    "entry": "../../dist/server/index.cjs"
   },
   "menu": {
     "items": [
@@ -39,8 +39,8 @@
     "onAppInstall": "/internal/triggers/on-app-install"
   },
   "scripts": {
-    "build": "webpack --mode=production --env target=devvit && esbuild src/devvit/server.ts --bundle --platform=node --format=cjs --outfile=dist/server/index.cjs --external:node:* --main-fields=module,main",
-    "dev": "webpack --mode=development --watch --env target=devvit & esbuild src/devvit/server.ts --bundle --platform=node --format=cjs --outfile=dist/server/index.cjs --external:node:* --main-fields=module,main --watch"
+    "build": "webpack --mode=production --env target=devvit && esbuild ./server.ts --bundle --platform=node --format=cjs --outfile=../../dist/server/index.cjs --external:node:* --main-fields=module,main",
+    "dev": "webpack --mode=development --watch --env target=devvit & esbuild ./server.ts --bundle --platform=node --format=cjs --outfile=../../dist/server/index.cjs --external:node:* --main-fields=module,main --watch"
   },
   "dev": {
     "subreddit": "ancientbeast666_dev"

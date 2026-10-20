@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import type { OnAppInstallRequest, TriggerResponse } from '@devvit/web/shared';
 import { context } from '@devvit/web/server';
-import { createPost } from '../post';
+import { createPost } from './post';
 
 export const triggers = new Hono();
 

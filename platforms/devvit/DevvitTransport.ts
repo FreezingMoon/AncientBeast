@@ -1,7 +1,12 @@
-import type { GameMessage, ITransport, PeerId, TransportConnectOptions } from '../types';
-import { safeStringify } from './safeStringify';
+import type {
+	GameMessage,
+	ITransport,
+	PeerId,
+	TransportConnectOptions,
+} from '../../src/multiplayer/types';
+import { safeStringify } from '../../src/multiplayer/transport/safeStringify';
 
-export { type ITransport } from '../types';
+export { type ITransport } from '../../src/multiplayer/types';
 
 export interface DevvitTransportDeps {
 	fetchImpl?: typeof fetch;

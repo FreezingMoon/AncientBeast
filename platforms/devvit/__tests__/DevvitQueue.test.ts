@@ -1,10 +1,5 @@
 import { expect, describe, test, beforeEach } from '@jest/globals';
-import {
-	handleQueueJoin,
-	handleQueueStatus,
-	tryMatchQueue,
-	type RedisLike,
-} from '../../devvit/queue';
+import { handleQueueJoin, handleQueueStatus, tryMatchQueue, type RedisLike } from './queue';
 
 class FakeRedis implements RedisLike {
 	private readonly strings = new Map<string, string>();

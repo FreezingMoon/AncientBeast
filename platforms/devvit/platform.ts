@@ -1,6 +1,8 @@
 // Reddit (Devvit) — serverless app running inside Reddit's webview.
 import type { PlatformDescriptor } from '../index';
 
+const platformDir = import.meta.dirname;
+
 export default {
 	id: 'devvit',
 	emoji: '👽',
@@ -16,8 +18,12 @@ export default {
 		},
 	],
 	commands: {
-		dev: { label: 'Devvit playtest', run: 'devvit playtest' },
+		dev: { label: 'Devvit playtest', run: 'devvit playtest', cwd: platformDir },
 		build: { label: 'Vite build for the Devvit client', run: 'vite build' },
-		deploy: { label: 'Build + upload to Reddit (Devvit CLI)', run: 'devvit upload' },
+		deploy: {
+			label: 'Build + upload to Reddit (Devvit CLI)',
+			run: 'devvit upload',
+			cwd: platformDir,
+		},
 	},
 } satisfies PlatformDescriptor;

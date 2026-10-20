@@ -3,9 +3,8 @@
 /* global NodeListOf */
 import * as fs from 'fs';
 import * as nodePath from 'path';
-import { setBoardCamera } from '../game-display/camera';
-import { setClockScene } from '../timing/clock';
-
+import { setBoardCamera } from '../../src/game-display/camera';
+import { setClockScene } from '../../src/timing/clock';
 // ─────────────────────────────────────────────────────────────────────────────
 // Headless game harness for the authoritative server.
 //
@@ -254,7 +253,7 @@ export async function createHeadlessGame(
 
 	ensureHeadlessDom();
 
-	const GameModule = await import('../game');
+	const GameModule = await import('../../src/game');
 	const Game = GameModule.default;
 	const game: any = new Game();
 
@@ -271,8 +270,8 @@ export async function createHeadlessGame(
 	// `TweenManager` reads the clock while `createPhaser()` builds it; installed
 	// afterwards, every tween would be keyed to a start time the virtual clock
 	// has already moved past, and none of them would ever complete.
-	const { getPhaser } = await import('../phaser/runtime');
-	const { createHeadlessDriver } = await import('../phaser/headless');
+	const { getPhaser } = await import('../../src/phaser/runtime');
+	const { createHeadlessDriver } = await import('../../src/phaser/headless');
 	const driver = createHeadlessDriver();
 	game.headlessDriver = driver;
 	await game.createPhaser({ type: getPhaser().HEADLESS, parent: null });
@@ -304,7 +303,7 @@ export async function createHeadlessGame(
 
 	for (const loader of abilities) loader(game);
 
-	const unitsModule = await import('../data/units');
+	const unitsModule = await import('../../src/data/units');
 	game.loadUnitData(unitsModule.unitData);
 
 	// `setup()` builds the real `Animations` on top of the real scene. Movement
@@ -351,7 +350,7 @@ export async function createHeadlessGame(
 	// Collapse ability animation delays (350ms/500ms) to ~1ms so the engine
 	// advances without real-time waiting. Logic is untouched — only cosmetic
 	// timers are clamped, exactly as botgeria does.
-	const abilityModule = await import('../ability');
+	const abilityModule = await import('../../src/ability');
 	const AbilityClass = abilityModule.Ability;
 	if (!(AbilityClass.prototype.animation2 as { _simPatched?: boolean })._simPatched) {
 		AbilityClass.prototype.animation2 = function (this: any, o: any) {
@@ -411,7 +410,7 @@ export async function createHeadlessGame(
 	}
 
 	// Collapse the 1000ms queryMove/activate delay to 1ms (UI-only timing).
-	const creatureModule = await import('../creature');
+	const creatureModule = await import('../../src/creature');
 	const CreatureClass = creatureModule.Creature;
 	if (!(CreatureClass.prototype.activate as { _simPatched?: boolean })._simPatched) {
 		const _origActivate = CreatureClass.prototype.activate;
@@ -463,7 +462,7 @@ export async function createHeadlessGame(
 	}
 
 	// Fast-path hex.trap / hex.creature getters (bypass PointFacade overhead).
-	const hexModule = await import('../utility/hex');
+	const hexModule = await import('../../src/utility/hex');
 	const HexClass = hexModule.Hex;
 	if (!(HexClass.prototype as { _simGetterPatched?: boolean })._simGetterPatched) {
 		Object.defineProperty(HexClass.prototype, 'trap', {

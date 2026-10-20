@@ -1,8 +1,8 @@
 import { jest, expect, describe, test, beforeEach, afterEach } from '@jest/globals';
 
-import { DevvitTransport } from '../../multiplayer/transport/DevvitTransport';
-import { DevvitLobbyProvider } from '../../multiplayer/DevvitLobbyProvider';
-import type { GameMessage } from '../../multiplayer/types';
+import { DevvitTransport } from './DevvitTransport';
+import { DevvitLobbyProvider } from './DevvitLobbyProvider';
+import type { GameMessage } from '../../../src/multiplayer/types';
 
 const mockResponse = (body: unknown): Response =>
 	({ ok: true, json: async () => body } as unknown as Response);

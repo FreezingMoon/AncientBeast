@@ -48,12 +48,12 @@ import {
 	replayIntents,
 	destroyHeadlessGame,
 	type HeadlessConfig,
-} from '../../devvit/headlessGame';
-import { loadRealPhaser } from '../../phaser/runtime';
-import { EngineAuthoritativeProcessor } from '../../multiplayer/engineAuthoritativeProcessor';
-import { InMemoryIntentStore } from '../../multiplayer/authoritative';
-import type { AuthoritativeState, Intent } from '../../multiplayer/authoritative';
-import type { GameMessage } from '../../multiplayer/types';
+} from './headlessGame';
+import { loadRealPhaser } from '../../../src/phaser/runtime';
+import { EngineAuthoritativeProcessor } from '../../../src/multiplayer/engineAuthoritativeProcessor';
+import { InMemoryIntentStore } from '../../../src/multiplayer/authoritative';
+import type { AuthoritativeState, Intent } from '../../../src/multiplayer/authoritative';
+import type { GameMessage } from '../../../src/multiplayer/types';
 
 const ABILITY_FILES = [
 	'../../abilities/Abolished',

@@ -22,6 +22,8 @@ export interface TransportInfo {
 export interface CommandStep {
 	label: string;
 	run: string;
+	/** Working directory for the command (defaults to the repo root). */
+	cwd?: string;
 }
 
 export interface PlatformDescriptor {

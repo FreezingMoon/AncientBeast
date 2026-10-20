@@ -1,4 +1,4 @@
-import { DevvitTransport } from './transport/DevvitTransport';
+import { DevvitTransport } from './DevvitTransport';
 import type {
 	AuthoritativeState,
 	GameConfig,
@@ -10,8 +10,8 @@ import type {
 	LobbySession,
 	LobbyState,
 	PeerId,
-} from './types';
-import { generateLobbyCode, isSelfAppliedActionMessage } from './types';
+} from '../../src/multiplayer/types';
+import { generateLobbyCode, isSelfAppliedActionMessage } from '../../src/multiplayer/types';
 
 interface CreateLobbyResponse {
 	code: LobbyCode;

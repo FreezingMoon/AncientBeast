@@ -50,7 +50,7 @@ import {
 	settle,
 	destroyHeadlessGame,
 	type HeadlessConfig,
-} from '../../devvit/headlessGame';
+} from '../../../platforms/devvit/headlessGame';
 
 /**
  * Ability modules the engine loads. Mirrors `src/script.ts` for the playable

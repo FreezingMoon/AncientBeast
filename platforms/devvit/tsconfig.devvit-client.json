@@ -1,15 +1,15 @@
 {
-	"extends": "./tsconfig.json",
+	"extends": "../../tsconfig.json",
 	"compilerOptions": {
 		"moduleResolution": "bundler",
 		"customConditions": ["browser"]
 	},
 	"exclude": [
 		"node_modules",
-		"src/devvit/server.ts",
-		"src/devvit/lobby.ts",
-		"src/devvit/post.ts",
-		"src/devvit/queue.ts",
-		"src/devvit/routes"
+		"./server.ts",
+		"./lobby.ts",
+		"./post.ts",
+		"./queue.ts",
+		"./routes"
 	]
 }

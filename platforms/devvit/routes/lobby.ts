@@ -1,8 +1,8 @@
 import { Hono } from 'hono';
 import { redis } from '@devvit/web/server';
-import { ACTIVE_MATCHES_KEY } from '../queue';
-import { authoritativeProcessor } from '../authoritativeRuntime';
-import type { Intent } from '../authoritativeTypes';
+import { ACTIVE_MATCHES_KEY } from './queue';
+import { authoritativeProcessor } from './authoritativeRuntime';
+import type { Intent } from './authoritativeTypes';
 import {
 	appendMessage,
 	claimHost,
@@ -19,7 +19,7 @@ import {
 	setPlayer,
 	type LobbyMeta,
 	type PlayerRecord,
-} from '../lobby';
+} from './lobby';
 
 export const lobby = new Hono();
 

@@ -39,7 +39,7 @@ const c = isTTY
 	  }
 	: { bold: '', dim: '', cyan: '', green: '', yellow: '', reset: '' };
 
-function runStep(step: { label: string; run: string }, env: Record<string, string>): boolean {
+function runStep(step: { label: string; run: string; cwd?: string }, env: Record<string, string>): boolean {
 	console.log(`\n${c.cyan}>${c.reset} ${step.label} ${c.dim}(${step.run})${c.reset}`);
 	const [command, ...args] = step.run.split(' ');
 	// `bun run` puts node_modules/.bin on PATH; running this CLI directly does
@@ -47,7 +47,7 @@ function runStep(step: { label: string; run: string }, env: Record<string, strin
 	const pathSeparator = process.platform === 'win32' ? ';' : ':';
 	const nodeBin = join(rootDir, 'node_modules', '.bin');
 	const result = spawnSync(command, args, {
-		cwd: rootDir,
+		cwd: step.cwd ?? rootDir,
 		stdio: 'inherit',
 		env: {
 			...process.env,

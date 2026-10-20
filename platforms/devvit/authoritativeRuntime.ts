@@ -1,5 +1,5 @@
-import { AuthoritativeProcessor } from '../multiplayer/authoritativeProcessor';
-import { InMemoryIntentStore } from '../multiplayer/authoritative';
+import { AuthoritativeProcessor } from '../../src/multiplayer/authoritativeProcessor';
+import { InMemoryIntentStore } from '../../src/multiplayer/authoritative';
 
 /**
  * Shared authoritative runtime for the Devvit *server*.

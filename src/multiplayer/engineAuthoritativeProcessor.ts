@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { LobbyEngine } from '../devvit/authoritativeEngine';
+import { LobbyEngine } from '../../platforms/devvit/authoritativeEngine';
 import type { AuthoritativeState, Intent, IntentStore } from './authoritative';
 import { InMemoryIntentStore } from './authoritative';
 

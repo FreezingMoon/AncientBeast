@@ -63,8 +63,8 @@ import {
 	replayIntents,
 	destroyHeadlessGame,
 	type HeadlessConfig,
-} from '../../devvit/headlessGame';
-import type { Intent } from '../../devvit/authoritativeTypes';
+} from './headlessGame';
+import type { Intent } from './authoritativeTypes';
 
 const ABILITY_FILES = [
 	'../../abilities/Abolished',
