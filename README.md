@@ -31,6 +31,9 @@ You can help out the project by hitting that ★ from the [upper right corner](#
 If you wish to set-up a local copy of the game for your pleasure, read our repository ["CONTRIBUTING.md"](https://github.com/FreezingMoon/AncientBeast/blob/master/CONTRIBUTING.md#github-marketing) file.  
 There are more ways you can help out this project, check out the ["Make Your Contribution"](https://ancientbeast.com/contribute) guide & help out!
 
+[![Deploy to Wasmer](https://img.shields.io/badge/Deploy%20to-Wasmer-171717?logo=wasmer&logoColor=white)](https://wasmer.io/apps/create?github=FreezingMoon%2FAncientBeast)
+Host your own copy of the browser game: Wasmer builds it with Bun and serves the `deploy` folder set in the `Staticfile`. The button opens Wasmer's import page, where you review the configuration and click Deploy; it does not copy the repository into your GitHub account. To deploy your own changes, import your fork instead.
+
 <a href="https://github.com/FreezingMoon/AncientBeast/graphs/contributors"><img src="https://opencollective.com/ancientbeast/contributors.svg?width=838&button=false" alt="Contributors"></a>
 
 ### 🐦‍🔥 Divine
