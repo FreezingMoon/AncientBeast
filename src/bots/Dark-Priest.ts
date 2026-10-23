@@ -202,7 +202,12 @@ const DarkPriestStrategy: UnitBotStrategy = {
 	getPreferredX(creature, controller) {
 		const gridRow = controller.game.grid.hexes[0];
 		const boardWidth = gridRow ? gridRow.length - 1 : 15;
-		return creature.player.flipped ? boardWidth * 0.95 : boardWidth * 0.05;
+		const basePreferredX = creature.player.flipped ? boardWidth * 0.95 : boardWidth * 0.05;
+		// As aggression rises, shift toward enemy side to break stalemates
+		const aggression = controller.getAggressionFactor(creature);
+		const enemyX = creature.player.flipped ? boardWidth * 0.1 : boardWidth * 0.9;
+		const shift = Math.min(0.4, aggression * 0.04); // Up to 40% shift at max aggression
+		return basePreferredX + (enemyX - basePreferredX) * shift;
 	},
 
 	/**
@@ -215,7 +220,10 @@ const DarkPriestStrategy: UnitBotStrategy = {
 	 * 4. Corner defence bonus: when surrounded by melee enemies with no allied
 	 *    cover, prefer tighter hex geometry with fewer open neighbours so fewer
 	 *    enemies can reach the priest simultaneously.
-	 * 5. Zone pressure keeps the priest near the back line at all times.
+	 * 5. Zone pressure keeps the priest near the back line at all times, but
+	 *    weakens with aggression so the priest can push forward to break stalemates.
+	 * 6. Alignment bonus: reward positions on same axis as enemies so Disruptor Beam
+	 *    (range 2) and Electro Shocker (range 1/4) can reach them. Grows with aggression.
 	 */
 	scoreMoveHex(hex, controller) {
 		const activeCreature = controller.game.activeCreature;
@@ -260,9 +268,27 @@ const DarkPriestStrategy: UnitBotStrategy = {
 			score += (6 - openCount) * 30;
 		}
 
-		// Zone preference: stay deep at home side
+		// Alignment bonus: reward positions that let Disruptor Beam (range 2) or
+		// upgraded Electro Shocker (range 4) hit enemies along their travel axes.
+		const aggression = controller.getAggressionFactor(activeCreature);
+		const esAbility = activeCreature.abilities[ABILITY.ELECTRO_SHOCKER];
+		const esRange = esAbility?.isUpgraded?.() ? 4 : 1;
+		controller.game.creatures.forEach((enemy) => {
+			if (!enemy || enemy.dead || enemy.temp || !isTeam(activeCreature, enemy, Team.Enemy)) return;
+			if (!isOnSameAxis(hex.x, hex.y, enemy.x, enemy.y)) return;
+			const dy = Math.abs(hex.y - enemy.y);
+			const dx = Math.abs(hex.x - enemy.x);
+			const dist = dy === 0 ? dx : Math.floor(dy / 2);
+			if (dist <= 2 || (esRange >= 4 && dist <= 4)) {
+				const bonus = dy === 0 ? 100 : 60; // straight row > diagonal
+				score += Math.round(bonus * (0.5 + aggression * 0.1));
+			}
+		});
+
+		// Zone preference: stay deep at home side, but weaken with aggression
 		const preferredX = controller.getPreferredX(activeCreature);
-		score -= Math.abs(hex.x - preferredX) * 15;
+		const zoneWeight = Math.max(1, 15 - aggression);
+		score -= Math.abs(hex.x - preferredX) * zoneWeight;
 
 		return score;
 	},

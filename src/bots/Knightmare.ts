@@ -5,6 +5,14 @@ import { Creature } from '../creature';
 import { Hex } from '../utility/hex';
 import { Team, isTeam } from '../utility/team';
 
+// Axis-alignment helper (straight row or hex-grid diagonal) — same axes used by Icicle Spear
+function isOnSameAxis(ax: number, ay: number, bx: number, by: number): boolean {
+	const dx = Math.abs(bx - ax);
+	const dy = Math.abs(by - ay);
+	if (dy === 0) return true;
+	return Math.floor(dy / 2) === dx;
+}
+
 // Ability slot indices
 const ABILITY = {
 	FRIGID_TOWER: 0, // passive: stacks frost/defense buff when not moved; also offense if upgraded
@@ -159,8 +167,13 @@ const KnightmareStrategy: UnitBotStrategy = {
 	getPreferredX(creature, controller) {
 		const gridRow = controller.game.grid.hexes[0];
 		const boardWidth = gridRow ? gridRow.length - 1 : 15;
-		// Prefer mid-range to leverage Icicle Spear while staying in melee reach
-		return creature.player.flipped ? boardWidth * 0.42 : boardWidth * 0.58;
+		// Base preference: mid-range to leverage Icicle Spear while staying in melee reach
+		const basePreferredX = creature.player.flipped ? boardWidth * 0.42 : boardWidth * 0.58;
+		// As aggression rises, shift preference toward enemy side to break stalemates
+		const aggression = controller.getAggressionFactor(creature);
+		const enemyX = creature.player.flipped ? boardWidth * 0.1 : boardWidth * 0.9;
+		const shift = Math.min(0.4, aggression * 0.04); // Up to 40% shift at max aggression
+		return basePreferredX + (enemyX - basePreferredX) * shift;
 	},
 
 	/**
@@ -190,8 +203,21 @@ const KnightmareStrategy: UnitBotStrategy = {
 			score -= (adjacentEnemyCount - 1) * 180;
 		}
 
+		// Alignment bonus: reward positions on same row/diagonal as enemies
+		// so Icicle Spear can hit them. Grows with aggression.
+		const aggression = controller.getAggressionFactor(activeCreature);
+		controller.game.creatures.forEach((enemy) => {
+			if (!enemy || enemy.dead || enemy.temp || !isTeam(activeCreature, enemy, Team.Enemy)) return;
+			if (isOnSameAxis(hex.x, hex.y, enemy.x, enemy.y)) {
+				const dy = Math.abs(hex.y - enemy.y);
+				const bonus = dy === 0 ? 120 : 80; // straight row > diagonal
+				score += Math.round(bonus * (0.5 + aggression * 0.1));
+			}
+		});
+
 		const preferredX = controller.getPreferredX(activeCreature);
-		score -= Math.abs(hex.x - preferredX) * 8;
+		const zoneWeight = Math.max(1, 10 - aggression);
+		score -= Math.abs(hex.x - preferredX) * zoneWeight;
 
 		return score;
 	},

@@ -105,11 +105,13 @@ const makeController = ({
 	creatures = [] as (Creature & { team: number })[],
 	_flipped = false,
 	isRetreatingFn = (_c: Creature) => false,
+	aggression = 0,
 }: {
 	activeCreature: Creature & { team: number };
 	creatures?: (Creature & { team: number })[];
 	_flipped?: boolean;
 	isRetreatingFn?: (c: Creature) => boolean;
+	aggression?: number;
 }) => ({
 	game: {
 		activeCreature,
@@ -125,6 +127,7 @@ const makeController = ({
 		const boardWidth = 15;
 		return c.player.flipped ? boardWidth * 0.95 : boardWidth * 0.05;
 	},
+	getAggressionFactor: () => aggression,
 });
 
 // ---------------------------------------------------------------------------

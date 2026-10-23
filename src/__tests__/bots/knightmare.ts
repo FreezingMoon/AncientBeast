@@ -189,8 +189,8 @@ describe('KnightmareStrategy.scoreMoveHex', () => {
 
 	test('penalises being surrounded', () => {
 		const knightmare = makeCreature();
-		const enemyA = makeCreature({ id: 2, team: 1 });
-		const enemyB = makeCreature({ id: 3, team: 3 });
+		const enemyA = makeCreature({ id: 2, team: 1, x: 5, y: 0 });
+		const enemyB = makeCreature({ id: 3, team: 3, x: 5, y: 1 });
 		const surrounded = makeHex({
 			x: 4,
 			y: 0,
@@ -204,13 +204,18 @@ describe('KnightmareStrategy.scoreMoveHex', () => {
 			y: 3,
 			adjacentHex: () => [makeHex({ x: 5, y: 3, creature: enemyA })],
 		});
-		const controller = makeController({
+		// Separate controllers so alignment bonus only sees relevant enemies
+		const surroundedController = makeController({
 			activeCreature: knightmare,
 			creatures: [enemyA, enemyB],
 		});
+		const singleController = makeController({
+			activeCreature: knightmare,
+			creatures: [makeCreature({ id: 2, team: 1, x: 5, y: 3 })],
+		});
 
-		expect(scoreMoveHex(surrounded, controller as any) as number).toBeLessThan(
-			scoreMoveHex(singleEnemy, controller as any) as number,
+		expect(scoreMoveHex(surrounded, surroundedController as any) as number).toBeLessThan(
+			scoreMoveHex(singleEnemy, singleController as any) as number,
 		);
 	});
 
