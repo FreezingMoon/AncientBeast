@@ -671,6 +671,8 @@ export class Ability {
 			if (args[0]) {
 				if (args[0] instanceof Creature) {
 					this.creature.faceHex(args[0]);
+				} else if (args[0] instanceof Hex) {
+					this.creature.faceHex(args[0]);
 				} else if (args[0] instanceof Array) {
 					for (const argument of args[0]) {
 						if (argument instanceof Creature || argument.creature) {

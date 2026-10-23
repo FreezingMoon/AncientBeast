@@ -151,6 +151,7 @@ export function spawnProjectileVertigoTrail(
 	endPos: { x: number; y: number },
 	durationMS: number,
 	rotation: number,
+	endRotation = rotation,
 ): void {
 	const engine = game.gameEngine;
 	const textureKey = sprite.texture.key;
@@ -178,7 +179,7 @@ export function spawnProjectileVertigoTrail(
 				game.grid.creatureGroup,
 			);
 			afterimage.setOrigin(0.5, 0.5);
-			afterimage.rotation = rotation;
+			afterimage.rotation = rotation + (endRotation - rotation) * t;
 			afterimage.alpha = AFTERIMAGE_ALPHA;
 
 			// Match projectile's depth

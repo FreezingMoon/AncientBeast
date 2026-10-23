@@ -96,12 +96,24 @@ function spinCursors(): void {
 		// while the cursor was on screen) must not be turned forever, so drop it
 		// from the set here rather than waiting for an `updateStyle()` that will
 		// never come.
-		if (!hex.overlay || hex.overlay.active === false) {
+		if (
+			!hex.overlay ||
+			hex.overlay.active === false ||
+			!hex.display ||
+			hex.display.active === false
+		) {
 			spinningCursors.delete(hex);
 			hex.isSpinning = false;
 			continue;
 		}
-		hex.overlay.angle += CURSOR_SPIN_SPEED;
+		const hasCrashingGlobeTarget =
+			hex._markedByCrashingGlobe || Boolean(hex.overlayClasses.match(/crashing-globe-target/));
+		if (hasCrashingGlobeTarget) {
+			hex.display.angle += CURSOR_SPIN_SPEED;
+		}
+		if (!hasCrashingGlobeTarget || (hex.overlay.key === 'input' && hex.overlay.alpha > 0)) {
+			hex.overlay.angle += CURSOR_SPIN_SPEED;
+		}
 	}
 	if (spinningCursors.size === 0) {
 		cursorSpinFrame = null;
@@ -185,6 +197,7 @@ export class Hex {
 	direction: Direction;
 	displayClasses: string;
 	overlayClasses: string;
+	_markedByCrashingGlobe = false;
 	forcedDisplayAlpha: number | undefined;
 	forcedCreatureOverlayAlpha: number | undefined;
 	forcedHidden: boolean;
@@ -841,7 +854,11 @@ export class Hex {
 		};
 
 		// Display Hex
-		let targetAlpha = this.reachable || Boolean(this.displayClasses.match(/creature/g));
+		const hasCrashingGlobeTarget =
+			this._markedByCrashingGlobe || Boolean(this.overlayClasses.match(/crashing-globe-target/));
+		const isHoveringCrashingGlobeTarget = Boolean(this.overlayClasses.match(/\bhover\b/));
+		let targetAlpha =
+			this.reachable || Boolean(this.displayClasses.match(/creature/g)) || hasCrashingGlobeTarget;
 
 		targetAlpha = !this.displayClasses.match(/hidden|teleportHidden/g) && targetAlpha;
 		targetAlpha = Boolean(this.displayClasses.match(/showGrid/g)) || targetAlpha;
@@ -850,7 +867,11 @@ export class Hex {
 		targetAlpha = Boolean(this.displayClasses.match(/deadzone/g)) || targetAlpha;
 		targetAlpha = Boolean(this.displayClasses.match(/\babilityRange\b/g)) || targetAlpha;
 
-		if (this.displayClasses.match(/0|1|2|3/)) {
+		if (hasCrashingGlobeTarget) {
+			loadTextureIfChanged(this.display, 'target');
+			this.display.setOrigin(0.5, 0.5);
+			this.grid.displayHexesGroup.bringToTop(this.display);
+		} else if (this.displayClasses.match(/0|1|2|3/)) {
 			const player = this.displayClasses.match(/0|1|2|3/);
 			loadTextureIfChanged(this.display, `hex_p${player}`);
 			this.grid.displayHexesGroup.bringToTop(this.display);
@@ -882,13 +903,20 @@ export class Hex {
 		}
 
 		const computedDisplayAlpha = targetAlpha ? 1 : 0;
-		this.display.alpha =
-			typeof this.forcedDisplayAlpha === 'number' ? this.forcedDisplayAlpha : computedDisplayAlpha;
-		if (this.forcedHidden) {
+		this.display.alpha = hasCrashingGlobeTarget
+			? 1
+			: typeof this.forcedDisplayAlpha === 'number'
+			? this.forcedDisplayAlpha
+			: computedDisplayAlpha;
+		if (this.forcedHidden && !hasCrashingGlobeTarget) {
 			this.display.alpha = 0;
 		}
 
-		if (this.displayClasses.match(/\babilityRange\b/)) {
+		if (hasCrashingGlobeTarget) {
+			this.display.setScale(1, 1);
+			alignIn(this.display, this.hitBox, ALIGN_CENTER);
+			alignIn(this.overlay, this.hitBox, ALIGN_CENTER);
+		} else if (this.displayClasses.match(/\babilityRange\b/)) {
 			// Scale is managed externally by tweens; only ensure positioning.
 			alignIn(this.display, this.hitBox, ALIGN_CENTER);
 			alignIn(this.overlay, this.hitBox, ALIGN_CENTER);
@@ -939,7 +967,17 @@ export class Hex {
 		// Overlay Hex
 		targetAlpha = Boolean(this.overlayClasses.match(/hover|creature/g));
 
-		if (this.overlayClasses.match(/0|1|2|3/)) {
+		if (hasCrashingGlobeTarget) {
+			if (isHoveringCrashingGlobeTarget) {
+				loadTextureIfChanged(this.overlay, 'input');
+				this.grid.overlayHexesGroup.bringToTop(this.overlay);
+			} else {
+				loadTextureIfChanged(this.overlay, 'hex');
+				this.overlay.angle = 0;
+			}
+			this.overlay.visible = isHoveringCrashingGlobeTarget;
+		} else if (this.overlayClasses.match(/0|1|2|3/)) {
+			this.overlay.visible = true;
 			const player = this.overlayClasses.match(/0|1|2|3/);
 
 			if (this.overlayClasses.match(/reachable/)) {
@@ -969,6 +1007,7 @@ export class Hex {
 				this.grid.overlayHexesGroup.bringToTop(this.overlay);
 			}
 		} else {
+			this.overlay.visible = true;
 			loadTextureIfChanged(this.overlay, 'input');
 			this.overlay.setOrigin(0.5, 0.5);
 		}
@@ -976,17 +1015,21 @@ export class Hex {
 		// Do not override overlay.alpha for active/selected hexes: the glowInterval
 		// in interface.ts drives their alpha via a sine wave. If we hard-set to 1
 		// here it restarts the visible phase every time overlayClasses is touched.
-		const isGlowControlled = Boolean(this.overlayClasses.match(/\bactive\b|\bselected\b/));
+		const isGlowControlled =
+			!hasCrashingGlobeTarget && Boolean(this.overlayClasses.match(/\bactive\b|\bselected\b/));
 		if (!isGlowControlled) {
 			const computedOverlayAlpha = targetAlpha ? 1 : 0;
 			const overlayKey = this.overlay.key;
 			const isPlayerOverlayKey = typeof overlayKey === 'string' && /^hex_p[0-3]$/.test(overlayKey);
 			const isCreatureOverlay =
 				Boolean(this.overlayClasses.match(/\bcreature\b/)) || isPlayerOverlayKey;
-			this.overlay.alpha =
-				typeof this.forcedCreatureOverlayAlpha === 'number' && isCreatureOverlay
-					? this.forcedCreatureOverlayAlpha
-					: computedOverlayAlpha;
+			this.overlay.alpha = hasCrashingGlobeTarget
+				? isHoveringCrashingGlobeTarget
+					? 1
+					: 0
+				: typeof this.forcedCreatureOverlayAlpha === 'number' && isCreatureOverlay
+				? this.forcedCreatureOverlayAlpha
+				: computedOverlayAlpha;
 			if (this.forcedHidden) {
 				this.overlay.alpha = 0;
 			}
@@ -997,7 +1040,11 @@ export class Hex {
 		// resolved alpha — rather than from the absence of a player class, which
 		// is also true of every plain hex — keeps the shared spin loop down to
 		// the one or two cursors the player can see.
-		if (!isGlowControlled && this.overlay.key === 'input' && this.overlay.alpha > 0) {
+		if (
+			!isGlowControlled &&
+			((this.overlay.key === 'input' && this.overlay.alpha > 0) ||
+				(hasCrashingGlobeTarget && this.display.alpha > 0))
+		) {
 			this.startSpinning();
 		} else {
 			this.stopSpinning();
@@ -1013,6 +1060,9 @@ export class Hex {
 			// angle the cursor stopped at.
 			if (this.overlay.angle !== 0) {
 				this.overlay.angle = 0;
+			}
+			if (!hasCrashingGlobeTarget && this.display.angle !== 0) {
+				this.display.angle = 0;
 			}
 		}
 	}

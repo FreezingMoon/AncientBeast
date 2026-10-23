@@ -1,7 +1,8 @@
 import { throttle } from 'underscore';
 import { Creature } from '../creature';
-import { CreatureQueue } from '../creature_queue';
+import { isQueueEvent, type EventQueue, type QueueEntry, type QueueEvent } from '../event_queue';
 import { getAvatarSet } from '../style/avatar-styles';
+import { getUrl } from '../assets';
 
 const CONST = {
 	animDurationMS: 500,
@@ -24,10 +25,10 @@ export class Queue {
 		this.eventHandlers = eventHandlers;
 	}
 
-	setQueue(creatureQueue: CreatureQueue, turnNumber: number) {
+	setQueue(eventQueue: EventQueue, turnNumber: number) {
 		const nextVignettes = Queue.getNextVignettes(
-			creatureQueue.queue,
-			creatureQueue.nextQueue,
+			eventQueue.queue,
+			eventQueue.nextQueue,
 			turnNumber,
 			this.eventHandlers,
 		);
@@ -143,53 +144,62 @@ export class Queue {
 	);
 
 	private static getNextVignettes(
-		creatures: Creature[],
-		creaturesNext: Creature[],
+		entries: QueueEntry[],
+		entriesNext: QueueEntry[],
 		turnNum: number,
 		eventHandlers: QueueEventHandlers,
 	) {
-		const undelayedCsCurr = creatures.filter((c) => !c.isDelayed);
-		const delayedCsCurr = creatures.filter((c) => c.isDelayed);
-		const hasDelayedCurr = delayedCsCurr.length > 0;
+		const isDelayed = (entry: QueueEntry, isNextQueue: boolean) =>
+			isQueueEvent(entry)
+				? Boolean(entry.delayed)
+				: isNextQueue
+				? Boolean(entry.isDelayedInNextQueue)
+				: entry.isDelayed;
+		const undelayedCurr = entries.filter((entry) => !isDelayed(entry, false));
+		const delayedCurr = entries.filter((entry) => isDelayed(entry, false));
+		const undelayedNext = entriesNext.filter((entry) => !isDelayed(entry, true));
+		const delayedNext = entriesNext.filter((entry) => isDelayed(entry, true));
 
-		const undelayedCsNext = creaturesNext.filter((c) => !c.isDelayedInNextQueue);
-		const delayedCsNext = creaturesNext.filter((c) => c.isDelayedInNextQueue);
-		const hasDelayedNext = delayedCsNext.length > 0;
+		const newVignette = (
+			entry: QueueEntry,
+			turnNumber: number,
+			isCurrentTurn: boolean,
+			isActive: boolean,
+		): Vignette => {
+			if (isQueueEvent(entry)) {
+				return new EventVignette(entry, eventHandlers, isActive);
+			}
 
-		const is1stCreature = utils.trueIfFirstElseFalse();
+			const isAlreadyShown = isCurrentTurn
+				? false
+				: entries.some((oldEntry) => !isQueueEvent(oldEntry) && oldEntry.id === entry.id);
+			return new CreatureVignette(
+				entry,
+				turnNumber,
+				eventHandlers,
+				isActive,
+				isCurrentTurn,
+				isAlreadyShown,
+			);
+		};
+		const mapEntries = (queueEntries: QueueEntry[], turnNumber: number, current: boolean) =>
+			queueEntries.map((entry, index) =>
+				newVignette(entry, turnNumber, current, current && index === 0),
+			);
 
-		const newCreatureVCurr = (c: Creature) =>
-			new CreatureVignette(c, turnNum, eventHandlers, is1stCreature(), true);
-		const undelayedVsCurr = undelayedCsCurr.map(newCreatureVCurr);
-		const delayMarkerVCurr = hasDelayedCurr
+		const undelayedVsCurr = mapEntries(undelayedCurr, turnNum, true);
+		const delayMarkerVCurr = delayedCurr.length
 			? [new DelayMarkerVignette(turnNum, eventHandlers)]
 			: [];
-		const delayedVsCurr = delayedCsCurr.map(newCreatureVCurr);
+		const delayedVsCurr = mapEntries(delayedCurr, turnNum, true);
 
 		const turnEndMarkerV = [new TurnEndMarkerVignette(turnNum, eventHandlers)];
 
-		const newCreatureVNext = (c: Creature) => {
-			let isCreatureAlreadyShown = false;
-			for (const oldC of creatures) {
-				if (oldC.id === c.id) {
-					isCreatureAlreadyShown = true;
-					break;
-				}
-			}
-			return new CreatureVignette(
-				c,
-				turnNum + 1,
-				eventHandlers,
-				is1stCreature(),
-				false,
-				isCreatureAlreadyShown,
-			);
-		};
-		const undelayedVsNext = undelayedCsNext.map(newCreatureVNext);
-		const delayMarkerVNext = hasDelayedNext
+		const undelayedVsNext = mapEntries(undelayedNext, turnNum + 1, false);
+		const delayMarkerVNext = delayedNext.length
 			? [new DelayMarkerVignette(turnNum + 1, eventHandlers)]
 			: [];
-		const delayedVsNext = delayedCsNext.map(newCreatureVNext);
+		const delayedVsNext = mapEntries(delayedNext, turnNum + 1, false);
 		const vsNext = [].concat(turnEndMarkerV, undelayedVsNext, delayMarkerVNext, delayedVsNext);
 
 		/**
@@ -833,18 +843,105 @@ class DelayMarkerVignette extends Vignette {
 	}
 }
 
-const utils = {
-	trueIfFirstElseFalse: () => {
-		let v = true;
-		return () => {
-			if (v) {
-				v = false;
-				return true;
-			}
-			return false;
-		};
-	},
+class EventVignette extends Vignette {
+	event: QueueEvent;
+	isActive: boolean;
 
+	constructor(event: QueueEvent, eventHandlers: QueueEventHandlers, isActive: boolean) {
+		super();
+		this.event = event;
+		this.turnNumber = event.turn;
+		this.eventHandlers = eventHandlers;
+		this.isActive = isActive;
+	}
+
+	getHash() {
+		return ['event', this.event.id, 'turn' + this.turnNumber].join('_');
+	}
+
+	getHTML() {
+		const data =
+			this.event.type === 'crashing-globe'
+				? (this.event.data as { attacker: Creature; upgraded: boolean })
+				: undefined;
+		const title = data?.upgraded ? 'Crashing Globe (upgraded)' : this.event.title;
+		const classes = [
+			'vignette',
+			'event',
+			this.event.type,
+			data ? 'crashing-globe-ability' : '',
+			data ? 'p' + data.attacker.team : '',
+			this.isActive ? 'active' : '',
+		].join(' ');
+		if (data) {
+			return `<div class="${classes}">
+				<div class="crashing-globe-bg"></div>
+				<div class="crashing-globe-icon"></div>
+				<div class="frame p${data.attacker.team}"></div>
+				<div class="overlay_frame"></div>
+				<div class="stats">${title}</div>
+			</div>`;
+		}
+		return `<div class="${classes}">
+				<div class="frame"></div>
+				<div class="overlay_frame"></div>
+				<div class="stats">${title}</div>
+			</div>`;
+	}
+
+	insert(containerElement: HTMLElement, queuePosition: number, x: number) {
+		super.insert(containerElement, queuePosition, x);
+		this.updateDOM();
+		return this;
+	}
+
+	update(queuePosition: number, x: number) {
+		this.queuePosition = queuePosition;
+		this.xPosition = x;
+		this.updateDOM();
+		this.animateUpdate(queuePosition, x);
+		return this;
+	}
+
+	addEvents() {
+		if (this.event.type !== 'crashing-globe') {
+			return;
+		}
+
+		this.el.addEventListener('contextmenu', (event: MouseEvent) => {
+			event.preventDefault();
+			event.stopPropagation();
+			const data = this.event.data as { attacker: Creature };
+			this.eventHandlers.onEventContextMenu?.(data.attacker);
+		});
+	}
+
+	private updateDOM() {
+		this.el.classList.toggle('active', this.isActive);
+		this.el.classList.toggle('delayed', Boolean(this.event.delayed));
+		if (this.event.type === 'crashing-globe') {
+			const data = this.event.data as { attacker: Creature; upgraded: boolean };
+			const classes = this.el.classList;
+			classes.add('crashing-globe-ability', 'p' + data.attacker.team);
+			classes.toggle('upgraded', data.upgraded);
+			const iconEl = this.el.querySelector('.crashing-globe-icon') as HTMLElement | null;
+			if (iconEl) {
+				iconEl.style.backgroundImage = `url('${getUrl('units/abilities/Asher 3')}')`;
+				iconEl.style.display = '';
+			}
+			const bgEl = this.el.querySelector('.crashing-globe-bg') as HTMLElement | null;
+			if (bgEl) {
+				bgEl.style.backgroundColor = 'rgba(0, 0, 0, 0.85)';
+			}
+		}
+	}
+
+	getWidth() {
+		return 80;
+	}
+}
+
+const utils = {
 	arrToDict: (arr: Vignette[], keyFn: (arg0: Vignette) => string) => {
 		// NOTE: Turns an array to an object using the key function.
 		// If the keyFn produces two or more identical keys, only the
@@ -908,6 +1005,7 @@ const utils = {
 
 type QueueEventHandlers = {
 	onCreatureClick?: (creature: Creature) => void;
+	onEventContextMenu?: (creature: Creature) => void;
 	onCreatureMouseEnter?: (creature: Creature) => void;
 	onCreatureMouseLeave?: (creature: Creature) => void;
 	onDelayClick?: () => void;

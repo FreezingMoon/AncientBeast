@@ -1504,6 +1504,11 @@ export class Creature {
 			}
 			if (canDraw) {
 				const hex = this.game.grid.hexes[args.y][args.x - i];
+				// Skip hexes marked by Crashing Globe — clicking them shouldn't
+				// show a movement/selection hexagon on top.
+				if (hex._markedByCrashingGlobe) {
+					continue;
+				}
 				this.game.grid.cleanHex(hex);
 				hex.overlayVisualState(args.overlayClass);
 				hex.displayVisualState(args.displayClass);

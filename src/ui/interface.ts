@@ -4425,6 +4425,8 @@ export class UI {
 
 		const queueEventHandlers = {
 			onCreatureClick: (creature) => ui.game.channels.ui.emit(SIGNAL_CREATURE_CLICK, { creature }),
+			onEventContextMenu: (creature) =>
+				ui.game.channels.ui.emit(SIGNAL_CREATURE_CLICK, { creature }),
 			onCreatureMouseEnter: (creature) =>
 				ui.game.channels.ui.emit(SIGNAL_CREATURE_MOUSE_ENTER, { creature }),
 			onCreatureMouseLeave: () => ui.game.channels.ui.emit(SIGNAL_CREATURE_MOUSE_LEAVE, {}),

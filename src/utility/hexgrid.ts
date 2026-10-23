@@ -1188,6 +1188,7 @@ export class HexGrid {
 				game.activeCreature?.queryMove();
 			},
 			fnOnHoverOutside: undefined as (() => void) | undefined,
+			fnOnHover: undefined as ((hex: Hex) => void) | undefined,
 			callbackAfterQueryHexes: () => {
 				// empty function to be overridden with custom logic to execute after queryHexes
 			},
@@ -1612,6 +1613,11 @@ export class HexGrid {
 					hex.displayVisualState('creature player' + this.game.activeCreature.team);
 				}
 
+				// Allow custom hover handling (e.g. target.png marking during ability targeting).
+				if (o.fnOnHover) {
+					o.fnOnHover(hex);
+				}
+
 				// Offset Pos
 				const offset = o.flipped ? o.size - 1 : 0;
 				const mult = o.flipped ? 1 : -1; // For flipped player
@@ -1875,8 +1881,16 @@ export class HexGrid {
 			// hover preview or path cleanup cannot restart the glow state.
 			hex.cleanDisplayVisualState('adj hover dashed shrunken deadzone hidden');
 			hex.cleanOverlayVisualState(
-				'reachable weakDmg moveto selected hover ownCreatureHexShade h_player0 h_player1 h_player2 h_player3',
+				'reachable weakDmg moveto selected hover ownCreatureHexShade h_player0 h_player1 h_player2 h_player3 p0 p1 p2 p3',
 			);
+			return;
+		}
+
+		// A confirmed Crashing Globe target keeps its `target.png` marking until
+		// the projectile lands, but the cursor is transient and must be removed.
+		if (hex._markedByCrashingGlobe) {
+			hex.cleanDisplayVisualState();
+			hex.cleanOverlayVisualState();
 			return;
 		}
 
@@ -1912,7 +1926,9 @@ export class HexGrid {
 			// and `playerN` classes stay intact. That avoids reintroducing outline hexes
 			// while still removing hover-added dashed/path state.
 			hex.cleanDisplayVisualState('adj hover dashed shrunken deadzone hidden');
-			hex.cleanOverlayVisualState('hover h_player0 h_player1 h_player2 h_player3');
+			hex.cleanOverlayVisualState(
+				'hover h_player0 h_player1 h_player2 h_player3 p0 p1 p2 p3 crashing-globe-target',
+			);
 			return;
 		}
 
@@ -1979,6 +1995,11 @@ export class HexGrid {
 				hex.cleanOverlayVisualState(
 					'hover selected reachable weakDmg moveto ownCreatureHexShade h_player0 h_player1 h_player2 h_player3',
 				);
+			} else if (hex._markedByCrashingGlobe) {
+				// Keep the target art, but remove any stale hover cursor after the
+				// targeting query closes.
+				hex.cleanDisplayVisualState();
+				hex.cleanOverlayVisualState();
 			} else {
 				hex.cleanDisplayVisualState();
 				hex.cleanOverlayVisualState();

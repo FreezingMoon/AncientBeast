@@ -1950,7 +1950,7 @@ export const unitData: UnitDataStructure = [
 	{
 		id: 22,
 		name: 'Asher',
-		playable: false,
+		playable: true,
 		level: 1,
 		realm: 'L',
 		size: 2,
@@ -1995,7 +1995,7 @@ export const unitData: UnitDataStructure = [
 				title: 'Glowing Eye',
 				desc: 'Fries any targeted nearby foe, can also hit the smaller ones from sides as well.',
 				info: '15 burn adjacent damage, any target.',
-				upgrade: "Destroys target's initiative.",
+				upgrade: "Nullifies target's meditation.",
 				damages: {
 					burn: 15,
 				},
@@ -2017,9 +2017,9 @@ export const unitData: UnitDataStructure = [
 			},
 			{
 				title: 'Crashing Globe',
-				desc: 'Catapults a flaming orb at any selected inline target, leaving it without cover.',
+				desc: 'Catapults a delayed flaming orb at any target location on the combat field.',
 				info: '20 crush damage + 10 burn per strike.',
-				upgrade: "Nullifies target's meditation.",
+				upgrade: 'Leaves a fire trap if misses.',
 				damages: {
 					crush: 20,
 					burn: 10,

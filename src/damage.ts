@@ -23,6 +23,8 @@ export class Damage {
 	isFromBurningSpirit: boolean | undefined = undefined;
 	// Damage from Greater Pyre - skip passive effect application
 	isFromGreaterPyre: boolean | undefined = undefined;
+	// Damage from Asher's Heat Haze burn - prevents onDamage re-trigger loop
+	isFromHazeBurn: boolean | undefined = undefined;
 
 	noLog = false;
 

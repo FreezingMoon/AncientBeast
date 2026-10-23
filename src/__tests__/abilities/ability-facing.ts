@@ -7,6 +7,7 @@ jest.mock('phaser', () =>
 );
 
 import { Ability } from '../../ability';
+import { Hex } from '../../utility/hex';
 
 /**
  * `Ability#animation2` used to reset the creature's facing for every ability
@@ -78,6 +79,16 @@ describe('Ability.animation2 re-facing', () => {
 
 		expect(facePlayerDefault).toHaveBeenCalledTimes(1);
 		expect(faceHex).toHaveBeenCalledTimes(1);
+	});
+
+	test('an acting ability turns its creature towards a confirmed hex target', () => {
+		const ability = makeAbility('onQuery');
+		const targetHex = Object.create(Hex.prototype) as Hex;
+
+		ability.animation2({ arg: [targetHex] });
+
+		expect(facePlayerDefault).toHaveBeenCalledTimes(1);
+		expect(faceHex).toHaveBeenCalledWith(targetHex);
 	});
 
 	test('a passive trigger does not re-face the creature it fires on', () => {

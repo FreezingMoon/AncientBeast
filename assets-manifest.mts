@@ -45,6 +45,7 @@ export default function phaserAssetManifestPlugin({
     'assets/interface/p3_health.png',
     'assets/interface/p3_plasma.png',
     'assets/interface/skip.svg',
+    'assets/interface/target.png',
   ],
   soundDirs = [
     'assets/sounds',

@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, jest, test } from '@jest/globals';
 import type { Creature } from '../../creature';
-import type { CreatureQueue } from '../../creature_queue';
+import type { EventQueue } from '../../event_queue';
 import { Queue } from '../../ui/queue';
 
 jest.mock('../../style/avatar-styles', () => ({
@@ -50,6 +50,72 @@ describe('Queue', () => {
 		expect(div.innerHTML).toBe('');
 	});
 
+	test('shows scheduled events in initiative order in the upcoming round', () => {
+		const div = document.createElement('div');
+		const queue = new Queue(div);
+		const asher = creature({ id: 1, initiative: 10 });
+		const globeEvent = {
+			isEvent: true,
+			id: 'crashing-globe-1',
+			type: 'crashing-globe',
+			turn: 2,
+			initiative: 11,
+			title: 'Crashing Globe',
+			data: { attacker: asher, hex: { x: 4, y: 5 }, upgraded: false },
+			resolve: jest.fn(),
+		};
+
+		queue.setQueue(
+			{
+				queue: [],
+				nextQueue: [globeEvent, asher],
+			} as unknown as EventQueue,
+			1,
+		);
+
+		const globe = div.querySelector('.crashing-globe-ability');
+		const asherVignette = div.querySelector('.creature[creatureid="1"]');
+		expect(globe).not.toBeNull();
+		expect(globe?.textContent).toContain('Crashing Globe');
+		if (!globe || !asherVignette) {
+			throw new Error('Queue did not render both the globe event and Asher');
+		}
+		expect(
+			globe.compareDocumentPosition(asherVignette) & Node.DOCUMENT_POSITION_FOLLOWING,
+		).toBeTruthy();
+	});
+
+	test('right-clicking a Crashing Globe event reveals its owner', () => {
+		const div = document.createElement('div');
+		const attacker = creature({ id: 1 });
+		const onEventContextMenu = jest.fn();
+		const queue = new Queue(div, { onEventContextMenu });
+		const globeEvent = {
+			isEvent: true,
+			id: 'crashing-globe-1',
+			type: 'crashing-globe',
+			turn: 2,
+			initiative: 11,
+			title: 'Crashing Globe',
+			data: { attacker, hex: { x: 4, y: 5 }, upgraded: false },
+			resolve: jest.fn(),
+		};
+
+		queue.setQueue(
+			{
+				queue: [],
+				nextQueue: [globeEvent],
+			} as unknown as EventQueue,
+			1,
+		);
+
+		const globe = div.querySelector('.crashing-globe-ability');
+		expect(globe).not.toBeNull();
+		globe?.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
+
+		expect(onEventContextMenu).toHaveBeenCalledWith(attacker);
+	});
+
 	test('shows an insertion marker where delay would place the active unit', () => {
 		const div = document.createElement('div');
 		const queue = new Queue(div);
@@ -62,7 +128,7 @@ describe('Queue', () => {
 					creature({ id: 3, delayed: true, initiative: 10 }),
 				],
 				nextQueue: [],
-			} as unknown as CreatureQueue,
+			} as unknown as EventQueue,
 			1,
 		);
 
@@ -87,7 +153,7 @@ describe('Queue', () => {
 			{
 				queue: [creature({ id: 1 }), creature({ id: 2 })],
 				nextQueue: [],
-			} as unknown as CreatureQueue,
+			} as unknown as EventQueue,
 			1,
 		);
 
@@ -106,7 +172,7 @@ describe('Queue', () => {
 			{
 				queue: [creature({ id: 1 }), creature({ id: 2 })],
 				nextQueue: [],
-			} as unknown as CreatureQueue,
+			} as unknown as EventQueue,
 			1,
 		);
 		queue.showDelayPreview();
@@ -117,7 +183,7 @@ describe('Queue', () => {
 			{
 				queue: [creature({ id: 2 })],
 				nextQueue: [],
-			} as unknown as CreatureQueue,
+			} as unknown as EventQueue,
 			1,
 		);
 
@@ -133,7 +199,7 @@ describe('Queue', () => {
 			{
 				queue: [creature({ id: 1 }), creature({ id: 2 }), creature({ id: 3 })],
 				nextQueue: [],
-			} as unknown as CreatureQueue,
+			} as unknown as EventQueue,
 			1,
 		);
 
@@ -143,7 +209,7 @@ describe('Queue', () => {
 			{
 				queue: [creature({ id: 1, delayed: true }), creature({ id: 2 }), creature({ id: 3 })],
 				nextQueue: [],
-			} as unknown as CreatureQueue,
+			} as unknown as EventQueue,
 			1,
 		);
 
@@ -172,7 +238,7 @@ describe('Queue', () => {
 			{
 				queue: [creature({ id: 1 }), creature({ id: 2 }), creature({ id: 3 })],
 				nextQueue: [],
-			} as unknown as CreatureQueue,
+			} as unknown as EventQueue,
 			1,
 		);
 
@@ -184,7 +250,7 @@ describe('Queue', () => {
 			{
 				queue: [creature({ id: 2 }), creature({ id: 3 }), creature({ id: 1 })],
 				nextQueue: [],
-			} as unknown as CreatureQueue,
+			} as unknown as EventQueue,
 			1,
 		);
 
@@ -200,7 +266,7 @@ describe('Queue', () => {
 			{
 				queue: [creature({ id: 1 }), creature({ id: 2 }), creature({ id: 3 })],
 				nextQueue: [],
-			} as unknown as CreatureQueue,
+			} as unknown as EventQueue,
 			1,
 		);
 
@@ -210,7 +276,7 @@ describe('Queue', () => {
 			{
 				queue: [creature({ id: 2 }), creature({ id: 3 })],
 				nextQueue: [],
-			} as unknown as CreatureQueue,
+			} as unknown as EventQueue,
 			1,
 		);
 

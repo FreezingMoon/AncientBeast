@@ -1,6 +1,6 @@
 import $j from 'jquery';
 import { Animations } from './animations';
-import { CreatureQueue } from './creature_queue';
+import { EventQueue, isQueueEvent } from './event_queue';
 import { GameLog, type LogPerformer } from './utility/gamelog';
 import { SoundSys, SoundSysAudioBufferSourceNode } from './sound/soundsys';
 import { Hex, stopAllCursorSpinning } from './utility/hex';
@@ -154,7 +154,7 @@ export default class Game {
 	 * grid :               Grid :  Grid object
 	 * UI :             UI :    UI object
 	 *
-	 * queue :              CreatureQueue : queue of creatures to manage phase order
+	 * queue :              EventQueue : queue of creatures and scheduled events
 	 *
 	 * turn :               Integer :   Current's turn number
 	 *
@@ -175,7 +175,7 @@ export default class Game {
 	playersReady: boolean;
 	preventSetup: boolean;
 	animations: Animations;
-	queue: CreatureQueue;
+	queue: EventQueue;
 	creatureData: typeof unitData | [];
 	pause: boolean;
 	gameState: 'initialized' | 'loading' | 'loaded' | 'playing' | 'ended';
@@ -626,7 +626,10 @@ export default class Game {
 		this.playersReady = false;
 		this.preventSetup = false;
 		this.animations = new Animations(this);
-		this.queue = new CreatureQueue(() => this.creatures);
+		this.queue = new EventQueue(
+			() => this.creatures,
+			() => this.turn,
+		);
 		this.creatureData = [];
 		this.pause = false;
 		this.gameState = 'initialized';
@@ -1839,6 +1842,19 @@ export default class Game {
 					return;
 				} else {
 					const next = this.queue.queue[0];
+					if (isQueueEvent(next)) {
+						let completed = false;
+						next.resolve(() => {
+							if (completed) return;
+							completed = true;
+							this.queue.removeEvent(next);
+							this.updateQueueDisplay();
+							this.nextCreature(remote);
+						});
+						this.updateQueueDisplay();
+						return;
+					}
+
 					if (this.activeCreature && this.activeCreature) {
 						differentPlayer = this.activeCreature.player != next.player;
 					} else {
@@ -2871,7 +2887,10 @@ export default class Game {
 		this.playersReady = false;
 		this.preventSetup = false;
 		this.animations = new Animations(this);
-		this.queue = new CreatureQueue(() => this.creatures);
+		this.queue = new EventQueue(
+			() => this.creatures,
+			() => this.turn,
+		);
 		this.creatureData = [];
 		this.pause = false;
 		this.gameState = 'initialized';
