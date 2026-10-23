@@ -175,7 +175,7 @@ export default class BotController {
 	/** Aggression gained per turn a creature has been active past turn 4. */
 	agePressureCoeff = 0.8;
 	/** Aggression gained per global damage-free round past round 3. */
-	stagnationPressureCoeff = 2.5;
+	stagnationPressureCoeff = 3.5;
 	/** Weight applied to team engagement pressure. */
 	engagementPressureCoeff = 1.25;
 	/** Decisions allowed within one creature turn before the bot gives up. */

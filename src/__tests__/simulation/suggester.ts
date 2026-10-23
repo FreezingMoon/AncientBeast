@@ -45,13 +45,13 @@ interface Sweep {
 }
 
 const SWEEPS: Sweep[] = [
-	{ field: 'agePressureCoeff', value: 0.5, note: 'gentler with age' },
+	{ field: 'agePressureCoeff', value: 0.7, note: 'gentler with age' },
 	{ field: 'agePressureCoeff', value: 1.2, note: 'harsher with age' },
-	{ field: 'stagnationPressureCoeff', value: 1.5, note: 'slower to break stalemates' },
-	{ field: 'stagnationPressureCoeff', value: 3.5, note: 'breaks stalemates faster' },
+	{ field: 'stagnationPressureCoeff', value: 2.5, note: 'slower to break stalemates' },
+	{ field: 'stagnationPressureCoeff', value: 4.0, note: 'breaks stalemates faster' },
 	{ field: 'engagementPressureCoeff', value: 0.5, note: 'ignore team engagement' },
 	{ field: 'engagementPressureCoeff', value: 2.0, note: 'weight team engagement more' },
-	{ field: 'maxDecisionCount', value: 8, note: 'fewer actions per turn' },
+	{ field: 'maxDecisionCount', value: 10, note: 'fewer actions per turn' },
 	{ field: 'maxDecisionCount', value: 16, note: 'more actions per turn' },
 	{ field: 'stalePendingActionMs', value: 1200, note: 'impatient on stale input' },
 	{ field: 'stalePendingActionMs', value: 3000, note: 'patient on stale input' },
