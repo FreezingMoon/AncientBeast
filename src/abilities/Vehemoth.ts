@@ -636,7 +636,7 @@ export default (G: Game) => {
 					// mask: Phaser 4 only applies those in the Canvas renderer, and a
 					// Graphics mask left in the creature group paints its own fill — a
 					// screen-wide white slab over the board — instead of clipping.
-					const revealDuration = Math.max(100, Math.min(240, travelDistance * 0.25));
+					const _revealDuration = Math.max(100, Math.min(240, travelDistance * 0.25));
 					sprite.alpha = 1;
 
 					const tween = G.gameEngine

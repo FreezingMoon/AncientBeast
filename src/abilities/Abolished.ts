@@ -6,6 +6,7 @@ import * as arrayUtils from '../utility/arrayUtils';
 import { getPointFacade } from '../utility/pointfacade';
 import Game from '../game';
 import { shakeBoard } from '../game-display/camera';
+import type { SpriteHandle } from '../engine/types';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -335,8 +336,9 @@ export default (G: Game) => {
 
 					// Stack fire emoji on same hint line: clear previous fire hint, show new count
 					let fireCount = 1;
-					creature.creatureSprite._hintGrp.each((hint: any) => {
-						const state = hint && (hint as any).__hintState;
+					creature.creatureSprite._hintGrp.each((hint: SpriteHandle) => {
+						const state =
+							hint && (hint as SpriteHandle & { __hintState?: { hintType: string } }).__hintState;
 						if (
 							state &&
 							state.hintType === 'msg_effects' &&

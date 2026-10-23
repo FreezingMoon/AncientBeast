@@ -11,7 +11,7 @@ jest.mock('pixi', () => ({}), { virtual: true });
 jest.mock('p2', () => ({}), { virtual: true });
 // Phaser is NOT mocked here — see the note in `authoritativeEngine.test.ts`.
 
-jest.mock('../../ui/interface', () => {
+jest.mock('../../../src/ui/interface', () => {
 	const deepNoop = () =>
 		new Proxy(function () {}, { get: () => deepNoop(), apply: () => deepNoop() });
 	class UIStub {
@@ -48,7 +48,7 @@ import {
 	replayIntents,
 	destroyHeadlessGame,
 	type HeadlessConfig,
-} from './headlessGame';
+} from '../headlessGame';
 import { loadRealPhaser } from '../../../src/phaser/runtime';
 import { EngineAuthoritativeProcessor } from '../../../src/multiplayer/engineAuthoritativeProcessor';
 import { InMemoryIntentStore } from '../../../src/multiplayer/authoritative';
@@ -56,27 +56,27 @@ import type { AuthoritativeState, Intent } from '../../../src/multiplayer/author
 import type { GameMessage } from '../../../src/multiplayer/types';
 
 const ABILITY_FILES = [
-	'../../abilities/Abolished',
-	'../../abilities/Bounty-Hunter',
-	'../../abilities/Chimera',
-	'../../abilities/Cyber-Wolf',
-	'../../abilities/Cycloper',
-	'../../abilities/Dark-Priest',
-	'../../abilities/Golden-Wyrm',
-	'../../abilities/Gumble',
-	'../../abilities/Headless',
-	'../../abilities/Horn-Head',
-	'../../abilities/Impaler',
-	'../../abilities/Infernal',
-	'../../abilities/Knightmare',
-	'../../abilities/Miss-Creeper',
-	'../../abilities/Nutcase',
-	'../../abilities/Scavenger',
-	'../../abilities/Snow-Bunny',
-	'../../abilities/Stomper',
-	'../../abilities/Swine-Thug',
-	'../../abilities/Uncle-Fungus',
-	'../../abilities/Vehemoth',
+	'../../../src/abilities/Abolished',
+	'../../../src/abilities/Bounty-Hunter',
+	'../../../src/abilities/Chimera',
+	'../../../src/abilities/Cyber-Wolf',
+	'../../../src/abilities/Cycloper',
+	'../../../src/abilities/Dark-Priest',
+	'../../../src/abilities/Golden-Wyrm',
+	'../../../src/abilities/Gumble',
+	'../../../src/abilities/Headless',
+	'../../../src/abilities/Horn-Head',
+	'../../../src/abilities/Impaler',
+	'../../../src/abilities/Infernal',
+	'../../../src/abilities/Knightmare',
+	'../../../src/abilities/Miss-Creeper',
+	'../../../src/abilities/Nutcase',
+	'../../../src/abilities/Scavenger',
+	'../../../src/abilities/Snow-Bunny',
+	'../../../src/abilities/Stomper',
+	'../../../src/abilities/Swine-Thug',
+	'../../../src/abilities/Uncle-Fungus',
+	'../../../src/abilities/Vehemoth',
 ];
 
 async function loadAbilities(): Promise<Array<(G: any) => void>> {
