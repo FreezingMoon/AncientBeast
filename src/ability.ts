@@ -701,8 +701,8 @@ export class Ability {
 			game.animationQueue.push(animId);
 
 			let animationData = {
-				duration: 500,
-				delay: 350,
+				duration: game.replayMode === 'load' ? 1 : 500,
+				delay: game.replayMode === 'load' ? 0 : 350,
 				activateAnimation: true,
 				noTilt: false,
 			};
@@ -710,6 +710,10 @@ export class Ability {
 			if (this.getAnimationData) {
 				// wrapped `args` in an array to fix ts-error 2488
 				animationData = $j.extend(animationData, this.getAnimationData(...[args]));
+			}
+			if (game.replayMode === 'load') {
+				animationData.duration = 1;
+				animationData.delay = 0;
 			}
 
 			if (animationData.activateAnimation && !animationData.noTilt) {
@@ -770,7 +774,7 @@ export class Ability {
 				clearInterval(interval);
 				opt.callback();
 			}
-		}, 100);
+		}, game.replayMode === 'load' ? 1 : 100);
 	}
 
 	/**

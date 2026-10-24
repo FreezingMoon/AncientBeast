@@ -42,6 +42,32 @@ describe('Game replay completion', () => {
 		jest.useFakeTimers();
 	});
 
+	test('onLogLoad records fast-load mode and clears it when an empty log completes', () => {
+		const game = {
+			gameState: 'initialized',
+			configData: {},
+			startGameLoad: jest.fn(
+				(
+					_configData: unknown,
+					_matchInitialized: unknown,
+					_matchid: unknown,
+					onLoadCompleteFn: () => void,
+				) => {
+					game.gameState = 'playing';
+					onLoadCompleteFn();
+				},
+			),
+		} as unknown as Game;
+
+		Game.prototype.onLogLoad.call(game, { actions: [], custom: { configData: {} } }, 'load');
+
+		expect(game.replayMode).toBe('load');
+		expect(game.isReplayInProgress).toBe(true);
+		jest.runOnlyPendingTimers();
+		expect(game.replayMode).toBe(null);
+		expect(game.isReplayInProgress).toBe(false);
+	});
+
 	afterEach(() => {
 		jest.useRealTimers();
 	});

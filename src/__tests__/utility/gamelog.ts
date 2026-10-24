@@ -25,6 +25,18 @@ describe('GameLog', () => {
 			expect(onLoad).toBeCalledTimes(2);
 		});
 
+		test('load and play communicate distinct replay modes', () => {
+			const onLoad = jest.fn();
+			const gl = new GameLog(() => undefined, onLoad);
+			const str = gl.stringify();
+
+			gl.load(str);
+			gl.play(str);
+
+			expect(onLoad.mock.calls[0][1]).toBe('load');
+			expect(onLoad.mock.calls[1][1]).toBe('play');
+		});
+
 		test('custom data saved onSave can be retrieved onLoad', () => {
 			let a = -1;
 			let b = -1;

@@ -1,7 +1,7 @@
 import $j from 'jquery';
 import { Animations } from './animations';
 import { EventQueue, isQueueEvent } from './event_queue';
-import { GameLog, type LogPerformer } from './utility/gamelog';
+import { GameLog, type LogPerformer, type ReplayMode } from './utility/gamelog';
 import { SoundSys, SoundSysAudioBufferSourceNode } from './sound/soundsys';
 import { Hex, stopAllCursorSpinning } from './utility/hex';
 import { HexGrid } from './utility/hexgrid';
@@ -51,6 +51,7 @@ import { setAudioMode, getAudioMode, DEFAULT_AUDIO_MODE } from './sound/soundsys
 import BotController from './bot';
 import { locationPaths } from '../assets/index';
 import type { GameEngine, SpriteHandle } from './engine/types';
+import { GameStateMachine, type GameState } from './engine/GameStateMachine';
 import {
 	clearHoveredHex,
 	onPointerUp,
@@ -178,7 +179,17 @@ export default class Game {
 	queue: EventQueue;
 	creatureData: typeof unitData | [];
 	pause: boolean;
-	gameState: 'initialized' | 'loading' | 'loaded' | 'playing' | 'ended';
+	private readonly gameStateMachine = new GameStateMachine();
+	get gameState(): GameState {
+		return this.gameStateMachine.state;
+	}
+	set gameState(nextState: GameState) {
+		if (nextState === 'initialized') {
+			this.gameStateMachine.reset();
+			return;
+		}
+		this.gameStateMachine.transition(nextState);
+	}
 	pauseTime: number;
 	unitDrops: number;
 	minimumTurnBeforeFleeing: number;
@@ -212,6 +223,8 @@ export default class Game {
 	bloodCount: number;
 	freezedInput: boolean;
 	isReplayInProgress: boolean;
+	/** Replay playback mode; `load` fast-forwards the same recorded actions. */
+	replayMode: ReplayMode | null;
 	turnThrottle: boolean;
 	turn: number;
 	metaPowersState: MetaPowersState;
@@ -643,7 +656,7 @@ export default class Game {
 		this._deferredQueryMovePending = 0;
 		this.gamelog = new GameLog(
 			(log) => this.onLogSave(log),
-			(log) => this.onLogLoad(log),
+			(log, mode) => this.onLogLoad(log, mode),
 			() => {
 				const creature = this.activeCreature;
 				if (!creature) return null;
@@ -671,6 +684,7 @@ export default class Game {
 		this.bloodCount = 0;
 		this.freezedInput = false;
 		this.isReplayInProgress = false;
+		this.replayMode = null;
 		this.turnThrottle = false;
 		this.turn = 0;
 		this.metaPowersState = {
@@ -811,6 +825,10 @@ export default class Game {
 		onLoadCompleteFn?: () => void,
 	): void {
 		this.loadGame(setupOpt, matchInitialized, matchid, onLoadCompleteFn).catch((error) => {
+			if (this.isReplayInProgress) {
+				this.isReplayInProgress = false;
+				this.replayMode = null;
+			}
 			console.error('[Game] loadGame failed', error);
 		});
 	}
@@ -1753,7 +1771,7 @@ export default class Game {
 
 		g.turn = state.turn;
 		g.round = state.round;
-		g.gameState = state.gameState;
+		this.gameStateMachine.synchronize(state.gameState);
 		g.activeCreature =
 			state.activeCreatureId != null ? g.creatures[state.activeCreatureId] : g.activeCreature;
 
@@ -1926,8 +1944,8 @@ export default class Game {
 				} else {
 					this.playersReady = true;
 				}
-			}, getVisibilityAwareDelay(50));
-		}, getVisibilityAwareDelay(300));
+			}, getVisibilityAwareDelay(this.replayMode === 'load' ? 0 : 50));
+		}, getVisibilityAwareDelay(this.replayMode === 'load' ? 0 : 300));
 	}
 
 	updateQueueDisplay(excludeActiveCreature?) {
@@ -2067,7 +2085,7 @@ export default class Game {
 			}
 
 			o.callback.apply();
-		}, 1000);
+		}, this.replayMode === 'load' ? 0 : 1000);
 
 		if (this.activeCreature) {
 			this.activeCreature.facePlayerDefault();
@@ -2093,7 +2111,7 @@ export default class Game {
 				if (!o.noTooltip) {
 					activeCreature.hint(o.tooltip, 'msg_effects');
 				}
-			}, 350);
+			}, this.replayMode === 'load' ? 0 : 350);
 		}
 	}
 
@@ -2148,7 +2166,7 @@ export default class Game {
 			}
 
 			o.callback.apply();
-		}, 1000);
+		}, this.replayMode === 'load' ? 0 : 1000);
 
 		const skipTurn = new Date(),
 			p = this.activeCreature.player;
@@ -2910,6 +2928,7 @@ export default class Game {
 		this.bloodCount = 0;
 		this.freezedInput = false;
 		this.isReplayInProgress = false;
+		this.replayMode = null;
 		this.turnThrottle = false;
 		this.turn = 0;
 
@@ -2949,13 +2968,14 @@ export default class Game {
 		log.custom.configData = this.configData;
 	}
 
-	onLogLoad(log) {
+	onLogLoad(log, mode: ReplayMode = 'play') {
 		if (this.gameState !== 'initialized') {
 			alert('Can only load game from configuration menu.');
 			return;
 		}
 
 		this.isReplayInProgress = true;
+		this.replayMode = mode;
 
 		const actions = [...log.actions];
 		const numTotalActions = actions.length;
@@ -3010,8 +3030,10 @@ export default class Game {
 		};
 
 		const nextAction = () => {
-			if (actions.length === 0) {
+			if (actions.length === 0 || this.gameState === 'ended') {
+				actions.length = 0;
 				this.isReplayInProgress = false;
+				this.replayMode = null;
 				// Replay finishes between turns for some logs; explicitly re-arm the
 				// active creature query to restore live input controls.
 				setTimeout(() => restoreInteractiveState(), 0);
@@ -3036,7 +3058,7 @@ export default class Game {
 			// stalls on the creature that just acted. Advancing the turn toward the
 			// recorded performer reproduces those silent hand-offs.
 			const performer = actions[0].performer as LogPerformer | undefined;
-			const performerWaitLimitMs = 5000;
+			const performerWaitLimitMs = mode === 'load' ? 30000 : 5000;
 			let performerWaitedMs = 0;
 			// One hand-off per turn change: nextCreature() schedules its own delayed
 			// advance, so requesting again before the new unit is installed would
@@ -3062,7 +3084,7 @@ export default class Game {
 					// board until its creature takes a turn — the unit is either still
 					// queued or was never rebuilt (an earlier action failed), and in
 					// the latter case waiting forever would stall the whole replay.
-					performerWaitedMs += 100;
+					performerWaitedMs += mode === 'load' ? 1 : 100;
 					if (performerWaitedMs > performerWaitLimitMs) {
 						clearInterval(interval);
 						console.warn(
@@ -3091,11 +3113,11 @@ export default class Game {
 				this.action(actions.shift(), {
 					callback: nextAction,
 				});
-			}, 100);
+			}, mode === 'load' ? 1 : 100);
 		};
 
 		this.startGameLoad(configData, undefined, undefined, () => {
-			setTimeout(() => nextAction(), 3000);
+			setTimeout(() => nextAction(), mode === 'load' ? 0 : 3000);
 		});
 	}
 }

@@ -62,9 +62,11 @@ export type LogPerformer = {
 	player: number;
 };
 
+export type ReplayMode = 'play' | 'load';
+
 export class GameLog {
 	onSave: (log: SerializableLog) => void;
-	onLoad: (log: SerializableLog) => void;
+	onLoad: (log: SerializableLog, mode: ReplayMode) => void;
 	/**
 	 * Fallback performer source used when {@link add} is called without one.
 	 * Games wire this to `activeCreature`; abilities pass their own creature
@@ -90,7 +92,7 @@ export class GameLog {
 		// eslint-disable-next-line @typescript-eslint/no-empty-function
 		onSave = (_log: SerializableLog) => {},
 		// eslint-disable-next-line @typescript-eslint/no-empty-function
-		onLoad = (_log: SerializableLog) => {},
+		onLoad = (_log: SerializableLog, _mode: ReplayMode) => {},
 		getActivePerformer?: () => LogPerformer | null,
 	) {
 		this.onSave = onSave;
@@ -120,7 +122,7 @@ export class GameLog {
 		this.actions.push(action);
 	}
 
-	load(logOrStr: string | SerializableLog) {
+	private read(logOrStr: string | SerializableLog, mode: ReplayMode) {
 		let log: SerializableLog;
 
 		if (typeof logOrStr === 'string') {
@@ -143,8 +145,18 @@ export class GameLog {
 
 		this.actions = [...log.actions];
 		this.loadedFromLog = true;
-		this.onLoad(log);
+		this.onLoad(log, mode);
 		return log;
+	}
+
+	/** Load a log directly to its final match state. */
+	load(logOrStr: string | SerializableLog) {
+		return this.read(logOrStr, 'load');
+	}
+
+	/** Play a log with the normal match animations and pacing. */
+	play(logOrStr: string | SerializableLog) {
+		return this.read(logOrStr, 'play');
 	}
 
 	stringify() {

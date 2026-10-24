@@ -1041,6 +1041,9 @@ export class Animations {
 		if (DEBUG_ENABLE_FAST_WALKING) {
 			speed = DEBUG_WALK_SPEED_MS;
 		}
+		if (game.replayMode === 'load') {
+			speed = 0;
+		}
 
 		// Afterimage units walk a fifth faster than their cardboard's
 		// own pace, matching the flight boost in fly().
@@ -1053,7 +1056,11 @@ export class Animations {
 		// ability granted them (a dash, a drag, a knockback). Skipped
 		// in a backgrounded tab, matching the walk itself, which
 		// collapses to instant there.
-		if ((creature.hasAfterimages || opts.afterimages) && !isDocumentHidden()) {
+		if (
+			(creature.hasAfterimages || opts.afterimages) &&
+			!isDocumentHidden() &&
+			game.replayMode !== 'load'
+		) {
 			spawnAfterimageTrail(game, creature, speed * path.length);
 		}
 
@@ -1156,16 +1163,23 @@ export class Animations {
 			? FLIGHT_SPEED_FACTOR / (1 + AFTERIMAGE_SPEED_BOOST)
 			: FLIGHT_SPEED_FACTOR;
 
-		const durationMS = !opts.overrideSpeed
-			? creature.animation.walk_speed * flightSpeedFactor * Math.max(distance, 1)
-			: opts.overrideSpeed;
+		const durationMS =
+			game.replayMode === 'load'
+				? 0
+				: !opts.overrideSpeed
+					? creature.animation.walk_speed * flightSpeedFactor * Math.max(distance, 1)
+					: opts.overrideSpeed;
 
 		// The afterimage trail samples the unit's live position across
 		// the crossing — the unit's own afterimages, or a move an
 		// ability granted them (a dash, a drag, a knockback).
 		// Skipped in a backgrounded tab, matching the flight
 		// tween itself, which collapses to instant there.
-		if ((creature.hasAfterimages || opts.afterimages) && !isDocumentHidden()) {
+		if (
+			(creature.hasAfterimages || opts.afterimages) &&
+			!isDocumentHidden() &&
+			game.replayMode !== 'load'
+		) {
 			spawnAfterimageTrail(game, creature, durationMS);
 		}
 

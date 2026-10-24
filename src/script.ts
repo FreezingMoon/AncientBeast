@@ -21,6 +21,7 @@ import {
 } from './debug';
 import { getDevvitAppVersion, getGameVersion } from './utility/clientVersion';
 import { prefetchPhaser } from './phaser/runtime';
+import type { ReplayMode } from './utility/gamelog';
 
 if (DEBUG && 'serviceWorker' in navigator) {
 	navigator.serviceWorker
@@ -49,6 +50,7 @@ AB.currentGame = G;
 AB.getLog = () => AB.currentGame.gamelog.stringify();
 AB.saveLog = () => AB.currentGame.gamelog.save();
 AB.restoreGame = (str) => AB.currentGame.gamelog.load(str);
+AB.playGame = (str) => AB.currentGame.gamelog.play(str);
 window.AB = AB;
 // Load the abilities
 // `import.meta.glob` is required here: a fully dynamic `import()` specifier has
@@ -423,15 +425,28 @@ $j(() => {
 		},
 		KeyL: {
 			keyDownTest(event) {
-				return event.metaKey && event.ctrlKey;
+				return (
+					!isTyping(event) &&
+					(event.ctrlKey || event.metaKey) &&
+					!event.shiftKey &&
+					!event.altKey
+				);
 			},
 			keyDownAction() {
-				readLogFromFile()
-					.then((log) => G.gamelog.load(log as string))
-					.catch((err) => {
-						alert('An error occurred while loading the log file');
-						console.log(err);
-					});
+				openReplayFile('load');
+			},
+		},
+		KeyP: {
+			keyDownTest(event) {
+				return (
+					!isTyping(event) &&
+					(event.ctrlKey || event.metaKey) &&
+					!event.shiftKey &&
+					!event.altKey
+				);
+			},
+			keyDownAction() {
+				openReplayFile('play');
 			},
 		},
 		Digit1: {
@@ -713,7 +728,7 @@ $j(() => {
 	};
 
 	const restoreGameLog = (log) => {
-		G.gamelog.load(log);
+		G.gamelog.play(log);
 	};
 
 	const storeLastMatchLog = () => {
@@ -1261,7 +1276,11 @@ function readLogFromFile() {
 		fileInput.type = 'file';
 
 		fileInput.onchange = (event) => {
-			const file = (event.target as HTMLInputElement).files[0];
+			const file = (event.target as HTMLInputElement).files?.[0];
+			if (!file) {
+				reject(new Error('No game log file selected'));
+				return;
+			}
 			const reader = new FileReader();
 
 			reader.readAsText(file);
@@ -1277,6 +1296,24 @@ function readLogFromFile() {
 
 		fileInput.click();
 	});
+}
+
+function openReplayFile(mode: ReplayMode) {
+	readLogFromFile()
+		.then((log) => {
+			if (mode === 'load') {
+				G.gamelog.load(log as string);
+			} else {
+				G.gamelog.play(log as string);
+			}
+		})
+		.catch((err) => {
+			if (err instanceof Error && err.message === 'No game log file selected') {
+				return;
+			}
+			alert('An error occurred while loading the log file');
+			console.error(err);
+		});
 }
 
 /**
