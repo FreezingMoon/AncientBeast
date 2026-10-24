@@ -92,6 +92,7 @@
 					.join('\n');
 			%>
 			<%= require('./templates/scoreboard.html').default %>
+			<%= require('./templates/hotkeys.html').default %>
 			<%= require('./templates/dashboard.html').default.replace(/__CARD_MARGIN__/g, cardMargin) %>
 			<%= require('./templates/musicplayer.html').default.replace('__MUSIC_GENRES__', musicGenresMarkup).replace('__MUSIC_PLAYLIST__', musicPlaylistMarkup) %>
 			<%= require('./templates/interface.html').default %>

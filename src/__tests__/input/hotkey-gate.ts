@@ -61,6 +61,7 @@ describe('isUtilityHotkey', () => {
 			key('KeyD', shift),
 			key('Backquote'),
 			key('Backspace'),
+			key('Slash'),
 			key('KeyX', { shiftKey: true, ctrlKey: true }),
 			key('KeyP', { metaKey: true, altKey: true }),
 		]) {

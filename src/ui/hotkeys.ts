@@ -294,6 +294,10 @@ export class Hotkeys {
 		this.ui.fullscreen.toggle();
 	}
 
+	pressSlash() {
+		this.ui.toggleHotkeysScreen();
+	}
+
 	pressSpace(event: KeyboardEvent) {
 		// Browsers repeat `keydown` while a key is held, and again after any
 		// cooldown expires, so a single held Spacebar would otherwise confirm
@@ -488,6 +492,11 @@ export function getHotKeys(hk) {
 		Backspace: {
 			onkeydown() {
 				hk.pressBackspace();
+			},
+		},
+		Slash: {
+			onkeydown() {
+				hk.pressSlash();
 			},
 		},
 	};
