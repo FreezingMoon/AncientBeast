@@ -911,6 +911,17 @@ $j(() => {
 			$joinButton.val("Can't Join");
 			$joinButton.prop('disabled', true);
 			$joinButton.toggleClass('disabled', true);
+
+			const errorMessage = error instanceof Error ? error.message : String(error);
+			const $lobbyError = $j('#lobbyError');
+			$lobbyError.text(errorMessage).removeClass('hide');
+			window.setTimeout(() => {
+				$lobbyError.addClass('hide').text('');
+				$joinButton.val('Join Match');
+				$joinButton.prop('disabled', false);
+				$joinButton.toggleClass('disabled', false);
+				updateLobbyUi();
+			}, 10000);
 		}
 
 		return false;

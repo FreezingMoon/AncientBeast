@@ -315,6 +315,19 @@ body {
 			}
 		}
 	}
+	.lobby-error {
+		color: #ff6b6b;
+		font-size: 0.9rem;
+		text-align: center;
+		margin-top: 8px;
+		min-height: 1.2em;
+		transition: opacity 0.3s ease;
+
+		&.hide {
+			opacity: 0;
+			pointer-events: none;
+		}
+	}
 .avatar {
 	background-image: url('assets/units/avatars/Dark Priest player red.jpg');
 	height: 75px;

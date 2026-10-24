@@ -508,7 +508,7 @@ export class PeerLobbyProvider implements INetworkBackend {
 				this.pendingJoinResolve = undefined;
 				this.pendingJoinReject = undefined;
 				reject(new Error('Timed out waiting for lobby host'));
-			}, 3000);
+			}, 10000);
 
 			this.pendingJoinResolve = (session) => {
 				window.clearTimeout(timeout);

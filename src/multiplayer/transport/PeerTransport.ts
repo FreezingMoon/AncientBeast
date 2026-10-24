@@ -44,7 +44,9 @@ export class PeerTransport implements ITransport {
 		}
 
 		const Peer = (await import('peerjs')).default;
-		this.peer = new Peer(localPeerId);
+		this.peer = new Peer(localPeerId, {
+			debug: process.env.NODE_ENV === 'development' ? 3 : 0,
+		});
 
 		// Log PeerJS connection state changes for diagnostics
 		this.peer.on('disconnected', () => {
@@ -63,7 +65,7 @@ export class PeerTransport implements ITransport {
 		return new Promise((resolve, reject) => {
 			const timeout = window.setTimeout(() => {
 				reject(new Error('Timed out connecting to multiplayer lobby'));
-			}, 3000);
+			}, 10000);
 
 			let connectionReady: Promise<void> | null = null;
 
