@@ -3,6 +3,10 @@
     "devvit": {
       "command": "npx",
       "args": ["-y", "@devvit/mcp"]
+    },
+    "phaser": {
+      "command": "npx",
+      "args": ["-y", "@phaserjs/game-agent"]
     }
   }
 }
