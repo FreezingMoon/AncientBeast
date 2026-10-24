@@ -475,10 +475,15 @@ export default (G: Game) => {
 				if (args.direction === Direction.Left) {
 					nutcaseDestination =
 						nutcaseDestination &&
-						G.grid.hexes[nutcaseDestination.y][nutcaseDestination.x + nutcase.size - 1];
+						G.grid.hexes[nutcaseDestination.y]?.[nutcaseDestination.x + nutcase.size - 1];
 					targetDestination =
 						targetDestination &&
-						G.grid.hexes[targetDestination.y][targetDestination.x + target.size - 1];
+						G.grid.hexes[targetDestination.y]?.[targetDestination.x + target.size - 1];
+				}
+
+				if (!nutcaseDestination) {
+					console.warn('[Nutcase] No valid nutcase destination for push');
+					return;
 				}
 
 				this._pushMove(nutcaseDestination, target, targetDestination);
@@ -493,6 +498,11 @@ export default (G: Game) => {
 			 */
 			_pushMove(nutcaseDestination, target, targetDestination) {
 				const nutcase = this.creature;
+
+				if (!nutcaseDestination) {
+					console.warn('[Nutcase] No valid destination for push, aborting');
+					return;
+				}
 
 				/* Regardless of the outcome, we want to restore the player's UI and control
 				when all movement is complete. */
