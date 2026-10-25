@@ -426,10 +426,7 @@ $j(() => {
 		KeyL: {
 			keyDownTest(event) {
 				return (
-					!isTyping(event) &&
-					(event.ctrlKey || event.metaKey) &&
-					!event.shiftKey &&
-					!event.altKey
+					!isTyping(event) && (event.ctrlKey || event.metaKey) && !event.shiftKey && !event.altKey
 				);
 			},
 			keyDownAction() {
@@ -439,10 +436,7 @@ $j(() => {
 		KeyP: {
 			keyDownTest(event) {
 				return (
-					!isTyping(event) &&
-					(event.ctrlKey || event.metaKey) &&
-					!event.shiftKey &&
-					!event.altKey
+					!isTyping(event) && (event.ctrlKey || event.metaKey) && !event.shiftKey && !event.altKey
 				);
 			},
 			keyDownAction() {

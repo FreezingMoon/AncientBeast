@@ -1167,8 +1167,8 @@ export class Animations {
 			game.replayMode === 'load'
 				? 0
 				: !opts.overrideSpeed
-					? creature.animation.walk_speed * flightSpeedFactor * Math.max(distance, 1)
-					: opts.overrideSpeed;
+				? creature.animation.walk_speed * flightSpeedFactor * Math.max(distance, 1)
+				: opts.overrideSpeed;
 
 		// The afterimage trail samples the unit's live position across
 		// the crossing — the unit's own afterimages, or a move an

@@ -769,12 +769,15 @@ export class Ability {
 			}
 		}
 
-		const interval = setInterval(() => {
-			if (!game.freezedInput) {
-				clearInterval(interval);
-				opt.callback();
-			}
-		}, game.replayMode === 'load' ? 1 : 100);
+		const interval = setInterval(
+			() => {
+				if (!game.freezedInput) {
+					clearInterval(interval);
+					opt.callback();
+				}
+			},
+			game.replayMode === 'load' ? 1 : 100,
+		);
 	}
 
 	/**

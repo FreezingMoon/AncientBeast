@@ -2076,16 +2076,19 @@ export default class Game {
 		this.UI.btnSkipTurn.changeState('disabled');
 		this.UI.btnDelay.changeState('disabled');
 
-		setTimeout(() => {
-			this.turnThrottle = false;
-			this.UI.btnSkipTurn.changeState('normal');
+		setTimeout(
+			() => {
+				this.turnThrottle = false;
+				this.UI.btnSkipTurn.changeState('normal');
 
-			if (this.activeCreature?.canWait && this.queue.queue.length > 1) {
-				this.UI.btnDelay.changeState('normal');
-			}
+				if (this.activeCreature?.canWait && this.queue.queue.length > 1) {
+					this.UI.btnDelay.changeState('normal');
+				}
 
-			o.callback.apply();
-		}, this.replayMode === 'load' ? 0 : 1000);
+				o.callback.apply();
+			},
+			this.replayMode === 'load' ? 0 : 1000,
+		);
 
 		if (this.activeCreature) {
 			this.activeCreature.facePlayerDefault();
@@ -2107,11 +2110,14 @@ export default class Game {
 			const activeCreature = this.activeCreature;
 			this.nextCreature(remote);
 
-			setTimeout(() => {
-				if (!o.noTooltip) {
-					activeCreature.hint(o.tooltip, 'msg_effects');
-				}
-			}, this.replayMode === 'load' ? 0 : 350);
+			setTimeout(
+				() => {
+					if (!o.noTooltip) {
+						activeCreature.hint(o.tooltip, 'msg_effects');
+					}
+				},
+				this.replayMode === 'load' ? 0 : 350,
+			);
 		}
 	}
 
@@ -2158,15 +2164,18 @@ export default class Game {
 		this.UI.btnSkipTurn.changeState('disabled');
 		this.UI.btnDelay.changeState('disabled');
 
-		setTimeout(() => {
-			this.turnThrottle = false;
-			this.UI.btnSkipTurn.changeState('normal');
-			if (this.activeCreature?.canWait && !this.queue.isCurrentEmpty()) {
-				this.UI.btnDelay.changeState('slideIn');
-			}
+		setTimeout(
+			() => {
+				this.turnThrottle = false;
+				this.UI.btnSkipTurn.changeState('normal');
+				if (this.activeCreature?.canWait && !this.queue.isCurrentEmpty()) {
+					this.UI.btnDelay.changeState('slideIn');
+				}
 
-			o.callback.apply();
-		}, this.replayMode === 'load' ? 0 : 1000);
+				o.callback.apply();
+			},
+			this.replayMode === 'load' ? 0 : 1000,
+		);
 
 		const skipTurn = new Date(),
 			p = this.activeCreature.player;
@@ -3066,54 +3075,57 @@ export default class Game {
 			let turnHandOffPending = false;
 			let lastSeenCreature: Creature | undefined = this.activeCreature;
 
-			const interval = setInterval(() => {
-				if (this.freezedInput || this.turnThrottle) {
-					return;
-				}
-
-				const activeCreature = this.activeCreature;
-				if (activeCreature !== lastSeenCreature) {
-					// The turn moved on, so a further hand-off may be requested.
-					lastSeenCreature = activeCreature;
-					turnHandOffPending = false;
-				}
-
-				if (performer && !performerMatches(performer, this.activeCreature)) {
-					// Logs written before the performer field existed have no performer
-					// to match and fall through as before. When one exists, advance the
-					// board until its creature takes a turn — the unit is either still
-					// queued or was never rebuilt (an earlier action failed), and in
-					// the latter case waiting forever would stall the whole replay.
-					performerWaitedMs += mode === 'load' ? 1 : 100;
-					if (performerWaitedMs > performerWaitLimitMs) {
-						clearInterval(interval);
-						console.warn(
-							'[Replay] Dropping action whose creature never became active.',
-							actions[0],
-						);
-						actions.shift();
-						nextAction();
+			const interval = setInterval(
+				() => {
+					if (this.freezedInput || this.turnThrottle) {
 						return;
 					}
 
-					if (!turnHandOffPending && this.activeCreature) {
-						turnHandOffPending = true;
-						// Consume the acting creature's turn exactly as skipTurn() does.
-						// Without deactivate('turn-end') the unit stays at the front of
-						// the queue, so nextCreature() would only re-activate it and the
-						// board would never move on to the recorded performer.
-						this.activeCreature.deactivate('turn-end');
-						this.nextCreature();
+					const activeCreature = this.activeCreature;
+					if (activeCreature !== lastSeenCreature) {
+						// The turn moved on, so a further hand-off may be requested.
+						lastSeenCreature = activeCreature;
+						turnHandOffPending = false;
 					}
-					return;
-				}
 
-				clearInterval(interval);
-				this.activeCreature?.queryMove();
-				this.action(actions.shift(), {
-					callback: nextAction,
-				});
-			}, mode === 'load' ? 1 : 100);
+					if (performer && !performerMatches(performer, this.activeCreature)) {
+						// Logs written before the performer field existed have no performer
+						// to match and fall through as before. When one exists, advance the
+						// board until its creature takes a turn — the unit is either still
+						// queued or was never rebuilt (an earlier action failed), and in
+						// the latter case waiting forever would stall the whole replay.
+						performerWaitedMs += mode === 'load' ? 1 : 100;
+						if (performerWaitedMs > performerWaitLimitMs) {
+							clearInterval(interval);
+							console.warn(
+								'[Replay] Dropping action whose creature never became active.',
+								actions[0],
+							);
+							actions.shift();
+							nextAction();
+							return;
+						}
+
+						if (!turnHandOffPending && this.activeCreature) {
+							turnHandOffPending = true;
+							// Consume the acting creature's turn exactly as skipTurn() does.
+							// Without deactivate('turn-end') the unit stays at the front of
+							// the queue, so nextCreature() would only re-activate it and the
+							// board would never move on to the recorded performer.
+							this.activeCreature.deactivate('turn-end');
+							this.nextCreature();
+						}
+						return;
+					}
+
+					clearInterval(interval);
+					this.activeCreature?.queryMove();
+					this.action(actions.shift(), {
+						callback: nextAction,
+					});
+				},
+				mode === 'load' ? 1 : 100,
+			);
 		};
 
 		this.startGameLoad(configData, undefined, undefined, () => {
