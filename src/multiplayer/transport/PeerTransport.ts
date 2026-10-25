@@ -83,7 +83,10 @@ export class PeerTransport implements ITransport {
 			);
 		}
 
-		console.log('[PeerTransport] ICE servers configured:', iceServers.map(s => typeof s.urls === 'string' ? s.urls : s.urls.join(',')));
+		console.log(
+			'[PeerTransport] ICE servers configured:',
+			iceServers.map((s) => (typeof s.urls === 'string' ? s.urls : s.urls.join(','))),
+		);
 		return iceServers;
 	}
 
@@ -127,15 +130,6 @@ export class PeerTransport implements ITransport {
 
 		this.peer.on('close', () => {
 			console.warn('[PeerTransport] Peer connection closed permanently.');
-		});
-
-		// Log ICE connection state for debugging NAT traversal
-		this.peer.on('iceStateChanged', (state) => {
-			console.log('[PeerTransport] ICE state:', state);
-		});
-
-		this.peer.on('iceCandidates', (candidates) => {
-			console.log('[PeerTransport] ICE candidates:', candidates.map(c => `${c.type} ${c.protocol} ${c.address}:${c.port}`));
 		});
 
 		return new Promise((resolve, reject) => {
@@ -360,6 +354,11 @@ export class PeerTransport implements ITransport {
 		);
 
 		this.connections.set(connection.peer, connection);
+
+		// Log ICE connection state for debugging NAT traversal
+		connection.on('iceStateChanged', (state) => {
+			console.log('[PeerTransport] ICE state for', connection.peer, ':', state);
+		});
 
 		// Clear any pending reconnect timer for this peer
 		const reconnectTimer = this._reconnectTimers.get(connection.peer);
