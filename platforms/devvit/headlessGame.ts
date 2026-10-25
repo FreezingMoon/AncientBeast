@@ -338,6 +338,7 @@ export async function createHeadlessGame(
 		}
 		return handle;
 	}) as typeof setTimeout;
+	game.gameState = 'loaded';
 	try {
 		game.setup(config.gameMode);
 	} finally {

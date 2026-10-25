@@ -237,7 +237,7 @@ export async function createGame(abilities: Array<(G: any) => void>): Promise<an
 	(game as any).loadUnitData(unitData);
 
 	// Call setup bypassing loadGame
-	game.gameState = 'loading';
+	game.gameState = 'loaded';
 
 	// setup() is synchronous and no longer calls matchInit()
 	game.setup(2);

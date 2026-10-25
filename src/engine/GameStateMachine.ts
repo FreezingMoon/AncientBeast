@@ -7,7 +7,7 @@ export function isGameState(value: unknown): value is GameState {
 }
 
 const TRANSITIONS: Record<GameState, readonly GameState[]> = {
-	initialized: ['loading'],
+	initialized: ['loading', 'loaded'],
 	loading: ['initialized', 'loaded', 'ended'],
 	loaded: ['initialized', 'playing', 'ended'],
 	playing: ['initialized', 'ended'],
