@@ -21,6 +21,7 @@ export class PeerTransport implements ITransport {
 	private hostPeerId?: string;
 	private disconnected = false;
 	private _reconnectTimers = new Map<PeerId, number>();
+	private _connectionOpenResolver: (() => void) | null = null;
 	private static readonly RECONNECT_TIMEOUT_MS = 10000;
 
 	async connect(lobbyId: string, options: TransportConnectOptions = {}): Promise<void> {
@@ -99,9 +100,12 @@ export class PeerTransport implements ITransport {
 				this.myPeerId = id;
 
 				if (!this.isHost) {
-					const connection = this.openConnection(hostPeerId);
+					this.openConnection(hostPeerId);
 					connectionReady = new Promise((resolveConnection) => {
-						connection.on('open', () => resolveConnection());
+						this._connectionOpenResolver = () => {
+							this._connectionOpenResolver = null;
+							resolveConnection();
+						};
 					});
 				}
 
@@ -303,6 +307,12 @@ export class PeerTransport implements ITransport {
 
 			if (this.isHost) {
 				this.peerJoinHandlers.forEach((handler) => handler(connection.peer));
+			}
+
+			if (!this.isHost && connection.peer === this.hostPeerId && this._connectionOpenResolver) {
+				const resolver = this._connectionOpenResolver;
+				this._connectionOpenResolver = null;
+				resolver();
 			}
 		};
 
