@@ -183,10 +183,11 @@ type Status = {
 	dizzy: boolean;
 };
 
+export type CreatureDeathAnimationType = 'shatterDown' | 'melt' | 'disintegrate';
+
 type CreatureRuntimeFlags = {
 	hideFromQueue?: boolean;
 	hideFromCreatureCount?: boolean;
-	deathAnimationType?: string;
 };
 
 /**
@@ -243,6 +244,7 @@ export class Creature {
 	animation: { walk_speed: number };
 	display: UnitDisplayInfo;
 	drop: DropDefinition;
+	deathAnimationType?: CreatureDeathAnimationType;
 	_movementType: Movement;
 	/** Set from the unit's `afterimages` flag in `data/units.ts`. */
 	private _afterimages = false;
@@ -2506,7 +2508,7 @@ export class Creature {
 			}
 		}
 
-		const customDeathAnimation = (this as CreatureRuntimeFlags).deathAnimationType;
+		const customDeathAnimation = this.deathAnimationType;
 		// Release the hints before the animation swings the cardboard
 		// group: every death animation arcs, rotates and fades the whole
 		// group, and the hints about this unit are children of it, so
@@ -2514,6 +2516,10 @@ export class Creature {
 		this.creatureSprite.releaseHints();
 		if (customDeathAnimation === 'shatterDown') {
 			game.animations.shatterDown(this, opts);
+		} else if (customDeathAnimation === 'disintegrate') {
+			this.healthHide();
+			this.sprite.alpha = 0;
+			opts.callback();
 		} else if (customDeathAnimation === 'melt') {
 			game.animations.melt(this, opts);
 		} else {

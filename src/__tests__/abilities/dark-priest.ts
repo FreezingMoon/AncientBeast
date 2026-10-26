@@ -21,7 +21,13 @@ jest.mock('../../creature', () => ({
 	},
 }));
 
+jest.mock('../../vfx/disruptor', () => ({
+	spawnDisruptorBeam: jest.fn(),
+}));
+
 import loadDarkPriestAbilities from '../../abilities/Dark-Priest';
+import { spawnDisruptorBeam } from '../../vfx/disruptor';
+import type { CreatureDeathAnimationType } from '../../creature';
 
 (globalThis as { Phaser?: unknown }).Phaser = {};
 
@@ -269,5 +275,104 @@ describe('Dark Priest Plasma Field reactions', () => {
 
 		expect(runHits(2, 2)).toEqual({ plasma: 0, counters: 2 });
 		expect(runHits(1, 2)).toEqual({ plasma: 0, counters: 1 });
+	});
+});
+
+describe('Dark Priest Disruptor Beam activation', () => {
+	test('defers impact and turn input until the scan is complete', () => {
+		let finishScan: (() => void) | undefined;
+		jest
+			.mocked(spawnDisruptorBeam)
+			.mockImplementation((_game, _caster, _target, _disintegrate, onComplete) => {
+				finishScan = onComplete;
+			});
+
+		const queryMove = jest.fn();
+		const caster = { player: { plasma: 3 } };
+		const target = {
+			size: 1,
+			baseStats: { health: 100 },
+			health: 70,
+			dead: false,
+			deathAnimationType: 'melt' as const,
+			takeDamage: jest.fn(),
+		};
+		const game = {
+			abilities: {} as Record<number, unknown[]>,
+			activeCreature: { queryMove },
+		};
+		globalThis.G = game as never;
+		loadDarkPriestAbilities(game as never);
+
+		const baseAbility = game.abilities[0][2] as {
+			activate: (target: unknown) => void;
+		};
+		const end = jest.fn();
+		const ability = {
+			...baseAbility,
+			creature: caster,
+			end,
+			isUpgraded: () => false,
+		};
+		ability.activate.call(ability, target);
+
+		expect(end).toHaveBeenCalledWith(false, true);
+		expect(spawnDisruptorBeam).toHaveBeenCalledWith(
+			game,
+			caster,
+			target,
+			false,
+			expect.any(Function),
+		);
+		expect(target.takeDamage).not.toHaveBeenCalled();
+		expect(queryMove).not.toHaveBeenCalled();
+
+		finishScan?.();
+
+		expect(target.takeDamage).toHaveBeenCalledTimes(1);
+		expect(target.deathAnimationType).toBe('melt');
+		expect(queryMove).toHaveBeenCalledTimes(1);
+	});
+
+	test('marks fatal beam damage for the disintegration death animation', () => {
+		let finishScan: (() => void) | undefined;
+		jest
+			.mocked(spawnDisruptorBeam)
+			.mockImplementation((_game, _caster, _target, _disintegrate, onComplete) => {
+				finishScan = onComplete;
+			});
+
+		const caster = { player: { plasma: 3 } };
+		const target = {
+			size: 1,
+			baseStats: { health: 100 },
+			health: 30,
+			dead: false,
+			deathAnimationType: undefined as CreatureDeathAnimationType | undefined,
+			takeDamage: jest.fn(),
+		};
+		target.takeDamage.mockImplementation(() => {
+			target.dead = true;
+		});
+		const game = {
+			abilities: {} as Record<number, unknown[]>,
+			activeCreature: { queryMove: jest.fn() },
+		};
+		globalThis.G = game as never;
+		loadDarkPriestAbilities(game as never);
+
+		const baseAbility = game.abilities[0][2] as {
+			activate: (target: unknown) => void;
+		};
+		const ability = {
+			...baseAbility,
+			creature: caster,
+			end: jest.fn(),
+			isUpgraded: () => false,
+		};
+		ability.activate.call(ability, target);
+		finishScan?.();
+
+		expect(target.deathAnimationType).toBe('disintegrate');
 	});
 });
