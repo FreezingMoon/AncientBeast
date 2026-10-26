@@ -529,6 +529,7 @@ describe('Game multiplayer turn ownership guard', () => {
 	const makeSkipDelayMockGame = (overrides: Record<string, unknown> = {}): Game =>
 		({
 			isOtherPlayersTurn: Game.prototype['isOtherPlayersTurn' as keyof Game],
+			isTurnActionUnavailable: Game.prototype['isTurnActionUnavailable' as keyof Game],
 			multiplayer: true,
 			turnThrottle: false,
 			pauseTime: 0,
@@ -590,6 +591,31 @@ describe('Game multiplayer turn ownership guard', () => {
 		expect(game.lobby.sendAction as jest.Mock).toHaveBeenCalledWith(
 			expect.objectContaining({ type: 'action-end', action: 'skip' }),
 		);
+	});
+
+	test('skipTurn completion keeps controls disabled when the next turn is remote', () => {
+		const isMyTurn = jest.fn().mockReturnValueOnce(true).mockReturnValue(false);
+		const game = makeSkipDelayMockGame({
+			activeCreature: {
+				player: { controller: 'human', id: 0, startTime: new Date() },
+				canWait: true,
+				id: 1,
+				facePlayerDefault: jest.fn(),
+				deactivate: jest.fn(),
+			},
+			lobby: {
+				isMyTurn,
+				getLocalPlayer: jest.fn(() => ({ playerId: 'p1', playerIndex: 0 })),
+				sendAction: jest.fn(),
+			},
+			nextCreature: jest.fn(),
+		});
+
+		Game.prototype.skipTurn.call(game, { noTooltip: true });
+		jest.advanceTimersByTime(1000);
+
+		expect(game.UI.btnSkipTurn.changeState as jest.Mock).toHaveBeenLastCalledWith('disabled');
+		expect(game.UI.btnDelay.changeState as jest.Mock).toHaveBeenLastCalledWith('disabled');
 	});
 
 	test('skipTurn is not blocked for a bot-controlled creature even if isMyTurn is false', () => {
@@ -658,6 +684,30 @@ describe('Game multiplayer turn ownership guard', () => {
 		expect(game.lobby.sendAction as jest.Mock).toHaveBeenCalledWith(
 			expect.objectContaining({ type: 'action-end', action: 'delay' }),
 		);
+	});
+
+	test('delayCreature completion keeps controls disabled when the next turn is remote', () => {
+		const isMyTurn = jest.fn().mockReturnValueOnce(true).mockReturnValue(false);
+		const game = makeSkipDelayMockGame({
+			activeCreature: {
+				player: { controller: 'human', id: 0, startTime: new Date() },
+				canWait: true,
+				id: 1,
+				wait: jest.fn(),
+			},
+			lobby: {
+				isMyTurn,
+				getLocalPlayer: jest.fn(() => ({ playerId: 'p1', playerIndex: 0 })),
+				sendAction: jest.fn(),
+			},
+			nextCreature: jest.fn(),
+		});
+
+		Game.prototype.delayCreature.call(game);
+		jest.advanceTimersByTime(1000);
+
+		expect(game.UI.btnSkipTurn.changeState as jest.Mock).toHaveBeenLastCalledWith('disabled');
+		expect(game.UI.btnDelay.changeState as jest.Mock).toHaveBeenLastCalledWith('disabled');
 	});
 });
 

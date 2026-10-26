@@ -62,6 +62,15 @@ const ABILITY_COST_FLASH_MS = 1000;
 /** Fade in/out duration of that cost preview. */
 const ABILITY_COST_FADE_MS = 250;
 
+export function areTurnActionButtonsDisabled(game: Game): boolean {
+	const activePlayer = game.activeCreature?.player;
+	return (
+		!activePlayer ||
+		activePlayer.controller !== 'human' ||
+		Boolean(game.multiplayer && game.lobby && !game.lobby.isMyTurn())
+	);
+}
+
 type ConfirmUnloadState = {
 	ignoreNextConfirmUnload: boolean;
 };
@@ -3768,6 +3777,12 @@ const tableMeta = [
 		const game = this.game,
 			creature = game.activeCreature,
 			$abilitiesButtons = $j('#abilities .ability');
+		const turnActionButtonsDisabled = areTurnActionButtonsDisabled(game);
+
+		if (turnActionButtonsDisabled) {
+			this.btnSkipTurn.changeState(ButtonStateEnum.disabled);
+			this.btnDelay.changeState(ButtonStateEnum.disabled);
+		}
 
 		const localPlayer = game.lobby?.getLocalPlayer();
 		this.active = !game.multiplayer || !game.lobby || !localPlayer || game.lobby.isMyTurn();
@@ -3798,6 +3813,10 @@ const tableMeta = [
 		// Must be called with panel-stacked already active so all data/state changes
 		// happen while slot transitions are disabled — no visual flash before the unfold.
 		const applyDataAndUnfold = () => {
+			if (game.activeCreature !== creature) {
+				return;
+			}
+
 			$abilities.removeClass('p0 p1 p2 p3').addClass('p' + creature.player.id);
 
 			// A cost flash from the outgoing turn must not survive the swap.
@@ -3805,7 +3824,9 @@ const tableMeta = [
 			this.energyBar.setSize(creature.oldEnergy / creature.stats.energy);
 			this.healthBar.setSize(creature.oldHealth / creature.stats.health);
 
-			this.btnSkipTurn.changeState(ButtonStateEnum.normal);
+			this.btnSkipTurn.changeState(
+				areTurnActionButtonsDisabled(game) ? ButtonStateEnum.disabled : ButtonStateEnum.normal,
+			);
 			this.btnFullscreen.changeState(ButtonStateEnum.normal);
 
 			// Snap all elements to the overlapping stacked position (disables slot transitions).
@@ -3827,11 +3848,20 @@ const tableMeta = [
 
 			// After the slowest slot transition completes (250ms unfold), trigger side-panel button slide-ins
 			setTimeout(() => {
+				if (game.activeCreature !== creature) {
+					return;
+				}
+
 				this._abilityPanelAnimating = false;
-				this.btnSkipTurn.changeState(ButtonStateEnum.slideIn);
+				const turnActionButtonsDisabled = areTurnActionButtonsDisabled(game);
+				this.btnSkipTurn.changeState(
+					turnActionButtonsDisabled ? ButtonStateEnum.disabled : ButtonStateEnum.slideIn,
+				);
 				this.btnFullscreen.changeState(ButtonStateEnum.slideIn);
 				if (creature.canWait && game.queue.getCurrentQueueLength() > 1) {
-					this.btnDelay.changeState(ButtonStateEnum.slideIn);
+					this.btnDelay.changeState(
+						turnActionButtonsDisabled ? ButtonStateEnum.disabled : ButtonStateEnum.slideIn,
+					);
 				}
 				// Show skip/delay/abilities as not-allowed during bot turns
 				const isBotTurn = game.botController.isBotTurn();
@@ -4077,6 +4107,10 @@ const tableMeta = [
 			// movement animation had completed (e.g. Molten Hurl moving Infernal into
 			// range of a target that Pulverizing Hit can now reach).
 			game.activeCreature.noActionPossible = false;
+		}
+
+		if (areTurnActionButtonsDisabled(game)) {
+			this.btnSkipTurn.changeState(ButtonStateEnum.disabled);
 		}
 	}
 

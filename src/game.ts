@@ -2034,6 +2034,10 @@ export default class Game {
 		);
 	}
 
+	private isTurnActionUnavailable(): boolean {
+		return this.activeCreature?.player?.controller !== 'human' || this.isOtherPlayersTurn();
+	}
+
 	/**
 	 * End turn for the current unit
 	 */
@@ -2079,10 +2083,10 @@ export default class Game {
 		setTimeout(
 			() => {
 				this.turnThrottle = false;
-				this.UI.btnSkipTurn.changeState('normal');
+				this.UI.btnSkipTurn.changeState(this.isTurnActionUnavailable() ? 'disabled' : 'normal');
 
 				if (this.activeCreature?.canWait && this.queue.queue.length > 1) {
-					this.UI.btnDelay.changeState('normal');
+					this.UI.btnDelay.changeState(this.isTurnActionUnavailable() ? 'disabled' : 'normal');
 				}
 
 				o.callback.apply();
@@ -2167,9 +2171,9 @@ export default class Game {
 		setTimeout(
 			() => {
 				this.turnThrottle = false;
-				this.UI.btnSkipTurn.changeState('normal');
+				this.UI.btnSkipTurn.changeState(this.isTurnActionUnavailable() ? 'disabled' : 'normal');
 				if (this.activeCreature?.canWait && !this.queue.isCurrentEmpty()) {
-					this.UI.btnDelay.changeState('slideIn');
+					this.UI.btnDelay.changeState(this.isTurnActionUnavailable() ? 'disabled' : 'slideIn');
 				}
 
 				o.callback.apply();
