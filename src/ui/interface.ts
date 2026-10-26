@@ -1166,6 +1166,17 @@ export class UI {
 			this.closeScoreboard();
 		});
 
+		// Rebuild the scoreboard table when the viewport flips between phone
+		// landscape and desktop so the transposed layout follows the screen.
+		const rebuildScoreboardOnResize = () => {
+			if (this.$scoreboard.hasClass('hide')) {
+				return;
+			}
+			this.refreshScoreboard();
+		};
+		window.addEventListener('resize', rebuildScoreboardOnResize);
+		window.addEventListener('orientationchange', rebuildScoreboardOnResize);
+
 		// Hotkeys screen close button
 		$j('.togglehotkeys.close-button').on('click', () => {
 			this.closeHotkeysScreen();
@@ -2739,6 +2750,38 @@ export class UI {
 	renderScoreboard(gameOver, disconnectReason?: string) {
 		const game = this.game;
 
+		// Landscape phone: reshape the table so stats become columns with
+		// emoji-only headers (text as tooltips) and players become rows.
+		const isLandscapePhone = window.matchMedia(
+			'(orientation: landscape) and (max-height: 479px)',
+		).matches;
+		this.$scoreboard.toggleClass('scoreboard-landscape-phone', isLandscapePhone);
+
+		// On touch devices, hover doesn't fire, so tap the round buttons to
+		// toggle their tooltips. Delegated so it works for any button added
+		// later (save/restart/exit/flee).
+		this.$scoreboard.off('click.scoreboardTooltips').on(
+			'click.scoreboardTooltips',
+			'.scoreboardActions .button, .scoreboardActions #save, .scoreboardActions #restart, .scoreboardActions #exit',
+			function () {
+				const $desc = $j(this).next('.desc');
+				const isVisible = $desc.hasClass('tooltip-visible');
+				// Hide any other open tooltip first.
+				$j(this).closest('.scoreboardActions').find('.desc').not($desc).removeClass('tooltip-visible');
+				$desc.toggleClass('tooltip-visible', !isVisible);
+			},
+		);
+		this.$scoreboard.off('click.scoreEmojiTooltips').on(
+			'click.scoreEmojiTooltips',
+			'.score-emoji-tooltip-wrap',
+			function () {
+				const $tooltip = $j(this);
+				const isVisible = $tooltip.hasClass('tooltip-visible');
+				$tooltip.closest('tr').find('.score-emoji-tooltip-wrap').not($tooltip).removeClass('tooltip-visible');
+				$tooltip.toggleClass('tooltip-visible', !isVisible);
+			},
+		);
+
 		// Configure scoreboard data
 		if (disconnectReason) {
 			this.$scoreboard.find('#scoreboardTitle').text(disconnectReason);
@@ -2862,17 +2905,24 @@ export class UI {
 		// Write table for number players
 
 		// Clear table
-		const tableMeta = [
-			{
-				cls: 'player_name',
-				title: '',
-			},
-			{
-				cls: 'firstKill',
-				// node-emoji has no shortcode for the drop of blood, so it is inlined.
-				emoji: '🩸',
-				title: 'Blood',
-			},
+const tableMeta = [
+		// Bars row first: the per-player overview bars (plasma/health/energy
+		// etc). On the phone landscape this row is hidden - the emoji header
+		// row already shows the stat emojis and there's no room for bars.
+		{
+			cls: 'player_bars',
+		},
+		{
+			cls: 'player_name',
+			emoji: '&#x1F43A;',
+			title: 'Players',
+		},
+		{
+			cls: 'firstKill',
+			// node-emoji has no shortcode for the drop of blood, so it is inlined.
+			emoji: '🩸',
+			title: 'Blood',
+		},
 			{
 				cls: 'kill',
 				emoji: emoji.get('skull'),
@@ -2903,50 +2953,88 @@ export class UI {
 				emoji: emoji.get('cherries'),
 				title: 'Drops',
 			},
-			{
-				cls: 'timebonus',
-				emoji: emoji.get('alarm_clock'),
-				title: 'Time',
-			},
-			{
-				cls: 'creaturebonus',
-				emoji: emoji.get('chicken'),
-				title: 'Survivors',
-			},
-			{
-				cls: 'darkpriestbonus',
-				title: 'Survivor Dark Priest',
-			},
-			{
-				cls: 'immortal',
-				emoji: emoji.get('bat'),
-				title: 'Immortal',
-			},
-			{
-				cls: 'upgrade',
-				emoji: emoji.get('medal'),
-				title: 'Upgrades',
-			},
-			{
-				cls: 'total',
-				emoji: emoji.get('100'),
-				title: 'Total',
-			},
-		];
+{
+			cls: 'timebonus',
+			emoji: emoji.get('alarm_clock'),
+			title: 'Time',
+		},
+		{
+			cls: 'creaturebonus',
+			emoji: emoji.get('chicken'),
+			title: 'Survivors',
+		},
+		{
+			cls: 'immortal',
+			emoji: emoji.get('bat'),
+			title: 'Immortal',
+		},
+		{
+			cls: 'upgrade',
+			emoji: emoji.get('medal'),
+			title: 'Upgrades',
+		},
+		{
+			cls: 'total',
+			emoji: emoji.get('100'),
+			title: 'Total',
+		},
+	];
+
+		// Desktop vertical table: clear any leftover rows from a previous
+		// landscape layout before rebuilding, so both modes can't coexist
+		// after a resize.
+		if (!isLandscapePhone) {
+			$table.empty();
+		}
 
 		tableMeta.forEach((row) => {
-			let firstCellContent = `${row.title}`;
-			if (row.emoji) {
-				firstCellContent = `<span class="score-emoji-tooltip-wrap">${row.emoji}<span class="tooltiptext">${row.title}</span></span>`;
-			}
+			if (isLandscapePhone) {
+				// Transposed layout: header row = emojis, player rows = name + scores.
+				// The header row is the first row; player rows are appended below.
+				if (row.cls === 'player_name') {
+					// Wolf header: visible "Players" label with a tooltip for consistency.
+					const wolf = `<span class="score-emoji-tooltip-wrap"><span class="tooltiptext score-header-tooltip">Players</span>&#x1F43A;</span>`;
+					let headerRow = `<tr class="player_name"><td>${wolf}</td>`;
+					// Skip the bars row (index 0) and the player_name row itself
+					// (index 1) - only the stat rows get emoji cells.
+					tableMeta.slice(2).forEach((statRow) => {
+						const statEmoji = statRow.emoji
+							? `<span class="score-emoji-tooltip-wrap"><span class="tooltiptext score-header-tooltip">${statRow.title}</span>${statRow.emoji}</span>`
+							: '';
+						headerRow += `<td>${statEmoji}</td>`;
+					});
+					headerRow += '</tr>';
+					$table.empty().append(headerRow);
+				}
+				// Player rows are built in the fill loop below.
+			} else {
+				let $row = $table.find(`tr.${row.cls}`);
+				if ($row.length === 0) {
+					$row = $j('<tr class="' + row.cls + '"></tr>');
+					$table.append($row);
+				}
+				if (row.cls === 'player_bars') {
+					// Desktop only: the bars row holds the per-player overview
+					// bars (plasma/health/energy/etc). First cell empty.
+					$row.empty().html('<td class="score-title-cell"></td><td class="score-emoji-cell"></td>');
+					for (let i = 0; i < game.gameMode; i++) {
+						$row.append(`<td><div class="score-player-bars">${playerHeaderMeta[i].barsHtml}</div></td>`);
+					}
+				} else {
+					// Desktop: first cell = title, second cell = emoji, rest = player data.
+					const titleCell = row.title ? `<td class="score-title-cell">${row.title}</td>` : '<td class="score-title-cell"></td>';
+					const emojiCell = row.emoji ? `<td class="score-emoji-cell">${row.emoji}</td>` : '<td class="score-emoji-cell"></td>';
+					$row.empty().html(`${titleCell}${emojiCell}`);
 
-			$table.find(`tr.${row.cls}`).empty().html(`<td>
-			${firstCellContent}
-			</td>`);
-
-			// Add cells for each player
-			for (let i = 0; i < game.gameMode; i++) {
-				$table.find(`tr.${row.cls}`).append('<td>--</td>');
+					// Add cells for each player
+					for (let i = 0; i < game.gameMode; i++) {
+						if (row.cls === 'player_name') {
+							$row.append(`<td><div class="score-player-name" style="color:${playerHeaderMeta[i].color}">${playerHeaderMeta[i].playerLabel}</div></td>`);
+						} else {
+							$row.append('<td>--</td>');
+						}
+					}
+				}
 			}
 		});
 
@@ -2963,26 +3051,47 @@ export class UI {
 			}
 
 			//----------Display-----------//
-			const colId = game.gameMode > 2 ? i + 2 + ((i % 2) * 2 - 1) * Math.min(1, i % 3) : i + 2;
+			// Desktop rows now have 2 extra cells (title + emoji) before the
+			// player data, so the player column index shifts by 2 from the
+			// old `i + 2` base.
+			const colId = game.gameMode > 2 ? i + 3 + ((i % 2) * 2 - 1) * Math.min(1, i % 3) : i + 3;
 
-			$table
-				.children('tr.player_name')
-				.children('td:nth-child(' + colId + ')')
-				.html(
-					`<div class="score-player-header">` +
-						`<div class="score-player-bars">${playerHeaderMeta[i].barsHtml}</div>` +
-						`<div class="score-player-name" style="color:${playerHeaderMeta[i].color}">${playerHeaderMeta[i].playerLabel}</div>` +
-						`</div>`,
-				);
-
-			// Change score
-			$j.each(game.players[i].getScore(), function (index, val) {
-				const text = val === 0 && index !== 'total' ? '--' : val;
+			if (isLandscapePhone) {
+				// Build a player row: player name + one cell per stat.
+				const player = game.players[i];
+				const playerLabel = player.name || `Player${i + 1}`;
+				const playerColor = playerColors[i % playerColors.length];
+				let playerRow = `<tr class="player_row_${i}"><td style="color:${playerColor}">${playerLabel}</td>`;
+				// Skip the bars row (index 0) and the player_name row (index 1)
+				// - only the actual stat rows get score cells.
+				tableMeta.slice(2).forEach((statRow) => {
+					const val = player.getScore()[statRow.cls] ?? 0;
+					const text = val === 0 && statRow.cls !== 'total' ? '--' : val;
+					playerRow += `<td>${text}</td>`;
+				});
+				playerRow += '</tr>';
+				$table.append(playerRow);
+			} else {
 				$table
-					.children('tr.' + index)
-					.children('td:nth-child(' + colId + ')') // Weird expression swaps 2nd and 3rd player
-					.text(text);
-			});
+					.children('tr.player_name')
+					.children('td:nth-child(' + colId + ')')
+					.html(`<div class="score-player-name" style="color:${playerHeaderMeta[i].color}">${playerHeaderMeta[i].playerLabel}</div>`);
+
+				// Put the per-player overview bars in their own row.
+				$table
+					.children('tr.player_bars')
+					.children('td:nth-child(' + colId + ')')
+					.html(`<div class="score-player-bars">${playerHeaderMeta[i].barsHtml}</div>`);
+
+				// Change score
+				$j.each(game.players[i].getScore(), function (index, val) {
+					const text = val === 0 && index !== 'total' ? '--' : val;
+					$table
+						.children('tr.' + index)
+						.children('td:nth-child(' + colId + ')') // Weird expression swaps 2nd and 3rd player
+						.text(text);
+				});
+			}
 		}
 
 		if (gameOver) {
@@ -3111,6 +3220,23 @@ export class UI {
 		const game = this.game;
 		const $table = $j('#scoreboard table tbody');
 
+		// Rebuild the table if the current rows don't match the desired layout
+		// (e.g. switching phone landscape <-> desktop). On the phone the header
+		// row is `<tr class="player_name">`, so checking for player_name rows
+		// alone would not distinguish the two layouts; the transposed phone
+		// layout uses `<tr class="player_row_N">` rows instead.
+		const isLandscapePhone = window.matchMedia(
+			'(orientation: landscape) and (max-height: 479px)',
+		).matches;
+		const hasPlayerRows = $table.children('tr[class^="player_row_"]').length > 0;
+		const needsRebuild = isLandscapePhone ? !hasPlayerRows : hasPlayerRows;
+		if (needsRebuild) {
+			this.$scoreboard.toggleClass('scoreboard-landscape-phone', isLandscapePhone);
+			this.renderScoreboard(this.scoreboardGameOver, game.disconnectReason);
+			return;
+		}
+		this.$scoreboard.toggleClass('scoreboard-landscape-phone', isLandscapePhone);
+
 		if ($table.children('tr.player_name').children('td').length <= 1) {
 			this.renderScoreboard(this.scoreboardGameOver, game.disconnectReason);
 			return;
@@ -3120,6 +3246,20 @@ export class UI {
 		const scores = game.players.map((pl) => pl.getScore().total);
 		const maxScore = Math.max(...scores, 1);
 		const hasFiniteTimePool = game.timePool > 0;
+		const mobileScoreRows: Array<keyof ReturnType<(typeof game.players)[number]['getScore']>> = [
+			'firstKill',
+			'kill',
+			'combo',
+			'humiliation',
+			'annihilation',
+			'deny',
+			'pickupDrop',
+			'timebonus',
+			'creaturebonus',
+			'immortal',
+			'upgrade',
+			'total',
+		];
 
 		for (let i = 0; i < game.gameMode; i++) {
 			if (game.timePool > 0) {
@@ -3131,6 +3271,19 @@ export class UI {
 			}
 
 			const player = game.players[i];
+			if (isLandscapePhone) {
+				const score = player.getScore();
+				const $playerRow = $table.children('tr.player_row_' + i);
+				mobileScoreRows.forEach((row, index) => {
+					const value = score[row] ?? 0;
+					$playerRow
+						.children('td')
+						.eq(index + 1)
+						.text(value === 0 && row !== 'total' ? '--' : value);
+				});
+				continue;
+			}
+
 			const dp = player.creatures.find((c) => c.isDarkPriest && c.isDarkPriest());
 			const dpHealthRatio = dp ? Math.max(0, dp.health) / Math.max(1, dp.stats.health) : 0;
 			const dpEnergyRatio = dp ? Math.max(0, dp.energy) / Math.max(1, dp.stats.energy) : 0;
@@ -3164,9 +3317,9 @@ export class UI {
 				scoreRatio,
 			].filter((_ratio, idx) => hasFiniteTimePool || idx !== 3);
 
-			const colId = game.gameMode > 2 ? i + 2 + ((i % 2) * 2 - 1) * Math.min(1, i % 3) : i + 2;
+			const colId = game.gameMode > 2 ? i + 3 + ((i % 2) * 2 - 1) * Math.min(1, i % 3) : i + 3;
 			const $playerHeaderCell = $table
-				.children('tr.player_name')
+				.children('tr.player_bars')
 				.children('td:nth-child(' + colId + ')');
 			const $fills = $playerHeaderCell.find('.score-header-bar-fill');
 

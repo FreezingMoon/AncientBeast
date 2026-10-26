@@ -1998,6 +1998,12 @@ div.section.info {
 	pointer-events: auto;
 }
 
+.button:hover + .desc,
+.button:focus + .desc,
+.button + .desc.tooltip-visible {
+	visibility: visible;
+}
+
 .button + .desc span {
 	display: block;
 	margin: 0;
@@ -2107,11 +2113,11 @@ div.section.info {
 	justify-self: end;
 }
 
-/* Wider scoreboard modal to fit overview bars */
-.framed-modal--scoreboard {
-	width: 600px;
-	max-height: 820px;
-}
+/* Wider scoreboard modal to fit overview bars and 2vs2 titles */
+	.framed-modal--scoreboard {
+		width: 720px;
+		max-height: 820px;
+	}
 
 /* Inner sections */
 .scoreboard-inner {
@@ -2224,14 +2230,20 @@ div.section.info {
 	animation: slideTooltipCentered 750ms forwards;
 }
 
+.score-emoji-tooltip-wrap:hover .score-header-tooltip,
+.score-emoji-tooltip-wrap.tooltip-visible .score-header-tooltip {
+	visibility: visible;
+	animation: slideTooltipCentered 750ms forwards;
+}
+
 @keyframes slideTooltipCentered {
 	0% {
 		opacity: 0.3;
-		transform: translate(calc(-50% - 10px), 0px);
+		transform: translate(calc(-50% - 10px), 0);
 	}
 	100% {
 		opacity: 1;
-		transform: translate(-50%, 0px);
+		transform: translate(-50%, 0);
 	}
 }
 
@@ -2419,6 +2431,17 @@ span.pure {
 	100% {
 		opacity: 1;
 		transform: translate(0px, -50%);
+	}
+}
+
+@keyframes fadeUpTooltip {
+	0% {
+		opacity: 0;
+		transform: translate(-50%) translateY(-4px);
+	}
+	100% {
+		opacity: 1;
+		transform: translate(-50%) translateY(0);
 	}
 }
 
@@ -2672,7 +2695,7 @@ span.pure {
 				display: inline-block;
 			}
 
-			.tooltiptext {
+			.tooltiptext:not(.score-header-tooltip) {
 				visibility: hidden;
 				background-color: rgba(0, 0, 0, 0.75);
 				backdrop-filter: blur(3px);
@@ -2691,10 +2714,6 @@ span.pure {
 				z-index: 1;
 			}
 
-			.score-emoji-tooltip-wrap:hover .tooltiptext {
-				visibility: visible;
-				animation: slideTooltip 750ms forwards;
-			}
 		}
 
 		h1 {
@@ -3541,6 +3560,26 @@ input {
 	padding-right: 14px !important;
 }
 
+/* Keep the desktop emoji column compact so stat titles fit in both modes. */
+#scoreboard:not(.scoreboard-landscape-phone)
+	.scoreboard-inner--scores
+	#score
+	td.score-title-cell {
+	white-space: nowrap;
+}
+
+#scoreboard:not(.scoreboard-landscape-phone)
+	.scoreboard-inner--scores
+	#score
+	td.score-emoji-cell {
+	box-sizing: border-box;
+	width: 32px;
+	min-width: 32px;
+	padding-left: 4px !important;
+	padding-right: 4px !important;
+	white-space: nowrap;
+}
+
 /* Right-aligned so the score icons line up in one column, with the names
    (inline in 1 vs 1, hover tooltips in 2 vs 2) hanging off to their left. */
 #scoreboard .scoreboard-inner--scores #score td:first-child {
@@ -3559,7 +3598,7 @@ input {
 		vertical-align: middle;
 	}
 
-	.tooltiptext {
+	.tooltiptext:not(.score-header-tooltip) {
 		position: static;
 		visibility: visible;
 		transform: none;
@@ -3577,7 +3616,7 @@ input {
 		animation: none;
 	}
 
-	.score-emoji-tooltip-wrap:hover .tooltiptext {
+	.score-emoji-tooltip-wrap:hover .tooltiptext:not(.score-header-tooltip) {
 		animation: none;
 	}
 
@@ -3613,8 +3652,396 @@ input {
 	}
 }
 
+/* Landscape phone scoreboard transposed layout */
+#scoreboard.scoreboard-landscape-phone {
+	/* No opencollective widget on phone landscape - not enough room. */
+	#opencollective_banner_scoreboard {
+		display: none !important;
+	}
+
+	/* Make modal the positioning context - match desktop but scaled.
+	   Zero the 15px top margin from the base rule so the close button sits
+	   flush at the top of the wrapper. */
+	.framed-modal--scoreboard {
+		position: relative !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		height: auto !important;
+		max-height: none !important;
+		margin: 0 !important;
+		padding-top: 60px !important;
+		/* No div.png frame on phone - it eats margin and looks awkward. */
+		border: none !important;
+		border-image: none !important;
+		background: transparent !important;
+	}
+
+	/* Close button - top right like desktop, just smaller. The base rule
+	   sets top/right on the element itself, but the modal wrapper may add
+	   padding that pushes it down; pin it to the wrapper's top-right corner
+	   so it's truly flush. */
+	.framed-modal__return {
+		position: absolute !important;
+		top: 0 !important;
+		right: 0 !important;
+		height: 60px !important;
+		width: 60px !important;
+		z-index: 30 !important;
+	}
+
+	/* Wrapper: full-screen scrim, no vertical scrollbar. The modal content
+	   (close button + table + action column) fits within the viewport. */
+	.framed-modal__wrapper {
+		overflow: hidden !important;
+		padding: 0 !important;
+	}
+
+	/* Remove wrapper padding so content is flush to modal edges */
+	#scoreboard {
+		padding: 0 !important;
+	}
+	.scoreboard-inner--scores {
+		padding: 0 !important;
+	}
+	/* Keep the current score/match outcome visible above the table. */
+	.scoreboard-inner--scores > h2 {
+		display: block !important;
+		margin: 0 0 8px !important;
+		padding: 0 !important;
+		font-size: 20px !important;
+		line-height: 1.2 !important;
+	}
+	/* Tighten gap between heading area and content so action buttons sit
+	   right under the close button */
+	.scoreboard-inner--scores > p {
+		display: none !important;
+	}
+	.scoreboard-content {
+		margin-top: 0 !important;
+	}
+
+	/* Phone: small margins from screen edge and between columns so nothing
+	   looks awkward. The scoreboard wrapper is the full-screen scrim, so
+	   inset the inner content away from the edges. The right inset is
+	   bigger to leave room for the absolutely-positioned action column
+	   (60px) + gap (6px) so the table never sits under the buttons. */
+	.scoreboard-inner {
+		padding: 6px 66px 0 6px !important;
+	}
+	.scoreboard-content {
+		padding: 0 !important;
+		box-sizing: border-box !important;
+	}
+
+	/* Hide the per-player overview bars row on the phone - the emoji
+	   header row already shows the stat emojis and there's no room
+	   for the bars. */
+	#score tr.player_bars {
+		display: none !important;
+	}
+
+	/* Desktop: separate title and emoji columns. The title column is
+	   hidden on the phone (landscape) - the emoji tooltips carry the
+	   text instead. Wider so titles like "Humiliation" don't wrap. */
+	#score td.score-title-cell {
+		text-align: left !important;
+		white-space: nowrap !important;
+		vertical-align: middle !important;
+		padding: 4px 10px 4px 6px !important;
+		min-width: 90px !important;
+		width: 90px !important;
+	}
+	#score td.score-emoji-cell {
+		text-align: center !important;
+		white-space: nowrap !important;
+		vertical-align: middle !important;
+		padding: 4px 4px !important;
+		min-width: 40px !important;
+		width: 40px !important;
+	}
+	#scoreboard.scoreboard-landscape-phone #score td.score-title-cell {
+		display: none !important;
+	}
+
+	/* Override the old responsive `#score { transform: scale(0.8/0.9) }` rule:
+	   scaling the table makes it wider than the viewport and forces
+	   horizontal scrolling. Instead, size the columns to fit the
+	   available width (content area = viewport minus the action column
+	   and edge margins). */
+	#score {
+		transform: none !important;
+		width: 100% !important;
+		max-width: none !important;
+		table-layout: fixed !important;
+	}
+
+	/* Override the old responsive transposition (`tr/td { display: block;
+	   float: left }`). The JS now builds the transposed table itself, so
+	   the CSS block-floating would scramble the rows. */
+	#score tr {
+		display: table-row !important;
+	}
+	#score td {
+		display: table-cell !important;
+	}
+
+	/* Override the old responsive `.tooltiptext { right: -25px/-20px;
+	   bottom: 30px/25px !important }` rules (from the two media-query
+	   blocks above). These push the tooltip off to the side instead of
+	   above the emoji. The tooltip positioning is set inline by the JS
+	   with !important, but the media-query rules also use !important, so
+	   we reset them here with a higher-specificity selector. */
+	#scoreboard.scoreboard-landscape-phone #score tr td .tooltiptext:not(.score-header-tooltip) {
+		right: auto !important;
+		bottom: auto !important;
+		left: 50% !important;
+	}
+
+	/* Content area: table on left, actions on right. The action column is
+	   absolutely positioned over the right edge, so the table is given the
+	   remaining width and can scroll horizontally if the stat columns are
+	   narrower than the screen. The right padding is inherited from
+	   .scoreboard-inner (66px = 60px action column + 6px gap). */
+	.scoreboard-content {
+		display: flex !important;
+		flex-direction: row !important;
+		align-items: flex-start !important;
+		justify-content: flex-start !important;
+		width: 100% !important;
+		gap: 0 !important;
+		padding: 0 !important;
+		box-sizing: border-box !important;
+		overflow: visible !important;
+	}
+
+/* Table fills the content area; columns distribute the available width
+	   evenly (table-layout: fixed above). The stat columns are sized to
+	   fit the screen so no horizontal scrolling is needed. */
+	#score {
+		flex: 0 0 auto !important;
+		max-width: none !important;
+		margin: 0 !important;
+		table-layout: fixed !important;
+		border-collapse: collapse !important;
+		display: table !important;
+	}
+
+	#score tr {
+		display: table-row !important;
+	}
+
+	#score td {
+		text-align: center !important;
+		white-space: nowrap !important;
+		vertical-align: middle !important;
+		padding: 3px 4px !important;
+		display: table-cell !important;
+	}
+
+	/* Header row: first cell = wolf "Players" header (visible, left-aligned like
+	 * player name column), emoji cells large */
+	/* Phone header row: all emoji cells (including the wolf) are centered and
+	   auto-width so the spacing between emojis is even. The player rows
+	   keep the name column left-aligned and wider for readability. */
+	#score tr:first-child td:first-child {
+		text-align: center !important;
+		width: auto !important;
+		min-width: 50px !important;
+		padding: 6px !important;
+		font-size: 22px !important;
+	}
+	#score tr:first-child td:first-child .score-emoji-tooltip-wrap {
+		display: inline-block;
+	}
+
+	#score tr:first-child td {
+		padding: 6px !important;
+		font-size: 22px !important;
+	}
+
+	/* Player rows: first column = name (left), rest = scores (center) */
+	#score tr[class^="player_row_"] td:first-child {
+		text-align: left !important;
+		width: 60px !important;
+		min-width: 60px !important;
+		padding-left: 4px !important;
+		font-weight: 700 !important;
+	}
+
+	#score tr[class^="player_row_"] td:not(:first-child) {
+		text-align: center !important;
+		width: auto !important;
+		min-width: 50px !important;
+	}
+
+	/* Tooltip for header emojis - show on hover only, animated. The wrap is
+	   the positioning context; the tooltip floats above it. */
+	.score-emoji-tooltip-wrap {
+		display: inline-block;
+		position: relative;
+		cursor: help;
+	}
+
+	/* On the phone the wolf emoji sits in the leftmost column; right-align
+	   it so it hugs the edge instead of floating in the middle. */
+	#scoreboard.scoreboard-landscape-phone #score tr.player_name td:first-child .score-emoji-tooltip-wrap {
+		display: flex;
+		justify-content: flex-end;
+	}
+
+	.tooltiptext:not(.score-header-tooltip) {
+		white-space: nowrap !important;
+		visibility: hidden !important;
+		opacity: 0;
+		z-index: 40 !important;
+		-webkit-backdrop-filter: blur(4px) !important;
+		color: #fff !important;
+		text-align: center !important;
+		pointer-events: none !important;
+		background: #000000d9 !important;
+		border: 1px solid #ffffff26 !important;
+		border-radius: 4px !important;
+		margin-bottom: 8px !important;
+		padding: 6px 10px !important;
+		font-size: 12px !important;
+	}
+
+	/* Actions column on right, below close button - flush right edge.
+	   The close button is at top:0,right:0 (60x60). This column sits directly
+	   beneath it with the same 6px gap as between the actions themselves,
+	   so all four buttons (close + 3 actions) share one even spacing. */
+	.scoreboardActions {
+		position: absolute !important;
+		top: 66px !important; /* 60px close + 6px gap */
+		right: 0 !important;
+		bottom: 0 !important;
+		width: 60px !important;
+		max-width: 60px !important;
+		height: auto !important;
+		max-height: none !important;
+		display: flex !important;
+		flex-direction: column !important;
+		align-items: flex-end !important;
+		justify-content: flex-start !important;
+		gap: 6px !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		z-index: 20 !important;
+		overflow: visible !important;
+	}
+
+	/* Force action buttons flush right (overrides desktop `margin: 0 auto !important` */
+	.scoreboardActions .button,
+	#scoreboard .scoreboardActions #save,
+	#scoreboard .scoreboardActions #restart,
+	#scoreboard .scoreboardActions #exit {
+		margin: 0 !important;
+		width: 60px !important;
+		height: 60px !important;
+	}
+
+	/* Place the shared desktop tooltips beside the compact action column. */
+	.scoreboardActions .button + .desc,
+	#scoreboard .scoreboardActions #save + .desc,
+	#scoreboard .scoreboardActions #restart + .desc,
+	#scoreboard .scoreboardActions #exit + .desc {
+		z-index: 50 !important;
+		bottom: auto !important;
+		top: 50% !important;
+		left: auto !important;
+		right: calc(100% + 10px) !important;
+		transform: translateY(-50%) !important;
+		width: max-content !important;
+		max-width: calc(100vw - 76px) !important;
+		text-align: center !important;
+		white-space: normal !important;
+		box-sizing: border-box !important;
+		visibility: hidden !important;
+		pointer-events: none !important;
+	}
+	/* Reveal the tooltip on hover/focus; clicks also toggle it for touch. */
+	.scoreboardActions .button:hover + .desc,
+	.scoreboardActions .button:focus + .desc,
+	.scoreboardActions .button + .desc.tooltip-visible,
+	#scoreboard .scoreboardActions #save:hover + .desc,
+	#scoreboard .scoreboardActions #restart:hover + .desc,
+	#scoreboard .scoreboardActions #exit:hover + .desc,
+	#scoreboard .scoreboardActions #save + .desc.tooltip-visible,
+	#scoreboard .scoreboardActions #restart + .desc.tooltip-visible,
+	#scoreboard .scoreboardActions #exit + .desc.tooltip-visible {
+		visibility: visible !important;
+		transform: translateY(-50%) !important;
+	}
+
+/* Transposed table: normal table display, emoji headers */
+	#score {
+		display: table !important;
+	}
+}
+
 #scoreboard .scoreboardActions #exitWrapper {
 	justify-self: center;
+}
+
+/* Shrink the per-button wrapper on the phone so it doesn't overflow the
+   60px action column. Top-level (NOT nested inside the phone block) so the
+   selector actually matches the DOM: `#ui > #scoreboard.scoreboard-landscape-phone`.
+   Scoped with #ui too: the default rule compiles to
+   `#ui #scoreboard .scoreboardActions #saveWrapper { width: 80px }`,
+   which needs the extra ID + class to outrank. */
+#ui #scoreboard.scoreboard-landscape-phone .scoreboardActions #saveWrapper,
+#ui #scoreboard.scoreboard-landscape-phone .scoreboardActions #restartWrapper,
+#ui #scoreboard.scoreboard-landscape-phone .scoreboardActions #exitWrapper,
+#ui #scoreboard.scoreboard-landscape-phone .scoreboardActions #fleeWrapper {
+	width: 60px !important;
+	height: 60px !important;
+	justify-content: flex-end !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+/* Landscape phone: only reposition and constrain the shared score-bar
+   tooltip styling when it is attached to an emoji. */
+#scoreboard.scoreboard-landscape-phone .scoreboard-inner--scores #score .score-emoji-tooltip-wrap .score-header-tooltip {
+	position: absolute !important;
+	bottom: calc(100% + 2px) !important;
+	left: 50% !important;
+	right: auto !important;
+	width: max-content !important;
+	max-width: calc(100vw - 84px) !important;
+	box-sizing: border-box !important;
+	white-space: normal !important;
+	overflow-wrap: break-word !important;
+	pointer-events: auto !important;
+	z-index: 60 !important;
+}
+
+/* Override the inherited downward tooltip arrow with a right-pointing
+   triangle aimed at each button in the landscape action column. */
+#ui #scoreboard.scoreboard-landscape-phone .scoreboardActions #saveWrapper .desc::after,
+#ui #scoreboard.scoreboard-landscape-phone .scoreboardActions #restartWrapper .desc::after,
+#ui #scoreboard.scoreboard-landscape-phone .scoreboardActions #exitWrapper .desc::after {
+	content: '' !important;
+	position: absolute !important;
+	left: auto !important;
+	right: -8px !important;
+	top: 50% !important;
+	bottom: auto !important;
+	transform: translateY(-50%) !important;
+	border-top: 7px solid transparent !important;
+	border-right: 0 !important;
+	border-bottom: 7px solid transparent !important;
+	border-left: 8px solid rgba(0, 0, 0, 0.6) !important;
+}
+
+#ui #scoreboard.scoreboard-landscape-phone .scoreboardActions .desc > p:not(.confirmHint),
+#ui #scoreboard.scoreboard-landscape-phone .scoreboardActions .desc .shortcut {
+	display: none !important;
+}
+
+#ui #scoreboard.scoreboard-landscape-phone .scoreboardActions .desc > span {
+	margin: 0 !important;
+	padding: 7px 10px !important;
 }
 
 #scoreboard .scoreboardActions #saveWrapper {
