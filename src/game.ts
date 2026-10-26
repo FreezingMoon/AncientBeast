@@ -2567,6 +2567,15 @@ export default class Game {
 					// `this.effects` might be the wrong type or need to look at `EffectTarget` type definition
 					effect.target.updateHealth();
 				}
+
+				const activeCreature = this.activeCreature;
+				if (
+					effect.target === activeCreature &&
+					effect.alterations.moveable === false &&
+					activeCreature?.stats.moveable
+				) {
+					activeCreature.queryMove();
+				}
 			});
 	}
 

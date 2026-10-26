@@ -175,6 +175,40 @@ describe('Game replay completion', () => {
 	});
 });
 
+describe('Game creature death effects', () => {
+	test('refreshes the active movement query when an owner-death effect releases a root', () => {
+		const owner = {};
+		const queryMove = jest.fn();
+		const target = {
+			stats: { moveable: false },
+			updateHealth: jest.fn(),
+			queryMove,
+		};
+		const effect = {
+			owner,
+			deleteOnOwnerDeath: true,
+			target,
+			alterations: { moveable: false },
+			deleteEffect: jest.fn(() => {
+				target.stats.moveable = true;
+			}),
+		};
+		const game = {
+			activeCreature: target,
+			triggerAbility: jest.fn(),
+			triggerEffect: jest.fn(),
+			traps: [],
+			effects: [effect],
+		} as unknown as Game;
+
+		Game.prototype.onCreatureDeath.call(game, owner);
+
+		expect(effect.deleteEffect).toHaveBeenCalledTimes(1);
+		expect(target.updateHealth).toHaveBeenCalledTimes(1);
+		expect(queryMove).toHaveBeenCalledTimes(1);
+	});
+});
+
 describe('Game reset lifecycle', () => {
 	const makeMockGame = (overrides = {}): Game =>
 		({
