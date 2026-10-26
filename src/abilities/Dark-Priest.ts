@@ -412,7 +412,7 @@ export default (G: Game) => {
 				});
 
 				spawnRange = spawnRange.filter(function (item) {
-					return item.isWalkable(crea.size, 0, false);
+					return item.isWalkable(crea.size, -1, false);
 				});
 
 				spawnRange = arrayUtils.extendToLeft(spawnRange, crea.size, G.grid);
