@@ -362,7 +362,9 @@ export default (G) => {
 
 					const magmaHex = crea.hexagons[args.direction === 4 ? crea.size - 1 : 0];
 					arrayUtils.filterCreature(_path, false, false);
-					_path.unshift(magmaHex); // Prevent error on empty path
+					if (magmaHex) {
+						_path.unshift(magmaHex); // Prevent error on empty path
+					}
 
 					const offset = args.direction === 4 ? crea.size - 1 : 0;
 					let destination;
@@ -389,7 +391,7 @@ export default (G) => {
 						callback: function () {
 							// Destroy traps along path
 							_path.forEach(function (hex) {
-								if (!hex.trap) {
+								if (!hex || !hex.trap) {
 									return;
 								}
 

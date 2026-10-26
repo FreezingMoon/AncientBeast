@@ -455,6 +455,150 @@ describe('Infernal Molten Hurl movement safety', () => {
 		expect(queryMove).toHaveBeenCalledTimes(1);
 		expect(cameraShake).toHaveBeenCalledTimes(1);
 	});
+
+	test('does not crash when the hurl path contains an undefined hex', () => {
+		// Simulates `magmaHex` resolving to `undefined` (e.g. a creature
+		// footprint whose hexagons array is shorter than its size). The
+		// destination loop can break before reaching the leading undefined
+		// entry, which previously let it survive into the trap-destroying
+		// `forEach` and throw "can't access property 'trap', e is undefined".
+		const selectAbility = jest.fn();
+		const queryMove = jest.fn();
+		const cameraShake = jest.fn();
+		setBoardCamera({ shake: cameraShake } as never);
+
+		const row: MockHex[] = [];
+		for (let x = 0; x <= 10; x++) {
+			row[x] = {
+				x,
+				y: 2,
+				isWalkable: () => true,
+			};
+		}
+
+		const moveTo = jest.fn((destination: MockHex, opts: { callback: () => void }) => {
+			expect(destination).toBe(row[6]);
+			opts.callback();
+		});
+
+		// Empty footprint: `magmaHex` resolves to `undefined`.
+		const crea = {
+			id: 4,
+			size: 3,
+			player: { flipped: false },
+			hexagons: [],
+			moveTo,
+		};
+
+		const game = {
+			abilities: [] as unknown[],
+			grid: {
+				hexes: [[], [], row],
+				getHexLine: jest.fn(),
+				infernalSmokeGroup: null as InfernalGroupMock | null,
+			},
+			UI: { selectAbility },
+			activeCreature: { queryMove },
+			freezedInput: false,
+			poll(callback: () => boolean | void, ms: number) {
+				const handle = setInterval(() => {
+					if (callback() === true) {
+						clearInterval(handle);
+					}
+				}, ms);
+			},
+			gameEngine: {
+				add: {
+					sprite: () => ({
+						setOrigin: jest.fn(),
+						setScale: jest.fn(),
+						setTexture: jest.fn(),
+						alpha: 0,
+						tint: 0,
+						rotation: 0,
+						blendMode: 0,
+						x: 0,
+						y: 0,
+						scale: { x: 1, y: 1 },
+						mask: null,
+						key: '',
+						destroy: jest.fn(),
+					}),
+					graphics: () => ({
+						beginFill: jest.fn(),
+						drawRect: jest.fn(),
+						endFill: jest.fn(),
+						clear: jest.fn(),
+						lineStyle: jest.fn(),
+						moveTo: jest.fn(),
+						lineTo: jest.fn(),
+						drawCircle: jest.fn(),
+						mask: null,
+					}),
+					bitmapData: () => ({
+						width: 100,
+						height: 100,
+						ctx: {
+							clearRect: jest.fn(),
+							save: jest.fn(),
+							restore: jest.fn(),
+							translate: jest.fn(),
+							scale: jest.fn(),
+							drawImage: jest.fn(),
+						},
+						context: {
+							clearRect: jest.fn(),
+							save: jest.fn(),
+							restore: jest.fn(),
+							translate: jest.fn(),
+							scale: jest.fn(),
+							drawImage: jest.fn(),
+						},
+						dirty: false,
+						update: jest.fn(),
+						destroy: jest.fn(),
+					}),
+					group: () => ({ children: [], add: () => {}, addAt: () => {}, remove: () => {} }),
+					tileSprite: () => ({}),
+				},
+				tween: () => {
+					const onComplete = { add: (fn: () => void) => fn() };
+					const afterStart = { stop: () => ({}), onComplete };
+					const afterTo = { start: () => afterStart, stop: () => ({}), onComplete };
+					return { to: () => afterTo, start: () => afterStart, stop: () => ({}), onComplete };
+				},
+			},
+		};
+
+		globalThis.G = game as never;
+		loadInfernalAbilities(game as never);
+
+		const abilityDef = (game.abilities[4] as Array<Record<string, unknown>>)[3];
+		const moltenHurl = {
+			...(abilityDef as object),
+			creature: crea,
+			damages: { burn: 10, crush: 10 },
+			end: jest.fn(),
+			isUpgraded: () => false,
+		};
+
+		const path: MockHex[] = [{ x: 6, y: 2, isWalkable: () => true }];
+
+		expect(() =>
+			(
+				moltenHurl as unknown as {
+					activate: (pathArg: MockHex[], args: { direction: number }) => void;
+				}
+			).activate(path, { direction: 1 }),
+		).not.toThrow();
+
+		jest.runOnlyPendingTimers();
+		expect(moveTo).toHaveBeenCalledTimes(1);
+		expect(moveTo).toHaveBeenCalledWith(row[6], expect.anything());
+		expect(selectAbility).toHaveBeenCalledWith(-1);
+		expect(queryMove).toHaveBeenCalledTimes(1);
+		expect(cameraShake).toHaveBeenCalledTimes(1);
+	});
 });
 
 describe('Infernal trap damage safety', () => {
