@@ -22,6 +22,7 @@ jest.mock('../../creature', () => ({
 }));
 
 import loadDarkPriestAbilities from '../../abilities/Dark-Priest';
+import { HexGrid } from '../../utility/hexgrid';
 
 (globalThis as { Phaser?: unknown }).Phaser = {};
 
@@ -33,6 +34,7 @@ type MockHex = {
 	setReachable: ReturnType<typeof jest.fn>;
 	unsetReachable: ReturnType<typeof jest.fn>;
 	isWalkable: ReturnType<typeof jest.fn>;
+	creature?: object;
 };
 
 const makeHex = (x: number, y: number, reachable = true): MockHex => ({
@@ -157,6 +159,86 @@ describe('Dark Priest materialize query preview guards', () => {
 		previewCreature.mockClear();
 		queryArgs.fnOnSelect(otherHex, queryArgs.args);
 		expect(previewCreature).not.toHaveBeenCalled();
+	});
+
+	test.each(
+		[1, 2, 3].flatMap((size) =>
+			[false, true].flatMap((flipped) =>
+				[false, true].map((upgraded) => ({ size, flipped, upgraded })),
+			),
+		),
+	)('shows occupied range for size $size, flipped $flipped, upgraded $upgraded', (options) => {
+		const game = globalThis.G as any;
+		const row = Array.from({ length: 9 }, (_, x) => makeHex(x, 0));
+		// Both cells belong to the same creature; only its in-range cells matter.
+		row[1].creature = {};
+		row[2].creature = row[1].creature;
+		row[6].creature = {};
+		row[7].creature = row[6].creature;
+		row.forEach((hex) => {
+			hex.isWalkable.mockImplementation((size: number) =>
+				Array.from({ length: size }, (_, i) => row[hex.x - i]).every(
+					(cell) => cell && cell.reachable && !cell.creature,
+				),
+			);
+		});
+		game.grid.forEachHex.mockImplementation((fn: (hex: MockHex) => void) => row.forEach(fn));
+		game.grid.hexes = [row];
+		game.grid.hexExists = ({ x, y }: { x: number; y: number }) => y === 0 && x >= 0 && x < 9;
+		game.retrieveCreatureStats.mockReturnValue({ size: options.size, level: 1 });
+		const adjacentHex = jest.fn((radius: number) => row.slice(0, radius + 1));
+		ability.creature.hexagons[0].adjacentHex = adjacentHex;
+		ability.creature.player.flipped = options.flipped;
+		ability.isUpgraded = () => options.upgraded;
+
+		ability.materialize('A1');
+		const query = queryHexes.mock.calls[0][0] as any;
+		expect(adjacentHex).toHaveBeenCalledWith(options.upgraded ? 6 : 4);
+		expect(query.hexesDashed).toEqual(
+			options.upgraded ? [row[1], row[2], row[6]] : [row[1], row[2]],
+		);
+		// At the left edge only a size-one creature fits at x=0. Empty cells
+		// beside blockers are not incorrectly dashed just because a unit cannot fit.
+		const expectedTargets = options.size === 1 ? [row[0]] : [];
+		if (options.upgraded || options.size < 3) {
+			expectedTargets.push(...row.slice(3, options.upgraded ? 6 : 5));
+		}
+		expect(new Set(query.hexes)).toEqual(new Set(expectedTargets));
+		expect(query.args.spawnRange).toBe(query.hexes);
+		expect(query.size).toBe(options.size);
+		expect(query.flipped).toBe(options.flipped);
+		query.fnOnSelect(row[1], query.args);
+		expect(previewCreature).not.toHaveBeenCalled();
+
+		// Exercise the real query renderer and its normal transition to another
+		// query: dashed cells remain unselectable and do not leak into movement.
+		const dashed = new Set<MockHex>();
+		row.forEach((hex) => {
+			Object.assign(hex, {
+				displayVisualState: (state: string) => {
+					if (state === 'dashed') dashed.add(hex);
+				},
+				cleanDisplayVisualState: (state: string) => {
+					if (state === 'dashed') dashed.delete(hex);
+				},
+				overlayVisualState: jest.fn(),
+				unsetNotTarget: jest.fn(),
+			});
+		});
+		Object.assign(game.grid, {
+			game,
+			updateDisplay: jest.fn(),
+			refreshHoverState: jest.fn(),
+			queryGeneration: 0,
+		});
+		HexGrid.prototype.queryHexes.call(game.grid, query);
+		expect([...dashed]).toEqual(query.hexesDashed);
+		expect(row.filter((hex) => hex.reachable)).toEqual(expectedTargets);
+		game.activeCreature.queryMove.mockImplementation(() =>
+			HexGrid.prototype.queryHexes.call(game.grid, { hexes: [] }),
+		);
+		query.fnOnCancel();
+		expect(dashed.size).toBe(0);
 	});
 });
 

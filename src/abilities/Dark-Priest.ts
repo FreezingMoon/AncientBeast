@@ -406,6 +406,8 @@ export default (G: Game) => {
 				});
 
 				let spawnRange = dpriest.hexagons[0].adjacentHex(this.isUpgraded() ? 6 : 4);
+				// Keep occupied cells visible even though they cannot be summon targets.
+				const hexesDashed = spawnRange.filter((hex) => hex.creature);
 
 				spawnRange.forEach(function (item) {
 					item.setReachable();
@@ -439,6 +441,7 @@ export default (G: Game) => {
 					size: crea.size,
 					flipped: dpriest.player.flipped,
 					hexes: spawnRange,
+					hexesDashed,
 				});
 			},
 
