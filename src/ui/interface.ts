@@ -72,6 +72,27 @@ export function areTurnActionButtonsDisabled(game: Game): boolean {
 	);
 }
 
+/**
+ * Cost line for one ability slot on the summon card (issue #1996).
+ *
+ * Units in progress (e.g. Kraken) ship `ability_info` entries without a
+ * `costs` object at all, and entries that do have one may omit `energy`
+ * (e.g. `{ plasma: 1, special: ... }`). The card used to read
+ * `costs.energy` straight off the entry, so browsing those units threw or
+ * printed "undefined energy pts". Anything without a numeric energy cost —
+ * including slot 0, the move action — reads as the passive line instead.
+ */
+export function getAbilityCostLine(
+	abilityInfo: { costs?: { energy?: number } } | undefined,
+	slotKey: string | number,
+): string {
+	const energy = abilityInfo?.costs?.energy;
+	if (typeof energy === 'number' && Number(slotKey) !== 0) {
+		return ' - costs ' + energy + ' energy pts.';
+	}
+	return ' - this ability is passive.';
+}
+
 type ConfirmUnloadState = {
 	ignoreNextConfirmUnload: boolean;
 };
@@ -2271,19 +2292,11 @@ export class UI {
 						.children('#upgrade')
 						.text('Upgrade: ' + stats.ability_info[key].upgrade);
 
-					if (stats.ability_info[key].costs !== undefined && key !== 0) {
-						$ability
-							.children('.wrapper')
-							.children('.info')
-							.children('#cost')
-							.text(' - costs ' + stats.ability_info[key].costs.energy + ' energy pts.');
-					} else {
-						$ability
-							.children('.wrapper')
-							.children('.info')
-							.children('#cost')
-							.text(' - this ability is passive.');
-					}
+					$ability
+						.children('.wrapper')
+						.children('.info')
+						.children('#cost')
+						.text(getAbilityCostLine(stats.ability_info[key], key));
 				});
 
 				const summonedOrDead = game.players[player].creatures.some(
@@ -2467,19 +2480,11 @@ export class UI {
 						$ability.children('.wrapper').children('.info').children('#upgrade').text(' ');
 					}
 
-					if (stats.ability_info[key].costs !== undefined && key !== 0) {
-						$ability
-							.children('.wrapper')
-							.children('.info')
-							.children('#cost')
-							.text(' - costs ' + stats.ability_info[key].costs.energy + ' energy pts.');
-					} else {
-						$ability
-							.children('.wrapper')
-							.children('.info')
-							.children('#cost')
-							.text(' - this ability is passive.');
-					}
+					$ability
+						.children('.wrapper')
+						.children('.info')
+						.children('#cost')
+						.text(getAbilityCostLine(stats.ability_info[key], key));
 				});
 
 				// Materialize button
