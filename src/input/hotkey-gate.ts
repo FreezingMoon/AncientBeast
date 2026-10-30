@@ -57,7 +57,7 @@ export const isViewSwitchHotkey = (event: KeyboardEvent) =>
 	isHotkeysViewHotkey(event);
 
 export const isScoreboardActionHotkey = (event: KeyboardEvent) =>
-	(event.code === 'KeyR' || event.code === 'KeyX') && hasNoModifierKeys(event);
+	(event.code === 'KeyR' || event.code === 'KeyS' || event.code === 'KeyX') && hasNoModifierKeys(event);
 
 /**
  * Bare `A`, which cycles the audio mode full → sfx → muted.
@@ -76,7 +76,8 @@ export const isScoreboardHotkey = (event: KeyboardEvent) =>
 	event.code === 'Escape' ||
 	isViewSwitchHotkey(event) ||
 	isFullscreenHotkey(event) ||
-	isScoreboardActionHotkey(event);
+	isScoreboardActionHotkey(event) ||
+	(event.code === 'KeyS' && isShiftOnly(event));
 
 /**
  * Keys that stay live while `game.freezedInput` is true, because none of them
