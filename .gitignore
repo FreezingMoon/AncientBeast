@@ -40,6 +40,9 @@ build/Release
 # Dependency directory
 node_modules
 
+# npm lockfile (project uses Bun; see bun.lock)
+package-lock.json
+
 
 ### PhpStorm ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm

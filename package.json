@@ -71,6 +71,7 @@
 		"playwright-core": "^1.63.0",
 		"prettier": "^2.8.8",
 		"svgo": "^3.3.5",
+		"terser": "^5.51.2",
 		"typescript": "^5.9.3",
 		"underscore": "^1.12.1",
 		"vite": "^8.0.14",
