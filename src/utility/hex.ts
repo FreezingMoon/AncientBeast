@@ -891,6 +891,11 @@ export class Hex {
 				this.display.alpha = 1;
 				// Bring dashed hexes with creatures to the top of the display group for better visibility
 				this.grid.displayHexesGroup.bringToTop(this.display);
+			} else if (this.displayClasses.match(/showGrid/)) {
+				// Coordinate view: faint dashed grid over empty hexes so the
+				// labels read without washing out the board.
+				loadTextureIfChanged(this.display, 'hex_dashed');
+				this.grid.displayHexesGroup.bringToTop(this.display);
 			} else {
 				loadTextureIfChanged(this.display, 'hex_dashed');
 			}
@@ -902,7 +907,12 @@ export class Hex {
 			this.pinTopLeft(this.display, this.drawPoint.x, this.drawPoint.y);
 		}
 
-		const computedDisplayAlpha = targetAlpha ? 1 : 0;
+		const computedDisplayAlpha =
+			this.displayClasses.match(/showGrid/) && !this.creature && !this.trap && !this.drop
+				? 0.25
+				: targetAlpha
+				? 1
+				: 0;
 		this.display.alpha = hasCrashingGlobeTarget
 			? 1
 			: typeof this.forcedDisplayAlpha === 'number'
@@ -950,12 +960,13 @@ export class Hex {
 						color: '#000000',
 						align: 'center',
 					},
-					this.grid.overlayHexesGroup,
+					this.grid.healthIndicatorUiGroup ?? this.grid.overlayHexesGroup,
 				);
-				if (this.creature || this.trap || this.drop) {
-					this.coordText.stroke = '#ffffff';
-					this.coordText.strokeThickness = 5;
-				}
+				// Units sit between the overlay and health-indicator layers, so a
+				// label only stays readable over a unit when it always carries its
+				// white outline and the group draws it above the creatures.
+				this.coordText.stroke = '#ffffff';
+				this.coordText.strokeThickness = 5;
 				this.coordText.setOrigin(0.5, 0.5);
 				this.coordText.x = this.originalDisplayPos.x - HEX_DISPLAY_X_HACK + 45;
 				this.coordText.y = this.originalDisplayPos.y + 63;

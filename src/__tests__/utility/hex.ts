@@ -7,7 +7,39 @@ jest.mock('phaser', () =>
 import { describe, test, expect, jest } from '@jest/globals';
 import { Hex, stopAllCursorSpinning } from '../../utility/hex';
 import { HexGrid } from '../../utility/hexgrid';
+import { configure } from '../../utility/pointfacade';
+import { Creature } from '../../creature';
 import { createSpriteMock } from '../../../test/sprite-mock';
+
+function creatureAt(x: number, y: number, team: number) {
+	const creature = Object.create(Creature.prototype);
+	Object.assign(creature, { x, y, team });
+	return creature;
+}
+
+function configureBoard(creatures: Array<{ x: number; y: number; team: number }>) {
+	configure({
+		getCreatures: () => creatures as any,
+		getCreaturePassablePoints: () => [],
+		getCreatureBlockedPoints: (creature: { x: number; y: number }) => [
+			{ x: creature.x, y: creature.y },
+		],
+		getTraps: () => [] as any,
+		getTrapPassablePoints: () => [],
+		getTrapBlockedPoints: () => [],
+		getDrops: () => [] as any,
+		getDropPassablePoints: () => [],
+		getDropBlockedPoints: () => [],
+	});
+}
+
+function configureEmptyBoard() {
+	configureBoard([]);
+}
+
+function configureBoardWithCreature(creature: { x: number; y: number; team: number }) {
+	configureBoard([creatureAt(creature.x, creature.y, creature.team)]);
+}
 
 function makeGrid() {
 	return {
@@ -178,5 +210,65 @@ describe('crashing-globe-target overlay persistence', () => {
 		stopAllCursorSpinning();
 		requestFrame.mockRestore();
 		cancelFrame.mockRestore();
+	});
+});
+
+describe('hexagon coordinate view (#2250)', () => {
+	function makeGridWithText() {
+		const createdTexts: any[] = [];
+		const displayBringToTop = jest.fn();
+		const grid = {
+			displayHexesGroup: { bringToTop: displayBringToTop, sendToBack: () => {} },
+			overlayHexesGroup: { bringToTop: () => {}, sendToBack: () => {} },
+			healthIndicatorUiGroup: { bringToTop: () => {}, sendToBack: () => {} },
+		};
+		const game = {
+			engine: {
+				add: {
+					sprite: (x: number, y: number, key: string) =>
+						createSpriteMock({ x, y, key, width: 100, height: 100 }),
+					text: (x: number, y: number, content: string, _style: unknown, _parent: unknown) => {
+						const txt = createSpriteMock({ x, y, width: 100, height: 30 }) as any;
+						txt.textContent = content;
+						txt.stroke = '';
+						txt.strokeThickness = 0;
+						txt.setOrigin = jest.fn(() => txt);
+						createdTexts.push(txt);
+						return txt;
+					},
+				},
+			},
+		} as any;
+		(game as any).gameEngine = game.engine;
+		return { grid, game, createdTexts, displayBringToTop };
+	}
+
+	test('empty hexes render a faint dashed grid instead of a solid one', () => {
+		const { grid, game, displayBringToTop } = makeGridWithText();
+		configureEmptyBoard();
+		const hex = new Hex(5, 4, grid as any, game as any);
+
+		hex.displayVisualState('showGrid');
+		hex.displayVisualState('dashed');
+		(hex as any).updateStyle();
+
+		expect(hex.display.key).toBe('hex_dashed');
+		expect(hex.display.alpha).toBe(0.25);
+		expect(displayBringToTop).toHaveBeenCalledWith(hex.display);
+	});
+
+	test('unit hexes keep their team dashed texture above the label layer', () => {
+		const { grid, game, createdTexts } = makeGridWithText();
+		configureBoardWithCreature({ x: 5, y: 4, team: 1 });
+		const hex = new Hex(5, 4, grid as any, game as any);
+
+		hex.displayVisualState('showGrid');
+		hex.displayVisualState('dashed');
+		(hex as any).updateStyle();
+
+		expect(hex.display.key).toBe('hex_dashed_p1');
+		expect(hex.display.alpha).toBe(1);
+		expect(createdTexts).toHaveLength(1);
+		expect(createdTexts[0].stroke).toBe('#ffffff');
 	});
 });
