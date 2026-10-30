@@ -425,6 +425,14 @@ export default (G: Game) => {
 					item.setReachable();
 				});
 
+				// Hexes in range that can't host the new creature (occupied, blocked)
+				// stay visible as dashed so the targeting area reads as a whole.
+				// They are kept out of `hexes`/`spawnRange`, so clicks there still
+				// cancel the query instead of spawning.
+				const occupiedSpawnRange = spawnRange.filter(function (item) {
+					return !item.isWalkable(crea.size, -1, false);
+				});
+
 				spawnRange = spawnRange.filter(function (item) {
 					return item.isWalkable(crea.size, -1, false);
 				});
@@ -453,6 +461,7 @@ export default (G: Game) => {
 					size: crea.size,
 					flipped: dpriest.player.flipped,
 					hexes: spawnRange,
+					hexesDashed: occupiedSpawnRange,
 				});
 			},
 
