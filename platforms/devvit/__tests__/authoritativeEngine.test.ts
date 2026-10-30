@@ -63,7 +63,7 @@ import {
 	replayIntents,
 	destroyHeadlessGame,
 	type HeadlessConfig,
-} from '../headlessGame';
+} from '../../../src/engine/headlessGame';
 import type { Intent } from '../authoritativeTypes';
 
 const ABILITY_FILES = [

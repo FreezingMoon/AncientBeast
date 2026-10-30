@@ -48,7 +48,7 @@ import {
 	replayIntents,
 	destroyHeadlessGame,
 	type HeadlessConfig,
-} from '../headlessGame';
+} from '../../../src/engine/headlessGame';
 import { loadRealPhaser } from '../../../src/phaser/runtime';
 import { EngineAuthoritativeProcessor } from '../../../src/multiplayer/engineAuthoritativeProcessor';
 import { InMemoryIntentStore } from '../../../src/multiplayer/authoritative';

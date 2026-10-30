@@ -742,7 +742,10 @@ export async function settle(
 }
 
 /** Apply a single client `Intent` to the engine (does not await settle). */
-export function applyIntent(game: any, intent: import('./authoritativeTypes').Intent): void {
+export function applyIntent(
+	game: any,
+	intent: import('../../src/multiplayer/authoritative').Intent,
+): void {
 	// Every operation on a game has to run against *that* game's engine
 	// registries, not merely the one that settled last. `game.action()` reaches
 	// the AB clock synchronously while it queues the move, so activating only
@@ -771,7 +774,7 @@ export function applyIntent(game: any, intent: import('./authoritativeTypes').In
 /** The authoritative server step: apply an intent, then wait for the engine to settle. */
 export async function stepGame(
 	game: any,
-	intent: import('./authoritativeTypes').Intent,
+	intent: import('../../src/multiplayer/authoritative').Intent,
 ): Promise<any> {
 	applyIntent(game, intent);
 	await settle(game);
@@ -780,7 +783,9 @@ export async function stepGame(
 
 // ─── Authoritative state serialization ───────────────────────────────────────
 
-export function serializeState(game: any): import('./authoritativeTypes').AuthoritativeState {
+export function serializeState(
+	game: any,
+): import('../../src/multiplayer/authoritative').AuthoritativeState {
 	const players = (game.players || []).map((p: any) => ({
 		playerIndex: p.id,
 		controller: p.controller,
@@ -832,7 +837,7 @@ export function serializeState(game: any): import('./authoritativeTypes').Author
 export async function replayIntents(
 	abilities: Array<(G: any) => void>,
 	config: Partial<HeadlessConfig>,
-	intents: import('./authoritativeTypes').Intent[],
+	intents: import('../../src/multiplayer/authoritative').Intent[],
 ): Promise<any> {
 	const game = await createHeadlessGame(abilities, {
 		config: { ...config, players: config.players ?? DEFAULT_HEADLESS_CONFIG.players },

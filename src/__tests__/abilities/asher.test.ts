@@ -49,7 +49,7 @@ import {
 	settle,
 	destroyHeadlessGame,
 	type HeadlessConfig,
-} from '../../../platforms/devvit/headlessGame';
+} from '../../engine/headlessGame';
 import { Creature } from '../../creature';
 import { Damage } from '../../damage';
 import { isQueueEvent } from '../../event_queue';
