@@ -51,6 +51,19 @@ export class SoundSys {
 	/** Sounds currently being fetched, so repeated warm-ups do not re-decode. */
 	private _pendingSoundPaths = new Set<string>();
 
+	/**
+	 * True while a fast replay (`replayMode === 'load'`) is running.
+	 *
+	 * When set, every effects/heartbeat/announcer gain is forced to zero — the
+	 * same outcome as guarding each individual `playSFX`/`playShout` call site,
+	 * but centralized: new sounds, sounds started mid-replay, and even a
+	 * `setAudioMode()` call from `setup()` cannot un-mute it, because the
+	 * volume setters consult this flag instead of blindly applying the
+	 * requested level. Music is left alone so a muted match still has its
+	 * background track.
+	 */
+	private _effectsMuted = false;
+
 	constructor(config: SoundSysConfig) {
 		this.musicPlayer = new MusicPlayer();
 
@@ -105,7 +118,8 @@ export class SoundSys {
 	set effectsVolume(level: number) {
 		if (this.envHasSound) {
 			this._effectsVol = clamp(level, 0, 1);
-			this.effectsGainNode.gain.value = this._effectsVol * this._allEffectsCoeff;
+			this.effectsGainNode.gain.value =
+				this._effectsVol * this._allEffectsCoeff * (this._effectsMuted ? 0 : 1);
 		}
 	}
 
@@ -116,7 +130,10 @@ export class SoundSys {
 		if (this.envHasSound) {
 			this._heartbeatVol = clamp(level, 0, 1);
 			this.heartbeatGainNode.gain.value =
-				this._heartbeatVol * HEARTBEAT_VOLUME_SCALE * this._allEffectsCoeff;
+				this._heartbeatVol *
+				HEARTBEAT_VOLUME_SCALE *
+				this._allEffectsCoeff *
+				(this._effectsMuted ? 0 : 1);
 		}
 	}
 
@@ -126,7 +143,8 @@ export class SoundSys {
 	set announcerVolume(level: number) {
 		if (this.envHasSound) {
 			this._announcerVol = clamp(level, 0, 1);
-			this.announcerGainNode.gain.value = this._announcerVol * this._allEffectsCoeff;
+			this.announcerGainNode.gain.value =
+				this._announcerVol * this._allEffectsCoeff * (this._effectsMuted ? 0 : 1);
 		}
 	}
 
@@ -139,6 +157,28 @@ export class SoundSys {
 			this.heartbeatVolume = this._heartbeatVol;
 			this.announcerVolume = this._announcerVol;
 		}
+	}
+
+	/**
+	 * Force every effects/heartbeat/announcer gain to zero while a fast replay
+	 * is running, without touching the music track.
+	 *
+	 * The gain is applied through the volume setters (not by zeroing the gain
+	 * node directly) so a later `setAudioMode()` call — which setup() makes —
+	 * cannot restore it. Music is intentionally left alone: a muted match
+	 * still has its background track, and the drum roll on game over is a
+	 * stinger that already guards on `getAudioMode() === 'full'`.
+	 */
+	setEffectsMuted(muted: boolean) {
+		this._effectsMuted = muted;
+		// Re-apply through the setters so the gain nodes pick up the flag.
+		this.effectsVolume = this._effectsVol;
+		this.heartbeatVolume = this._heartbeatVol;
+		this.announcerVolume = this._announcerVol;
+	}
+
+	get effectsMuted(): boolean {
+		return this._effectsMuted;
 	}
 
 	playMusic() {

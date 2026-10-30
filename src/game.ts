@@ -225,6 +225,11 @@ export default class Game {
 	isReplayInProgress: boolean;
 	/** Replay playback mode; `load` fast-forwards the same recorded actions. */
 	replayMode: ReplayMode | null;
+	_replayInterval: ReturnType<typeof setInterval> | null = null;
+	_replayStartTimeout: ReturnType<typeof setTimeout> | null = null;
+	_replayResume: (() => void) | null = null;
+	_replayActions: any[] = [];
+	_pendingReplayFastForward = false;
 	turnThrottle: boolean;
 	turn: number;
 	metaPowersState: MetaPowersState;
@@ -1282,6 +1287,11 @@ export default class Game {
 			},
 			this,
 		); // Create UI (not before because some functions require creatures to already exist)
+
+		if (this._pendingReplayFastForward) {
+			this.setReplayFastForwardUI?.(false);
+			this._pendingReplayFastForward = false;
+		}
 
 		setAudioMode(DEFAULT_AUDIO_MODE, this.soundsys, this.UI);
 		// DO NOT CALL LOG BEFORE UI CREATION
@@ -2951,6 +2961,17 @@ export default class Game {
 		this.freezedInput = false;
 		this.isReplayInProgress = false;
 		this.replayMode = null;
+		if (this._replayInterval) {
+			clearInterval(this._replayInterval);
+			this._replayInterval = null;
+		}
+		if (this._replayStartTimeout) {
+			clearTimeout(this._replayStartTimeout);
+			this._replayStartTimeout = null;
+		}
+		this._replayResume = null;
+		this._replayActions = [];
+		this._pendingReplayFastForward = false;
 		this.turnThrottle = false;
 		this.turn = 0;
 
@@ -2965,6 +2986,13 @@ export default class Game {
 		// channel as part of being reconstructed.
 		this.channels = createGameChannels();
 		this.botController = new BotController(this);
+
+		const skipButton = this.UI?.btnSkipTurn;
+		if (skipButton) {
+			skipButton.$button.removeClass('iconInvertFlash');
+		}
+		this.soundsys?.setEffectsMuted(false);
+		this.setReplayFastForwardUI?.(false);
 
 		this.gamelog.reset();
 	}
@@ -2997,12 +3025,17 @@ export default class Game {
 		}
 
 		this.isReplayInProgress = true;
-		this.replayMode = mode;
-
-		const actions = [...log.actions];
+		this.replayMode = 'play';
+		this._replayInterval = null;
+		this._replayStartTimeout = null;
+		this._replayResume = null;
+		this._pendingReplayFastForward = true;
+		this.soundsys?.setEffectsMuted(false);
+		this._replayActions = [...(log?.actions ?? [])];
+		const actions = this._replayActions;
 		const numTotalActions = actions.length;
-		const configData = log.custom.configData;
-		this.configData = log.custom.configData ?? this.configData;
+		const configData = log?.custom?.configData;
+		this.configData = log?.custom?.configData ?? this.configData;
 
 		const restoreInteractiveState = (pollAttempt = 0) => {
 			if (this.gameState !== 'playing' || this.pause || !this.activeCreature) {
@@ -3032,23 +3065,14 @@ export default class Game {
 			this.grid?.refreshHoverState();
 		};
 
-		/**
-		 * Whether `creature` is the one that recorded `performer`.
-		 *
-		 * `name` + owning player is the primary key because it survives a replay in
-		 * which creatures were assembled in a slightly different order (so ids no
-		 * longer line up). A player never has two units of the same type, so the pair
-		 * is unique. The id is only consulted when the log predates the performer
-		 * field and carries no name.
-		 */
 		const performerMatches = (performer: LogPerformer, creature: Creature | undefined) => {
 			if (!creature) return false;
 
-			if (typeof performer.name === 'string' && performer.name) {
+			if (typeof performer?.name === 'string' && performer.name) {
 				return creature.name === performer.name && creature.player?.id === performer.player;
 			}
 
-			return typeof performer.id === 'number' && performer.id === creature.id;
+			return typeof performer?.id === 'number' && performer.id === creature.id;
 		};
 
 		const nextAction = () => {
@@ -3056,93 +3080,167 @@ export default class Game {
 				actions.length = 0;
 				this.isReplayInProgress = false;
 				this.replayMode = null;
-				// Replay finishes between turns for some logs; explicitly re-arm the
-				// active creature query to restore live input controls.
+				if (this._replayInterval) {
+					clearInterval(this._replayInterval);
+					this._replayInterval = null;
+				}
+				if (this._replayStartTimeout) {
+					clearTimeout(this._replayStartTimeout);
+					this._replayStartTimeout = null;
+				}
+				this._replayResume = null;
 				setTimeout(() => restoreInteractiveState(), 0);
-				return;
+				this.soundsys?.setEffectsMuted(false);
+				const button = this.UI?.btnSkipTurn;
+				if (button) {
+					const desc = button.$button.next('.desc');
+					if (desc?.length) {
+						desc.removeClass('tooltip-visible');
+					}
+				}
+				return void this.setReplayFastForwardUI?.(false);
 			}
 
 			if (!DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG) {
 				console.log(`${1 + numTotalActions - actions.length} / ${numTotalActions}`);
 			}
 
-			// Each action belongs to the creature that recorded it, and the turn that
-			// follows a move or an ability is handed over asynchronously. Applying the
-			// action to whatever creature happens to be active (the previous
-			// behaviour) silently targets the wrong unit once the replay drifts — a
-			// materialization then lands on the other player, units vanish, and
-			// abilities fire with arguments they were never meant to receive.
-			//
-			// Waiting for the recorded performer makes the replay self-correcting, but
-			// only if the turn is allowed to move on: ending a turn is often implicit
-			// and unlogged (a creature that moves out of movement points is skipped by
-			// the board, not recorded), so with nothing to advance it the replay
-			// stalls on the creature that just acted. Advancing the turn toward the
-			// recorded performer reproduces those silent hand-offs.
-			const performer = actions[0].performer as LogPerformer | undefined;
-			const performerWaitLimitMs = mode === 'load' ? 30000 : 5000;
+			const performer = actions[0]?.performer as LogPerformer | undefined;
+			const performerWaitLimitMs = () => (this.replayMode === 'load' ? 30000 : 5000);
 			let performerWaitedMs = 0;
-			// One hand-off per turn change: nextCreature() schedules its own delayed
-			// advance, so requesting again before the new unit is installed would
-			// stack several of them and skip past the target.
 			let turnHandOffPending = false;
 			let lastSeenCreature: Creature | undefined = this.activeCreature;
 
-			const interval = setInterval(
-				() => {
-					if (this.freezedInput || this.turnThrottle) {
-						return;
-					}
-
-					const activeCreature = this.activeCreature;
-					if (activeCreature !== lastSeenCreature) {
-						// The turn moved on, so a further hand-off may be requested.
-						lastSeenCreature = activeCreature;
-						turnHandOffPending = false;
-					}
-
-					if (performer && !performerMatches(performer, this.activeCreature)) {
-						// Logs written before the performer field existed have no performer
-						// to match and fall through as before. When one exists, advance the
-						// board until its creature takes a turn — the unit is either still
-						// queued or was never rebuilt (an earlier action failed), and in
-						// the latter case waiting forever would stall the whole replay.
-						performerWaitedMs += mode === 'load' ? 1 : 100;
-						if (performerWaitedMs > performerWaitLimitMs) {
-							clearInterval(interval);
-							console.warn(
-								'[Replay] Dropping action whose creature never became active.',
-								actions[0],
-							);
-							actions.shift();
-							nextAction();
+			const runInterval = () => {
+				this._replayInterval = setInterval(
+					() => {
+						if (this.freezedInput || this.turnThrottle) {
 							return;
 						}
 
-						if (!turnHandOffPending && this.activeCreature) {
-							turnHandOffPending = true;
-							// Consume the acting creature's turn exactly as skipTurn() does.
-							// Without deactivate('turn-end') the unit stays at the front of
-							// the queue, so nextCreature() would only re-activate it and the
-							// board would never move on to the recorded performer.
-							this.activeCreature.deactivate('turn-end');
-							this.nextCreature();
+						const activeCreature = this.activeCreature;
+						if (activeCreature !== lastSeenCreature) {
+							lastSeenCreature = activeCreature;
+							turnHandOffPending = false;
 						}
-						return;
-					}
 
-					clearInterval(interval);
-					this.activeCreature?.queryMove();
-					this.action(actions.shift(), {
-						callback: nextAction,
-					});
-				},
-				mode === 'load' ? 1 : 100,
-			);
+						if (performer && !performerMatches(performer, this.activeCreature)) {
+							performerWaitedMs += this.replayMode === 'load' ? 1 : 100;
+							if (performerWaitedMs > performerWaitLimitMs()) {
+								if (this._replayInterval) {
+									clearInterval(this._replayInterval);
+									this._replayInterval = null;
+								}
+								this._replayResume = null;
+								console.warn(
+									'[Replay] Dropping action whose creature never became active.',
+									actions[0],
+								);
+								actions.shift();
+								nextAction();
+								return;
+							}
+
+							if (!turnHandOffPending && this.activeCreature) {
+								turnHandOffPending = true;
+								this.activeCreature.deactivate('turn-end');
+								this.nextCreature();
+								setTimeout(() => {
+									turnHandOffPending = false;
+								}, 100);
+							}
+							return;
+						}
+
+						if (this._replayInterval) {
+							clearInterval(this._replayInterval);
+							this._replayInterval = null;
+						}
+						this._replayResume = null;
+						this.activeCreature?.queryMove();
+						this.action(actions.shift(), {
+							callback: nextAction,
+						});
+					},
+					this.replayMode === 'load' ? 1 : 100,
+				);
+			};
+
+			this._replayResume = runInterval;
+			runInterval();
 		};
 
 		this.startGameLoad(configData, undefined, undefined, () => {
-			setTimeout(() => nextAction(), mode === 'load' ? 0 : 3000);
+			const startReplay = () => {
+				this._replayStartTimeout = setTimeout(
+					() => {
+						this._replayStartTimeout = null;
+						this._replayResume = null;
+						nextAction();
+					},
+					mode === 'load' ? 0 : 3000,
+				);
+			};
+			this._replayResume = startReplay;
+			startReplay();
 		});
+	}
+
+	toggleReplayFastForward() {
+		if (!this.isReplayInProgress || this.replayMode === null) {
+			return;
+		}
+		const wasFast = this.replayMode === 'load';
+		this.replayMode = wasFast ? 'play' : 'load';
+		this.soundsys?.setEffectsMuted(!wasFast);
+		this.setReplayFastForwardUI(!wasFast);
+		if (this._replayInterval) {
+			clearInterval(this._replayInterval);
+			this._replayInterval = null;
+			this._replayResume?.();
+		} else if (this._replayStartTimeout) {
+			clearTimeout(this._replayStartTimeout);
+			this._replayStartTimeout = null;
+			this._replayResume?.();
+		}
+		const button = this.UI?.btnSkipTurn;
+		if (button) {
+			const desc = button.$button.next('.desc');
+			if (desc?.length) {
+				desc.removeClass('tooltip-visible');
+			}
+			button.$button[0]?.blur();
+		}
+	}
+
+	setReplayFastForwardUI(fastForward: boolean) {
+		const button = this.UI?.btnSkipTurn;
+		if (button) {
+			const isReplay = this.isReplayInProgress;
+			button.$button.toggleClass('replayControl', isReplay);
+			button.$button.toggleClass('replayFastForward', isReplay && fastForward);
+			const desc = button.$button.next('.desc');
+			if (desc?.length) {
+				desc.find('span').text(isReplay ? 'Skip Replay' : 'Skip turn');
+				desc
+					.find('p')
+					.text(
+						isReplay
+							? fastForward
+								? 'Click to return to normal replay speed.'
+								: 'Click to fast-forward replay.'
+							: 'End the turn of the current creature and proceed with the next in queue.',
+					);
+				if (!fastForward) {
+					desc.removeClass('tooltip-visible');
+				}
+			}
+			button.overridefreeze = isReplay;
+			button.clickable = isReplay;
+			button.$button.toggleClass('disabled', !isReplay);
+			console.log('[Game] setReplayFastForwardUI:', fastForward, 'button found:', true);
+		} else {
+			console.warn('[Game] setReplayFastForwardUI: skip button NOT FOUND', fastForward);
+		}
 	}
 }

@@ -65,9 +65,10 @@ const ABILITY_COST_FADE_MS = 250;
 export function areTurnActionButtonsDisabled(game: Game): boolean {
 	const activePlayer = game.activeCreature?.player;
 	return (
-		!activePlayer ||
-		activePlayer.controller !== 'human' ||
-		Boolean(game.multiplayer && game.lobby && !game.lobby.isMyTurn())
+		(!activePlayer ||
+			activePlayer.controller !== 'human' ||
+			Boolean(game.multiplayer && game.lobby && !game.lobby.isMyTurn())) &&
+		!game.isReplayInProgress
 	);
 }
 
@@ -108,11 +109,9 @@ const isManualReloadShortcut = (event: KeyboardEvent) => {
 };
 
 // Intercept browser modals while dev reload prompt is visible to prevent them from appearing on top
-const savedModalFunctions = {
-	alert: window.alert,
-	confirm: window.confirm,
-	prompt: window.prompt,
-};
+const _nativeAlert = window.alert;
+const _nativeConfirm = window.confirm;
+const _nativePrompt = window.prompt;
 
 let isRefreshPromptVisible = false;
 
@@ -122,7 +121,7 @@ const suppressBrowserModalWhilePromptVisible = () => {
 			console.warn('[Refresh Prompt] Suppressed alert:', message);
 			return undefined;
 		}
-		return savedModalFunctions.alert(message);
+		return _nativeAlert(message);
 	};
 
 	window.confirm = (message?: string) => {
@@ -130,7 +129,7 @@ const suppressBrowserModalWhilePromptVisible = () => {
 			console.warn('[Refresh Prompt] Suppressed confirm:', message);
 			return false;
 		}
-		return savedModalFunctions.confirm(message);
+		return _nativeConfirm(message);
 	};
 
 	window.prompt = (message?: string, defaultValue?: string) => {
@@ -138,7 +137,7 @@ const suppressBrowserModalWhilePromptVisible = () => {
 			console.warn('[Refresh Prompt] Suppressed prompt:', message);
 			return null;
 		}
-		return savedModalFunctions.prompt(message, defaultValue);
+		return _nativePrompt(message, defaultValue);
 	};
 };
 
@@ -747,6 +746,12 @@ export class UI {
 				hasShortcut: true,
 				click: () => {
 					if (!this.dashopen) {
+						// During replay
+						if (game.isReplayInProgress) {
+							game.toggleReplayFastForward();
+							return;
+						}
+
 						if (game.turnThrottle || game.botController.isBotTurn()) {
 							if (game.botController.isBotTurn()) {
 								this.showCancelIconOnButton(this.btnSkipTurn.$button);
@@ -1418,6 +1423,7 @@ export class UI {
 					dashOpen: this.dashopen,
 					interfaceViewOpen: isInterfaceViewOpen,
 					scoreboardOpen: isScoreboardOpen,
+					replayInProgress: game.isReplayInProgress,
 				});
 
 				if (game.freezedInput && !isUtilityHotkey) {
@@ -2769,27 +2775,35 @@ export class UI {
 		// On touch devices, hover doesn't fire, so tap the round buttons to
 		// toggle their tooltips. Delegated so it works for any button added
 		// later (save/restart/exit/flee).
-		this.$scoreboard.off('click.scoreboardTooltips').on(
-			'click.scoreboardTooltips',
-			'.scoreboardActions .button, .scoreboardActions #save, .scoreboardActions #restart, .scoreboardActions #exit',
-			function () {
-				const $desc = $j(this).next('.desc');
-				const isVisible = $desc.hasClass('tooltip-visible');
-				// Hide any other open tooltip first.
-				$j(this).closest('.scoreboardActions').find('.desc').not($desc).removeClass('tooltip-visible');
-				$desc.toggleClass('tooltip-visible', !isVisible);
-			},
-		);
-		this.$scoreboard.off('click.scoreEmojiTooltips').on(
-			'click.scoreEmojiTooltips',
-			'.score-emoji-tooltip-wrap',
-			function () {
+		this.$scoreboard
+			.off('click.scoreboardTooltips')
+			.on(
+				'click.scoreboardTooltips',
+				'.scoreboardActions .button, .scoreboardActions #save, .scoreboardActions #restart, .scoreboardActions #exit',
+				function () {
+					const $desc = $j(this).next('.desc');
+					const isVisible = $desc.hasClass('tooltip-visible');
+					// Hide any other open tooltip first.
+					$j(this)
+						.closest('.scoreboardActions')
+						.find('.desc')
+						.not($desc)
+						.removeClass('tooltip-visible');
+					$desc.toggleClass('tooltip-visible', !isVisible);
+				},
+			);
+		this.$scoreboard
+			.off('click.scoreEmojiTooltips')
+			.on('click.scoreEmojiTooltips', '.score-emoji-tooltip-wrap', function () {
 				const $tooltip = $j(this);
 				const isVisible = $tooltip.hasClass('tooltip-visible');
-				$tooltip.closest('tr').find('.score-emoji-tooltip-wrap').not($tooltip).removeClass('tooltip-visible');
+				$tooltip
+					.closest('tr')
+					.find('.score-emoji-tooltip-wrap')
+					.not($tooltip)
+					.removeClass('tooltip-visible');
 				$tooltip.toggleClass('tooltip-visible', !isVisible);
-			},
-		);
+			});
 
 		// Configure scoreboard data
 		if (disconnectReason) {
@@ -2914,24 +2928,24 @@ export class UI {
 		// Write table for number players
 
 		// Clear table
-const tableMeta = [
-		// Bars row first: the per-player overview bars (plasma/health/energy
-		// etc). On the phone landscape this row is hidden - the emoji header
-		// row already shows the stat emojis and there's no room for bars.
-		{
-			cls: 'player_bars',
-		},
-		{
-			cls: 'player_name',
-			emoji: '&#x1F43A;',
-			title: 'Players',
-		},
-		{
-			cls: 'firstKill',
-			// node-emoji has no shortcode for the drop of blood, so it is inlined.
-			emoji: '🩸',
-			title: 'Blood',
-		},
+		const tableMeta = [
+			// Bars row first: the per-player overview bars (plasma/health/energy
+			// etc). On the phone landscape this row is hidden - the emoji header
+			// row already shows the stat emojis and there's no room for bars.
+			{
+				cls: 'player_bars',
+			},
+			{
+				cls: 'player_name',
+				emoji: '&#x1F43A;',
+				title: 'Players',
+			},
+			{
+				cls: 'firstKill',
+				// node-emoji has no shortcode for the drop of blood, so it is inlined.
+				emoji: '🩸',
+				title: 'Blood',
+			},
 			{
 				cls: 'kill',
 				emoji: emoji.get('skull'),
@@ -2962,32 +2976,32 @@ const tableMeta = [
 				emoji: emoji.get('cherries'),
 				title: 'Drops',
 			},
-{
-			cls: 'timebonus',
-			emoji: emoji.get('alarm_clock'),
-			title: 'Time',
-		},
-		{
-			cls: 'creaturebonus',
-			emoji: emoji.get('chicken'),
-			title: 'Survivors',
-		},
-		{
-			cls: 'immortal',
-			emoji: emoji.get('bat'),
-			title: 'Immortal',
-		},
-		{
-			cls: 'upgrade',
-			emoji: emoji.get('medal'),
-			title: 'Upgrades',
-		},
-		{
-			cls: 'total',
-			emoji: emoji.get('100'),
-			title: 'Total',
-		},
-	];
+			{
+				cls: 'timebonus',
+				emoji: emoji.get('alarm_clock'),
+				title: 'Time',
+			},
+			{
+				cls: 'creaturebonus',
+				emoji: emoji.get('chicken'),
+				title: 'Survivors',
+			},
+			{
+				cls: 'immortal',
+				emoji: emoji.get('bat'),
+				title: 'Immortal',
+			},
+			{
+				cls: 'upgrade',
+				emoji: emoji.get('medal'),
+				title: 'Upgrades',
+			},
+			{
+				cls: 'total',
+				emoji: emoji.get('100'),
+				title: 'Total',
+			},
+		];
 
 		// Desktop vertical table: clear any leftover rows from a previous
 		// landscape layout before rebuilding, so both modes can't coexist
@@ -3027,18 +3041,26 @@ const tableMeta = [
 					// bars (plasma/health/energy/etc). First cell empty.
 					$row.empty().html('<td class="score-title-cell"></td><td class="score-emoji-cell"></td>');
 					for (let i = 0; i < game.gameMode; i++) {
-						$row.append(`<td><div class="score-player-bars">${playerHeaderMeta[i].barsHtml}</div></td>`);
+						$row.append(
+							`<td><div class="score-player-bars">${playerHeaderMeta[i].barsHtml}</div></td>`,
+						);
 					}
 				} else {
 					// Desktop: first cell = title, second cell = emoji, rest = player data.
-					const titleCell = row.title ? `<td class="score-title-cell">${row.title}</td>` : '<td class="score-title-cell"></td>';
-					const emojiCell = row.emoji ? `<td class="score-emoji-cell">${row.emoji}</td>` : '<td class="score-emoji-cell"></td>';
+					const titleCell = row.title
+						? `<td class="score-title-cell">${row.title}</td>`
+						: '<td class="score-title-cell"></td>';
+					const emojiCell = row.emoji
+						? `<td class="score-emoji-cell">${row.emoji}</td>`
+						: '<td class="score-emoji-cell"></td>';
 					$row.empty().html(`${titleCell}${emojiCell}`);
 
 					// Add cells for each player
 					for (let i = 0; i < game.gameMode; i++) {
 						if (row.cls === 'player_name') {
-							$row.append(`<td><div class="score-player-name" style="color:${playerHeaderMeta[i].color}">${playerHeaderMeta[i].playerLabel}</div></td>`);
+							$row.append(
+								`<td><div class="score-player-name" style="color:${playerHeaderMeta[i].color}">${playerHeaderMeta[i].playerLabel}</div></td>`,
+							);
 						} else {
 							$row.append('<td>--</td>');
 						}
@@ -3084,7 +3106,9 @@ const tableMeta = [
 				$table
 					.children('tr.player_name')
 					.children('td:nth-child(' + colId + ')')
-					.html(`<div class="score-player-name" style="color:${playerHeaderMeta[i].color}">${playerHeaderMeta[i].playerLabel}</div>`);
+					.html(
+						`<div class="score-player-name" style="color:${playerHeaderMeta[i].color}">${playerHeaderMeta[i].playerLabel}</div>`,
+					);
 
 				// Put the per-player overview bars in their own row.
 				$table
@@ -3779,6 +3803,11 @@ const tableMeta = [
 			$abilitiesButtons = $j('#abilities .ability');
 		const turnActionButtonsDisabled = areTurnActionButtonsDisabled(game);
 
+		// No active creature (e.g., during snapshot reconstruction before setup completes)
+		if (!creature) {
+			return;
+		}
+
 		if (turnActionButtonsDisabled) {
 			this.btnSkipTurn.changeState(ButtonStateEnum.disabled);
 			this.btnDelay.changeState(ButtonStateEnum.disabled);
@@ -3813,7 +3842,7 @@ const tableMeta = [
 		// Must be called with panel-stacked already active so all data/state changes
 		// happen while slot transitions are disabled — no visual flash before the unfold.
 		const applyDataAndUnfold = () => {
-			if (game.activeCreature !== creature) {
+			if (!creature || game.activeCreature !== creature) {
 				return;
 			}
 

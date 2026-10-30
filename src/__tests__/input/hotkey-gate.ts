@@ -19,6 +19,7 @@ const context = (overrides: Partial<HotkeyGateContext> = {}): HotkeyGateContext 
 	dashOpen: false,
 	interfaceViewOpen: false,
 	scoreboardOpen: false,
+	replayInProgress: false,
 	...overrides,
 });
 
@@ -48,6 +49,14 @@ describe('isUtilityHotkey', () => {
 	test('keeps the audio view toggle live, dashed or not', () => {
 		// Shift+A opens the music player, which is a view and never board input.
 		expect(isUtilityHotkey(key('KeyA', shift), context({ dashOpen: true }))).toBe(true);
+	});
+
+	test('lets bare F toggle replay speed while a replay is in progress', () => {
+		expect(isUtilityHotkey(key('KeyF'), context({ replayInProgress: true }))).toBe(true);
+	});
+
+	test('withholds bare F when no replay is in progress', () => {
+		expect(isUtilityHotkey(key('KeyF'), context({ replayInProgress: false }))).toBe(false);
 	});
 
 	test('keeps the other board-free hotkeys live', () => {

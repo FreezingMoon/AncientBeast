@@ -22,6 +22,8 @@ export interface HotkeyGateContext {
 	interfaceViewOpen: boolean;
 	/** Whether the scoreboard is showing. */
 	scoreboardOpen: boolean;
+	/** Whether replay controls are active, making bare F a replay toggle. */
+	replayInProgress: boolean;
 }
 
 const hasNoModifierKeys = (event: KeyboardEvent) =>
@@ -99,4 +101,7 @@ export const isUtilityHotkey = (event: KeyboardEvent, context: HotkeyGateContext
 	event.code === 'Backquote' ||
 	event.code === 'Backspace' ||
 	(event.code === 'KeyP' && event.metaKey && event.altKey && !event.ctrlKey && !event.shiftKey) ||
-	(isAudioModeHotkey(event) && !context.dashOpen);
+	(event.code === 'KeyF' && hasNoModifierKeys(event) && context.replayInProgress) ||
+	(isAudioModeHotkey(event) && !context.dashOpen) ||
+	// Shift+S: save snapshot
+	(event.code === 'KeyS' && event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey);

@@ -64,6 +64,11 @@ export interface ShakeOptions {
  * strings rather than magic numbers.
  */
 export function shakeBoard(options: ShakeOptions): void {
+	// Disable camera shake during fast-forward replay to reduce visual noise
+	if (typeof window !== 'undefined' && (window as any).G?.replayMode === 'load') {
+		return;
+	}
+
 	const active = camera;
 	const phaser = tryGetPhaser();
 	if (!active || !phaser) {

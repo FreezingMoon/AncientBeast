@@ -438,10 +438,42 @@
 	}
 }
 .button#skip {
-	background-image: url('assets/interface/skip.svg');
+	background-image: url('assets/icons/skip.svg');
 
 	&.cancelIcon {
 		background-image: url('assets/icons/cancel.svg') !important;
+	}
+
+	&.replayControl {
+		background-image: none;
+		--icon-url: url('assets/icons/forward.svg');
+
+		&::before {
+			z-index: 2;
+		}
+
+		&::after {
+			content: '';
+			position: absolute;
+			inset: 0;
+			z-index: 1;
+			background-image: var(--icon-url);
+			background-size: 100% 100%;
+		}
+
+		&.replayFastForward::after {
+			animation: iconInvertFlash 400ms ease-in-out infinite;
+		}
+
+		&:hover + .desc,
+		&.hover + .desc {
+			visibility: visible;
+			pointer-events: auto;
+		}
+	}
+
+	&.replay-pointer {
+		cursor: pointer;
 	}
 
 	&.disabled {
@@ -883,7 +915,6 @@ div.section.info {
 	transition: opacity 0.2s;
 }
 
-
 #audio:hover .tooltiptext {
 	visibility: visible;
 	opacity: 1;
@@ -1318,7 +1349,6 @@ div.section.info {
 	z-index: 1;
 }
 
-
 .vignette.crashing-globe-ability .stats {
 	position: absolute;
 	top: 80px;
@@ -1477,7 +1507,12 @@ div.section.info {
 #abilities .button.disabled {
 	transform: none !important;
 	filter: invert(1);
-	background-color: rgba(255, 255, 255, 0.55); // pre-inverted → appears as rgba(0,0,0,0.55) after filter
+	background-color: rgba(
+		255,
+		255,
+		255,
+		0.55
+	); // pre-inverted → appears as rgba(0,0,0,0.55) after filter
 	opacity: 0.5;
 
 	&::before {
@@ -1492,16 +1527,27 @@ div.section.info {
 
 // Refusal feedback (unmet requirement, already used, no target):
 // ::after isolates the icon so filter:invert skips bg-color and frame.
-#abilities .button.iconInvertFlash {
+#abilities .button.iconInvertFlash,
+.button.iconInvertFlash {
 	background-image: none !important;
-	&::before { z-index: 2; }
+	&::before {
+		z-index: 2;
+	}
 	&::after {
-		content: ''; position: absolute; inset: 0; z-index: 1;
-		background-image: var(--icon-url); background-size: 100% 100%;
+		content: '';
+		position: absolute;
+		inset: 0;
+		z-index: 1;
+		background-image: var(--icon-url);
+		background-size: 100% 100%;
 		animation: iconInvertFlash 400ms ease-in-out;
 	}
 }
-@keyframes iconInvertFlash { 50% { filter: invert(1); } }
+@keyframes iconInvertFlash {
+	50% {
+		filter: invert(1);
+	}
+}
 
 #leftpanel .passive-slot .ability.nextIcon {
 	transform: none;
@@ -1869,7 +1915,7 @@ div.section.info {
 	overflow-y: scroll;
 }
 
-#chat.expanded #chatbox{
+#chat.expanded #chatbox {
 	overflow: hidden;
 }
 
@@ -1900,7 +1946,8 @@ div.section.info {
 	padding: 10px 10px 0;
 	font-size: 1.1em;
 	color: white;
-	text-shadow: 1px 1px 0 #333, -1px -1px 0 #333, 1px -1px 0 #333, -1px 1px 0 #333, 0 2px 5px rgba(0, 0, 0, 0.95);
+	text-shadow: 1px 1px 0 #333, -1px -1px 0 #333, 1px -1px 0 #333, -1px 1px 0 #333,
+		0 2px 5px rgba(0, 0, 0, 0.95);
 	position: absolute;
 	bottom: 0;
 }
@@ -1934,29 +1981,34 @@ div.section.info {
 
 .red {
 	color: #f55;
-	text-shadow: 1px 1px 0 #600, -1px -1px 0 #600, 1px -1px 0 #600, -1px 1px 0 #600, 0 2px 6px rgba(0, 0, 0, 0.95);
+	text-shadow: 1px 1px 0 #600, -1px -1px 0 #600, 1px -1px 0 #600, -1px 1px 0 #600,
+		0 2px 6px rgba(0, 0, 0, 0.95);
 }
 
 .blue {
 	color: #88f;
-	text-shadow: 1px 1px 0 #226, -1px -1px 0 #226, 1px -1px 0 #226, -1px 1px 0 #226, 0 2px 6px rgba(0, 0, 0, 0.95);
+	text-shadow: 1px 1px 0 #226, -1px -1px 0 #226, 1px -1px 0 #226, -1px 1px 0 #226,
+		0 2px 6px rgba(0, 0, 0, 0.95);
 }
 
 .green {
 	color: #5f5;
-	text-shadow: 1px 1px 0 #060, -1px -1px 0 #060, 1px -1px 0 #060, -1px 1px 0 #060, 0 2px 6px rgba(0, 0, 0, 0.95);
+	text-shadow: 1px 1px 0 #060, -1px -1px 0 #060, 1px -1px 0 #060, -1px 1px 0 #060,
+		0 2px 6px rgba(0, 0, 0, 0.95);
 }
 
 .orange {
 	color: #fa5;
-	text-shadow: 1px 1px 0 #730, -1px -1px 0 #730, 1px -1px 0 #730, -1px 1px 0 #730, 0 2px 6px rgba(0, 0, 0, 0.95);
+	text-shadow: 1px 1px 0 #730, -1px -1px 0 #730, 1px -1px 0 #730, -1px 1px 0 #730,
+		0 2px 6px rgba(0, 0, 0, 0.95);
 }
 
 #chat #chatbox #chatcontent i {
 	font-size: 80%;
 	color: #ddd;
 	margin: 0 5px;
-	text-shadow: 1px 1px 0 #444, -1px -1px 0 #444, 1px -1px 0 #444, -1px 1px 0 #444, 0 2px 5px rgba(0, 0, 0, 0.95);
+	text-shadow: 1px 1px 0 #444, -1px -1px 0 #444, 1px -1px 0 #444, -1px 1px 0 #444,
+		0 2px 5px rgba(0, 0, 0, 0.95);
 }
 
 /*---------------Active Unit--------------*/
@@ -2072,10 +2124,15 @@ div.section.info {
 	border-left: 6px solid black;
 }
 
-#rightpanel .button.hover + .desc {
+#rightpanel .button.hover + .desc,
+#rightpanel .button:hover + .desc,
+#rightpanel .button:focus + .desc,
+#rightpanel .button + .desc.tooltip-visible {
 	width: 250px;
 	left: -259px;
 	text-align: right;
+	visibility: visible;
+	pointer-events: auto;
 }
 
 #rightpanel .panel-control,
@@ -2114,16 +2171,15 @@ div.section.info {
 }
 
 /* Wider scoreboard modal to fit overview bars and 2vs2 titles */
-	.framed-modal--scoreboard {
-		width: 720px;
-		max-height: 820px;
-	}
+.framed-modal--scoreboard {
+	width: 720px;
+	max-height: 820px;
+}
 
 /* Inner sections */
 .scoreboard-inner {
 	padding: 0 20px;
 }
-
 
 .scoreboard-inner--scores {
 	padding-bottom: 22px;
@@ -2536,9 +2592,18 @@ span.pure {
 }
 
 @keyframes intenseSparkle {
-	0%   { background-position: 0% 0%; opacity: 0.8; }
-	50%  { background-position: 20% 50%; opacity: 1; }
-	100% { background-position: 0% 100%; opacity: 0.8; }
+	0% {
+		background-position: 0% 0%;
+		opacity: 0.8;
+	}
+	50% {
+		background-position: 20% 50%;
+		opacity: 1;
+	}
+	100% {
+		background-position: 0% 100%;
+		opacity: 0.8;
+	}
 }
 
 @keyframes tubeSpecularDrift {
@@ -2556,8 +2621,12 @@ span.pure {
 }
 
 @keyframes boldGradient {
-	0%   { background-position: 0% -50%; }
-	100% { background-position: 0% 150%; }
+	0% {
+		background-position: 0% -50%;
+	}
+	100% {
+		background-position: 0% 150%;
+	}
 }
 
 @keyframes button-bounce-left {
@@ -2713,7 +2782,6 @@ span.pure {
 				pointer-events: none;
 				z-index: 1;
 			}
-
 		}
 
 		h1 {
@@ -2998,10 +3066,28 @@ span.pure {
 		pointer-events: none;
 		z-index: 4;
 		mix-blend-mode: screen;
-		background-image:
-			linear-gradient(90deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.1) 16%, rgba(255, 255, 255, 0) 42%, rgba(0, 0, 0, 0.1) 72%, rgba(255, 255, 255, 0.12) 100%),
-			linear-gradient(104deg, transparent 0%, rgba(255, 255, 255, 0.32) 24%, rgba(255, 255, 255, 0.06) 42%, transparent 60%),
-			linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0) 70%, rgba(255, 255, 255, 0.06) 100%);
+		background-image: linear-gradient(
+				90deg,
+				rgba(255, 255, 255, 0.24) 0%,
+				rgba(255, 255, 255, 0.1) 16%,
+				rgba(255, 255, 255, 0) 42%,
+				rgba(0, 0, 0, 0.1) 72%,
+				rgba(255, 255, 255, 0.12) 100%
+			),
+			linear-gradient(
+				104deg,
+				transparent 0%,
+				rgba(255, 255, 255, 0.32) 24%,
+				rgba(255, 255, 255, 0.06) 42%,
+				transparent 60%
+			),
+			linear-gradient(
+				180deg,
+				rgba(255, 255, 255, 0.08) 0%,
+				rgba(255, 255, 255, 0) 30%,
+				rgba(255, 255, 255, 0) 70%,
+				rgba(255, 255, 255, 0.06) 100%
+			);
 		background-size: 100% 100%, 220% 100%, 100% 100%;
 		background-repeat: no-repeat;
 		background-position: 0 0, 120% 0, 0 0;
@@ -3094,7 +3180,11 @@ span.pure {
 		content: '';
 		position: absolute;
 		inset: 0;
-		background-image: radial-gradient(circle, rgba(255, 255, 255, 0.38) 0 2px, rgba(255, 255, 255, 0) 2.2px),
+		background-image: radial-gradient(
+				circle,
+				rgba(255, 255, 255, 0.38) 0 2px,
+				rgba(255, 255, 255, 0) 2.2px
+			),
 			radial-gradient(circle, rgba(255, 255, 255, 0.26) 0 1.5px, rgba(255, 255, 255, 0) 1.7px),
 			radial-gradient(circle, rgba(0, 0, 0, 0.2) 0 1.3px, rgba(0, 0, 0, 0) 1.5px);
 		background-size: 16px 34px, 13px 42px, 17px 48px;
@@ -3143,26 +3233,44 @@ span.pure {
 
 /* Health bar: animated white-only sheen on ::before, fizz dots left intact on ::after */
 .progressbar .bar.healthbar .currentbar::before {
-	background-image:
-		linear-gradient(180deg,
+	background-image: linear-gradient(
+			180deg,
 			rgba(255, 255, 255, 0.38) 0%,
 			rgba(255, 255, 255, 0.18) 30%,
 			rgba(255, 255, 255, 0.06) 60%,
-			transparent 100%),
+			transparent 100%
+		),
 		radial-gradient(ellipse 80% 100% at 22% 18%, rgba(255, 255, 255, 0.55) 0%, transparent 55%),
 		radial-gradient(ellipse 80% 100% at 78% 82%, rgba(255, 255, 255, 0.32) 0%, transparent 55%);
 	background-size: 100% 240%, 100% 100%, 100% 100%;
 	background-repeat: repeat, no-repeat, no-repeat;
 	opacity: 0.38;
-	animation: boldGradient 2.4s linear infinite, intenseSparkle 2.0s ease-in-out infinite;
+	animation: boldGradient 2.4s linear infinite, intenseSparkle 2s ease-in-out infinite;
 }
 
 /* Hemoglobin-style particles: filled, pill-like crimson cells */
 .progressbar .bar.healthbar .currentbar::after {
-	background-image:
-		radial-gradient(ellipse 52% 33% at 50% 50%, rgba(220, 70, 70, 0.62) 0 48%, rgba(162, 30, 30, 0.54) 60%, rgba(110, 12, 12, 0.18) 71%, transparent 80%),
-		radial-gradient(ellipse 50% 31% at 50% 50%, rgba(198, 44, 44, 0.54) 0 46%, rgba(142, 24, 24, 0.46) 58%, rgba(98, 10, 10, 0.16) 69%, transparent 79%),
-		radial-gradient(ellipse 54% 35% at 50% 50%, rgba(228, 92, 78, 0.38) 0 44%, rgba(166, 48, 34, 0.32) 56%, rgba(120, 26, 18, 0.13) 67%, transparent 78%);
+	background-image: radial-gradient(
+			ellipse 52% 33% at 50% 50%,
+			rgba(220, 70, 70, 0.62) 0 48%,
+			rgba(162, 30, 30, 0.54) 60%,
+			rgba(110, 12, 12, 0.18) 71%,
+			transparent 80%
+		),
+		radial-gradient(
+			ellipse 50% 31% at 50% 50%,
+			rgba(198, 44, 44, 0.54) 0 46%,
+			rgba(142, 24, 24, 0.46) 58%,
+			rgba(98, 10, 10, 0.16) 69%,
+			transparent 79%
+		),
+		radial-gradient(
+			ellipse 54% 35% at 50% 50%,
+			rgba(228, 92, 78, 0.38) 0 44%,
+			rgba(166, 48, 34, 0.32) 56%,
+			rgba(120, 26, 18, 0.13) 67%,
+			transparent 78%
+		);
 	background-size: 7px 34px, 6px 42px, 8px 48px;
 	background-repeat: repeat;
 	pointer-events: none;
@@ -3175,7 +3283,11 @@ span.pure {
 }
 
 .progressbar .bar.energybar .currentbar::after {
-	background-image: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0 2.2px, rgba(255, 255, 255, 0) 2.5px),
+	background-image: radial-gradient(
+			circle,
+			rgba(255, 255, 255, 0.18) 0 2.2px,
+			rgba(255, 255, 255, 0) 2.5px
+		),
 		radial-gradient(circle, rgba(0, 0, 0, 0.24) 0 1.9px, rgba(0, 0, 0, 0) 2.2px),
 		radial-gradient(circle, rgba(0, 0, 0, 0.16) 0 1.6px, rgba(0, 0, 0, 0) 1.9px);
 	background-size: 6px 34px, 6px 42px, 6px 48px;
@@ -3185,9 +3297,27 @@ span.pure {
 
 /* Turn Time Bar - white fill, ring-based particles for contrast */
 .progressbar .bar.timebar.turntime-mode .currentbar::after {
-	background-image: radial-gradient(circle, rgba(95, 110, 140, 0) 0 1.0px, rgba(95, 110, 140, 0.46) 1.05px 1.75px, rgba(95, 110, 140, 0.16) 1.8px 2.2px, rgba(95, 110, 140, 0) 3.0px),
-		radial-gradient(circle, rgba(45, 55, 75, 0) 0 0.9px, rgba(45, 55, 75, 0.42) 0.95px 1.55px, rgba(45, 55, 75, 0.12) 1.6px 1.95px, rgba(45, 55, 75, 0) 2.6px),
-		radial-gradient(circle, rgba(15, 20, 30, 0) 0 0.7px, rgba(15, 20, 30, 0.34) 0.75px 1.15px, rgba(15, 20, 30, 0.10) 1.2px 1.45px, rgba(15, 20, 30, 0) 2.2px);
+	background-image: radial-gradient(
+			circle,
+			rgba(95, 110, 140, 0) 0 1px,
+			rgba(95, 110, 140, 0.46) 1.05px 1.75px,
+			rgba(95, 110, 140, 0.16) 1.8px 2.2px,
+			rgba(95, 110, 140, 0) 3px
+		),
+		radial-gradient(
+			circle,
+			rgba(45, 55, 75, 0) 0 0.9px,
+			rgba(45, 55, 75, 0.42) 0.95px 1.55px,
+			rgba(45, 55, 75, 0.12) 1.6px 1.95px,
+			rgba(45, 55, 75, 0) 2.6px
+		),
+		radial-gradient(
+			circle,
+			rgba(15, 20, 30, 0) 0 0.7px,
+			rgba(15, 20, 30, 0.34) 0.75px 1.15px,
+			rgba(15, 20, 30, 0.1) 1.2px 1.45px,
+			rgba(15, 20, 30, 0) 2.2px
+		);
 	background-size: 8px 34px, 7px 42px, 9px 48px;
 	background-repeat: repeat;
 	opacity: 0.9;
@@ -3196,8 +3326,12 @@ span.pure {
 
 /* Plasma Bar - restored pre-turntime-tuning particles */
 .progressbar .bar.timebar.plasma-mode .currentbar::after {
-	background-image: radial-gradient(circle, rgba(255, 255, 255, 0.28) 0 2.2px, rgba(255, 255, 255, 0) 2.5px),
-		radial-gradient(circle, rgba(255, 255, 255, 0.20) 0 1.8px, rgba(255, 255, 255, 0) 2.1px),
+	background-image: radial-gradient(
+			circle,
+			rgba(255, 255, 255, 0.28) 0 2.2px,
+			rgba(255, 255, 255, 0) 2.5px
+		),
+		radial-gradient(circle, rgba(255, 255, 255, 0.2) 0 1.8px, rgba(255, 255, 255, 0) 2.1px),
 		radial-gradient(circle, rgba(0, 0, 0, 0.18) 0 1.5px, rgba(0, 0, 0, 0) 1.8px);
 	background-size: 9px 34px, 8px 42px, 10px 48px;
 	background-repeat: repeat;
@@ -3207,7 +3341,13 @@ span.pure {
 
 /* Score Bar Animation Options */
 .progressbar .bar.poolbar .currentbar::after {
-	background-image: linear-gradient(180deg, rgba(200,200,200,0.25) 0%, rgba(220,220,220,0.18) 40%, rgba(200,200,200,0.08) 70%, transparent 100%),
+	background-image: linear-gradient(
+			180deg,
+			rgba(200, 200, 200, 0.25) 0%,
+			rgba(220, 220, 220, 0.18) 40%,
+			rgba(200, 200, 200, 0.08) 70%,
+			transparent 100%
+		),
 		radial-gradient(circle, rgba(255, 255, 255, 0.19) 0 1.7px, rgba(255, 255, 255, 0) 1.9px),
 		radial-gradient(circle, rgba(0, 0, 0, 0.25) 0 1.5px, rgba(0, 0, 0, 0) 1.7px),
 		radial-gradient(circle, rgba(0, 0, 0, 0.17) 0 1.2px, rgba(0, 0, 0, 0) 1.4px);
@@ -3219,7 +3359,11 @@ span.pure {
 
 /* Score Bar - Option 1: Flowing waves like energy */
 .progressbar .bar.poolbar.variant1 .currentbar::after {
-	background-image: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0 2.2px, rgba(255, 255, 255, 0) 2.5px),
+	background-image: radial-gradient(
+			circle,
+			rgba(255, 255, 255, 0.18) 0 2.2px,
+			rgba(255, 255, 255, 0) 2.5px
+		),
 		radial-gradient(circle, rgba(0, 0, 0, 0.24) 0 1.9px, rgba(0, 0, 0, 0) 2.2px),
 		radial-gradient(circle, rgba(0, 0, 0, 0.16) 0 1.6px, rgba(0, 0, 0, 0) 1.9px);
 	background-size: 6px 34px, 6px 42px, 6px 48px;
@@ -3229,12 +3373,13 @@ span.pure {
 
 /* Score Bar - Option 2: Gradient + Sparkle like health */
 .progressbar .bar.poolbar.variant2 .currentbar::after {
-	background-image:
-		linear-gradient(180deg,
-			rgba(200,200,200,0.3) 0%,
-			rgba(220,220,220,0.2) 40%,
-			rgba(200,200,200,0.1) 70%,
-			transparent 100%),
+	background-image: linear-gradient(
+			180deg,
+			rgba(200, 200, 200, 0.3) 0%,
+			rgba(220, 220, 220, 0.2) 40%,
+			rgba(200, 200, 200, 0.1) 70%,
+			transparent 100%
+		),
 		radial-gradient(ellipse 80% 100% at 20% 20%, rgba(255, 255, 255, 0.6) 0%, transparent 50%),
 		radial-gradient(ellipse 80% 100% at 80% 80%, rgba(220, 220, 220, 0.5) 0%, transparent 50%);
 	background-size: 100% 240%, 100% 100%, 100% 100%;
@@ -3245,19 +3390,27 @@ span.pure {
 
 /* Score Bar - Option 3: Slower shimmer */
 .progressbar .bar.poolbar.variant3 .currentbar::after {
-	background-image: radial-gradient(circle, rgba(255, 255, 255, 0.32) 0 1.8px, rgba(255, 255, 255, 0) 2.0px),
+	background-image: radial-gradient(
+			circle,
+			rgba(255, 255, 255, 0.32) 0 1.8px,
+			rgba(255, 255, 255, 0) 2px
+		),
 		radial-gradient(circle, rgba(255, 255, 255, 0.22) 0 1.3px, rgba(255, 255, 255, 0) 1.5px),
 		radial-gradient(circle, rgba(0, 0, 0, 0.18) 0 1.1px, rgba(0, 0, 0, 0) 1.3px);
 	background-size: 12px 34px, 10px 42px, 14px 48px;
 	opacity: 0.72;
-	animation: barTextureDrift 2.0s linear infinite;
+	animation: barTextureDrift 2s linear infinite;
 }
 
 /* Score Bar - Option 4: Fine particles */
 .progressbar .bar.poolbar.variant4 .currentbar::after {
-	background-image: radial-gradient(circle, rgba(255, 255, 255, 0.16) 0 1.4px, rgba(255, 255, 255, 0) 1.6px),
-		radial-gradient(circle, rgba(0, 0, 0, 0.20) 0 1.2px, rgba(0, 0, 0, 0) 1.4px),
-		radial-gradient(circle, rgba(0, 0, 0, 0.14) 0 1.0px, rgba(0, 0, 0, 0) 1.2px);
+	background-image: radial-gradient(
+			circle,
+			rgba(255, 255, 255, 0.16) 0 1.4px,
+			rgba(255, 255, 255, 0) 1.6px
+		),
+		radial-gradient(circle, rgba(0, 0, 0, 0.2) 0 1.2px, rgba(0, 0, 0, 0) 1.4px),
+		radial-gradient(circle, rgba(0, 0, 0, 0.14) 0 1px, rgba(0, 0, 0, 0) 1.2px);
 	background-size: 5px 34px, 5px 42px, 5px 48px;
 	opacity: 0.78;
 	animation: barTextureDrift 1.6s linear infinite;
@@ -3401,25 +3554,25 @@ input {
 }
 
 /*------------------Interface-------------------*/
-	@media screen and (min-height: 200px) and (max-height: 479px) and (orientation: landscape) {
-		#queue {
-			left: 0;
-			bottom: 0;
-			transform: scale(0.55);
-			transform-origin: left bottom;
-		}
-		#leftpanel {
-			left: 0;
-			bottom: 55px;
-			transform: scale(0.55);
-			transform-origin: left bottom;
-		}
-		#rightpanel {
-			right: 0;
-			bottom: 0;
-			transform: scale(0.55);
-			transform-origin: right bottom;
-		}
+@media screen and (min-height: 200px) and (max-height: 479px) and (orientation: landscape) {
+	#queue {
+		left: 0;
+		bottom: 0;
+		transform: scale(0.55);
+		transform-origin: left bottom;
+	}
+	#leftpanel {
+		left: 0;
+		bottom: 55px;
+		transform: scale(0.55);
+		transform-origin: left bottom;
+	}
+	#rightpanel {
+		right: 0;
+		bottom: 0;
+		transform: scale(0.55);
+		transform-origin: right bottom;
+	}
 
 	#scoreboardTitle {
 		font-size: medium;
@@ -3450,25 +3603,25 @@ input {
 	}
 }
 
-	@media screen and (min-height: 320px) and (max-height: 479px) and (orientation: landscape) {
-		#queue {
-			left: 0;
-			bottom: 0;
-			transform: scale(0.7);
-			transform-origin: left bottom;
-		}
-		#leftpanel {
-			left: 0;
-			bottom: 70px;
-			transform: scale(0.7);
-			transform-origin: left bottom;
-		}
-		#rightpanel {
-			right: 0;
-			bottom: 0;
-			transform: scale(0.7);
-			transform-origin: right bottom;
-		}
+@media screen and (min-height: 320px) and (max-height: 479px) and (orientation: landscape) {
+	#queue {
+		left: 0;
+		bottom: 0;
+		transform: scale(0.7);
+		transform-origin: left bottom;
+	}
+	#leftpanel {
+		left: 0;
+		bottom: 70px;
+		transform: scale(0.7);
+		transform-origin: left bottom;
+	}
+	#rightpanel {
+		right: 0;
+		bottom: 0;
+		transform: scale(0.7);
+		transform-origin: right bottom;
+	}
 
 	#scoreboardTitle {
 		font-size: medium;
@@ -3561,17 +3714,11 @@ input {
 }
 
 /* Keep the desktop emoji column compact so stat titles fit in both modes. */
-#scoreboard:not(.scoreboard-landscape-phone)
-	.scoreboard-inner--scores
-	#score
-	td.score-title-cell {
+#scoreboard:not(.scoreboard-landscape-phone) .scoreboard-inner--scores #score td.score-title-cell {
 	white-space: nowrap;
 }
 
-#scoreboard:not(.scoreboard-landscape-phone)
-	.scoreboard-inner--scores
-	#score
-	td.score-emoji-cell {
+#scoreboard:not(.scoreboard-landscape-phone) .scoreboard-inner--scores #score td.score-emoji-cell {
 	box-sizing: border-box;
 	width: 32px;
 	min-width: 32px;
@@ -3814,7 +3961,7 @@ input {
 		overflow: visible !important;
 	}
 
-/* Table fills the content area; columns distribute the available width
+	/* Table fills the content area; columns distribute the available width
 	   evenly (table-layout: fixed above). The stat columns are sized to
 	   fit the screen so no horizontal scrolling is needed. */
 	#score {
@@ -3860,7 +4007,7 @@ input {
 	}
 
 	/* Player rows: first column = name (left), rest = scores (center) */
-	#score tr[class^="player_row_"] td:first-child {
+	#score tr[class^='player_row_'] td:first-child {
 		text-align: left !important;
 		width: 60px !important;
 		min-width: 60px !important;
@@ -3868,7 +4015,7 @@ input {
 		font-weight: 700 !important;
 	}
 
-	#score tr[class^="player_row_"] td:not(:first-child) {
+	#score tr[class^='player_row_'] td:not(:first-child) {
 		text-align: center !important;
 		width: auto !important;
 		min-width: 50px !important;
@@ -3884,7 +4031,11 @@ input {
 
 	/* On the phone the wolf emoji sits in the leftmost column; right-align
 	   it so it hugs the edge instead of floating in the middle. */
-	#scoreboard.scoreboard-landscape-phone #score tr.player_name td:first-child .score-emoji-tooltip-wrap {
+	#scoreboard.scoreboard-landscape-phone
+		#score
+		tr.player_name
+		td:first-child
+		.score-emoji-tooltip-wrap {
 		display: flex;
 		justify-content: flex-end;
 	}
@@ -3973,7 +4124,7 @@ input {
 		transform: translateY(-50%) !important;
 	}
 
-/* Transposed table: normal table display, emoji headers */
+	/* Transposed table: normal table display, emoji headers */
 	#score {
 		display: table !important;
 	}
@@ -4002,7 +4153,11 @@ input {
 
 /* Landscape phone: only reposition and constrain the shared score-bar
    tooltip styling when it is attached to an emoji. */
-#scoreboard.scoreboard-landscape-phone .scoreboard-inner--scores #score .score-emoji-tooltip-wrap .score-header-tooltip {
+#scoreboard.scoreboard-landscape-phone
+	.scoreboard-inner--scores
+	#score
+	.score-emoji-tooltip-wrap
+	.score-header-tooltip {
 	position: absolute !important;
 	bottom: calc(100% + 2px) !important;
 	left: 50% !important;
@@ -4069,7 +4224,12 @@ input {
 		height: auto;
 		width: auto;
 		border-radius: 50%;
-		background-image: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.2), rgba(48, 48, 48, 0.88) 62%, rgba(10, 10, 10, 0.96));
+		background-image: radial-gradient(
+			circle at 30% 30%,
+			rgba(255, 255, 255, 0.2),
+			rgba(48, 48, 48, 0.88) 62%,
+			rgba(10, 10, 10, 0.96)
+		);
 		border: 2px solid rgba(186, 191, 198, 0.92);
 		box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.55), 0 8px 18px rgba(0, 0, 0, 0.35);
 		transition: border-color 150ms ease, box-shadow 150ms ease;
@@ -4310,9 +4470,6 @@ body.in-game .build-badge {
 	}
 }
 
-
-
-
 /*------------------Phone / Portrait Mode-------------------*/
 body.portrait-mode .scrim,
 body.devvit-mode .scrim {
@@ -4320,7 +4477,8 @@ body.devvit-mode .scrim {
 }
 
 @media (orientation: portrait) and (max-width: 600px) {
-	html, body {
+	html,
+	body {
 		overflow: hidden !important;
 		width: 100vw !important;
 		height: 100dvh !important;
@@ -4689,7 +4847,7 @@ body.devvit-mode .scrim {
 		overflow: visible !important;
 	}
 
-#dash.active #card {
+	#dash.active #card {
 		width: 400px !important;
 		height: 520px !important;
 		margin: 0 auto !important;
@@ -4744,7 +4902,7 @@ body.devvit-mode .scrim {
 		overflow: hidden !important;
 		padding: 8px 6px 72px 6px !important;
 		box-sizing: border-box !important;
-		background: rgba(0,0,0,0.95) !important;
+		background: rgba(0, 0, 0, 0.95) !important;
 		z-index: 50 !important;
 		pointer-events: auto !important;
 	}
@@ -4757,7 +4915,7 @@ body.devvit-mode .scrim {
 		overflow: hidden !important;
 		padding: 8px 6px 72px 6px !important;
 		box-sizing: border-box !important;
-		background: rgba(0,0,0,0.95) !important;
+		background: rgba(0, 0, 0, 0.95) !important;
 		z-index: 50 !important;
 		pointer-events: auto !important;
 	}

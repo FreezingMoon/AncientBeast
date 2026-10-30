@@ -32,6 +32,17 @@ export class Hotkeys {
 	}
 
 	pressS(event) {
+		// During replay, bare S does nothing (F is the fast-forward key)
+		if (
+			this.ui.game.isReplayInProgress &&
+			!event.shiftKey &&
+			!event.ctrlKey &&
+			!event.altKey &&
+			!event.metaKey
+		) {
+			return;
+		}
+
 		if (
 			!this.ui.$scoreboard.hasClass('hide') &&
 			!event.shiftKey &&
@@ -178,6 +189,18 @@ export class Hotkeys {
 	}
 
 	pressF(event) {
+		// Bare F during replay: toggle fast-forward
+		if (
+			this.ui.game.isReplayInProgress &&
+			!event.shiftKey &&
+			!event.ctrlKey &&
+			!event.altKey &&
+			!event.metaKey
+		) {
+			this.ui.btnSkipTurn.triggerClick();
+			return;
+		}
+
 		if (event.shiftKey) {
 			this.ui.fullscreen.toggle();
 		}

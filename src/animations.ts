@@ -1621,7 +1621,7 @@ export class Animations {
 				undefined,
 				game.grid.creatureGroup,
 			),
-			duration = dist * 75;
+			duration = game.replayMode === 'load' ? 1 : dist * 75;
 
 		sprite.setOrigin(0.5, 0.5);
 		const rotation = -Math.PI / 3 + (args.direction * Math.PI) / 3;

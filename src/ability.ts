@@ -769,15 +769,40 @@ export class Ability {
 			}
 		}
 
-		const interval = setInterval(
-			() => {
-				if (!game.freezedInput) {
-					clearInterval(interval);
+		if (game.replayMode === 'load') {
+			// In fast-forward replay, do not wait on animation/freezedInput;
+			// schedule the callback shortly after activation so the replay
+			// loop always progresses.
+			setTimeout(() => {
+				try {
 					opt.callback();
+				} catch (e) {
+					console.error('[Replay] callback THREW:', e);
 				}
-			},
-			game.replayMode === 'load' ? 1 : 100,
-		);
+			}, 50);
+			return;
+		}
+
+		let callbackCalled = false;
+		const finish = () => {
+			if (callbackCalled) return;
+			callbackCalled = true;
+			clearInterval(interval);
+			clearTimeout(fallback);
+			try {
+				opt.callback();
+			} catch (e) {
+				console.error('[Replay] callback THREW:', e);
+			}
+		};
+
+		const interval = setInterval(() => {
+			if (!game.freezedInput) {
+				finish();
+			}
+		}, 100);
+
+		const fallback = setTimeout(() => finish(), 2000);
 	}
 
 	/**

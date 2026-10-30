@@ -61,7 +61,7 @@ describe('Game replay completion', () => {
 
 		Game.prototype.onLogLoad.call(game, { actions: [], custom: { configData: {} } }, 'load');
 
-		expect(game.replayMode).toBe('load');
+		expect(game.replayMode).toBe('play');
 		expect(game.isReplayInProgress).toBe(true);
 		jest.runOnlyPendingTimers();
 		expect(game.replayMode).toBe(null);
