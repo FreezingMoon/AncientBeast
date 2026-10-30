@@ -118,7 +118,11 @@ function scoreDisruptorBeam(
 	_controller: BotController,
 ): number {
 	const target = hex.creature;
-	if (!(target instanceof Creature) || !isTeam(activeCreature, target, Team.Enemy)) {
+	if (
+		!(target instanceof Creature) ||
+		!isTeam(activeCreature, target, Team.Enemy) ||
+		!target.baseStats
+	) {
 		return Number.NEGATIVE_INFINITY;
 	}
 

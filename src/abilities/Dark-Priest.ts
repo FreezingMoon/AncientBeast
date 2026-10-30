@@ -310,6 +310,11 @@ export default (G: Game) => {
 				const ability = this;
 				ability.end(false, true);
 
+				// Guard against undefined baseStats (can happen during replay for dead units)
+				if (!target.baseStats) {
+					return;
+				}
+
 				const plasmaCost = target.size;
 				let damageAmount = target.baseStats.health - target.health;
 
