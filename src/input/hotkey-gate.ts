@@ -40,8 +40,7 @@ export const isDashViewHotkey = (event: KeyboardEvent) =>
 	event.code === 'KeyD' && isShiftOnly(event);
 
 export const isScoreViewHotkey = (event: KeyboardEvent) =>
-	(event.code === 'KeyT' && hasNoModifierKeys(event)) ||
-	(event.code === 'KeyS' && isShiftOnly(event));
+	event.code === 'KeyT' && hasNoModifierKeys(event);
 
 /** Shift+A, which opens and closes the audio view. */
 export const isAudioViewHotkey = (event: KeyboardEvent) =>
@@ -58,8 +57,7 @@ export const isViewSwitchHotkey = (event: KeyboardEvent) =>
 	isHotkeysViewHotkey(event);
 
 export const isScoreboardActionHotkey = (event: KeyboardEvent) =>
-	(event.code === 'KeyS' || event.code === 'KeyR' || event.code === 'KeyX') &&
-	hasNoModifierKeys(event);
+	(event.code === 'KeyR' || event.code === 'KeyX') && hasNoModifierKeys(event);
 
 /**
  * Bare `A`, which cycles the audio mode full → sfx → muted.
@@ -98,6 +96,7 @@ export const isUtilityHotkey = (event: KeyboardEvent, context: HotkeyGateContext
 	(event.code === 'Escape' && context.interfaceViewOpen) ||
 	(isScoreboardActionHotkey(event) && context.scoreboardOpen) ||
 	(event.code === 'KeyX' && event.shiftKey && event.ctrlKey && !event.metaKey && !event.altKey) ||
+	(event.code === 'KeyS' && event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey) ||
 	event.code === 'Backquote' ||
 	event.code === 'Backspace' ||
 	(event.code === 'KeyP' && event.metaKey && event.altKey && !event.ctrlKey && !event.shiftKey) ||

@@ -32,7 +32,13 @@ export class Hotkeys {
 	}
 
 	pressS(event) {
-		// During replay, bare S does nothing (F is the fast-forward key)
+		// Shift+S: save snapshot (replaces scoreboard toggle, which moved to T)
+		if (event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey) {
+			this.ui.game.saveSnapshot?.();
+			return;
+		}
+
+		// During replay, bare S toggles fast-forward
 		if (
 			this.ui.game.isReplayInProgress &&
 			!event.shiftKey &&
@@ -40,6 +46,7 @@ export class Hotkeys {
 			!event.altKey &&
 			!event.metaKey
 		) {
+			this.ui.game.toggleReplayFastForward?.();
 			return;
 		}
 
@@ -54,9 +61,7 @@ export class Hotkeys {
 			return;
 		}
 
-		if (event.shiftKey) {
-			this.ui.toggleView('score');
-		} else if (event.ctrlKey) {
+		if (event.ctrlKey) {
 			this.ui.game.gamelog.save();
 		} else {
 			if (this.ui.dashopen) {

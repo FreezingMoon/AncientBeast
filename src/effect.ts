@@ -107,7 +107,7 @@ export class Effect {
 
 		this.isDeleted = true;
 
-		if ('effects' in this.target) {
+		if (this.target && 'effects' in this.target) {
 			const targetIdx = this.target.effects.indexOf(this);
 			if (targetIdx !== -1) {
 				this.target.effects.splice(targetIdx, 1);
@@ -119,7 +119,7 @@ export class Effect {
 			this.game.effects.splice(gameIdx, 1);
 		}
 
-		if ('updateAlteration' in this.target) {
+		if (this.target && 'updateAlteration' in this.target) {
 			this.target.updateAlteration();
 		}
 	}

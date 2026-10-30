@@ -267,6 +267,7 @@ export class Creature {
 	private _hinderedTurn: number;
 	materializationSickness: boolean;
 	noActionPossible: boolean;
+	_restoringFromSnapshot = false;
 
 	// Statistics
 	baseStats: CreatureStats;
@@ -558,6 +559,18 @@ export class Creature {
 	}
 
 	/**
+	 * Set creature position and sync sprite/hex state.
+	 * Used for snapshot reconstruction and direct placement.
+	 */
+	setPosition(x: number, y: number) {
+		this.x = x;
+		this.y = y;
+		this.pos = { x, y };
+		this.updateHex();
+		this.creatureSprite.setHex(this.hexagons[this.size - 1], 0);
+	}
+
+	/**
 	 * Summon animation.
 	 */
 	summon(disableMaterializationSickness = false) {
@@ -685,7 +698,9 @@ export class Creature {
 		varReset.bind(this);
 
 		// Frozen or dizzy effect
-		if (this.isFrozen() || this.isDizzy()) {
+		if (this._restoringFromSnapshot) {
+			this._restoringFromSnapshot = false;
+		} else if (this.isFrozen() || this.isDizzy()) {
 			varReset();
 			game.poll(() => {
 				if (game.turnThrottle) return;
@@ -722,7 +737,9 @@ export class Creature {
 			}, 50);
 			return;
 		}
-		if (!this.hasWait) {
+		if (this._restoringFromSnapshot) {
+			this._restoringFromSnapshot = false;
+		} else if (!this.hasWait) {
 			varReset();
 
 			// Trigger
@@ -1257,9 +1274,19 @@ export class Creature {
 	 */
 	updateHex() {
 		const count = this.size;
-		let i;
 
-		for (i = 0; i < count; i++) {
+		// Detach from any hexes we previously occupied so a moved creature does
+		// not leave a stale `creature` reference (and a ghost health indicator)
+		// behind on its old tiles.
+		this.hexagons.forEach((hex) => {
+			if (hex && hex.creature === this) {
+				hex.creature = undefined;
+			}
+		});
+		// Clear existing hexagons first to avoid duplicates
+		this.hexagons.length = 0;
+
+		for (let i = 0; i < count; i++) {
 			this.hexagons.push(this.game.grid.hexes[this.y][this.x - i]);
 		}
 
@@ -3251,6 +3278,11 @@ class CreatureSprite {
 	private _bindCardboardWhenReady(): void {
 		const spriteKey = this._originalTextureKey;
 		if (isTextureReady(spriteKey)) {
+			// Texture already cached: re-place with correct dimensions.
+			if (this._isOnPlaceholderTexture()) {
+				this._sprite.setTexture(spriteKey);
+			}
+			this._place();
 			return;
 		}
 		ensureCardboard(spriteKey, () => {
@@ -3333,6 +3365,7 @@ class CreatureSprite {
 			return;
 		}
 		this._sprite.setTexture(this._originalTextureKey);
+		this._place();
 	}
 
 	/** Restores the original texture and frees all xray canvas resources. */

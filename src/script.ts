@@ -22,6 +22,7 @@ import {
 import { getDevvitAppVersion, getGameVersion } from './utility/clientVersion';
 import { prefetchPhaser } from './phaser/runtime';
 import type { ReplayMode } from './utility/gamelog';
+import { GameSnapshotSerializer } from './engine/GameSnapshot';
 
 if (DEBUG && 'serviceWorker' in navigator) {
 	navigator.serviceWorker
@@ -433,14 +434,25 @@ $j(() => {
 				openReplayFile('load');
 			},
 		},
-		KeyP: {
+		KeyS: {
 			keyDownTest(event) {
-				return (
-					!isTyping(event) && (event.ctrlKey || event.metaKey) && !event.shiftKey && !event.altKey
-				);
+				if (isTyping(event)) return false;
+				// Shift+S: save snapshot
+				if (event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey) {
+					return true;
+				}
+				// Bare S during replay: toggle fast-forward
+				if (!event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey) {
+					return AB.currentGame?.isReplayInProgress === true;
+				}
+				return false;
 			},
-			keyDownAction() {
-				openReplayFile('play');
+			keyDownAction(event) {
+				if (event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey) {
+					AB.currentGame?.saveSnapshot?.();
+				} else if (!event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey) {
+					AB.currentGame?.toggleReplayFastForward?.();
+				}
 			},
 		},
 		Digit1: {
@@ -722,7 +734,7 @@ $j(() => {
 	};
 
 	const restoreGameLog = (log) => {
-		G.gamelog.play(log);
+		G.gamelog.load(log);
 	};
 
 	const storeLastMatchLog = () => {
@@ -1266,7 +1278,7 @@ function readLogFromFile() {
 	// TODO: This would probably be better off in ./src/utility/gamelog.ts
 	return new Promise((resolve, reject) => {
 		const fileInput = document.createElement('input') as HTMLInputElement;
-		fileInput.accept = '.ab';
+		fileInput.accept = '.ab,.abs';
 		fileInput.type = 'file';
 
 		fileInput.onchange = (event) => {
@@ -1280,7 +1292,7 @@ function readLogFromFile() {
 			reader.readAsText(file);
 
 			reader.onload = () => {
-				resolve(reader.result);
+				resolve({ content: reader.result, name: file.name });
 			};
 
 			reader.onerror = () => {
@@ -1294,11 +1306,15 @@ function readLogFromFile() {
 
 function openReplayFile(mode: ReplayMode) {
 	readLogFromFile()
-		.then((log) => {
-			if (mode === 'load') {
-				G.gamelog.load(log as string);
+		.then(({ content, name }) => {
+			const isSnapshot =
+				name.endsWith('.abs') || GameSnapshotSerializer.isSnapshotString(content as string);
+			if (isSnapshot) {
+				AB.currentGame?.loadSnapshot?.(content as string);
+			} else if (mode === 'load') {
+				G.gamelog.load(content as string);
 			} else {
-				G.gamelog.play(log as string);
+				G.gamelog.play(content as string);
 			}
 		})
 		.catch((err) => {
