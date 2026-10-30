@@ -13,6 +13,8 @@ export default function phaserAssetManifestPlugin({
   // it is named file by file rather than swept up by directory. Add a path here
   // only when the board genuinely cannot render without it.
   assetFiles = [
+    'assets/icons/forward.svg',
+    'assets/icons/skip.svg',
     'assets/interface/ability_range.png',
     'assets/interface/frame.png',
     'assets/interface/hex.png',
@@ -44,7 +46,6 @@ export default function phaserAssetManifestPlugin({
     'assets/interface/p3_frozen.png',
     'assets/interface/p3_health.png',
     'assets/interface/p3_plasma.png',
-    'assets/interface/skip.svg',
     'assets/interface/target.png',
   ],
   soundDirs = [
