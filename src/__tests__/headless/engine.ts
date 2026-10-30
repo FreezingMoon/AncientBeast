@@ -1,5 +1,5 @@
 /**
- * @jest-environment <rootDir>/test/jsdom-environment.js
+ * @jest-environment <rootDir>/test/jsdom-environment.ts
  * @jest-environment-options {"resources": "usable"}
  */
 
@@ -21,7 +21,7 @@
  * Two things differ from the rest of the suite, both scoped to this file rather
  * than to a second Jest project, so these tests run as part of plain `npm test`:
  *
- *   - **The real engine.** `test/phaser-runtime-setup.js` installs a mock via
+ *   - **The real engine.** `test/phaser-runtime-setup.ts` installs a mock via
  *     `setPhaserNamespace()`, which deliberately shares `loadPhaser()`'s memo
  *     slot. `beforeAll` below drops it and pulls the genuine bundle, so booting
  *     here displaces the mock rather than fighting it.

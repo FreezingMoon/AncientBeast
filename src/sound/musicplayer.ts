@@ -3,10 +3,16 @@ import skin from './skin';
 import beastAudioFile from 'assets/sounds/AncientBeast.ogg';
 
 export class MusicPlayer {
+	audio: HTMLAudioElement;
+	playlist: JQuery<HTMLElement>; // eslint-disable-line no-undef
+	tracks: JQuery<HTMLElement>; // eslint-disable-line no-undef
+	repeat: boolean;
+	beastAudio: HTMLAudioElement;
+
 	constructor() {
-		this.audio = skin;
-		this.playlist = $j('#playlist');
-		this.tracks = this.playlist.find('li.epic');
+		this.audio = skin as unknown as HTMLAudioElement;
+		this.playlist = $j('#playlist') as JQuery<HTMLElement>; // eslint-disable-line no-undef
+		this.tracks = this.playlist.find('li.epic') as JQuery<HTMLElement>; // eslint-disable-line no-undef
 
 		this.repeat = true;
 
@@ -21,7 +27,7 @@ export class MusicPlayer {
 		// Debug genre selection
 		$j('.musicgenres__title')
 			.off('click')
-			.on('click', (e) => {
+			.on('click', (e: any) => {
 				e.preventDefault();
 				e.stopPropagation();
 
@@ -31,7 +37,7 @@ export class MusicPlayer {
 				if (!clickedGenre.hasClass('active-text')) {
 					// The inner text is capitalized but the class name is not (e.g Epic vs epic).
 					// We must use toLowerCase so that it works correctly.
-					const clickedGenreClass = e.target.innerText.toLowerCase();
+					const clickedGenreClass = (e.target as HTMLElement).innerText.toLowerCase();
 					const unusedTracks = this.playlist.find(`li.${clickedGenreClass}`);
 					unusedTracks.addClass('hidden');
 				}
@@ -41,11 +47,11 @@ export class MusicPlayer {
 
 				const activeGenresSelectors = Array.prototype.map.call(
 					activeGenres.length === 0 ? allGenres : activeGenres, // Here if no genre is active then all genres shall pass
-					(genreNode) => `li.${genreNode.innerText.toLowerCase()}`,
+					(genreNode: any) => `li.${genreNode.innerText.toLowerCase()}`,
 				);
 				const allGenresSelectors = Array.prototype.map.call(
 					allGenres,
-					(genreNode) => `li.${genreNode.innerText.toLowerCase()}`,
+					(genreNode: any) => `li.${genreNode.innerText.toLowerCase()}`,
 				);
 				const activeTracks = this.playlist.find(activeGenresSelectors.join());
 				const allTracks = this.playlist.find(allGenresSelectors.join()); // This will fetch all the tracks
@@ -58,7 +64,7 @@ export class MusicPlayer {
 		this.playlist
 			.find('li')
 			.off('click')
-			.on('click', (e) => {
+			.on('click', (e: any) => {
 				e.preventDefault();
 				e.stopPropagation();
 				this.run($j(e.currentTarget));
@@ -75,7 +81,7 @@ export class MusicPlayer {
 
 		$j('.audio-player-beast')
 			.off('click')
-			.on('click', (e) => {
+			.on('click', (e: any) => {
 				e.stopPropagation();
 				// Perform on beast click
 				this.beastAudio.play();
@@ -84,32 +90,32 @@ export class MusicPlayer {
 		// Volume sliders requested
 		$j('#vol')
 			.off('change')
-			.on('change', (e) => {
+			.on('change', (e: any) => {
 				this.audio.volume = Number(e.target.value);
 			});
 
 		$j('#sfx')
 			.off('change')
-			.on('change', (e) => {
-				if (window.game && window.game.soundsys) {
-					window.game.soundsys.allEffectsMultiplier = Number(e.target.value);
+			.on('change', (e: any) => {
+				if ((window as any).game && (window as any).game.soundsys) {
+					(window as any).game.soundsys.allEffectsMultiplier = Number(e.target.value);
 				}
 			});
 	}
 
-	getCurrentTrackIndex() {
-		return Array.prototype.findIndex.call(this.tracks, (track) =>
+	getCurrentTrackIndex(): number {
+		return Array.prototype.findIndex.call(this.tracks, (track: any) =>
 			track.classList.contains('active-text'),
 		);
 	}
 
-	playRandom() {
+	playRandom(): void {
 		const currentTrackIndex = this.getCurrentTrackIndex();
 		// Check if any genre is active
 		const genreExists = $j('.musicgenres__items').children().hasClass('active-text');
 		// If a genre is active, get a random track and play it, else stop audio
 		if (genreExists) {
-			let rand;
+			let rand: number;
 
 			do {
 				rand = Math.floor(Math.random() * (this.tracks.length - 1));
@@ -123,7 +129,7 @@ export class MusicPlayer {
 		}
 	}
 
-	playNext() {
+	playNext(): void {
 		const currentTrackIndex = this.getCurrentTrackIndex();
 		const nextTrackIndex = currentTrackIndex + 1;
 		const isNextTrackExists = this.tracks[nextTrackIndex];
@@ -134,7 +140,7 @@ export class MusicPlayer {
 		this.run($j(track));
 	}
 
-	run(track) {
+	run(track: any): void {
 		// Style the active track in the playlist
 		const link = track.find('a');
 		const nextSrc = link.attr('href');
@@ -169,7 +175,7 @@ export class MusicPlayer {
 		});
 	}
 
-	stopMusic() {
+	stopMusic(): void {
 		this.audio.pause();
 	}
 }

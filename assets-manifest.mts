@@ -76,7 +76,7 @@ export default function phaserAssetManifestPlugin({
     'assets/units/cardboards',
     'assets/units/sprites',
   ],
-  output = 'assets/index.js',
+  output = 'assets/index.ts',
 } = {}) {
   return {
     name: 'phaser-asset-manifest',

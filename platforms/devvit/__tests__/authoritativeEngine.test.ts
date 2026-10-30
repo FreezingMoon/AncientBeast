@@ -1,5 +1,5 @@
 /**
- * @jest-environment <rootDir>/test/jsdom-environment.js
+ * @jest-environment <rootDir>/test/jsdom-environment.ts
  * @jest-environment-options {"resources": "usable"}
  */
 
@@ -13,7 +13,7 @@ jest.mock('p2', () => ({}), { virtual: true });
 // (see `createHeadlessGame`), so a `jest.mock('phaser')` stub would satisfy every
 // assertion below while proving nothing about the engine that actually runs in
 // production. `loadRealPhaser()` in `beforeAll` discards the stub that
-// `test/phaser-runtime-setup.js` installs via `setPhaserNamespace()` — that
+// `test/phaser-runtime-setup.ts` installs via `setPhaserNamespace()` — that
 // installer deliberately shares `loadPhaser()`'s memo slot, so it has to be
 // dropped explicitly.
 //

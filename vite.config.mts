@@ -372,7 +372,7 @@ export default defineConfig(({ mode, command }) => {
 					'assets/music/epic',
 					'assets/music/rock',
 				],
-				output: 'assets/index.js',
+				output: 'assets/index.ts',
 			}),
 			ejsHtmlPlugin({ devvitTarget: isDevvitTarget, enableServiceWorker }),
 			// Build only. The plugin's dev middleware serves the copied trees with
@@ -388,7 +388,7 @@ export default defineConfig(({ mode, command }) => {
 							targets: [
 								{
 									// Runtime asset URLs (music, cards, avatars, ability icons)
-									// are repo-relative paths produced by `assets/index.js`, so the
+									// are repo-relative paths produced by `assets/index.ts`, so the
 									// tree has to be published under the same paths. (`static` is
 									// already handled by `publicDir`.)
 									src: 'assets',

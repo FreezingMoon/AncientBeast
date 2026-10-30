@@ -5,6 +5,7 @@ dist/
 
 # Generated list of assets
 assets/index.js
+assets/index.ts
 
 # Dotenv
 .env

@@ -104,7 +104,7 @@ export function loadRealPhaser(): Promise<PhaserNamespace> {
  *
  * Use this for values that only matter to the rendered game (display objects,
  * geometry, blend modes) and whose absence is harmless off-screen. Unit tests
- * install a Phaser mock through `test/phaser-runtime-setup.js` and so run the
+ * install a Phaser mock through `test/phaser-runtime-setup.ts` and so run the
  * same gameplay code, skipping work that only a real renderer would consume.
  * Reach for {@link getPhaser} instead wherever a missing value would be a
  * genuine bug.
