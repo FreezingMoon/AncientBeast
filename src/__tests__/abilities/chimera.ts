@@ -59,8 +59,8 @@ function makeProjectileHarness() {
 		setOrigin: jest.fn(),
 	};
 
-	const projectile = jest.fn(() => [tween, circle] as const);
-	const addSprite = jest.fn(() => note);
+	const projectile = jest.fn((_start: unknown, _end: unknown, _key: unknown) => [tween, circle] as const);
+	const addSprite = jest.fn((_x: unknown, _y: unknown, _key: unknown) => note);
 	const makeTween = jest.fn(() => ({
 		to: jest.fn(() => spinTween),
 	}));
