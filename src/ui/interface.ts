@@ -26,6 +26,7 @@ import { getAvatarSet } from '../style/avatar-styles';
 import { applyBuffDebuffStyle } from './buffs-debuffs';
 import { getRandomSummonCandidates, getSummonCandidates } from '../utility/summon-candidates';
 import { OpenCollectiveBanner, isThirdPartyContentBlocked } from './open-collective-banner';
+import { syncFullscreenViewHud } from './hud-visibility';
 import { onPointerUp } from '../input/input';
 import { isScoreboardHotkey, isUtilityHotkey as isUtilityHotkeyEvent } from '../input/hotkey-gate';
 import { setHandCursor } from '../game-display/cursor';
@@ -477,6 +478,7 @@ const toggleSecretView = () => {
 	const overlay =
 		(document.getElementById(SECRET_VIEW_ID) as HTMLDivElement | null) || createSecretViewOverlay();
 	overlay.style.display = overlay.style.display === 'flex' ? 'none' : 'flex';
+	syncFullscreenViewHud();
 };
 
 type InterfaceView = 'dash' | 'score' | 'audio' | 'secret' | 'hotkeys';
@@ -2077,6 +2079,7 @@ export class UI {
 
 		// Set dash active
 		this.$dash.addClass('active');
+		syncFullscreenViewHud();
 		this.$dash.children('#tooltip').removeClass('active');
 		this.$dash.children('#playertabswrapper').addClass('active');
 		this.changePlayerTab(game.activeCreature.team);
@@ -2694,11 +2697,13 @@ export class UI {
 			this.closeScoreboard();
 			$musicPlayerWrapper.removeClass('hide');
 			this.musicPlayerOpenCollectiveBanner.onViewOpen();
+			syncFullscreenViewHud();
 			return;
 		}
 
 		$musicPlayerWrapper.addClass('hide');
 		this.musicPlayerOpenCollectiveBanner.onViewClose();
+		syncFullscreenViewHud();
 	}
 
 	toggleView(view: InterfaceView) {
@@ -3243,6 +3248,7 @@ export class UI {
 
 		this.$scoreboard.removeClass('hide');
 		this.scoreboardOpenCollectiveBanner.onViewOpen();
+		syncFullscreenViewHud();
 	}
 
 	refreshScoreboard() {
@@ -3386,6 +3392,7 @@ export class UI {
 		this.btnRestartMatch.changeState(ButtonStateEnum.hidden);
 		this.btnExit.changeState(ButtonStateEnum.hidden);
 		this.$scoreboard.addClass('hide');
+		syncFullscreenViewHud();
 	}
 
 	toggleHotkeysScreen() {
@@ -3395,10 +3402,12 @@ export class UI {
 		}
 		this.closeOpenInterfaceViews();
 		this.$hotkeys.removeClass('hide');
+		syncFullscreenViewHud();
 	}
 
 	closeHotkeysScreen() {
 		this.$hotkeys.addClass('hide');
+		syncFullscreenViewHud();
 	}
 
 	/**
@@ -3446,6 +3455,7 @@ export class UI {
 		}
 		$j('#card .sideA, #card .sideB').removeClass('flipping flip-reset');
 		this.dashOpenCollectiveBanner.onViewClose();
+		syncFullscreenViewHud();
 
 		game.channels.ui.emit('onCloseDash');
 

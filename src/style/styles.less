@@ -291,6 +291,41 @@
 	height: 0;
 }
 
+/*
+ * While a full screen view is open over combat mode (dash, scoreboard,
+ * music player, meta powers, hotkeys), the HUD behind it is just clutter,
+ * so fade it well back. The dim state is applied by syncFullscreenViewHud()
+ * (see src/ui/hud-visibility.ts), which re-checks every view's own open
+ * state — no close path can leave the HUD stuck dim.
+ */
+#queue,
+#leftpanel,
+#rightpanel,
+#chat,
+#unit-hover-panel {
+	transition: opacity 0.3s ease-in-out;
+}
+
+#ui.interface-view-open {
+	#queue,
+	#leftpanel,
+	#rightpanel,
+	#chat,
+	#unit-hover-panel {
+		opacity: 0.12;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	#queue,
+	#leftpanel,
+	#rightpanel,
+	#chat,
+	#unit-hover-panel {
+		transition: none;
+	}
+}
+
 #bottompanel {
 	position: fixed;
 	inset: 0;
