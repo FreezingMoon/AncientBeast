@@ -548,7 +548,9 @@ export class UI {
 	btnAudio: Button;
 	btnSkipTurn: Button;
 	dashopen: boolean;
-	animationUpgradeTimeOutID: ReturnType<typeof setTimeout>;
+	animationUpgradeTimeOutID: ReturnType<typeof setTimeout> | null;
+	/** All pending timeouts of the ability-upgrade icon animation. */
+	upgradeAnimationTimeouts: ReturnType<typeof setTimeout>[];
 	queryUnit: string;
 	btnDelay: Button;
 	btnFlee?: Button;
@@ -612,6 +614,8 @@ export class UI {
 		this.$hotkeys = $j('#hotkeys');
 		this.scoreboardConfirmAction = null;
 		this.scoreboardConfirmTimer = null;
+		this.animationUpgradeTimeOutID = null;
+		this.upgradeAnimationTimeouts = [];
 		// The logo is revealed while holding Ctrl; keep it horizontally centered
 		// on the viewport instead of hardcoding an off-center x.
 		this.brandlogo = game.gameEngine.add.image(this.getBrandLogoCenterX(), 200, 'AncientBeastLogo');
@@ -763,8 +767,10 @@ export class UI {
 							action: 'skip',
 						});
 
-						// Prevents upgrade animation from carrying on into opponent's turn and disabling their button
-						clearTimeout(this.animationUpgradeTimeOutID);
+						// Cancel a still-running upgrade animation so its deferred
+						// class removals never land mid-transition on the next
+						// creature's buttons (which would snap their icons in/out).
+						this.cancelUpgradeAnimation();
 
 						game.skipTurn();
 						this.lastViewedCreature = '';
@@ -815,6 +821,9 @@ export class UI {
 						game.gamelog.add({
 							action: 'delay',
 						});
+						// Same mid-animation turn change as skipping: cancel the
+						// deferred tweaks so the next unit's icons keep animating.
+						this.cancelUpgradeAnimation();
 						game.delayCreature();
 					}
 				},
@@ -1847,6 +1856,26 @@ export class UI {
 			this.abilityCostFlashTimeout = null;
 		}
 		this.energyBar.clearCostGhost();
+	}
+
+	/**
+	 * Cancel a still-running ability-upgrade icon animation.
+	 *
+	 * The 300ms (sound), 1200ms (icon swap) and 1500ms (transition end) timeouts
+	 * all fire deferred DOM tweaks; if the turn changes mid-animation (skip or
+	 * delay), letting them land on the next creature's buttons snaps its icons
+	 * in and out instead of transitioning smoothly (#2016). Cancelling clears all
+	 * of them and strips the half-applied classes so the next turn starts clean.
+	 */
+	cancelUpgradeAnimation() {
+		for (const timeoutId of this.upgradeAnimationTimeouts) {
+			clearTimeout(timeoutId);
+		}
+		this.upgradeAnimationTimeouts = [];
+		this.animationUpgradeTimeOutID = null;
+		for (const btn of this.abilitiesButtons) {
+			btn?.$button?.removeClass('upgradeTransition upgradeIcon');
+		}
 	}
 
 	/**
@@ -3850,6 +3879,11 @@ export class UI {
 
 			// A cost flash from the outgoing turn must not survive the swap.
 			this.clearAbilityCostFlash();
+			// The outgoing creature may have crossed an upgrade threshold on its
+			// last action; if its turn already gave way (skip/delay, bot, remote
+			// update), the animation's deferred class tweaks would otherwise land
+			// on this panel mid-transition and snap the icons (#2016).
+			this.cancelUpgradeAnimation();
 			this.energyBar.setSize(creature.oldEnergy / creature.stats.energy);
 			this.healthBar.setSize(creature.oldHealth / creature.stats.health);
 
@@ -3998,14 +4032,18 @@ export class UI {
 				btn.changeState(ButtonStateEnum.slideIn); // Keep the button in view
 
 				// After .3s play the upgrade sound
-				setTimeout(() => {
-					game.soundsys.playSFX('sounds/upgrade');
-				}, 300);
+				this.upgradeAnimationTimeouts.push(
+					setTimeout(() => {
+						game.soundsys.playSFX('sounds/upgrade');
+					}, 300),
+				);
 
 				// After 2s remove the background and update the button if it's not a passive
-				setTimeout(() => {
-					btn.$button.removeClass('upgradeIcon');
-				}, 1200);
+				this.upgradeAnimationTimeouts.push(
+					setTimeout(() => {
+						btn.$button.removeClass('upgradeIcon');
+					}, 1200),
+				);
 
 				// Then remove the animation
 				this.animationUpgradeTimeOutID = setTimeout(() => {
@@ -4014,6 +4052,7 @@ export class UI {
 						btn.changeState(ButtonStateEnum.disabled);
 					}
 				}, 1500);
+				this.upgradeAnimationTimeouts.push(this.animationUpgradeTimeOutID);
 
 				ab.setUpgraded(); // Set the ability to upgraded
 			}
