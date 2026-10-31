@@ -1,6 +1,7 @@
 import $j from 'jquery';
 import skin from './skin';
 import beastAudioFile from 'assets/sounds/AncientBeast.ogg';
+import { playAudioOnNextGesture } from './audio-context';
 
 export class MusicPlayer {
 	audio: HTMLAudioElement;
@@ -8,6 +9,7 @@ export class MusicPlayer {
 	tracks: JQuery<HTMLElement>; // eslint-disable-line no-undef
 	repeat: boolean;
 	beastAudio: HTMLAudioElement;
+	private _cancelGestureRetry: (() => void) | null = null;
 
 	constructor() {
 		this.audio = skin as unknown as HTMLAudioElement;
@@ -167,15 +169,46 @@ export class MusicPlayer {
 		}
 
 		// Play audio
+		this.cancelGestureRetry();
 		this.audio.play().catch((error) => {
 			if (error?.name === 'AbortError') {
+				return;
+			}
+			if (error?.name === 'NotAllowedError') {
+				// iOS/Safari refuse playback that did not start from a user
+				// gesture (issue #2530): retry on the next one instead of
+				// staying silent.
+				this.playOnNextGesture();
 				return;
 			}
 			console.error('Error playing audio:', error);
 		});
 	}
 
+	/**
+	 * Arm a one-shot retry so a track blocked by the autoplay policy starts
+	 * on the next user interaction. Stays armed across refusals; cancelled
+	 * when the track changes or music stops.
+	 */
+	playOnNextGesture() {
+		if (this._cancelGestureRetry) {
+			return;
+		}
+
+		this._cancelGestureRetry = playAudioOnNextGesture(() => this.audio.play());
+	}
+
+	cancelGestureRetry() {
+		if (!this._cancelGestureRetry) {
+			return;
+		}
+
+		this._cancelGestureRetry();
+		this._cancelGestureRetry = null;
+	}
+
 	stopMusic(): void {
+		this.cancelGestureRetry();
 		this.audio.pause();
 	}
 }
