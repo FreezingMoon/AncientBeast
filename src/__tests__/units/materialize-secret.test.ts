@@ -1,5 +1,5 @@
 /**
- * @jest-environment <rootDir>/test/jsdom-environment.js
+ * @jest-environment <rootDir>/test/jsdom-environment.ts
  * @jest-environment-options {"resources": "usable"}
  */
 
@@ -50,7 +50,7 @@ import {
 	settle,
 	destroyHeadlessGame,
 	type HeadlessConfig,
-} from '../../../platforms/devvit/headlessGame';
+} from '../../engine/headlessGame';
 
 /**
  * Ability modules the engine loads. Mirrors `src/script.ts` for the playable
