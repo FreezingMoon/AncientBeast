@@ -992,3 +992,75 @@ describe('Game.applyMoveRecord — shared by action() replay and live multiplaye
 		expect(optsArg.path).toBeUndefined();
 	});
 });
+
+describe('Game.handleLobbyMessage — creature-died reconciliation', () => {
+	/**
+	 * Regression coverage for the multiplayer desync where one client's unit
+	 * stayed alive while the other saw it dead with only the drop. The relay
+	 * path broadcasts a `creature-died` message from the acting client; the
+	 * receiver must force-apply the death instead of trusting its own damage
+	 * computation to have agreed.
+	 */
+	test('force-applies a death for a still-alive creature when it receives creature-died', () => {
+		const die = jest.fn(function (this: Record<string, unknown>) {
+			this.dead = true;
+		});
+		const creature = { id: 7, dead: false, die, player: { id: 0 } };
+		const game = {
+			creatures: { 7: creature },
+		} as unknown as Game;
+
+(Game.prototype as unknown as { handleLobbyMessage: (m: unknown) => void }).handleLobbyMessage.call(
+			game,
+			{ type: 'creature-died', creatureId: 7, killerId: undefined, playerId: 'p1' },
+		);
+
+		expect(die).toHaveBeenCalledTimes(1);
+		// `remote=true` so the receiver does not re-broadcast and echo back.
+		expect(die).toHaveBeenCalledWith({ player: creature.player }, true);
+		expect(creature.dead).toBe(true);
+	});
+
+	test('does not re-apply death (and re-score) when the creature is already dead', () => {
+		const die = jest.fn();
+		const creature = { id: 7, dead: true, die, player: { id: 0 } };
+		const game = {
+			creatures: { 7: creature },
+		} as unknown as Game;
+
+		(Game.prototype as unknown as { handleLobbyMessage: (m: unknown) => void }).handleLobbyMessage.call(
+			game,
+			{ type: 'creature-died', creatureId: 7, killerId: 3, playerId: 'p1' },
+		);
+
+		expect(die).not.toHaveBeenCalled();
+	});
+
+	test('resolves the killer from the broadcast killerId when present', () => {
+		const die = jest.fn();
+		const killer = { id: 3 };
+		const creature = { id: 7, dead: false, die, player: { id: 1 } };
+		const game = {
+			creatures: { 3: killer, 7: creature },
+		} as unknown as Game;
+
+		(Game.prototype as unknown as { handleLobbyMessage: (m: unknown) => void }).handleLobbyMessage.call(
+			game,
+			{ type: 'creature-died', creatureId: 7, killerId: 3, playerId: 'p1' },
+		);
+
+		expect(die).toHaveBeenCalledWith(killer, true);
+	});
+
+	test('ignores the message when the creature is not present locally', () => {
+		const game = { creatures: {} } as unknown as Game;
+
+		(Game.prototype as unknown as { handleLobbyMessage: (m: unknown) => void }).handleLobbyMessage.call(
+			game,
+			{ type: 'creature-died', creatureId: 99, killerId: undefined, playerId: 'p1' },
+		);
+
+		// No throw, nothing to assert beyond not crashing.
+		expect(game.creatures['99']).toBeUndefined();
+	});
+});

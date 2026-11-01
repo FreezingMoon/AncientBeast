@@ -3,6 +3,7 @@ import $j from 'jquery';
 import { Ability } from './ability';
 import { search } from './utility/pathfinding';
 import { Hex } from './utility/hex';
+import { disperseBadBreathCloudsAt } from './vfx/bad-breath';
 import Game from './game';
 import * as arrayUtils from './utility/arrayUtils';
 import { Drop, DropDefinition } from './drop';
@@ -623,6 +624,13 @@ export class Creature {
 		// Trigger trap under
 		this.hexagons.forEach((hex) => {
 			hex.activateTrap(game.triggers.onStepIn, this);
+			if (this.name !== 'Swampler') {
+				try {
+					disperseBadBreathCloudsAt(game, hex.x, hex.y, this);
+				} catch {
+					// ignore
+				}
+			}
 		});
 
 		// Pickup drop
@@ -1298,6 +1306,7 @@ export class Creature {
 	highlightCurrentHexesAsDashed() {
 		const dashedTexture = `hex_dashed_p${this.player.id}`;
 		this.hexagons.forEach((hex) => {
+			if (typeof hex._swamplerHomeOwner === 'number') return;
 			if (hex.display.key !== dashedTexture) {
 				hex.display.setTexture(dashedTexture);
 			}
@@ -1307,6 +1316,7 @@ export class Creature {
 	clearDashedOverlayOnHexes() {
 		const playerTexture = `hex_p${this.player.id}`;
 		this.hexagons.forEach((hex) => {
+			if (typeof hex._swamplerHomeOwner === 'number') return;
 			if (hex.display.key !== playerTexture) {
 				hex.display.setTexture(playerTexture);
 			}
@@ -2175,6 +2185,14 @@ export class Creature {
 
 	hasCreaturePlayerGotPlasma() {
 		return this.player.plasma > 0;
+	}
+
+	hasActivePlasmaShield() {
+		return (
+			this.isDarkPriest() &&
+			this.hasCreaturePlayerGotPlasma() &&
+			(this !== this.game.activeCreature || this._plasmaFieldActiveTurn)
+		);
 	}
 
 	/**

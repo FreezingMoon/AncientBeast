@@ -4419,16 +4419,72 @@ export class UI {
 		};
 
 		const hexFormatter = (hex) => {
+			const homeOwnerId = hex._swamplerHomeOwner;
+			const isSwamplerHome = typeof homeOwnerId === 'number';
+			const homeOwner = isSwamplerHome
+				? ui.game.creatures.find((creature) => creature.id === homeOwnerId)
+				: undefined;
+			const isHomeOwnerPresent = isSwamplerHome && hex.creature?.id === homeOwnerId;
+			const hasHomeRegrowthBonus =
+				isHomeOwnerPresent &&
+				homeOwner?.effects.some(
+					(effect) => effect.name === 'Natural Habitat' && effect.alterations.regrowth === 20,
+				);
+			const homeBonus = isHomeOwnerPresent
+				? `<p style="margin:2px">Poison +22${hasHomeRegrowthBonus ? '<br>Regrowth +20' : ''}</p>`
+				: '';
+			const cloud = (ui.game.badBreathClouds || []).find(
+				(c: any) => c.hex.x === hex.x && c.hex.y === hex.y,
+			);
 			const name = hex.creature
 				? getCreatureDisplayName(hex.creature)
+				: isSwamplerHome
+				? 'Swamp'
 				: capitalize(hex.drop ? hex.drop.name : hex.coord);
 			const trapOrLocation = capitalize(hex.trap ? hex.trap.name : ui.game.combatLocation);
 			const nameColorClasses =
 				hex.creature && hex.creature.player ? `p${hex.creature.player.id} player-text bright` : '';
+
+			let cloudBlock = '';
+			if (cloud) {
+				const age = (ui.game.turn ?? 0) - (cloud.createdTurn ?? 0);
+				const remaining = Math.max(1, (cloud.turnLifetime ?? (cloud.upgraded ? 6 : 3)) - age);
+				const max = cloud.upgraded ? 6 : 3;
+				const rectHtml = Array.from(
+					{ length: max },
+					(_, i) =>
+						`<span style="width:10px;height:6px;border:1px solid #5f5;background:${
+							i < remaining ? '#5f5' : 'transparent'
+						};display:inline-block"></span>`,
+				).join('');
+				if (hex.creature) {
+					cloudBlock = `<p class="name p${cloud.owner.player.id} player-text bright" style="padding-top:0;margin:2px">Toxic Cloud</p><div style="display:flex;gap:3px;justify-content:center;margin:2px">${rectHtml}</div><hr style="margin:2px" />`;
+				} else {
+					cloudBlock = `<p class="name p${cloud.owner.player.id} player-text bright">Toxic Cloud</p><div style="display:flex;gap:3px;justify-content:center;margin:2px">${rectHtml}</div><hr style="margin:2px" />`;
+				}
+			}
+
+			let body = '';
+			if (isSwamplerHome) {
+				if (hex.creature) {
+					body = `<p class="name ${nameColorClasses}" style="padding-top:0;margin:2px">${name}</p><p style="margin:2px">Swamp</p>${homeBonus}<hr style="margin:2px" /><p style="margin:2px">${trapOrLocation}</p>`;
+				} else {
+					body = `<p class="name" style="padding-top:0;margin:2px">Swamp</p><p style="margin:2px">${trapOrLocation}</p>`;
+				}
+			} else if (cloud) {
+				if (hex.creature) {
+					body = `<p class="name ${nameColorClasses}" style="padding-top:0;margin:2px">${name}</p><p style="margin:2px">${trapOrLocation}</p>`;
+				} else {
+					body = `<p style="margin:2px">${trapOrLocation}</p>`;
+				}
+			} else {
+				body = `<p class="name ${nameColorClasses}">${name}</p><p>${trapOrLocation}</p>`;
+			}
+
 			return `<div class="vignette hex">
 			<div class="hexinfo frame">
-			<p class="name ${nameColorClasses}">${name}</p>
-			<p>${trapOrLocation}</p>
+			${cloudBlock}
+			${body}
 			</div>
 			</div>
 			`;
@@ -4514,7 +4570,16 @@ export class UI {
 		// `hex` carries both directions: `over` shows the hovered hex when it has
 		// something worth describing, `out` always falls back to the player card.
 		ui.game.channels.hex.on('over', ({ hex }) => {
-			if (hex.creature || hex.drop || hex.trap) {
+			const hasCloud = (ui.game.badBreathClouds || []).some(
+				(c: any) => c.hex.x === hex.x && c.hex.y === hex.y,
+			);
+			if (
+				hex.creature ||
+				hex.drop ||
+				hex.trap ||
+				hasCloud ||
+				typeof hex._swamplerHomeOwner === 'number'
+			) {
 				showHex(hex);
 			} else {
 				showDefault();

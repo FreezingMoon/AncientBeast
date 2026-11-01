@@ -16,8 +16,10 @@ import {
 	getPlayerColor,
 } from './player';
 import { UI } from './ui/interface';
+import { migrateSnapshot } from './engine/GameSnapshot';
 import { Creature, CreatureHintType } from './creature';
 import { refreshPlasmaRenderScales, precompilePlasmaShader } from './vfx/plasma/field';
+import { disperseBadBreathCloudsAt, expireBadBreathClouds, ageBadBreathClouds } from './vfx/bad-breath';
 import { unitData } from './data/units';
 import type { GameChannels, MetaPowersState } from './game-events/channels.types';
 import { createGameChannels } from './game-events/factory';
@@ -169,6 +171,7 @@ export default class Game {
 	players: Player[];
 	creatures: Creature[];
 	traps: Trap[];
+	badBreathClouds: any[];
 	drops: Drop[];
 	effects: Effect[];
 	activeCreature: Creature | undefined;
@@ -640,6 +643,7 @@ export default class Game {
 		this.players = [];
 		this.creatures = [];
 		this.traps = [];
+		this.badBreathClouds = [];
 		this.drops = [];
 		this.effects = [];
 		this.activeCreature = undefined;
@@ -1115,7 +1119,7 @@ export default class Game {
 
 	// If no red flags, remove the loading bar and begin rendering the game.
 	maybeSetup() {
-		if (this.preventSetup) {
+		if (this.preventSetup || this.gameState !== 'loaded') {
 			return;
 		}
 
@@ -1208,6 +1212,7 @@ export default class Game {
 		// onCloseDash signal that bounces every creature on the board.
 		this.creatures = [];
 		this.traps = [];
+		this.badBreathClouds = [];
 		this.drops = [];
 		this.effects = [];
 		for (let i = 0; i < gameMode; i++) {
@@ -1358,6 +1363,9 @@ export default class Game {
 			this.reconstructFromSnapshot(this._pendingSnapshot);
 			this._pendingSnapshot = null;
 		}
+		// Prevent a duplicate setup() (e.g. a late focus event) from wiping the
+		// restored state back to a fresh match.
+		this.preventSetup = true;
 	}
 
 	/**
@@ -1652,6 +1660,20 @@ export default class Game {
 			}
 			return;
 		}
+		if (message.type === 'creature-died') {
+			// Authoritative death confirmation broadcast by the client whose action
+			// caused it (see Creature.die()). The acting client already applied the
+			// death locally before sending, so the receiver only force-applies it
+			// when its own state still has the creature alive — this is what
+			// prevents "creature died for one player, still alive for the other".
+			// `remote=true` suppresses re-broadcasting to avoid an echo loop.
+			const creature = this.creatures[message.creatureId];
+			if (creature && !creature.dead) {
+				const killer = message.killerId != null ? this.creatures[message.killerId] : undefined;
+				creature.die(killer ?? { player: creature.player }, true);
+			}
+			return;
+		}
 		if (message.type === 'player-left') {
 			console.warn(
 				'[Game.handleLobbyMessage] Received player-left:',
@@ -1816,6 +1838,16 @@ export default class Game {
 	 */
 	nextRound(remote?: boolean) {
 		this.turn++;
+		try {
+			ageBadBreathClouds(this);
+		} catch {
+			// ignore
+		}
+		try {
+			expireBadBreathClouds(this);
+		} catch {
+			// ignore
+		}
 		this.log(`Round ${this.turn}`, 'roundmarker', true);
 		this.onStartOfRound();
 		this.botController.maybeForceOffensive();
@@ -2484,6 +2516,14 @@ export default class Game {
 		if (!opts || !opts.ignoreTraps) {
 			this.triggerTrap('onStepIn', arguments);
 		}
+		// Disperse persistent Bad Breath clouds when a non-Swampler unit steps in.
+		try {
+			if (creature instanceof Creature && creature.name !== 'Swampler') {
+				disperseBadBreathCloudsAt(this, hex.x, hex.y, creature);
+			}
+		} catch {
+			// ignore
+		}
 	}
 
 	/**
@@ -2988,6 +3028,7 @@ export default class Game {
 		this.traps.forEach((trap) => trap.destroy());
 		this.drops.forEach((drop) => drop.destroy());
 		this.traps = [];
+		this.badBreathClouds = [];
 		this.drops = [];
 
 		// Rebuild the channels so UI listeners registered for the previous match do
@@ -3295,8 +3336,10 @@ export default class Game {
 			materializationSickness: c.materializationSickness,
 			noActionPossible: c.noActionPossible,
 			health: c.health,
+			oldHealth: c.oldHealth,
 			endurance: c.endurance,
 			energy: c.energy,
+			oldEnergy: c.oldEnergy,
 			remainingMove: c.remainingMove,
 			movementPool: c.movementPool,
 			accumulatedTeleportRange: c.accumulatedTeleportRange,
@@ -3305,6 +3348,8 @@ export default class Game {
 			_brbSpent: c._brbSpent,
 			_lastBurningSpiritDamage: c._lastBurningSpiritDamage,
 			_bonfireSpringCount: c._bonfireSpringCount,
+			_afterimages: c._afterimages,
+			killer: c.killer?.id ?? null,
 			status: { ...c.status },
 			baseStats: { ...c.baseStats },
 			stats: { ...c.stats },
@@ -3350,6 +3395,7 @@ export default class Game {
 		const effects = this.effects.map((e: any) => ({
 			id: e.id,
 			name: e.name,
+			trigger: e.trigger,
 			creationTurn: e.creationTurn,
 			turnLifetime: e.turnLifetime,
 			deleteTrigger: e.deleteTrigger,
@@ -3387,6 +3433,7 @@ export default class Game {
 			configData: this.configData,
 			availableCreatures: this.availableCreatures,
 			lastSummonedType: this.lastSummonedType,
+			plasmaAmount: (this as any).plasma_amount,
 			players,
 			creatures,
 			traps,
@@ -3428,7 +3475,7 @@ export default class Game {
 		const parts = str.split('||');
 		const payload = parts.length > 1 ? parts[parts.length - 1] : parts[0];
 		const json = decodeURIComponent(escape(atob(payload)));
-		const snapshot = JSON.parse(json);
+		const snapshot = migrateSnapshot(JSON.parse(json));
 		this.configData = snapshot.configData;
 		this.metaPowersState = snapshot.metaPowersState;
 		this.bloodCount = snapshot.bloodCount;
@@ -3437,6 +3484,8 @@ export default class Game {
 		this.dropId = snapshot.dropId;
 		this.availableCreatures = snapshot.availableCreatures;
 		this.lastSummonedType = snapshot.lastSummonedType;
+		(this as any).plasma_amount =
+			snapshot.plasmaAmount ?? snapshot.configData?.plasma_amount ?? (this as any).plasma_amount;
 		this.turn = snapshot.turn;
 		this.round = snapshot.round;
 		this.playersReady = snapshot.playersReady;
@@ -3532,8 +3581,10 @@ export default class Game {
 				c.dropCollection = cSnap.dropCollection || [];
 				c.status = cSnap.status;
 				c.health = cSnap.health;
+				c.oldHealth = cSnap.oldHealth ?? c.oldHealth;
 				c.endurance = cSnap.endurance;
 				c.energy = cSnap.energy;
+				c.oldEnergy = cSnap.oldEnergy ?? c.oldEnergy;
 				c.updateHealth();
 				c.remainingMove = cSnap.remainingMove;
 				c.movementPool = cSnap.movementPool;
@@ -3546,6 +3597,8 @@ export default class Game {
 				c._brbSpent = cSnap._brbSpent;
 				c._lastBurningSpiritDamage = cSnap._lastBurningSpiritDamage;
 				c._bonfireSpringCount = cSnap._bonfireSpringCount;
+				(c as any)._afterimages = cSnap._afterimages ?? (c as any)._afterimages;
+				if (cSnap.killer != null) c.killer = this.players[cSnap.killer] ?? c.killer;
 			}
 		});
 
@@ -3625,11 +3678,12 @@ export default class Game {
 					(this.creatures[eSnap.targetId] ||
 						this.grid?.hexes[eSnap.targetId] ||
 						this.grid?.hexes[0]) as any,
-					eSnap.deleteTrigger || 'onStartOfRound',
+					eSnap.trigger || 'onStartOfRound',
 					{
 						id: eSnap.id,
 						creationTurn: eSnap.creationTurn,
 						turnLifetime: eSnap.turnLifetime,
+						deleteTrigger: eSnap.deleteTrigger || 'onStartOfRound',
 						stackable: eSnap.stackable,
 						deleteOnOwnerDeath: eSnap.deleteOnOwnerDeath,
 						isDeleted: eSnap.isDeleted,
@@ -3643,9 +3697,10 @@ export default class Game {
 				e.id = eSnap.id;
 			} else {
 				e.name = eSnap.name;
+				e.trigger = eSnap.trigger || e.trigger;
 				e.creationTurn = eSnap.creationTurn;
 				e.turnLifetime = eSnap.turnLifetime;
-				e.deleteTrigger = eSnap.deleteTrigger;
+				e.deleteTrigger = eSnap.deleteTrigger || e.deleteTrigger;
 				e.stackable = eSnap.stackable;
 				e.deleteOnOwnerDeath = eSnap.deleteOnOwnerDeath;
 				e.isDeleted = eSnap.isDeleted;
@@ -3724,6 +3779,13 @@ export default class Game {
 
 		// Update UI
 		this.UI?.updateActivebox?.();
+		this.UI?.refreshScoreboard?.();
+		this.UI?.renderScoreboard?.(false);
+		// Refresh per-player plasma readouts (player tabs + dash) for all players,
+		// not just the active one, so restored plasma shows correctly.
+		for (let i = 0; i < this.players.length; i++) {
+			$j('#dash .playertabs.p' + i + ' .plasma').text('Plasma ' + this.players[i].plasma);
+		}
 		this.updateQueueDisplay?.();
 		this.grid?.refreshHoverState?.();
 		// Clear replay mode so SFX unmutes
@@ -3829,11 +3891,12 @@ export default class Game {
 				(this.creatures[eSnap.targetId] ||
 					this.grid?.hexes[eSnap.targetId] ||
 					this.grid?.hexes[0]) as any,
-				eSnap.deleteTrigger || 'onStartOfRound',
+				eSnap.trigger || 'onStartOfRound',
 				{
 					id: eSnap.id,
 					creationTurn: eSnap.creationTurn,
 					turnLifetime: eSnap.turnLifetime,
+					deleteTrigger: eSnap.deleteTrigger || 'onStartOfRound',
 					stackable: eSnap.stackable,
 					deleteOnOwnerDeath: eSnap.deleteOnOwnerDeath,
 					isDeleted: eSnap.isDeleted,
@@ -3846,9 +3909,10 @@ export default class Game {
 			this.effects.push(e);
 		} else {
 			e.name = eSnap.name;
+			e.trigger = eSnap.trigger || e.trigger;
 			e.creationTurn = eSnap.creationTurn;
 			e.turnLifetime = eSnap.turnLifetime;
-			e.deleteTrigger = eSnap.deleteTrigger;
+			e.deleteTrigger = eSnap.deleteTrigger || e.deleteTrigger;
 			e.stackable = eSnap.stackable;
 			e.deleteOnOwnerDeath = eSnap.deleteOnOwnerDeath;
 			e.isDeleted = eSnap.isDeleted;

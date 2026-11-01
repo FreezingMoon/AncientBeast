@@ -1291,7 +1291,7 @@ export const unitData: UnitDataStructure = [
 	{
 		id: 13,
 		name: 'Swampler',
-		playable: false,
+		playable: true,
 		level: 2,
 		realm: 'G',
 		size: 1,
@@ -1305,7 +1305,7 @@ export const unitData: UnitDataStructure = [
 			initiative: 65,
 			offense: 2,
 			defense: 4,
-			movement: 3,
+			movement: 9,
 			pierce: 2,
 			slash: 2,
 			crush: 2,
@@ -1316,19 +1316,33 @@ export const unitData: UnitDataStructure = [
 			sonic: 3,
 			mental: 1,
 		},
+		drop: {
+			name: 'mushroom',
+			poison: 3,
+			health: 1,
+		},
+		afterimages: true,
 		animation: {
-			walk_speed: 500,
+			walk_speed: 300,
+		},
+		display: {
+			width: 130,
+			height: 120,
+			'offset-x': 0,
+			'offset-y': -100,
 		},
 		ability_info: [
 			{
 				title: 'Natural Habitat',
-				desc: 'Initial spot will become a swamp home.',
-				info: '+15 Poison mastery bonus while inside',
+				desc: 'Initial spot where resting after the first turn will become his own swamp home.',
+				info: '+22 Poison mastery bonus while inside.',
+				upgrade: '+20 regrowth bonus at home.',
 			},
 			{
 				title: 'Rabid Nip',
-				desc: 'Sink poisonous teeth into nearby foe.',
-				info: '10 pierce + 6 poison damage on attack',
+				desc: 'Sink poisonous teeth into nearby foe, effect which will linger for three turns.',
+				info: '10 pierce + 6 poison damage on attack.',
+				upgrade: 'negative regrowth for 1 turn.',
 				damages: {
 					pierce: 10,
 					poison: 6,
@@ -1339,8 +1353,9 @@ export const unitData: UnitDataStructure = [
 			},
 			{
 				title: 'Bad Breath',
-				desc: "Stinks up to three adjacent enemies, doing extra damage if they're facing.",
-				info: '10 poison damage, double if towards',
+				desc: 'Stinks up to three adjacent hexagons, making clouds that remain a few turns.',
+				info: '10 poison damage, toxicity for 3 turns.',
+				upgrade: 'toxic clouds that last 6 turns.',
 				damages: {
 					poison: 10,
 				},
@@ -1350,10 +1365,12 @@ export const unitData: UnitDataStructure = [
 			},
 			{
 				title: 'Goo Sneeze',
-				desc: 'Expels contagious toxin on distant foe, spreading to others that get too close.',
-				info: '15 poison damage, can spread around',
+				desc: 'Expels germs on an enemy, which will become very contagious when active.',
+				info: '4 crush + 6 poison damage contagion.',
+				upgrade: '6 poison at turn start as well.',
 				damages: {
-					poison: 15,
+					crush: 4,
+					poison: 6,
 				},
 				costs: {
 					energy: 30,
