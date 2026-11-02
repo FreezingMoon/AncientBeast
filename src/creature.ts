@@ -35,6 +35,7 @@ import type {
 	SpriteHandle,
 	TweenHandle,
 } from './engine/types';
+import { GOOEY_BODY_BRB_TRAP_BEHAVIOR } from './engine/snapshotBehaviors';
 import { getFrameSize, MISSING_TEXTURE_KEY } from './game-display/texture';
 import { onPointerDown } from './input/input';
 import { setHandCursor } from './game-display/cursor';
@@ -260,7 +261,7 @@ export class Creature {
 	hasWait: boolean;
 	travelDist: number;
 	effects: Array<Effect>;
-	dropCollection: Drop[];
+	dropCollection: Pick<Drop, 'name' | 'alterations'>[];
 	protectedFromFatigue: boolean;
 	turnsActive: number;
 	private _nextGameTurnActive: number;
@@ -652,15 +653,19 @@ export class Creature {
 	 * Activate the creature by showing movement range and binding controls to this creature
 	 */
 	activate() {
-		this.travelDist = 0;
-		this.oldEnergy = this.energy;
-		this.oldHealth = this.health;
-		this.noActionPossible = false;
+		const restoringFromSnapshot = this._restoringFromSnapshot;
+		this._restoringFromSnapshot = false;
+		if (!restoringFromSnapshot) {
+			this.travelDist = 0;
+			this.oldEnergy = this.energy;
+			this.oldHealth = this.health;
+			this.noActionPossible = false;
 
-		// Show the Plasma Field for an active Dark Priest with plasma so the player
-		// can see their shield during their own turn. Cleared in deactivate() once
-		// the creature performs an action.
-		this._plasmaFieldActiveTurn = this.isDarkPriest() && this.hasCreaturePlayerGotPlasma();
+			// Show the Plasma Field for an active Dark Priest with plasma so the player
+			// can see their shield during their own turn. Cleared in deactivate() once
+			// the creature performs an action.
+			this._plasmaFieldActiveTurn = this.isDarkPriest() && this.hasCreaturePlayerGotPlasma();
+		}
 
 		const game = this.game;
 		const stats = this.stats;
@@ -706,9 +711,7 @@ export class Creature {
 		varReset.bind(this);
 
 		// Frozen or dizzy effect
-		if (this._restoringFromSnapshot) {
-			this._restoringFromSnapshot = false;
-		} else if (this.isFrozen() || this.isDizzy()) {
+		if (!restoringFromSnapshot && (this.isFrozen() || this.isDizzy())) {
 			varReset();
 			game.poll(() => {
 				if (game.turnThrottle) return;
@@ -745,9 +748,7 @@ export class Creature {
 			}, 50);
 			return;
 		}
-		if (this._restoringFromSnapshot) {
-			this._restoringFromSnapshot = false;
-		} else if (!this.hasWait) {
+		if (!restoringFromSnapshot && !this.hasWait) {
 			varReset();
 
 			// Trigger
@@ -755,7 +756,9 @@ export class Creature {
 			game.onStartPhase(this);
 		}
 
-		this.materializationSickness = false;
+		if (!restoringFromSnapshot) {
+			this.materializationSickness = false;
+		}
 
 		// The opening movement query is deferred a second so the activation
 		// animation plays first, and by then the board may no longer be waiting for
@@ -2365,6 +2368,16 @@ export class Creature {
 	}
 
 	/**
+	 * Resolve destruction of the goo trap holding this Gumble in BRB.
+	 */
+	onBRBTrapDestroyed(destroyer?: Creature, remote = false): void {
+		if (!this._brbState) return;
+		const savedState = this._brbState;
+		this._brbState = null;
+		this.die(destroyer ?? savedState.killer, remote);
+	}
+
+	/**
 	 * Play kill animation. Remove creature from queue and from hexes.
 	 * @param{Creature | {player:Player}} killerCreature - Killer of this creature
 	 * @param{boolean} remote - True when this death is being applied because the
@@ -2393,12 +2406,10 @@ export class Creature {
 			// If the goo trap is destroyed while Gumble is in BRB state (e.g. another
 			// trap overwrites it), Gumble dies immediately with full score/queue update.
 			// The destroyer (the creature whose trap caused the overwrite) becomes the killer.
-			this._brbState.gooTrap.onDestroyFn = (destroyer?: Creature) => {
-				if (!this._brbState) return; // already resolved (revived or died)
-				const savedState = this._brbState;
-				this._brbState = null;
-				this.die(destroyer ?? savedState.killer, remote);
-			};
+			const brbTrap = this._brbState.gooTrap;
+			brbTrap.snapshotBehaviorId = GOOEY_BODY_BRB_TRAP_BEHAVIOR;
+			brbTrap.snapshotBehaviorData = { creatureId: this.id };
+			brbTrap.onDestroyFn = (destroyer?: Creature) => this.onBRBTrapDestroyed(destroyer, remote);
 
 			// Clear the hex first so the trap spot is immediately walkable
 			// and pathfinding/queue-display sees the correct state.
@@ -4162,6 +4173,18 @@ class CreatureSprite {
 			this._noActionHintGroup.destroy(true);
 		}
 		this._noActionHintGroup = null;
+	}
+
+	showBonfireSpringHint() {
+		let fireCount = 1;
+		this._hintGrp.each((hint: SpriteHandle) => {
+			const state = peekHintState(hint);
+			if (state?.hintType === 'msg_effects' && hint.text?.startsWith('🔥')) {
+				fireCount = (hint.text.match(/🔥/g) || []).length + 1;
+				hint.destroy();
+			}
+		}, this);
+		this.hint('🔥'.repeat(fireCount), 'msg_effects');
 	}
 
 	hint(text: string, hintType: CreatureHintType) {

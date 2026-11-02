@@ -9,6 +9,10 @@ import Game from '../game';
 import { Hex } from '../utility/hex';
 import { Trap } from '../utility/trap';
 import { shakeBoard } from '../game-display/camera';
+import {
+	GOOEY_BODY_BRB_TRAP_BEHAVIOR,
+	GOOEY_BODY_EFFECT_BEHAVIOR,
+} from '../engine/snapshotBehaviors';
 
 type GumbleRuntimeFlags = {
 	deathAnimationType?: string;
@@ -17,6 +21,15 @@ type GumbleRuntimeFlags = {
 const PRETTY_RIBBON_HEAL = 20;
 const PRETTY_RIBBON_BUFF = 2;
 const PRETTY_RIBBON_DEBUFF = -2;
+const bindGooeyBodyEffect = (effect: Effect) => {
+	effect.snapshotBehaviorId = GOOEY_BODY_EFFECT_BEHAVIOR;
+	effect.requireFn = function () {
+		return !!this.trap.hex.creature;
+	};
+	effect.effectFn = (_effect, creature: Creature) => {
+		creature.remainingMove = 0;
+	};
+};
 
 const getPrettyRibbonHexes = (ability) => {
 	return ability.creature.hexagons.concat(ability.creature.adjacentHexes(2));
@@ -106,6 +119,17 @@ const applyEnemyPrettyRibbon = (ability, target: Creature, game: Game) => {
  * @return {void}
  */
 export default (G: Game) => {
+	G.registerSnapshotEffectBehavior(GOOEY_BODY_EFFECT_BEHAVIOR, (effect) => {
+		bindGooeyBodyEffect(effect);
+	});
+	G.registerSnapshotTrapBehavior(GOOEY_BODY_BRB_TRAP_BEHAVIOR, (trap, data) => {
+		const creature = G.creatures[Number(data?.creatureId)];
+		if (!creature) {
+			throw new Error('Cannot restore Gumble Gooey Body: owning creature is missing.');
+		}
+		trap.onDestroyFn = (destroyer) => creature.onBRBTrapDestroyed(destroyer);
+	});
+
 	G.abilities[14] = [
 		// First Ability: Gooey Body
 		{
@@ -141,16 +165,7 @@ export default (G: Game) => {
 						deathHex,
 						'onStepIn',
 						{
-							requireFn: function () {
-								return !!this.trap.hex.creature;
-							},
-							effectFn: function (_effect, creature: Creature) {
-								// Pin the creature: it cannot move further this turn.
-								// Flying units only reach this point when stopping ON the
-								// trap (mid-flight hexes use ignoreTraps=true), so this
-								// correctly pins both walkers and landing flyers.
-								creature.remainingMove = 0;
-							},
+							snapshotBehaviorId: GOOEY_BODY_EFFECT_BEHAVIOR,
 							alterations: {},
 							deleteTrigger: '',
 							// Effect should persist as long as the trap exists
@@ -158,6 +173,7 @@ export default (G: Game) => {
 						},
 						G,
 					);
+					bindGooeyBodyEffect(effect);
 
 					// If upgraded, set up BRB state so die() will intercept the death.
 					// _brbSpent is true while a BRB is already in flight (between the

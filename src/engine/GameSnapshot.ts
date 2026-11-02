@@ -2,237 +2,94 @@
 import * as version from '../utility/version';
 
 /**
- * Game Snapshot Database Schema v2
+ * Game Snapshot Database Schema v6
  *
- * This is a COMPLETE database snapshot of the game state.
- * Every field that affects gameplay MUST be here.
- * When adding new game elements, ADD THEM HERE FIRST.
+ * This is a versioned, data-only snapshot format. Match state that cannot be
+ * rehydrated without runtime callbacks is rejected rather than silently omitted.
  *
  * Version history:
  * v1: Initial release (basic creatures, players, traps, drops, effects)
  * v2: Complete state - all creature fields, trap effects, effect owner/target resolution,
  *     plasma, time pools, meta powers, queue state, ability cooldowns, etc.
+ * v3: Preserve drop modifiers, trap owners, active plasma fields, and stable score/BRB references.
+ * v4: Add runtime-safety metadata and refuse snapshots containing unrehydratable behavior.
+ * v5: Identify registered effect/trap behaviors so supported callbacks can be rehydrated.
+ * v6: Preserve registered, data-backed queue events.
  */
 
 const SEPARATOR = '||';
-const PREFIX = `Ancient Beast ${version.full} GameSnapshot v2 | Generated on `;
+const PREFIX = `Ancient Beast ${version.full} GameSnapshot v6 | Generated on `;
 
-export const SNAPSHOT_VERSION = 2;
+export const SNAPSHOT_VERSION = 6;
 
-/**
- * Migration function type for upgrading snapshots
- */
-export type SnapshotMigration = (snapshot: any) => any;
-
-/**
- * Migration registry - add migrations here when schema changes
- */
-export const SNAPSHOT_MIGRATIONS: Record<number, SnapshotMigration> = {
-	// 1 -> 2: Add missing fields, fix effect owner/target resolution
-	2: (snapshot) => {
-		// Ensure all creatures have complete fields
-		if (snapshot.creatures) {
-			snapshot.creatures.forEach((c: any) => {
-				// Ensure all creature fields exist with defaults
-				c._waitedTurn = c._waitedTurn ?? 0;
-				c.isDelayed = c.isDelayed ?? false;
-				c.isDelayedInNextQueue = c.isDelayedInNextQueue ?? false;
-				c._afterimages = c._afterimages ?? false;
-				c._summonCreaturesWithMaterializationSickness =
-					c._summonCreaturesWithMaterializationSickness ?? false;
-				c.materializationSickness = c.materializationSickness ?? false;
-				c.noActionPossible = c.noActionPossible ?? false;
-				c._afterimages = c._afterimages ?? false;
-				c._summonCreaturesWithMaterializationSickness =
-					c._summonCreaturesWithMaterializationSickness ?? false;
-				c.accumulatedTeleportRange = c.accumulatedTeleportRange ?? 0;
-				c._brbActive = c._brbActive ?? false;
-				c._brbState = c._brbState ?? null;
-				c._brbSpent = c._brbSpent ?? false;
-				c._lastBurningSpiritDamage = c._lastBurningSpiritDamage ?? null;
-				c._bonfireSpringCount = c._bonfireSpringCount ?? 0;
-				c.accumulatedTeleportRange = c.accumulatedTeleportRange ?? 0;
-				c._brbActive = c._brbActive ?? false;
-				c._brbState = c._brbState ?? null;
-				c._brbSpent = c._brbSpent ?? false;
-				c._lastBurningSpiritDamage = c._lastBurningSpiritDamage ?? null;
-				c._bonfireSpringCount = c._bonfireSpringCount ?? 0;
-				c.travelDist = c.travelDist ?? 0;
-				c.protectedFromFatigue = c.protectedFromFatigue ?? false;
-				c.turnsActive = c.turnsActive ?? 0;
-				c.materializationSickness = c.materializationSickness ?? false;
-				c.noActionPossible = c.noActionPossible ?? false;
-				c.accumulatedTeleportRange = c.accumulatedTeleportRange ?? 0;
-				c._brbActive = c._brbActive ?? false;
-				c._brbState = c._brbState ?? null;
-				c._brbSpent = c._brbSpent ?? false;
-				c._lastBurningSpiritDamage = c._lastBurningSpiritDamage ?? null;
-				c._bonfireSpringCount = c._bonfireSpringCount ?? 0;
-				c.protectedFromFatigue = c.protectedFromFatigue ?? false;
-				c.turnsActive = c.turnsActive ?? 0;
-				c.materializationSickness = c.materializationSickness ?? false;
-				c.noActionPossible = c.noActionPossible ?? false;
-				c.accumulatedTeleportRange = c.accumulatedTeleportRange ?? 0;
-				c._brbActive = c._brbActive ?? false;
-				c._brbState = c._brbState ?? null;
-				c._brbSpent = c._brbSpent ?? false;
-				c._lastBurningSpiritDamage = c._lastBurningSpiritDamage ?? null;
-				c._bonfireSpringCount = c._bonfireSpringCount ?? 0;
-				c.travelDist = c.travelDist ?? 0;
-				c.protectedFromFatigue = c.protectedFromFatigue ?? false;
-				c.turnsActive = c.turnsActive ?? 0;
-				c.materializationSickness = c.materializationSickness ?? false;
-				c.noActionPossible = c.noActionPossible ?? false;
-				c.accumulatedTeleportRange = c.accumulatedTeleportRange ?? 0;
-				c._brbActive = c._brbActive ?? false;
-				c._brbState = c._brbState ?? null;
-				c._brbSpent = c._brbSpent ?? false;
-				c._lastBurningSpiritDamage = c._lastBurningSpiritDamage ?? null;
-				c._bonfireSpringCount = c._bonfireSpringCount ?? 0;
-				c.status = c.status ?? { frozen: false, cryostasis: false, dizzy: false };
-				c.baseStats = c.baseStats ?? {};
-				c.stats = c.stats ?? {};
-				c.abilities = c.abilities ?? [];
-				c.effects = c.effects ?? [];
-				c.dropCollection = c.dropCollection ?? [];
-				c._waitedTurn = c._waitedTurn ?? 0;
-				c.isDelayed = c.isDelayed ?? false;
-				c.isDelayedInNextQueue = c.isDelayedInNextQueue ?? false;
-				c._afterimages = c._afterimages ?? false;
-				c._summonCreaturesWithMaterializationSickness =
-					c._summonCreaturesWithMaterializationSickness ?? false;
-			});
-		}
-
-		// Ensure effects have proper owner/target resolution fields
-		if (snapshot.effects) {
-			snapshot.effects.forEach((e: any) => {
-				e.ownerType = e.ownerType ?? 'creature';
-				e.ownerId = e.ownerId ?? null;
-				e.targetType = e.targetType ?? 'creature';
-				e.targetId = e.targetId ?? null;
-				e.specialHint = e.specialHint ?? '';
-				e.alterations = e.alterations ?? {};
-				e.attacker = e.attacker ?? null;
-				e.isDeleted = e.isDeleted ?? false;
-				e.stackable = e.stackable ?? false;
-				e.deleteOnOwnerDeath = e.deleteOnOwnerDeath ?? false;
-				e.deleteTrigger = e.deleteTrigger ?? 'turnEnd';
-				e.stackable = e.stackable ?? false;
-				e.deleteOnOwnerDeath = e.deleteOnOwnerDeath ?? false;
-			});
-		}
-
-		// Ensure traps have all fields
-		if (snapshot.traps) {
-			snapshot.traps.forEach((t: any) => {
-				t.creationTurn = t.creationTurn ?? 0;
-				t.turnLifetime = t.turnLifetime ?? 0;
-				t.fullTurnLifetime = t.fullTurnLifetime ?? false;
-				t.ownerCreature = t.ownerCreature ?? undefined;
-				t.destroyOnActivate = t.destroyOnActivate ?? false;
-				t.typeOver = t.typeOver ?? false;
-				t.destroyAnimation = t.destroyAnimation ?? '';
-				t.effects = t.effects ?? [];
-			});
-		}
-
-		// Ensure drops have all fields
-		if (snapshot.drops) {
-			snapshot.drops.forEach((d: any) => {
-				d.alterations = d.alterations ?? {};
-				d.pickedUp = d.pickedUp ?? false;
-			});
-		}
-
-		// Ensure players have all fields
-		if (snapshot.players) {
-			snapshot.players.forEach((p: any) => {
-				p.plasma = p.plasma ?? 0;
-				p.flipped = p.flipped ?? false;
-				p.hasLost = p.hasLost ?? false;
-				p.hasFled = p.hasFled ?? false;
-				p.bonusTimePool = p.bonusTimePool ?? 0;
-				p.totalTimePool = p.totalTimePool ?? 0;
-				p.startTime = p.startTime ?? new Date().toISOString();
-				p.summonCreaturesWithMaterializationSickness =
-					p.summonCreaturesWithMaterializationSickness ?? false;
-				p.score = p.score ?? [];
-			});
-		}
-
-		// Ensure global game state
-		snapshot.turn = snapshot.turn ?? 1;
-		snapshot.round = snapshot.round ?? 0;
-		snapshot.fastForward = snapshot.fastForward ?? false;
-		snapshot.gameState = snapshot.gameState ?? 'playing';
-		snapshot.activeCreatureId = snapshot.activeCreatureId ?? null;
-		snapshot.playersReady = snapshot.playersReady ?? false;
-		snapshot.turnThrottle = snapshot.turnThrottle ?? false;
-		snapshot.bloodCount = snapshot.bloodCount ?? 0;
-		snapshot.trapId = snapshot.trapId ?? 0;
-		snapshot.effectId = snapshot.effectId ?? 0;
-		snapshot.dropId = snapshot.dropId ?? 0;
-		snapshot.metaPowersState = snapshot.metaPowersState ?? {
-			executeMonster: false,
-			resetCooldowns: false,
-			disableMaterializationSickness: false,
-			infiniteEnergy: false,
-		};
-		snapshot.configData = snapshot.configData ?? {};
-		snapshot.availableCreatures = snapshot.availableCreatures ?? [];
-		snapshot.lastSummonedType = snapshot.lastSummonedType ?? null;
-		snapshot.queue = snapshot.queue ?? [];
-		snapshot.turn = snapshot.turn ?? 1;
-		snapshot.round = snapshot.round ?? 0;
-		snapshot.bloodCount = snapshot.bloodCount ?? 0;
-		snapshot.trapId = snapshot.trapId ?? 0;
-		snapshot.effectId = snapshot.effectId ?? 0;
-		snapshot.dropId = snapshot.dropId ?? 0;
-		snapshot.metaPowersState = snapshot.metaPowersState ?? {
-			executeMonster: false,
-			resetCooldowns: false,
-			disableMaterializationSickness: false,
-			infiniteEnergy: false,
-		};
-		snapshot.configData = snapshot.configData ?? {};
-		snapshot.availableCreatures = snapshot.availableCreatures ?? [];
-		snapshot.lastSummonedType = snapshot.lastSummonedType ?? null;
-		snapshot.queue = snapshot.queue ?? [];
-		snapshot.turn = snapshot.turn ?? 1;
-		snapshot.round = snapshot.round ?? 0;
-		snapshot.bloodCount = snapshot.bloodCount ?? 0;
-		snapshot.trapId = snapshot.trapId ?? 0;
-		snapshot.effectId = snapshot.effectId ?? 0;
-		snapshot.dropId = snapshot.dropId ?? 0;
-		snapshot.metaPowersState = snapshot.metaPowersState ?? {
-			executeMonster: false,
-			resetCooldowns: false,
-			disableMaterializationSickness: false,
-			infiniteEnergy: false,
-		};
-		snapshot.configData = snapshot.configData ?? {};
-		snapshot.availableCreatures = snapshot.availableCreatures ?? [];
-		snapshot.lastSummonedType = snapshot.lastSummonedType ?? null;
-		snapshot.queue = snapshot.queue ?? [];
-	},
-};
-
-/**
- * Apply migrations to bring snapshot to current version
- */
-export function migrateSnapshot(snapshot: any): any {
-	let currentVersion = snapshot.version || 1;
-	while (currentVersion < SNAPSHOT_VERSION) {
-		const migration = SNAPSHOT_MIGRATIONS[currentVersion + 1];
-		if (migration) {
-			snapshot = migration(snapshot);
-			currentVersion++;
-		} else {
-			break;
-		}
+export class SnapshotCompatibilityError extends Error {
+	constructor(message: string) {
+		super(message);
+		this.name = 'SnapshotCompatibilityError';
 	}
-	snapshot.version = SNAPSHOT_VERSION;
+}
+
+/**
+ * Validate that a snapshot can be restored by this build without guessing.
+ */
+export function validateSnapshot(snapshot: any): any {
+	if (!snapshot || typeof snapshot !== 'object' || Array.isArray(snapshot)) {
+		throw new Error('Invalid game snapshot: expected an object.');
+	}
+	if (snapshot.version !== SNAPSHOT_VERSION) {
+		throw new SnapshotCompatibilityError(
+			`Snapshot version ${
+				snapshot.version ?? 'unknown'
+			} cannot guarantee match-faithful restoration. ` +
+				`Only version ${SNAPSHOT_VERSION} snapshots are supported; save a new snapshot from the current game.`,
+		);
+	}
+	if (
+		snapshot.runtimeSafety?.version !== 1 ||
+		!Array.isArray(snapshot.queuedEvents) ||
+		snapshot.runtimeSafety.pendingQueueEvents !== snapshot.queuedEvents.length ||
+		snapshot.runtimeSafety.activeAnimations !== false ||
+		snapshot.runtimeSafety.deferredQueryMoves !== 0
+	) {
+		throw new SnapshotCompatibilityError(
+			'Snapshot is missing the runtime-safety guarantees required for faithful restoration.',
+		);
+	}
+	if (
+		!Array.isArray(snapshot.effects) ||
+		snapshot.effects.some(
+			(effect: any) =>
+				typeof effect.runtimeCallbacks !== 'boolean' ||
+				(effect.runtimeCallbacks && typeof effect.snapshotBehaviorId !== 'string') ||
+				(effect.ownerType === 'hex' &&
+					(!Number.isInteger(effect.ownerX) || !Number.isInteger(effect.ownerY))) ||
+				(effect.targetType === 'hex' &&
+					(!Number.isInteger(effect.targetX) || !Number.isInteger(effect.targetY))),
+		) ||
+		!Array.isArray(snapshot.traps) ||
+		snapshot.traps.some(
+			(trap: any) =>
+				typeof trap.onDestroyCallback !== 'boolean' ||
+				(trap.onDestroyCallback && typeof trap.snapshotBehaviorId !== 'string'),
+		) ||
+		!Array.isArray(snapshot.queue) ||
+		snapshot.queue.some((id: unknown) => !Number.isInteger(id)) ||
+		snapshot.queuedEvents.some(
+			(event: any) =>
+				typeof event.id !== 'string' ||
+				typeof event.snapshotBehaviorId !== 'string' ||
+				!Number.isInteger(event.turn) ||
+				!Number.isFinite(event.initiative) ||
+				typeof event.title !== 'string' ||
+				typeof event.data !== 'object' ||
+				event.data === null ||
+				Array.isArray(event.data),
+		)
+	) {
+		throw new SnapshotCompatibilityError(
+			'Snapshot contains runtime behavior that cannot be restored safely.',
+		);
+	}
 	return snapshot;
 }
 
@@ -245,6 +102,9 @@ export type AbilitySnapshot = {
 	token: number;
 	upgraded: boolean;
 	trigger?: string;
+	triggeredThisChain?: boolean;
+	_strikes?: Record<number, number>;
+	_lastTargetId?: number;
 };
 
 export type CreatureSnapshot = {
@@ -257,6 +117,7 @@ export type CreatureSnapshot = {
 	y: number;
 	// Team
 	team: number;
+	killer: number | null;
 	// State
 	temp: boolean;
 	dead: boolean;
@@ -272,8 +133,11 @@ export type CreatureSnapshot = {
 	noActionPossible: boolean;
 	// Stats
 	health: number;
+	oldHealth: number;
+	plasmaFieldActiveTurn: boolean;
 	endurance: number;
 	energy: number;
+	oldEnergy: number;
 	remainingMove: number;
 	movementPool: number;
 	accumulatedTeleportRange: number;
@@ -293,7 +157,7 @@ export type CreatureSnapshot = {
 	// Effects
 	effects: number[]; // effect ids owned by this creature
 	// Drops
-	dropCollection: string[]; // drop names collected
+	dropCollection: { name: string; alterations: Record<string, any> }[];
 	// Additional state
 	isDelayed: boolean;
 	isDelayedInNextQueue: boolean;
@@ -314,6 +178,10 @@ export type TrapSnapshot = {
 	destroyOnActivate: boolean;
 	typeOver: boolean;
 	destroyAnimation: string;
+	owner: number;
+	onDestroyCallback: boolean;
+	snapshotBehaviorId?: string;
+	snapshotBehaviorData?: Record<string, unknown>;
 	effects: number[]; // effect ids owned by this trap
 };
 
@@ -329,6 +197,7 @@ export type DropSnapshot = {
 export type EffectSnapshot = {
 	id: number;
 	name: string;
+	trigger: string;
 	creationTurn: number;
 	turnLifetime: number;
 	deleteTrigger: string;
@@ -336,13 +205,31 @@ export type EffectSnapshot = {
 	deleteOnOwnerDeath: boolean;
 	isDeleted: boolean;
 	attacker: number | null;
+	triggeredThisChain: boolean;
 	alterations: Record<string, any>;
 	specialHint: string;
 	// owner/target are resolved back to creature/trap ids at load time.
 	ownerType: 'creature' | 'trap' | 'hex';
 	ownerId: number | null;
+	ownerX?: number;
+	ownerY?: number;
 	targetType: 'creature' | 'trap' | 'hex';
 	targetId: number | null;
+	targetX?: number;
+	targetY?: number;
+	runtimeCallbacks: boolean;
+	snapshotBehaviorId?: string;
+	snapshotBehaviorData?: Record<string, unknown>;
+};
+
+export type QueueEventSnapshot = {
+	id: string;
+	snapshotBehaviorId: string;
+	turn: number;
+	initiative: number;
+	delayed?: boolean;
+	title: string;
+	data: Record<string, unknown>;
 };
 
 export type PlayerSnapshot = {
@@ -362,7 +249,13 @@ export type PlayerSnapshot = {
 
 export type GameSnapshot = {
 	// Schema version for migrations
-	version: string;
+	version: number;
+	runtimeSafety: {
+		version: 1;
+		pendingQueueEvents: number;
+		activeAnimations: false;
+		deferredQueryMoves: 0;
+	};
 	// Metadata
 	date: string;
 	// Game state
@@ -389,6 +282,7 @@ export type GameSnapshot = {
 	configData: Record<string, any>;
 	availableCreatures: string[];
 	lastSummonedType: string | null;
+	plasmaAmount?: number;
 	// Entities
 	players: PlayerSnapshot[];
 	creatures: CreatureSnapshot[];
@@ -396,6 +290,7 @@ export type GameSnapshot = {
 	drops: DropSnapshot[];
 	effects: EffectSnapshot[];
 	queue: number[];
+	queuedEvents: QueueEventSnapshot[];
 };
 
 function getYearMonthDayStr(): string {
@@ -404,14 +299,12 @@ function getYearMonthDayStr(): string {
 
 export class GameSnapshotSerializer {
 	static stringify(snapshot: GameSnapshot): string {
-		const seen = new WeakSet<object>();
-		const json = JSON.stringify(snapshot, (_key, value) => {
-			// Some abilities stash a `sourceCreature` circular reference on
-			// damage/effect records; drop it like the gamelog replacer does.
+		const ancestors: object[] = [];
+		const json = JSON.stringify(snapshot, function (key, value) {
+			if (key === 'sourceCreature') {
+				return {};
+			}
 			if (value && typeof value === 'object') {
-				if (value.sourceCreature !== undefined) {
-					return { ...value, sourceCreature: {} };
-				}
 				// Skip Phaser objects (they have toJSON that may throw)
 				if (
 					value.anims !== undefined ||
@@ -420,10 +313,13 @@ export class GameSnapshotSerializer {
 				) {
 					return '[Phaser]';
 				}
-				if (seen.has(value)) {
+				while (ancestors.length && ancestors[ancestors.length - 1] !== this) {
+					ancestors.pop();
+				}
+				if (ancestors.includes(value)) {
 					return '[Circular]';
 				}
-				seen.add(value);
+				ancestors.push(value);
 			}
 			return value;
 		});
@@ -447,7 +343,7 @@ export class GameSnapshotSerializer {
 		const json = decodeURIComponent(utf8Json);
 		const snapshot = JSON.parse(json);
 		// Apply migrations
-		return migrateSnapshot(snapshot);
+		return validateSnapshot(snapshot);
 	}
 
 	static isSnapshotString(str: string): boolean {

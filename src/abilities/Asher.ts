@@ -8,8 +8,261 @@ import { Easing } from '../utility/easing';
 import { shakeBoard } from '../game-display/camera';
 import type { QueueEvent } from '../event_queue';
 import { spawnProjectileVertigoTrail } from '../vertigo';
+import { SnapshotCompatibilityError, type QueueEventSnapshot } from '../engine/GameSnapshot';
+import {
+	ASHER_CRASHING_GLOBE_BURN_EFFECT,
+	ASHER_CRASHING_GLOBE_EVENT,
+	ASHER_COVERT_STRIKE_MOVE_EFFECT,
+	ASHER_GLOWING_EYE_EFFECT,
+	ASHER_HEAT_HAZE_BURN_EFFECT,
+} from '../engine/asherSnapshotBehaviors';
+
+type CrashingGlobeSnapshotData = {
+	attackerId: number;
+	hexX: number;
+	hexY: number;
+	targetId: number | null;
+	damages: Record<string, number>;
+	upgraded: boolean;
+};
+
+type CrashingGlobeOwner = Creature & {
+	_pendingCrashingGlobes?: object[];
+	_crashingGlobePending?: boolean;
+};
+
+type AsherTargetEffectData = { asherId: number; targetId: number };
+
+const getSnapshotCreature = (G, id: unknown, behavior: string): Creature => {
+	if (!Number.isInteger(id) || !(G.creatures?.[id as number] instanceof Creature)) {
+		throw new SnapshotCompatibilityError(
+			`Cannot restore ${behavior}: creature reference is invalid.`,
+		);
+	}
+	return G.creatures[id as number];
+};
+
+const bindHeatHazeBurnEffect = (G, effect: Effect, data?: Record<string, unknown>) => {
+	const candidate = data as Partial<AsherTargetEffectData> | undefined;
+	const asher = getSnapshotCreature(G, candidate?.asherId, 'Heat Haze Burn');
+	const target = getSnapshotCreature(G, candidate?.targetId, 'Heat Haze Burn');
+	if (asher.name !== 'Asher' || effect.owner !== asher || effect.target !== target) {
+		throw new SnapshotCompatibilityError(
+			'Cannot restore Heat Haze Burn: effect references are invalid.',
+		);
+	}
+	effect.snapshotBehaviorId = ASHER_HEAT_HAZE_BURN_EFFECT;
+	effect.snapshotBehaviorData = { asherId: asher.id, targetId: target.id };
+	effect.requireFn = (damage) =>
+		damage instanceof Damage &&
+		!damage.isFromHazeBurn &&
+		damage.attacker instanceof Creature &&
+		isTeam(damage.attacker, asher, Team.Ally) &&
+		damage.target instanceof Creature;
+	effect.effectFn = (_activeEffect, damage: Damage) => {
+		if (!(damage instanceof Damage) || !(damage.target instanceof Creature)) return;
+		const burn = new Damage(asher, { burn: 3 }, 1, [], G);
+		burn.isFromHazeBurn = true;
+		damage.target.takeDamage(burn);
+	};
+};
+
+const bindGlowingEyeEffect = (G, effect: Effect, data?: Record<string, unknown>) => {
+	const candidate = data as Partial<AsherTargetEffectData> | undefined;
+	const asher = getSnapshotCreature(G, candidate?.asherId, 'Glowing Eye');
+	const target = getSnapshotCreature(G, candidate?.targetId, 'Glowing Eye');
+	if (asher.name !== 'Asher' || effect.owner !== asher || effect.target !== target) {
+		throw new SnapshotCompatibilityError(
+			'Cannot restore Glowing Eye: effect references are invalid.',
+		);
+	}
+	effect.snapshotBehaviorId = ASHER_GLOWING_EYE_EFFECT;
+	effect.snapshotBehaviorData = { asherId: asher.id, targetId: target.id };
+	effect.effectFn = (_activeEffect, creature) => {
+		if (creature === target) target.recharge(0);
+	};
+};
+
+const bindCovertStrikeMoveEffect = (G, effect: Effect, data?: Record<string, unknown>) => {
+	const candidate = data as Partial<AsherTargetEffectData> | undefined;
+	const asher = getSnapshotCreature(G, candidate?.asherId, 'Covert Strike Move');
+	const target = getSnapshotCreature(G, candidate?.targetId, 'Covert Strike Move');
+	if (asher.name !== 'Asher' || effect.owner !== asher || effect.target !== target) {
+		throw new SnapshotCompatibilityError(
+			'Cannot restore Covert Strike Move: effect references are invalid.',
+		);
+	}
+	effect.snapshotBehaviorId = ASHER_COVERT_STRIKE_MOVE_EFFECT;
+	effect.snapshotBehaviorData = { asherId: asher.id, targetId: target.id };
+	effect.effectFn = (_activeEffect, creature) => {
+		if (creature === target) target.remainingMove = 0;
+	};
+};
+
+const bindCrashingGlobeBurnEffect = (G, effect: Effect, data?: Record<string, unknown>) => {
+	const attackerIdValue = data?.attackerId;
+	if (typeof attackerIdValue !== 'number' || !Number.isInteger(attackerIdValue)) {
+		throw new SnapshotCompatibilityError(
+			'Cannot restore Crashing Globe Burn: attacker reference is invalid.',
+		);
+	}
+	const attackerId = attackerIdValue;
+	const attacker = G.creatures[attackerId];
+	if (!(attacker instanceof Creature)) {
+		throw new SnapshotCompatibilityError(
+			'Cannot restore Crashing Globe Burn: attacker is missing.',
+		);
+	}
+	effect.attacker = attacker;
+	effect.snapshotBehaviorId = ASHER_CRASHING_GLOBE_BURN_EFFECT;
+	effect.snapshotBehaviorData = { attackerId };
+	effect.requireFn = function () {
+		const creature = this.trap.hex.creature;
+		return creature instanceof Creature && creature.id !== attacker.id;
+	};
+	effect.effectFn = (_effect, target) => {
+		const creature =
+			target instanceof Creature
+				? target
+				: target instanceof Hex && target.creature instanceof Creature
+				? target.creature
+				: undefined;
+		if (creature) {
+			creature.takeDamage(new Damage(attacker, { burn: 10 }, 1, [], G));
+		}
+		_effect.trap.destroy();
+		_effect.deleteEffect();
+	};
+};
+
+const createCrashingGlobeBurnEffect = (G, attacker: Creature, hex: Hex) => {
+	const data = { attackerId: attacker.id };
+	const effect = new Effect(
+		'Crashing Globe Burn',
+		attacker,
+		hex,
+		'onStepIn',
+		{
+			attacker,
+			snapshotBehaviorId: ASHER_CRASHING_GLOBE_BURN_EFFECT,
+			snapshotBehaviorData: data,
+		},
+		G,
+	);
+	bindCrashingGlobeBurnEffect(G, effect, data);
+	return effect;
+};
+
+const restoreCrashingGlobeEvent = (G, snapshot: QueueEventSnapshot): QueueEvent => {
+	const data = snapshot.data as unknown as CrashingGlobeSnapshotData;
+	if (
+		!Number.isInteger(data.attackerId) ||
+		!Number.isInteger(data.hexX) ||
+		!Number.isInteger(data.hexY) ||
+		(data.targetId !== null && !Number.isInteger(data.targetId)) ||
+		typeof data.upgraded !== 'boolean' ||
+		!data.damages ||
+		typeof data.damages !== 'object' ||
+		Object.values(data.damages).some(
+			(amount) => typeof amount !== 'number' || !Number.isFinite(amount),
+		)
+	) {
+		throw new SnapshotCompatibilityError('Cannot restore Crashing Globe: event data is invalid.');
+	}
+	const attacker = G.creatures[data.attackerId];
+	const hex = G.grid.hexAt(data.hexX, data.hexY);
+	const target = data.targetId === null ? undefined : G.creatures[data.targetId];
+	if (
+		!(attacker instanceof Creature) ||
+		!(hex instanceof Hex) ||
+		(data.targetId !== null && !target)
+	) {
+		throw new SnapshotCompatibilityError('Cannot restore Crashing Globe: event data is invalid.');
+	}
+	const projectile = {
+		hex,
+		target,
+		attacker,
+		damages: data.damages,
+		upgraded: data.upgraded,
+		_resolved: false,
+	};
+	const globeOwner = attacker as CrashingGlobeOwner;
+	if (!globeOwner._pendingCrashingGlobes) globeOwner._pendingCrashingGlobes = [];
+	globeOwner._pendingCrashingGlobes.push(projectile);
+	globeOwner._crashingGlobePending = true;
+	hex._markedByCrashingGlobe = true;
+	hex.overlayVisualState('crashing-globe-target p' + attacker.team);
+	hex.updateStyle();
+
+	return {
+		isEvent: true,
+		id: snapshot.id,
+		type: 'crashing-globe',
+		turn: snapshot.turn,
+		initiative: snapshot.initiative,
+		delayed: snapshot.delayed,
+		title: snapshot.title,
+		data: { attacker, hex, upgraded: data.upgraded },
+		snapshotBehaviorId: snapshot.snapshotBehaviorId,
+		snapshotBehaviorData: data,
+		resolve: (onComplete) => {
+			if (projectile._resolved) {
+				onComplete();
+				return;
+			}
+			projectile._resolved = true;
+			globeOwner._pendingCrashingGlobes = globeOwner._pendingCrashingGlobes.filter(
+				(pending) => pending !== projectile,
+			);
+			globeOwner._crashingGlobePending = globeOwner._pendingCrashingGlobes.length > 0;
+			G.log(
+				'%CreatureName' +
+					attacker.id +
+					'%s Crashing Globe strikes' +
+					(projectile.target ? ' %CreatureName' + projectile.target.id + '%' : ' an empty hex') +
+					'!',
+			);
+			const targetCreature = hex.creature;
+			if (targetCreature instanceof Creature) {
+				targetCreature.takeDamage(new Damage(attacker, data.damages, 1, [], G));
+			}
+			if (data.upgraded && !(targetCreature instanceof Creature)) {
+				hex.createTrap(
+					'scorched-ground',
+					[createCrashingGlobeBurnEffect(G, attacker, hex)],
+					projectile.target?.player || attacker.player,
+					{
+						turnLifetime: -1,
+						ownerCreature: attacker,
+						fullTurnLifetime: true,
+					},
+				);
+			}
+			hex.cleanOverlayVisualState('crashing-globe-target p' + attacker.team);
+			hex._markedByCrashingGlobe = false;
+			hex.updateStyle();
+			onComplete();
+		},
+	};
+};
 
 export default function (G) {
+	G.registerSnapshotEffectBehavior(ASHER_HEAT_HAZE_BURN_EFFECT, (effect, data) =>
+		bindHeatHazeBurnEffect(G, effect, data),
+	);
+	G.registerSnapshotEffectBehavior(ASHER_GLOWING_EYE_EFFECT, (effect, data) =>
+		bindGlowingEyeEffect(G, effect, data),
+	);
+	G.registerSnapshotEffectBehavior(ASHER_COVERT_STRIKE_MOVE_EFFECT, (effect, data) =>
+		bindCovertStrikeMoveEffect(G, effect, data),
+	);
+	G.registerSnapshotEffectBehavior(ASHER_CRASHING_GLOBE_BURN_EFFECT, (effect, data) =>
+		bindCrashingGlobeBurnEffect(G, effect, data),
+	);
+	G.registerSnapshotEventBehavior(ASHER_CRASHING_GLOBE_EVENT, (snapshot) =>
+		restoreCrashingGlobeEvent(G, snapshot),
+	);
 	G.abilities[22] = [
 		// First Ability: Heat Haze
 		{
@@ -53,37 +306,22 @@ export default function (G) {
 					);
 
 					if (ability.hasUpgrade()) {
-						foe.addEffect(
-							new Effect(
-								'Heat Haze Burn',
-								crea,
-								foe,
-								'onDamage',
-								{
-									requireFn: function (damage) {
-										return (
-											damage instanceof Damage &&
-											!damage.isFromHazeBurn &&
-											damage.attacker instanceof Creature &&
-											isTeam(damage.attacker, crea, Team.Ally) &&
-											damage.target instanceof Creature
-										);
-									},
-									effectFn: function (_effect, damage) {
-										if (!(damage instanceof Damage) || !(damage.target instanceof Creature)) {
-											return;
-										}
-										const burn = new Damage(crea, { burn: 3 }, 1, [], G);
-										burn.isFromHazeBurn = true;
-										damage.target.takeDamage(burn);
-									},
-									turnLifetime: 1,
-									deleteTrigger: 'onStartOfRound',
-									stackable: false,
-								},
-								G,
-							),
+						const burnEffect = new Effect(
+							'Heat Haze Burn',
+							crea,
+							foe,
+							'onDamage',
+							{
+								snapshotBehaviorId: ASHER_HEAT_HAZE_BURN_EFFECT,
+								snapshotBehaviorData: { asherId: crea.id, targetId: foe.id },
+								turnLifetime: 1,
+								deleteTrigger: 'onStartOfRound',
+								stackable: false,
+							},
+							G,
 						);
+						bindHeatHazeBurnEffect(G, burnEffect, burnEffect.snapshotBehaviorData);
+						foe.addEffect(burnEffect);
 					}
 				});
 			},
@@ -124,26 +362,26 @@ export default function (G) {
 
 				if (ability.hasUpgrade()) {
 					if (target.stats.meditation > 0) {
-						target.addEffect(
-							new Effect(
-								'Glowing Eye',
-								ability.creature,
-								target,
-								'onStartPhase',
-								{
-									alterations: { meditation: -target.stats.meditation },
-									effectFn: function (_effect, creature) {
-										if (creature instanceof Creature && creature === target) {
-											creature.recharge(0);
-										}
-									},
-									turnLifetime: 0,
-									deleteTrigger: 'onEndPhase',
-									stackable: false,
+						const glowingEyeEffect = new Effect(
+							'Glowing Eye',
+							ability.creature,
+							target,
+							'onStartPhase',
+							{
+								alterations: { meditation: -target.stats.meditation },
+								snapshotBehaviorId: ASHER_GLOWING_EYE_EFFECT,
+								snapshotBehaviorData: {
+									asherId: ability.creature.id,
+									targetId: target.id,
 								},
-								G,
-							),
+								turnLifetime: 0,
+								deleteTrigger: 'onEndPhase',
+								stackable: false,
+							},
+							G,
 						);
+						bindGlowingEyeEffect(G, glowingEyeEffect, glowingEyeEffect.snapshotBehaviorData);
+						target.addEffect(glowingEyeEffect);
 						target.updateAlteration();
 					}
 				}
@@ -218,25 +456,25 @@ export default function (G) {
 				}
 
 				if (ability.hasUpgrade() && target.stats.movement > 0) {
-					target.addEffect(
-						new Effect(
-							'Covert Strike Move',
-							ability.creature,
-							target,
-							'onStartPhase',
-							{
-								effectFn: function (_effect, creature) {
-									if (creature instanceof Creature && creature === target) {
-										creature.remainingMove = 0;
-									}
-								},
-								turnLifetime: 0,
-								deleteTrigger: 'onEndPhase',
-								stackable: false,
+					const moveEffect = new Effect(
+						'Covert Strike Move',
+						ability.creature,
+						target,
+						'onStartPhase',
+						{
+							snapshotBehaviorId: ASHER_COVERT_STRIKE_MOVE_EFFECT,
+							snapshotBehaviorData: {
+								asherId: ability.creature.id,
+								targetId: target.id,
 							},
-							G,
-						),
+							turnLifetime: 0,
+							deleteTrigger: 'onEndPhase',
+							stackable: false,
+						},
+						G,
 					);
+					bindCovertStrikeMoveEffect(G, moveEffect, moveEffect.snapshotBehaviorData);
+					target.addEffect(moveEffect);
 				}
 
 				target.takeDamage(new Damage(ability.creature, ability.damages, 1, [], G));
@@ -361,14 +599,26 @@ export default function (G) {
 				crea._crashingGlobePending = true;
 
 				const initiative = crea.stats.initiative + 1;
+				const eventId =
+					'crashing-globe-' + crea.id + '-' + G.turn + '-' + crea._pendingCrashingGlobes.length;
+				const snapshotData: CrashingGlobeSnapshotData = {
+					attackerId: crea.id,
+					hexX: hex.x,
+					hexY: hex.y,
+					targetId: proj.target?.id ?? null,
+					damages: { ...proj.damages },
+					upgraded: proj.upgraded,
+				};
 				const event: QueueEvent<{ attacker: Creature; hex: Hex; upgraded: boolean }> = {
 					isEvent: true,
-					id: 'crashing-globe-' + crea.id + '-' + G.turn + '-' + crea._pendingCrashingGlobes.length,
+					id: eventId,
 					type: 'crashing-globe',
 					turn: G.turn + 1,
 					initiative,
 					delayed: false,
 					title: proj.upgraded ? 'Crashing Globe (upgraded)' : 'Crashing Globe',
+					snapshotBehaviorId: ASHER_CRASHING_GLOBE_EVENT,
+					snapshotBehaviorData: snapshotData,
 					data: {
 						attacker: crea,
 						hex: proj.hex,
@@ -401,35 +651,7 @@ export default function (G) {
 						if (proj.upgraded && !(targetCreature instanceof Creature)) {
 							proj.hex.createTrap(
 								'scorched-ground',
-								[
-									new Effect(
-										'Crashing Globe Burn',
-										proj.attacker,
-										proj.hex,
-										'onStepIn',
-										{
-											requireFn: function () {
-												const c = this.trap.hex.creature;
-												return c instanceof Creature && c.id !== proj.attacker.id;
-											},
-											effectFn: function (_effect, target) {
-												const c =
-													target instanceof Creature
-														? target
-														: target instanceof Hex && target.creature instanceof Creature
-														? target.creature
-														: undefined;
-												if (c) {
-													c.takeDamage(new Damage(proj.attacker, { burn: 10 }, 1, [], G));
-												}
-												_effect.trap.destroy();
-												_effect.deleteEffect();
-											},
-											attacker: proj.attacker,
-										},
-										G,
-									),
-								],
+								[createCrashingGlobeBurnEffect(G, proj.attacker, proj.hex)],
 								proj.target ? proj.target.player : crea.player,
 								{
 									turnLifetime: -1,

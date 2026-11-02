@@ -9,6 +9,12 @@ import { getDirectionFromDelta } from '../utility/position';
 import { isTeam, Team } from '../utility/team';
 import { HEX_WIDTH_PX } from '../utility/const';
 import { shakeBoard } from '../game-display/camera';
+import { SnapshotCompatibilityError } from '../engine/GameSnapshot';
+import {
+	HORN_HEAD_LIFE_SUPPORT_EFFECT,
+	HORN_HEAD_MEAT_SICKLE_RESTRICTION_EFFECT,
+	HORN_HEAD_MEAT_SICKLE_MOVEMENT_DRAIN_EFFECT,
+} from '../engine/snapshotBehaviors';
 
 const getDualSwipeChoiceFromAnchor = (G: Game, anchor: Hex, directions: Direction[]) =>
 	directions
@@ -52,6 +58,112 @@ const getDualSwipeHoverRangeHexes = (allChoices: [Hex[], Hex[]], viableChoices: 
 const meatSickleRestrictionEffectName = 'Meat Sickle Restriction';
 const hornHeadLifeSupportTrackerEffectName = 'Life Support Damage Tracker';
 const meatSickleInlineDirections = [Direction.Right, Direction.Left];
+
+type HornHeadLifeSupportSnapshotData = {
+	creatureId: number;
+};
+
+type HornHeadMovementDrainSnapshotData = {
+	movementDrain: number;
+	targetId: number;
+};
+
+const getSnapshotCreature = (G: Game, id: unknown, behavior: string): Creature => {
+	if (!Number.isInteger(id) || !(G.creatures?.[id as number] instanceof Creature)) {
+		throw new SnapshotCompatibilityError(
+			`Cannot restore ${behavior}: creature reference is invalid.`,
+		);
+	}
+	return G.creatures[id as number];
+};
+
+const bindHornHeadLifeSupportEffect = (
+	G: Game,
+	effect: Effect,
+	data: Record<string, unknown> | undefined,
+) => {
+	const candidate = data as Partial<HornHeadLifeSupportSnapshotData> | undefined;
+	const creature = getSnapshotCreature(G, candidate?.creatureId, 'Horn Head Life Support');
+	effect.snapshotBehaviorId = HORN_HEAD_LIFE_SUPPORT_EFFECT;
+	effect.snapshotBehaviorData = { creatureId: creature.id };
+	effect.effectFn = (_activeEffect, effectArg) => {
+		const damageEvent = effectArg as Damage;
+		if (!(damageEvent instanceof Damage) || damageEvent.target !== creature) {
+			return;
+		}
+
+		const trackedHealth = hornHeadHealthBeforeHit.get(creature.id) ?? creature.health;
+		const healthDamageTaken = Math.max(0, trackedHealth - creature.health);
+		hornHeadHealthBeforeHit.delete(creature.id);
+		hornHeadPredictedHitDamage.delete(creature.id);
+
+		const enduranceGain = Math.floor(healthDamageTaken / 2);
+		if (enduranceGain > 0) {
+			creature.addEffect(
+				new Effect(
+					'Life Support',
+					creature,
+					creature,
+					'',
+					{
+						alterations: {
+							endurance: enduranceGain,
+						},
+						stackable: true,
+						turnLifetime: -1,
+					},
+					G,
+				),
+				undefined,
+				undefined,
+				true,
+				true,
+			);
+		}
+
+		_activeEffect.deleteEffect();
+	};
+};
+
+const bindHornHeadMeatSickleRestrictionEffect = (
+	G: Game,
+	effect: Effect,
+	_data: Record<string, unknown> | undefined,
+) => {
+	effect.snapshotBehaviorId = HORN_HEAD_MEAT_SICKLE_RESTRICTION_EFFECT;
+	effect.snapshotBehaviorData = {};
+	effect.effectFn = (eff) => {
+		// Foe's turn has started; schedule expiry at end of this turn.
+		eff.deleteTrigger = 'onEndPhase';
+		eff.turnLifetime = 0;
+		eff.creationTurn = G.turn;
+		eff.trigger = ''; // prevent effectFn from firing again
+	};
+};
+
+const bindHornHeadMeatSickleMovementDrainEffect = (
+	G: Game,
+	effect: Effect,
+	data: Record<string, unknown> | undefined,
+) => {
+	const candidate = data as Partial<HornHeadMovementDrainSnapshotData> | undefined;
+	const target = getSnapshotCreature(
+		G,
+		candidate?.targetId,
+		'Horn Head Meat Sickle movement drain',
+	);
+	const movementDrain = typeof candidate?.movementDrain === 'number' ? candidate.movementDrain : 0;
+	effect.snapshotBehaviorId = HORN_HEAD_MEAT_SICKLE_MOVEMENT_DRAIN_EFFECT;
+	effect.snapshotBehaviorData = { movementDrain, targetId: target.id };
+	effect.effectFn = (_activeEffect, creatureOrHexOrDamage) => {
+		const affectedCreature = creatureOrHexOrDamage as Creature;
+		if (!(affectedCreature instanceof Creature)) {
+			return;
+		}
+		affectedCreature.remainingMove = Math.max(0, affectedCreature.remainingMove - movementDrain);
+		_activeEffect.deleteEffect();
+	};
+};
 type MeatSickleChoice = Hex[] & { meatSickleDirection?: Direction };
 
 const asMeatSickleChoice = (hexes: Hex[], direction: Direction): MeatSickleChoice => {
@@ -378,13 +490,8 @@ const applyMovementRestriction = (source: Creature, target: Creature, G: Game) =
 		'onStartPhase',
 		{
 			alterations: {},
-			effectFn: function (eff) {
-				// Foe's turn has started; schedule expiry at end of this turn.
-				eff.deleteTrigger = 'onEndPhase';
-				eff.turnLifetime = 0;
-				eff.creationTurn = G.turn;
-				eff.trigger = ''; // prevent effectFn from firing again
-			},
+			snapshotBehaviorId: HORN_HEAD_MEAT_SICKLE_RESTRICTION_EFFECT,
+			snapshotBehaviorData: {},
 			deleteTrigger: '',
 			turnLifetime: -1,
 			creationTurn: G.turn,
@@ -393,6 +500,7 @@ const applyMovementRestriction = (source: Creature, target: Creature, G: Game) =
 		},
 		G,
 	);
+	bindHornHeadMeatSickleRestrictionEffect(G, effect, effect.snapshotBehaviorData);
 	// disableHint=true suppresses the floating tooltip when the effect is applied.
 	target.addEffect(effect, undefined, undefined, false, true);
 	G.log(`%CreatureName${target.id}% will be unable to use movement abilities on its next turn`);
@@ -666,6 +774,15 @@ const playMeatSickleHookEffect = (
  * @return {void}
  */
 export default (G: Game) => {
+	G.registerSnapshotEffectBehavior(HORN_HEAD_LIFE_SUPPORT_EFFECT, (effect, data) =>
+		bindHornHeadLifeSupportEffect(G, effect, data),
+	);
+	G.registerSnapshotEffectBehavior(HORN_HEAD_MEAT_SICKLE_RESTRICTION_EFFECT, (effect, data) =>
+		bindHornHeadMeatSickleRestrictionEffect(G, effect, data),
+	);
+	G.registerSnapshotEffectBehavior(HORN_HEAD_MEAT_SICKLE_MOVEMENT_DRAIN_EFFECT, (effect, data) =>
+		bindHornHeadMeatSickleMovementDrainEffect(G, effect, data),
+	);
 	G.abilities[8] = [
 		{
 			trigger: 'onUnderAttack',
@@ -686,63 +803,27 @@ export default (G: Game) => {
 
 				const ability = this;
 				this.creature.removeEffect(hornHeadLifeSupportTrackerEffectName);
-				this.creature.addEffect(
-					new Effect(
-						hornHeadLifeSupportTrackerEffectName,
-						ability.creature,
-						ability.creature,
-						'onDamage',
-						{
-							effectFn: function (effect, effectArg) {
-								const damageEvent = effectArg as Damage;
-								if (!(damageEvent instanceof Damage) || damageEvent.target !== ability.creature) {
-									return;
-								}
-
-								const trackedHealth =
-									hornHeadHealthBeforeHit.get(ability.creature.id) ?? ability.creature.health;
-								const healthDamageTaken = Math.max(0, trackedHealth - ability.creature.health);
-								hornHeadHealthBeforeHit.delete(ability.creature.id);
-								hornHeadPredictedHitDamage.delete(ability.creature.id);
-
-								const enduranceGain = Math.floor(healthDamageTaken / 2);
-								if (enduranceGain > 0) {
-									ability.creature.addEffect(
-										new Effect(
-											ability.title,
-											ability.creature,
-											ability.creature,
-											'',
-											{
-												alterations: {
-													endurance: enduranceGain,
-												},
-												stackable: true,
-												turnLifetime: -1,
-											},
-											G,
-										),
-										undefined,
-										undefined,
-										true,
-										true,
-									);
-								}
-
-								effect.deleteEffect();
-							},
-							deleteTrigger: 'onEndPhase',
-							turnLifetime: 1,
-							stackable: false,
-							deleteOnOwnerDeath: true,
-						},
-						G,
-					),
-					undefined,
-					undefined,
-					true,
-					true,
+				const lifeSupportTracker = new Effect(
+					hornHeadLifeSupportTrackerEffectName,
+					ability.creature,
+					ability.creature,
+					'onDamage',
+					{
+						snapshotBehaviorId: HORN_HEAD_LIFE_SUPPORT_EFFECT,
+						snapshotBehaviorData: { creatureId: ability.creature.id },
+						deleteTrigger: 'onEndPhase',
+						turnLifetime: 1,
+						stackable: false,
+						deleteOnOwnerDeath: true,
+					},
+					G,
 				);
+				bindHornHeadLifeSupportEffect(
+					G,
+					lifeSupportTracker,
+					lifeSupportTracker.snapshotBehaviorData,
+				);
+				this.creature.addEffect(lifeSupportTracker, undefined, undefined, true, true);
 
 				return damage;
 			},
@@ -1213,33 +1294,27 @@ export default (G: Game) => {
 								callback: function () {
 									teardownMeatSickleEffect();
 									if (movementDrain > 0) {
-										target.replaceEffect(
-											new Effect(
-												ability.title,
-												ability.creature,
-												target,
-												'onStartPhase',
-												{
-													effectFn: function (effect, creatureOrHexOrDamage) {
-														const affectedCreature = creatureOrHexOrDamage as Creature;
-														if (!(affectedCreature instanceof Creature)) {
-															return;
-														}
-
-														affectedCreature.remainingMove = Math.max(
-															0,
-															affectedCreature.remainingMove - movementDrain,
-														);
-														effect.deleteEffect();
-													},
-													deleteTrigger: '',
-													turnLifetime: -1,
-													stackable: false,
-													deleteOnOwnerDeath: true,
-												},
-												G,
-											),
+										const movementDrainEffect = new Effect(
+											ability.title,
+											ability.creature,
+											target,
+											'onStartPhase',
+											{
+												snapshotBehaviorId: HORN_HEAD_MEAT_SICKLE_MOVEMENT_DRAIN_EFFECT,
+												snapshotBehaviorData: { movementDrain, targetId: target.id },
+												deleteTrigger: '',
+												turnLifetime: -1,
+												stackable: false,
+												deleteOnOwnerDeath: true,
+											},
+											G,
 										);
+										bindHornHeadMeatSickleMovementDrainEffect(
+											G,
+											movementDrainEffect,
+											movementDrainEffect.snapshotBehaviorData,
+										);
+										target.replaceEffect(movementDrainEffect);
 
 										G.log(
 											`%CreatureName${target.id}% will lose ${movementDrain} movement next turn`,

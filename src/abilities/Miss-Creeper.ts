@@ -5,6 +5,11 @@ import { Effect } from '../effect';
 import { Hex } from '../utility/hex';
 import Game from '../game';
 import { shakeBoard } from '../game-display/camera';
+import { SnapshotCompatibilityError } from '../engine/GameSnapshot';
+import {
+	MISS_CREEPER_ATTRACTION_EFFECT,
+	MISS_CREEPER_UPGRADE_SILENCE_EFFECT,
+} from '../engine/missCreeperSnapshotBehaviors';
 
 /**
  * Creates the abilities
@@ -16,7 +21,123 @@ const CARVING_NAILS_DAMAGE = 8;
 /** Flat health restored per strike when Carving Nails is upgraded. */
 const CARVING_NAILS_UPGRADED_HEAL = 8;
 
+type FatalAttractionSnapshotData = {
+	creeperId: number;
+	targetId: number;
+};
+
+type UpgradeSilenceSnapshotData = {
+	targetId: number;
+	tendrilsEffectId: number;
+	abilityIds: number[];
+};
+
+const getSnapshotCreature = (G: Game, id: unknown, behavior: string): Creature => {
+	if (!Number.isInteger(id) || !(G.creatures?.[id as number] instanceof Creature)) {
+		throw new SnapshotCompatibilityError(
+			`Cannot restore ${behavior}: creature reference is invalid.`,
+		);
+	}
+	return G.creatures[id as number];
+};
+
+const bindFatalAttractionEffect = (
+	G: Game,
+	effect: Effect,
+	data: Record<string, unknown> | undefined,
+) => {
+	const candidate = data as Partial<FatalAttractionSnapshotData> | undefined;
+	const creeper = getSnapshotCreature(G, candidate?.creeperId, 'Fatal Attraction');
+	const target = getSnapshotCreature(G, candidate?.targetId, 'Fatal Attraction');
+	if (effect.owner !== creeper || effect.target !== target || creeper.name !== 'Miss Creeper') {
+		throw new SnapshotCompatibilityError(
+			'Cannot restore Fatal Attraction: effect references do not match.',
+		);
+	}
+	const ability = creeper.abilities[2];
+	if (!ability || typeof ability._attract !== 'function') {
+		throw new SnapshotCompatibilityError(
+			'Cannot restore Fatal Attraction: ability behavior is unavailable.',
+		);
+	}
+	const behaviorData = { creeperId: creeper.id, targetId: target.id };
+	effect.snapshotBehaviorId = MISS_CREEPER_ATTRACTION_EFFECT;
+	effect.snapshotBehaviorData = behaviorData;
+	effect.effectFn = (activeEffect, affected) => {
+		ability._attract(activeEffect, affected as Creature);
+	};
+};
+
+const bindUpgradeSilenceEffect = (
+	G: Game,
+	effect: Effect,
+	data: Record<string, unknown> | undefined,
+) => {
+	const candidate = data as Partial<UpgradeSilenceSnapshotData> | undefined;
+	const target = getSnapshotCreature(G, candidate?.targetId, 'Tendril Feet upgrade suppression');
+	if (
+		effect.target !== target ||
+		!Array.isArray(candidate?.abilityIds) ||
+		candidate.abilityIds.some(
+			(id) => !Number.isInteger(id) || id < 0 || id >= target.abilities.length,
+		)
+	) {
+		throw new SnapshotCompatibilityError(
+			'Cannot restore Tendril Feet upgrade suppression: effect data is invalid.',
+		);
+	}
+	const tendrilsEffect = G.effects.find(
+		(candidateEffect) => candidateEffect.id === candidate.tendrilsEffectId,
+	);
+	if (!tendrilsEffect || tendrilsEffect.target !== target) {
+		throw new SnapshotCompatibilityError(
+			'Cannot restore Tendril Feet upgrade suppression: linked tendrils are missing.',
+		);
+	}
+	const abilityIds = [...candidate.abilityIds];
+	const suspended = abilityIds.map((id) => target.abilities[id]);
+	if (suspended.some((ability) => typeof ability?.isUpgraded !== 'function')) {
+		throw new SnapshotCompatibilityError(
+			'Cannot restore Tendril Feet upgrade suppression: an ability is unavailable.',
+		);
+	}
+	const originals = suspended.map((ability) => ability.isUpgraded.bind(ability));
+	const behaviorData: UpgradeSilenceSnapshotData = {
+		targetId: target.id,
+		tendrilsEffectId: tendrilsEffect.id,
+		abilityIds,
+	};
+	const silence = () => {
+		suspended.forEach((ability) => {
+			ability.isUpgraded = () => false;
+		});
+	};
+	const restore = () => {
+		suspended.forEach((ability, index) => {
+			ability.isUpgraded = originals[index];
+		});
+	};
+
+	effect.snapshotBehaviorId = MISS_CREEPER_UPGRADE_SILENCE_EFFECT;
+	effect.snapshotBehaviorData = behaviorData;
+	effect.effectFn = () => {
+		if (!tendrilsEffect.isDeleted) {
+			silence();
+			return;
+		}
+		restore();
+		effect.deleteEffect();
+	};
+	silence();
+};
+
 export default (G: Game) => {
+	G.registerSnapshotEffectBehavior(MISS_CREEPER_ATTRACTION_EFFECT, (effect, data) =>
+		bindFatalAttractionEffect(G, effect, data),
+	);
+	G.registerSnapshotEffectBehavior(MISS_CREEPER_UPGRADE_SILENCE_EFFECT, (effect, data) =>
+		bindUpgradeSilenceEffect(G, effect, data),
+	);
 	G.abilities[19] = [
 		// First Ability: Muscous Pillar
 		{
@@ -229,8 +350,10 @@ export default (G: Game) => {
 					target, // Target
 					'onStartPhase',
 					{
-						effectFn: (effect: Effect, creatureOrHex) => {
-							this._attract(effect, creatureOrHex as Creature);
+						snapshotBehaviorId: MISS_CREEPER_ATTRACTION_EFFECT,
+						snapshotBehaviorData: {
+							creeperId: creeper.id,
+							targetId: target.id,
 						},
 						deleteTrigger: '',
 						turnLifetime: -1,
@@ -239,6 +362,7 @@ export default (G: Game) => {
 					},
 					G,
 				);
+				bindFatalAttractionEffect(G, effect, effect.snapshotBehaviorData);
 
 				target.addEffect(
 					effect,
@@ -602,51 +726,31 @@ export default (G: Game) => {
 			 * @return {void}
 			 */
 			_disableAbilityUpgrades: function (target: Creature, tendrils: Effect) {
-				const suspended = target.abilities.filter((ability) => ability.isUpgraded());
-
-				if (!suspended.length) {
+				const abilityIds = target.abilities
+					.filter((ability) => ability.isUpgraded())
+					.map((ability) => ability.id);
+				if (!abilityIds.length) {
 					return;
 				}
-
-				const originals = suspended.map((ability) => ability.isUpgraded.bind(ability));
-
-				const silence = () => {
-					suspended.forEach((ability) => {
-						ability.isUpgraded = () => false;
-					});
-				};
-
-				const restore = () => {
-					suspended.forEach((ability, index) => {
-						ability.isUpgraded = originals[index];
-					});
-				};
-
-				silence();
-
-				target.addEffect(
-					new Effect(
-						'',
-						this.creature,
-						target,
-						'onStartPhase',
-						{
-							effectFn: (effect: Effect) => {
-								if (!tendrils.isDeleted) {
-									// Still grasped: keep the upgrades silenced.
-									silence();
-									return;
-								}
-
-								restore();
-								effect.deleteEffect();
-							},
-							deleteTrigger: '',
-							turnLifetime: -1,
+				const effect = new Effect(
+					'',
+					this.creature,
+					target,
+					'onStartPhase',
+					{
+						snapshotBehaviorId: MISS_CREEPER_UPGRADE_SILENCE_EFFECT,
+						snapshotBehaviorData: {
+							targetId: target.id,
+							tendrilsEffectId: tendrils.id,
+							abilityIds,
 						},
-						G,
-					),
+						deleteTrigger: '',
+						turnLifetime: -1,
+					},
+					G,
 				);
+				bindUpgradeSilenceEffect(G, effect, effect.snapshotBehaviorData);
+				target.addEffect(effect);
 			},
 		},
 	];

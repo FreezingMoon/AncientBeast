@@ -25,6 +25,7 @@ jest.mock('../../damage', () => ({
 
 jest.mock('../../effect', () => ({
 	Effect: class EffectMock {
+		id: number;
 		name: string;
 		owner: unknown;
 		target: unknown;
@@ -47,12 +48,18 @@ jest.mock('../../effect', () => ({
 			target: unknown,
 			trigger: string,
 			optArgs: Record<string, unknown> = {},
+			game?: { effectId?: number; effects?: any[] },
 		) {
 			this.name = name;
 			this.owner = owner;
 			this.target = target;
 			this.trigger = trigger;
 			Object.assign(this, optArgs);
+			if (game?.effects) {
+				this.id = game.effectId ?? game.effects.length;
+				game.effectId = this.id + 1;
+				game.effects.push(this);
+			}
 		}
 	},
 }));
@@ -130,6 +137,10 @@ type AbilityRecord = Record<string, any>;
 
 const makeGame = () => ({
 	abilities: {} as Record<number, AbilityRecord[]>,
+	creatures: [] as any[],
+	effects: [] as any[],
+	effectId: 0,
+	registerSnapshotEffectBehavior: jest.fn(),
 	turn: 3,
 	log: jest.fn(),
 	grid: {
@@ -873,11 +884,12 @@ describe('Miss Creeper abilities', () => {
 
 		test('silences the rooted units ability upgrades until the tendrils let go', () => {
 			const upgradedAbility = {
+				id: 0,
 				isUpgraded: jest.fn(() => true),
 				setUpgraded: jest.fn(),
 				usesLeftBeforeUpgrade: jest.fn(() => -1),
 			};
-			const freshAbility = { isUpgraded: jest.fn(() => false) };
+			const freshAbility = { id: 1, isUpgraded: jest.fn(() => false) };
 			// A real (mocked) Creature instance so the ability's `instanceof` filter
 			// lets it through, with the ability array and spies we assert on.
 			const target: any = new (Creature as any)({
@@ -888,6 +900,7 @@ describe('Miss Creeper abilities', () => {
 				y: 0,
 			});
 			target.abilities = [upgradedAbility, freshAbility];
+			game.creatures[target.id] = target;
 			target.addEffect = jest.fn();
 			target.takeDamage = jest.fn();
 			const creeper = {

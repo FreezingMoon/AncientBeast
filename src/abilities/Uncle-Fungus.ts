@@ -3,15 +3,52 @@ import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
+import { Creature } from '../creature';
 import { getDirectionFromDelta } from '../utility/position';
 import Game from '../game';
 import { shakeBoard } from '../game-display/camera';
+import { SnapshotCompatibilityError } from '../engine/GameSnapshot';
+import { UNCLE_FUNGUS_OFFENSE_BONUS_EFFECT } from '../engine/snapshotBehaviors';
+
+type UncleFungusOffenseBonusSnapshotData = {
+	creatureId: number;
+};
+
+const getUncleFungusSnapshotCreature = (G: Game, id: unknown, behavior: string): Creature => {
+	if (!Number.isInteger(id) || !(G.creatures?.[id as number] instanceof Creature)) {
+		throw new SnapshotCompatibilityError(
+			`Cannot restore ${behavior}: creature reference is invalid.`,
+		);
+	}
+	return G.creatures[id as number];
+};
+
+const bindUncleFungusOffenseBonusEffect = (
+	G: Game,
+	effect: Effect,
+	data: Record<string, unknown> | undefined,
+) => {
+	const candidate = data as Partial<UncleFungusOffenseBonusSnapshotData> | undefined;
+	const creature = getUncleFungusSnapshotCreature(
+		G,
+		candidate?.creatureId,
+		'Uncle Fungus Offense Bonus',
+	);
+	effect.snapshotBehaviorId = UNCLE_FUNGUS_OFFENSE_BONUS_EFFECT;
+	effect.snapshotBehaviorData = { creatureId: creature.id };
+	effect.effectFn = (eff) => {
+		eff.deleteEffect();
+	};
+};
 
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
  */
 export default (G: Game) => {
+	G.registerSnapshotEffectBehavior(UNCLE_FUNGUS_OFFENSE_BONUS_EFFECT, (effect, data) =>
+		bindUncleFungusOffenseBonusEffect(G, effect, data),
+	);
 	G.abilities[3] = [
 		// First Ability: Toxic Spores
 		{
@@ -297,21 +334,24 @@ export default (G: Game) => {
 				});
 
 				// Frogger Leap bonus
-				this.creature.addEffect(
-					new Effect(
-						'Offense Bonus', // Name
-						this.creature, // Caster
-						this.creature, // Target
-						'onStepIn onEndPhase', // Trigger
-						{
-							effectFn: function (effect) {
-								effect.deleteEffect();
-							},
-							alterations: this.effects[0],
-						}, // Optional arguments
-						G,
-					),
+				const offenseBonusEffect = new Effect(
+					'Offense Bonus', // Name
+					this.creature, // Caster
+					this.creature, // Target
+					'onStepIn onEndPhase', // Trigger
+					{
+						snapshotBehaviorId: UNCLE_FUNGUS_OFFENSE_BONUS_EFFECT,
+						snapshotBehaviorData: { creatureId: this.creature.id },
+						alterations: this.effects[0],
+					}, // Optional arguments
+					G,
 				);
+				bindUncleFungusOffenseBonusEffect(
+					G,
+					offenseBonusEffect,
+					offenseBonusEffect.snapshotBehaviorData,
+				);
+				this.creature.addEffect(offenseBonusEffect);
 			},
 
 			_getHexRange: function (stopOnCreature) {
