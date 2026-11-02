@@ -16,13 +16,6 @@ const CARVING_NAILS_DAMAGE = 8;
 /** Flat health restored per strike when Carving Nails is upgraded. */
 const CARVING_NAILS_UPGRADED_HEAL = 8;
 
-/**
- * Rings of hexagons searched when measuring how far a lured unit is from Miss
- * Creeper: the whole board, so a unit at the far end of the upgraded range
- * still compares like any other.
- */
-const BOARD_RINGS = 24;
-
 export default (G: Game) => {
 	G.abilities[19] = [
 		// First Ability: Muscous Pillar
@@ -170,14 +163,15 @@ export default (G: Game) => {
 
 			_targetTeam: Team.Enemy,
 
-			range: { regular: 6, upgraded: 10 },
-
 			require: function () {
 				if (!this.testRequirements()) {
 					return false;
 				}
 
-				return this.atLeastOneTarget(this._getHexes(), {
+				const hexes = this._getHexes();
+				this._abilityRangeHexes = hexes;
+
+				return this.atLeastOneTarget(hexes, {
 					team: this._targetTeam,
 					optTest: (creature: Creature) => this._confirmTarget(creature),
 				});
@@ -202,9 +196,36 @@ export default (G: Game) => {
 			activate: function (target: Creature) {
 				this.end();
 
+				const creeper = this.creature;
+				const canPull = !target.isDarkPriest() && this._getPullStrength(target, creeper) > 0;
+
+				if (this.isUpgraded()) {
+					target.addEffect(
+						new Effect(
+							'Mental Debuff',
+							creeper,
+							target,
+							'',
+							{
+								alterations: { mental: -1 },
+								turnLifetime: -1,
+								deleteTrigger: '',
+							},
+							G,
+						),
+						'%CreatureName' + target.id + '% loses 1 mental mastery',
+					);
+				}
+
+				// Equal- and higher-mastery foes, and unshielded Dark Priests, are
+				// valid upgraded targets only for the permanent mental debuff.
+				if (!canPull) {
+					return;
+				}
+
 				const effect = new Effect(
 					this.title, // Name
-					this.creature, // Caster
+					creeper, // Caster
 					target, // Target
 					'onStartPhase',
 					{
@@ -226,25 +247,61 @@ export default (G: Game) => {
 			},
 
 			/**
-			 * Hexagons the ability can reach, using the upgraded range when the
-			 * ability has been upgraded.
-			 * @return {Hex[]} Every hexagon within range of Miss Creeper.
+			 * Candidate hexagons within Miss Creeper's mental signal range.
+			 * @return {Hex[]} Hexagons within her current mental mastery.
 			 */
 			_getHexes: function () {
-				const range = this.isUpgraded() ? this.range.upgraded : this.range.regular;
-
-				return this.creature.adjacentHexes(range);
+				return this.creature.adjacentHexes(this.creature.stats.mental);
 			},
 
 			/**
-			 * Whether a unit can be lured. Summoners are never affected (see the
-			 * ability description); anything else in range is fair game, including
-			 * units that already stand next to her.
+			 * Whether a unit can be pulled, debuffed, or both. Shielded Dark
+			 * Priests are immune; an unshielded one is debuff-only when upgraded.
 			 * @param {Creature} creature Targeted unit.
 			 * @return {boolean} True if the unit is a valid target.
 			 */
 			_confirmTarget: function (creature: Creature) {
-				return !creature.isDarkPriest();
+				const creeper = this.creature;
+				if (this._getDistance(creature, creeper) > creeper.stats.mental) {
+					return false;
+				}
+
+				if (creature.isDarkPriest()) {
+					return this.isUpgraded() && !creature.hasCreaturePlayerGotPlasma();
+				}
+
+				return (
+					this._getPullStrength(creature, creeper) > 0 ||
+					(this.isUpgraded() && creature.stats.mental >= creeper.stats.mental)
+				);
+			},
+
+			/**
+			 * Distance between Miss Creeper and the nearest hex occupied by a target.
+			 * @param {Creature} target Foe to measure.
+			 * @param {Creature} creeper Miss Creeper.
+			 * @return {number} Minimum hex distance between the creatures.
+			 */
+			_getDistance: function (target: Creature, creeper: Creature) {
+				const targetHexes = target.hexagons?.length
+					? target.hexagons
+					: [G.grid.hexes[target.y]?.[target.x]].filter((hex): hex is Hex => Boolean(hex));
+				if (targetHexes.length === 0) {
+					return Number.MAX_SAFE_INTEGER;
+				}
+
+				return Math.min(...targetHexes.map((hex: Hex) => this._ringDistance(hex, creeper)));
+			},
+
+			/**
+			 * Mental power remaining after the target's distance and mastery are
+			 * accounted for.
+			 * @param {Creature} target Foe to evaluate.
+			 * @param {Creature} creeper Miss Creeper.
+			 * @return {number} Pull strength in movement points.
+			 */
+			_getPullStrength: function (target: Creature, creeper: Creature) {
+				return creeper.stats.mental - this._getDistance(target, creeper) - target.stats.mental;
 			},
 
 			/**
@@ -267,14 +324,33 @@ export default (G: Game) => {
 			 * @return {number} Number of hexagons between them.
 			 */
 			_ringDistance: function (hex: Hex, creeper: Creature) {
-				const anchor = G.grid.hexes[creeper.y][creeper.x];
+				const anchor = G.grid.hexes[creeper.y]?.[creeper.x];
+				if (!anchor) {
+					return Number.MAX_SAFE_INTEGER;
+				}
+				const key = (item: Hex) => item.x + ',' + item.y;
+				const targetKey = key(hex);
+				const visited = new Set<string>([key(anchor)]);
+				let frontier: Hex[] = [anchor];
+				let distance = 0;
 
-				// The whole board: a lured unit can stand at the far end of the
-				// upgraded range, well past six rings.
-				for (let ring = 1; ring <= BOARD_RINGS; ring++) {
-					if (anchor.adjacentHex(ring).some((item: Hex) => item.x === hex.x && item.y === hex.y)) {
-						return ring;
+				while (frontier.length > 0) {
+					if (frontier.some((item: Hex) => key(item) === targetKey)) {
+						return distance;
 					}
+
+					const next: Hex[] = [];
+					frontier.forEach((current: Hex) => {
+						current.adjacentHex(1).forEach((neighbor: Hex) => {
+							const neighborKey = key(neighbor);
+							if (!visited.has(neighborKey)) {
+								visited.add(neighborKey);
+								next.push(neighbor);
+							}
+						});
+					});
+					frontier = next;
+					distance++;
 				}
 
 				return Number.MAX_SAFE_INTEGER;
@@ -353,11 +429,19 @@ export default (G: Game) => {
 					}
 				};
 
+				const pullLimit = Math.min(
+					Math.max(0, Math.floor(this._getPullStrength(target, creeper))),
+					target.stats.movement,
+					target.remainingMove,
+				);
+				let stepsTaken = 0;
+
 				const step = () => {
 					if (
 						target.dead ||
 						creeper.dead ||
 						target.remainingMove <= 0 ||
+						stepsTaken >= pullLimit ||
 						this._isAdjacent(target, creeper)
 					) {
 						finish();
@@ -372,6 +456,7 @@ export default (G: Game) => {
 						return;
 					}
 
+					stepsTaken++;
 					target.moveTo(destination, {
 						ignoreMovementPoint: false,
 						ignorePath: true,

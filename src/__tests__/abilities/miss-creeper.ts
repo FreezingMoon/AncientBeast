@@ -64,11 +64,17 @@ jest.mock('../../creature', () => {
 		type: string;
 		name: string;
 		health: number;
-		stats: { health: number; energy?: number; moveable?: boolean };
+		stats: {
+			health: number;
+			energy?: number;
+			moveable?: boolean;
+			mental?: number;
+			movement?: number;
+		};
 		x: number;
 		y: number;
 		size: number;
-		player: { id: number; flipped: boolean; creatures: unknown[] };
+		player: { id: number; flipped: boolean; creatures: unknown[]; plasma?: number };
 		dead = false;
 		temp = false;
 		hexagons: Array<{ x: number; y: number; creature?: unknown }>;
@@ -91,6 +97,7 @@ jest.mock('../../creature', () => {
 		);
 		calculatePath = jest.fn(() => []);
 		isDarkPriest = jest.fn(() => false);
+		hasCreaturePlayerGotPlasma = jest.fn(() => (this.player.plasma ?? 0) > 0);
 
 		constructor(init: Partial<CreatureMock> = {}) {
 			this.id = init.id ?? 0;
@@ -147,9 +154,8 @@ const makeEnemy = (id: number, team = 1): any =>
 	new (Creature as any)({ id, team, stats: { health: 100 }, x: 1, y: 0 });
 
 /**
- * Square grid of hex-shaped doubles: `hexes[y][x]` mirrors the engine's shape,
- * with a four-way adjacency and Chebyshev ring growth, enough to exercise the
- * step-by-step pull.
+ * Odd-row hex grid of doubles: `hexes[y][x]` mirrors the engine's shape and
+ * distance rings use the same staggered-row geometry as the production board.
  * @return {object} Grid model with `hexes` and an `at(x, y)` accessor.
  */
 const makeTestGrid = (isHexWalkable: (hex: any) => boolean = () => true, width = 6, height = 6) => {
@@ -161,23 +167,24 @@ const makeTestGrid = (isHexWalkable: (hex: any) => boolean = () => true, width =
 			cells[y][x] = {
 				x,
 				y,
-				// Cells reachable in exactly `distance` steps, so ring growth
-				// matches how the engine measures hexagon rings.
+				// Cells on the exact odd-row hex ring around this cell.
 				adjacentHex: (distance = 1) => {
 					if (distance === 0) {
 						return [cells[y][x]];
 					}
-					const inner = new Set(
-						cells[y][x].adjacentHex(distance - 1).map((hex: any) => hex.x + ',' + hex.y),
-					);
 					const ring: any[] = [];
-					for (let dy = -distance; dy <= distance; dy++) {
-						for (let dx = -distance; dx <= distance; dx++) {
-							const nx = x + dx;
-							const ny = y + dy;
-							if (nx < 0 || nx >= width || ny < 0 || ny >= height) continue;
-							if (inner.has(nx + ',' + ny)) continue;
-							ring.push(cells[ny][nx]);
+					const q = x - Math.floor((y + 1) / 2);
+					const r = y;
+					const s = -q - r;
+					for (let ny = 0; ny < height; ny++) {
+						for (let nx = 0; nx < width; nx++) {
+							const nq = nx - Math.floor((ny + 1) / 2);
+							const nr = ny;
+							const ns = -nq - nr;
+							const hexDistance = Math.max(Math.abs(nq - q), Math.abs(nr - r), Math.abs(ns - s));
+							if (hexDistance === distance) {
+								ring.push(cells[ny][nx]);
+							}
 						}
 					}
 					return ring;
@@ -396,16 +403,203 @@ describe('Miss Creeper abilities', () => {
 		const buildAttraction = (creeper: any, overrides: AbilityRecord = {}) =>
 			makeAbility(game, 2, creeper, overrides);
 
-		test('cannot lure summoners', () => {
-			const creeper = { id: 19, player: { flipped: false }, adjacentHexes: jest.fn(() => []) };
+		test('uses mental mastery and distance to determine whether an unupgraded foe can be pulled', () => {
+			const grid = makeTestGrid();
+			game.grid.hexes = grid.hexes;
+			const creeper = {
+				id: 19,
+				x: 1,
+				y: 1,
+				stats: { mental: 10 },
+				player: { flipped: false },
+				adjacentHexes: jest.fn(() => []),
+			};
 			const ability = buildAttraction(creeper);
 
 			expect(
-				ability._confirmTarget({ id: 5, isDarkPriest: () => true, stats: { moveable: true } }),
-			).toBe(false);
-			expect(
-				ability._confirmTarget({ id: 42, isDarkPriest: () => false, stats: { moveable: true } }),
+				ability._confirmTarget({
+					x: 4,
+					y: 1,
+					isDarkPriest: () => false,
+					stats: { mental: 6 },
+				}),
 			).toBe(true);
+			// Three hexagons of distance leave no mental power to pull this foe.
+			expect(
+				ability._confirmTarget({
+					x: 4,
+					y: 1,
+					isDarkPriest: () => false,
+					stats: { mental: 7 },
+				}),
+			).toBe(false);
+		});
+
+		test('measures exact hex distance beyond the old hardcoded ring limit', () => {
+			const grid = makeTestGrid(() => true, 40, 8);
+			game.grid.hexes = grid.hexes;
+			const creeper = {
+				id: 19,
+				x: 1,
+				y: 1,
+				stats: { mental: 40 },
+				player: { flipped: false },
+				adjacentHexes: jest.fn(() => []),
+			};
+			const ability = buildAttraction(creeper);
+			const distantFoe = {
+				x: 34,
+				y: 1,
+				isDarkPriest: () => false,
+				stats: { mental: 1 },
+			};
+
+			ability._getHexes();
+			expect(creeper.adjacentHexes).toHaveBeenCalledWith(creeper.stats.mental);
+			expect(ability._confirmTarget(distantFoe)).toBe(true);
+			expect(ability._ringDistance(grid.at(34, 1), creeper)).toBe(33);
+			expect(ability._getPullStrength(distantFoe, creeper)).toBe(6);
+		});
+
+		test('limits pull and debuff-only targets to Miss Creeper mental signal range', () => {
+			const grid = makeTestGrid(() => true, 16, 8);
+			game.grid.hexes = grid.hexes;
+			const creeper = {
+				id: 19,
+				x: 1,
+				y: 1,
+				stats: { mental: 10 },
+				player: { flipped: false },
+				adjacentHexes: jest.fn((range: number) => {
+					const hexes: any[] = [];
+					for (let ring = 1; ring <= range; ring++) {
+						hexes.push(...grid.at(1, 1).adjacentHex(ring));
+					}
+					return hexes;
+				}),
+			};
+			const ability = buildAttraction(creeper, { isUpgraded: jest.fn(() => true) });
+			const sameMasteryInRange = {
+				id: 42,
+				x: 11,
+				y: 1,
+				stats: { mental: 10 },
+				isDarkPriest: () => false,
+			};
+			const sameMasteryOutOfRange = {
+				...sameMasteryInRange,
+				x: 12,
+			};
+
+			expect(ability._getHexes()).toEqual(creeper.adjacentHexes.mock.results[0].value);
+			expect(creeper.adjacentHexes).toHaveBeenLastCalledWith(10);
+			expect(ability._confirmTarget(sameMasteryInRange)).toBe(true);
+			expect(ability._confirmTarget(sameMasteryOutOfRange)).toBe(false);
+		});
+
+		test('stores the mental-based candidate hexes for the range indicator', () => {
+			const creeper = {
+				id: 19,
+				stats: { mental: 10 },
+				player: { flipped: false },
+				adjacentHexes: jest.fn((range: number) =>
+					range === 10 ? [{ x: 1, y: 1 }] : [{ x: 2, y: 1 }],
+				),
+			};
+			const ability = buildAttraction(creeper, {
+				atLeastOneTarget: jest.fn(() => false),
+			});
+
+			expect(ability.require()).toBe(false);
+			expect(ability._abilityRangeHexes).toEqual([{ x: 1, y: 1 }]);
+
+			creeper.stats.mental = 5;
+			expect(ability.require()).toBe(false);
+			expect(ability._abilityRangeHexes).toEqual([{ x: 2, y: 1 }]);
+			expect(creeper.adjacentHexes.mock.calls).toEqual([[10], [5]]);
+		});
+
+		test('shielded Dark Priests are invalid, while unshielded ones are upgraded debuff-only targets', () => {
+			const grid = makeTestGrid();
+			game.grid.hexes = grid.hexes;
+			const creeper = {
+				id: 19,
+				x: 1,
+				y: 1,
+				stats: { mental: 10 },
+				player: { flipped: false },
+				adjacentHexes: jest.fn(() => []),
+			};
+			const unupgraded = buildAttraction(creeper);
+			const darkPriest = {
+				id: 5,
+				x: 2,
+				y: 1,
+				stats: { mental: 0 },
+				isDarkPriest: () => true,
+				hasCreaturePlayerGotPlasma: () => false,
+			};
+			const shieldedPriest = {
+				...darkPriest,
+				hasCreaturePlayerGotPlasma: () => true,
+			};
+
+			expect(unupgraded._confirmTarget(darkPriest)).toBe(false);
+			expect(
+				buildAttraction(creeper, { isUpgraded: jest.fn(() => true) })._confirmTarget(
+					shieldedPriest,
+				),
+			).toBe(false);
+
+			const upgraded = buildAttraction(creeper, { isUpgraded: jest.fn(() => true) });
+			expect(upgraded._confirmTarget(darkPriest)).toBe(true);
+
+			const target = {
+				...darkPriest,
+				addEffect: jest.fn(),
+			};
+			upgraded.activate(target);
+
+			expect(target.addEffect).toHaveBeenCalledTimes(1);
+			const debuff = target.addEffect.mock.calls[0][0] as {
+				alterations: Record<string, number>;
+			};
+			expect(debuff.alterations).toEqual({ mental: -1 });
+		});
+
+		test('upgraded attraction debuffs equal-or-higher mastery without pulling them', () => {
+			const grid = makeTestGrid();
+			game.grid.hexes = grid.hexes;
+			const creeper = {
+				id: 19,
+				x: 1,
+				y: 1,
+				stats: { mental: 10 },
+				player: { flipped: false },
+				adjacentHexes: jest.fn(() => []),
+			};
+			const ability = buildAttraction(creeper, { isUpgraded: jest.fn(() => true) });
+			const target = {
+				id: 42,
+				x: 4,
+				y: 1,
+				stats: { mental: 10 },
+				isDarkPriest: () => false,
+				addEffect: jest.fn(),
+			};
+
+			expect(ability._confirmTarget(target)).toBe(true);
+			ability.activate(target);
+
+			expect(target.addEffect).toHaveBeenCalledTimes(1);
+			const debuff = target.addEffect.mock.calls[0][0] as {
+				alterations: Record<string, number>;
+				turnLifetime: number;
+				stackable: boolean;
+			};
+			expect(debuff.alterations).toEqual({ mental: -1 });
+			expect(debuff.turnLifetime).toBe(-1);
+			expect(debuff.stackable).toBe(true);
 		});
 
 		test('walks the lured unit towards her as far as its movement allows', () => {
@@ -417,6 +611,7 @@ describe('Miss Creeper abilities', () => {
 				x: 1,
 				y: 1,
 				dead: false,
+				stats: { mental: 10 },
 				adjacentHexes: jest.fn(() => [grid.at(0, 1), grid.at(1, 0), grid.at(1, 2), grid.at(2, 1)]),
 			};
 			const ability = buildAttraction(creeper);
@@ -427,8 +622,8 @@ describe('Miss Creeper abilities', () => {
 				y: 1,
 				size: 1,
 				dead: false,
-				stats: { moveable: true },
-				remainingMove: 2,
+				stats: { moveable: true, mental: 5, movement: 2 },
+				remainingMove: 4,
 				moveTo: jest.fn((hex: any, opts: any) => {
 					target.x = hex.x;
 					target.y = hex.y;
@@ -443,9 +638,44 @@ describe('Miss Creeper abilities', () => {
 			// Two hexagons of its own movement, walked one hexagon at a time.
 			expect(target.moveTo).toHaveBeenCalledTimes(2);
 			expect(target.x).toBe(2);
-			expect(target.remainingMove).toBe(0);
+			expect(target.remainingMove).toBe(2);
 			expect(target.moveTo.mock.calls[0][1].ignoreMovementPoint).toBe(false);
 			expect(effect.deleteEffect).toHaveBeenCalledTimes(1);
+		});
+
+		test('limits the pull by mental mastery after subtracting distance', () => {
+			const grid = makeTestGrid((hex: any) => hex.y === 1);
+			game.grid.hexes = grid.hexes;
+			const creeper = {
+				id: 19,
+				x: 1,
+				y: 1,
+				dead: false,
+				stats: { mental: 8 },
+				adjacentHexes: jest.fn(() => [grid.at(0, 1), grid.at(1, 0), grid.at(1, 2), grid.at(2, 1)]),
+			};
+			const ability = buildAttraction(creeper);
+			const target: any = {
+				id: 42,
+				x: 4,
+				y: 1,
+				size: 1,
+				dead: false,
+				stats: { mental: 3, movement: 5 },
+				remainingMove: 5,
+				moveTo: jest.fn((hex: any, opts: any) => {
+					target.x = hex.x;
+					target.y = hex.y;
+					target.remainingMove -= 1;
+					opts.callback();
+				}),
+			};
+			const effect = { owner: creeper, deleteEffect: jest.fn() };
+
+			ability._attract(effect, target);
+
+			// 8 mental - 3 hexes - 3 mastery = two movement points.
+			expect(target.moveTo).toHaveBeenCalledTimes(2);
 		});
 
 		test('stops walking as soon as the lured unit reaches her', () => {
@@ -457,6 +687,7 @@ describe('Miss Creeper abilities', () => {
 				x: 1,
 				y: 1,
 				dead: false,
+				stats: { mental: 12 },
 				adjacentHexes: jest.fn(() => [grid.at(0, 1), grid.at(1, 0), grid.at(1, 2), nearHer]),
 			};
 			const ability = buildAttraction(creeper);
@@ -467,7 +698,7 @@ describe('Miss Creeper abilities', () => {
 				y: 1,
 				size: 1,
 				dead: false,
-				stats: { moveable: true },
+				stats: { moveable: true, mental: 0, movement: 5 },
 				remainingMove: 5,
 				moveTo: jest.fn((hex: any, opts: any) => {
 					nearHer.creature = undefined;
@@ -497,6 +728,7 @@ describe('Miss Creeper abilities', () => {
 				x: 1,
 				y: 1,
 				dead: false,
+				stats: { mental: 10 },
 				adjacentHexes: jest.fn(() => [beside]),
 			};
 			const ability = buildAttraction(creeper);
@@ -507,7 +739,7 @@ describe('Miss Creeper abilities', () => {
 				y: 1,
 				size: 1,
 				dead: false,
-				stats: { moveable: true },
+				stats: { moveable: true, mental: 0, movement: 4 },
 				remainingMove: 4,
 				moveTo: jest.fn(),
 			};
@@ -563,6 +795,7 @@ describe('Miss Creeper abilities', () => {
 				x: 1,
 				y: 1,
 				dead: false,
+				stats: { mental: 10 },
 				adjacentHexes: jest.fn(() => [grid.at(0, 1), grid.at(1, 0), grid.at(1, 2), grid.at(2, 1)]),
 			};
 			const ability = buildAttraction(creeper);
@@ -574,7 +807,7 @@ describe('Miss Creeper abilities', () => {
 				y: 1,
 				size: 1,
 				dead: false,
-				stats: { moveable: true },
+				stats: { moveable: true, mental: 0, movement: 3 },
 				remainingMove: 3,
 				moveTo: jest.fn(),
 			};
