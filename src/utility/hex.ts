@@ -991,8 +991,8 @@ export class Hex {
 					this.coordText.strokeThickness = 5;
 				}
 				this.coordText.setOrigin(0.5, 0.5);
-				this.coordText.x = this.originalDisplayPos.x - HEX_DISPLAY_X_HACK + 45;
-				this.coordText.y = this.originalDisplayPos.y + 63;
+				this.coordText.x = this.hitBox.x + this.hitBox.width / 2;
+				this.coordText.y = this.hitBox.y + this.hitBox.height / 2;
 			}
 		} else if (this.coordText && this.coordText.active) {
 			this.coordText.destroy();
