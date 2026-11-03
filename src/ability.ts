@@ -172,7 +172,9 @@ export class Ability {
 	// Below methods exist in Miss-Creeper.ts
 	_isNearby: (creature: Creature) => boolean;
 	_isAdjacent: (target: Creature, creeper: Creature) => boolean;
+	_getDistance: (target: Creature, creeper: Creature) => number;
 	_ringDistance: (hex: Hex, creeper: Creature) => number;
+	_getPullStrength: (target: Creature, creeper: Creature) => number;
 	_getStepTowards: (target: Creature, creeper: Creature) => Hex | undefined;
 	_attract: (effect: Effect, target: Creature) => void;
 	_disableAbilityUpgrades: (target: Creature, tendrils: Effect) => void;

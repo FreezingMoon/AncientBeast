@@ -20,6 +20,7 @@ import {
 	rejectIfTurnFrozen,
 } from '../input/input';
 import { setHandCursor } from '../game-display/cursor';
+import { BOARD_DEPTH_SCALE_Y, sortLayerByDepth } from '../game-display/layer';
 
 export enum Direction {
 	None = -1,
@@ -108,7 +109,8 @@ function spinCursors(): void {
 		}
 		const hasCrashingGlobeTarget =
 			hex._markedByCrashingGlobe || Boolean(hex.overlayClasses.match(/crashing-globe-target/));
-		if (hasCrashingGlobeTarget) {
+		const hasSwamplerHome = typeof hex._swamplerHomeOwner === 'number';
+		if (hasCrashingGlobeTarget && !hasSwamplerHome) {
 			hex.display.angle += CURSOR_SPIN_SPEED;
 		}
 		if (!hasCrashingGlobeTarget || (hex.overlay.key === 'input' && hex.overlay.alpha > 0)) {
@@ -197,6 +199,7 @@ export class Hex {
 	direction: Direction;
 	displayClasses: string;
 	overlayClasses: string;
+	_swamplerHomeOwner: number | undefined;
 	_markedByCrashingGlobe = false;
 	forcedDisplayAlpha: number | undefined;
 	forcedCreatureOverlayAlpha: number | undefined;
@@ -222,6 +225,7 @@ export class Hex {
 	hitBox: SpriteHandle;
 	display: SpriteHandle;
 	overlay: SpriteHandle;
+	homeSprite: SpriteHandle | undefined;
 	/** Debug-only coordinate label, created on demand and destroyed when the grid overlay is hidden. */
 	coordText: SpriteHandle | undefined;
 
@@ -254,6 +258,7 @@ export class Hex {
 		this.direction = Direction.None; // Used for queryDirection
 		this.displayClasses = '';
 		this.overlayClasses = '';
+		this._swamplerHomeOwner = undefined;
 		this.forcedDisplayAlpha = undefined;
 		this.forcedCreatureOverlayAlpha = undefined;
 		this.forcedHidden = false;
@@ -333,6 +338,7 @@ export class Hex {
 
 			this.overlay = game.gameEngine.add.sprite(x, y, 'hex', undefined, grid.overlayHexesGroup);
 			this.overlay.alpha = 0;
+			this.homeSprite = undefined;
 
 			// Binding Events
 			onPointerOver(this.hitBox, () => {
@@ -852,11 +858,30 @@ export class Hex {
 				sprite.setTexture(key);
 			}
 		};
+		const updateHomeSprite = () => {
+			if (!this.homeSprite) {
+				this.homeSprite = this.game.gameEngine.add.sprite(
+					0,
+					0,
+					'Swampler - swamp',
+					undefined,
+					this.grid.creatureGroup,
+				);
+				this.homeSprite.setOrigin(0.5, 1);
+				this.homeSprite.setScale(1, 1);
+			}
+			this.homeSprite.x = this.hitBox.x + this.hitBox.width / 2;
+			this.homeSprite.y = (this.hitBox.y + this.hitBox.height - 20) * BOARD_DEPTH_SCALE_Y;
+			this.homeSprite.setDepth(this.grid.getDepthAtBand(this.y, 'EFFECT_UNDER_UNITS'));
+			sortLayerByDepth(this.grid.creatureGroup);
+		};
 
 		// Display Hex
 		const hasCrashingGlobeTarget =
 			this._markedByCrashingGlobe || Boolean(this.overlayClasses.match(/crashing-globe-target/));
+		const hasSwamplerHome = typeof this._swamplerHomeOwner === 'number';
 		const isHoveringCrashingGlobeTarget = Boolean(this.overlayClasses.match(/\bhover\b/));
+		this.display.setTint(0xffffff);
 		let targetAlpha =
 			this.reachable || Boolean(this.displayClasses.match(/creature/g)) || hasCrashingGlobeTarget;
 
@@ -867,9 +892,14 @@ export class Hex {
 		targetAlpha = Boolean(this.displayClasses.match(/deadzone/g)) || targetAlpha;
 		targetAlpha = Boolean(this.displayClasses.match(/\babilityRange\b/g)) || targetAlpha;
 
-		if (hasCrashingGlobeTarget) {
+		if (hasSwamplerHome) {
+			updateHomeSprite();
+			loadTextureIfChanged(this.display, 'hex');
+			this.pinTopLeft(this.display, this.drawPoint.x, this.drawPoint.y);
+		} else if (hasCrashingGlobeTarget) {
 			loadTextureIfChanged(this.display, 'target');
 			this.display.setOrigin(0.5, 0.5);
+			this.display.setTint(0xffffff);
 			this.grid.displayHexesGroup.bringToTop(this.display);
 		} else if (this.displayClasses.match(/0|1|2|3/)) {
 			const player = this.displayClasses.match(/0|1|2|3/);
@@ -905,14 +935,18 @@ export class Hex {
 		const computedDisplayAlpha = targetAlpha ? 1 : 0;
 		this.display.alpha = hasCrashingGlobeTarget
 			? 1
+			: hasSwamplerHome
+			? 0
 			: typeof this.forcedDisplayAlpha === 'number'
 			? this.forcedDisplayAlpha
 			: computedDisplayAlpha;
-		if (this.forcedHidden && !hasCrashingGlobeTarget) {
+		if (this.forcedHidden && !hasCrashingGlobeTarget && !hasSwamplerHome) {
 			this.display.alpha = 0;
 		}
 
-		if (hasCrashingGlobeTarget) {
+		if (hasSwamplerHome) {
+			alignIn(this.overlay, this.hitBox, ALIGN_CENTER);
+		} else if (hasCrashingGlobeTarget) {
 			this.display.setScale(1, 1);
 			alignIn(this.display, this.hitBox, ALIGN_CENTER);
 			alignIn(this.overlay, this.hitBox, ALIGN_CENTER);
@@ -957,8 +991,8 @@ export class Hex {
 					this.coordText.strokeThickness = 5;
 				}
 				this.coordText.setOrigin(0.5, 0.5);
-				this.coordText.x = this.originalDisplayPos.x - HEX_DISPLAY_X_HACK + 45;
-				this.coordText.y = this.originalDisplayPos.y + 63;
+				this.coordText.x = this.hitBox.x + this.hitBox.width / 2;
+				this.coordText.y = this.hitBox.y + this.hitBox.height / 2;
 			}
 		} else if (this.coordText && this.coordText.active) {
 			this.coordText.destroy();
@@ -989,6 +1023,7 @@ export class Hex {
 				}
 			} else if (
 				this.overlayClasses.match(/hover/) &&
+				!hasSwamplerHome &&
 				this.displayClasses.indexOf(`creature player${player}`) === -1
 			) {
 				loadTextureIfChanged(this.display, 'hex_path');
@@ -996,7 +1031,9 @@ export class Hex {
 				loadTextureIfChanged(this.overlay, `hex_hover_p${player}`);
 				this.grid.overlayHexesGroup.bringToTop(this.overlay);
 			} else if (this.overlayClasses.match(/hover/)) {
-				loadTextureIfChanged(this.display, 'hex_path');
+				if (!hasSwamplerHome) {
+					loadTextureIfChanged(this.display, 'hex_path');
+				}
 				this.grid.overlayHexesGroup.bringToTop(this.overlay);
 			} else if (this.overlayClasses.match(/dashed/)) {
 				loadTextureIfChanged(this.overlay, `hex_dashed_p${player}`);

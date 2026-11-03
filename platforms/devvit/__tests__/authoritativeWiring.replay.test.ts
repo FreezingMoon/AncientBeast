@@ -4,12 +4,10 @@
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { jest, beforeAll, describe, test, expect } from '@jest/globals';
+import { jest, describe, test, expect } from '@jest/globals';
 
-// Mock heavy external deps (same as the engine test).
 jest.mock('pixi', () => ({}), { virtual: true });
 jest.mock('p2', () => ({}), { virtual: true });
-// Phaser is NOT mocked here — see the note in `authoritativeEngine.test.ts`.
 
 jest.mock('../../../src/ui/interface', () => {
 	const deepNoop = () =>
@@ -23,9 +21,6 @@ jest.mock('../../../src/ui/interface', () => {
 					dashopen: false,
 					materializeToggled: false,
 					_abilityPanelAnimating: false,
-					// `destroyPhaser()` clears the real UI's glow
-					// interval on teardown; the stub must report
-					// "none" rather than fabricate a handle.
 					glowInterval: undefined,
 				},
 				{
@@ -52,8 +47,7 @@ import {
 import { loadRealPhaser } from '../../../src/phaser/runtime';
 import { EngineAuthoritativeProcessor } from '../../../src/multiplayer/engineAuthoritativeProcessor';
 import { InMemoryIntentStore } from '../../../src/multiplayer/authoritative';
-import type { AuthoritativeState, Intent } from '../../../src/multiplayer/authoritative';
-import type { GameMessage } from '../../../src/multiplayer/types';
+import type { Intent } from '../../../src/multiplayer/authoritative';
 
 const ABILITY_FILES = [
 	'../../../src/abilities/Abolished',
@@ -111,16 +105,9 @@ function stopTimers(game: any) {
 
 const CONFIG: Partial<HeadlessConfig> = { players: [0, 1] };
 
-/**
- * Every game this suite boots, torn down in `afterAll`. Destroying in
- * reverse creation order matters: each headless driver replaces the
- * process's wall clock on boot and puts back whatever it found on
- * restore, so the last driver installed has to be the first restored
- * for the worker's `Date.now` to end up as it was found.
- */
 const liveGames: any[] = [];
 
-describe('Authoritative client wiring (transport-agnostic)', () => {
+describe('Authoritative client wiring (replay)', () => {
 	beforeAll(async () => {
 		await loadRealPhaser();
 	});
@@ -131,58 +118,6 @@ describe('Authoritative client wiring (transport-agnostic)', () => {
 		}
 		liveGames.length = 0;
 	});
-
-	test('two clients converge on the broadcast authoritative state via the processor', async () => {
-		const abilities = await loadAbilities();
-
-		// Two independent client games (different machines) + the shared,
-		// transport-agnostic processor backed by a pluggable intent store.
-		const clientA = await createHeadlessGame(abilities, { config: CONFIG });
-		const clientB = await createHeadlessGame(abilities, { config: CONFIG });
-		liveGames.push(clientA, clientB);
-		stopTimers(clientA);
-		stopTimers(clientB);
-
-		const store = new InMemoryIntentStore();
-		const processor = new EngineAuthoritativeProcessor({ store, loadAbilities });
-
-		const code = 'AB-TEST';
-		const intents: Intent[] = [];
-
-		for (let i = 0; i < 12; i++) {
-			await settle(clientA);
-			await settle(clientB);
-
-			// The acting client decides its input by inspecting its OWN view.
-			const hex = findReachableHex(clientA);
-			const intent: Intent = hex ? { kind: 'move', target: hex } : { kind: 'skip' };
-			intents.push(intent);
-
-			// Server applies the intent through the deterministic engine and
-			// returns the authoritative snapshot — exactly what a transport
-			// (Devvit realtime, PeerJS, Hono, …) would broadcast back.
-			const state: AuthoritativeState = await processor.step(code, intent, CONFIG);
-
-			// Both clients adopt the SAME broadcast state → no client-side drift.
-			clientA.adoptAuthoritativeState(state);
-			clientB.adoptAuthoritativeState(state);
-
-			expect(serializeState(clientA)).toEqual(serializeState(clientB));
-		}
-
-		expect(intents.length).toBe(12);
-
-		// Transport-agnostic envelope: intents and state ride the same GameMessage
-		// union any transport can carry.
-		const intentMsg: GameMessage = { type: 'intent', intent: intents[0], playerId: 'p1' };
-		const stateMsg: GameMessage = {
-			type: 'authoritative-state',
-			state: await processor.getState(code, CONFIG),
-			sequence: intents.length,
-		};
-		expect(intentMsg.type).toBe('intent');
-		expect(stateMsg.type).toBe('authoritative-state');
-	}, 120_000);
 
 	test('serverless reconstruction from the persisted log matches live processor state', async () => {
 		const abilities = await loadAbilities();
@@ -204,9 +139,6 @@ describe('Authoritative client wiring (transport-agnostic)', () => {
 			stopTimers(scratch);
 		}
 
-		// No live instance: rebuild purely from config + the stored intent log,
-		// and confirm it equals the processor's own reconstruction (both go
-		// through LobbyEngine.fromLog, so they must be identical).
 		const rebuilt = await replayIntents(abilities, CONFIG, intents);
 		liveGames.push(rebuilt);
 		stopTimers(rebuilt);

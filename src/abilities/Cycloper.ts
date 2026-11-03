@@ -1470,6 +1470,8 @@ function ensureAcrylicWallData(G: Game) {
 			offense: 0,
 			defense: 0,
 			movement: 0,
+		},
+		masteries: {
 			pierce: 0,
 			slash: 0,
 			crush: 0,

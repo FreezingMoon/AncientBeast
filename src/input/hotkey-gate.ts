@@ -57,7 +57,8 @@ export const isViewSwitchHotkey = (event: KeyboardEvent) =>
 	isHotkeysViewHotkey(event);
 
 export const isScoreboardActionHotkey = (event: KeyboardEvent) =>
-	(event.code === 'KeyR' || event.code === 'KeyS' || event.code === 'KeyX') && hasNoModifierKeys(event);
+	(event.code === 'KeyR' || event.code === 'KeyS' || event.code === 'KeyX') &&
+	hasNoModifierKeys(event);
 
 /**
  * Bare `A`, which cycles the audio mode full → sfx → muted.

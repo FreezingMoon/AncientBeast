@@ -214,6 +214,7 @@ describe('Infernal Molten Hurl movement safety', () => {
 
 		const game = {
 			abilities: [] as unknown[],
+			registerSnapshotEffectBehavior: jest.fn(),
 			grid: {
 				hexes: [[], [], row],
 				getHexLine: jest.fn(),
@@ -348,6 +349,7 @@ describe('Infernal Molten Hurl movement safety', () => {
 
 		const game = {
 			abilities: [] as unknown[],
+			registerSnapshotEffectBehavior: jest.fn(),
 			grid: {
 				hexes: [[], [], row],
 				getHexLine: jest.fn(),
@@ -492,6 +494,7 @@ describe('Infernal Molten Hurl movement safety', () => {
 
 		const game = {
 			abilities: [] as unknown[],
+			registerSnapshotEffectBehavior: jest.fn(),
 			grid: {
 				hexes: [[], [], row],
 				getHexLine: jest.fn(),
@@ -610,6 +613,7 @@ describe('Infernal trap damage safety', () => {
 		const game = {
 			abilities: [] as unknown[],
 			effects: [] as unknown[],
+			registerSnapshotEffectBehavior: jest.fn(),
 			turn: 0,
 			grid: {
 				hexes: [],

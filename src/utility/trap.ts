@@ -39,6 +39,8 @@ export class Trap {
 	 *  Receives the creature whose trap placement caused the destruction, if known.
 	 */
 	onDestroyFn?: (destroyer?: Creature) => void;
+	snapshotBehaviorId: string | undefined = undefined;
+	snapshotBehaviorData: Record<string, unknown> | undefined = undefined;
 
 	//
 	display: SpriteHandle;

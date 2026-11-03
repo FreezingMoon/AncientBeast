@@ -12,6 +12,8 @@ import { HEX_WIDTH_PX } from '../utility/const';
 import { getFrameSize } from '../game-display/texture';
 import { spawnChainLightning } from '../vfx/lightning/effect';
 import { earthShakerCrackLook, type LightningPoint } from '../vfx/lightning/look';
+import { SnapshotCompatibilityError } from '../engine/GameSnapshot';
+import { STOMPER_EARTH_SHAKER_EFFECT } from '../engine/snapshotBehaviors';
 
 /**
  * Spawns expanding ground rings (seismic waves) that travel flat along the
@@ -295,11 +297,41 @@ function hexToGroundPoint(hex: Hex): LightningPoint {
 	};
 }
 
+type StomperEarthShakerSnapshotData = {
+	targetId: number;
+};
+
+const getStomperSnapshotCreature = (G: Game, id: unknown, behavior: string): Creature => {
+	if (!Number.isInteger(id) || !(G.creatures?.[id as number] instanceof Creature)) {
+		throw new SnapshotCompatibilityError(
+			`Cannot restore ${behavior}: creature reference is invalid.`,
+		);
+	}
+	return G.creatures[id as number];
+};
+
+const bindStomperEarthShakerEffect = (
+	G: Game,
+	effect: Effect,
+	data: Record<string, unknown> | undefined,
+) => {
+	const candidate = data as Partial<StomperEarthShakerSnapshotData> | undefined;
+	const target = getStomperSnapshotCreature(G, candidate?.targetId, 'Stomper Earth Shaker');
+	effect.snapshotBehaviorId = STOMPER_EARTH_SHAKER_EFFECT;
+	effect.snapshotBehaviorData = { targetId: target.id };
+	effect.effectFn = () => {
+		target.hinder();
+	};
+};
+
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
  */
 export default (G: Game) => {
+	G.registerSnapshotEffectBehavior(STOMPER_EARTH_SHAKER_EFFECT, (effect, data) =>
+		bindStomperEarthShakerEffect(G, effect, data),
+	);
 	G.abilities[28] = [
 		//  First Ability: Tankish Build
 		{
@@ -927,24 +959,26 @@ export default (G: Game) => {
 						target.removeEffect('Earth Shaker');
 					} else {
 						target.hinder();
-						target.addEffect(
-							new Effect(
-								'Earth Shaker', // Name
-								this.creature, // Caster
-								target, // Target
-								'onStartPhase', // Trigger
-								{
-									// disable the ability to delay this unit as it has already been delayed
-									effectFn: () => {
-										target.hinder();
-									},
-									deleteTrigger: 'onEndPhase',
-									turnLifetime: 1,
-									stackable: false,
-								},
-								G,
-							),
+						const earthShakerEffect = new Effect(
+							'Earth Shaker', // Name
+							this.creature, // Caster
+							target, // Target
+							'onStartPhase', // Trigger
+							{
+								snapshotBehaviorId: STOMPER_EARTH_SHAKER_EFFECT,
+								snapshotBehaviorData: { targetId: target.id },
+								deleteTrigger: 'onEndPhase',
+								turnLifetime: 1,
+								stackable: false,
+							},
+							G,
 						);
+						bindStomperEarthShakerEffect(
+							G,
+							earthShakerEffect,
+							earthShakerEffect.snapshotBehaviorData,
+						);
+						target.addEffect(earthShakerEffect);
 					}
 				}
 

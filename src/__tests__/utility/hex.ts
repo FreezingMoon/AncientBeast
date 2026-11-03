@@ -13,6 +13,10 @@ function makeGrid() {
 	return {
 		displayHexesGroup: { bringToTop: () => {}, sendToBack: () => {} },
 		overlayHexesGroup: { bringToTop: () => {}, sendToBack: () => {} },
+		creatureGroup: { __unwrapped: { list: [] as { depth: number }[] } },
+		getDepthAtBand: jest.fn(
+			(y: number, band: string) => y * 100 + (band === 'EFFECT_UNDER_UNITS' ? 20 : 80),
+		),
 	};
 }
 
@@ -30,8 +34,11 @@ function makeGame() {
 	const game = {
 		engine: {
 			add: {
-				sprite: (x: number, y: number, key: string) =>
-					createSpriteMock({ x, y, key, width: 100, height: 100 }),
+				sprite: (x: number, y: number, key: string, _frame: unknown, parent: any) => {
+					const sprite = createSpriteMock({ x, y, key, width: 100, height: 100 });
+					parent?.__unwrapped?.list.push(sprite);
+					return sprite;
+				},
 			},
 		},
 	} as any;
@@ -178,5 +185,45 @@ describe('crashing-globe-target overlay persistence', () => {
 		stopAllCursorSpinning();
 		requestFrame.mockRestore();
 		cancelFrame.mockRestore();
+	});
+});
+
+describe('Swampler Natural Habitat marker', () => {
+	test('renders the native-size swamp sprite at the claimed hex and keeps it visible on hover', () => {
+		const grid = makeGrid() as any;
+		const game = makeGame();
+		const unitOnHomeHex = { depth: 440 };
+		grid.creatureGroup.__unwrapped.list.push(unitOnHomeHex);
+		const hex = new Hex(5, 4, grid as any, game as any);
+
+		hex._swamplerHomeOwner = 5;
+		hex.updateStyle();
+
+		expect(hex.homeSprite?.key).toBe('Swampler - swamp');
+		expect(hex.homeSprite?.alpha).toBe(1);
+		expect(hex.homeSprite?.originX).toBe(0.5);
+		expect(hex.homeSprite?.originY).toBe(1);
+		expect(hex.homeSprite?.x).toBe(hex.hitBox.x + hex.hitBox.width / 2);
+		expect(hex.homeSprite?.y).toBe((hex.hitBox.y + hex.hitBox.height - 20) * 0.75);
+		expect(hex.homeSprite?.scaleX).toBe(1);
+		expect(hex.homeSprite?.scaleY).toBe(1);
+		expect(hex.homeSprite?.depth).toBe(420);
+		expect(grid.getDepthAtBand).toHaveBeenCalledWith(4, 'EFFECT_UNDER_UNITS');
+		expect(grid.creatureGroup.__unwrapped.list.indexOf(hex.homeSprite)).toBeLessThan(
+			grid.creatureGroup.__unwrapped.list.indexOf(unitOnHomeHex),
+		);
+		expect(hex.display.key).toBe('hex');
+		expect(hex.display.alpha).toBe(0);
+		hex.displayVisualState('dashed player0');
+		expect(hex.display.key).toBe('hex');
+		expect(hex.display.alpha).toBe(0);
+
+		hex.overlayVisualState('creature player0');
+		hex.overlayVisualState('hover h_player0');
+
+		expect(hex.display.key).toBe('hex');
+		expect(hex.display.alpha).toBe(0);
+		expect(hex.homeSprite?.key).toBe('Swampler - swamp');
+		expect(hex.homeSprite?.alpha).toBe(1);
 	});
 });

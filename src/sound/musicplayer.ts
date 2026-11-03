@@ -1,20 +1,50 @@
-import $j from 'jquery';
 import skin from './skin';
 import beastAudioFile from 'assets/sounds/AncientBeast.ogg';
 import { playAudioOnNextGesture } from './audio-context';
 
+interface JQueryEventObject {
+	preventDefault(): void;
+	stopPropagation(): void;
+	target: HTMLElement;
+	currentTarget: HTMLElement;
+}
+
+interface JQuery<T = HTMLElement> extends ArrayLike<T> {
+	addClass(className: string): this;
+	removeClass(className?: string): this;
+	toggleClass(className: string, state?: boolean): this;
+	hasClass(className: string): boolean;
+	find(selector: string): JQuery<HTMLElement>;
+	parent(): JQuery<HTMLElement>;
+	children(): JQuery<HTMLElement>;
+	attr(name: string): string | undefined;
+	text(): string;
+	off(event: string): this;
+	on(event: string, handler: (e: JQueryEventObject) => void): this;
+	not(selector: string): JQuery<HTMLElement>;
+	length: number;
+	[index: number]: T;
+}
+
+interface JQueryStatic {
+	(selector: string | HTMLElement | JQuery<HTMLElement>): JQuery<HTMLElement>;
+}
+
+import $j from 'jquery';
+
 export class MusicPlayer {
 	audio: HTMLAudioElement;
-	playlist: JQuery<HTMLElement>; // eslint-disable-line no-undef
-	tracks: JQuery<HTMLElement>; // eslint-disable-line no-undef
+	playlist: JQuery<HTMLElement>;
+	tracks: JQuery<HTMLElement>;
 	repeat: boolean;
 	beastAudio: HTMLAudioElement;
 	private _cancelGestureRetry: (() => void) | null = null;
+	currentlyPlaying?: JQuery<HTMLElement>;
 
 	constructor() {
 		this.audio = skin as unknown as HTMLAudioElement;
-		this.playlist = $j('#playlist') as JQuery<HTMLElement>; // eslint-disable-line no-undef
-		this.tracks = this.playlist.find('li.epic') as JQuery<HTMLElement>; // eslint-disable-line no-undef
+		this.playlist = $j('#playlist');
+		this.tracks = this.playlist.find('li.epic');
 
 		this.repeat = true;
 
@@ -29,7 +59,7 @@ export class MusicPlayer {
 		// Debug genre selection
 		$j('.musicgenres__title')
 			.off('click')
-			.on('click', (e: any) => {
+			.on('click', (e: JQuery.ClickEvent) => {
 				e.preventDefault();
 				e.stopPropagation();
 
@@ -49,11 +79,11 @@ export class MusicPlayer {
 
 				const activeGenresSelectors = Array.prototype.map.call(
 					activeGenres.length === 0 ? allGenres : activeGenres, // Here if no genre is active then all genres shall pass
-					(genreNode: any) => `li.${genreNode.innerText.toLowerCase()}`,
+					(genreNode: HTMLElement) => `li.${genreNode.innerText.toLowerCase()}`,
 				);
 				const allGenresSelectors = Array.prototype.map.call(
 					allGenres,
-					(genreNode: any) => `li.${genreNode.innerText.toLowerCase()}`,
+					(genreNode: HTMLElement) => `li.${genreNode.innerText.toLowerCase()}`,
 				);
 				const activeTracks = this.playlist.find(activeGenresSelectors.join());
 				const allTracks = this.playlist.find(allGenresSelectors.join()); // This will fetch all the tracks
@@ -66,7 +96,7 @@ export class MusicPlayer {
 		this.playlist
 			.find('li')
 			.off('click')
-			.on('click', (e: any) => {
+			.on('click', (e: JQuery.ClickEvent) => {
 				e.preventDefault();
 				e.stopPropagation();
 				this.run($j(e.currentTarget));
@@ -83,7 +113,7 @@ export class MusicPlayer {
 
 		$j('.audio-player-beast')
 			.off('click')
-			.on('click', (e: any) => {
+			.on('click', (e: JQuery.ClickEvent) => {
 				e.stopPropagation();
 				// Perform on beast click
 				this.beastAudio.play();
@@ -92,21 +122,24 @@ export class MusicPlayer {
 		// Volume sliders requested
 		$j('#vol')
 			.off('change')
-			.on('change', (e: any) => {
-				this.audio.volume = Number(e.target.value);
+			.on('change', (e: JQuery.ChangeEvent) => {
+				this.audio.volume = Number((e.target as HTMLInputElement).value);
 			});
 
 		$j('#sfx')
 			.off('change')
-			.on('change', (e: any) => {
-				if ((window as any).game && (window as any).game.soundsys) {
-					(window as any).game.soundsys.allEffectsMultiplier = Number(e.target.value);
+			.on('change', (e: JQuery.ChangeEvent) => {
+				const game = (
+					window as unknown as { game?: { soundsys?: { allEffectsMultiplier: number } } }
+				).game;
+				if (game && game.soundsys) {
+					game.soundsys.allEffectsMultiplier = Number((e.target as HTMLInputElement).value);
 				}
 			});
 	}
 
 	getCurrentTrackIndex(): number {
-		return Array.prototype.findIndex.call(this.tracks, (track: any) =>
+		return Array.prototype.findIndex.call(this.tracks, (track: HTMLElement) =>
 			track.classList.contains('active-text'),
 		);
 	}
@@ -142,7 +175,7 @@ export class MusicPlayer {
 		this.run($j(track));
 	}
 
-	run(track: any): void {
+	run(track: JQuery<HTMLElement>): void {
 		// Style the active track in the playlist
 		const link = track.find('a');
 		const nextSrc = link.attr('href');
@@ -157,7 +190,8 @@ export class MusicPlayer {
 			return;
 		}
 
-		track.addClass('active-text').siblings().removeClass('active-text');
+		track.addClass('active-text');
+		(track as any).siblings?.().removeClass('active-text');
 		this.audio.src = nextSrc;
 		this.audio.load();
 
@@ -170,7 +204,7 @@ export class MusicPlayer {
 
 		// Play audio
 		this.cancelGestureRetry();
-		this.audio.play().catch((error) => {
+		this.audio.play().catch((error: any) => {
 			if (error?.name === 'AbortError') {
 				return;
 			}
@@ -209,6 +243,8 @@ export class MusicPlayer {
 
 	stopMusic(): void {
 		this.cancelGestureRetry();
-		this.audio.pause();
+		if (this.audio && typeof this.audio.pause === 'function') {
+			this.audio.pause();
+		}
 	}
 }
