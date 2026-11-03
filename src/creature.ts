@@ -401,24 +401,24 @@ export class Creature {
 
 		// Statistics
 		this.baseStats = {
-			health: obj.stats.health - 0,
-			endurance: obj.stats.endurance - 0,
-			regrowth: obj.stats.regrowth - 0,
-			energy: obj.stats.energy - 0,
-			meditation: obj.stats.meditation - 0,
-			initiative: obj.stats.initiative - 0,
-			offense: obj.stats.offense - 0,
-			defense: obj.stats.defense - 0,
-			movement: obj.stats.movement - 0,
-			pierce: (obj.masteries?.pierce ?? (obj.stats as any)?.pierce) - 0,
-			slash: (obj.masteries?.slash ?? (obj.stats as any)?.slash) - 0,
-			crush: (obj.masteries?.crush ?? (obj.stats as any)?.crush) - 0,
-			shock: (obj.masteries?.shock ?? (obj.stats as any)?.shock) - 0,
-			burn: (obj.masteries?.burn ?? (obj.stats as any)?.burn) - 0,
-			frost: (obj.masteries?.frost ?? (obj.stats as any)?.frost) - 0,
-			poison: (obj.masteries?.poison ?? (obj.stats as any)?.poison) - 0,
-			sonic: (obj.masteries?.sonic ?? (obj.stats as any)?.sonic) - 0,
-			mental: (obj.masteries?.mental ?? (obj.stats as any)?.mental) - 0,
+			health: obj.vitals.health - 0,
+			endurance: obj.vitals.endurance - 0,
+			regrowth: obj.vitals.regrowth - 0,
+			energy: obj.vitals.energy - 0,
+			meditation: obj.vitals.meditation - 0,
+			initiative: obj.vitals.initiative - 0,
+			offense: obj.vitals.offense - 0,
+			defense: obj.vitals.defense - 0,
+			movement: obj.vitals.movement - 0,
+			pierce: (obj.masteries?.pierce ?? (obj.vitals as any)?.pierce) - 0,
+			slash: (obj.masteries?.slash ?? (obj.vitals as any)?.slash) - 0,
+			crush: (obj.masteries?.crush ?? (obj.vitals as any)?.crush) - 0,
+			shock: (obj.masteries?.shock ?? (obj.vitals as any)?.shock) - 0,
+			burn: (obj.masteries?.burn ?? (obj.vitals as any)?.burn) - 0,
+			frost: (obj.masteries?.frost ?? (obj.vitals as any)?.frost) - 0,
+			poison: (obj.masteries?.poison ?? (obj.vitals as any)?.poison) - 0,
+			sonic: (obj.masteries?.sonic ?? (obj.vitals as any)?.sonic) - 0,
+			mental: (obj.masteries?.mental ?? (obj.vitals as any)?.mental) - 0,
 
 			/* TODO: Move boolean flags into this.status, because updateAlterations() resets
 			this.stats unless they've been applied via an effect. */
@@ -480,11 +480,11 @@ export class Creature {
 		};
 
 		// Current health. Maximum health is `this.stats.health`.
-		this.health = obj.stats.health;
+		this.health = obj.vitals.health;
 		// Current endurance. Maximum endurance is `this.stats.endurance`.
-		this.endurance = obj.stats.endurance;
+		this.endurance = obj.vitals.endurance;
 		// Current energy. Maximum energy is `this.stats.energy`.
-		this.energy = obj.stats.energy;
+		this.energy = obj.vitals.energy;
 		// Current movement. Maximum movement is `this.maxMovement`.
 		this.remainingMove = 0; //Default value recovered each turn
 		// Movement banked from previous turns. Only abilities granting a

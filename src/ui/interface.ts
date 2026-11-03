@@ -2211,7 +2211,7 @@ export class UI {
 
 				const isBrowsing = !this.selectedCreatureObj;
 
-				$j.each(stats.stats, (key, value) => {
+				$j.each(stats.vitals, (key, value) => {
 					const $stat = $j('#card .sideB .' + key + ' .value');
 
 					if (this.selectedCreatureObj) {
@@ -2428,7 +2428,7 @@ export class UI {
 				addCardCharacterInfo();
 
 				// Card B
-				$j.each(stats.stats, (key, value) => {
+				$j.each(stats.vitals, (key, value) => {
 					const $stat = $j('#card .sideB .' + key + ' .value');
 					$stat.removeClass('buff debuff');
 					$stat.text(value);

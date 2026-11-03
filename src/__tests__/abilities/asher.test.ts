@@ -128,7 +128,7 @@ describe('Asher in combat', () => {
 		asher.abilities[0].activate();
 		const haze = enemy.effects.find((eff: any) => eff.name === 'Heat Haze');
 		expect(haze).toBeDefined();
-		expect(enemy.stats.offense).toBeLessThan(enemyData.stats.offense);
+		expect(enemy.stats.offense).toBeLessThan(enemyData.vitals.offense);
 
 		// --- Ability 2: Glowing Eye (15 burn, adjacent) ---
 		asher.abilities[1].activate(enemy);

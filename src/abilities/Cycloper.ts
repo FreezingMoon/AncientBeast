@@ -1460,7 +1460,7 @@ function ensureAcrylicWallData(G: Game) {
 		type: ACRYLIC_WALL_TYPE,
 		size: 1 as const,
 		set: '' as const,
-		stats: {
+		vitals: {
 			health: 30,
 			regrowth: 0,
 			endurance: 0,

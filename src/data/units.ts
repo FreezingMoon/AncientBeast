@@ -8,27 +8,6 @@ export type UnitDisplayInfo = {
 	'offset-y': number;
 };
 
-type Stats = {
-	health: number;
-	regrowth: number;
-	endurance: number;
-	energy: number;
-	meditation: number;
-	initiative: number;
-	offense: number;
-	defense: number;
-	movement: number;
-	pierce: number;
-	slash: number;
-	crush: number;
-	shock: number;
-	burn: number;
-	frost: number;
-	poison: number;
-	sonic: number;
-	mental: number;
-};
-
 type UnitPlayable = boolean | 'secret';
 
 type UnitDataStructure = readonly {
@@ -38,14 +17,14 @@ type UnitDataStructure = readonly {
 	level: number | string;
 	realm: string;
 	size: UnitSize;
-	stats: CreatureVitals;
+	vitals: CreatureVitals;
 	masteries: CreatureMasteries;
 	animation: { walk_speed: number };
 	type?: string;
-	drop?: { name: string } & Partial<Stats>;
+	drop?: { name: string } & Partial<CreatureVitals & CreatureMasteries>;
 	movementType?: Movement;
 	display?: UnitDisplayInfo;
-	set?: 'α' | 'β' | '';
+	set?: 'α' | 'β' | 'Ω';
 	/**
 	 * The unit leaves fading cardboard afterimages behind it while it
 	 * moves, and moves a fifth faster for it. Meant for fast units
@@ -101,7 +80,7 @@ export const unitData: UnitDataStructure = [
 		realm: '-',
 		size: 1,
 		set: '',
-		stats: {
+		vitals: {
 			health: 100,
 			regrowth: 1,
 			endurance: 60,
@@ -195,7 +174,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'A',
 		size: 1,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 100,
 			regrowth: 2,
 			endurance: 35,
@@ -285,7 +264,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'G',
 		size: 3,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 223,
 			regrowth: 8,
 			endurance: 40,
@@ -354,7 +333,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'G',
 		size: 2,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 113,
 			regrowth: 4,
 			endurance: 36,
@@ -457,7 +436,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'L',
 		size: 3,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 124,
 			regrowth: 4,
 			endurance: 70,
@@ -560,7 +539,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'S',
 		size: 3,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 190,
 			regrowth: 13,
 			endurance: 37,
@@ -664,7 +643,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'S',
 		size: 3,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 245,
 			regrowth: 1,
 			endurance: 90,
@@ -778,7 +757,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'P',
 		size: 3,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 234,
 			regrowth: 5,
 			endurance: 26,
@@ -877,7 +856,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'W',
 		size: 2,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 200,
 			regrowth: 11,
 			endurance: 1,
@@ -973,7 +952,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'S',
 		size: 2,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 175,
 			regrowth: 2,
 			endurance: 70,
@@ -1079,7 +1058,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'P',
 		size: 3,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 110,
 			regrowth: 2,
 			endurance: 60,
@@ -1152,7 +1131,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'G',
 		size: 1,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 45,
 			regrowth: 10,
 			endurance: 20,
@@ -1226,7 +1205,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'S',
 		size: 1,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 55,
 			regrowth: 4,
 			endurance: 20,
@@ -1323,7 +1302,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'G',
 		size: 1,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 75,
 			regrowth: 5,
 			endurance: 60,
@@ -1416,7 +1395,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'P',
 		size: 1,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 70,
 			regrowth: 5,
 			endurance: 50,
@@ -1513,7 +1492,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'W',
 		size: 1,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 60,
 			regrowth: 1,
 			endurance: 10,
@@ -1601,7 +1580,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'L',
 		size: 2,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 155,
 			regrowth: 2,
 			endurance: 65,
@@ -1670,7 +1649,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'E',
 		size: 2,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 211,
 			regrowth: 2,
 			endurance: 80,
@@ -1739,7 +1718,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'W',
 		size: 3,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 217,
 			regrowth: 0,
 			endurance: 30,
@@ -1808,7 +1787,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'G',
 		size: 1,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 165,
 			regrowth: 22,
 			endurance: 33,
@@ -1901,7 +1880,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'S',
 		size: 3,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 220,
 			regrowth: 5,
 			endurance: 55,
@@ -1957,7 +1936,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'W',
 		size: 2,
 		set: 'β',
-		stats: {
+		vitals: {
 			health: 128,
 			regrowth: 20,
 			endurance: 38,
@@ -2025,7 +2004,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'L',
 		size: 2,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 65,
 			regrowth: 1,
 			endurance: 15,
@@ -2118,7 +2097,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'L',
 		size: 2,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 115,
 			regrowth: 3,
 			endurance: 65,
@@ -2187,7 +2166,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'A',
 		size: 2,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 199,
 			regrowth: 10,
 			endurance: 100,
@@ -2262,7 +2241,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'E',
 		size: 1,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 100,
 			regrowth: 0,
 			endurance: 1,
@@ -2333,7 +2312,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'G',
 		size: 3,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 256,
 			regrowth: 8,
 			endurance: 64,
@@ -2402,7 +2381,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'S',
 		size: 3,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 95,
 			regrowth: 3,
 			endurance: 52,
@@ -2471,7 +2450,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'E',
 		size: 2,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 135,
 			regrowth: 5,
 			endurance: 100,
@@ -2559,7 +2538,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'A',
 		size: 1,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 100,
 			regrowth: 4,
 			endurance: 25,
@@ -2638,7 +2617,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'G',
 		size: 2,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 193,
 			regrowth: 8,
 			endurance: 55,
@@ -2718,7 +2697,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'A',
 		size: 2,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 140,
 			regrowth: 5,
 			endurance: 75,
@@ -2816,7 +2795,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'S',
 		size: 2,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 120,
 			regrowth: 21,
 			endurance: 40,
@@ -2885,7 +2864,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'A',
 		size: 3,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 225,
 			regrowth: 5,
 			endurance: 25,
@@ -2967,7 +2946,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'P',
 		size: 2,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 125,
 			regrowth: 4,
 			endurance: 90,
@@ -3041,7 +3020,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'A',
 		size: 1,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 100,
 			regrowth: 3,
 			endurance: 40,
@@ -3118,7 +3097,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'E',
 		size: 2,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 170,
 			regrowth: 6,
 			endurance: 60,
@@ -3189,7 +3168,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'A',
 		size: 1,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 90,
 			regrowth: 3,
 			endurance: 45,
@@ -3288,7 +3267,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'L',
 		size: 2,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 150,
 			regrowth: 5,
 			endurance: 40,
@@ -3357,7 +3336,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'W',
 		size: 2,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 145,
 			regrowth: 7,
 			endurance: 34,
@@ -3459,7 +3438,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'E',
 		size: 2,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 85,
 			regrowth: 3,
 			endurance: 30,
@@ -3557,7 +3536,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'W',
 		size: 1,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 90,
 			regrowth: 4,
 			endurance: 30,
@@ -3617,7 +3596,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'E',
 		size: 3,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 222,
 			regrowth: 4,
 			endurance: 66,
@@ -3708,7 +3687,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'L',
 		size: 3,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 210,
 			regrowth: 10,
 			endurance: 10,
@@ -3777,7 +3756,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'P',
 		size: 2,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 80,
 			regrowth: 2,
 			endurance: 30,
@@ -3872,7 +3851,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'P',
 		size: 3,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 182,
 			regrowth: 12,
 			endurance: 38,
@@ -3962,7 +3941,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'E',
 		size: 2,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 186,
 			regrowth: 4,
 			endurance: 80,
@@ -4031,7 +4010,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'P',
 		size: 3,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 160,
 			regrowth: 6,
 			endurance: 110,
@@ -4096,7 +4075,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'W',
 		size: 3,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 214,
 			regrowth: 4,
 			endurance: 60,
@@ -4165,7 +4144,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'L',
 		size: 3,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 180,
 			regrowth: 2,
 			endurance: 25,
@@ -4234,7 +4213,7 @@ export const unitData: UnitDataStructure = [
 		realm: 'W',
 		size: 1,
 		set: 'α',
-		stats: {
+		vitals: {
 			health: 50,
 			regrowth: 0,
 			endurance: 0,
