@@ -21,10 +21,10 @@ type UnitDataStructure = readonly {
 	masteries: CreatureMasteries;
 	animation: { walk_speed: number };
 	type?: string;
-	drop?: { name: string } & Partial<CreatureVitals & CreatureMasteries>;
+	drop?: { name: string } & Partial<CreatureVitals & CreatureMasteries & { plasma: number }>;
 	movementType?: Movement;
 	display?: UnitDisplayInfo;
-	set?: 'α' | 'β' | 'Ω';
+	set?: 'α' | 'β' | 'Ω' | '';
 	/**
 	 * The unit leaves fading cardboard afterimages behind it while it
 	 * moves, and moves a fifth faster for it. Meant for fast units
@@ -2032,6 +2032,7 @@ export const unitData: UnitDataStructure = [
 			initiative: 10,
 			shock: 5,
 			burn: 5,
+			plasma: 1,
 		},
 		animation: {
 			walk_speed: 500,
