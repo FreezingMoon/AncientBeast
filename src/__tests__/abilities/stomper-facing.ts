@@ -57,6 +57,7 @@ describe('Stomper Earth Shaker facing', () => {
 				},
 			},
 			grid: { creatureGroup: { create: jest.fn() } },
+			registerSnapshotEffectBehavior: jest.fn(),
 		};
 		(game as any).UI = { updateFatigue: jest.fn() };
 		(game as any).gameEngine = {

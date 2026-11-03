@@ -5,6 +5,7 @@ import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import Game from '../game';
 import { Hex } from '../utility/hex';
+import { disperseBadBreathCloudsAlongPath, getBadBreathCloudAlongPath } from '../vfx/bad-breath';
 import { Point, getPointFacade } from '../utility/pointfacade';
 import { shakeBoard } from '../game-display/camera';
 
@@ -422,6 +423,15 @@ export default (G: Game) => {
 
 				// Pre-compute the push destination so the gust sprite lands then pushes
 				dir = dir.slice(0, dist + 1);
+
+				const badBreathCloud = getBadBreathCloudAlongPath(G, dir);
+
+				// Disperse Bad Breath clouds caught in the Blowing Wind
+				try {
+					disperseBadBreathCloudsAlongPath(G, dir);
+				} catch {
+					// ignore
+				}
 				let pushHex = target.hexagons[0];
 				for (let j = 0; j < dir.length; j++) {
 					if (dir[j].isWalkable(target.size, target.id, true)) {
@@ -445,6 +455,13 @@ export default (G: Game) => {
 				);
 				const tween = projectileInstance[0];
 				const sprite = projectileInstance[1];
+				if (badBreathCloud) {
+					try {
+						sprite.tint = 0x00ff00;
+					} catch {
+						// ignore
+					}
+				}
 
 				tween.onComplete.add(function () {
 					// @ts-expect-error 'this' refers to the animation object, _not_ the ability
@@ -462,6 +479,16 @@ export default (G: Game) => {
 					if (!target) {
 						resumeTurn();
 						return;
+					}
+
+					if (badBreathCloud) {
+						try {
+							target.takeDamage(
+								new Damage(badBreathCloud.owner, { poison: badBreathCloud.damage }, 1, [], G),
+							);
+						} catch {
+							// ignore
+						}
 					}
 
 					shakeBoard({

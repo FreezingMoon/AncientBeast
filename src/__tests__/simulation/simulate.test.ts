@@ -1,5 +1,5 @@
 /**
- * @jest-environment <rootDir>/test/jsdom-environment.js
+ * @jest-environment <rootDir>/test/jsdom-environment.ts
  * @jest-environment-options {"resources": "usable"}
  */
 
@@ -64,6 +64,7 @@ const ABILITY_FILES = [
 	'../../abilities/Snow-Bunny',
 	'../../abilities/Stomper',
 	'../../abilities/Swine-Thug',
+	'../../abilities/Swampler',
 	'../../abilities/Uncle-Fungus',
 	'../../abilities/Vehemoth',
 ];

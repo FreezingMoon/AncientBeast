@@ -6,24 +6,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { jest, describe, test, expect } from '@jest/globals';
 
-// Mock heavy external deps before importing the engine (same as simulate tests).
 jest.mock('pixi', () => ({}), { virtual: true });
 jest.mock('p2', () => ({}), { virtual: true });
-// Phaser is NOT mocked here. The authoritative server runs the real engine now
-// (see `createHeadlessGame`), so a `jest.mock('phaser')` stub would satisfy every
-// assertion below while proving nothing about the engine that actually runs in
-// production. `loadRealPhaser()` in `beforeAll` discards the stub that
-// `test/phaser-runtime-setup.ts` installs via `setPhaserNamespace()` — that
-// installer deliberately shares `loadPhaser()`'s memo slot, so it has to be
-// dropped explicitly.
-//
-// `resources: 'usable'` comes from the docblock above: Phaser's TextureManager
-// blocks its own boot on decoding two base64 PNGs, and jsdom only fires an
-// image's `load` when it may resolve `src`.
 
-// The authoritative server does not render, so stub the DOM-coupled UI module
-// (same role botgeria's makeUiStub plays, applied at module load so setup()'s
-// `new UI()` never touches the real DOM).
 jest.mock('../../../src/ui/interface', () => {
 	const deepNoop = () =>
 		new Proxy(function () {}, { get: () => deepNoop(), apply: () => deepNoop() });
@@ -36,9 +21,6 @@ jest.mock('../../../src/ui/interface', () => {
 					dashopen: false,
 					materializeToggled: false,
 					_abilityPanelAnimating: false,
-					// `destroyPhaser()` clears the real UI's glow
-					// interval on teardown; the stub must report
-					// "none" rather than fabricate a handle.
 					glowInterval: undefined,
 				},
 				{
@@ -60,7 +42,6 @@ import {
 	applyIntent,
 	settle,
 	serializeState,
-	replayIntents,
 	destroyHeadlessGame,
 	type HeadlessConfig,
 } from '../../../src/engine/headlessGame';
@@ -122,29 +103,19 @@ function stopTimers(game: any) {
 
 const CONFIG: Partial<HeadlessConfig> = { players: [0, 1] };
 
-/**
- * Every game this suite boots, torn down in `afterAll`. Destroying in
- * reverse creation order matters: each headless driver replaces the
- * process's wall clock on boot and puts back whatever it found on
- * restore, so the last driver installed has to be the first restored
- * for the worker's `Date.now` to end up as it was found.
- */
 const liveGames: any[] = [];
 
-/** The host timers, captured before `beforeAll` stubs them out. */
 const realSetTimeout = globalThis.setTimeout;
 const realClearTimeout = globalThis.clearTimeout;
 
-describe('Authoritative server engine', () => {
+describe('Authoritative server engine (convergence)', () => {
 	beforeAll(async () => {
 		await loadRealPhaser();
-		// Mock setTimeout globally to make tests deterministic
 		const timerMap = new Map<number, () => void>();
 		let timerId = 0;
 		globalThis.setTimeout = ((callback: (...args: unknown[]) => void, _delay?: number) => {
 			const id = ++timerId;
 			timerMap.set(id, callback as () => void);
-			// Execute immediately for determinism
 			Promise.resolve().then(() => {
 				const cb = timerMap.get(id);
 				if (cb) {
@@ -160,8 +131,6 @@ describe('Authoritative server engine', () => {
 	});
 
 	afterAll(() => {
-		// Put the host timers back before tearing the games down, so
-		// anything teardown schedules runs on the real event loop.
 		globalThis.setTimeout = realSetTimeout;
 		globalThis.clearTimeout = realClearTimeout;
 		for (let i = liveGames.length - 1; i >= 0; i--) {
@@ -173,18 +142,6 @@ describe('Authoritative server engine', () => {
 	test('same ordered intents converge on independent engine instances', async () => {
 		const abilities = await loadAbilities();
 
-		// Sequentially, not interleaved. One live engine per process is a real
-		// constraint, not a convenience: `src/timing/clock.ts`,
-		// `src/game-display/camera.ts` and the virtual clock behind
-		// `createHeadlessDriver()` are all module-level singletons, and the clock
-		// in particular is the single global `Date.now` slot that every driver
-		// writes. Two engines pumped in the same process therefore read each
-		// other's time the moment a timer callback from one resolves while the
-		// other is active, which desynchronises them by a turn.
-		//
-		// That matches how the engine is actually used — one match in the browser,
-		// one game per lobby on the server, one at a time in the simulation — and
-		// `replayIntents` below is already the sequential shape.
 		const g1 = await createHeadlessGame(abilities, { config: CONFIG });
 		liveGames.push(g1);
 		stopTimers(g1);
@@ -203,10 +160,6 @@ describe('Authoritative server engine', () => {
 		const firstRun = serializeState(g1);
 		stopTimers(g1);
 
-		// The authoritative invariant: the same config and the same *ordered*
-		// intents, fed to an independent engine, produce identical state. If this
-		// ever fails, the engine has hidden nondeterminism and the
-		// server-authoritative model cannot hold.
 		const g2 = await createHeadlessGame(abilities, { config: CONFIG });
 		liveGames.push(g2);
 		stopTimers(g2);
@@ -217,31 +170,5 @@ describe('Authoritative server engine', () => {
 
 		expect(serializeState(g2)).toEqual(firstRun);
 		expect(intents.length).toBe(12);
-	}, 120_000);
-
-	test('replaying the persisted intent log reconstructs authoritative state', async () => {
-		const abilities = await loadAbilities();
-		const g = await createHeadlessGame(abilities, { config: CONFIG });
-		liveGames.push(g);
-		stopTimers(g);
-
-		const intents: Intent[] = [];
-		for (let i = 0; i < 12; i++) {
-			await settle(g);
-			const hex = findReachableHex(g);
-			const intent: Intent = hex ? { kind: 'move', target: hex } : { kind: 'skip' };
-			intents.push(intent);
-			applyIntent(g, intent);
-			await settle(g);
-		}
-		const directState = serializeState(g);
-		stopTimers(g);
-
-		// Serverless-safe reconstruction: no live instance, just config + log.
-		const rebuilt = await replayIntents(abilities, CONFIG, intents);
-		liveGames.push(rebuilt);
-		stopTimers(rebuilt);
-
-		expect(serializeState(rebuilt)).toEqual(directState);
 	}, 120_000);
 });

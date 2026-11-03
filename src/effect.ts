@@ -14,6 +14,11 @@ type EffectTarget = Creature | Hex;
 
 //type Damage = number; //Why??? what about the actual Damage type? Causes conflict on impaler.ts
 type EffectFnArg = Creature | Hex | Damage;
+type EffectFunction = (effect?: Effect, creatureHexOrDamage?: EffectFnArg) => void;
+type RequireFunction = (_arg?: any) => boolean;
+
+const NO_EFFECT_FUNCTION: EffectFunction = () => undefined;
+const ALWAYS_REQUIRED: RequireFunction = () => true;
 
 type EffectOptions = Partial<Effect>;
 
@@ -27,9 +32,23 @@ export class Effect {
 	creationTurn: number;
 
 	// NOTE: These "optional arguments" generally set via "optArgs" in the constructor.
-	// eslint-disable-next-line @typescript-eslint/no-empty-function
-	effectFn: (effect?: Effect, creatureHexOrDamage?: EffectFnArg) => void = () => {};
-	requireFn: (_arg?: any) => boolean = (_arg?: any) => true;
+	private _effectFn: EffectFunction = NO_EFFECT_FUNCTION;
+	private _requireFn: RequireFunction = ALWAYS_REQUIRED;
+	get effectFn(): EffectFunction {
+		return this._effectFn;
+	}
+	set effectFn(effectFn: EffectFunction) {
+		this._effectFn = effectFn;
+	}
+	get requireFn(): RequireFunction {
+		return this._requireFn;
+	}
+	set requireFn(requireFn: RequireFunction) {
+		this._requireFn = requireFn;
+	}
+	get hasCustomCallbacks(): boolean {
+		return this._effectFn !== NO_EFFECT_FUNCTION || this._requireFn !== ALWAYS_REQUIRED;
+	}
 	alterations: { [key: string]: any } = {};
 	turnLifetime = 0;
 	deleteTrigger = 'onStartOfRound';
@@ -37,6 +56,9 @@ export class Effect {
 	specialHint: string | undefined = undefined; // Special hint for log
 	deleteOnOwnerDeath = false;
 	isDeleted = false;
+	triggeredThisChain = false;
+	snapshotBehaviorId: string | undefined = undefined;
+	snapshotBehaviorData: Record<string, unknown> | undefined = undefined;
 
 	_trap: Trap | undefined = undefined;
 

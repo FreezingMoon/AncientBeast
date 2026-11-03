@@ -77,6 +77,7 @@ async function loadAbilities(): Promise<Array<(G: any) => void>> {
 		'../../abilities/Snow-Bunny',
 		'../../abilities/Stomper',
 		'../../abilities/Swine-Thug',
+		'../../abilities/Swampler',
 		'../../abilities/Uncle-Fungus',
 		'../../abilities/Vehemoth',
 	];

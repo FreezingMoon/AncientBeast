@@ -18,7 +18,7 @@ const SCAVENGER_ABILITY_GROUP = 44;
 /** Register the Scavenger abilities on a bare game-like object and return them. */
 const getScavengerAbilities = () => {
 	const abilities: Record<number, any[]> = {};
-	Scavenger({ abilities } as any);
+	Scavenger({ abilities, registerSnapshotEffectBehavior: jest.fn() } as any);
 	return abilities[SCAVENGER_ABILITY_GROUP];
 };
 
