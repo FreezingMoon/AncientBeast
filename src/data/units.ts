@@ -1317,9 +1317,10 @@ export const unitData: UnitDataStructure = [
 			mental: 1,
 		},
 		drop: {
-			name: 'mushroom',
+			name: 'water lily',
+			energy: 5,
+			meditation: 5,
 			poison: 3,
-			health: 1,
 		},
 		afterimages: true,
 		animation: {
