@@ -4433,9 +4433,20 @@ export class UI {
 			const homeBonus = isHomeOwnerPresent
 				? `<p style="margin:2px">Poison +22${hasHomeRegrowthBonus ? '<br>Regrowth +20' : ''}</p>`
 				: '';
-			const cloud = (ui.game.badBreathClouds || []).find(
-				(c: any) => c.hex.x === hex.x && c.hex.y === hex.y,
-			);
+			const cloud = (
+				(
+					ui.game as unknown as {
+						badBreathClouds?: Array<{
+							hex: { x: number; y: number };
+							damage: number;
+							createdTurn?: number;
+							turnLifetime?: number;
+							owner?: { id: number };
+							upgraded?: boolean;
+						}>;
+					}
+				).badBreathClouds || []
+			).find((c) => c.hex.x === hex.x && c.hex.y === hex.y);
 			const name = hex.creature
 				? getCreatureDisplayName(hex.creature)
 				: isSwamplerHome
@@ -4443,7 +4454,9 @@ export class UI {
 				: capitalize(hex.drop ? hex.drop.name : hex.coord);
 			const trapOrLocation = capitalize(hex.trap ? hex.trap.name : ui.game.combatLocation);
 			const nameColorClasses =
-				hex.creature && hex.creature.player ? `p${hex.creature.player.id} player-text bright` : '';
+				hex.creature && (hex.creature as any).player
+					? `p${(hex.creature as any).player.id} player-text bright`
+					: '';
 
 			let cloudBlock = '';
 			if (cloud) {
@@ -4458,9 +4471,13 @@ export class UI {
 						};display:inline-block"></span>`,
 				).join('');
 				if (hex.creature) {
-					cloudBlock = `<p class="name p${cloud.owner.player.id} player-text bright" style="padding-top:0;margin:2px">Toxic Cloud</p><div style="display:flex;gap:3px;justify-content:center;margin:2px">${rectHtml}</div><hr style="margin:2px" />`;
+					cloudBlock = `<p class="name p${
+						(cloud.owner as any).player?.id ?? 0
+					} player-text bright" style="padding-top:0;margin:2px">Toxic Cloud</p><div style="display:flex;gap:3px;justify-content:center;margin:2px">${rectHtml}</div><hr style="margin:2px" />`;
 				} else {
-					cloudBlock = `<p class="name p${cloud.owner.player.id} player-text bright">Toxic Cloud</p><div style="display:flex;gap:3px;justify-content:center;margin:2px">${rectHtml}</div><hr style="margin:2px" />`;
+					cloudBlock = `<p class="name p${
+						(cloud.owner as any).player?.id ?? 0
+					} player-text bright">Toxic Cloud</p><div style="display:flex;gap:3px;justify-content:center;margin:2px">${rectHtml}</div><hr style="margin:2px" />`;
 				}
 			}
 
@@ -4570,9 +4587,10 @@ export class UI {
 		// `hex` carries both directions: `over` shows the hovered hex when it has
 		// something worth describing, `out` always falls back to the player card.
 		ui.game.channels.hex.on('over', ({ hex }) => {
-			const hasCloud = (ui.game.badBreathClouds || []).some(
-				(c: any) => c.hex.x === hex.x && c.hex.y === hex.y,
-			);
+			const hasCloud = (
+				(ui.game as unknown as { badBreathClouds?: Array<{ hex: { x: number; y: number } }> })
+					.badBreathClouds || []
+			).some((c: any) => c.hex.x === hex.x && c.hex.y === hex.y);
 			if (
 				hex.creature ||
 				hex.drop ||

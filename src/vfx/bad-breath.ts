@@ -5,18 +5,12 @@ import { Easing } from '../utility/easing';
 import { offsetCoordsToPx } from '../utility/const';
 import { createGameCanvasSurface } from '../game-display/canvas-surface';
 import { getFrameSize } from '../game-display/texture';
+import { Hex } from '../utility/hex';
 
-type SpriteHandle = {
-	active?: boolean;
-	alpha: number;
-	x: number;
-	y: number;
-	destroy: () => void;
-	setOrigin?: (x: number, y: number) => void;
-	setScale?: (x: number, y: number) => void;
-	tint?: number;
-	setTint?: (color: number) => void;
-};
+import type { SpriteHandle } from '../engine/types';
+import type { CanvasSurface } from '../game-display/canvas-surface';
+
+// Use engine types; local SpriteHandle was wrong for current API
 
 type CloudRecord = {
 	hex: { x: number; y: number };
@@ -29,27 +23,79 @@ type CloudRecord = {
 	damage: number;
 };
 
-function getEngine(game: Game): any {
-	return (game as any).gameEngine;
+function getEngine(game: Game): {
+	add?: { sprite?: unknown; tween?: unknown; group?: unknown; graphics?: unknown };
+	cameras?: { main?: { shake?: unknown } };
+} {
+	return (game as unknown as { gameEngine?: unknown }).gameEngine as {
+		add?: { sprite?: unknown; tween?: unknown; group?: unknown; graphics?: unknown };
+		cameras?: { main?: { shake?: unknown } };
+	};
 }
 
 function getMouthPoint(creature: Creature): { x: number; y: number } {
-	const sprite = (creature as any).sprite;
-	const group = (creature as any).grp;
+	const sprite = (creature as unknown as { sprite?: any }).sprite;
+	const group = (creature as unknown as { grp?: { x: number; y: number } }).grp;
 	const frame = getFrameSize(sprite);
 	const texX = 47;
 	const texY = 43;
-	const localX = (texX - (sprite?.originX ?? 0.5) * (frame?.width ?? 0)) * (sprite?.scaleX ?? 1);
-	const localY = (texY - (sprite?.originY ?? 0.5) * (frame?.height ?? 0)) * (sprite?.scaleY ?? 1);
+	const originX = sprite?.originX ?? sprite?.anchor?.x ?? 0.5;
+	const originY = sprite?.originY ?? sprite?.anchor?.y ?? 0.5;
+	const scaleX = sprite?.scaleX ?? sprite?.scale?.x ?? 1;
+	const scaleY = sprite?.scaleY ?? sprite?.scale?.y ?? 1;
+	const localX = (texX - originX * (frame?.width ?? 0)) * scaleX;
+	const localY = (texY - originY * (frame?.height ?? 0)) * scaleY;
 	return {
 		x: (group?.x ?? 0) + (sprite?.x ?? 0) + localX,
 		y: (group?.y ?? 0) + (sprite?.y ?? 0) + localY,
 	};
 }
 
-function fadeDestroy(sprite: SpriteHandle, engine: any, delay = 0): void {
+function fadeDestroy(
+	sprite: SpriteHandle,
+	engine: { add?: { tween?: unknown } } | unknown,
+	delay = 0,
+): void {
+	const eng = engine as unknown as {
+		add?: {
+			tween?: (obj: unknown) => {
+				to: (
+					props: unknown,
+					duration: number,
+					ease?: unknown,
+					autoStart?: boolean,
+				) => { onComplete: { add: (fn: () => void) => void } };
+			};
+		};
+		tween?: (obj: unknown) => {
+			to: (
+				props: unknown,
+				duration: number,
+				ease?: unknown,
+				autoStart?: boolean,
+				delay?: number,
+			) => {
+				onComplete: { add: (fn: () => void) => void };
+				start?: () => unknown;
+			};
+		};
+	};
+	if (!eng?.add?.tween && !(eng as any)?.tween) {
+		try {
+			sprite.kill?.();
+		} catch {
+			// ignore
+		}
+		try {
+			sprite.destroy?.();
+		} catch {
+			// ignore
+		}
+		return;
+	}
 	try {
-		const tween = engine?.tween?.(sprite)?.to?.({ alpha: 0 }, 500, Easing.Linear.None, true, delay);
+		const tweenFactory = (eng as any)?.tween ?? (eng as any)?.add?.tween;
+		const tween = tweenFactory(sprite)?.to?.({ alpha: 0 }, 500, Easing.Linear.None, true, delay);
 		tween?.onComplete?.add?.(() => {
 			try {
 				sprite.destroy();
@@ -57,6 +103,13 @@ function fadeDestroy(sprite: SpriteHandle, engine: any, delay = 0): void {
 				// ignore
 			}
 		});
+		if (tween?.start) {
+			try {
+				tween.start();
+			} catch {
+				// ignore
+			}
+		}
 	} catch {
 		try {
 			sprite.destroy();
@@ -74,20 +127,32 @@ function moveCloudThenFade(
 	for (const sprite of cloud.sprites) {
 		const destination = getDestination(sprite);
 		try {
-			const tween = engine
-				?.tween?.(sprite)
-				?.to?.({ ...destination, alpha: 0 }, 300, Easing.Linear.None);
-			if (tween?.onComplete?.add && tween?.start) {
-				tween.onComplete.add(() => sprite.destroy());
-				tween.start();
-			} else {
-				sprite.x = destination.x;
-				sprite.y = destination.y;
-				fadeDestroy(sprite, engine);
+			const eng = engine as any;
+			const tweenFactory = eng?.tween ?? eng?.add?.tween;
+			if (tweenFactory) {
+				const tween = tweenFactory(sprite)?.to?.(
+					{ ...destination, alpha: 0 },
+					300,
+					Easing.Linear.None,
+				);
+				if (tween?.onComplete?.add) {
+					tween.onComplete.add(() => sprite.destroy());
+					if (tween?.start) {
+						tween.start();
+						continue;
+					}
+				}
 			}
+			(sprite as any).x = destination.x;
+			(sprite as any).y = destination.y;
+			fadeDestroy(sprite, engine);
 		} catch {
-			sprite.x = destination.x;
-			sprite.y = destination.y;
+			try {
+				(sprite as any).x = destination.x;
+				(sprite as any).y = destination.y;
+			} catch {
+				// ignore
+			}
 			fadeDestroy(sprite, engine);
 		}
 	}
@@ -168,11 +233,19 @@ export function pushCloudAway(
 	if (!bestOffset || bestScore <= 0) return false;
 
 	const candOff = { x: cx + bestOffset.dx, y: cy + bestOffset.dy };
-	const grid = (game as any)?.grid;
+	const grid = (
+		game as unknown as {
+			grid?: { hexAt?: (x: number, y: number) => Hex | undefined };
+			hexAt?: (x: number, y: number) => Hex | undefined;
+		}
+	)?.grid;
 	const hexObj =
 		typeof grid?.hexAt === 'function'
 			? grid.hexAt(candOff.x, candOff.y)
-			: (game as any)?.hexAt?.(candOff.x, candOff.y);
+			: (game as unknown as { hexAt?: (x: number, y: number) => Hex | undefined })?.hexAt?.(
+					candOff.x,
+					candOff.y,
+			  );
 	if (!hexObj) {
 		const cloudIndex = clouds.indexOf(cloud);
 		if (cloudIndex >= 0) clouds.splice(cloudIndex, 1);
@@ -222,10 +295,24 @@ export function pushCloudAway(
 		const dx = baseX + 45 + (Math.random() - 0.5) * 60;
 		const dy = baseY + (Math.random() - 0.5) * 40;
 		try {
-			engine?.tween?.(sp)?.to?.({ x: dx, y: dy }, 300, Easing.Linear.None)?.start?.();
+			const engAny = engine as any;
+			const tweenFactory = engAny?.tween ?? engAny?.add?.tween;
+			if (tweenFactory) {
+				const tween = tweenFactory(sp)?.to?.({ x: dx, y: dy }, 300, Easing.Linear.None);
+				if (tween?.start) {
+					tween.start();
+					continue;
+				}
+			}
+			(sp as any).x = dx;
+			(sp as any).y = dy;
 		} catch {
-			sp.x = dx;
-			sp.y = dy;
+			try {
+				(sp as any).x = dx;
+				(sp as any).y = dy;
+			} catch {
+				// ignore
+			}
 		}
 	}
 	return true;
@@ -243,7 +330,7 @@ export function spawnBadBreathCloud(
 	const originX = mouth.x;
 	const originY = mouth.y;
 
-	let surface: any = null;
+	let surface: CanvasSurface | null = null;
 	try {
 		surface = createGameCanvasSurface(game as any, 32, 32);
 		const ctx = surface.ctx;
@@ -261,12 +348,14 @@ export function spawnBadBreathCloud(
 		surface = null;
 	}
 
-	const group = (game as any)?.grid?.creatureGroup;
+	const group = (game as unknown as { grid?: { creatureGroup?: { add?: (obj: unknown) => void } } })
+		?.grid?.creatureGroup;
 	const count = upgraded ? 32 : 20;
-	if (!(game as any).badBreathClouds) {
-		(game as any).badBreathClouds = [];
+	const gameAny = game as unknown as { badBreathClouds?: CloudRecord[]; turn?: number };
+	if (!gameAny.badBreathClouds) {
+		gameAny.badBreathClouds = [];
 	}
-	const clouds: CloudRecord[] = (game as any).badBreathClouds;
+	const clouds: CloudRecord[] = gameAny.badBreathClouds ?? [];
 	const lifetime = upgraded ? 6 : 3;
 	let pendingAnimations = 0;
 	let isSpawning = true;
@@ -322,63 +411,105 @@ export function spawnBadBreathCloud(
 		for (let i = 0; i < count; i++) {
 			let sprite: SpriteHandle | null = null;
 			try {
-				sprite = engine?.add?.sprite?.(
-					originX,
-					originY,
-					surface?.key,
-					undefined,
-					group,
-				) as SpriteHandle;
+				const engAny = engine as any;
+				const factory = engAny?.add?.sprite ?? engAny?.sprite ?? engAny?.add?.image;
+				if (typeof factory === 'function') {
+					sprite = factory.call(
+						engAny?.add ?? engAny,
+						originX,
+						originY,
+						(surface as any)?.key,
+						undefined,
+						group,
+					) as SpriteHandle;
+				}
 			} catch {
 				sprite = null;
 			}
 			if (!sprite) continue;
 
 			try {
-				sprite.setOrigin?.(0.5, 0.5);
+				(sprite as any).anchor?.set?.(0.5, 0.5);
+				(sprite as any).setOrigin?.(0.5, 0.5);
 			} catch {
 				// ignore
 			}
 			const scale = 0.5 + Math.random() * 0.9;
 			try {
-				sprite.setScale?.(scale, scale);
+				(sprite as any).scale?.set?.(scale, scale);
+				(sprite as any).setScale?.(scale, scale);
 			} catch {
 				// ignore
 			}
-			sprite.alpha = 0;
+			(sprite as any).alpha = 0;
 
 			const destX = baseX + 45 + (Math.random() - 0.5) * 60;
 			const destY = baseY + (Math.random() - 0.5) * 40;
 
 			let finishTween = () => undefined;
 			try {
-				const tween = engine
-					?.tween?.(sprite)
-					?.to?.(
-						{ x: destX, y: destY, alpha: upgraded ? 0.65 : 0.55 },
-						300 + Math.random() * 300,
-						Easing.Linear.None,
-					);
-				if (tween?.onComplete?.add && tween?.start) {
-					pendingAnimations++;
-					let completed = false;
-					finishTween = () => {
-						if (completed) return;
-						completed = true;
-						completeAnimation();
-					};
-					tween.onComplete.add(finishTween);
-					tween.start();
+				const engAny = engine as any;
+				const tweenFactory = engAny?.tween ?? engAny?.add?.tween;
+				if (tweenFactory) {
+					try {
+						const tween = tweenFactory(sprite)?.to?.(
+							{ x: destX, y: destY, alpha: upgraded ? 0.65 : 0.55 },
+							300 + Math.random() * 300,
+							Easing.Linear.None,
+						);
+						if (tween?.onComplete?.add && tween?.start) {
+							pendingAnimations++;
+							let completed = false;
+							finishTween = () => {
+								if (completed) return;
+								completed = true;
+								completeAnimation();
+							};
+							tween.onComplete.add(finishTween);
+							try {
+								tween.start();
+							} catch {
+								// ignore
+							}
+						} else if (tween?.onComplete?.add) {
+							pendingAnimations++;
+							let completed = false;
+							finishTween = () => {
+								if (completed) return;
+								completed = true;
+								completeAnimation();
+							};
+							tween.onComplete.add(finishTween);
+						} else {
+							(sprite as any).x = destX;
+							(sprite as any).y = destY;
+							(sprite as any).alpha = upgraded ? 0.65 : 0.55;
+						}
+					} catch {
+						finishTween();
+						try {
+							(sprite as any).x = destX;
+							(sprite as any).y = destY;
+							(sprite as any).alpha = upgraded ? 0.65 : 0.55;
+						} catch {
+							// ignore
+						}
+					}
 				} else {
-					sprite.x = destX;
-					sprite.y = destY;
-					sprite.alpha = upgraded ? 0.65 : 0.55;
+					finishTween();
+					(sprite as any).x = destX;
+					(sprite as any).y = destY;
+					(sprite as any).alpha = upgraded ? 0.65 : 0.55;
 				}
 			} catch {
 				finishTween();
-				sprite.x = destX;
-				sprite.y = destY;
-				sprite.alpha = upgraded ? 0.65 : 0.55;
+				try {
+					(sprite as any).x = destX;
+					(sprite as any).y = destY;
+					(sprite as any).alpha = upgraded ? 0.65 : 0.55;
+				} catch {
+					// ignore
+				}
 			}
 
 			cloudSprites.push(sprite);
@@ -390,7 +521,7 @@ export function spawnBadBreathCloud(
 				sprites: cloudSprites,
 				owner: creature,
 				upgraded,
-				createdTurn: (game as any).turn ?? 0,
+				createdTurn: (game as unknown as { turn?: number }).turn ?? 0,
 				turnLifetime: lifetime,
 				initialCount: cloudSprites.length,
 				damage: 10,
@@ -408,8 +539,9 @@ export function disperseBadBreathCloudsAt(
 	y: number,
 	creature?: Creature,
 ): void {
+	const gameAny = game as unknown as { badBreathClouds?: CloudRecord[]; turn?: number };
 	if (!creature || creature.name === 'Swampler' || creature.dead) return;
-	const clouds: CloudRecord[] = (game as any).badBreathClouds ?? [];
+	const clouds: CloudRecord[] = gameAny.badBreathClouds ?? [];
 	if (!clouds.length) return;
 	const engine = getEngine(game);
 	const remaining: CloudRecord[] = [];
@@ -431,14 +563,15 @@ export function disperseBadBreathCloudsAt(
 			remaining.push(cloud);
 		}
 	}
-	(game as any).badBreathClouds = remaining;
+	gameAny.badBreathClouds = remaining;
 }
 
 export function disperseBadBreathCloudsAlongPath(
 	game: Game,
-	path: any[] | undefined,
+	path: Hex[] | undefined,
 ): CloudRecord[] {
-	const clouds: CloudRecord[] = (game as any).badBreathClouds ?? [];
+	const gameAny = game as unknown as { badBreathClouds?: CloudRecord[]; turn?: number };
+	const clouds: CloudRecord[] = gameAny.badBreathClouds ?? [];
 	if (!path?.length || !clouds.length) return [];
 	const set = new Set(path.map((h) => `${h?.x},${h?.y}`));
 	const engine = getEngine(game);
@@ -456,25 +589,27 @@ export function disperseBadBreathCloudsAlongPath(
 			remaining.push(cloud);
 		}
 	}
-	(game as any).badBreathClouds = remaining;
+	gameAny.badBreathClouds = remaining;
 	return dispersed;
 }
 
 export function getBadBreathCloudAlongPath(
 	game: Game,
-	path: any[] | undefined,
+	path: Hex[] | undefined,
 ): CloudRecord | undefined {
+	const gameAny = game as unknown as { badBreathClouds?: CloudRecord[]; turn?: number };
 	if (!path?.length) return undefined;
-	const clouds: CloudRecord[] = (game as any).badBreathClouds ?? [];
+	const clouds: CloudRecord[] = gameAny.badBreathClouds ?? [];
 	const set = new Set(path.map((h) => `${h?.x},${h?.y}`));
 	return clouds.find((c) => set.has(`${c.hex.x},${c.hex.y}`));
 }
 
 export function ageBadBreathClouds(game: Game): void {
-	const clouds: CloudRecord[] = (game as any).badBreathClouds ?? [];
+	const gameAny = game as unknown as { badBreathClouds?: CloudRecord[]; turn?: number };
+	const clouds: CloudRecord[] = gameAny.badBreathClouds ?? [];
 	if (!clouds.length) return;
 	const engine = getEngine(game);
-	const currentTurn = (game as any).turn ?? 0;
+	const currentTurn = (game as unknown as { turn?: number }).turn ?? 0;
 	const remaining: CloudRecord[] = [];
 	for (const cloud of clouds) {
 		const age = Math.max(0, currentTurn - cloud.createdTurn);
@@ -488,14 +623,15 @@ export function ageBadBreathClouds(game: Game): void {
 		}
 		remaining.push(cloud);
 	}
-	(game as any).badBreathClouds = remaining;
+	gameAny.badBreathClouds = remaining;
 }
 
 export function expireBadBreathClouds(game: Game): void {
-	const clouds: CloudRecord[] = (game as any).badBreathClouds ?? [];
+	const gameAny = game as unknown as { badBreathClouds?: CloudRecord[]; turn?: number };
+	const clouds: CloudRecord[] = gameAny.badBreathClouds ?? [];
 	if (!clouds.length) return;
 	const engine = getEngine(game);
-	const currentTurn = (game as any).turn ?? 0;
+	const currentTurn = (game as unknown as { turn?: number }).turn ?? 0;
 	const remaining: CloudRecord[] = [];
 	for (const cloud of clouds) {
 		const age = currentTurn - cloud.createdTurn;
@@ -509,7 +645,7 @@ export function expireBadBreathClouds(game: Game): void {
 			remaining.push(cloud);
 		}
 	}
-	(game as any).badBreathClouds = remaining;
+	gameAny.badBreathClouds = remaining;
 }
 
 // Aliases for compatibility with possible naming.

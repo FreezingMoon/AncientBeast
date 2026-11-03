@@ -105,7 +105,7 @@ describe('pushCloudAway', () => {
 		pushed.upgraded = true;
 		pushed.turnLifetime = 6;
 		const destroy = jest.fn();
-		pushed.sprites.push({ alpha: 1, x: 0, y: 0, destroy });
+		pushed.sprites.push({ alpha: 1, x: 0, y: 0, destroy } as any);
 		const clouds = [pushed];
 
 		expect(pushCloudAway(game, pushed, clouds)).toBe(true);
