@@ -1,6 +1,5 @@
 import { Damage } from '../damage';
 import { Team, isTeam } from '../utility/team';
-import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
 import { Creature } from '../creature';
 import { Hex } from '../utility/hex';

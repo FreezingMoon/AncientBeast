@@ -1,4 +1,4 @@
-import { Movement } from '../creature';
+import { Movement, CreatureVitals, CreatureMasteries } from '../creature';
 
 export type UnitSize = 1 | 2 | 3;
 export type UnitDisplayInfo = {
@@ -38,7 +38,8 @@ type UnitDataStructure = readonly {
 	level: number | string;
 	realm: string;
 	size: UnitSize;
-	stats: Stats;
+	stats: CreatureVitals;
+	masteries: CreatureMasteries;
 	animation: { walk_speed: number };
 	type?: string;
 	drop?: { name: string } & Partial<Stats>;
@@ -110,6 +111,8 @@ export const unitData: UnitDataStructure = [
 			offense: 3,
 			defense: 3,
 			movement: 2,
+		},
+		masteries: {
 			pierce: 2,
 			slash: 2,
 			crush: 2,
@@ -202,6 +205,8 @@ export const unitData: UnitDataStructure = [
 			offense: 12,
 			defense: 5,
 			movement: 2,
+		},
+		masteries: {
 			pierce: 5,
 			slash: 2,
 			crush: 3,
@@ -290,6 +295,8 @@ export const unitData: UnitDataStructure = [
 			offense: 14,
 			defense: 5,
 			movement: 5,
+		},
+		masteries: {
 			pierce: 8,
 			slash: 8,
 			crush: 6,
@@ -357,6 +364,8 @@ export const unitData: UnitDataStructure = [
 			offense: 12,
 			defense: 4,
 			movement: 2,
+		},
+		masteries: {
 			pierce: 5,
 			slash: 5,
 			crush: 5,
@@ -458,6 +467,8 @@ export const unitData: UnitDataStructure = [
 			offense: 7,
 			defense: 12,
 			movement: 2,
+		},
+		masteries: {
 			pierce: 9,
 			slash: 9,
 			crush: 9,
@@ -559,6 +570,8 @@ export const unitData: UnitDataStructure = [
 			offense: 13,
 			defense: 7,
 			movement: 4,
+		},
+		masteries: {
 			pierce: 5,
 			slash: 2,
 			crush: 4,
@@ -661,6 +674,8 @@ export const unitData: UnitDataStructure = [
 			offense: 9,
 			defense: 18,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 14,
 			slash: 14,
 			crush: 14,
@@ -773,6 +788,8 @@ export const unitData: UnitDataStructure = [
 			offense: 7,
 			defense: 6,
 			movement: 2,
+		},
+		masteries: {
 			pierce: 4,
 			slash: 4,
 			crush: 4,
@@ -870,6 +887,8 @@ export const unitData: UnitDataStructure = [
 			offense: 12,
 			defense: 8,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 6,
 			slash: 6,
 			crush: 6,
@@ -964,6 +983,8 @@ export const unitData: UnitDataStructure = [
 			offense: 10,
 			defense: 10,
 			movement: 1,
+		},
+		masteries: {
 			pierce: 5,
 			slash: 4,
 			crush: 3,
@@ -1068,6 +1089,8 @@ export const unitData: UnitDataStructure = [
 			offense: 7,
 			defense: 5,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 3,
 			slash: 3,
 			crush: 3,
@@ -1139,6 +1162,8 @@ export const unitData: UnitDataStructure = [
 			offense: 3,
 			defense: 5,
 			movement: 4,
+		},
+		masteries: {
 			pierce: 2,
 			slash: 2,
 			crush: 4,
@@ -1211,6 +1236,8 @@ export const unitData: UnitDataStructure = [
 			offense: 2,
 			defense: 1,
 			movement: 2,
+		},
+		masteries: {
 			pierce: 2,
 			slash: 2,
 			crush: 3,
@@ -1306,6 +1333,8 @@ export const unitData: UnitDataStructure = [
 			offense: 2,
 			defense: 4,
 			movement: 9,
+		},
+		masteries: {
 			pierce: 2,
 			slash: 2,
 			crush: 2,
@@ -1397,6 +1426,8 @@ export const unitData: UnitDataStructure = [
 			offense: 4,
 			defense: 6,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 8,
 			slash: 3,
 			crush: 8,
@@ -1492,6 +1523,8 @@ export const unitData: UnitDataStructure = [
 			offense: 3,
 			defense: 2,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 2,
 			slash: 2,
 			crush: 2,
@@ -1578,6 +1611,8 @@ export const unitData: UnitDataStructure = [
 			offense: 7,
 			defense: 11,
 			movement: 2,
+		},
+		masteries: {
 			pierce: 8,
 			slash: 8,
 			crush: 8,
@@ -1645,6 +1680,8 @@ export const unitData: UnitDataStructure = [
 			offense: 15,
 			defense: 23,
 			movement: 5,
+		},
+		masteries: {
 			pierce: 12,
 			slash: 12,
 			crush: 12,
@@ -1712,6 +1749,8 @@ export const unitData: UnitDataStructure = [
 			offense: 6,
 			defense: 8,
 			movement: 2,
+		},
+		masteries: {
 			pierce: 45,
 			slash: 20,
 			crush: 35,
@@ -1779,6 +1818,8 @@ export const unitData: UnitDataStructure = [
 			offense: 17,
 			defense: 4,
 			movement: 1,
+		},
+		masteries: {
 			pierce: 6,
 			slash: 3,
 			crush: 9,
@@ -1870,6 +1911,8 @@ export const unitData: UnitDataStructure = [
 			offense: 10,
 			defense: 6,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 5,
 			slash: 7,
 			crush: 6,
@@ -1924,6 +1967,8 @@ export const unitData: UnitDataStructure = [
 			offense: 17,
 			defense: 10,
 			movement: 4,
+		},
+		masteries: {
 			pierce: 5,
 			slash: 5,
 			crush: 5,
@@ -1990,6 +2035,8 @@ export const unitData: UnitDataStructure = [
 			offense: 3,
 			defense: 5,
 			movement: 1,
+		},
+		masteries: {
 			pierce: 3,
 			slash: 3,
 			crush: 3,
@@ -2081,6 +2128,8 @@ export const unitData: UnitDataStructure = [
 			offense: 5,
 			defense: 7,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 4,
 			slash: 4,
 			crush: 4,
@@ -2148,6 +2197,8 @@ export const unitData: UnitDataStructure = [
 			offense: 15,
 			defense: 22,
 			movement: 2,
+		},
+		masteries: {
 			pierce: 15,
 			slash: 14,
 			crush: 12,
@@ -2221,6 +2272,8 @@ export const unitData: UnitDataStructure = [
 			offense: 2,
 			defense: 2,
 			movement: 5,
+		},
+		masteries: {
 			pierce: 10,
 			slash: 0,
 			crush: 10,
@@ -2290,6 +2343,8 @@ export const unitData: UnitDataStructure = [
 			offense: 12,
 			defense: 14,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 10,
 			slash: 10,
 			crush: 10,
@@ -2357,6 +2412,8 @@ export const unitData: UnitDataStructure = [
 			offense: 1,
 			defense: 1,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 1,
 			slash: 1,
 			crush: 1,
@@ -2424,6 +2481,8 @@ export const unitData: UnitDataStructure = [
 			offense: 10,
 			defense: 16,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 10,
 			slash: 10,
 			crush: 10,
@@ -2510,6 +2569,8 @@ export const unitData: UnitDataStructure = [
 			offense: 11,
 			defense: 17,
 			movement: 4,
+		},
+		masteries: {
 			pierce: 10,
 			slash: 10,
 			crush: 10,
@@ -2587,6 +2648,8 @@ export const unitData: UnitDataStructure = [
 			offense: 5,
 			defense: 6,
 			movement: 2,
+		},
+		masteries: {
 			pierce: 5,
 			slash: 4,
 			crush: 5,
@@ -2665,6 +2728,8 @@ export const unitData: UnitDataStructure = [
 			offense: 7,
 			defense: 9,
 			movement: 2,
+		},
+		masteries: {
 			pierce: 9,
 			slash: 9,
 			crush: 9,
@@ -2761,6 +2826,8 @@ export const unitData: UnitDataStructure = [
 			offense: 5,
 			defense: 5,
 			movement: 2,
+		},
+		masteries: {
 			pierce: 4,
 			slash: 1,
 			crush: 2,
@@ -2828,6 +2895,8 @@ export const unitData: UnitDataStructure = [
 			offense: 25,
 			defense: 24,
 			movement: 2,
+		},
+		masteries: {
 			pierce: 20,
 			slash: 20,
 			crush: 20,
@@ -2908,6 +2977,8 @@ export const unitData: UnitDataStructure = [
 			offense: 9,
 			defense: 13,
 			movement: 2,
+		},
+		masteries: {
 			pierce: 10,
 			slash: 10,
 			crush: 10,
@@ -2980,6 +3051,8 @@ export const unitData: UnitDataStructure = [
 			offense: 14,
 			defense: 19,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 9,
 			slash: 9,
 			crush: 9,
@@ -3055,6 +3128,8 @@ export const unitData: UnitDataStructure = [
 			offense: 1,
 			defense: 11,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 3,
 			slash: 3,
 			crush: 3,
@@ -3124,6 +3199,8 @@ export const unitData: UnitDataStructure = [
 			offense: 6,
 			defense: 8,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 7,
 			slash: 7,
 			crush: 7,
@@ -3221,6 +3298,8 @@ export const unitData: UnitDataStructure = [
 			offense: 5,
 			defense: 16,
 			movement: 2,
+		},
+		masteries: {
 			pierce: 5,
 			slash: 5,
 			crush: 5,
@@ -3288,6 +3367,8 @@ export const unitData: UnitDataStructure = [
 			offense: 11,
 			defense: 6,
 			movement: 5,
+		},
+		masteries: {
 			pierce: 4,
 			slash: 4,
 			crush: 4,
@@ -3388,6 +3469,8 @@ export const unitData: UnitDataStructure = [
 			offense: 6,
 			defense: 9,
 			movement: 5,
+		},
+		masteries: {
 			pierce: 7,
 			slash: 9,
 			crush: 10,
@@ -3484,6 +3567,8 @@ export const unitData: UnitDataStructure = [
 			offense: 4,
 			defense: 3,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 12,
 			slash: 4,
 			crush: 4,
@@ -3542,6 +3627,8 @@ export const unitData: UnitDataStructure = [
 			offense: 24,
 			defense: 25,
 			movement: 1,
+		},
+		masteries: {
 			pierce: 15,
 			slash: 15,
 			crush: 15,
@@ -3631,6 +3718,8 @@ export const unitData: UnitDataStructure = [
 			offense: 16,
 			defense: 15,
 			movement: 5,
+		},
+		masteries: {
 			pierce: 5,
 			slash: 5,
 			crush: 5,
@@ -3698,6 +3787,8 @@ export const unitData: UnitDataStructure = [
 			offense: 1,
 			defense: 8,
 			movement: 7,
+		},
+		masteries: {
 			pierce: 7,
 			slash: 7,
 			crush: 3,
@@ -3791,6 +3882,8 @@ export const unitData: UnitDataStructure = [
 			offense: 7,
 			defense: 5,
 			movement: 4,
+		},
+		masteries: {
 			pierce: 8,
 			slash: 8,
 			crush: 8,
@@ -3879,6 +3972,8 @@ export const unitData: UnitDataStructure = [
 			offense: 8,
 			defense: 21,
 			movement: 4,
+		},
+		masteries: {
 			pierce: 10,
 			slash: 10,
 			crush: 8,
@@ -3946,6 +4041,8 @@ export const unitData: UnitDataStructure = [
 			offense: 8,
 			defense: 20,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 7,
 			slash: 7,
 			crush: 7,
@@ -4009,6 +4106,8 @@ export const unitData: UnitDataStructure = [
 			offense: 9,
 			defense: 8,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 5,
 			slash: 6,
 			crush: 7,
@@ -4076,6 +4175,8 @@ export const unitData: UnitDataStructure = [
 			offense: 4,
 			defense: 4,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 2,
 			slash: 2,
 			crush: 2,
@@ -4143,6 +4244,8 @@ export const unitData: UnitDataStructure = [
 			offense: 5,
 			defense: 5,
 			movement: 6,
+		},
+		masteries: {
 			pierce: 6,
 			slash: 6,
 			crush: 6,

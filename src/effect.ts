@@ -17,7 +17,7 @@ type EffectFnArg = Creature | Hex | Damage;
 type EffectFunction = (effect?: Effect, creatureHexOrDamage?: EffectFnArg) => void;
 type RequireFunction = (_arg?: any) => boolean;
 
-const NO_EFFECT_FUNCTION: EffectFunction = () => {};
+const NO_EFFECT_FUNCTION: EffectFunction = () => undefined;
 const ALWAYS_REQUIRED: RequireFunction = () => true;
 
 type EffectOptions = Partial<Effect>;
