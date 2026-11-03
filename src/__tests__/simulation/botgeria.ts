@@ -758,7 +758,7 @@ export async function runMatch(game: unknown): Promise<MatchResult> {
 		// and draining microtasks alone never lets those fire.
 		await new Promise((resolve) => setTimeout(resolve, 0));
 		const _dtSlice = realPerf.now() - _t0;
-		if (_dbgTick < 20)
+		if (_dbgTick < 0)
 			(process.stderr as any).write(
 				`  [slice${_dbgTick} t=${(game as any).turn} ${_dtSlice.toFixed(0)}ms]\n`,
 			);
