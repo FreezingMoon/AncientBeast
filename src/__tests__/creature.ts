@@ -897,22 +897,40 @@ describe('Creature', () => {
 
 	describe('creature.fatigueText', () => {
 		/**
-		 * The shared creature mock does not declare endurance (creature.ts reads
-		 * it straight from the object under test), so set it through a widening
-		 * cast instead of widening the shared fixture for every other suite.
+		 * Reuses a single creature: this suite already builds ~40 of them and a
+		 * few more push a CI worker past its heap limit. `stats.endurance` is
+		 * what the getter divides against, so it is set per case.
 		 */
-		const getCreatureObjMockWithEndurance = (endurance: number) => {
+		let game: ReturnType<typeof getGameMock>;
+		let creature: Creature;
+
+		beforeAll(() => {
+			game = getGameMock();
 			const obj = getCreatureObjMock();
 			obj.materializationSickness = false;
-			(obj.stats as { health: number; movement: number; endurance?: number }).endurance = endurance;
-			return obj;
-		};
+			(obj.stats as { health: number; movement: number; endurance?: number }).endurance = 5;
+			// @ts-ignore
+			creature = new Creature(obj, game);
+		});
+
+		beforeEach(() => {
+			(game.log as jest.Mock).mockClear();
+		});
+
+		test('shows remaining endurance pool normally', () => {
+			creature.endurance = 3;
+			expect(creature.fatigueText).toBe('3/5');
+		});
+
+		test('shows Fragile when endurance pool is minimal but not depleted', () => {
+			(creature.stats as { endurance?: number }).endurance = 1;
+			creature.endurance = 1;
+			expect(creature.fatigueText).toBe('Fragile');
+			expect(game.log).toHaveBeenCalledWith('%CreatureName' + creature.id + '% has become fragile');
+		});
 
 		test('shows Fatigued over Fragile when endurance pool is minimal and depleted', () => {
-			const game = getGameMock();
-			const obj = getCreatureObjMockWithEndurance(1);
-			// @ts-ignore
-			const creature = new Creature(obj, game);
+			(creature.stats as { endurance?: number }).endurance = 1;
 			creature.endurance = 0;
 			expect(creature.fatigueText).toBe('Fatigued');
 			// Depleting the last endurance point must not log a misleading
@@ -920,25 +938,6 @@ describe('Creature', () => {
 			expect(game.log).not.toHaveBeenCalledWith(
 				'%CreatureName' + creature.id + '% has become fragile',
 			);
-		});
-
-		test('shows Fragile when endurance pool is minimal but not depleted', () => {
-			const game = getGameMock();
-			const obj = getCreatureObjMockWithEndurance(1);
-			// @ts-ignore
-			const creature = new Creature(obj, game);
-			creature.endurance = 1;
-			expect(creature.fatigueText).toBe('Fragile');
-			expect(game.log).toHaveBeenCalledWith('%CreatureName' + creature.id + '% has become fragile');
-		});
-
-		test('shows remaining endurance pool normally', () => {
-			const game = getGameMock();
-			const obj = getCreatureObjMockWithEndurance(5);
-			// @ts-ignore
-			const creature = new Creature(obj, game);
-			creature.endurance = 3;
-			expect(creature.fatigueText).toBe('3/5');
 		});
 	});
 });
