@@ -881,6 +881,7 @@ export class Hex {
 			this._markedByCrashingGlobe || Boolean(this.overlayClasses.match(/crashing-globe-target/));
 		const hasSwamplerHome = typeof this._swamplerHomeOwner === 'number';
 		const isHoveringCrashingGlobeTarget = Boolean(this.overlayClasses.match(/\bhover\b/));
+		const isDeadzone = Boolean(this.displayClasses.match(/\bdeadzone\b/));
 		this.display.setTint(0xffffff);
 		let targetAlpha =
 			this.reachable || Boolean(this.displayClasses.match(/creature/g)) || hasCrashingGlobeTarget;
@@ -901,6 +902,9 @@ export class Hex {
 			this.display.setOrigin(0.5, 0.5);
 			this.display.setTint(0xffffff);
 			this.grid.displayHexesGroup.bringToTop(this.display);
+		} else if (isDeadzone) {
+			loadTextureIfChanged(this.display, 'hex_deadzone');
+			this.pinTopLeft(this.display, this.drawPoint.x, this.drawPoint.y);
 		} else if (this.displayClasses.match(/0|1|2|3/)) {
 			const player = this.displayClasses.match(/0|1|2|3/);
 			loadTextureIfChanged(this.display, `hex_p${player}`);
@@ -924,21 +928,23 @@ export class Hex {
 			} else {
 				loadTextureIfChanged(this.display, 'hex_dashed');
 			}
-		} else if (this.displayClasses.match(/deadzone/)) {
-			loadTextureIfChanged(this.display, 'hex_deadzone');
-			this.pinTopLeft(this.display, this.drawPoint.x, this.drawPoint.y);
 		} else {
 			loadTextureIfChanged(this.display, 'hex');
 			this.pinTopLeft(this.display, this.drawPoint.x, this.drawPoint.y);
 		}
 
 		const computedDisplayAlpha = targetAlpha ? 1 : 0;
+		const isHover = Boolean(this.overlayClasses.match(/\bhover\b/));
 		this.display.alpha = hasCrashingGlobeTarget
 			? 1
 			: hasSwamplerHome
 			? 0
 			: typeof this.forcedDisplayAlpha === 'number'
 			? this.forcedDisplayAlpha
+			: isDeadzone
+			? isHover
+				? 0.75
+				: 0.45
 			: computedDisplayAlpha;
 		if (this.forcedHidden && !hasCrashingGlobeTarget && !hasSwamplerHome) {
 			this.display.alpha = 0;
@@ -1070,6 +1076,12 @@ export class Hex {
 			if (this.forcedHidden) {
 				this.overlay.alpha = 0;
 			}
+		}
+
+		if (isDeadzone && !hasCrashingGlobeTarget && !hasSwamplerHome) {
+			loadTextureIfChanged(this.display, 'hex_deadzone');
+			this.pinTopLeft(this.display, this.drawPoint.x, this.drawPoint.y);
+			this.overlay.visible = this.overlay.key === 'input';
 		}
 
 		// The targeting cursor is the only hex overlay that turns, so it only

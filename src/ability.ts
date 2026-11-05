@@ -144,7 +144,8 @@ export class Ability {
 	getMovementBuff?: (buff: number) => number;
 	getOffenseBuff?: (buff: number) => number;
 	_getOffenseBuff?: () => number;
-	_getHexes?: () => any;
+	_getHexes?: (invertFlipped?: boolean) => any;
+	_getDamageHexes?: (hexes: Hex[]) => Hex[];
 	_getMaxDistance: () => number;
 	_directions?: Direction[];
 	_targetTeam: Team;

@@ -825,6 +825,9 @@ export class HexGrid {
 							item.cleanDisplayVisualState('adj creature player0 player1 player2 player3');
 						});
 					});
+					(o.hexesDeadZone || []).forEach((hex) => {
+						hex.displayVisualState('deadzone');
+					});
 					choice.forEach((item) => {
 						if (item.creature instanceof Creature) {
 							item.displayVisualState('creature selected player' + item.creature.team);
@@ -843,6 +846,9 @@ export class HexGrid {
 					choice.forEach((item) => {
 						item.cleanDisplayVisualState('adj creature player0 player1 player2 player3');
 					});
+				});
+				(o.hexesDeadZone || []).forEach((hex) => {
+					hex.displayVisualState('deadzone');
 				});
 			}) as (() => void) | undefined,
 			team: Team.Enemy,
@@ -1875,6 +1881,9 @@ export class HexGrid {
 		const activeCreature = this.game.activeCreature;
 		const isActiveCreatureHex =
 			activeCreature && hex.creature instanceof Creature && hex.creature.id === activeCreature.id;
+		const preserveDeadzone =
+			Array.isArray(this.lastQueryOpt?.hexesDeadZone) &&
+			this.lastQueryOpt.hexesDeadZone.indexOf(hex) !== -1;
 
 		if (isActiveCreatureHex) {
 			// Preserve the active creature's persistent display/overlay classes so any
@@ -1883,6 +1892,9 @@ export class HexGrid {
 			hex.cleanOverlayVisualState(
 				'reachable weakDmg moveto selected hover ownCreatureHexShade h_player0 h_player1 h_player2 h_player3 p0 p1 p2 p3',
 			);
+			if (preserveDeadzone) {
+				hex.displayVisualState('deadzone');
+			}
 			return;
 		}
 
@@ -1891,11 +1903,17 @@ export class HexGrid {
 		if (hex._markedByCrashingGlobe) {
 			hex.cleanDisplayVisualState();
 			hex.cleanOverlayVisualState();
+			if (preserveDeadzone) {
+				hex.displayVisualState('deadzone');
+			}
 			return;
 		}
 
 		hex.cleanDisplayVisualState();
 		hex.cleanOverlayVisualState();
+		if (preserveDeadzone) {
+			hex.displayVisualState('deadzone');
+		}
 	}
 
 	restoreReachableHexVisual(hex: Hex) {
@@ -1920,6 +1938,9 @@ export class HexGrid {
 		const activeCreature = this.game.activeCreature;
 		const isActiveCreatureHex =
 			activeCreature && hex.creature instanceof Creature && hex.creature.id === activeCreature.id;
+		const preserveDeadzone =
+			Array.isArray(this.lastQueryOpt?.hexesDeadZone) &&
+			this.lastQueryOpt.hexesDeadZone.indexOf(hex) !== -1;
 
 		if (isActiveCreatureHex) {
 			// Clean only transient display state so the creature's persistent `creature`
@@ -1929,6 +1950,9 @@ export class HexGrid {
 			hex.cleanOverlayVisualState(
 				'hover h_player0 h_player1 h_player2 h_player3 p0 p1 p2 p3 crashing-globe-target',
 			);
+			if (preserveDeadzone) {
+				hex.displayVisualState('deadzone');
+			}
 			return;
 		}
 

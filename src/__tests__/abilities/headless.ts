@@ -35,15 +35,6 @@ jest.mock('phaser', () => ({
 	},
 }));
 
-jest.mock('../../damage', () => ({
-	Damage: class DamageMock {
-		damages: unknown;
-		constructor(_attacker: unknown, damages: unknown) {
-			this.damages = damages;
-		}
-	},
-}));
-
 jest.mock('../../creature', () => {
 	class CreatureMock {
 		id: number;
@@ -101,6 +92,9 @@ jest.mock('../../creature', () => {
 import loadHeadlessAbilities from '../../abilities/Headless';
 import { Ability } from '../../ability';
 import { Creature } from '../../creature';
+import { Damage } from '../../damage';
+import { unitData } from '../../data/units';
+import $j from 'jquery';
 
 (globalThis as { Phaser?: unknown }).Phaser = {};
 
@@ -509,7 +503,7 @@ describe('Headless abilities', () => {
 		expect(priest.moveTo).not.toHaveBeenCalled();
 	});
 
-	test('Boomerang Tool applies area damage twice', () => {
+	test('Boomerang Tool applies area damage once', () => {
 		const headless = new (Creature as any)({
 			id: 39,
 			team: 0,
@@ -531,9 +525,226 @@ describe('Headless abilities', () => {
 
 		boomerang.activate([{ x: 4, y: 3, creature: enemy }]);
 
-		expect(enemy.takeDamage).toHaveBeenCalledTimes(2);
-		expect(enemy.takeDamage.mock.calls[0][0].damages).toEqual({ slash: 10 });
-		expect(enemy.takeDamage.mock.calls[0][1]).toEqual({ ignoreRetaliation: true });
-		expect(enemy.takeDamage.mock.calls[1][1]).toEqual({ ignoreRetaliation: false });
+		expect(enemy.takeDamage).toHaveBeenCalledTimes(1);
+		expect(enemy.takeDamage.mock.calls[0][0].damages).toEqual({ slash: 9 });
+		expect(enemy.takeDamage.mock.calls[0][1]).toEqual({ ignoreRetaliation: false });
+	});
+
+	describe('Boomerang Tool targeting', () => {
+		function createBoomerang(x: number, y: number, flipped: boolean, upgraded: boolean) {
+			game.grid.hexes = Array.from({ length: 9 }, (_, row) =>
+				Array.from({ length: row % 2 === 0 ? 15 : 16 }, (_, column) => ({
+					x: column,
+					y: row,
+				})),
+			);
+			const headless = new (Creature as any)({
+				id: 39,
+				x,
+				y,
+				size: 2,
+				player: { id: 0, flipped, creatures: [] },
+			});
+			return {
+				...game.abilities[39][3],
+				creature: headless,
+				game,
+				isUpgraded: () => upgraded,
+				end: jest.fn(),
+				getTargets: Ability.prototype.getTargets,
+				areaDamage: Ability.prototype.areaDamage,
+			};
+		}
+
+		test.each([false, true])(
+			'calculates finite damage for a three-hex target with merged card metadata, upgraded=%s',
+			(upgraded) => {
+				const boomerang = createBoomerang(7, 4, false, upgraded);
+				const metadata = unitData.find((unit) => unit.id === 39).ability_info[3];
+				$j.extend(true, boomerang, metadata);
+				expect(boomerang.damages.special).toBe(metadata.damages.special);
+				boomerang.creature.stats = { offense: 0, slash: 0 };
+				const target = new (Creature as any)({
+					id: 250,
+					size: 3,
+					stats: { health: 100, endurance: 10, defense: 0, slash: 0 },
+				});
+				const totals: number[] = [];
+				target.takeDamage.mockImplementation((damage: Damage) => {
+					damage.target = target;
+					const result = damage.applyDamage();
+					expect(Number.isFinite(result.total)).toBe(true);
+					totals.push(result.total);
+					return { kill: false };
+				});
+				const choice = boomerang._getHexes(false);
+				for (const hex of choice.filter((hex) => hex.y === 3).slice(0, 3)) {
+					hex.creature = target;
+				}
+
+				boomerang.activate(choice);
+
+				expect(totals).toEqual(Array(upgraded ? 3 : 1).fill(9));
+			},
+		);
+
+		test.each([
+			[false, 1, 1],
+			[false, 2, 1],
+			[false, 2, 2],
+			[false, 3, 1],
+			[false, 3, 2],
+			[false, 3, 3],
+			[true, 1, 1],
+			[true, 2, 1],
+			[true, 2, 2],
+			[true, 3, 1],
+			[true, 3, 2],
+			[true, 3, 3],
+		])(
+			'area versus per-hex damage, upgraded=%s size=%s hexes in range=%s',
+			(upgraded, size, covered) => {
+				const boomerang = createBoomerang(7, 4, false, upgraded);
+				const choice = boomerang._getHexes(false);
+				const target = new (Creature as any)({ id: 250, team: 1, size });
+				const occupied = choice.filter((hex) => hex.y === 3).slice(0, covered);
+				for (const hex of occupied) {
+					hex.creature = target;
+				}
+				// Occupying inline dead space must not add another hit.
+				choice.find((hex) => hex.y === 4).creature = target;
+
+				boomerang.activate(choice);
+
+				expect(target.takeDamage).toHaveBeenCalledTimes(upgraded ? covered : 1);
+				for (const [damage, options] of target.takeDamage.mock.calls) {
+					expect(damage.damages).toEqual({ slash: 9 });
+					expect(damage.area).toBe(upgraded ? 1 : covered);
+					expect(options).toEqual({ ignoreRetaliation: false });
+				}
+			},
+		);
+
+		test.each([
+			[false, false],
+			[false, true],
+			[true, false],
+			[true, true],
+		])('equal contiguous rows, flipped=%s upgraded=%s', (flipped, upgraded) => {
+			for (const y of [0, 1, 2, 4, 7, 8]) {
+				for (const x of [1, 2, 7, 12, 14]) {
+					const boomerang = createBoomerang(x, y, flipped, upgraded);
+					for (const invert of [false, true]) {
+						const left = flipped !== invert;
+						const startX = left ? x - 2 : x + 1;
+						const availableYs = [y - 1, y, y + 1].filter((row) => game.grid.hexes[row]);
+						const starts = availableYs.map((row) =>
+							row === y ? startX : startX + (left ? 1 - (y % 2) : -(y % 2)),
+						);
+						const length = Math.min(
+							5,
+							...availableYs.map((row, index) =>
+								left ? starts[index] + 1 : game.grid.hexes[row].length - starts[index],
+							),
+						);
+						const choice = boomerang._getHexes(invert);
+						expect(choice).toHaveLength(availableYs.length * length);
+						for (const [index, row] of availableYs.entries()) {
+							expect(choice.filter((hex) => hex.y === row).map((hex) => hex.x)).toEqual(
+								Array.from({ length }, (_, distance) =>
+									left ? starts[index] - distance : starts[index] + distance,
+								),
+							);
+						}
+					}
+				}
+			}
+		});
+
+		test.each([false, true])(
+			'E5 left throw includes D4/F4 and clips all rows to three hexes, flipped=%s',
+			(flipped) => {
+				const boomerang = createBoomerang(4, 4, flipped, false);
+				const choice = boomerang._getHexes(!flipped);
+				expect(choice.map((hex) => `${String.fromCharCode(65 + hex.y)}${hex.x + 1}`)).toEqual([
+					'D4',
+					'D3',
+					'D2',
+					'E3',
+					'E2',
+					'E1',
+					'F4',
+					'F3',
+					'F2',
+				]);
+			},
+		);
+
+		test.each([false, true])(
+			'D13 right throw includes C13/E13 and clips all rows to three hexes, flipped=%s',
+			(flipped) => {
+				const boomerang = createBoomerang(12, 3, flipped, false);
+				const choice = boomerang._getHexes(flipped);
+				expect(choice.map((hex) => `${String.fromCharCode(65 + hex.y)}${hex.x + 1}`)).toEqual([
+					'C13',
+					'C14',
+					'C15',
+					'D14',
+					'D15',
+					'D16',
+					'E13',
+					'E14',
+					'E15',
+				]);
+			},
+		);
+
+		test.each([false, true])(
+			'marks only inline dead space on both sides, flipped=%s',
+			(flipped) => {
+				const boomerang = createBoomerang(7, 4, flipped, false);
+				boomerang.query();
+
+				const options = game.grid.queryChoice.mock.calls[0][0];
+				expect(options.choices.map((choice) => choice.length)).toEqual([15, 15]);
+				expect(options.hexesDeadZone).toHaveLength(8);
+				for (const choice of options.choices) {
+					const middle = choice.filter((hex) => hex.y === 4);
+					expect(options.hexesDeadZone).toEqual(expect.arrayContaining(middle.slice(0, -1)));
+					expect(options.hexesDeadZone).not.toContain(middle[4]);
+				}
+			},
+		);
+
+		test.each([
+			[false, false, false, 7],
+			[false, false, true, 7],
+			[true, false, false, 7],
+			[true, false, true, 7],
+			[false, true, false, 7],
+			[false, true, true, 7],
+			[true, true, false, 7],
+			[true, true, true, 7],
+			[false, false, false, 12],
+			[false, false, true, 2],
+		])(
+			'damages side rows and far tip only, flipped=%s upgraded=%s rear=%s x=%s',
+			(flipped, upgraded, rear, x) => {
+				const boomerang = createBoomerang(x, 4, flipped, upgraded);
+				const choice = boomerang._getHexes(rear);
+				for (const [index, hex] of choice.entries()) {
+					hex.creature = new (Creature as any)({ id: 200 + index, team: 1 });
+				}
+
+				boomerang.activate(choice);
+
+				const middle = choice.filter((hex) => hex.y === 4);
+				for (const hex of choice) {
+					expect(hex.creature.takeDamage).toHaveBeenCalledTimes(
+						hex.y !== 4 || hex === middle[middle.length - 1] ? 1 : 0,
+					);
+				}
+			},
+		);
 	});
 });

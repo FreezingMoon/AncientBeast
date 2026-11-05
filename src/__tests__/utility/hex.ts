@@ -46,6 +46,34 @@ function makeGame() {
 	return game;
 }
 
+describe('dead-space hex rendering', () => {
+	test.each([0, 1, 2, 3])('keeps dead-space artwork over player %s highlighting', (team) => {
+		const hex = new Hex(5, 4, makeGrid() as any, makeGame());
+		(hex.hitBox as any).input = { enabled: true };
+		hex.displayVisualState(`deadzone dashed creature player${team}`);
+		hex.overlayVisualState(`reachable h_player${team}`);
+		expect(hex.display.key).toBe('hex_deadzone');
+		expect(hex.overlay.visible).toBe(false);
+
+		hex.overlayVisualState(`hover h_player${team}`);
+		expect(hex.display.key).toBe('hex_deadzone');
+		expect(hex.overlay.visible).toBe(false);
+		expect((hex.hitBox as any).input.enabled).toBe(true);
+
+		HexGrid.prototype.cleanHex.call(
+			{ game: {}, lastQueryOpt: { hexesDeadZone: [hex] } } as any,
+			hex,
+		);
+		expect(hex.display.key).toBe('hex_deadzone');
+
+		hex.cleanDisplayVisualState('deadzone');
+		hex.overlayVisualState(`reachable h_player${team}`);
+		expect(hex.display.key).not.toBe('hex_deadzone');
+		expect(hex.overlay.visible).toBe(true);
+		stopAllCursorSpinning();
+	});
+});
+
 describe('shrunken hex centering', () => {
 	test('a shrunken hex stays centered on hover-off', () => {
 		const grid = makeGrid() as any;

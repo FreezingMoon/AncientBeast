@@ -3419,11 +3419,11 @@ export const unitData: UnitDataStructure = [
 			},
 			{
 				title: 'Boomerang Tool',
-				desc: 'Forms a new weapon out of blades and throws it away 5 hexagons, returning.',
-				info: '10 slash damage over 15 hexagons x 2.',
-				upgrade: '+3 hexagons increased area.',
+				desc: 'Forms a new weapon out of blades and throws it away 6 hexagons, returning.',
+				info: '9 slash damage done over 9 hexagons.',
+				upgrade: 'Damage is done per hexagon.',
 				damages: {
-					special: '10%slash%, hits 2 times.',
+					special: '9%slash% over 9 hexagons.',
 				},
 				costs: {
 					energy: 24,
