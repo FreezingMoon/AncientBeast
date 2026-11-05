@@ -5,6 +5,7 @@ import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
 import { Creature } from '../creature';
+import { Ability } from '../ability';
 import Game from '../game';
 import { Hex } from '../utility/hex';
 import { Trap } from '../utility/trap';
@@ -300,13 +301,52 @@ export default (G: Game) => {
 				});
 			},
 
+			// animation() :
+			animation: function (choice: Hex[]) {
+				const ability = this;
+				const game = G;
+
+				game.freezedInput = true;
+
+				const animId = Math.random();
+				game.animationQueue.push(animId);
+
+				const activateAbility = () => {
+					ability.activate(choice);
+					ability.postActivate();
+				};
+
+				game.animations.gummyMallet(ability as Ability, choice, {
+					onHit: () => {
+						game.soundsys.playSFX('sounds/swing2');
+						activateAbility();
+					},
+					callback: () => {
+						const queue = game.animationQueue.filter((item) => item != animId);
+
+						if (queue.length === 0) {
+							game.freezedInput = false;
+							if (game.multiplayer) {
+								game.freezedInput = game.UI.active ? false : true;
+							}
+							game.grid?.refreshHoverState();
+						}
+
+						game.animationQueue = queue;
+					},
+				});
+
+				return false;
+			},
+
+			// activate() :
 			activate: function (hexes: Hex[]) {
 				const ability = this;
 				ability.end();
 
 				shakeBoard({
-					amplitude: 0.02,
-					durationMs: 333,
+					amplitude: 0.08,
+					durationMs: 450,
 					force: true,
 					axis: 'vertical',
 				});
