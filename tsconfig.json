@@ -5,7 +5,7 @@
 		"module": "esnext",
 		"lib": ["ESNext", "dom"],
 		"target": "es2017",
-		"moduleResolution": "node",
+		"moduleResolution": "bundler",
 		"allowJs": true,
 		"noImplicitThis": true,
 		"resolveJsonModule": true,
@@ -14,8 +14,7 @@
 		"esModuleInterop": true,
 		"noImplicitAny": false,
 		"strict": false,
-		"types": ["jest", "jquery"]
+		"types": ["jest", "vite/client"]
 	},
-	"include": ["src", "types", "assets"],
-	"exclude": ["node_modules", "src/devvit/game-entry.ts", "src/devvit/splash.ts"]
+	"include": ["src", "types"]
 }

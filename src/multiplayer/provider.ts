@@ -1,4 +1,4 @@
-import { DevvitLobbyProvider } from './DevvitLobbyProvider';
+import { DevvitLobbyProvider } from '../../platforms/devvit/DevvitLobbyProvider';
 import { PeerLobbyProvider } from './PeerLobbyProvider';
 import type { INetworkBackend } from './types';
 

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import $j from 'jquery';
 import { Damage, DamageResult } from './damage';
+import { Effect } from './effect';
 import { Direction, Hex } from './utility/hex';
 import { Creature, CreatureMasteries, Movement } from './creature';
 import { CreatureType } from './data/types';
@@ -47,6 +48,7 @@ export type Trigger =
 	| 'onStartPhase onDamage'
 	| 'onUnderAttack onAttack'
 	| 'onUnderAttack'
+	| 'onOtherCreatureDeath'
 	| 'noTrigger';
 
 export type PierceThroughBehavior = 'stop' | 'targetOnly' | 'pierce';
@@ -108,6 +110,11 @@ export class Ability {
 	message?: string;
 	movementType?: () => Movement; // Currently, this functon only exists in `Scavenger.ts`
 	/**
+	 * Maximum movement points this ability lets its creature bank at the end of a
+	 * turn, spent on top of its movement the following turn. 0 stores nothing.
+	 */
+	stashedMovementCap?: () => number; // Currently, this functon only exists in `Scavenger.ts`
+	/**
 	 * Marks repositioning abilities (teleport, flying dash, leap, etc.).
 	 * - `true`: movement ability, but not guaranteed trap-safe along path.
 	 * - `'safe'`: movement ability that safely bypasses traps along path.
@@ -122,6 +129,8 @@ export class Ability {
 	// For example: _lastBonus is unique to Gumble.ts.
 	_lastBonus?: number;
 
+	/** Per-unit Carving Nails strike counts, by creature id. */
+	_strikes: Record<number, number>;
 	_disableCooldowns: boolean;
 	_infiniteEnergy: boolean;
 
@@ -160,6 +169,16 @@ export class Ability {
 	};
 	_pushTarget: (target: Creature, pushPath: Hex[], args: any) => void;
 
+	// Below methods exist in Miss-Creeper.ts
+	_isNearby: (creature: Creature) => boolean;
+	_isAdjacent: (target: Creature, creeper: Creature) => boolean;
+	_getDistance: (target: Creature, creeper: Creature) => number;
+	_ringDistance: (hex: Hex, creeper: Creature) => number;
+	_getPullStrength: (target: Creature, creeper: Creature) => number;
+	_getStepTowards: (target: Creature, creeper: Creature) => Hex | undefined;
+	_attract: (effect: Effect, target: Creature) => void;
+	_disableAbilityUpgrades: (target: Creature, tendrils: Effect) => void;
+
 	_isSecondLowJump: () => boolean;
 	_getHexRange: (stopOnCreature: boolean) => Hex[];
 
@@ -197,6 +216,9 @@ export class Ability {
 	 * while testDirections is aggregating per-direction hex lists. */
 	_inDirectionTest: boolean;
 
+	/** Unit ids already complained about for a missing ability module. */
+	private static reportedMissingAbilityModules = new Set<number>();
+
 	resetTimesUsed(): void {
 		this.timesUsedThisTurn = 0;
 	}
@@ -220,42 +242,82 @@ export class Ability {
 			this.requirements = this.costs;
 		}
 
+		/**
+		 * `src/script.ts` fills `game.abilities` once, at page load, from the
+		 * units that were playable *then*. A page that was already open when a
+		 * unit's `playable` flipped (secret → shipped, or a hot-reload mid-session)
+		 * therefore leaves that unit with empty ability shells: no `require`, no
+		 * `trigger`, no `activate`. Every later use then fails somewhere far from
+		 * the cause — `checkAbilities` throwing "ab.require is not a function",
+		 * the dash card keeping a previous unit's side B, a stuck ability panel.
+		 * Say it loudly here instead, once per unit.
+		 */
+		if (!game.abilities[data.id] && !Ability.reportedMissingAbilityModules.has(data.id)) {
+			Ability.reportedMissingAbilityModules.add(data.id);
+			console.error(
+				`[Ability] No ability module loaded for ${creature.name} (id ${data.id}). ` +
+					'Reload the page: G.abilities is built once, at load, from units that are already playable.',
+			);
+		}
+
 		// If set, abilities can be used multiple times in a single round.
 		this._disableCooldowns = this.game.metaPowersState.resetCooldowns;
 
 		// If set, active unit's energy is restored to max after each ability use.
 		this._infiniteEnergy = this.game.metaPowersState.infiniteEnergy;
 
-		// Events
-		this.game.signals.metaPowers.add(this.handleMetaPowerEvent, this);
+		// Events. One subscription per meta power this ability tracks, rather than
+		// a single handler filtering every message by name.
+		this.game.channels.metaPowers.on('toggleResetCooldowns', (enabled: boolean) =>
+			this.onResetCooldownsToggled(enabled),
+		);
+		this.game.channels.metaPowers.on('toggleInfiniteEnergy', (enabled: boolean) =>
+			this.onInfiniteEnergyToggled(enabled),
+		);
 	}
 
-	handleMetaPowerEvent(message: string, payload: boolean) {
-		const ui = this.game.UI;
+	/**
+	 * `toggleResetCooldowns`: keep this ability off cooldown, and retroactively
+	 * reset it if it is already spent.
+	 *
+	 * Only the cooldown is cleared. Paying a use took its cost out of the
+	 * creature's pool and that cost stays paid: restoring it would make the
+	 * spent ability affordable again, which is the "Infinite Energy" power's job.
+	 */
+	private onResetCooldownsToggled(enabled: boolean) {
+		this._disableCooldowns = enabled;
 
-		if (message === 'toggleResetCooldowns') {
-			// Prevent ability from going on cooldown.
-			this._disableCooldowns = payload;
-
-			// Reset cooldown if the ability has already been used.
-			if (this.used && payload === true) {
-				this.reset();
-				// Refresh UI to show ability is available.
-				ui?.selectAbility(-1);
-			}
+		// Reset cooldown if the ability has already been used.
+		if (this.used && enabled === true) {
+			this.reset();
+			// Refresh UI to show ability is available.
+			this.game.UI?.selectAbility(-1);
 		}
+	}
 
-		if (message === 'toggleInfiniteEnergy') {
-			this._infiniteEnergy = payload;
+	/**
+	 * `toggleInfiniteEnergy`: refuel the active creature as soon as it is
+	 * granted.
+	 *
+	 * The refuel also has to repaint the ability panel: run an ability empty and
+	 * its button was greyed out behind "Not enough energy", and nothing would
+	 * relight it until the unit moved and the panel happened to refresh again.
+	 */
+	private onInfiniteEnergyToggled(enabled: boolean) {
+		this._infiniteEnergy = enabled;
 
-			// Immediately refill energy for the active creature when enabled.
-			// Gate on id === 0 so only one ability instance triggers the refill.
-			if (payload && this.id === 0) {
-				const active = this.game.activeCreature;
-				if (active && active.id === this.creature.id && active.stats.energy > 0) {
-					active.energy = active.stats.energy;
-					ui?.energyBar.animSize(1);
-				}
+		// Immediately refill energy for the active creature when enabled.
+		// Gate on id === 0 so only one ability instance triggers the refill.
+		if (enabled && this.id === 0) {
+			const active = this.game.activeCreature;
+			if (active && active.id === this.creature.id && active.stats.energy > 0) {
+				active.energy = active.stats.energy;
+				this.game.UI?.energyBar.animSize(1);
+				// Re-test every requirement so the buttons this refuel makes
+				// affordable lose their disabled state right away. As with
+				// `onResetCooldownsToggled`, the selection is dropped: no ability
+				// can be mid-query while the meta powers panel is open.
+				this.game.UI?.selectAbility(-1);
 			}
 		}
 	}
@@ -342,7 +404,7 @@ export class Ability {
 		}
 
 		game.clearOncePerDamageChain();
-		game.activeCreature.hint(this.title, 'msg_effects');
+		game.activeCreature?.hint(this.title, 'msg_effects');
 
 		return this.query();
 	}
@@ -368,12 +430,12 @@ export class Ability {
 		if (!this._disableCooldowns) {
 			this.setUsed(true); // Should always be here
 		}
-		game.signals.creature.dispatch('abilityend', { creature: this.creature });
+		game.channels.creature.emit('abilityend', { creature: this.creature });
 		game.UI.btnDelay.changeState('disabled');
 		game.UI.selectAbility(-1);
 
 		if (this.getTrigger() === 'onQuery' && !deferredEnding) {
-			game.activeCreature.queryMove();
+			game.activeCreature?.queryMove();
 		} else if (this.getTrigger() === 'onQuery' && deferredEnding) {
 			// Keep input frozen until the ability's animation calls queryMove().
 			game.freezedInput = true;
@@ -388,15 +450,20 @@ export class Ability {
 	setUsed(val: boolean): void {
 		const game = this.game;
 
+		// `destroyPhaser()` nulls `UI` on teardown, and `setUsed` runs from deferred
+		// ability callbacks that outlive it. Nothing cancels those, so the panel
+		// lookup below would throw on a dead UI.
+		if (!game.UI) return;
+
 		if (val) {
 			this.used = true;
 			// Avoid dimmed passive for current creature
-			if (this.creature.id == game.activeCreature.id && !game.UI._abilityPanelAnimating) {
+			if (this.creature.id == game.activeCreature?.id && !game.UI._abilityPanelAnimating) {
 				game.UI.abilitiesButtons[this.id].changeState('disabled');
 			}
 		} else {
 			this.used = false;
-			if (this.creature.id == game.activeCreature.id && !game.UI._abilityPanelAnimating) {
+			if (this.creature.id == game.activeCreature?.id && !game.UI._abilityPanelAnimating) {
 				// Passive
 				game.UI.abilitiesButtons[this.id].changeState('normal');
 			}
@@ -408,34 +475,48 @@ export class Ability {
 	 * correct within activate().
 	 */
 	postActivate(): void {
-		const game = this.game;
 		this.timesUsed++;
 		this.timesUsedThisTurn++;
 
 		// Update upgrade information
 		this.game.UI.updateAbilityUpgrades();
 
-		// Configure score update for player
-		// When the ability is upgraded, add a single score bonus unique to that ability
-		if (this.isUpgraded() && this.usesLeftBeforeUpgrade() == 0) {
-			game.log(this.title + ' has been upgraded');
-			// Upgrade bonus uniqueness managed by preventing multiple bonuses
-			// with the same ability ID (which is an index 0,1,2,3 into the creature's abilities) and the creature ID
-			const bonus: ScoreEvent = {
-				type: 'upgrade',
-				ability: this.id,
-				creature: this.creature,
-			};
+		// Only a use-based (active) ability can cross its threshold on one of its
+		// own activations: its uses are counted here. A passive upgrades with its
+		// creature's active rounds and is announced from the turn-end that crossed
+		// — announcing it here fired from whatever damage triggered it (logging the
+		// upgrade before the very hit it was reacting to) and repeated on every
+		// later trigger, since the round counter has not moved in between.
+		if (this.isUpgradedPerUse() && this.isUpgraded() && this.usesLeftBeforeUpgrade() == 0) {
+			this.announceUpgrade();
+		}
+	}
 
-			const matchingBonus = (score: ScoreEvent) =>
-				score.type === bonus.type &&
-				score.ability === bonus.ability &&
-				score.creature.id === bonus.creature.id;
+	/**
+	 * Announce and score an ability that has just crossed its upgrade threshold.
+	 * Reached once per ability: `postActivate` for use-based abilities, and the
+	 * creature's turn-end for round-based (passive) ones.
+	 */
+	announceUpgrade(): void {
+		const game = this.game;
+		const upgradeMark = '%CreatureColor' + this.creature.id + '%▲%EndCreatureColor%';
+		game.log(this.title + ' has been upgraded ' + upgradeMark);
+		// Upgrade bonus uniqueness managed by preventing multiple bonuses
+		// with the same ability ID (which is an index 0,1,2,3 into the creature's abilities) and the same creature ID
+		const bonus: ScoreEvent = {
+			type: 'upgrade',
+			ability: this.id,
+			creature: this.creature,
+		};
 
-			// Only add the bonus when it has not already been awarded
-			if (!this.creature.player.score.find(matchingBonus)) {
-				this.creature.player.score.push(bonus);
-			}
+		const matchingBonus = (score: ScoreEvent) =>
+			score.type === bonus.type &&
+			score.ability === bonus.ability &&
+			score.creature.id === bonus.creature.id;
+
+		// Only add the bonus when it has not already been awarded
+		if (!this.creature.player.score.find(matchingBonus)) {
+			this.creature.player.score.push(bonus);
 		}
 	}
 
@@ -446,19 +527,31 @@ export class Ability {
 		const game = this.game;
 		// Gamelog Event Registration
 		if (game.triggers.onQuery.test(this.getTrigger())) {
+			// The unit that owns this ability performed the action. Passing it
+			// explicitly keeps replay aligned when an ability fires for a
+			// creature other than the active one.
+			const performer = {
+				id: this.creature.id,
+				name: this.creature.name,
+				player: this.creature.player?.id ?? -1,
+			};
+
 			if (args[0] instanceof Hex) {
 				const hex = args[0];
 				const argsObj = args.slice(1);
-				game.gamelog.add({
-					action: 'ability',
-					target: {
-						type: 'hex',
-						x: hex.x,
-						y: hex.y,
+				game.gamelog.add(
+					{
+						action: 'ability',
+						target: {
+							type: 'hex',
+							x: hex.x,
+							y: hex.y,
+						},
+						id: this.id,
+						args: argsObj,
 					},
-					id: this.id,
-					args: argsObj,
-				});
+					performer,
+				);
 				if (game.multiplayer) {
 					game.sendMultiplayerAbility({
 						target: {
@@ -475,15 +568,18 @@ export class Ability {
 			if (args[0] instanceof Creature) {
 				const creature = args[0];
 				const argsObj = args.slice(1);
-				game.gamelog.add({
-					action: 'ability',
-					target: {
-						type: 'creature',
-						crea: creature.id,
+				game.gamelog.add(
+					{
+						action: 'ability',
+						target: {
+							type: 'creature',
+							crea: creature.id,
+						},
+						id: this.id,
+						args: argsObj,
 					},
-					id: this.id,
-					args: argsObj,
-				});
+					performer,
+				);
 				if (game.multiplayer) {
 					game.sendMultiplayerAbility({
 						target: {
@@ -501,15 +597,18 @@ export class Ability {
 
 				const array = args[0].map((item) => ({ x: item.x, y: item.y }));
 
-				game.gamelog.add({
-					action: 'ability',
-					target: {
-						type: 'array',
-						array: array,
+				game.gamelog.add(
+					{
+						action: 'ability',
+						target: {
+							type: 'array',
+							array: array,
+						},
+						id: this.id,
+						args: argsObj,
 					},
-					id: this.id,
-					args: argsObj,
-				});
+					performer,
+				);
 				if (game.multiplayer) {
 					game.sendMultiplayerAbility({
 						target: {
@@ -558,18 +657,29 @@ export class Ability {
 		game.freezedInput = true;
 
 		// Animate
-		const p0 = this.creature.sprite.x;
 
-		this.creature.facePlayerDefault();
+		// Only an acting (onQuery) ability turns its creature towards its
+		// target: that re-facing is part of the windup and feeds the lunge's
+		// facing below (see `facingFlipped`). A passive trigger — Horn Head's
+		// Life Support firing back at the Plasma Field's counter damage, the
+		// priest's own Plasma Field, … — merely reacts, so re-facing its owner
+		// would snap the creature that is mid-animation back to its default
+		// facing: Horn Head wheeling around while its Meat Sickle hook was still
+		// flying at the shielded priest behind it.
+		if (this.getTrigger() === 'onQuery') {
+			this.creature.facePlayerDefault();
 
-		// Force creatures to face towards their target
-		if (args[0]) {
-			if (args[0] instanceof Creature) {
-				this.creature.faceHex(args[0]);
-			} else if (args[0] instanceof Array) {
-				for (const argument of args[0]) {
-					if (argument instanceof Creature || argument.creature) {
-						this.creature.faceHex(argument);
+			// Force creatures to face towards their target
+			if (args[0]) {
+				if (args[0] instanceof Creature) {
+					this.creature.faceHex(args[0]);
+				} else if (args[0] instanceof Hex) {
+					this.creature.faceHex(args[0]);
+				} else if (args[0] instanceof Array) {
+					for (const argument of args[0]) {
+						if (argument instanceof Creature || argument.creature) {
+							this.creature.faceHex(argument);
+						}
 					}
 				}
 			}
@@ -585,11 +695,6 @@ export class Ability {
 		// mismatch that's very visible on effects tracking an exact emission
 		// point, like Meat Sickle's hook/chain.
 		const facingFlipped = this.creature.sprite.scale.x < 0;
-		let p1 = p0;
-		let p2 = p0;
-
-		p1 += facingFlipped ? 5 : -5;
-		p2 += facingFlipped ? -5 : 5;
 
 		// Play animations and sounds only for active abilities
 		if (this.getTrigger() === 'onQuery') {
@@ -598,23 +703,32 @@ export class Ability {
 			game.animationQueue.push(animId);
 
 			let animationData = {
-				duration: 500,
-				delay: 350,
+				duration: game.replayMode === 'load' ? 1 : 500,
+				delay: game.replayMode === 'load' ? 0 : 350,
 				activateAnimation: true,
+				noTilt: false,
 			};
 
 			if (this.getAnimationData) {
 				// wrapped `args` in an array to fix ts-error 2488
 				animationData = $j.extend(animationData, this.getAnimationData(...[args]));
 			}
+			if (game.replayMode === 'load') {
+				animationData.duration = 1;
+				animationData.delay = 0;
+			}
 
-			if (animationData.activateAnimation) {
-				game.Phaser.add
-					.tween(this.creature.sprite)
-					.to({ x: p1 }, 250, Phaser.Easing.Linear.None)
-					.to({ x: p2 }, 100, Phaser.Easing.Linear.None)
-					.to({ x: p0 }, 150, Phaser.Easing.Linear.None)
-					.start();
+			if (animationData.activateAnimation && !animationData.noTilt) {
+				// A cardboard tilt forward into the strike, matching the lightning
+				// demo's hit reaction — a lean, not the old back-and-forth slide.
+				// The tilt is on the creature group's angle so the silhouette stays
+				// on its hex while the body commits; effects tracking an emission
+				// point read the sprite's own x/y, which the tilt does not move.
+				const tiltOpts = {
+					overrideSpeed: animationData.duration,
+					tiltDir: facingFlipped ? -1 : 1,
+				};
+				this.creature.game.animations.tiltForward(this.creature, tiltOpts);
 			}
 
 			setTimeout(() => {
@@ -642,7 +756,12 @@ export class Ability {
 			}, getVisibilityAwareDelay(animationData.duration));
 		} else {
 			activateAbility();
-			if (game.animationQueue.length === 0) {
+			// A passive firing while another unit's deferred ability animation is
+			// still playing must not release the turn: the ability that called
+			// end(true, true) owns the hand-back until its effect is over — e.g. a
+			// dragged unit's onCreatureMove trigger firing mid-drag, which would
+			// unfreeze the turn while the Meat Sickle chain is still reeling.
+			if (game.animationQueue.length === 0 && !game._deferredQueryMovePending) {
 				if (game.multiplayer) {
 					game.freezedInput = game.UI.active ? false : true;
 				} else {
@@ -652,12 +771,40 @@ export class Ability {
 			}
 		}
 
+		if (game.replayMode === 'load') {
+			// In fast-forward replay, do not wait on animation/freezedInput;
+			// schedule the callback shortly after activation so the replay
+			// loop always progresses.
+			setTimeout(() => {
+				try {
+					opt.callback();
+				} catch (e) {
+					console.error('[Replay] callback THREW:', e);
+				}
+			}, 50);
+			return;
+		}
+
+		let callbackCalled = false;
+		const finish = () => {
+			if (callbackCalled) return;
+			callbackCalled = true;
+			clearInterval(interval);
+			clearTimeout(fallback);
+			try {
+				opt.callback();
+			} catch (e) {
+				console.error('[Replay] callback THREW:', e);
+			}
+		};
+
 		const interval = setInterval(() => {
 			if (!game.freezedInput) {
-				clearInterval(interval);
-				opt.callback();
+				finish();
 			}
 		}, 100);
+
+		const fallback = setTimeout(() => finish(), 2000);
 	}
 
 	/**
@@ -992,7 +1139,7 @@ export class Ability {
 		}
 
 		creature.updateHealth();
-		if (creature.id == game.activeCreature.id) {
+		if (creature.id == game.activeCreature?.id) {
 			game.UI.energyBar.animSize(creature.energy / creature.stats.energy);
 		}
 	}

@@ -89,15 +89,19 @@ module.exports = {
 
 	// A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
 	moduleNameMapper: {
-		'^assets/(.*)\\.(png|jpg|jpeg|gif|svg|ogg|ico|cur|woff|woff2)$': '<rootDir>/test/fileMock.js',
+		'^assets/(.*)\\.(png|jpg|jpeg|gif|svg|ogg|ico|cur|woff|woff2)$': '<rootDir>/test/fileMock.ts',
 		'^assets/(.*)$': '<rootDir>/assets/$1',
 	},
 
-	// Exclude simulation tests — run those via `npm run simulate` instead
-	testPathIgnorePatterns: ['/node_modules/', '/src/__tests__/simulation/'],
+	// Exclude the simulation suite — that one runs via `npm run simulate`, because
+	// it plays 20 full matches and rewrites the baseline file. The real-engine
+	// suites under `/src/__tests__/headless/` deliberately stay in this run: they
+	// scope their own jsdom options and timeout from a docblock, so they need no
+	// separate project.
+	testPathIgnorePatterns: ['/node_modules/', '/src/__tests__/simulation/', '/.kilo/worktrees/'],
 
 	// An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
-	// modulePathIgnorePatterns: [],
+	modulePathIgnorePatterns: ['<rootDir>/.kilo/worktrees/'],
 
 	// Activates notifications for test results
 	// notify: false,
@@ -138,7 +142,10 @@ module.exports = {
 	// runner: "jest-runner",
 
 	// The paths to modules that run some code to configure or set up the testing environment before each test
-	// setupFiles: [],
+	// Paths to modules that run some code to configure or set up the testing
+	// environment before each test. Registers the `phaser` stub as the runtime so
+	// `getPhaser()` resolves in suites — see the file for why.
+	setupFiles: ['<rootDir>/test/phaser-runtime-setup.ts'],
 
 	// A list of paths to modules that run some code to configure or set up the testing framework before each test
 	// setupFilesAfterEnv: [],
@@ -149,8 +156,10 @@ module.exports = {
 	// A list of paths to snapshot serializer modules Jest should use for snapshot testing
 	// snapshotSerializers: [],
 
-	// The test environment that will be used for testing
-	testEnvironment: 'jest-environment-jsdom',
+	// The test environment that will be used for testing. Wraps
+	// `jest-environment-jsdom` to swallow the `ECONNREFUSED` noise jsdom emits for
+	// every asset it tries to fetch — see the file for the exact filter.
+	testEnvironment: '<rootDir>/test/jsdom-environment.ts',
 
 	// Options that will be passed to the testEnvironment
 	// testEnvironmentOptions: {},

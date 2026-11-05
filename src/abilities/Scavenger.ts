@@ -1,4 +1,4 @@
-import * as $j from 'jquery';
+import $j from 'jquery';
 import { Damage } from '../damage';
 import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
@@ -7,6 +7,9 @@ import { Effect } from '../effect';
 import { Creature } from '../creature';
 import { Hex } from '../utility/hex';
 import Game from '../game';
+import { shakeBoard } from '../game-display/camera';
+import { SnapshotCompatibilityError } from '../engine/GameSnapshot';
+import { SCAVENGER_DEADLY_TOXIN_POISON_EFFECT } from '../engine/snapshotBehaviors';
 
 function getEscortUsableHexes(G: Game, crea: Creature, trg: Creature) {
 	const trgIsInfront =
@@ -31,11 +34,55 @@ function getEscortUsableHexes(G: Game, crea: Creature, trg: Creature) {
 	return { size, trgIsInfront, usableHexes };
 }
 
+type ScavengerDeadlyToxinPoisonSnapshotData = {
+	ownerId: number;
+	poisonAmount: number;
+};
+
+const getScavengerSnapshotCreature = (G: Game, id: unknown, behavior: string): Creature => {
+	if (!Number.isInteger(id) || !(G.creatures?.[id as number] instanceof Creature)) {
+		throw new SnapshotCompatibilityError(
+			`Cannot restore ${behavior}: creature reference is invalid.`,
+		);
+	}
+	return G.creatures[id as number];
+};
+
+const bindScavengerDeadlyToxinPoisonEffect = (
+	G: Game,
+	effect: Effect,
+	data: Record<string, unknown> | undefined,
+) => {
+	const candidate = data as Partial<ScavengerDeadlyToxinPoisonSnapshotData> | undefined;
+	const owner = getScavengerSnapshotCreature(
+		G,
+		candidate?.ownerId,
+		'Scavenger Deadly Toxin poison',
+	);
+	const poisonAmount = typeof candidate?.poisonAmount === 'number' ? candidate.poisonAmount : 0;
+	effect.snapshotBehaviorId = SCAVENGER_DEADLY_TOXIN_POISON_EFFECT;
+	effect.snapshotBehaviorData = { ownerId: owner.id, poisonAmount };
+	effect.effectFn = (_activeEffect, trgCreature) => {
+		const affectedCreature = trgCreature as Creature;
+		if (!(affectedCreature instanceof Creature)) {
+			return;
+		}
+		G.log('%CreatureName' + affectedCreature.id + '% is affected by ' + effect.name);
+		affectedCreature.takeDamage(new Damage(owner, { poison: poisonAmount }, 1, [], G), {
+			isFromTrap: true,
+		});
+	};
+};
+
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
  */
 export default (G: Game) => {
+	G.registerSnapshotEffectBehavior(SCAVENGER_DEADLY_TOXIN_POISON_EFFECT, (effect, data) =>
+		bindScavengerDeadlyToxinPoisonEffect(G, effect, data),
+	);
+
 	/*
 	 *
 	 *	Scavenger abilities
@@ -45,12 +92,20 @@ export default (G: Game) => {
 		// 	First Ability: Wing Feathers
 		{
 			/**
-			 * Provides custom movement type given whether the ability is upgraded or not.
-			 * Movement type is "hover" unless this ability is upgraded, then it's "flying"
-			 * @return {string} movement type, "hover" or "flying"
+			 * The Scavenger flies by default (see its `movementType` in the unit data).
+			 * Upgrading Wing Feathers instead lets it store the movement points it
+			 * leaves unused at the end of a turn, up to its base movement, and spend
+			 * them on top of its movement the following turn.
+			 *
+			 * The banked points are spent first and only the leftovers are banked
+			 * again, so a turn that spends 4 of 10 (7 movement + 3 banked) banks 6
+			 * for next turn, giving 7 + 6 = 13 movement. Delaying a turn banks
+			 * nothing, as the movement it had was already available that turn.
+			 *
+			 * @return {number} maximum stashed movement points, 0 when not upgraded
 			 */
-			movementType: function () {
-				return this.isUpgraded() ? 'flying' : 'hover';
+			stashedMovementCap: function () {
+				return this.isUpgraded() ? this.creature.baseStats.movement : 0;
 			},
 
 			//	Type : Can be "onQuery", "onStartPhase", "onDamage"
@@ -111,7 +166,12 @@ export default (G: Game) => {
 			activate: function (target: Creature) {
 				const ability = this;
 				ability.end();
-				G.Phaser.camera.shake(0.01, 70, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 70,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				// If upgraded, hits will permanently debuff target with -1 offense (stackable)
 				if (this.isUpgraded()) {
@@ -321,7 +381,12 @@ export default (G: Game) => {
 			activate: function (hex, args) {
 				const ability = this;
 				ability.end();
-				G.Phaser.camera.shake(0.01, 66, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 66,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				const crea = this.creature;
 
@@ -348,8 +413,10 @@ export default (G: Game) => {
 
 				// Substract from movement points
 				crea.remainingMove -= distance * trg.size;
-				// Ability animation speed should be slower than regular movement (flight) speed
-				const escortSpeed = crea.animation.walk_speed * 5;
+				// Ability animation speed should be slower than regular movement (flight) speed.
+				// The Scavenger trails afterimages, so its carry also moves at the
+				// boosted pace — a fifth quicker than the flat 5× it shipped with.
+				const escortSpeed = crea.animation.walk_speed * 4;
 				crea.moveTo(creaDest, {
 					animation: 'fly',
 					callback: function () {
@@ -417,7 +484,12 @@ export default (G: Game) => {
 			activate: function (target: Creature) {
 				const ability = this;
 				ability.end();
-				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 100,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				// Don't perform poison damage unless upgraded
 				const damages = $j.extend({}, ability.damages);
@@ -435,36 +507,25 @@ export default (G: Game) => {
 
 				const result = target.takeDamage(damage);
 
-				if (result.damageObj.status !== 'Shielded') {
+				if (result.damageObj && result.damageObj.status !== 'Shielded') {
 					// Add poison damage debuff
-					const effect = new Effect(
+					const poisonEffect = new Effect(
 						this.title,
 						this.creature,
 						target,
 						'onStartPhase',
 						{
 							stackable: false,
-
-							effectFn: function (eff, trgCreature: Creature) {
-								G.log('%CreatureName' + trgCreature.id + '% is affected by ' + ability.title);
-								trgCreature.takeDamage(
-									new Damage(
-										eff.owner as Creature,
-										{
-											poison: ability.damages.poison,
-										},
-										1,
-										[],
-										G,
-									),
-									{ isFromTrap: true },
-								);
+							snapshotBehaviorId: SCAVENGER_DEADLY_TOXIN_POISON_EFFECT,
+							snapshotBehaviorData: {
+								ownerId: this.creature.id,
+								poisonAmount: ability.damages.poison,
 							},
 						},
 						G,
 					);
-
-					target.replaceEffect(effect);
+					bindScavengerDeadlyToxinPoisonEffect(G, poisonEffect, poisonEffect.snapshotBehaviorData);
+					target.replaceEffect(poisonEffect);
 
 					G.log('%CreatureName' + target.id + '% is poisoned by ' + this.title);
 				}

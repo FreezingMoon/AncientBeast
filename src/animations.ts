@@ -1,3 +1,7 @@
+import { BLEND_MODE_ADD } from './phaser/runtime';
+import { createGameCanvasSurface, type CanvasSurface } from './game-display/canvas-surface';
+import type { SpriteHandle, GroupHandle, TweenHandle } from './engine/types';
+import { Easing } from './utility/easing';
 import * as arrayUtils from './utility/arrayUtils';
 import { extractTextureFrameInfo, createBitmapDataFromTexture } from './utility/bitmapUtils';
 import { getEffectShader, advanceShaderTime, type ShaderUniformMap } from './shader';
@@ -9,8 +13,43 @@ import { Ability } from './ability';
 import { QuadraticCurve } from './utility/curve';
 import { DEBUG_ENABLE_FAST_WALKING, DEBUG_WALK_SPEED_MS } from './debug';
 import { isDocumentHidden } from './utility/time';
+import { after, deltaMs, now } from './timing/clock';
+import {
+	spawnAfterimageTrail,
+	AFTERIMAGE_SPEED_BOOST,
+	spawnProjectileVertigoTrail,
+} from './vertigo';
 
 // to fix @ts-expect-error 2554: properly type the arguments for the trigger functions in `game.ts`
+
+/**
+ * Cardboard tilt tuning. A tilt is a rotation about the unit's base rather
+ * than a slide, so the silhouette stays on its hex while the body leans —
+ * forward into a strike, back from a blow. The lean scales with the damage
+ * that provoked it (capped at {@link TILT_MAX_DAMAGE}) and carries a random
+ * jitter so consecutive hits do not rock the cardboard identically.
+ */
+const TILT_BASE_DEGREES = 3;
+const TILT_PER_DAMAGE = 0.18;
+const TILT_MAX_DAMAGE = 50;
+const TILT_MAX_DEGREES = 12;
+const TILT_JITTER = 2;
+
+/**
+ * Per-hex share of a creature's `walk_speed` used by {@link Animations.fly}. Flying
+ * covers the whole path in one tween, so a flat `walk_speed` made it look like a
+ * teleport; walking the same distance at the walking pace made it look like a
+ * crawl. Half pace per hex reads as flight.
+ */
+const FLIGHT_SPEED_FACTOR = 0.5;
+
+type ShatterTexture = {
+	crop?: { x: number; y: number; width: number; height: number };
+	frame?: { x: number; y: number; width: number; height: number };
+	baseTexture?: { source?: CanvasImageSource };
+	width?: number;
+	height?: number;
+};
 
 type AnimationOptions = {
 	customMovementPoint?: number;
@@ -26,20 +65,87 @@ type AnimationOptions = {
 	pushed?: boolean;
 	turnAroundOnComplete?: boolean;
 	flipped?: boolean;
+	/**
+	 * Direction of a tilt, in facing units: 1 leans right, -1 left. A
+	 * caster tilts toward the target it faces; a unit hit from the right
+	 * leans away from it.
+	 */
+	tiltDir?: number;
+	/**
+	 * Damage that provoked a tilt, used to scale how far the cardboard
+	 * leans. More damage, harder the lean — capped at
+	 * {@link TILT_MAX_DAMAGE}.
+	 */
+	tiltDamage?: number;
+	/**
+	 * The moved creature trails afterimages for this move,
+	 * even though the unit itself is not an afterimage
+	 * unit. Set by abilities that dash, drag or knock
+	 * their target around.
+	 */
+	afterimages?: boolean;
 };
 
-type ShatterTexture = {
-	crop?: { x: number; y: number; width: number; height: number };
-	frame?: { x: number; y: number; width: number; height: number };
-	baseTexture?: { source?: CanvasImageSource };
-	width?: number;
-	height?: number;
-};
+/**
+ * Chase rate for the haze and heat overlays. High enough to look welded to the
+ * cardboard while it stands still, low enough to smear behind it while it walks.
+ */
+const INFERNAL_OVERLAY_FOLLOW = 26;
+
+/**
+ * A cardboard jump larger than this is a teleport (materialise, reparent, hex
+ * snap) rather than walking, and is snapped instead of eased.
+ */
+const INFERNAL_OVERLAY_SNAP_DISTANCE = 96;
+
+/**
+ * Rate of the glow's slow breath, in rad/s, so one full pulse is `2π / 0.69`
+ * ~9.1s. Tuned down three times from the 1.87 it shipped at: a quarter slower,
+ * then another 30%, then another 30%. Each step was still quick enough to read
+ * as a pulse on a unit that is meant to look like it is smouldering rather than
+ * flashing.
+ */
+const INFERNAL_GLOW_PULSE_SPEED = 0.69;
+
+/**
+ * The heat layer is bottom-anchored, so any vertical scale above 1 pushes a
+ * full-cardboard copy above the silhouette with nothing occluding it: a static
+ * ghost hovering over the unit, which does not move or breathe with it. Held at
+ * 1:1 and feathered top-to-bottom it only bleeds through the cardboard's own
+ * semi-transparent alpha. The upward heat comes from the rising smoke instead.
+ */
+const INFERNAL_HEAT_LAYER_SCALE_Y = 1;
+
+/**
+ * Rising smoke smoke.
+ */
+const INFERNAL_SMOKE_ENABLED = true;
+
+/**
+ * Chase rate for a smoke's anchor, in the same exponential form as
+ * INFERNAL_OVERLAY_FOLLOW so the lag is frame-rate independent.
+ *
+ * Under a steady walk the anchor settles at `speed * (1 - follow) / follow`
+ * behind the unit, and that distance is the entire lag. It is easy to make
+ * this so small it stops reading as lag at all: at 95 it was ~2px on an
+ * 8px/frame walk, invisible on a cardboard ~120px wide, so the smoke looked
+ * welded on and simply rose straight up. At 20 it is ~20px, which is plainly a
+ * trail while still overlapping the unit rather than parting company with it.
+ * Dropping to a share-of-each-step model instead (letting the smoke fall
+ * progressively further behind with no chase at all) was tried and is far too
+ * much: a smoke's whole life is ~1.35s, enough to leave it hundreds of pixels
+ * behind, which is the detached-ghost problem again.
+ */
+const INFERNAL_SMOKE_LAG_RATE = 9;
 
 type InfernalCardboardEffectState = {
 	trailNextAt: number;
 	heatNextAt: number;
-	glowOffsetY: number;
+	/** Overlays trail the cardboard instead of being welded to it. */
+	hazeX: number;
+	hazeY: number;
+	heatX: number;
+	heatY: number;
 	hazePulsePhaseMs: number;
 	hazePulsePeriodMs: number;
 	hazePulsePhaseRad: number;
@@ -47,18 +153,75 @@ type InfernalCardboardEffectState = {
 	heatUniforms: ShaderUniformMap;
 	hazeReady: boolean;
 	heatReady: boolean;
-	sprite: Phaser.Sprite;
-	group: Phaser.Group;
-	hazeSprite?: Phaser.Sprite;
-	hazeBmd?: Phaser.BitmapData;
+	/**
+	 * False until a tick has positioned the overlays on the live sprite. `init`
+	 * runs while the cardboard is still at the origin and unflipped (`setDir`
+	 * places it afterwards), so showing the overlays then drew a stray
+	 * full-cardboard copy at (0, 0) that was not even facing the right way.
+	 */
+	synced: boolean;
+	/**
+	 * How fast the cardboard is travelling, in pixels per frame. Smoke at the
+	 * unit's feet is parented to it and dimmed in motion, so a walking unit does
+	 * not drag a bright full-cardboard copy along with it.
+	 */
+	speedPx: number;
+	/**
+	 * The combined pulse for this frame, shared between the haze and the heat
+	 * layer so both breathe together.
+	 */
+	glowFlicker: number;
+	/**
+	 * Live smoke. Each tracks the unit through `anchor` and carries its own rise
+	 * and drift in `offset`, with the sprite's position recomputed from the two
+	 * every tick. The offset is what the tween animates: tweening `x`/`y`
+	 * directly would write absolute spawn-time coordinates back over the anchor
+	 * each frame, pinning the smoke where the unit used to be.
+	 */
+	smoke: Array<{
+		sprite: SpriteHandle;
+		/** Where the unit was when this smoke spawned. The smoke never returns to it. */
+		anchorX: number;
+		anchorY: number;
+		/** Rise and drift away from the anchor, in the smoke layer's space. */
+		offset: { x: number; y: number };
+		/**
+		 * Scale as an unsigned magnitude. Held separately from `sprite.scale` so
+		 * the facing sign can be re-derived from the unit each tick: a sign baked
+		 * in at spawn left smoke facing the way the unit was heading when it was
+		 * born, so a unit that turned around kept trailing cardboard facing the
+		 * other way.
+		 */
+		growth: { x: number; y: number };
+	}>;
+	/**
+	 * The cardboard's world position on the previous tick. Movement is measured
+	 * from this rather than from the sprite's own x/y: walking tweens the
+	 * creature *group* (see CreatureSprite#setPx) while the sprite's local
+	 * position stays fixed, so a sprite-local delta is always zero and any smoke
+	 * driven by it stands still while the unit walks out from under it.
+	 */
+	lastWorldX: number;
+	lastWorldY: number;
+	/**
+	 * The creature group's position on the previous tick. Walking tweens the
+	 * group rather than the sprite, so this is what a detached smoke has to be
+	 * fed to follow the unit.
+	 */
+	lastGroupX: number;
+	lastGroupY: number;
+	sprite: SpriteHandle;
+	group: GroupHandle;
+	hazeSprite?: SpriteHandle;
+	hazeBmd?: CanvasSurface;
 	hazeFrame?: { x: number; y: number; width: number; height: number };
 	hazeSource?: CanvasImageSource;
-	heatBmd?: Phaser.BitmapData;
+	heatBmd?: CanvasSurface;
 	heatFrame?: { x: number; y: number; width: number; height: number };
 	heatSource?: CanvasImageSource;
-	heatLayerSprite?: Phaser.Sprite;
-	tweens: Phaser.Tween[];
-	trailSprites: Phaser.Sprite[];
+	heatLayerSprite?: SpriteHandle;
+	tweens: TweenHandle[];
+	trailSprites: SpriteHandle[];
 };
 
 const BONFIRE_BASELINE_Y_COMPENSATION_PX = -15;
@@ -80,15 +243,39 @@ export class Animations {
 		return `${creature.team}:${creature.id}`;
 	}
 
-	private _getLiveInfernalCardboardTarget(creature: Creature, fallbackSprite?: Phaser.Sprite) {
+	private _getLiveInfernalCardboardTarget(creature: Creature, fallbackSprite?: SpriteHandle) {
 		const sprite = creature.creatureSprite?.sprite ?? fallbackSprite;
-		const group = (sprite?.parent as Phaser.Group | undefined) ?? creature.creatureSprite?.grp;
+		const group = (sprite?.parent as GroupHandle | undefined) ?? creature.creatureSprite?.grp;
 		return { sprite, group };
+	}
+
+	/**
+	 * Bottom-anchors an overlay onto the cardboard's own baseline and sets its
+	 * scale and position in one step.
+	 *
+	 * Phaser 4 resolves an origin against the texture frame it is set on, so
+	 * `loadTexture` invalidates any anchoring done before it. It also only treats
+	 * `setOrigin` as meaningful together with the position it was set against,
+	 * which is why `Hex#pinTopLeft` re-applies x/y. Doing all three here means
+	 * every call site stays pinned to the cardboard's bottom edge — otherwise a
+	 * scaled overlay grows about the wrong point and slides off the base.
+	 */
+	private _anchorInfernalOverlay(
+		overlay: SpriteHandle,
+		x: number,
+		y: number,
+		scaleX: number,
+		scaleY: number,
+	): void {
+		overlay.setOrigin(0.5, 1);
+		overlay.x = x;
+		overlay.y = y;
+		overlay.setScale(scaleX, scaleY);
 	}
 
 	private _retryInfernalCardboardBitmaps(
 		state: InfernalCardboardEffectState,
-		sprite: Phaser.Sprite,
+		sprite: SpriteHandle,
 		dir: number,
 	) {
 		const texture = sprite.texture as unknown as ShatterTexture & {
@@ -128,16 +315,29 @@ export class Animations {
 						continue;
 					}
 
+					// Hot core. Concentrating the glow toward the middle of the body
+					// reads as the unit being alight from within; spreading it evenly
+					// over the silhouette just brightens the whole outline and stays
+					// flat however far the alpha is pushed.
+					const px = (index / 4) % width;
+					const py = Math.floor(index / 4 / width);
+					const dx = (px - width * 0.5) / (width * 0.5);
+					// Core sits below centre, where a body of heat would be, and the
+					// top of the sprite is the head rather than the hot part.
+					const dy = (py - height * 0.62) / (height * 0.62);
+					const radial = Math.sqrt(dx * dx + dy * dy);
+					const core = Math.max(0, 1 - radial * 0.85);
+
 					const warmBoost = 1 + warmMask * 0.95;
 					data[index] = Math.min(255, red * warmBoost);
 					data[index + 1] = Math.min(255, green * (1 + warmMask * 0.48));
 					data[index + 2] = Math.min(255, blue * (1 - warmMask * 0.2));
-					data[index + 3] = Math.min(255, alpha * warmMask * 255 * 1.15);
+					data[index + 3] = Math.min(255, alpha * warmMask * 255 * (0.5 + core * 1.1));
 				}
 				ctx.putImageData(imageData, 0, 0);
-				state.hazeBmd.dirty = true;
-				state.hazeSprite.loadTexture(state.hazeBmd);
-				state.hazeSprite.scale.setTo(dir, 1);
+				state.hazeBmd.commit();
+				state.hazeSprite.setTexture(state.hazeBmd.key);
+				this._anchorInfernalOverlay(state.hazeSprite, sprite.x, sprite.y, dir, 1);
 				state.hazeSprite.tint = 0xffffff;
 				state.hazeReady = true;
 			} catch (e) {
@@ -173,12 +373,18 @@ export class Animations {
 					}
 				}
 				ctx.putImageData(imageData, 0, 0);
-				state.heatBmd.dirty = true;
+				state.heatBmd.commit();
 				state.heatReady = true;
-				state.heatLayerSprite.loadTexture(state.heatBmd);
-				state.heatLayerSprite.scale.setTo(dir, 1.38);
+				state.heatLayerSprite.setTexture(state.heatBmd.key);
+				this._anchorInfernalOverlay(
+					state.heatLayerSprite,
+					sprite.x,
+					sprite.y,
+					dir,
+					INFERNAL_HEAT_LAYER_SCALE_Y,
+				);
 				state.heatLayerSprite.tint = 0xffffff;
-				state.heatLayerSprite.alpha = 0.24;
+				state.heatLayerSprite.alpha = state.synced ? 0.18 : 0;
 			} catch (e) {
 				console.warn('[Infernal] Failed to retry heat BitmapData:', e);
 			}
@@ -191,12 +397,12 @@ export class Animations {
 
 	private _yoyo(
 		obj: object,
-		props: object,
+		props: Record<string, number>,
 		duration: number,
 		ease: (k: number) => number,
 		maxPhase = duration,
 	) {
-		return this.game.Phaser.add
+		return this.game.gameEngine
 			.tween(obj)
 			.to(props, duration, ease, true, Math.floor(Math.random() * maxPhase), -1, true);
 	}
@@ -325,10 +531,10 @@ export class Animations {
 	private _setHexForcedHidden(hexes: Hex[], hidden: boolean) {
 		hexes.forEach((hexagon) => {
 			hexagon.forcedHidden = hidden;
-			if (hexagon.display?.exists) {
+			if (hexagon.display?.active) {
 				hexagon.display.visible = !hidden;
 			}
-			if (hexagon.overlay?.exists) {
+			if (hexagon.overlay?.active) {
 				hexagon.overlay.visible = !hidden;
 			}
 			if (hidden) {
@@ -343,10 +549,10 @@ export class Animations {
 		hexes.forEach((hexagon) => {
 			hexagon.forcedDisplayAlpha = clearOverride ? undefined : alpha;
 			hexagon.forcedCreatureOverlayAlpha = clearOverride ? undefined : alpha;
-			if (hexagon.display?.exists) {
+			if (hexagon.display?.active) {
 				hexagon.display.alpha = alpha;
 			}
-			if (hexagon.overlay?.exists) {
+			if (hexagon.overlay?.active) {
 				const shouldAffectOverlay = this._shouldAffectOverlayAlpha(hexagon);
 				if (shouldAffectOverlay) {
 					hexagon.overlay.alpha = alpha;
@@ -361,11 +567,10 @@ export class Animations {
 		duration: number,
 		clearOverrideOnComplete = false,
 	): Promise<void[]> {
-		const phaser = this.game.Phaser;
 		return Promise.all(
 			hexes.map((hexagon) => {
-				const hasDisplay = Boolean(hexagon.display?.exists);
-				const hasOverlay = Boolean(hexagon.overlay?.exists);
+				const hasDisplay = Boolean(hexagon.display?.active);
+				const hasOverlay = Boolean(hexagon.overlay?.active);
 				if (!hasDisplay && !hasOverlay) {
 					return Promise.resolve();
 				}
@@ -383,9 +588,9 @@ export class Animations {
 				hexagon.forcedDisplayAlpha = tweenState.alpha;
 				hexagon.forcedCreatureOverlayAlpha = tweenState.alpha;
 
-				const alphaTween = phaser.add
+				const alphaTween = this.game.gameEngine
 					.tween(tweenState)
-					.to({ alpha }, duration, Phaser.Easing.Quadratic.InOut, true);
+					.to({ alpha }, duration, 'Quadratic.InOut', true);
 				alphaTween.onUpdateCallback(() => {
 					hexagon.forcedDisplayAlpha = tweenState.alpha;
 					hexagon.forcedCreatureOverlayAlpha = tweenState.alpha;
@@ -438,10 +643,10 @@ export class Animations {
 				hexagon.forcedDisplayAlpha = undefined;
 				hexagon.forcedCreatureOverlayAlpha = undefined;
 				hexagon.forcedHidden = false;
-				if (hexagon.display?.exists) {
+				if (hexagon.display?.active) {
 					hexagon.display.visible = true;
 				}
-				if (hexagon.overlay?.exists) {
+				if (hexagon.overlay?.active) {
 					hexagon.overlay.visible = true;
 				}
 				hexagon.cleanDisplayVisualState('teleportHidden');
@@ -459,11 +664,11 @@ export class Animations {
 			}
 
 			if (attemptsLeft > 0) {
-				this.game.Phaser.time.events.add(intervalMs, tryClear);
+				after(intervalMs, tryClear);
 			}
 		};
 
-		this.game.Phaser.time.events.add(options.minDelayMs ?? 0, tryClear);
+		after(options.minDelayMs ?? 0, tryClear);
 	}
 
 	private _scheduleHexVisualCleanupOnNextInput(hexes: Hex[], timeoutMs = 2500) {
@@ -483,15 +688,18 @@ export class Animations {
 	}
 
 	startBonfireSpringTrapAnimation(
-		display: Phaser.Sprite,
-		trapGroup: Phaser.Group,
-		idleTweens: Phaser.Tween[],
-		overlaySprites: Phaser.Sprite[],
+		display: SpriteHandle,
+		trapGroup: GroupHandle,
+		idleTweens: TweenHandle[],
+		overlaySprites: SpriteHandle[],
 	) {
 		const base = display;
 
-		if (base.anchor.y !== 1) {
-			base.anchor.y = 1;
+		// `setOrigin` rather than assigning `originY`: Phaser 4 derives
+		// `displayOriginY` from it, and the placement below is measured against
+		// that. Writing the property would leave the display origin stale.
+		if (base.originY !== 1) {
+			base.setOrigin(base.originX, 1);
 			base.y += base.height / 2 + BONFIRE_BASELINE_Y_COMPENSATION_PX;
 		}
 		base.scale.y = 0.62;
@@ -502,56 +710,54 @@ export class Animations {
 		const rand = (n: number) => Math.random() * n;
 		const randInt = (n: number) => Math.floor(rand(n));
 
-		const baseGlow = trapGroup.create(bx, by, 'trap_bonfire-spring') as Phaser.Sprite;
-		baseGlow.anchor.setTo(0.5, 1);
+		const baseGlow = this.game.gameEngine.add.sprite(
+			bx,
+			by,
+			'trap_bonfire-spring',
+			undefined,
+			trapGroup,
+		);
+		baseGlow.setOrigin(0.5, 1);
 		baseGlow.alpha = 0.4;
-		baseGlow.scale.setTo(1.08, 0.72);
+		baseGlow.setScale(1.08, 0.72);
 		idleTweens.push(
-			this._yoyo(
-				baseGlow.scale,
-				{ x: 1.14, y: 0.8 },
-				180 + randInt(120),
-				Phaser.Easing.Quadratic.InOut,
-			),
-			this._yoyo(baseGlow, { alpha: 0.34 }, 180 + randInt(120), Phaser.Easing.Linear.None),
+			this._yoyo(baseGlow.scale, { x: 1.14, y: 0.8 }, 180 + randInt(120), Easing.Quadratic.InOut),
+			this._yoyo(baseGlow, { alpha: 0.34 }, 180 + randInt(120), Easing.Linear.None),
 		);
 		overlaySprites.push(baseGlow);
 
-		const core = trapGroup.create(bx, by - 6, 'trap_bonfire-spring') as Phaser.Sprite;
-		core.anchor.setTo(0.5, 1);
+		const core = this.game.gameEngine.add.sprite(
+			bx,
+			by - 6,
+			'trap_bonfire-spring',
+			undefined,
+			trapGroup,
+		);
+		core.setOrigin(0.5, 1);
 		core.alpha = 0.58;
-		core.scale.setTo(0.76, 0.98);
+		core.setScale(0.76, 0.98);
 		idleTweens.push(
-			this._yoyo(
-				core.scale,
-				{ x: 0.81, y: 1.1 },
-				220 + randInt(120),
-				Phaser.Easing.Quadratic.InOut,
-			),
-			this._yoyo(core, { alpha: 0.5 }, 220 + randInt(120), Phaser.Easing.Linear.None),
+			this._yoyo(core.scale, { x: 0.81, y: 1.1 }, 220 + randInt(120), Easing.Quadratic.InOut),
+			this._yoyo(core, { alpha: 0.5 }, 220 + randInt(120), Easing.Linear.None),
 		);
 		overlaySprites.push(core);
 
-		const bridge = trapGroup.create(bx, by - 10, 'trap_bonfire-spring') as Phaser.Sprite;
-		bridge.anchor.setTo(0.5, 1);
+		const bridge = this.game.gameEngine.add.sprite(
+			bx,
+			by - 10,
+			'trap_bonfire-spring',
+			undefined,
+			trapGroup,
+		);
+		bridge.setOrigin(0.5, 1);
 		bridge.alpha = 0.34;
-		bridge.scale.setTo(0.56, 1.14);
+		bridge.setScale(0.56, 1.14);
 		const bridgeDrift = 0.8 + rand(0.8);
 		bridge.x = bx - bridgeDrift;
 		idleTweens.push(
-			this._yoyo(
-				bridge.scale,
-				{ x: 0.58, y: 1.2 },
-				230 + randInt(120),
-				Phaser.Easing.Quadratic.InOut,
-			),
-			this._yoyo(bridge, { alpha: 0.32 }, 230 + randInt(120), Phaser.Easing.Linear.None),
-			this._yoyo(
-				bridge,
-				{ x: bx + bridgeDrift },
-				240 + randInt(120),
-				Phaser.Easing.Sinusoidal.InOut,
-			),
+			this._yoyo(bridge.scale, { x: 0.58, y: 1.2 }, 230 + randInt(120), Easing.Quadratic.InOut),
+			this._yoyo(bridge, { alpha: 0.32 }, 230 + randInt(120), Easing.Linear.None),
+			this._yoyo(bridge, { x: bx + bridgeDrift }, 240 + randInt(120), Easing.Sinusoidal.InOut),
 		);
 		overlaySprites.push(bridge);
 
@@ -578,18 +784,24 @@ export class Animations {
 
 		for (const c of clusters) {
 			const emberX = bx + c.dx * 0.94;
-			const emberSkirt = trapGroup.create(emberX, by + 1, 'trap_bonfire-spring') as Phaser.Sprite;
-			emberSkirt.anchor.setTo(0.5, 1);
+			const emberSkirt = this.game.gameEngine.add.sprite(
+				emberX,
+				by + 1,
+				'trap_bonfire-spring',
+				undefined,
+				trapGroup,
+			);
+			emberSkirt.setOrigin(0.5, 1);
 			emberSkirt.alpha = 0.32;
-			emberSkirt.scale.setTo(1.02, 0.44 + c.bodyScaleY * 0.08);
+			emberSkirt.setScale(1.02, 0.44 + c.bodyScaleY * 0.08);
 			idleTweens.push(
 				this._yoyo(
 					emberSkirt.scale,
-					{ x: emberSkirt.scale.x * 1.12, y: emberSkirt.scale.y * 1.08 },
+					{ x: emberSkirt.scaleX * 1.12, y: emberSkirt.scaleY * 1.08 },
 					260 + randInt(110),
-					Phaser.Easing.Quadratic.InOut,
+					Easing.Quadratic.InOut,
 				),
-				this._yoyo(emberSkirt, { alpha: 0.26 }, 220 + randInt(100), Phaser.Easing.Linear.None),
+				this._yoyo(emberSkirt, { alpha: 0.26 }, 220 + randInt(100), Easing.Linear.None),
 			);
 			overlaySprites.push(emberSkirt);
 		}
@@ -599,13 +811,16 @@ export class Animations {
 				const cx = bx + c.dx * row.dxScale;
 				const isFloorRow = row.dy >= -5;
 
-				const depthBody = trapGroup.create(cx, by + row.dy, 'trap_bonfire-spring') as Phaser.Sprite;
-				depthBody.anchor.setTo(0.5, 1);
-				depthBody.alpha = 0.62 * row.alphaMul;
-				depthBody.scale.setTo(
-					(isFloorRow ? 0.86 : 0.72) * row.scaleMul,
-					c.bodyScaleY * row.scaleMul,
+				const depthBody = this.game.gameEngine.add.sprite(
+					cx,
+					by + row.dy,
+					'trap_bonfire-spring',
+					undefined,
+					trapGroup,
 				);
+				depthBody.setOrigin(0.5, 1);
+				depthBody.alpha = 0.62 * row.alphaMul;
+				depthBody.setScale((isFloorRow ? 0.86 : 0.72) * row.scaleMul, c.bodyScaleY * row.scaleMul);
 				const depthSway = 0.012 + rand(0.012);
 				depthBody.rotation = -depthSway;
 				idleTweens.push(
@@ -613,34 +828,33 @@ export class Animations {
 						depthBody.scale,
 						{ y: c.bodyScaleY * row.scaleMul * 1.2 },
 						340 + randInt(110),
-						Phaser.Easing.Quadratic.InOut,
+						Easing.Quadratic.InOut,
 					),
 					this._yoyo(
 						depthBody,
 						{ alpha: depthBody.alpha * 0.74 },
 						300 + randInt(100),
-						Phaser.Easing.Linear.None,
+						Easing.Linear.None,
 					),
 					this._yoyo(
 						depthBody,
 						{ rotation: depthSway },
 						760 + randInt(280),
-						Phaser.Easing.Sinusoidal.InOut,
+						Easing.Sinusoidal.InOut,
 					),
 				);
 				overlaySprites.push(depthBody);
 
-				const depthTongue = trapGroup.create(
+				const depthTongue = this.game.gameEngine.add.sprite(
 					cx,
 					by + row.dy - 4,
 					'trap_bonfire-spring',
-				) as Phaser.Sprite;
-				depthTongue.anchor.setTo(0.5, 1);
-				depthTongue.alpha = 0.34 * row.alphaMul;
-				depthTongue.scale.setTo(
-					c.tongueScaleX * 0.66 * row.scaleMul,
-					c.tongueScaleY * row.scaleMul,
+					undefined,
+					trapGroup,
 				);
+				depthTongue.setOrigin(0.5, 1);
+				depthTongue.alpha = 0.34 * row.alphaMul;
+				depthTongue.setScale(c.tongueScaleX * 0.66 * row.scaleMul, c.tongueScaleY * row.scaleMul);
 				const depthTongueDrift = 0.012 + rand(0.012);
 				depthTongue.rotation = -depthTongueDrift;
 				idleTweens.push(
@@ -651,19 +865,19 @@ export class Animations {
 							x: c.tongueScaleX * 0.58 * row.scaleMul,
 						},
 						260 + randInt(100),
-						Phaser.Easing.Quadratic.InOut,
+						Easing.Quadratic.InOut,
 					),
 					this._yoyo(
 						depthTongue,
 						{ alpha: depthTongue.alpha * 0.76 },
 						220 + randInt(100),
-						Phaser.Easing.Linear.None,
+						Easing.Linear.None,
 					),
 					this._yoyo(
 						depthTongue,
 						{ rotation: depthTongueDrift },
 						680 + randInt(260),
-						Phaser.Easing.Sinusoidal.InOut,
+						Easing.Sinusoidal.InOut,
 					),
 				);
 				overlaySprites.push(depthTongue);
@@ -672,10 +886,16 @@ export class Animations {
 
 		for (const c of clusters) {
 			const cx = bx + c.dx;
-			const body = trapGroup.create(cx, by - 4, 'trap_bonfire-spring') as Phaser.Sprite;
-			body.anchor.setTo(0.5, 1);
+			const body = this.game.gameEngine.add.sprite(
+				cx,
+				by - 4,
+				'trap_bonfire-spring',
+				undefined,
+				trapGroup,
+			);
+			body.setOrigin(0.5, 1);
 			body.alpha = 0.72;
-			body.scale.setTo(0.78, c.bodyScaleY);
+			body.setScale(0.78, c.bodyScaleY);
 			const bodySway = 0.02 + rand(0.02);
 			body.rotation = -bodySway;
 			idleTweens.push(
@@ -683,22 +903,23 @@ export class Animations {
 					body.scale,
 					{ y: c.bodyScaleY * 1.18 },
 					380 + randInt(120),
-					Phaser.Easing.Quadratic.InOut,
+					Easing.Quadratic.InOut,
 				),
-				this._yoyo(body, { alpha: 0.52 }, 320 + randInt(100), Phaser.Easing.Linear.None),
-				this._yoyo(
-					body,
-					{ rotation: bodySway },
-					850 + randInt(300),
-					Phaser.Easing.Sinusoidal.InOut,
-				),
+				this._yoyo(body, { alpha: 0.52 }, 320 + randInt(100), Easing.Linear.None),
+				this._yoyo(body, { rotation: bodySway }, 850 + randInt(300), Easing.Sinusoidal.InOut),
 			);
 			overlaySprites.push(body);
 
-			const tongue = trapGroup.create(cx, by - 8, 'trap_bonfire-spring') as Phaser.Sprite;
-			tongue.anchor.setTo(0.5, 1);
+			const tongue = this.game.gameEngine.add.sprite(
+				cx,
+				by - 8,
+				'trap_bonfire-spring',
+				undefined,
+				trapGroup,
+			);
+			tongue.setOrigin(0.5, 1);
 			tongue.alpha = 0.36;
-			tongue.scale.setTo(c.tongueScaleX, c.tongueScaleY);
+			tongue.setScale(c.tongueScaleX, c.tongueScaleY);
 			const tongueDrift = 0.015 + rand(0.015);
 			tongue.rotation = -tongueDrift;
 			idleTweens.push(
@@ -706,22 +927,23 @@ export class Animations {
 					tongue.scale,
 					{ y: c.tongueScaleY * 1.32, x: c.tongueScaleX * 0.8 },
 					240 + randInt(120),
-					Phaser.Easing.Quadratic.InOut,
+					Easing.Quadratic.InOut,
 				),
-				this._yoyo(tongue, { alpha: 0.31 }, 220 + randInt(120), Phaser.Easing.Linear.None),
-				this._yoyo(
-					tongue,
-					{ rotation: tongueDrift },
-					760 + randInt(340),
-					Phaser.Easing.Sinusoidal.InOut,
-				),
+				this._yoyo(tongue, { alpha: 0.31 }, 220 + randInt(120), Easing.Linear.None),
+				this._yoyo(tongue, { rotation: tongueDrift }, 760 + randInt(340), Easing.Sinusoidal.InOut),
 			);
 			overlaySprites.push(tongue);
 
-			const tip = trapGroup.create(cx, by - 10, 'trap_bonfire-spring') as Phaser.Sprite;
-			tip.anchor.setTo(0.5, 1);
+			const tip = this.game.gameEngine.add.sprite(
+				cx,
+				by - 10,
+				'trap_bonfire-spring',
+				undefined,
+				trapGroup,
+			);
+			tip.setOrigin(0.5, 1);
 			tip.alpha = 0.48;
-			tip.scale.setTo(c.tongueScaleX * 0.55, c.tongueScaleY * 0.95);
+			tip.setScale(c.tongueScaleX * 0.55, c.tongueScaleY * 0.95);
 			const tipSway = 0.09 + rand(0.04);
 			const tipDriftX = 0.8 + rand(1.0);
 			tip.x = cx - tipDriftX;
@@ -731,57 +953,64 @@ export class Animations {
 					tip.scale,
 					{ y: c.tongueScaleY * 1.2, x: c.tongueScaleX * 0.46 },
 					210 + randInt(120),
-					Phaser.Easing.Quadratic.InOut,
+					Easing.Quadratic.InOut,
 				),
-				this._yoyo(tip, { alpha: 0.38 }, 180 + randInt(100), Phaser.Easing.Linear.None),
-				this._yoyo(tip, { rotation: tipSway }, 300 + randInt(140), Phaser.Easing.Sinusoidal.InOut),
-				this._yoyo(tip, { x: cx + tipDriftX }, 280 + randInt(140), Phaser.Easing.Sinusoidal.InOut),
+				this._yoyo(tip, { alpha: 0.38 }, 180 + randInt(100), Easing.Linear.None),
+				this._yoyo(tip, { rotation: tipSway }, 300 + randInt(140), Easing.Sinusoidal.InOut),
+				this._yoyo(tip, { x: cx + tipDriftX }, 280 + randInt(140), Easing.Sinusoidal.InOut),
 			);
 			overlaySprites.push(tip);
 		}
 	}
 
 	startScorchedGroundTrapAnimation(
-		display: Phaser.Sprite,
-		trapGroup: Phaser.Group,
-		idleTweens: Phaser.Tween[],
-		overlaySprites: Phaser.Sprite[],
+		display: SpriteHandle,
+		trapGroup: GroupHandle,
+		idleTweens: TweenHandle[],
+		overlaySprites: SpriteHandle[],
 	) {
 		display.alpha = 1;
 		const bx = display.x;
 		const by = display.y;
 		const randInt = (n: number) => Math.floor(Math.random() * n);
 
-		const innerGlow = trapGroup.create(bx, by, 'trap_scorched-ground') as Phaser.Sprite;
-		innerGlow.anchor.setTo(0.5);
+		const innerGlow = this.game.gameEngine.add.sprite(
+			bx,
+			by,
+			'trap_scorched-ground',
+			undefined,
+			trapGroup,
+		);
+		innerGlow.setOrigin(0.5, 0.5);
 		innerGlow.alpha = 0.3;
 		innerGlow.tint = 0xffa347;
-		innerGlow.scale.setTo(1.07, 1.06);
-		innerGlow.blendMode = Phaser.blendModes.ADD;
+		innerGlow.setScale(1.07, 1.06);
+		innerGlow.blendMode = BLEND_MODE_ADD;
 		idleTweens.push(
-			this._yoyo(innerGlow, { alpha: 0.43 }, 480 + randInt(200), Phaser.Easing.Linear.None),
-			this._yoyo(
-				innerGlow.scale,
-				{ x: 1.2, y: 1.17 },
-				520 + randInt(210),
-				Phaser.Easing.Quadratic.InOut,
-			),
+			this._yoyo(innerGlow, { alpha: 0.43 }, 480 + randInt(200), Easing.Linear.None),
+			this._yoyo(innerGlow.scale, { x: 1.2, y: 1.17 }, 520 + randInt(210), Easing.Quadratic.InOut),
 		);
 		overlaySprites.push(innerGlow);
 
-		const outerAura = trapGroup.create(bx, by, 'trap_scorched-ground') as Phaser.Sprite;
-		outerAura.anchor.setTo(0.5);
+		const outerAura = this.game.gameEngine.add.sprite(
+			bx,
+			by,
+			'trap_scorched-ground',
+			undefined,
+			trapGroup,
+		);
+		outerAura.setOrigin(0.5, 0.5);
 		outerAura.alpha = 0.19;
 		outerAura.tint = 0xff7a1f;
-		outerAura.scale.setTo(1.24, 1.22);
-		outerAura.blendMode = Phaser.blendModes.ADD;
+		outerAura.setScale(1.24, 1.22);
+		outerAura.blendMode = BLEND_MODE_ADD;
 		idleTweens.push(
-			this._yoyo(outerAura, { alpha: 0.3 }, 700 + randInt(260), Phaser.Easing.Linear.None),
+			this._yoyo(outerAura, { alpha: 0.3 }, 700 + randInt(260), Easing.Linear.None),
 			this._yoyo(
 				outerAura.scale,
 				{ x: 1.46, y: 1.38 },
 				780 + randInt(280),
-				Phaser.Easing.Sinusoidal.InOut,
+				Easing.Sinusoidal.InOut,
 			),
 		);
 		overlaySprites.push(outerAura);
@@ -811,6 +1040,28 @@ export class Animations {
 
 		if (DEBUG_ENABLE_FAST_WALKING) {
 			speed = DEBUG_WALK_SPEED_MS;
+		}
+		if (game.replayMode === 'load') {
+			speed = 0;
+		}
+
+		// Afterimage units walk a fifth faster than their cardboard's
+		// own pace, matching the flight boost in fly().
+		if (creature.hasAfterimages && !opts.overrideSpeed) {
+			speed /= 1 + AFTERIMAGE_SPEED_BOOST;
+		}
+
+		// The afterimage trail samples the unit's live position across
+		// the whole walk — the unit's own afterimages, or a move an
+		// ability granted them (a dash, a drag, a knockback). Skipped
+		// in a backgrounded tab, matching the walk itself, which
+		// collapses to instant there.
+		if (
+			(creature.hasAfterimages || opts.afterimages) &&
+			!isDocumentHidden() &&
+			game.replayMode !== 'load'
+		) {
+			spawnAfterimageTrail(game, creature, speed * path.length);
 		}
 
 		const anim = () => {
@@ -886,27 +1137,64 @@ export class Animations {
 		const start = game.grid.hexes[creature.y][creature.x - creature.size + 1];
 		const currentHex = game.grid.hexes[hex.y][hex.x - creature.size + 1];
 
+		// Determine distance; guard against same-hex edge case to prevent an infinite loop.
+		let distance = 0;
+		let k = 0;
+		const maxBoardDistance = 30;
+		while (!distance && k < maxBoardDistance) {
+			k++;
+
+			if (arrayUtils.findPos(start.adjacentHex(k), currentHex)) {
+				distance = k;
+			}
+		}
+
 		this.leaveHex(creature, currentHex, opts);
 
-		const durationMS = !opts.overrideSpeed ? creature.animation.walk_speed : opts.overrideSpeed;
+		// A flight covers its whole path in a single tween, so a flat `walk_speed`
+		// duration made a full-movement flight read as a teleport. Scale the tween
+		// with the distance covered instead: half the per-hex pace of walking, so a
+		// rested unit that banks movement visibly crosses the map without crawling.
+		// An afterimage unit flies a fifth faster still — its trail is the point
+		// of the effect — so its per-hex pace share drops by the boost.
+		// `Math.max(distance, 1)` keeps a single-hex (or same-hex) move animating.
+		const isFlier = creature.movementType() === 'flying';
+		const flightSpeedFactor = creature.hasAfterimages
+			? FLIGHT_SPEED_FACTOR / (1 + AFTERIMAGE_SPEED_BOOST)
+			: FLIGHT_SPEED_FACTOR;
+
+		const durationMS =
+			game.replayMode === 'load'
+				? 0
+				: !opts.overrideSpeed
+				? creature.animation.walk_speed * flightSpeedFactor * Math.max(distance, 1)
+				: opts.overrideSpeed;
+
+		// The afterimage trail samples the unit's live position across
+		// the crossing — the unit's own afterimages, or a move an
+		// ability granted them (a dash, a drag, a knockback).
+		// Skipped in a backgrounded tab, matching the flight
+		// tween itself, which collapses to instant there.
+		if (
+			(creature.hasAfterimages || opts.afterimages) &&
+			!isDocumentHidden() &&
+			game.replayMode !== 'load'
+		) {
+			spawnAfterimageTrail(game, creature, durationMS);
+		}
+
+		// A true flier (Scavenger) loops its wingbeat for the whole crossing instead
+		// of a step per hex, since the flight is one uninterrupted tween with no
+		// footfalls to hear. The landing is still marked by the usual step.
+		const flightSound = isFlier ? game.soundsys.playSFXLoop('sounds/flight') : undefined;
 
 		creature.creatureSprite.setHex(currentHex, isDocumentHidden() ? 0 : durationMS).then(() => {
+			game.soundsys.stopSFX(flightSound);
+
 			// Sound Effect
 			game.soundsys.playSFX('sounds/step');
 
 			if (!opts.ignoreMovementPoint) {
-				// Determine distance; guard against same-hex edge case to prevent an infinite loop.
-				let distance = 0;
-				let k = 0;
-				const maxBoardDistance = 30;
-				while (!distance && k < maxBoardDistance) {
-					k++;
-
-					if (arrayUtils.findPos(start.adjacentHex(k), currentHex)) {
-						distance = k;
-					}
-				}
-
 				creature.remainingMove -= distance;
 				if (opts.customMovementPoint === 0) {
 					creature.travelDist += distance;
@@ -930,7 +1218,7 @@ export class Animations {
 		game.animationQueue.push(animId);
 
 		if (opts.teleportEffect === 'abolishedBonfire') {
-			const phaser = game.Phaser;
+			const gameEngine = game.gameEngine;
 			const transition = this._createMovementHexTransition(creature, hex);
 			const originHexes = transition.originHexes;
 			this._setHexForcedHidden(transition.originOnlyHexes, true);
@@ -963,20 +1251,22 @@ export class Animations {
 				const curtainSprites = originTraps.flatMap((trap) =>
 					trap
 						.getVisualSprites()
-						.filter((sprite) => sprite.exists)
+						.filter((sprite) => sprite.active)
 						.map((sprite) => ({ trap, sprite })),
 				);
 
 				curtainSprites.forEach(({ sprite }) => {
-					if (sprite.anchor.y !== 1) {
-						sprite.anchor.y = 1;
+					// See the note in `reanchorBasiliskBase`: the display origin has
+					// to be refreshed too, so this goes through `setOrigin`.
+					if (sprite.originY !== 1) {
+						sprite.setOrigin(sprite.originX, 1);
 						sprite.y += sprite.height / 2;
 					}
 				});
 
 				const baseScales = curtainSprites.map(({ sprite }) => ({
-					x: sprite.scale.x,
-					y: sprite.scale.y,
+					x: sprite.scaleX,
+					y: sprite.scaleY,
 				}));
 				const baselineHeight = Math.max(
 					1,
@@ -1004,7 +1294,7 @@ export class Animations {
 											y: baseScale.y,
 									  };
 
-							const scaleTween = phaser.add
+							const scaleTween = gameEngine
 								.tween(sprite.scale)
 								.to(targetScale, duration, ease, true);
 							return new Promise<void>((resolve) => {
@@ -1113,8 +1403,8 @@ export class Animations {
 			game.grid.clearAllXray(true);
 			Promise.resolve()
 				.then(() => fadePhaseAOriginHexes())
-				.then(() => originCurtains.tweenSprites('tower', 260, Phaser.Easing.Cubic.Out))
-				.then(() => originCurtains.tweenSprites('idle', 340, Phaser.Easing.Quadratic.InOut))
+				.then(() => originCurtains.tweenSprites('tower', 260, Easing.Cubic.Out))
+				.then(() => originCurtains.tweenSprites('idle', 340, Easing.Quadratic.InOut))
 				.then(() => {
 					restoreOriginLayer();
 					game.soundsys.playSFX('sounds/step');
@@ -1138,11 +1428,11 @@ export class Animations {
 					if (destinationTraps.length > 0) {
 						const destinationCurtains = liftBonfireCurtainFromTraps(destinationTraps);
 						return destinationCurtains
-							.tweenSprites('tower', 300, Phaser.Easing.Cubic.Out)
+							.tweenSprites('tower', 300, Easing.Cubic.Out)
 							.then(() =>
 								Promise.all([
 									creature.creatureSprite.setAlpha(1, 420),
-									destinationCurtains.tweenSprites('idle', 420, Phaser.Easing.Quadratic.InOut),
+									destinationCurtains.tweenSprites('idle', 420, Easing.Quadratic.InOut),
 								]),
 							)
 							.then(() => {
@@ -1289,10 +1579,15 @@ export class Animations {
 		args: { direction: number },
 		startX: number,
 		startY: number,
-	) {
+		vertigo?: boolean,
+	): [TweenHandle, SpriteHandle, number] {
 		// Get the target's position on the projectile's path that is closest
 		const emissionPointX = this2.creature.legacyProjectileEmissionPoint.x + startX;
 		let distance = Number.MAX_SAFE_INTEGER;
+		if (!path.length) {
+			// Nothing to animate along. Without this, `path[0]` below throws.
+			return;
+		}
 		let targetX = path[0].displayPos.x;
 		for (const hex of path) {
 			if (typeof hex.creature != 'undefined' && hex.creature.id == target.id) {
@@ -1305,21 +1600,33 @@ export class Animations {
 		const game = this.game,
 			baseDist = arrayUtils.filterCreature(path.slice(0), false, false).length,
 			dist = baseDist == 0 ? 1 : baseDist,
+			// `baseDist` counts creature-free hexes but indexes `path` directly.
+			// When creatures and empty hexes interleave, the last creature-free
+			// hex is not at index `baseDist - 1`, so `path[baseDist]` could be
+			// undefined and the projectile target threw. Clamp instead.
+			targetHexIdx = Math.min(baseDist, path.length - 1),
 			emissionPoint = {
 				x: this2.creature.legacyProjectileEmissionPoint.x + startX,
 				y: this2.creature.legacyProjectileEmissionPoint.y + startY,
 			},
 			targetPoint = {
 				x: targetX + 45,
-				y: path[baseDist].displayPos.y - 20,
+				y: path[targetHexIdx].displayPos.y - 20,
 			},
 			// Sprite id here
-			sprite = game.grid.creatureGroup.create(emissionPoint.x, emissionPoint.y, spriteId),
-			duration = dist * 75;
+			sprite = game.gameEngine.add.sprite(
+				emissionPoint.x,
+				emissionPoint.y,
+				spriteId,
+				undefined,
+				game.grid.creatureGroup,
+			),
+			duration = game.replayMode === 'load' ? 1 : dist * 75;
 
-		sprite.anchor.setTo(0.5);
-		sprite.rotation = -Math.PI / 3 + (args.direction * Math.PI) / 3;
-		const tween = game.Phaser.add
+		sprite.setOrigin(0.5, 0.5);
+		const rotation = -Math.PI / 3 + (args.direction * Math.PI) / 3;
+		sprite.rotation = rotation;
+		const tween = game.gameEngine
 			.tween(sprite)
 			.to(
 				{
@@ -1327,9 +1634,16 @@ export class Animations {
 					y: targetPoint.y,
 				},
 				duration,
-				Phaser.Easing.Linear.None,
+				Easing.Linear.None,
 			)
 			.start();
+
+		// Add vertigo trail if enabled
+		if (vertigo) {
+			// Use projectile's rotation (matches sprite.rotation) for trail orientation
+			const rotation = -Math.PI / 3 + (args.direction * Math.PI) / 3;
+			spawnProjectileVertigoTrail(game, sprite, emissionPoint, targetPoint, duration, rotation);
+		}
 
 		return [tween, sprite, dist];
 	}
@@ -1385,14 +1699,14 @@ export class Animations {
 	melt(creature: Creature, opts: AnimationOptions) {
 		const speed = !opts.overrideSpeed ? 650 : opts.overrideSpeed;
 		const sprite = creature.sprite;
-		const startScaleX = sprite.scale.x;
-		const startScaleY = sprite.scale.y;
+		const startScaleX = sprite.scaleX;
+		const startScaleY = sprite.scaleY;
 
 		creature.healthHide();
 		creature.creatureSprite.setAngle(0, 0);
 
 		// Squash and fade the sprite as it melts into the puddle
-		this.game.Phaser.add
+		this.game.gameEngine
 			.tween(sprite.scale)
 			.to(
 				{
@@ -1400,7 +1714,7 @@ export class Animations {
 					y: startScaleY * 0.2,
 				},
 				Math.round(speed * 0.7),
-				Phaser.Easing.Quadratic.In,
+				Easing.Quadratic.In,
 				true,
 			)
 			.start();
@@ -1413,8 +1727,8 @@ export class Animations {
 	rise(creature: Creature, opts: AnimationOptions) {
 		const speed = !opts.overrideSpeed ? 650 : opts.overrideSpeed;
 		const sprite = creature.sprite;
-		const startScaleX = sprite.scale.x;
-		const startScaleY = sprite.scale.y;
+		const startScaleX = sprite.scaleX;
+		const startScaleY = sprite.scaleY;
 
 		creature.healthHide();
 		creature.creatureSprite.setAngle(0, 0);
@@ -1425,7 +1739,7 @@ export class Animations {
 		creature.creatureSprite.setAlpha(0, 0);
 
 		// Unsquash and fade back in as Gumble reshapes himself
-		this.game.Phaser.add
+		this.game.gameEngine
 			.tween(sprite.scale)
 			.to(
 				{
@@ -1433,7 +1747,7 @@ export class Animations {
 					y: startScaleY,
 				},
 				Math.round(speed * 0.7),
-				Phaser.Easing.Quadratic.Out,
+				Easing.Quadratic.Out,
 				true,
 			)
 			.start();
@@ -1449,11 +1763,45 @@ export class Animations {
 		const game = this.game;
 		const sprite = creature.sprite;
 		const texture = sprite.texture as ShatterTexture;
-		const frame = texture.crop || texture.frame || { x: 0, y: 0, width: 0, height: 0 };
-		const source = texture.baseTexture?.source as CanvasImageSource;
-		const texW = Math.round(texture.width || frame.width || 1);
-		const texH = Math.round(texture.height || frame.height || 1);
-		const isFlipped = sprite.scale.x < 0;
+		const texW = Math.round(texture.width || 1);
+		const texH = Math.round(texture.height || 1);
+		// frame.width/height must equal texW/texH so the flipped path
+		// (frame.x + frame.width - sx - sw) stays positive; a zero width
+		// produces a negative srcX, silently yielding empty shards.
+		// Prefer cutWidth/cutHeight (the rect the renderer samples) over the
+		// display width/height, which collapses trimmed frames to the visible
+		// box instead of the full source region.
+		const rawFrame = (texture.frame ??
+			texture.crop ?? { x: 0, y: 0, width: texW, height: texH }) as {
+			x?: number;
+			y?: number;
+			width?: number;
+			height?: number;
+			cutX?: number;
+			cutY?: number;
+			cutWidth?: number;
+			cutHeight?: number;
+			canvasData?: { x: number; y: number; width: number; height: number };
+		};
+		const frame = {
+			x: rawFrame.cutX ?? rawFrame.canvasData?.x ?? rawFrame.x ?? 0,
+			y: rawFrame.cutY ?? rawFrame.canvasData?.y ?? rawFrame.y ?? 0,
+			width: rawFrame.cutWidth ?? rawFrame.canvasData?.width ?? rawFrame.width ?? texW,
+			height: rawFrame.cutHeight ?? rawFrame.canvasData?.height ?? rawFrame.height ?? texH,
+		};
+		const isFlipped = sprite.scaleX < 0;
+
+		// Validate the source image via CreatureSprite's resolver so that a
+		// stale proxy (which could hand back an array or undefined) doesn't make
+		// drawImage throw mid-loop and strand the creature invisible.
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const source = (creature.creatureSprite as any)._resolveSpriteDrawSource(sprite);
+		if (!source) {
+			creature.creatureSprite.setAlpha(0, speed).then(() => {
+				opts.callback?.();
+			});
+			return;
+		}
 
 		const shardFadeMs = Math.max(260, Math.round(speed * 1.2));
 
@@ -1509,18 +1857,18 @@ export class Animations {
 					continue;
 				}
 
-				const bmd = game.Phaser.add.bitmapData(sw, sh);
+				const bmd = createGameCanvasSurface(game, sw, sh);
 				const srcX = isFlipped ? frame.x + frame.width - sx - sw : frame.x + sx;
 				const srcY = frame.y + sy;
 				bmd.ctx.clearRect(0, 0, sw, sh);
 				bmd.ctx.drawImage(source, srcX, srcY, sw, sh, 0, 0, sw, sh);
-				bmd.dirty = true;
+				bmd.commit();
 
 				const shardScreenX = isFlipped ? texW - sx - sw : sx;
 				const x = spriteLeft + shardScreenX + sw / 2;
 				const y = spriteTop + sy + sh / 2;
-				const shard = game.grid.creatureGroup.create(x, y, bmd);
-				shard.anchor.setTo(0.5, 0.5);
+				const shard = game.gameEngine.add.sprite(x, y, bmd.key, undefined, game.grid.creatureGroup);
+				shard.setOrigin(0.5, 0.5);
 				shard.angle = -18 + Math.random() * 36;
 
 				const driftX = -40 + Math.random() * 80;
@@ -1530,26 +1878,26 @@ export class Animations {
 				const shardDuration = Math.round(shardFadeMs * (0.9 + Math.random() * 0.35));
 				const shardFadeDuration = Math.max(90, Math.round(shardDuration * 0.22));
 				longestShardLifetime = Math.max(longestShardLifetime, shardDuration + shardFadeDuration);
-				const travelTween = game.Phaser.add.tween(shard).to(
+				const travelTween = game.gameEngine.tween(shard).to(
 					{
 						x: x + driftX,
 						y: targetY,
 						angle: shard.angle + (-90 + Math.random() * 180),
 					},
 					shardDuration,
-					Phaser.Easing.Cubic.In,
+					Easing.Cubic.In,
 					true,
 				);
 
 				travelTween.onComplete.add(() => {
-					game.Phaser.add
+					game.gameEngine
 						.tween(shard)
 						.to(
 							{
 								alpha: 0,
 							},
 							shardFadeDuration,
-							Phaser.Easing.Linear.None,
+							Easing.Linear.None,
 							true,
 						)
 						.onComplete.add(() => {
@@ -1568,7 +1916,7 @@ export class Animations {
 
 		const baseSh = Math.max(0, texH);
 		if (baseSh > 0) {
-			const baseBmd = game.Phaser.add.bitmapData(texW, baseSh);
+			const baseBmd = createGameCanvasSurface(game, texW, baseSh);
 			baseBmd.ctx.clearRect(0, 0, texW, baseSh);
 			for (let copyX = 0; copyX < texW; copyX++) {
 				const seamY = seamProfile[Math.min(copyX, texW - 1)];
@@ -1581,26 +1929,32 @@ export class Animations {
 				const sourceY = frame.y + seamY;
 				baseBmd.ctx.drawImage(source, sourceX, sourceY, 1, copyHeight, copyX, seamY, 1, copyHeight);
 			}
-			baseBmd.dirty = true;
+			baseBmd.commit();
 
 			const baseX = spriteLeft + texW / 2;
 			const baseY = spriteTop + texH / 2;
-			const baseSprite = game.grid.creatureGroup.create(baseX, baseY, baseBmd);
-			baseSprite.anchor.setTo(0.5, 0.5);
+			const baseSprite = game.gameEngine.add.sprite(
+				baseX,
+				baseY,
+				baseBmd.key,
+				undefined,
+				game.grid.creatureGroup,
+			);
+			baseSprite.setOrigin(0.5, 0.5);
 			if (isFlipped) {
 				baseSprite.scale.x = -1;
 			}
 
 			creature.creatureSprite.setAlpha(0, 0);
 			const baseFadeDelay = Math.max(0, longestShardLifetime - speed);
-			game.Phaser.add
+			game.gameEngine
 				.tween(baseSprite)
 				.to(
 					{
 						alpha: 0,
 					},
 					speed,
-					Phaser.Easing.Linear.None,
+					Easing.Linear.None,
 					true,
 					baseFadeDelay,
 				)
@@ -1617,8 +1971,14 @@ export class Animations {
 		});
 	}
 
-	initInfernalCardboardEffect(creature: Creature, spriteRef?: Phaser.Sprite) {
+	initInfernalCardboardEffect(creature: Creature, spriteRef?: SpriteHandle) {
 		if (creature.name !== 'Infernal') {
+			return;
+		}
+		// Temp creatures are invisible placement placeholders, so they must not
+		// spawn overlays or smoke: those are separate sprites and hiding the
+		// cardboard does not hide them, which leaves a lit ghost behind.
+		if (creature.temp) {
 			return;
 		}
 
@@ -1648,8 +2008,14 @@ export class Animations {
 		const luminescenceUniforms: ShaderUniformMap = {
 			uTime: 0,
 			uGlowStrength: 0.95,
-			uPulseSpeed: 4.2,
 			...(luminescenceShader?.defaultUniforms ?? {}),
+			// Overrides the shader default: at 4.2 the glow strobed hard enough to
+			// read as a flicker. Raised from 0.55 along with the alphas, because a
+			// brighter glow at 0.55 was slow enough to look like a static wash
+			// rather than something molten, then dropped three times more to
+			// INFERNAL_GLOW_PULSE_SPEED: 1.87, 1.4 and 0.98 all cycled fast enough to
+			// read as a flutter instead of a smoulder.
+			uPulseSpeed: INFERNAL_GLOW_PULSE_SPEED,
 		};
 		const heatUniforms: ShaderUniformMap = {
 			uTime: 0,
@@ -1658,9 +2024,12 @@ export class Animations {
 			...(heatShader?.defaultUniforms ?? {}),
 		};
 		const state: InfernalCardboardEffectState = {
-			trailNextAt: this.game.Phaser.time.now,
-			heatNextAt: this.game.Phaser.time.now,
-			glowOffsetY: sprite.texture.height * 0.02,
+			trailNextAt: now(),
+			heatNextAt: now(),
+			hazeX: sprite.x,
+			hazeY: sprite.y,
+			heatX: sprite.x,
+			heatY: sprite.y,
 			hazePulsePhaseMs: randInt(2000),
 			hazePulsePeriodMs: 260 + randInt(180),
 			hazePulsePhaseRad: Math.random() * Math.PI * 2,
@@ -1668,14 +2037,26 @@ export class Animations {
 			heatUniforms,
 			hazeReady: false,
 			heatReady: false,
+			synced: false,
+			speedPx: 0,
+			glowFlicker: 0.5,
+			smoke: [],
+			lastWorldX: group.x + sprite.x,
+			lastWorldY: group.y + sprite.y,
+			lastGroupX: group.x,
+			lastGroupY: group.y,
 			sprite,
 			group,
 			tweens: [],
 			trailSprites: [],
 		};
 
-		const spriteIndex = group.getChildIndex(sprite);
-		const dir = sprite.scale.x < 0 ? -1 : 1;
+		// A list position, not the sprite's `depth`: both values feed `addAt`
+		// below, which indexes the group's child list. `orderCreatureZ` derives
+		// depth from the grid band, so a depth of 440 used to be clamped onto a
+		// three-child group and the haze layers landed in the wrong place.
+		const spriteIndex = group.getIndex(sprite);
+		const dir = sprite.scaleX < 0 ? -1 : 1;
 		const hazeTex = sprite.texture as unknown as ShatterTexture & {
 			baseTexture?: { source?: CanvasImageSource };
 		};
@@ -1686,12 +2067,21 @@ export class Animations {
 		const heatSource = hazeSource;
 
 		// Always create a visible haze layer bound to Infernal's silhouette.
-		const hazeSprite = group.create(sprite.x, sprite.y - state.glowOffsetY, sprite.key);
-		hazeSprite.anchor.setTo(0.5, 1);
-		hazeSprite.scale.setTo(dir, 1);
+		// Emits from the cardboard's own bottom anchor, with no extra offset.
+		// Exactly on the cardboard's own position. With the overlays at scale.y 1 an
+		// offset is not a look choice but an additive double-image, which is what
+		// reads as the unit being blurry.
+		const hazeSprite = this.game.gameEngine.add.sprite(
+			sprite.x,
+			sprite.y,
+			sprite.key,
+			undefined,
+			group,
+		);
+		this._anchorInfernalOverlay(hazeSprite, sprite.x, sprite.y, dir, 1);
 		hazeSprite.alpha = 0;
 		hazeSprite.tint = 0xff8f3a;
-		hazeSprite.blendMode = Phaser.blendModes.ADD;
+		hazeSprite.blendMode = BLEND_MODE_ADD;
 		group.addAt(hazeSprite, Math.min(group.children.length - 1, spriteIndex + 1));
 		state.hazeSprite = hazeSprite;
 		state.trailSprites.push(hazeSprite);
@@ -1728,8 +2118,9 @@ export class Animations {
 					data[index + 3] = Math.min(255, alpha * warmMask * 255 * 1.15);
 				}
 				ctx.putImageData(imageData, 0, 0);
-				state.hazeBmd.dirty = true;
-				state.hazeSprite.loadTexture(state.hazeBmd);
+				state.hazeBmd.commit();
+				state.hazeSprite.setTexture(state.hazeBmd.key);
+				this._anchorInfernalOverlay(state.hazeSprite, sprite.x, sprite.y, dir, 1);
 				state.hazeSprite.tint = 0xffffff;
 				state.hazeReady = true;
 			} catch (e) {
@@ -1765,38 +2156,58 @@ export class Animations {
 					}
 				}
 				ctx.putImageData(imageData, 0, 0);
-				state.heatBmd.dirty = true;
+				state.heatBmd.commit();
 				state.heatReady = true;
 			} catch (e) {
 				console.warn('[Infernal] Failed to initialize heat BitmapData:', e);
 			}
 		}
 
-		const heatLayerSprite = group.create(sprite.x, sprite.y - state.glowOffsetY, sprite.key);
-		heatLayerSprite.anchor.setTo(0.5, 1);
-		heatLayerSprite.scale.setTo(dir, 1.38);
+		// Keep expanded heat distortion behind the cardboard to prevent ghost overlays.
+		const heatLayerSprite = this.game.gameEngine.add.sprite(
+			sprite.x,
+			sprite.y,
+			sprite.key,
+			undefined,
+			group,
+		);
+		this._anchorInfernalOverlay(
+			heatLayerSprite,
+			sprite.x,
+			sprite.y,
+			dir,
+			INFERNAL_HEAT_LAYER_SCALE_Y,
+		);
 		heatLayerSprite.alpha = 0;
 		heatLayerSprite.tint = 0xffa15a;
-		heatLayerSprite.blendMode = Phaser.blendModes.ADD;
-		// Keep expanded heat distortion behind the cardboard to prevent ghost overlays.
+		heatLayerSprite.blendMode = BLEND_MODE_ADD;
 		group.addAt(heatLayerSprite, Math.max(0, spriteIndex));
 		state.heatLayerSprite = heatLayerSprite;
 		state.trailSprites.push(heatLayerSprite);
 		if (state.heatReady && state.heatBmd) {
-			heatLayerSprite.loadTexture(state.heatBmd);
+			heatLayerSprite.setTexture(state.heatBmd.key);
+			this._anchorInfernalOverlay(
+				heatLayerSprite,
+				sprite.x,
+				sprite.y,
+				dir,
+				INFERNAL_HEAT_LAYER_SCALE_Y,
+			);
 			heatLayerSprite.tint = 0xffffff;
-			heatLayerSprite.alpha = 0.24;
+			// Held back until the first tick: until then the cardboard is still at
+			// the origin and unflipped, so this would flash a stray copy there.
+			heatLayerSprite.alpha = 0;
 		}
 
 		this._spawnInfernalCardboardTrail(creature, state, true);
 
 		state.tweens.push(
-			this.game.Phaser.add
+			this.game.gameEngine
 				.tween(sprite)
 				.to(
 					{ alpha: 0.86 },
 					1160 + randInt(300),
-					Phaser.Easing.Sinusoidal.InOut,
+					Easing.Sinusoidal.InOut,
 					true,
 					randInt(500),
 					-1,
@@ -1813,7 +2224,7 @@ export class Animations {
 			return;
 		}
 		const { sprite, group } = this._getLiveInfernalCardboardTarget(creature, state.sprite);
-		if (!sprite || !group || !state.sprite.exists || !state.group.exists) {
+		if (!sprite || !group || !state.sprite.active || !state.group.active) {
 			this.disposeInfernalCardboardEffect(creature);
 			return;
 		}
@@ -1829,11 +2240,36 @@ export class Animations {
 			return;
 		}
 
+		const dir = sprite.scaleX < 0 ? -1 : 1;
+
+		// `init` runs while the cardboard is still at the origin and unflipped:
+		// `setDir` places and faces it afterwards. The overlays are created there
+		// too, so until a tick has put them on the live sprite they would draw a
+		// stray full-cardboard copy at (0, 0), facing the wrong way. The first
+		// tick snaps them into place and only then lets them show.
+		if (!state.synced) {
+			state.hazeX = sprite.x;
+			state.hazeY = sprite.y;
+			state.heatX = sprite.x;
+			state.heatY = sprite.y;
+			this._anchorInfernalOverlay(state.hazeSprite, sprite.x, sprite.y, dir, 1);
+			if (state.heatLayerSprite) {
+				this._anchorInfernalOverlay(
+					state.heatLayerSprite,
+					sprite.x,
+					sprite.y,
+					dir,
+					INFERNAL_HEAT_LAYER_SCALE_Y,
+				);
+			}
+			state.synced = true;
+		}
+
 		if (!state.hazeReady || !state.heatReady) {
-			const dir = sprite.scale.x < 0 ? -1 : 1;
 			this._retryInfernalCardboardBitmaps(state, sprite, dir);
 		}
 
+		this._positionInfernalSmoke(state, sprite);
 		this._spawnInfernalCardboardTrail(creature, state);
 	}
 
@@ -1846,6 +2282,7 @@ export class Animations {
 
 		state.tweens.forEach((tween) => tween.stop());
 		state.trailSprites.forEach((sprite) => sprite.destroy());
+		state.smoke = [];
 		state.hazeBmd?.destroy();
 		state.heatBmd?.destroy();
 		this._infernalCardboardFx.delete(effectKey);
@@ -1867,6 +2304,142 @@ export class Animations {
 		this._infernalCardboardFx.set(this._infernalCardboardFxKey(creature), state);
 	}
 
+	/**
+	 * Cardboard tilt: a quick rotation about the unit's base, the way the
+	 * lightning demo's hit reaction leans a cardboard — forward when it acts,
+	 * backward when it takes a hit. A rotation reads as a lean rather than a
+	 * slide, so the silhouette stays on its hex while the body appears to
+	 * absorb the blow or commit to the strike.
+	 *
+	 * The angle is tweened on the cardboard *sprite* directly, anchored on its
+	 * base: the sprite is created with `setOrigin(0.5, 1)` (bottom-centre /
+	 * feet), so rotating its `angle` leans the body about the feet while its
+	 * x/y stay fixed on the hex. Tweening the group instead would swing the
+	 * whole stack (sprite + hints + health bar) about the hex origin instead
+	 * of rocking the unit in place.
+	 *
+	 * The lean is never flat: a random jitter is folded in so no two hits
+	 * tilt the same way, and a hit scales with the damage dealt — more
+	 * damage, harder the cardboard leans — up to a cap, since a unit
+	 * crumpling from a glancing blow should not tilt as far as one taking
+	 * a body shot.
+	 */
+	tiltForward(creature: Creature, opts: AnimationOptions) {
+		const sprite = creature.creatureSprite;
+		if (!sprite || sprite.destroyed) {
+			return;
+		}
+		const speed = !opts.overrideSpeed ? 90 : opts.overrideSpeed;
+		const dir = opts.tiltDir ?? (sprite.sprite.scaleX < 0 ? -1 : 1);
+		const tilt = this._tiltAngle(0, dir);
+		const settle = Math.round(speed * 1.4);
+		const target = sprite.sprite;
+		// Lean forward into the strike, then ease back to upright. One chain,
+		// one start: queued tweens do not play until `.start()` is called.
+		this.game.gameEngine
+			.tween(target)
+			.to({ angle: tilt }, speed, Easing.Cubic.Out)
+			.to({ angle: 0 }, settle, Easing.Cubic.Out)
+			.start();
+	}
+
+	/**
+	 * Backward tilt for a unit taking damage — the opposite lean of
+	 * {@link tiltForward}, as if the blow shoved the body back. The lean
+	 * scales with the damage dealt (capped at {@link TILT_MAX_DAMAGE}),
+	 * so a hard hit rocks the cardboard further than a tickle.
+	 */
+	tiltBackward(creature: Creature, opts: AnimationOptions) {
+		const sprite = creature.creatureSprite;
+		if (!sprite || sprite.destroyed) {
+			return;
+		}
+		const speed = !opts.overrideSpeed ? 90 : opts.overrideSpeed;
+		const dir = opts.tiltDir ?? (sprite.sprite.scaleX < 0 ? -1 : 1);
+		const tilt = this._tiltAngle(opts.tiltDamage ?? 0, dir);
+		const settle = Math.round(speed * 1.4);
+		const target = sprite.sprite;
+		this.game.gameEngine
+			.tween(target)
+			.to({ angle: tilt }, speed, Easing.Cubic.Out)
+			.to({ angle: 0 }, settle, Easing.Cubic.Out)
+			.start();
+	}
+
+	/**
+	 * Peak lean angle for a tilt, in degrees. Scales with the damage that
+	 * provoked it, capped so a unit never crumples past a believable angle:
+	 * a base lean plus a share of the damage, with a random jitter folded in
+	 * so consecutive hits do not rock the cardboard identically.
+	 */
+	private _tiltAngle(damage: number, dir: number): number {
+		const damageShare = Math.min(damage, TILT_MAX_DAMAGE) / TILT_MAX_DAMAGE;
+		const tilt =
+			(TILT_BASE_DEGREES + TILT_PER_DAMAGE * damageShare + (Math.random() * 2 - 1) * TILT_JITTER) *
+			dir;
+		return Math.max(-TILT_MAX_DEGREES, Math.min(TILT_MAX_DEGREES, tilt));
+	}
+
+	/**
+	 * Moves a smoke out of the creature's group once it has risen above the
+	 * cardboard. Below that line it is smoke at the unit's feet and belongs to
+	 * the unit; above it, it is hanging in the air and should stay where it was
+	 * released instead of being dragged along by the group's position tween.
+	 */
+	/**
+	 * Moves each smoke to `anchor + offset`, where the anchor chases the unit's
+	 * world position and the offset is the rise and drift the smoke's own tween is
+	 * animating.
+	 *
+	 * The position is written here rather than tweened on the sprite because a
+	 * tween holds absolute spawn-time coordinates: it would rewrite x/y from
+	 * `from -> to` every frame and overwrite the anchor, leaving detached smoke
+	 * pinned at the place the unit had walked away from.
+	 */
+	private _positionInfernalSmoke(state: InfernalCardboardEffectState, sprite: SpriteHandle) {
+		const smokeGroup = this.game.grid?.infernalSmokeGroup;
+		if (!smokeGroup) {
+			return;
+		}
+		// The unit's world position. Walking tweens the creature group and leaves
+		// the sprite's own x/y fixed, so the group is what has to be read.
+		const worldX = state.group.x + sprite.x;
+		const worldY = state.group.y + sprite.y;
+		const frameSeconds = Math.min(deltaMs() / 1000, 0.1);
+		const follow = 1 - Math.exp(-INFERNAL_SMOKE_LAG_RATE * frameSeconds);
+		// A materialisation or hex snap is a teleport, not a walk. Chasing across
+		// one would slide the smoke a long way across the board, so it is snapped
+		// onto the unit instead.
+		const teleported =
+			!state.synced ||
+			Math.abs(worldX - state.hazeX) > INFERNAL_OVERLAY_SNAP_DISTANCE ||
+			Math.abs(worldY - state.hazeY) > INFERNAL_OVERLAY_SNAP_DISTANCE;
+		// Re-read the facing every tick. A unit that turns around mid-walk would
+		// otherwise leave its smoke facing the direction it was travelling when
+		// each smoke spawned, trailing backwards cardboard.
+		const dir = sprite.scaleX < 0 ? -1 : 1;
+		for (const entry of state.smoke) {
+			if (!entry.sprite.active) {
+				continue;
+			}
+			if (teleported) {
+				entry.anchorX = worldX;
+				entry.anchorY = worldY;
+			} else {
+				// The smoke absorbs only part of the gap each frame, so under a steady
+				// walk it settles at a fixed distance behind the unit. That distance is
+				// the whole of the lag: the smoke keeps up, but visibly trails rather
+				// than sitting on top of the cardboard and rising straight up.
+				entry.anchorX += (worldX - entry.anchorX) * follow;
+				entry.anchorY += (worldY - entry.anchorY) * follow;
+			}
+			entry.sprite.setPosition(entry.anchorX + entry.offset.x, entry.anchorY + entry.offset.y);
+			// The tween carries only the growth magnitude, so the facing sign is
+			// applied here to keep tracking the unit's current direction.
+			entry.sprite.setScale(dir * entry.growth.x, entry.growth.y);
+		}
+	}
+
 	private _spawnInfernalCardboardTrail(
 		creature: Creature,
 		state: InfernalCardboardEffectState,
@@ -1874,76 +2447,202 @@ export class Animations {
 	) {
 		const rand = (n: number) => Math.random() * n;
 		const randInt = (n: number) => Math.floor(rand(n));
-		const now = this.game.Phaser.time.now;
+		const nowMs = now();
 
 		const sprite = state.sprite;
 		if (!sprite) {
 			return;
 		}
 
-		const dir = sprite.scale.x < 0 ? -1 : 1;
-		if (state.hazeSprite && state.hazeReady) {
-			state.hazeSprite.x = sprite.x;
-			state.hazeSprite.y = sprite.y - state.glowOffsetY;
-			state.hazeSprite.scale.setTo(dir, 1);
-			const deltaSeconds = Math.min((this.game.Phaser?.time?.elapsedMS ?? 0) / 1000, 0.1);
+		const dir = sprite.scaleX < 0 ? -1 : 1;
+		const frameSeconds = Math.min(deltaMs() / 1000, 0.1);
+		// How far the unit travelled since the previous tick, smoothed so a single
+		// jittery frame cannot spike the smoke's brightness. Measured in world
+		// space: walking tweens the creature group, leaving the sprite's own x/y
+		// untouched, so a sprite-local delta would read as a stationary unit.
+		const worldX = state.group.x + sprite.x;
+		const worldY = state.group.y + sprite.y;
+		const moved = Math.hypot(worldX - state.lastWorldX, worldY - state.lastWorldY);
+		state.speedPx = state.speedPx * 0.7 + moved * 0.3;
+		state.lastWorldX = worldX;
+		state.lastWorldY = worldY;
+		state.lastGroupX = state.group.x;
+		state.lastGroupY = state.group.y;
+		// Frame-rate independent chase. A stationary cardboard is caught exactly,
+		// while a walking one is not, so the overlays smear into a trail instead of
+		// riding along at the unit's speed.
+		const follow = 1 - Math.exp(-INFERNAL_OVERLAY_FOLLOW * frameSeconds);
+		// Materialisation, reparenting and hex snapping teleport the cardboard.
+		// Easing across one of those jumps slides a second cardboard copy into the
+		// unit, so anything that far away is a teleport and gets snapped instead.
+		// Chased in the group's space, because that is what a walk tweens. The
+		// overlays are children of the group, so their own x/y are group-local:
+		// comparing them against a world-space target would chase a constant
+		// offset forever and never settle.
+		const targetX = state.group.x + sprite.x;
+		const targetY = state.group.y + sprite.y;
+		if (
+			!state.synced ||
+			Math.abs(targetX - state.hazeX) > INFERNAL_OVERLAY_SNAP_DISTANCE ||
+			Math.abs(targetY - state.hazeY) > INFERNAL_OVERLAY_SNAP_DISTANCE
+		) {
+			state.hazeX = targetX;
+			state.hazeY = targetY;
+			state.heatX = targetX;
+			state.heatY = targetY;
+		} else {
+			state.hazeX += (targetX - state.hazeX) * follow;
+			state.hazeY += (targetY - state.hazeY) * follow;
+			state.heatX += (targetX - state.heatX) * follow;
+			state.heatY += (targetY - state.heatY) * follow;
+		}
+
+		if (state.hazeSprite) {
+			this._anchorInfernalOverlay(
+				state.hazeSprite,
+				state.hazeX - state.group.x,
+				state.hazeY - state.group.y,
+				dir,
+				1,
+			);
+		}
+		if (state.hazeSprite && state.hazeReady && state.synced) {
+			const deltaSeconds = Math.min(deltaMs() / 1000, 0.1);
 			state.luminescenceUniforms = advanceShaderTime(state.luminescenceUniforms, deltaSeconds);
 			const uTime = state.luminescenceUniforms.uTime as number;
-			const pulseSpeed = (state.luminescenceUniforms.uPulseSpeed as number) ?? 4.2;
-			const hazePulse = 0.5 + 0.5 * Math.sin(uTime * pulseSpeed + state.hazePulsePhaseRad);
-			state.hazeSprite.alpha = 0.12 + hazePulse * 0.88;
+			const pulseSpeed =
+				(state.luminescenceUniforms.uPulseSpeed as number) ?? INFERNAL_GLOW_PULSE_SPEED;
+			// Two beats, not one. A single sine is a smooth swell: it reads as a
+			// lamp being dimmed rather than something alight, because the intensity
+			// only ever changes at one rate. Layering a faster, shallower beat over
+			// the slow breath makes it fluctuate unevenly, the way a real glow does,
+			// without returning to the hard strobe the shader's 4.2 default gave.
+			const slow = 0.5 + 0.5 * Math.sin(uTime * pulseSpeed + state.hazePulsePhaseRad);
+			// ~0.6Hz against the slow beat's 0.11Hz, and only a third of the
+			// amplitude: enough that the intensity visibly wavers several times
+			// within each breath, shallow enough that it stays a glow.
+			const fast = 0.5 + 0.5 * Math.sin(uTime * pulseSpeed * 5.5 + state.hazePulsePhaseRad * 2.7);
+			const flicker = slow * 0.65 + fast * 0.35;
+			// A wide swing rather than a uniform lift. The trough goes almost dark
+			// and the crest punches well past the old ceiling, so the pulsation is
+			// obvious; the midpoint is close to where the flat version sat, so this
+			// is more dynamic rather than brighter.
+			state.hazeSprite.alpha = 0.05 + flicker * 0.61;
+			// Shared with the heat layer below, which is driven from its own block
+			// so it does not depend on the haze bitmap having loaded.
+			state.glowFlicker = flicker;
+		}
+		if (state.heatLayerSprite && !state.synced) {
+			state.heatLayerSprite.alpha = 0;
 		}
 		if (state.heatLayerSprite) {
-			state.heatLayerSprite.x = sprite.x;
-			state.heatLayerSprite.y = sprite.y - state.glowOffsetY;
-			state.heatLayerSprite.scale.setTo(dir, 1.38);
-			state.heatLayerSprite.alpha = state.heatReady ? 0.24 : 0;
+			this._anchorInfernalOverlay(
+				state.heatLayerSprite,
+				state.heatX - state.group.x,
+				state.heatY - state.group.y,
+				dir,
+				INFERNAL_HEAT_LAYER_SCALE_Y,
+			);
+			// The heat layer used to sit at a fixed alpha while the haze breathed,
+			// leaving a quarter of the glow completely static. It pulses off the same
+			// signal so the whole effect moves together.
+			state.heatLayerSprite.alpha =
+				state.heatReady && state.synced ? 0.06 + (state.glowFlicker ?? 0.5) * 0.24 : 0;
 		}
 
-		if (state.heatReady && (forceHeatSpawn || now >= state.heatNextAt)) {
-			const group = state.group;
-			const deltaSeconds = Math.min((this.game.Phaser?.time?.elapsedMS ?? 0) / 1000, 0.1);
-			state.heatUniforms = advanceShaderTime(state.heatUniforms, deltaSeconds);
-			const wisp = group.create(sprite.x, sprite.y - state.glowOffsetY, sprite.key);
-			wisp.anchor.setTo(0.5, 1);
-			wisp.scale.setTo(dir * (1 + rand(0.06)), 0.96 + rand(0.1));
-			wisp.alpha = 0.26 + rand(0.12);
-			wisp.tint = 0xff9c52;
-			wisp.blendMode = Phaser.blendModes.ADD;
-			group.addAt(wisp, 0);
-			if (state.heatBmd) {
-				wisp.loadTexture(state.heatBmd);
-				wisp.tint = 0xffffff;
+		// Smokes are additive full-cardboard copies; one spawned before the first
+		// sync would be drawn at the origin, facing the wrong way.
+		if (
+			INFERNAL_SMOKE_ENABLED &&
+			state.heatReady &&
+			state.synced &&
+			(forceHeatSpawn || nowMs >= state.heatNextAt)
+		) {
+			// Born in the smoke layer in world space, not parented to the creature
+			// group. A child of the moving group is dragged along by the group's
+			// position tween and cannot lag behind it at all, and a smoke-layer
+			// child that nothing repositions is left standing where the unit used to
+			// be. `_positionInfernalSmoke` owns the position instead.
+			const smokeGroup = this.game.grid?.infernalSmokeGroup;
+			if (!smokeGroup) {
+				return;
 			}
-			state.trailSprites.push(wisp);
+			const deltaSeconds = Math.min(deltaMs() / 1000, 0.1);
+			state.heatUniforms = advanceShaderTime(state.heatUniforms, deltaSeconds);
+			const smokeX = state.group.x + sprite.x;
+			const smokeY = state.group.y + sprite.y;
+			const smoke = this.game.gameEngine.add.sprite(
+				smokeX,
+				smokeY,
+				sprite.key,
+				undefined,
+				smokeGroup,
+			);
+			const growth = { x: 1 + rand(0.06), y: 0.96 + rand(0.1) };
+			this._anchorInfernalOverlay(smoke, smokeX, smokeY, dir * growth.x, growth.y);
+			// Born invisible and eased up to its peak. Appearing at full alpha steps
+			// the total additive brightness in one frame, and with several smoke
+			// overlapping that reads as a flicker rather than smoke.
+			smoke.alpha = 0;
+			// A stationary unit can carry full smoke; a walking one gets roughly
+			// half, so the trail dissipates rather than reading as a ghost.
+			const motionFade = 1 - Math.min(0.5, state.speedPx * 0.08);
+			const smokePeakAlpha = (0.11 + rand(0.04)) * motionFade;
+			smoke.tint = 0xff9c52;
+			smoke.blendMode = BLEND_MODE_ADD;
+			if (state.heatBmd) {
+				smoke.setTexture(state.heatBmd.key);
+				// `loadTexture` swaps the frame the origin is measured from, and may
+				// reset the scale, so re-assert both from the intended values.
+				this._anchorInfernalOverlay(smoke, smokeX, smokeY, dir * growth.x, growth.y);
+				smoke.tint = 0xffffff;
+			}
+			state.trailSprites.push(smoke);
+			const offset = { x: 0, y: 0 };
+			state.smoke.push({
+				sprite: smoke,
+				anchorX: smokeX,
+				anchorY: smokeY,
+				offset,
+				growth,
+			});
 
 			const driftX = (randInt(2) === 0 ? -1 : 1) * (2 + rand(4));
-			const riseY = 22 + rand(18);
-			const duration = 1900 + randInt(700);
-			const moveTween = this.game.Phaser.add
-				.tween(wisp)
+			const riseY = 8 + rand(4);
+			const duration = 1350 + randInt(450);
+			// Rise and drift are tweened on a detached offset object, never on the
+			// sprite itself. A tween writes absolute `from -> to` values into x/y
+			// every frame, so tweening the sprite would overwrite the anchor that
+			// tracks the walking unit and pin the smoke at its spawn point.
+			const moveTween = this.game.gameEngine
+				.tween(offset)
+				.to({ x: driftX, y: -riseY }, duration, Easing.Sinusoidal.Out, true);
+			// Eased in over the first third, then eased back out. A single
+			// `Sinusoidal.Out` to zero starts at full slope, so the smoke would dim
+			// fastest exactly when it is brightest and hardest to notice.
+			const fadeTween = this.game.gameEngine
+				.tween(smoke)
+				.to({ alpha: smokePeakAlpha }, duration * 0.3, Easing.Sinusoidal.InOut, true)
+				.to({ alpha: 0 }, duration * 0.7, Easing.Sinusoidal.In, true);
+			const scaleTween = this.game.gameEngine
+				.tween(growth)
 				.to(
-					{ x: wisp.x + driftX, y: wisp.y - riseY, alpha: 0 },
+					{ x: growth.x + rand(0.06), y: 1.12 + rand(0.05) },
 					duration,
-					Phaser.Easing.Sinusoidal.Out,
-					true,
-				);
-			const scaleTween = this.game.Phaser.add
-				.tween(wisp.scale)
-				.to(
-					{ x: dir * (1.02 + rand(0.08)), y: 1.5 + rand(0.12) },
-					duration,
-					Phaser.Easing.Sinusoidal.Out,
+					Easing.Sinusoidal.Out,
 					true,
 				);
 			moveTween.onComplete.add(() => {
-				wisp.destroy();
-				state.trailSprites = state.trailSprites.filter((s) => s !== wisp);
-				state.tweens = state.tweens.filter((t) => t !== moveTween && t !== scaleTween);
+				smoke.destroy();
+				state.trailSprites = state.trailSprites.filter((s) => s !== smoke);
+				state.smoke = state.smoke.filter((entry) => entry.sprite !== smoke);
+				state.tweens = state.tweens.filter(
+					(t) => t !== moveTween && t !== scaleTween && t !== fadeTween,
+				);
 			});
-			state.tweens.push(moveTween, scaleTween);
+			state.tweens.push(moveTween, scaleTween, fadeTween);
 
-			state.heatNextAt = now + 240 + randInt(160);
+			state.heatNextAt = nowMs + 420 + randInt(140);
 		}
 	}
 }

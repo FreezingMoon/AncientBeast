@@ -34,6 +34,8 @@ export interface CreatureSnapshot {
 	dead: boolean;
 	vaporized: boolean;
 	remainingMove: number;
+	/** Movement banked from previous turns; added on top of the creature's movement. */
+	movementPool?: number;
 	playerIndex: number | null;
 	status: {
 		frozen: boolean;

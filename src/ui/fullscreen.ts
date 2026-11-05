@@ -12,29 +12,21 @@ export class Fullscreen {
 		document.addEventListener('mozfullscreenchange', () => this.updateButtonState());
 	}
 
-	async toggle() {
-		// The Fullscreen API is unreliable inside Reddit's webview: the embedding
-		// iframe doesn't grant the Fullscreen permission, so requestFullscreen()
-		// rejects with "Fullscreen request denied". The button is visually
-		// disabled there (see `body.devvit-mode .button#fullscreen` in styles.less),
-		// so skip the attempt entirely instead of throwing.
+	toggle() {
 		if (document.body.classList.contains('devvit-mode') || !document.fullscreenEnabled) {
 			return;
 		}
-		try {
-			if (document.fullscreenElement) {
-				await document.exitFullscreen();
-			} else {
-				const gameElement = document.getElementById('AncientBeast');
-				if (gameElement) {
-					await gameElement.requestFullscreen();
-				}
-			}
-
-			setTimeout(() => this.updateButtonState(), 100);
-		} catch (error) {
-			console.error('Error toggling fullscreen:', error);
+		if (document.fullscreenElement) {
+			// Leaving fullscreen rejects when the document is not in fullscreen
+			// anyway (e.g. the user hit Esc first); there is nothing to report.
+			document.exitFullscreen().catch(() => undefined);
+		} else {
+			// Use document.documentElement for browser-native fullscreen (matches F11 behavior)
+			document.documentElement
+				.requestFullscreen()
+				.catch((error) => console.error('Error toggling fullscreen:', error));
 		}
+		setTimeout(() => this.updateButtonState(), 100);
 	}
 
 	updateButtonState() {

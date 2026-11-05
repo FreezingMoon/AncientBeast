@@ -157,10 +157,16 @@ export interface INetworkBackend {
 }
 
 export function normalizeLobbyCode(code: LobbyCode): string {
-	return code
+	const normalized = code
 		.trim()
 		.toUpperCase()
 		.replace(/[^A-Z0-9-]/g, '');
+
+	if (/^[A-Z0-9]{4}$/.test(normalized)) {
+		return `AB-${normalized}`;
+	}
+
+	return normalized;
 }
 
 export function getPeerIdForLobby(code: LobbyCode): PeerId {

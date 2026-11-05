@@ -1,3 +1,5 @@
+import { Easing } from './easing';
+import type { GameEngine, SpriteHandle } from '../engine/types';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import $j from 'jquery';
 import { Direction, Hex } from './hex';
@@ -7,24 +9,22 @@ import { Team, isTeam } from './team';
 import * as arrayUtils from './arrayUtils';
 import Game from '../game';
 import { DEBUG } from '../debug';
-import { HEX_WIDTH_PX } from './const';
+import { GHOST_PREVIEW_ALPHA, HEX_WIDTH_PX } from './const';
 import { Point } from './pointfacade';
 import { AugmentedMatrix } from './matrices';
 import { PierceThroughBehavior } from '../ability';
 import { getDarkPriestCardboardKey, getDarkPriestDisplayOffsetX } from '../player';
+import { ensureCardboard, isTextureReady } from '../assets';
+import { getFrameSize } from '../game-display/texture';
+import { getHoveredHex, isPointerWithinBoard, setHoveredHex } from '../input/input';
+import {
+	createBoardLayersWithFactory,
+	getDepthAtBand,
+	sortLayerByDepth,
+	type DepthBand,
+} from '../game-display/layer';
 
-const ROW_DEPTH_STRIDE = 100;
-
-const DEPTH_BAND = {
-	TRAP_GROUND: 0,
-	EFFECT_UNDER_UNITS: 20,
-	UNITS: 40,
-	EFFECT_OVER_UNITS: 80,
-	DROPS: 85,
-	TRAP_VOLUMETRIC: 90,
-} as const;
-
-export type DepthBand = keyof typeof DEPTH_BAND;
+export type { DepthBand };
 
 interface GridDefinition {
 	numRows: number;
@@ -115,9 +115,123 @@ export interface QueryOptions {
 }
 
 /**
+ * A `previewCreature` call parked while its unit cardboard downloads.
+ */
+interface PendingPreview {
+	pos: { x: number; y: number };
+	creatureData: any;
+	player: any;
+	secondary: boolean;
+}
+
+interface PendingPreviews {
+	primary?: PendingPreview;
+	secondary?: PendingPreview;
+}
+
+/**
+ * Previews held back while a unit cardboard downloads, one slot per overlay.
+ *
+ * Keyed by grid rather than stored on it: `previewCreature` is also exercised
+ * against stand-in grids, and per-overlay scratch state has no business on the
+ * class surface.
+ */
+const pendingPreviews = new WeakMap<object, PendingPreviews>();
+
+function getPendingPreviews(grid: object): PendingPreviews {
+	let previews = pendingPreviews.get(grid);
+	if (!previews) {
+		previews = {};
+		pendingPreviews.set(grid, previews);
+	}
+	return previews;
+}
+
+function setPendingPreview(
+	grid: object,
+	slot: keyof PendingPreviews,
+	request: PendingPreview,
+): void {
+	getPendingPreviews(grid)[slot] = request;
+}
+
+function takePendingPreview(grid: object, slot: keyof PendingPreviews): PendingPreview | undefined {
+	const request = getPendingPreviews(grid)[slot];
+	if (request) {
+		delete getPendingPreviews(grid)[slot];
+	}
+	return request;
+}
+
+function clearPendingPreview(grid: object, secondary: boolean): void {
+	takePendingPreview(grid, secondary ? 'secondary' : 'primary');
+}
+
+/**
+ * Redraw a preview that was waiting on its unit's cardboard.
+ *
+ * Takes the held request rather than a captured closure, so moving the cursor
+ * while the texture was in flight supersedes the stale position instead of
+ * painting a ghost on a hex the cursor has already left.
+ */
+function replayPendingPreview(grid: HexGrid, secondary: boolean): void {
+	const pending = takePendingPreview(grid, secondary ? 'secondary' : 'primary');
+	if (pending) {
+		grid.previewCreature(pending.pos, pending.creatureData, pending.player, pending.secondary);
+	}
+}
+
+/**
+ * Drop every tween still bound to a preview overlay.
+ *
+ * The two ways a ghost is dismissed both fade it with a tween that nothing
+ * tracks — `fadeOutTempCreature()` on materialization, and `Creature`'s move
+ * handler on a move confirm. `previewCreature()` cannot reach either handle, so
+ * the fade kept writing `alpha` every frame after the ghost had been handed
+ * back: a ghost pinned afterwards was dragged straight back to 0 and only
+ * reappeared once the stale tween finally ended, which is why the movement
+ * preview (drawn from `Creature.tracePath()`) showed up late — or not at all,
+ * when the next hover landed inside the same fade.
+ */
+function clearPreviewTweens(game: { gameEngine?: GameEngine }, overlay: any): void {
+	if (overlay) {
+		game.gameEngine?.removeTweensFrom?.(overlay);
+	}
+}
+
+/**
  * Object containing grid and methods concerning the whole grid.
  * Should only have one instance during the game.
  */
+/**
+ * Bounds for a sprite that can still be measured, or `null`.
+ *
+ * A sprite whose texture has been unloaded — which is what teardown mid-hover
+ * leaves behind — has a null frame, and Phaser's `getBounds()` then throws from
+ * inside `realWidth` rather than returning anything. Hover/xray is cosmetic, so
+ * an unmeasurable sprite is reported as unmeasurable instead of crashing the
+ * xray pass. Checking `frame.source` catches the common case without relying on
+ * Phaser throwing, and the catch covers the rest.
+ */
+function safeSpriteBounds(sprite: unknown): {
+	left: number;
+	right: number;
+	top: number;
+	bottom: number;
+} | null {
+	if (!sprite || typeof (sprite as { getBounds?: unknown }).getBounds !== 'function') return null;
+	if (!(sprite as { frame?: { source?: unknown } }).frame?.source) return null;
+	try {
+		return (
+			sprite as {
+				getBounds: () => { left: number; right: number; top: number; bottom: number };
+			}
+		).getBounds();
+	} catch {
+		return null;
+	}
+}
+
 export class HexGrid {
 	game: Game;
 
@@ -150,8 +264,18 @@ export class HexGrid {
 	 * The hex the physical mouse pointer is currently over, updated before any
 	 * freezedInput guard so it remains accurate during ability animations.
 	 * Distinct from selectedHex which the keyboard cursor and queryHexes() reset.
+	 *
+	 * Backed by the input module rather than kept as a field of its own: the
+	 * module is the single owner of pointer position, and a second copy here
+	 * would be free to disagree with it.
 	 */
-	lastMouseHex: Hex | undefined = undefined;
+	get lastMouseHex(): Hex | undefined {
+		return getHoveredHex() as Hex | undefined;
+	}
+
+	set lastMouseHex(hex: Hex | undefined) {
+		setHoveredHex(hex);
+	}
 
 	/**
 	 * True while refreshHoverState() is replaying hover behavior programmatically.
@@ -170,25 +294,42 @@ export class HexGrid {
 	 */
 	activeHexDashedClearTimeout: ReturnType<typeof setTimeout> | null = null;
 
-	display: Phaser.Group;
-	gridGroup: Phaser.Group;
-	trapGroup: Phaser.Group;
-	hexesGroup: Phaser.Group;
-	displayHexesGroup: Phaser.Group;
-	overlayHexesGroup: Phaser.Group;
-	inputHexesGroup: Phaser.Group;
-	dropGroup: Phaser.Group;
-	creatureGroup: Phaser.Group;
-	// Health indicators rendered above all creature sprites so they are never occluded
-	healthIndicatorUiGroup: Phaser.Group;
-	trapOverGroup: Phaser.Group;
+	display: any;
+	gridGroup: any;
+	trapGroup: any;
+	hexesGroup: any;
+	displayHexesGroup: any;
+	overlayHexesGroup: any;
+	dropGroup: any;
+	creatureGroup: any;
+	/**
+	 * A sibling of {@link creatureGroup} holding Infernal's smoke. Smoke is
+	 * deliberately not parented to the cardboard: a child of the moving group is
+	 * dragged along by the group's position tween, so it slides with the unit
+	 * instead of hanging in the air where it was released. Here it stays put and
+	 * the unit walks out from under it.
+	 */
+	infernalSmokeGroup: any;
+	healthIndicatorUiGroup: any;
+	trapOverGroup: any;
 	selectedHex: Hex;
 	_executionMode: boolean;
 	materialize_overlay: any;
 	secondary_overlay: any;
 	lastQueryOpt: any;
-	_flickerTween: Phaser.Tween | undefined;
-	_flickerTweenSecondary: Phaser.Tween | undefined;
+
+	/**
+	 * Bumped by every *fresh* query installed through queryHexes() — a redo of
+	 * the current query (`redoLastQuery()`) leaves it alone, since re-running the
+	 * same query is not a new claim on the board.
+	 *
+	 * Work that opens a turn defers its own queryMove() so the activation
+	 * animation plays first, and that query is stale the moment the player or a
+	 * bot takes the board in the meantime. Snapshotting this counter lets the
+	 * deferred work notice the takeover and stay out of the way instead of
+	 * replacing the live query.
+	 */
+	queryGeneration = 0;
 
 	/**
 	 * Helper to determine cursor style for multiplayer games.
@@ -201,8 +342,27 @@ export class HexGrid {
 		return isLocalPlayerTurn ? normalCursor : 'wait';
 	}
 
+	/** Memoised backing store for {@link allhexes}. See the getter for why. */
+	private _allhexes: Hex[] | null = null;
+
+	/**
+	 * Every hex in the grid, row-major.
+	 *
+	 * Memoised: this used to be `this.hexes.flat(1)`, which rebuilt a fresh
+	 * ~130-element array on *every* read. `allhexes` is read at 100 Hz by the UI
+	 * glow interval and several more times per hex hover, so that was tens of
+	 * thousands of pointless element copies per second. The grid is populated
+	 * once in the constructor (:367-375) and never mutated afterwards, so the
+	 * flattened array is built lazily once and then reused.
+	 *
+	 * The array is shared, so treat it as read-only — callers that need to
+	 * modify it must copy (`.slice()` / `.filter()`) first.
+	 */
 	get allhexes(): Hex[] {
-		return this.hexes.flat(1);
+		if (!this._allhexes) {
+			this._allhexes = this.hexes.flat(1);
+		}
+		return this._allhexes;
 	}
 
 	/**
@@ -237,24 +397,27 @@ export class HexGrid {
 		this.hexes = []; // Hex Array
 		this.lastClickedHex = undefined;
 
-		this.display = game.Phaser.add.group(undefined, 'displayGroup');
-		this.display.x = 230;
-		this.display.y = 380;
-
-		this.gridGroup = game.Phaser.add.group(this.display, 'gridGroup');
-		this.gridGroup.scale.set(1, 0.75);
-
-		this.trapGroup = game.Phaser.add.group(this.gridGroup, 'trapGrp');
-		this.hexesGroup = game.Phaser.add.group(this.gridGroup, 'hexesGroup');
-		this.displayHexesGroup = game.Phaser.add.group(this.gridGroup, 'displayHexesGroup');
-		this.overlayHexesGroup = game.Phaser.add.group(this.gridGroup, 'overlayHexesGroup');
-		this.dropGroup = game.Phaser.add.group(this.display, 'dropGrp');
-		this.creatureGroup = game.Phaser.add.group(this.display, 'creaturesGrp');
+		// The layer tree's shape and sibling order come from the shared
+		// `LAYER_SPEC`, the same table the native container builder uses, so the two
+		// cannot disagree. This fixes the smoke layer, which the previous inline
+		// sequence appended after the creature layer and then tried to move with a
+		// splice on a throwaway array.
+		const layers = createBoardLayersWithFactory(game.gameEngine);
+		this.display = layers.display;
+		this.gridGroup = layers.gridGroup;
+		this.trapGroup = layers.trapGroup;
+		this.hexesGroup = layers.hexesGroup;
+		this.displayHexesGroup = layers.displayHexesGroup;
+		this.overlayHexesGroup = layers.overlayHexesGroup;
+		this.dropGroup = layers.dropGroup;
+		this.creatureGroup = layers.creatureGroup;
+		// Behind the creatures so smoke never draws over a unit, but not a child of
+		// any creature group, so it does not travel with one.
+		this.infernalSmokeGroup = layers.infernalSmokeGroup;
 		// Health indicators sit above all creature sprites so they're never occluded
-		this.healthIndicatorUiGroup = game.Phaser.add.group(this.display, 'healthIndicatorUiGrp');
+		this.healthIndicatorUiGroup = layers.healthIndicatorUiGroup;
 		// Parts of traps displayed over creatures
-		this.trapOverGroup = game.Phaser.add.group(this.display, 'trapOverGrp');
-		this.trapOverGroup.scale.set(1, 0.75);
+		this.trapOverGroup = layers.trapOverGroup;
 
 		// Populate grid
 		for (let row = 0; row < numRows; row++) {
@@ -279,8 +442,21 @@ export class HexGrid {
 		this._executionMode = this.game.metaPowersState.executeMonster;
 
 		// Events
-		this.game.signals.metaPowers.add(this.handleMetaPowerEvent, this);
-		this.game.signals.ui.add(this.handleUIEvent, this);
+		this.game.channels.metaPowers.on('toggleExecuteMonster', (enabled: boolean) => {
+			this._executionMode = enabled;
+		});
+		// When the dash opens or closes, creatures can remain in a "hovered" state
+		// (e.g. bounce animation stuck). Reset all bounces to ensure a clean state.
+		const resetBounces = () => {
+			this.forEachHex((hex) => {
+				const creature = hex.creature;
+				if (creature instanceof Creature) {
+					creature.resetBounce();
+				}
+			});
+		};
+		this.game.channels.ui.on('onOpenDash', resetBounces);
+		this.game.channels.ui.on('onCloseDash', resetBounces);
 	}
 
 	get traps() {
@@ -292,25 +468,6 @@ export class HexGrid {
 		const row = this.hexes[y];
 		if (x < 0 || x >= row.length) return;
 		return row[x];
-	}
-
-	handleMetaPowerEvent(message, payload) {
-		if (message === 'toggleExecuteMonster') {
-			this._executionMode = payload;
-		}
-	}
-
-	handleUIEvent(message, _payload) {
-		if (message === 'onOpenDash' || message === 'onCloseDash') {
-			// When the dash opens or closes, creatures can remain in a "hovered" state
-			// (e.g. bounce animation stuck). Reset all bounces to ensure a clean state.
-			this.forEachHex((hex) => {
-				const creature = hex.creature;
-				if (creature instanceof Creature) {
-					creature.resetBounce();
-				}
-			});
-		}
 	}
 
 	isInBounds({ x, y }: Point) {
@@ -530,7 +687,14 @@ export class HexGrid {
 					// Add all creature hexes.
 					const creature = arrayUtils.last(dir).creature;
 					dir.pop();
-					dir = arrayUtils.sortByDirection(dir.concat(creature.hexagons), direction);
+					// Sort along the direction the line actually travels on screen.
+					// `dir` was built with `options.flipped` applied to `getHexLine`, so
+					// the mirrored direction (5 - direction) must be used when the player
+					// is flipped — otherwise the creature hexes get appended to the wrong
+					// end of the line, putting the full-damage hexes at the far end and
+					// the reduced-effect (shrunken) hexes near the caster.
+					const sortDirection = options.flipped ? 5 - direction : direction;
+					dir = arrayUtils.sortByDirection(dir.concat(creature.hexagons), sortDirection);
 				}
 			}
 
@@ -926,6 +1090,13 @@ export class HexGrid {
 	}
 
 	redoLastQuery() {
+		// A replayed query is anchored to the creature that issued it. With no
+		// active creature the match has ended or reset, so re-running it would
+		// overlay a dead unit's reachable hexes and dereference a null
+		// `activeCreature` on the way through.
+		if (!this.lastQueryOpt || !this.game.activeCreature) {
+			return;
+		}
 		this.queryHexes(this.lastQueryOpt);
 	}
 
@@ -942,14 +1113,19 @@ export class HexGrid {
 		if (this.game.botController?.isBotTurn()) {
 			return;
 		}
+		// Nothing to replay when the pointer has left the board: the last hex it
+		// crossed is not where it is, and re-firing hover there would light up a
+		// unit the player is no longer pointing at.
+		if (!isPointerWithinBoard()) return;
 		const hex = this.lastMouseHex;
 		if (!hex || this.game.freezedInput || this.isRefreshingHoverState) return;
 		this.cancelDeferredActiveHexDashedClear();
-		// Replicate what onInputOver does so cursor, unit preview and xray all update.
+		// Replicate what the pointer-over handler does so cursor, unit preview and
+		// xray all update.
 		if (hex.reachable && this.game.activeCreature) {
 			this.game.activeCreature.highlightCurrentHexesAsDashed();
 		}
-		this.game.signals.hex.dispatch('over', { hex });
+		this.game.channels.hex.emit('over', { hex });
 		this.selectedHex = hex;
 		this.isRefreshingHoverState = true;
 		try {
@@ -997,6 +1173,9 @@ export class HexGrid {
 		// redoLastQuery() passes the same lastQueryOpt reference, so reference
 		// equality distinguishes the two cases.
 		const isFreshQuery = o !== this.lastQueryOpt;
+		if (isFreshQuery) {
+			this.queryGeneration++;
+		}
 		const defaultOpt = {
 			fnOnConfirm: () => {
 				game.activeCreature?.queryMove();
@@ -1009,6 +1188,7 @@ export class HexGrid {
 				game.activeCreature?.queryMove();
 			},
 			fnOnHoverOutside: undefined as (() => void) | undefined,
+			fnOnHover: undefined as ((hex: Hex) => void) | undefined,
 			callbackAfterQueryHexes: () => {
 				// empty function to be overridden with custom logic to execute after queryHexes
 			},
@@ -1017,7 +1197,7 @@ export class HexGrid {
 			hexesDashed: [],
 			shrunkenHexes: [],
 			hexesDeadZone: [],
-			size: 1,
+			size: 0,
 			id: 0,
 			flipped: false,
 			hideNonTarget: false,
@@ -1034,23 +1214,12 @@ export class HexGrid {
 		// Save the last Query
 		this.lastQueryOpt = { ...o };
 
-		const clearPreviewOverlay = (preview, secondary = false) => {
+		const clearPreviewOverlay = (preview) => {
 			if (!preview) {
 				return;
 			}
 
-			if (secondary) {
-				if (this._flickerTweenSecondary) {
-					this._flickerTweenSecondary.stop(true);
-					this._flickerTweenSecondary = undefined;
-				}
-			} else {
-				if (this._flickerTween) {
-					this._flickerTween.stop(true);
-					this._flickerTween = undefined;
-				}
-			}
-
+			clearPreviewTweens(game, preview);
 			preview.alpha = 0;
 
 			if (preview._previewPos === undefined) {
@@ -1119,14 +1288,7 @@ export class HexGrid {
 
 		// Cleanup
 		clearPreviewOverlay(this.materialize_overlay);
-		clearPreviewOverlay(this.secondary_overlay, true);
-
-		if (this._flickerTween) {
-			this._flickerTween.stop(true);
-		}
-		if (this._flickerTweenSecondary) {
-			this._flickerTweenSecondary.stop(true);
-		}
+		clearPreviewOverlay(this.secondary_overlay);
 
 		if (!o.ownCreatureHexShade) {
 			if (o.id instanceof Array) {
@@ -1181,7 +1343,7 @@ export class HexGrid {
 			}
 			if (o.targeting) {
 				if (hex.creature instanceof Creature) {
-					if (hex.creature.id != this.game.activeCreature.id) {
+					if (hex.creature.id != this.game.activeCreature?.id) {
 						hex.overlayVisualState('reachable h_player' + hex.creature.team);
 						// Add dashed hexagons under targets for ranged abilities with team color
 						hex.displayVisualState('dashed player' + hex.creature.team);
@@ -1191,7 +1353,7 @@ export class HexGrid {
 				} else {
 					if (o.fillOnlyHoveredCreature && !emptyHexBeforeCreature(hex)) {
 						hex.displayVisualState('dashed');
-					} else {
+					} else if (this.game.activeCreature) {
 						hex.overlayVisualState('reachable h_player' + this.game.activeCreature.team);
 					}
 				}
@@ -1344,7 +1506,7 @@ export class HexGrid {
 
 				// Keep primary materialize preview alive for summon handoff:
 				// Creature.summon() uses fadeOutTempCreature() for a smooth transition.
-				clearPreviewOverlay(this.secondary_overlay, true);
+				clearPreviewOverlay(this.secondary_overlay);
 
 				o.fnOnConfirm(hex, o.args, { queryOptions: o });
 			}
@@ -1385,6 +1547,13 @@ export class HexGrid {
 		// ONMOUSEOVER
 		const onSelectFn = (hex: Hex) => {
 			if (isQueryLockedAfterConfirm) {
+				return;
+			}
+
+			// The active creature can be cleared by endGame() (e.g. when the Dark
+			// Priest dies mid-animation) while a stale hover query is still firing
+			// its mouse-move handler — there is no board left to render a hover for.
+			if (!game.activeCreature) {
 				return;
 			}
 
@@ -1444,6 +1613,11 @@ export class HexGrid {
 					hex.displayVisualState('creature player' + this.game.activeCreature.team);
 				}
 
+				// Allow custom hover handling (e.g. target.png marking during ability targeting).
+				if (o.fnOnHover) {
+					o.fnOnHover(hex);
+				}
+
 				// Offset Pos
 				const offset = o.flipped ? o.size - 1 : 0;
 				const mult = o.flipped ? 1 : -1; // For flipped player
@@ -1462,10 +1636,15 @@ export class HexGrid {
 				hex = this.hexes[y][x]; // New coords
 				o.fnOnSelect(hex, o.args);
 			} else if (!hex.reachable) {
+				// Reset the query so the movement path traced on the previous reachable
+				// hex (tracePath's `adj` hexes) is cleaned instead of lingering as dark
+				// hexagons once the cursor leaves range. Mirrors what selectNormal does
+				// via redoLastQuery() before tracing a new path.
+				this.redoLastQuery();
 				// Clean the last preview position's hex overlays and reset tracking so
 				// that re-entering the spawn range doesn't leave a ghost outline behind.
 				clearPreviewOverlay(this.materialize_overlay);
-				clearPreviewOverlay(this.secondary_overlay, true);
+				clearPreviewOverlay(this.secondary_overlay);
 				hex.overlayVisualState('hover');
 
 				$j('canvas').css(
@@ -1562,14 +1741,14 @@ export class HexGrid {
 		const hoveredTrapSprites = this.game.traps
 			.filter((trap) => trap.x === hex.x && trap.y === hex.y)
 			.flatMap((trap) => trap.getVisualSprites())
-			.filter((sprite) => sprite.exists && typeof sprite.getBounds === 'function');
+			.filter((sprite) => sprite.active && typeof sprite.getBounds === 'function');
 		const hoveredTrap =
 			hoveredTrapSprites.length > 0 ||
 			this.game.traps.some((trap) => trap.x === hex.x && trap.y === hex.y);
 		const hoveredDropSprites = (this.game.drops ?? [])
 			.filter((drop) => drop.x === hex.x && drop.y === hex.y && !drop.pickedUp)
 			.map((drop) => drop.display)
-			.filter((sprite) => sprite.exists && typeof sprite.getBounds === 'function');
+			.filter((sprite) => sprite.active && typeof sprite.getBounds === 'function');
 		const hoveredDrop = hoveredDropSprites.length > 0 || Boolean(hex.drop);
 		const hoveredRevealSprites = [...hoveredTrapSprites, ...hoveredDropSprites];
 		const hoveredRevealCreature = hoveredCreature instanceof Creature ? hoveredCreature : undefined;
@@ -1630,9 +1809,13 @@ export class HexGrid {
 					candidate.hexagons.some((h) => h.x === hex.x && h.y === hex.y);
 
 				if (!isOnTrapHex) {
-					const candidateBounds = candidate.sprite.getBounds();
+					const candidateBounds = safeSpriteBounds(candidate.sprite);
+					// Unmeasurable sprite: treat as non-overlapping rather than
+					// xraying on a guess.
+					if (!candidateBounds) return;
 					const overlapsReveal = hoveredRevealSprites.some((sprite) => {
-						const revealBounds = sprite.getBounds();
+						const revealBounds = safeSpriteBounds(sprite);
+						if (!revealBounds) return false;
 						return !(
 							candidateBounds.right <= revealBounds.left ||
 							candidateBounds.left >= revealBounds.right ||
@@ -1698,8 +1881,16 @@ export class HexGrid {
 			// hover preview or path cleanup cannot restart the glow state.
 			hex.cleanDisplayVisualState('adj hover dashed shrunken deadzone hidden');
 			hex.cleanOverlayVisualState(
-				'reachable weakDmg moveto selected hover ownCreatureHexShade h_player0 h_player1 h_player2 h_player3',
+				'reachable weakDmg moveto selected hover ownCreatureHexShade h_player0 h_player1 h_player2 h_player3 p0 p1 p2 p3',
 			);
+			return;
+		}
+
+		// A confirmed Crashing Globe target keeps its `target.png` marking until
+		// the projectile lands, but the cursor is transient and must be removed.
+		if (hex._markedByCrashingGlobe) {
+			hex.cleanDisplayVisualState();
+			hex.cleanOverlayVisualState();
 			return;
 		}
 
@@ -1735,7 +1926,9 @@ export class HexGrid {
 			// and `playerN` classes stay intact. That avoids reintroducing outline hexes
 			// while still removing hover-added dashed/path state.
 			hex.cleanDisplayVisualState('adj hover dashed shrunken deadzone hidden');
-			hex.cleanOverlayVisualState('hover h_player0 h_player1 h_player2 h_player3');
+			hex.cleanOverlayVisualState(
+				'hover h_player0 h_player1 h_player2 h_player3 p0 p1 p2 p3 crashing-globe-target',
+			);
 			return;
 		}
 
@@ -1745,6 +1938,19 @@ export class HexGrid {
 		// Restore the base query display class after transient hover cleanup so
 		// sideways cursor movement does not leave a lighter/transparent-looking hex.
 		const queryOpt = this.lastQueryOpt as any;
+
+		// `cleanHex` above strips every display class, including `shrunken`, and
+		// the branches below only restore `dashed`/`adj`. A shrunken hex that was
+		// hovered therefore comes off hover at full size — its display sprite
+		// keeps the 0.5 scale set by `updateStyle()` only while the `shrunken`
+		// class is present, so re-adding it here puts the hex back at reduced,
+		// centered scale. This must run before the creature early-return below:
+		// a target unit's hexes at the end of a long path are shrunken too, and
+		// skipping them here would leave those last hexagons at full size.
+		if (Array.isArray(queryOpt.shrunkenHexes) && queryOpt.shrunkenHexes.indexOf(hex) !== -1) {
+			hex.displayVisualState('shrunken');
+		}
+
 		if (hex.creature instanceof Creature) {
 			return;
 		}
@@ -1789,6 +1995,11 @@ export class HexGrid {
 				hex.cleanOverlayVisualState(
 					'hover selected reachable weakDmg moveto ownCreatureHexShade h_player0 h_player1 h_player2 h_player3',
 				);
+			} else if (hex._markedByCrashingGlobe) {
+				// Keep the target art, but remove any stale hover cursor after the
+				// targeting query closes.
+				hex.cleanDisplayVisualState();
+				hex.cleanOverlayVisualState();
 			} else {
 				hex.cleanDisplayVisualState();
 				hex.cleanOverlayVisualState();
@@ -1998,22 +2209,13 @@ export class HexGrid {
 	}
 
 	findCreatureMovementHexes(creature) {
+		// maxMovement includes movement banked by abilities that store unused points.
+		const movement = creature.maxMovement ?? creature.stats.movement;
+
 		if (creature.movementType() === 'flying') {
-			return this.getFlyingRange(
-				creature.x,
-				creature.y,
-				creature.stats.movement,
-				creature.size,
-				creature.id,
-			);
+			return this.getFlyingRange(creature.x, creature.y, movement, creature.size, creature.id);
 		} else {
-			return this.getMovementRange(
-				creature.x,
-				creature.y,
-				creature.stats.movement,
-				creature.size,
-				creature.id,
-			);
+			return this.getMovementRange(creature.x, creature.y, movement, creature.size, creature.id);
 		}
 	}
 
@@ -2103,22 +2305,28 @@ export class HexGrid {
 		this.game.UI.xrayQueue(-1);
 	}
 
-	private _rowDepthBaseIndex(y: number) {
-		// Leave room within each row for shared layer bands instead of forcing
-		// every renderable to compete in a single linear ordering.
-		return y * ROW_DEPTH_STRIDE;
-	}
-
+	/**
+	 * Depth for one renderable: a per-row base plus a band offset and an optional
+	 * within-band slot.
+	 *
+	 * The bands themselves live in `src/game-display/layer.ts` so the board layout
+	 * has one definition shared with the native container tree, rather than one
+	 * here and a copy in the layer module.
+	 */
 	getDepthAtBand(y: number, band: DepthBand, slot = 0) {
-		return this._rowDepthBaseIndex(y) + DEPTH_BAND[band] + slot;
+		return getDepthAtBand(y, band, slot);
 	}
 
-	assignSpriteDepthBand(sprite: Phaser.Sprite | undefined, y: number, band: DepthBand, slot = 0) {
+	/**
+	 * Phaser 4 owns render order through the native `depth` property; `z` is
+	 * reserved for the height of a light in the lighting pipeline.
+	 */
+	assignSpriteDepthBand(sprite: SpriteHandle | undefined, y: number, band: DepthBand, slot = 0) {
 		if (!sprite) {
 			return;
 		}
 
-		sprite.z = this.getDepthAtBand(y, band, slot);
+		sprite.setDepth(this.getDepthAtBand(y, band, slot));
 	}
 
 	orderCreatureZ() {
@@ -2136,7 +2344,7 @@ export class HexGrid {
 
 			for (let i = 0, len = creatures.length; i < len; i++) {
 				if (creatures[i] && creatures[i].y == y) {
-					creatures[i].grp.z = this.getDepthAtBand(y, 'UNITS', unitIndex++);
+					creatures[i].grp.setDepth(this.getDepthAtBand(y, 'UNITS', unitIndex++));
 				}
 			}
 
@@ -2180,12 +2388,12 @@ export class HexGrid {
 							(occupyingCreature as Creature | undefined) ??
 							((trap.typeOver && trap.ownerCreature instanceof Creature && trap.ownerCreature) ||
 								undefined);
-						if (zReferenceCreature?.grp && typeof zReferenceCreature.grp.z === 'number') {
+						if (zReferenceCreature?.grp && typeof zReferenceCreature.grp.depth === 'number') {
 							// Keep feet-volumetric tightly coupled to the occupied creature instead of
 							// jumping to a global volumetric slot that can overlap unrelated units.
-							sprite.z = zReferenceCreature.grp.z + (0.5 + volumetricTrapIndex++ * 0.01);
+							sprite.setDepth(zReferenceCreature.grp.depth + (0.5 + volumetricTrapIndex++ * 0.01));
 						} else {
-							sprite.z = this.getDepthAtBand(y, 'TRAP_VOLUMETRIC', volumetricTrapIndex++);
+							sprite.setDepth(this.getDepthAtBand(y, 'TRAP_VOLUMETRIC', volumetricTrapIndex++));
 						}
 						continue;
 					}
@@ -2232,10 +2440,14 @@ export class HexGrid {
 			}
 		}
 
-		this.trapGroup.sort('z', -1);
-		this.creatureGroup.sort('z', -1);
-		this.dropGroup.sort('z', -1);
-		this.trapOverGroup.sort('z', -1);
+		// Ascending depth: lower depth draws first, i.e. further back. These were
+		// `sort('depth', -1)` calls, whose `-1` was inert under Phaser 2's renderer
+		// (list order did not affect drawing) but would invert the board if it were
+		// honoured now, so the direction is stated explicitly instead.
+		sortLayerByDepth(this.trapGroup);
+		sortLayerByDepth(this.creatureGroup);
+		sortLayerByDepth(this.dropGroup);
+		sortLayerByDepth(this.trapOverGroup);
 	}
 
 	/**
@@ -2311,23 +2523,12 @@ export class HexGrid {
 	 */
 	previewCreature(pos, creatureData, player, secondary = false) {
 		const game = this.game;
-		const clearPreviewOverlay = (preview, isSecondary = false) => {
+		const clearPreviewOverlay = (preview) => {
 			if (!preview) {
 				return;
 			}
 
-			if (isSecondary) {
-				if (this._flickerTweenSecondary) {
-					this._flickerTweenSecondary.stop(true);
-					this._flickerTweenSecondary = undefined;
-				}
-			} else {
-				if (this._flickerTween) {
-					this._flickerTween.stop(true);
-					this._flickerTween = undefined;
-				}
-			}
-
+			clearPreviewTweens(game, preview);
 			preview.alpha = 0;
 
 			if (preview._previewPos === undefined) {
@@ -2352,7 +2553,7 @@ export class HexGrid {
 			game.activePlayer === game.activeCreature.player;
 
 		if (!shouldShowPlacementPreview) {
-			clearPreviewOverlay(secondary ? this.secondary_overlay : this.materialize_overlay, secondary);
+			clearPreviewOverlay(secondary ? this.secondary_overlay : this.materialize_overlay);
 			return;
 		}
 
@@ -2364,7 +2565,7 @@ export class HexGrid {
 				queryHexes.length > 0 &&
 				(!targetHex.reachable || queryHexes.indexOf(targetHex) === -1))
 		) {
-			clearPreviewOverlay(secondary ? this.secondary_overlay : this.materialize_overlay, secondary);
+			clearPreviewOverlay(secondary ? this.secondary_overlay : this.materialize_overlay);
 			return;
 		}
 
@@ -2375,15 +2576,48 @@ export class HexGrid {
 		const cardboard =
 			creatureData.type == '--' ? getDarkPriestCardboardKey(player) : creatureData.name;
 
+		// The cardboard is what the preview measures the unit against, so it is
+		// also what triggers its download. It is a few KiB and normally arrives
+		// long before the player settles on a hex, but a unit summoned straight
+		// from an ability (Dark Priest, Uncle Fungus, Scavenger) can reach a
+		// preview cold. When that happens, hold the request and replay the newest
+		// one for this overlay once the texture lands, rather than drawing a
+		// ghost sized against a missing texture.
+		if (!isTextureReady(cardboard)) {
+			// Recorded before the request, so a loader that answers synchronously
+			// still finds the request to replay.
+			setPendingPreview(this, secondary ? 'secondary' : 'primary', {
+				pos,
+				creatureData,
+				player,
+				secondary,
+			});
+			clearPreviewOverlay(secondary ? this.secondary_overlay : this.materialize_overlay);
+			ensureCardboard(cardboard, () => replayPendingPreview(this, secondary));
+			return;
+		}
+		clearPendingPreview(this, secondary);
+
 		if (!secondary) {
 			if (!this.materialize_overlay) {
 				// If sprite does not exist
 				// Adding sprite
-				this.materialize_overlay = this.creatureGroup.create(0, 0, cardboard);
-				this.materialize_overlay.anchor.setTo(0.5, 1);
+				this.materialize_overlay = this.game.gameEngine.add.sprite(
+					0,
+					0,
+					cardboard,
+					undefined,
+					this.creatureGroup,
+				);
+				this.materialize_overlay.setOrigin(0.5, 1);
 				this.materialize_overlay.posy = pos.y;
+				// A freshly created sprite keeps depth 0, which renders it behind
+				// every creature and trap on the board. orderCreatureZ() only
+				// re-bands an overlay when its row changes, so a brand new ghost
+				// has to be slotted into its depth band explicitly.
+				this.orderCreatureZ();
 			} else {
-				this.materialize_overlay.loadTexture(cardboard);
+				this.materialize_overlay.setTexture(cardboard);
 				if (this.materialize_overlay.posy != pos.y) {
 					this.materialize_overlay.posy = pos.y;
 					this.orderCreatureZ();
@@ -2393,11 +2627,19 @@ export class HexGrid {
 			if (!this.secondary_overlay) {
 				// If sprite does not exists
 				// Adding sprite
-				this.secondary_overlay = this.creatureGroup.create(0, 0, cardboard);
-				this.secondary_overlay.anchor.setTo(0.5, 1);
+				this.secondary_overlay = this.game.gameEngine.add.sprite(
+					0,
+					0,
+					cardboard,
+					undefined,
+					this.creatureGroup,
+				);
+				this.secondary_overlay.setOrigin(0.5, 1);
 				this.secondary_overlay.posy = pos.y;
+				// Same as the primary overlay: slot the new sprite into its band.
+				this.orderCreatureZ();
 			} else {
-				this.secondary_overlay.loadTexture(cardboard);
+				this.secondary_overlay.setTexture(cardboard);
 				if (this.secondary_overlay.posy != pos.y) {
 					this.secondary_overlay.posy = pos.y;
 					this.orderCreatureZ();
@@ -2407,45 +2649,33 @@ export class HexGrid {
 
 		const preview = secondary ? this.secondary_overlay : this.materialize_overlay;
 
-		// Placing sprite
+		// Placing sprite. Mirrors CreatureSprite's placement so the ghost lines
+		// up with the unit it is previewing — including reading the frame size
+		// rather than the source size, for the same reason.
+		const previewSize = getFrameSize(preview);
 		preview.x =
 			hex.displayPos.x +
-			(!player.flipped
-				? originX
-				: HEX_WIDTH_PX * creatureData.size - preview.texture.width - originX) +
-			preview.texture.width / 2;
-		preview.y = hex.displayPos.y + creatureData.display['offset-y'] + preview.texture.height;
-		preview.alpha = 0.5;
+			(!player.flipped ? originX : HEX_WIDTH_PX * creatureData.size - previewSize.width - originX) +
+			previewSize.width / 2;
+		preview.y = hex.displayPos.y + creatureData.display['offset-y'] + previewSize.height;
+		// The ghost is the overlay's final say on its own opacity: whatever fade
+		// the previous use left behind has to be gone before it is pinned.
+		clearPreviewTweens(game, preview);
+
+		// Held at a fixed ghost opacity, never tweened. The preview used to
+		// flicker (0.5 → 0.15, yoyo, forever), but under Phaser 4 the tween only
+		// completed one cycle before Phaser tore it down — `tweens.add()` resets
+		// a tween the moment it is created, which is before the chained
+		// `repeat(-1)` could be applied, so the loop counter stayed at 0 and
+		// `nextState()` completed the tween after the first pass. Every hex the
+		// cursor then crossed restarted that single fade, so moving between hexes
+		// animated the ghost instead of holding it still.
+		preview.alpha = GHOST_PREVIEW_ALPHA;
 
 		if (player.flipped) {
-			preview.scale.setTo(-1, 1);
+			preview.setScale(-1, 1);
 		} else {
-			preview.scale.setTo(1, 1);
-		}
-
-		const flickering = game.Phaser.add
-			.tween(preview)
-			.to(
-				{
-					alpha: 0.15,
-				},
-				777,
-				Phaser.Easing.Linear.None,
-			)
-			.yoyo(true)
-			.repeat(-1)
-			.start();
-		if (!secondary) {
-			if (this._flickerTween) {
-				// Stop animations that are about to be orphaned #2698
-				this._flickerTween.stop(true);
-			}
-			this._flickerTween = flickering;
-		} else {
-			if (this._flickerTweenSecondary) {
-				this._flickerTweenSecondary.stop(true);
-			}
-			this._flickerTweenSecondary = flickering;
+			preview.setScale(1, 1);
 		}
 
 		// Clean overlay from the previous preview position before painting the new one.
@@ -2492,15 +2722,21 @@ export class HexGrid {
 		// TODO: factor out this function. Use either Creature.creatureSprite
 		// or the existing temp creature created by /src/abilities/Dark-Priest.js
 		if (target) {
-			target.alpha = 0.5;
-			this.game.Phaser.add
+			// A fade already in flight (a cancelled summon, a second
+			// materialization) would fight this one for `alpha`.
+			clearPreviewTweens(this.game, target);
+			// Snap to the ghost opacity the preview was held at, so the handoff to
+			// the materializing unit — which fades up from the very same value —
+			// has no seam.
+			target.alpha = GHOST_PREVIEW_ALPHA;
+			this.game.gameEngine
 				.tween(target)
 				.to(
 					{
 						alpha: 0,
 					},
 					durationMs,
-					Phaser.Easing.Linear.None,
+					Easing.Linear.None,
 				)
 				.start();
 		}

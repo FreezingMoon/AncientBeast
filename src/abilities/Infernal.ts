@@ -6,12 +6,73 @@ import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
 import { getPointFacade } from '../utility/pointfacade';
 import { Hex } from '../utility/hex';
+import { shakeBoard } from '../game-display/camera';
+import { SnapshotCompatibilityError } from '../engine/GameSnapshot';
+import { INFERNAL_SCORCHED_GROUND_EFFECT } from '../engine/infernalSnapshotBehaviors';
+
+type InfernalScorchedGroundData = {
+	attackerId: number;
+	damages: Record<string, number>;
+};
+
+const bindScorchedGroundEffect = (
+	G,
+	effect: Effect,
+	data: Record<string, unknown> | undefined,
+	attackerOverride?: Creature,
+) => {
+	const candidate = data as Partial<InfernalScorchedGroundData> | undefined;
+	const attackerId = attackerOverride?.id ?? candidate?.attackerId;
+	const attacker =
+		attackerOverride ?? (Number.isInteger(attackerId) && G.creatures?.[attackerId as number]);
+	const damages = candidate?.damages;
+	if (
+		!attacker ||
+		!Number.isInteger(attackerId) ||
+		!damages ||
+		typeof damages !== 'object' ||
+		Array.isArray(damages) ||
+		Object.values(damages).some((amount) => typeof amount !== 'number' || !Number.isFinite(amount))
+	) {
+		throw new SnapshotCompatibilityError(
+			'Cannot restore Infernal scorched ground: effect data is invalid.',
+		);
+	}
+	const behaviorData: InfernalScorchedGroundData = {
+		attackerId: attackerId as number,
+		damages: { ...damages },
+	};
+	effect.attacker = attacker;
+	effect.snapshotBehaviorId = INFERNAL_SCORCHED_GROUND_EFFECT;
+	effect.snapshotBehaviorData = behaviorData;
+	effect.requireFn = function () {
+		const creature = this.trap?.hex?.creature;
+		return creature instanceof Creature && creature.id !== attacker.id;
+	};
+	effect.effectFn = (activeEffect, targetArg) => {
+		const target =
+			targetArg instanceof Creature
+				? targetArg
+				: targetArg instanceof Hex && targetArg.creature instanceof Creature
+				? targetArg.creature
+				: activeEffect.trap?.hex?.creature;
+		if (!(target instanceof Creature)) return;
+		target.takeDamage(new Damage(attacker, behaviorData.damages, 1, [], G), {
+			isFromTrap: true,
+		});
+		activeEffect.trap.destroy();
+		activeEffect.deleteEffect();
+	};
+};
 
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
  */
 export default (G) => {
+	G.registerSnapshotEffectBehavior(INFERNAL_SCORCHED_GROUND_EFFECT, (effect, data) =>
+		bindScorchedGroundEffect(G, effect, data),
+	);
 	G.abilities[4] = [
 		// 	First Ability: Boiling Point
 		{
@@ -33,60 +94,39 @@ export default (G) => {
 			},
 
 			_addTrap: function (hex) {
-				const ability = this;
+				const effect = new Effect(
+					this.title,
+					this.creature,
+					hex,
+					'onStepIn',
+					{
+						attacker: this.creature,
+						snapshotBehaviorId: INFERNAL_SCORCHED_GROUND_EFFECT,
+						snapshotBehaviorData: {
+							attackerId: this.creature.id,
+							damages: { ...this.damages },
+						},
+					},
+					G,
+				);
+				bindScorchedGroundEffect(
+					G,
+					effect,
+					{
+						attackerId: this.creature.id,
+						damages: { ...this.damages },
+					},
+					this.creature,
+				);
 
 				// Traps last forever if upgraded, otherwise 1 turn
 				const lifetime = this.isUpgraded() ? -1 : 1;
 
-				hex.createTrap(
-					'scorched-ground',
-					[
-						new Effect(
-							this.title,
-							this.creature,
-							hex,
-							'onStepIn',
-							{
-								requireFn: function () {
-									if (!this.trap.hex.creature) {
-										return false;
-									}
-									// Immunity to own trap type
-									return this.trap.hex.creature.id !== ability.creature.id;
-								},
-								effectFn: function (effect, target) {
-									const targetCreature =
-										target instanceof Creature
-											? target
-											: target instanceof Hex && target.creature instanceof Creature
-											? target.creature
-											: this.trap?.hex?.creature;
-
-									if (!(targetCreature instanceof Creature)) {
-										return;
-									}
-
-									targetCreature.takeDamage(
-										new Damage(effect.attacker, ability.damages, 1, [], G),
-										{
-											isFromTrap: true,
-										},
-									);
-									this.trap.destroy();
-									effect.deleteEffect();
-								},
-								attacker: this.creature,
-							},
-							G,
-						),
-					],
-					this.creature.player,
-					{
-						turnLifetime: lifetime,
-						ownerCreature: this.creature,
-						fullTurnLifetime: true,
-					},
-				);
+				hex.createTrap('scorched-ground', [effect], this.creature.player, {
+					turnLifetime: lifetime,
+					ownerCreature: this.creature,
+					fullTurnLifetime: true,
+				});
 			},
 		},
 
@@ -118,15 +158,15 @@ export default (G) => {
 			// 	query() :
 			query: function () {
 				const ability = this;
-				const magmaSpawn = this.creature;
+				const crea = this.creature;
 
 				G.grid.queryCreature({
 					fnOnConfirm: (...args) => {
 						ability.animation(...args);
 					},
 					team: this._targetTeam,
-					id: magmaSpawn.id,
-					flipped: magmaSpawn.player.flipped,
+					id: crea.id,
+					flipped: crea.player.flipped,
 					hexes: this.creature.getHexMap(matrices.frontnback3hex),
 				});
 			},
@@ -157,7 +197,12 @@ export default (G) => {
 					G,
 				);
 				target.takeDamage(damage);
-				G.Phaser.camera.shake(0.02, 300, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				shakeBoard({
+					amplitude: 0.02,
+					durationMs: 300,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				// Add attack stacks
 				let stacksToAdd = 1;
@@ -205,7 +250,7 @@ export default (G) => {
 			// 	query() :
 			query: function () {
 				const ability = this;
-				const magmaSpawn = this.creature;
+				const crea = this.creature;
 
 				this.map.origin = [0, 2];
 
@@ -215,9 +260,9 @@ export default (G) => {
 					},
 					team: Team.Both,
 					requireCreature: 0,
-					id: magmaSpawn.id,
-					flipped: magmaSpawn.player.flipped,
-					choices: [magmaSpawn.getHexMap(this.map), magmaSpawn.getHexMap(this.map, true)],
+					id: crea.id,
+					flipped: crea.player.flipped,
+					choices: [crea.getHexMap(this.map), crea.getHexMap(this.map, true)],
 				});
 			},
 
@@ -274,8 +319,8 @@ export default (G) => {
 					return false;
 				}
 
-				const magmaSpawn = this.creature;
-				const x = magmaSpawn.player.flipped ? magmaSpawn.x - magmaSpawn.size + 1 : magmaSpawn.x;
+				const crea = this.creature;
+				const x = crea.player.flipped ? crea.x - crea.size + 1 : crea.x;
 
 				if (
 					!this.testDirection({
@@ -292,19 +337,19 @@ export default (G) => {
 			// 	query() :
 			query: function () {
 				const ability = this;
-				const magmaSpawn = this.creature;
+				const crea = this.creature;
 
-				const x = magmaSpawn.player.flipped ? magmaSpawn.x - magmaSpawn.size + 1 : magmaSpawn.x;
+				const x = crea.player.flipped ? crea.x - crea.size + 1 : crea.x;
 
 				G.grid.queryDirection({
 					fnOnConfirm: (...args) => {
 						ability.animation(...args);
 					},
 					team: this._targetTeam,
-					id: magmaSpawn.id,
+					id: crea.id,
 					requireCreature: true,
 					x: x,
-					y: magmaSpawn.y,
+					y: crea.y,
 					directions: this.directions,
 				});
 			},
@@ -312,18 +357,26 @@ export default (G) => {
 			//	activate() :
 			activate: function (path, args) {
 				const ability = this;
-				const magmaSpawn = this.creature;
+				const crea = this.creature;
 
 				const finalizeHurl = () => {
-					const interval = setInterval(function () {
-						if (!G.freezedInput) {
-							clearInterval(interval);
-							G.UI.selectAbility(-1);
-							if (G.activeCreature?.player?.controller !== 'bot') {
-								G.activeCreature.queryMove();
-							}
+					const activeCreature = G.activeCreature;
+					G.UI.selectAbility(-1);
+					if (activeCreature?.dead || (!activeCreature && crea.dead)) {
+						if (G._deferredQueryMovePending > 0) {
+							G._deferredQueryMovePending--;
 						}
-					}, 100);
+						if (G._deferredQueryMovePending === 0 && G.animationQueue.length === 0) {
+							G.freezedInput = false;
+							G.grid?.refreshHoverState?.();
+						}
+						return;
+					}
+					if (activeCreature?.queryMove) {
+						activeCreature.queryMove();
+						return;
+					}
+					crea.queryMove();
 				};
 
 				ability.end(false, true);
@@ -339,25 +392,27 @@ export default (G) => {
 
 				// NOTE: Destroy traps currently under self
 				getPointFacade()
-					.getTrapsAt(magmaSpawn)
+					.getTrapsAt(crea)
 					.forEach((trap) => trap.destroy());
 
 				// Movement
 				const hurl = (_path) => {
 					const target = arrayUtils.last(_path).creature;
 
-					const magmaHex = magmaSpawn.hexagons[args.direction === 4 ? magmaSpawn.size - 1 : 0];
+					const magmaHex = crea.hexagons[args.direction === 4 ? crea.size - 1 : 0];
 					arrayUtils.filterCreature(_path, false, false);
-					_path.unshift(magmaHex); // Prevent error on empty path
+					if (magmaHex) {
+						_path.unshift(magmaHex); // Prevent error on empty path
+					}
 
-					const offset = args.direction === 4 ? magmaSpawn.size - 1 : 0;
+					const offset = args.direction === 4 ? crea.size - 1 : 0;
 					let destination;
 					for (let i = _path.length - 1; i >= 0; i--) {
 						const candidate = _path[i];
 						const x = candidate.x + offset;
 						const candidateHex = G.grid.hexes[candidate.y]?.[x];
 
-						if (candidateHex && candidateHex.isWalkable(magmaSpawn.size, magmaSpawn.id, true)) {
+						if (candidateHex && candidateHex.isWalkable(crea.size, crea.id, true)) {
 							destination = candidateHex;
 							break;
 						}
@@ -368,13 +423,14 @@ export default (G) => {
 						return;
 					}
 
-					magmaSpawn.moveTo(destination, {
+					crea.moveTo(destination, {
 						ignoreMovementPoint: true,
 						ignorePath: true,
+						afterimages: true,
 						callback: function () {
 							// Destroy traps along path
 							_path.forEach(function (hex) {
-								if (!hex.trap) {
+								if (!hex || !hex.trap) {
 									return;
 								}
 
@@ -392,10 +448,10 @@ export default (G) => {
 							let continueHurl = false;
 							if (ability.isUpgraded() && targetKilled) {
 								const nextPath = G.grid.getHexLine(target.x, target.y, args.direction, false);
-								arrayUtils.filterCreature(nextPath, true, true, magmaSpawn.id);
+								arrayUtils.filterCreature(nextPath, true, true, crea.id);
 								const nextTarget = arrayUtils.last(nextPath).creature;
 								// Continue only if there's a next enemy creature
-								if (nextTarget && isTeam(magmaSpawn, nextTarget, ability._targetTeam)) {
+								if (nextTarget && isTeam(crea, nextTarget, ability._targetTeam)) {
 									continueHurl = true;
 									hurl(nextPath);
 								}
@@ -406,7 +462,12 @@ export default (G) => {
 						},
 					});
 				};
-				G.Phaser.camera.shake(0.01, 300, true, G.Phaser.camera.SHAKE_BOTH, true);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 300,
+					force: true,
+					axis: 'both',
+				});
 				hurl(path);
 			},
 		},

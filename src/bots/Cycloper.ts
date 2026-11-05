@@ -16,6 +16,13 @@ const RETREAT_HEALTH_RATIO = 0.2;
 const RETREAT_ENERGY_RATIO = 0.18;
 const OPTIC_BURST_BASE_DAMAGE = 30;
 
+function isAwaitingApertureDestination(creature: Creature): boolean {
+	const aperture = creature.abilities[ABILITY.POWER_APERTURE] as
+		| { _awaitingApertureDestination?: boolean }
+		| undefined;
+	return aperture?._awaitingApertureDestination === true;
+}
+
 function isAcrylicWall(creature: Creature | null | undefined): boolean {
 	return creature instanceof Creature && creature.type === 'O0';
 }
@@ -37,6 +44,16 @@ function countAdjacentEnemies(creature: Creature): number {
 	const seen = new Set<number>();
 	creature.adjacentHexes(1).forEach((hex) => {
 		if (hex.creature instanceof Creature && isTeam(creature, hex.creature, Team.Enemy)) {
+			seen.add(hex.creature.id);
+		}
+	});
+	return seen.size;
+}
+
+function countAdjacentAllies(creature: Creature): number {
+	const seen = new Set<number>();
+	creature.adjacentHexes(1).forEach((hex) => {
+		if (hex.creature instanceof Creature && isTeam(creature, hex.creature, Team.Ally)) {
 			seen.add(hex.creature.id);
 		}
 	});
@@ -199,6 +216,37 @@ function scoreRiotShield(hex: Hex, activeCreature: Creature, controller: BotCont
 	return score;
 }
 
+/**
+ * Power Aperture on an acrylic wall.
+ *
+ * The ability itself never excludes walls — only a shielded enemy Dark Priest
+ * and targets the Cycloper cannot pay for — so a printed wall is a perfectly
+ * legal thing to drag. Scoring it `-Infinity` (as this did) meant that whenever
+ * a wall was the only thing in range, the bot refused every hex of the query,
+ * which the resolver reports as a failed ability and burns for the rest of the
+ * turn. Walls block the very lines the beam needs, so that is the common case,
+ * not an edge case.
+ *
+ * Only a wall standing alone is worth the ~30 energy, though. Once it touches
+ * the fight it is already shielding somebody, and a wall the Cycloper re-drops
+ * every single turn never settles: it just orbits the board, and the ultimate
+ * is the wrong thing to spend on it. So the score is for the stranded case,
+ * and it stays below a real creature — this is the Cycloper's finisher, and a
+ * 30 HP wall is not what it is for.
+ */
+function scoreApertureWall(target: Creature, activeCreature: Creature): number {
+	const adjacentAllies = countAdjacentAllies(target);
+	const adjacentEnemies = countAdjacentEnemies(target);
+
+	if (adjacentAllies > 0 || adjacentEnemies > 0) {
+		return Number.NEGATIVE_INFINITY;
+	}
+
+	// Enemy walls first: a stolen wall dropped among the enemy is cover for the
+	// Cycloper's own line. A stranded friendly wall is a relay worth rebuilding.
+	return isTeam(activeCreature, target, Team.Enemy) ? 240 : 170;
+}
+
 function scorePowerAperture(hex: Hex, activeCreature: Creature, controller: BotController): number {
 	const target = hex.creature;
 	if (!(target instanceof Creature) || target === activeCreature || target.dead || target.temp) {
@@ -212,11 +260,11 @@ function scorePowerAperture(hex: Hex, activeCreature: Creature, controller: BotC
 	}
 	const energyAfter = activeCreature.energy - apertureCost;
 
-	if (isTeam(activeCreature, target, Team.Ally)) {
-		if (isAcrylicWall(target)) {
-			return Number.NEGATIVE_INFINITY;
-		}
+	if (isAcrylicWall(target)) {
+		return scoreApertureWall(target, activeCreature);
+	}
 
+	if (isTeam(activeCreature, target, Team.Ally)) {
 		const missingHealth = target.stats.health - target.health;
 		const threat = countAdjacentEnemies(target);
 		let score = 140 + threat * 240;
@@ -240,7 +288,7 @@ function scorePowerAperture(hex: Hex, activeCreature: Creature, controller: BotC
 		return score;
 	}
 
-	if (!isTeam(activeCreature, target, Team.Enemy) || isAcrylicWall(target)) {
+	if (!isTeam(activeCreature, target, Team.Enemy)) {
 		return Number.NEGATIVE_INFINITY;
 	}
 
@@ -286,6 +334,61 @@ function scorePowerAperture(hex: Hex, activeCreature: Creature, controller: BotC
 	return score;
 }
 
+function hexDistanceToCreature(hex: Hex, creature: Creature): number {
+	return Math.abs(hex.x - creature.x) + Math.abs(hex.y - creature.y);
+}
+
+/**
+ * Scores the second stage of Power Aperture: an empty hex the already-chosen
+ * target gets dragged onto. Dragging a victim next to the Cycloper is the whole
+ * point of the ability, so proximity to the Cycloper dominates, with a nudge
+ * towards dropping it behind the Cycloper — further from the enemy half and out
+ * of reach of its escorts.
+ */
+function scoreApertureDestination(hex: Hex, activeCreature: Creature): number {
+	if (hex.creature instanceof Creature) {
+		return Number.NEGATIVE_INFINITY;
+	}
+
+	const distance = hexDistanceToCreature(hex, activeCreature);
+	let score = distance <= 1 ? 400 : -Math.min(400, (distance - 1) * 90);
+
+	const behindCycloper = activeCreature.player.flipped
+		? hex.x > activeCreature.x
+		: hex.x < activeCreature.x;
+	if (behindCycloper) {
+		score += 120;
+	}
+
+	if (hex.trap) {
+		score -= 200;
+	}
+
+	let adjacentAllies = 0;
+	let adjacentEnemies = 0;
+	hex.adjacentHex(1).forEach((adjacent) => {
+		const neighbour = adjacent.creature;
+		if (!(neighbour instanceof Creature) || neighbour.dead) {
+			return;
+		}
+
+		if (isTeam(activeCreature, neighbour, Team.Ally)) {
+			// A relay wall already covers this hex, so a dropped victim is easy to
+			// keep in place; any other ally is worth less.
+			adjacentAllies += isAcrylicWall(neighbour) ? 70 : 40;
+			return;
+		}
+
+		adjacentEnemies++;
+	});
+
+	score += adjacentAllies;
+	// The Cycloper itself counts as an adjacent enemy when the drop lands in melee.
+	score -= Math.max(0, adjacentEnemies - 1) * 140;
+
+	return score;
+}
+
 const CycloperStrategy: UnitBotStrategy = {
 	isRetreating(creature, _controller) {
 		const healthRatio = creature.health / creature.stats.health;
@@ -312,6 +415,10 @@ const CycloperStrategy: UnitBotStrategy = {
 		}
 
 		if (abilityIndex === ABILITY.POWER_APERTURE) {
+			if (isAwaitingApertureDestination(activeCreature)) {
+				return scoreApertureDestination(hex, activeCreature);
+			}
+
 			return scorePowerAperture(hex, activeCreature, controller);
 		}
 

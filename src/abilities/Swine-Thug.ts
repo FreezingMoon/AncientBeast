@@ -1,4 +1,4 @@
-import * as $j from 'jquery';
+import $j from 'jquery';
 import { Damage } from '../damage';
 import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
@@ -9,6 +9,35 @@ import Game from '../game';
 import { Hex } from '../utility/hex';
 import { getPointFacade } from '../utility/pointfacade';
 import { Trap } from '../utility/trap';
+import { shakeBoard } from '../game-display/camera';
+import { SnapshotCompatibilityError } from '../engine/GameSnapshot';
+import { SWINE_THUG_MUD_BATH_EFFECT } from '../engine/snapshotBehaviors';
+
+const bindMudBathEffect = (effect: Effect) => {
+	if (!(effect.owner instanceof Creature) || effect.owner.name !== 'Swine Thug') {
+		throw new SnapshotCompatibilityError('Cannot restore Swine Thug Mud Bath: owner is invalid.');
+	}
+	if (!(effect.target instanceof Hex) || effect.name !== 'Slow Down') {
+		throw new SnapshotCompatibilityError('Cannot restore Swine Thug Mud Bath: effect is invalid.');
+	}
+	effect.snapshotBehaviorId = SWINE_THUG_MUD_BATH_EFFECT;
+	effect.requireFn = function () {
+		if (!this.trap) {
+			throw new SnapshotCompatibilityError('Cannot activate Swine Thug Mud Bath without its trap.');
+		}
+		const creaturesOnHex = getPointFacade().getCreaturesAt(this.trap.x, this.trap.y);
+		if (creaturesOnHex.length === 0) {
+			return false;
+		}
+		// Swine Thugs are immune to the slow effect (they get Spa Goggles instead).
+		return !creaturesOnHex.some((creature) => creature.type === 'A1');
+	};
+	effect.effectFn = (_activeEffect, creature: Creature) => {
+		if (creature) {
+			creature.remainingMove--;
+		}
+	};
+};
 
 /*
  *TODO
@@ -24,6 +53,9 @@ import { Trap } from '../utility/trap';
  * @return {void}
  */
 export default (G: Game) => {
+	G.registerSnapshotEffectBehavior(SWINE_THUG_MUD_BATH_EFFECT, (effect) =>
+		bindMudBathEffect(effect),
+	);
 	/*
 	 *
 	 *	Swine Thug abilities
@@ -156,7 +188,12 @@ export default (G: Game) => {
 			activate: function (path, args) {
 				const ability = this;
 				ability.end();
-				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 100,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				const target = arrayUtils.last(path).creature;
 				if (!target) return;
@@ -209,10 +246,11 @@ export default (G: Game) => {
 					if (hex !== null) {
 						target.moveTo(hex, {
 							callback: function () {
-								G.activeCreature.queryMove();
+								G.activeCreature?.queryMove();
 							},
 							ignoreMovementPoint: true,
 							ignorePath: true,
+							afterimages: true,
 							overrideSpeed: 800, // Custom speed for knockback
 							animation: 'push',
 						});
@@ -328,7 +366,12 @@ export default (G: Game) => {
 			activate: function (path) {
 				const ability = this;
 				ability.end();
-				G.Phaser.camera.shake(0.01, 60, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 60,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				const target = arrayUtils.last(path).creature;
 				if (!target) return;
@@ -417,7 +460,7 @@ export default (G: Game) => {
 
 				G.grid.queryHexes({
 					fnOnCancel: function () {
-						G.activeCreature.queryMove();
+						G.activeCreature?.queryMove();
 					},
 					fnOnConfirm: function () {
 						// eslint-disable-next-line
@@ -453,30 +496,16 @@ export default (G: Game) => {
 
 				ability.end();
 
-				const effects = [
-					new Effect(
-						'Slow Down',
-						ability.creature,
-						hex,
-						'onStepIn',
-						{
-							requireFn: function () {
-								const creaturesOnHex = getPointFacade().getCreaturesAt(this.trap.x, this.trap.y);
-								if (creaturesOnHex.length === 0) {
-									return false;
-								}
-								// Swine Thugs are immune to the slow effect (they get Spa Goggles instead)
-								return !creaturesOnHex.some((c) => c.type === 'A1');
-							},
-							effectFn: function (effect, crea: Creature) {
-								if (crea) {
-									crea.remainingMove--;
-								}
-							},
-						},
-						G,
-					),
-				];
+				const effect = new Effect(
+					'Slow Down',
+					ability.creature,
+					hex,
+					'onStepIn',
+					{ snapshotBehaviorId: SWINE_THUG_MUD_BATH_EFFECT },
+					G,
+				);
+				bindMudBathEffect(effect);
+				const effects = [effect];
 				new Trap(hex.x, hex.y, 'mud-bath', effects, ability.creature.player, {}, G);
 				G.soundsys.playSFX('units/sfx/Swine Thug 3');
 				// Trigger trap immediately if on self

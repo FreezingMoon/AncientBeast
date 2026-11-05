@@ -240,6 +240,14 @@ function scoreBonfireSpring(hex: Hex, activeCreature: Creature, controller: BotC
 			// We jumped away from near an ally, leaving the bonfire to protect them
 			score += leavingAdjacentAllyCount * 50;
 		}
+
+		// A teleport still enters the destination hex (onStepIn) and departs the
+		// vacated hexes (onStepOut, e.g. Poisonous Vine), it just never crosses a
+		// walking path — so the shared penalty is asked to skip the path scan.
+		score -= controller.getMovePathTrapPenalty(activeCreature, hex, {
+			retreating: isRetreating,
+			skipPathScan: true,
+		});
 	}
 
 	return score;
@@ -337,6 +345,8 @@ const AbolishedStrategy: UnitBotStrategy = {
 	 *    along straight rows and diagonals).
 	 * 3. Bonus for adjacent allies — they absorb return fire and shield Abolished.
 	 * 4. Zone pressure towards the forward-leaning preferred x position.
+	 *
+	 * Trap exposure is applied by the generic scorer on top of this score.
 	 */
 	scoreMoveHex(hex, controller) {
 		const activeCreature = controller.game.activeCreature;
@@ -378,6 +388,37 @@ const AbolishedStrategy: UnitBotStrategy = {
 		score -= Math.abs(hex.x - preferredX) * 10;
 
 		return score;
+	},
+
+	/**
+	 * Abolished repositions with intent rather than drifting: standing still is
+	 * worth more than a marginal shuffle, and it must never walk out of a
+	 * damaging departure trap (Poisonous Vine) without a real gain to show for
+	 * it. Since the departure cost is already part of every destination's score,
+	 * a bar of zero means "only move when the destination beats staying put".
+	 */
+	getHoldPositionScore() {
+		return 0;
+	},
+
+	/**
+	 * Bonfire Spring is Abolished's main mode of travel, so it has to clear the
+	 * same "is moving actually better than staying put?" bar that walking does.
+	 * The bar matters most when the teleport would trigger a damaging departure
+	 * trap (Poisonous Vine): the destination scores are dragged down by the
+	 * departure cost, so the ability is only spent when the new position clearly
+	 * beats standing still rather than for a marginal shuffle.
+	 *
+	 * While retreating, escaping always wins, so no minimum is imposed.
+	 */
+	getAbilityMinScore(creature, abilityIndex, controller) {
+		if (abilityIndex !== ABILITY.BONFIRE_SPRING) {
+			return undefined;
+		}
+		if (controller.isRetreating(creature)) {
+			return undefined;
+		}
+		return controller.getHoldPositionScore(creature);
 	},
 
 	/**

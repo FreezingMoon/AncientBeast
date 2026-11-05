@@ -1,3 +1,4 @@
+import { Easing } from '../utility/easing';
 import { Damage } from '../damage';
 import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
@@ -7,6 +8,8 @@ import type { Ability } from '../ability';
 import { Direction, Hex } from '../utility/hex';
 import { isTeam } from '../utility/team';
 import Game from '../game';
+import { shakeBoard } from '../game-display/camera';
+import { getFrameSize } from '../game-display/texture';
 
 const isPlasmaFieldBlocker = (source: Creature, target: Creature) => {
 	return target.isDarkPriest() && target.hasCreaturePlayerGotPlasma();
@@ -228,7 +231,12 @@ export default (G: Game) => {
 			activate: function (target: Creature) {
 				const ability = this;
 				ability.end();
-				G.Phaser.camera.shake(0.01, 80, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 80,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				// Upgraded ability does pierce damage to smaller size targets
 				const damages = ability.damages;
@@ -308,7 +316,12 @@ export default (G: Game) => {
 			activate: function (target: Creature) {
 				const ability = this;
 				ability.end();
-				G.Phaser.camera.shake(0.02, 222, true, G.Phaser.camera.SHAKE_VERTICAL, true);
+				shakeBoard({
+					amplitude: 0.02,
+					durationMs: 222,
+					force: true,
+					axis: 'vertical',
+				});
 
 				const effects = [];
 				// Upgraded ability adds a -10 defense debuff
@@ -462,13 +475,6 @@ export default (G: Game) => {
 				const direction: Direction = args?.direction ?? Direction.Right;
 				const flipped = ability.creature.player.flipped;
 
-				// Determine which screen direction the shot travels
-				// Non-flipped: 0,1,2 → right; 3,4,5 → left
-				// Flipped:     0,1,2 → left; 3,4,5 → right
-				const screenGoingRight = flipped
-					? direction >= Direction.DownLeft
-					: direction <= Direction.DownRight;
-
 				const isBackwardsShot = ability.isTargetingBackwards(direction);
 
 				// Use the clicked path directly instead of recalculating
@@ -517,7 +523,12 @@ export default (G: Game) => {
 							);
 
 							const result = trg.takeDamage(damage);
-							G.Phaser.camera.shake(0.02, 80, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+							shakeBoard({
+								amplitude: 0.02,
+								durationMs: 80,
+								force: true,
+								axis: 'horizontal',
+							});
 
 							// Stop propagating if no damage dealt
 							if (
@@ -538,7 +549,7 @@ export default (G: Game) => {
 					if (travelPath.length === 0) {
 						applyDamage();
 						ability.creature.facePlayerDefault();
-						G.activeCreature.queryMove();
+						G.activeCreature?.queryMove();
 						return;
 					}
 
@@ -548,11 +559,25 @@ export default (G: Game) => {
 					const endHex = wasBlocked && blockerHex ? blockerHex : travelPath[travelPath.length - 1];
 					if (!endHex || !pathEndHex) {
 						ability.creature.facePlayerDefault();
-						G.activeCreature.queryMove();
+						G.activeCreature?.queryMove();
 						return;
 					}
-					const startX = emissionPoint.x + (screenGoingRight ? 150 : 30);
-					const startY = emissionPoint.y - 130;
+					// Tongue tip on the Knightmare cardboard, in texture pixels (the
+					// artwork is authored facing right). Reading it through the live
+					// sprite transform — position, anchor, and the scale a `setDir`
+					// mirroring leaves behind — keeps the spear leaving the mouth for
+					// both players and in both facing directions, instead of a hand
+					// measured offset per colour.
+					const tongueTexX = 138;
+					const tongueTexY = 98;
+					const creatureSprite = ability.creature.creatureSprite.sprite;
+					const creatureSize = getFrameSize(creatureSprite);
+					const tongueLocalX =
+						(tongueTexX - creatureSprite.originX * creatureSize.width) * creatureSprite.scaleX;
+					const tongueLocalY =
+						(tongueTexY - creatureSprite.originY * creatureSize.height) * creatureSprite.scaleY;
+					const startX = emissionPoint.x + creatureSprite.x + tongueLocalX;
+					const startY = emissionPoint.y + creatureSprite.y + tongueLocalY;
 					const aimPoint = getIcicleHexCenterPoint(pathEndHex);
 					const blockerIndex = blockerHex ? travelPath.indexOf(blockerHex) : -1;
 					const travelledStepCount =
@@ -565,24 +590,28 @@ export default (G: Game) => {
 						x: startX + (aimPoint.x - startX) * travelProgress,
 						y: startY + (aimPoint.y - startY) * travelProgress,
 					};
-					// Tongue is at +150 from group origin when facing right, +30 when facing left
-					// (creature size 2: 2 * HEX_WIDTH_PX - 150 = 30)
 					const duration = Math.max(1, travelledStepCount) * 75;
-					const sprite = G.grid.creatureGroup.create(startX, startY, 'effects_icicle-spear');
-					sprite.anchor.setTo(0.5);
+					const sprite = G.gameEngine.add.sprite(
+						startX,
+						startY,
+						'effects_icicle-spear',
+						undefined,
+						G.grid.creatureGroup,
+					);
+					sprite.setOrigin(0.5, 0.5);
 					const dx = aimPoint.x - startX;
 					const dy = aimPoint.y - startY;
 					sprite.rotation = Math.atan2(dy, dx);
-					const tween = G.Phaser.add
+					const tween = G.gameEngine
 						.tween(sprite)
-						.to({ x: impactPoint.x, y: impactPoint.y }, duration, Phaser.Easing.Linear.None)
+						.to({ x: impactPoint.x, y: impactPoint.y }, duration, Easing.Linear.None)
 						.start();
 
 					tween.onComplete.add(function () {
 						// @ts-expect-error 'this' refers to the animation sprite, not the ability.
 						this.destroy();
 						ability.creature.facePlayerDefault();
-						G.activeCreature.queryMove();
+						G.activeCreature?.queryMove();
 					}, sprite);
 				};
 

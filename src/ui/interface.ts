@@ -1,7 +1,7 @@
 // eslint-disable-next-line no-undef
 /* global JQuery */
 import $j from 'jquery';
-import Phaser from 'phaser-ce';
+import { Easing } from '../utility/easing';
 import * as time from '../utility/time';
 import * as emoji from 'node-emoji';
 import { Hotkeys, getHotKeys } from './hotkeys';
@@ -24,30 +24,77 @@ import Game from '../game';
 import { CreatureType } from '../data/types';
 import { getAvatarSet } from '../style/avatar-styles';
 import { applyBuffDebuffStyle } from './buffs-debuffs';
-import { getSummonCandidates } from '../utility/summon-candidates';
+import { getRandomSummonCandidates, getSummonCandidates } from '../utility/summon-candidates';
 import { OpenCollectiveBanner, isThirdPartyContentBlocked } from './open-collective-banner';
+import { onPointerUp } from '../input/input';
+import { isScoreboardHotkey, isUtilityHotkey as isUtilityHotkeyEvent } from '../input/hotkey-gate';
+import { setHandCursor } from '../game-display/cursor';
+import type { SpriteHandle } from '../engine/types';
 
 const SECRET_VIEW_ID = 'ab-secret-view';
+
+/**
+ * Render/input depth of the brand logo revealed with Ctrl.
+ *
+ * The hex grid renders in bands of `row * 100` (see HexGrid#getDepthAtBand), so
+ * anything above a few thousand sits in front of the whole board — which is
+ * what the logo needs, since it is a clickable overlay rather than scenery.
+ */
+const BRAND_LOGO_DEPTH = 100000;
+
+/** Combat log elements that toggle the Meta Powers panel on right-click. */
+const META_TOGGLE_SELECTOR = '#chatbox, #chatcontent';
 const GAME_IN_PROGRESS_UNLOAD_CONFIRMATION =
 	'A game is in progress and cannot be restored, are you sure you want to leave?';
-const DEV_RELOAD_PROMPT_ID = 'ab-dev-reload-prompt';
-const DEV_RELOAD_PROMPT_TITLE = 'New changes have been compiled!';
-const DEV_RELOAD_PROMPT_BODY = 'Insert coin to continue';
+const RELOAD_PROMPT_ID = 'ab-dev-reload-prompt';
 const MANUAL_REFRESH_PROMPT_TITLE = 'A game is in progress';
 const MANUAL_REFRESH_PROMPT_BODY = 'Reload now and abandon this match?';
+
+/** Scoreboard buttons that discard the match and therefore need a second activation. */
+type ScoreboardConfirmAction = 'restart' | 'exit';
+
+/** How long an armed destructive button stays red before it disarms itself. */
+const SCOREBOARD_CONFIRM_TIMEOUT_MS = 5000;
+
+/** How long the cost of an ability the hotkey cannot afford stays on screen. */
+const ABILITY_COST_FLASH_MS = 1000;
+
+/** Fade in/out duration of that cost preview. */
+const ABILITY_COST_FADE_MS = 250;
+
+export function areTurnActionButtonsDisabled(game: Game): boolean {
+	const activePlayer = game.activeCreature?.player;
+	return (
+		(!activePlayer ||
+			activePlayer.controller !== 'human' ||
+			Boolean(game.multiplayer && game.lobby && !game.lobby.isMyTurn())) &&
+		!game.isReplayInProgress
+	);
+}
 
 type ConfirmUnloadState = {
 	ignoreNextConfirmUnload: boolean;
 };
 
 let getActiveConfirmUnloadState: () => ConfirmUnloadState | null = () => null;
-let hasWebpackReloadConfirmListener = false;
 let hasManualRefreshConfirmListener = false;
-let devReloadPromptOverlay: HTMLDivElement | null = null;
-let removeDevReloadPromptEscListener: (() => void) | null = null;
-let allowNextDevReloadWithoutPrompt = false;
+/** Window key holding the registered manual-refresh capture handler. */
+const MANUAL_REFRESH_LISTENER_KEY = '__abManualRefreshListener';
+let reloadPromptOverlay: HTMLDivElement | null = null;
+let removeReloadPromptEscListener: (() => void) | null = null;
+let allowNextReloadWithoutPrompt = false;
 
-type ReloadPromptVariant = 'dev' | 'manual-refresh';
+/**
+ * The document-level listeners installed by the UI constructor.
+ *
+ * Every match builds a fresh UI over a fresh Phaser game, so each constructor
+ * call must unbind its predecessor's handlers: unlike the namespaced jQuery
+ * hotkeys, a raw `addEventListener` on `document` survives the match it was
+ * opened for, and the stale handler then drives a UI whose logo — and whose
+ * whole scene — the teardown already destroyed.
+ */
+let hideLogoOnVisibilityChange: (() => void) | null = null;
+let hideLogoOnHotkey: ((event: KeyboardEvent) => void) | null = null;
 
 const isManualReloadShortcut = (event: KeyboardEvent) => {
 	if (event.key === 'F5') {
@@ -62,37 +109,35 @@ const isManualReloadShortcut = (event: KeyboardEvent) => {
 };
 
 // Intercept browser modals while dev reload prompt is visible to prevent them from appearing on top
-const savedModalFunctions = {
-	alert: window.alert,
-	confirm: window.confirm,
-	prompt: window.prompt,
-};
+const _nativeAlert = window.alert;
+const _nativeConfirm = window.confirm;
+const _nativePrompt = window.prompt;
 
-let isDevReloadPromptVisible = false;
+let isRefreshPromptVisible = false;
 
 const suppressBrowserModalWhilePromptVisible = () => {
 	window.alert = (message?: unknown) => {
-		if (isDevReloadPromptVisible) {
-			console.warn('[Dev Reload] Suppressed alert:', message);
+		if (isRefreshPromptVisible) {
+			console.warn('[Refresh Prompt] Suppressed alert:', message);
 			return undefined;
 		}
-		return savedModalFunctions.alert(message);
+		return _nativeAlert(message);
 	};
 
 	window.confirm = (message?: string) => {
-		if (isDevReloadPromptVisible) {
-			console.warn('[Dev Reload] Suppressed confirm:', message);
+		if (isRefreshPromptVisible) {
+			console.warn('[Refresh Prompt] Suppressed confirm:', message);
 			return false;
 		}
-		return savedModalFunctions.confirm(message);
+		return _nativeConfirm(message);
 	};
 
 	window.prompt = (message?: string, defaultValue?: string) => {
-		if (isDevReloadPromptVisible) {
-			console.warn('[Dev Reload] Suppressed prompt:', message);
+		if (isRefreshPromptVisible) {
+			console.warn('[Refresh Prompt] Suppressed prompt:', message);
 			return null;
 		}
-		return savedModalFunctions.prompt(message, defaultValue);
+		return _nativePrompt(message, defaultValue);
 	};
 };
 
@@ -107,8 +152,8 @@ const setBeforeUnloadReturnValue = (event: BeforeUnloadEvent, value: string) => 
 };
 
 const confirmUnload = (event: BeforeUnloadEvent) => {
-	if (allowNextDevReloadWithoutPrompt) {
-		allowNextDevReloadWithoutPrompt = false;
+	if (allowNextReloadWithoutPrompt) {
+		allowNextReloadWithoutPrompt = false;
 		clearBeforeUnloadReturnValue(event);
 		return;
 	}
@@ -118,7 +163,7 @@ const confirmUnload = (event: BeforeUnloadEvent) => {
 		return;
 	}
 
-	if (isDevReloadPromptVisible) {
+	if (isRefreshPromptVisible) {
 		clearBeforeUnloadReturnValue(event);
 		return;
 	}
@@ -134,22 +179,28 @@ const confirmUnload = (event: BeforeUnloadEvent) => {
 	return GAME_IN_PROGRESS_UNLOAD_CONFIRMATION;
 };
 
-const closeDevReloadPrompt = () => {
-	if (!devReloadPromptOverlay) {
+/**
+ * Whether a match has been started (the unload guard is armed).
+ * Used by the dev-only vite reload guard in `script.ts`.
+ */
+export const isMatchRunning = () => Boolean(getActiveConfirmUnloadState());
+
+const closeRefreshPrompt = () => {
+	if (!reloadPromptOverlay) {
 		return;
 	}
 
-	isDevReloadPromptVisible = false;
-	devReloadPromptOverlay.remove();
-	devReloadPromptOverlay = null;
+	isRefreshPromptVisible = false;
+	reloadPromptOverlay.remove();
+	reloadPromptOverlay = null;
 
-	if (removeDevReloadPromptEscListener) {
-		removeDevReloadPromptEscListener();
-		removeDevReloadPromptEscListener = null;
+	if (removeReloadPromptEscListener) {
+		removeReloadPromptEscListener();
+		removeReloadPromptEscListener = null;
 	}
 };
 
-const createDevReloadButton = (
+const createRefreshButton = (
 	label: string,
 	onClick: () => void,
 	hotkey: string,
@@ -177,31 +228,10 @@ const createDevReloadButton = (
 	return button;
 };
 
-const showDevReloadPrompt = (variant: ReloadPromptVariant = 'dev') => {
-	const titleText =
-		variant === 'manual-refresh' ? MANUAL_REFRESH_PROMPT_TITLE : DEV_RELOAD_PROMPT_TITLE;
-	const bodyText =
-		variant === 'manual-refresh' ? MANUAL_REFRESH_PROMPT_BODY : DEV_RELOAD_PROMPT_BODY;
-
-	if (devReloadPromptOverlay) {
-		isDevReloadPromptVisible = true;
-		devReloadPromptOverlay.style.cssText =
-			'position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);pointer-events:auto;contain:layout style paint;';
-
-		const titleNode = devReloadPromptOverlay.querySelector('[data-dev-reload-title="true"]');
-		if (titleNode) {
-			titleNode.textContent = titleText;
-		}
-
-		const bodyNode = devReloadPromptOverlay.querySelector('[data-dev-reload-body="true"]');
-		if (bodyNode) {
-			bodyNode.textContent = bodyText;
-		}
-
-		if (devReloadPromptOverlay.parentElement !== document.body) {
-			document.body.appendChild(devReloadPromptOverlay);
-		}
-		return devReloadPromptOverlay;
+const showRefreshPrompt = () => {
+	if (reloadPromptOverlay) {
+		isRefreshPromptVisible = true;
+		return reloadPromptOverlay;
 	}
 
 	const activeConfirmUnloadState = getActiveConfirmUnloadState();
@@ -210,10 +240,10 @@ const showDevReloadPrompt = (variant: ReloadPromptVariant = 'dev') => {
 	}
 
 	const overlay = document.createElement('div');
-	overlay.id = DEV_RELOAD_PROMPT_ID;
+	overlay.id = RELOAD_PROMPT_ID;
 	overlay.setAttribute('role', 'dialog');
 	overlay.setAttribute('aria-modal', 'true');
-	overlay.setAttribute('aria-label', 'Dev reload prompt');
+	overlay.setAttribute('aria-label', 'Refresh prompt');
 	overlay.style.cssText =
 		'position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);pointer-events:auto;contain:layout style paint;';
 
@@ -229,11 +259,11 @@ const showDevReloadPrompt = (variant: ReloadPromptVariant = 'dev') => {
 	const closeButton = document.createElement('button');
 	closeButton.type = 'button';
 	closeButton.className = 'close-button';
-	closeButton.setAttribute('aria-label', 'Close dev reload prompt');
+	closeButton.setAttribute('aria-label', 'Close refresh prompt');
 	closeButton.addEventListener('click', (event) => {
 		event.preventDefault();
 		event.stopPropagation();
-		closeDevReloadPrompt();
+		closeRefreshPrompt();
 	});
 
 	closeWrapper.appendChild(closeButton);
@@ -250,7 +280,7 @@ const showDevReloadPrompt = (variant: ReloadPromptVariant = 'dev') => {
 		}
 
 		if (event.key === 'Escape') {
-			closeDevReloadPrompt();
+			closeRefreshPrompt();
 			return;
 		}
 
@@ -274,20 +304,18 @@ const showDevReloadPrompt = (variant: ReloadPromptVariant = 'dev') => {
 	};
 
 	const title = document.createElement('p');
-	title.dataset.devReloadTitle = 'true';
 	title.style.cssText = 'margin:0 0 12px;font-size:24px;line-height:1.2;text-align:center;';
-	title.textContent = titleText;
+	title.textContent = MANUAL_REFRESH_PROMPT_TITLE;
 
 	const body = document.createElement('p');
-	body.dataset.devReloadBody = 'true';
 	body.style.cssText = 'margin:0 0 20px;text-align:center;line-height:1.45;';
-	body.textContent = bodyText;
+	body.textContent = MANUAL_REFRESH_PROMPT_BODY;
 
 	const actions = document.createElement('div');
 	actions.className = 'dev-reload-actions';
 
 	actions.appendChild(
-		createDevReloadButton(
+		createRefreshButton(
 			'Save',
 			() => {
 				window.AB?.saveLog?.();
@@ -296,23 +324,23 @@ const showDevReloadPrompt = (variant: ReloadPromptVariant = 'dev') => {
 		),
 	);
 	actions.appendChild(
-		createDevReloadButton(
+		createRefreshButton(
 			'Reload',
 			() => {
 				// Re-resolve state at click time — the overlay is created once and reused,
 				// so the creation-time closure may point to a stale UI instance.
 				const currentState = getActiveConfirmUnloadState();
-				allowNextDevReloadWithoutPrompt = true;
+				allowNextReloadWithoutPrompt = true;
 				if (currentState) {
 					currentState.ignoreNextConfirmUnload = true;
 				}
-				closeDevReloadPrompt();
+				closeRefreshPrompt();
 				const previousOnBeforeUnload = window.onbeforeunload;
 				window.onbeforeunload = null;
 				// Watchdog: if the page doesn't unload within 3 s (reload was silently
 				// blocked by the browser), reset bypass flags so Ctrl+R shows the modal again.
 				setTimeout(() => {
-					allowNextDevReloadWithoutPrompt = false;
+					allowNextReloadWithoutPrompt = false;
 					if (currentState) {
 						currentState.ignoreNextConfirmUnload = false;
 					}
@@ -326,10 +354,10 @@ const showDevReloadPrompt = (variant: ReloadPromptVariant = 'dev') => {
 		),
 	);
 	actions.appendChild(
-		createDevReloadButton(
+		createRefreshButton(
 			'Continue',
 			() => {
-				closeDevReloadPrompt();
+				closeRefreshPrompt();
 			},
 			'C',
 			'secondary',
@@ -343,35 +371,23 @@ const showDevReloadPrompt = (variant: ReloadPromptVariant = 'dev') => {
 	overlay.appendChild(modal);
 	overlay.addEventListener('click', (event) => {
 		if (event.target === overlay) {
-			closeDevReloadPrompt();
+			closeRefreshPrompt();
 		}
 	});
 	overlay.addEventListener('contextmenu', (event) => {
 		event.preventDefault();
 		event.stopPropagation();
-		closeDevReloadPrompt();
+		closeRefreshPrompt();
 	});
 	document.body.appendChild(overlay);
 	window.addEventListener('keydown', handlePromptKeydown, true);
-	removeDevReloadPromptEscListener = () => {
+	removeReloadPromptEscListener = () => {
 		window.removeEventListener('keydown', handlePromptKeydown, true);
 	};
-	devReloadPromptOverlay = overlay;
-	isDevReloadPromptVisible = true;
+	reloadPromptOverlay = overlay;
+	isRefreshPromptVisible = true;
 
 	return overlay;
-};
-
-const confirmWebpackDevReload = (messageEvent: MessageEvent) => {
-	if (allowNextDevReloadWithoutPrompt) {
-		return;
-	}
-
-	if (messageEvent.data?.type !== 'webpackInvalid') {
-		return;
-	}
-
-	showDevReloadPrompt();
 };
 
 const confirmManualRefresh = (event: KeyboardEvent) => {
@@ -381,7 +397,7 @@ const confirmManualRefresh = (event: KeyboardEvent) => {
 
 	// A reload is already in flight — let the native shortcut through so it
 	// can bypass the beforeunload guard and complete the reload.
-	if (allowNextDevReloadWithoutPrompt) {
+	if (allowNextReloadWithoutPrompt) {
 		return;
 	}
 
@@ -395,31 +411,8 @@ const confirmManualRefresh = (event: KeyboardEvent) => {
 	if (typeof event.stopImmediatePropagation === 'function') {
 		event.stopImmediatePropagation();
 	}
-	showDevReloadPrompt('manual-refresh');
+	showRefreshPrompt();
 };
-
-const hasNoModifierKeys = (event: KeyboardEvent) =>
-	!event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey;
-
-const isFullscreenHotkey = (event: KeyboardEvent) =>
-	event.code === 'KeyF' && event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey;
-
-const isDashViewHotkey = (event: KeyboardEvent) =>
-	event.code === 'KeyD' && event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey;
-
-const isScoreViewHotkey = (event: KeyboardEvent) =>
-	(event.code === 'KeyT' && hasNoModifierKeys(event)) ||
-	(event.code === 'KeyS' && event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey);
-
-const isAudioViewHotkey = (event: KeyboardEvent) =>
-	event.code === 'KeyA' && event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey;
-
-const isViewSwitchHotkey = (event: KeyboardEvent) =>
-	isDashViewHotkey(event) || isScoreViewHotkey(event) || isAudioViewHotkey(event);
-
-const isScoreboardActionHotkey = (event: KeyboardEvent) =>
-	(event.code === 'KeyS' || event.code === 'KeyR' || event.code === 'KeyX') &&
-	hasNoModifierKeys(event);
 
 const createSecretViewOverlay = () => {
 	const overlay = document.createElement('div');
@@ -444,12 +437,7 @@ const createSecretViewOverlay = () => {
 		lotusUrl = getUrl('interface/Lotus');
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	} catch (error) {
-		try {
-			lotusUrl = getUrl('assets/autoload/phaser/Lotus');
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		} catch (fallbackError) {
-			// Keep raw-path fallback if asset map is unavailable.
-		}
+		// Keep raw-path fallback if asset map is unavailable.
 	}
 
 	image.src = lotusUrl;
@@ -491,13 +479,14 @@ const toggleSecretView = () => {
 	overlay.style.display = overlay.style.display === 'flex' ? 'none' : 'flex';
 };
 
-type InterfaceView = 'dash' | 'score' | 'audio' | 'secret';
+type InterfaceView = 'dash' | 'score' | 'audio' | 'secret' | 'hotkeys';
 
 const interfaceViewSignals = {
 	dash: 'toggleDash',
 	score: 'toggleScore',
 	audio: 'toggleMusicPlayer',
 	secret: 'toggleSecretView',
+	hotkeys: 'toggleHotkeys',
 } as const;
 
 type Config = {
@@ -542,7 +531,8 @@ export class UI {
 	$grid: JQuery<HTMLElement>; //eslint-disable-line no-undef
 	$activebox: JQuery<HTMLElement>; //eslint-disable-line no-undef
 	$scoreboard: JQuery<HTMLElement>; //eslint-disable-line no-undef
-	brandlogo: Phaser.Image;
+	$hotkeys: JQuery<HTMLElement>; //eslint-disable-line no-undef
+	brandlogo: SpriteHandle;
 	active: boolean;
 	queue: Queue;
 	quickInfo: QuickInfo;
@@ -577,6 +567,9 @@ export class UI {
 	selectedPlayer: number;
 	queueAnimSpeed: number;
 	dashAnimSpeed: number;
+	cardAssetCache: Map<string, HTMLImageElement>;
+	cardFlipTimeoutId: ReturnType<typeof setTimeout> | null;
+	abilityCostFlashTimeout: ReturnType<typeof setTimeout> | null;
 	materializeToggled: boolean;
 	glowInterval: ReturnType<typeof setInterval>;
 	hoveringNoActionCreature: boolean;
@@ -593,6 +586,13 @@ export class UI {
 	_abilityPanelAnimating: boolean;
 	ignoreNextConfirmUnload: boolean;
 	scoreboardGameOver: boolean;
+	/** Destructive scoreboard action awaiting its second activation, if any. */
+	scoreboardConfirmAction: ScoreboardConfirmAction | null;
+	scoreboardConfirmTimer: ReturnType<typeof setTimeout> | null;
+	// Guards the deferred pointer-events disable in closeDash(): a re-open
+	// before the fade callback runs must not have pointer-events yanked by
+	// the stale close's timeout.
+	private dashFadeToken: symbol | null = null;
 	/**
 	 * Create attributes and default buttons
 	 * @constructor
@@ -609,8 +609,29 @@ export class UI {
 		this.$grid = $j(this.makeCreatureGrid(document.getElementById('creaturerasterwrapper')));
 		this.$activebox = $j('#activebox');
 		this.$scoreboard = $j('#scoreboard');
-		this.brandlogo = game.Phaser.add.image(670, 200, 'AncientBeastLogo');
+		this.$hotkeys = $j('#hotkeys');
+		this.scoreboardConfirmAction = null;
+		this.scoreboardConfirmTimer = null;
+		// The logo is revealed while holding Ctrl; keep it horizontally centered
+		// on the viewport instead of hardcoding an off-center x.
+		this.brandlogo = game.gameEngine.add.image(this.getBrandLogoCenterX(), 200, 'AncientBeastLogo');
 		this.brandlogo.alpha = 0;
+		// Clicking the revealed logo re-rolls the combat location. A secret
+		// feature, so it stays inert until the logo is actually shown and it
+		// takes priority over the board — see #setBrandLogoVisible.
+		this.brandlogo.setDepth(BRAND_LOGO_DEPTH);
+		// The subscription is installed once and outlives the show/hide toggles;
+		// `setBrandLogoVisible` is what makes the logo hit-testable or not, so a
+		// hidden logo cannot consume a board click.
+		this.brandlogo.disableInteractive();
+		onPointerUp(this.brandlogo, (pointer) => {
+			// Left click only: a right-click over the logo should still reach the
+			// backdrop shortcut underneath and open the active creature's card.
+			if (pointer.button !== 0) {
+				return;
+			}
+			game.randomizeCombatLocation();
+		});
 		this.active = false;
 
 		this.queue = UI.#getQueue(this, document.getElementById('queuewrapper'));
@@ -667,7 +688,7 @@ export class UI {
 				$button: $j('.toggledash'),
 				hasShortcut: true,
 				click: () => {
-					this.game.signals.ui.dispatch('toggleDash');
+					this.game.channels.ui.emit('toggleDash');
 				},
 				overridefreeze: true,
 			},
@@ -681,7 +702,7 @@ export class UI {
 				$button: $j('#playerbutton.togglescore'),
 				hasShortcut: true,
 				click: () => {
-					this.game.signals.ui.dispatch('toggleScore');
+					this.game.channels.ui.emit('toggleScore');
 				},
 				overridefreeze: true,
 			},
@@ -706,7 +727,7 @@ export class UI {
 				$button: $j('.toggle-music-player'),
 				hasShortcut: true,
 				click: () => {
-					this.game.signals.ui.dispatch('toggleMusicPlayer');
+					this.game.channels.ui.emit('toggleMusicPlayer');
 				},
 				overridefreeze: true,
 			},
@@ -715,6 +736,7 @@ export class UI {
 		this.buttons.push(this.btnAudio);
 		this.btnAudio.$button.on('contextmenu', (e) => {
 			e.preventDefault();
+			e.stopPropagation();
 			this.cycleAudioMode();
 		});
 		// Skip Turn Button
@@ -724,6 +746,12 @@ export class UI {
 				hasShortcut: true,
 				click: () => {
 					if (!this.dashopen) {
+						// During replay
+						if (game.isReplayInProgress) {
+							game.toggleReplayFastForward();
+							return;
+						}
+
 						if (game.turnThrottle || game.botController.isBotTurn()) {
 							if (game.botController.isBotTurn()) {
 								this.showCancelIconOnButton(this.btnSkipTurn.$button);
@@ -800,7 +828,13 @@ export class UI {
 				$button: $j('#save.button'),
 				hasShortcut: true,
 				click: () => {
+					// Saving the log is not destructive, so it never joins the
+					// confirmation dance — it just drops a pending arm.
+					this.disarmScoreboardConfirm();
 					game.gamelog.save();
+				},
+				mouseleave: () => {
+					this.disarmScoreboardConfirm();
 				},
 				state: ButtonStateEnum.hidden,
 			},
@@ -813,6 +847,12 @@ export class UI {
 				$button: $j('#restart.button'),
 				hasShortcut: true,
 				click: () => {
+					// Restarting throws the match away, so the first activation only
+					// arms the button (red outline) and the second one commits.
+					if (!this.confirmScoreboardAction('restart')) {
+						return;
+					}
+
 					game.gamelog.add({
 						action: 'restart',
 					});
@@ -830,7 +870,12 @@ export class UI {
 					};
 
 					game.resetGame();
-					game.loadGame(restartConfig);
+					void game.loadGame(restartConfig).catch((error) => {
+						console.error('[Game] Could not restart the match', error);
+					});
+				},
+				mouseleave: () => {
+					this.disarmScoreboardConfirm('restart');
 				},
 				state: ButtonStateEnum.hidden,
 			},
@@ -846,10 +891,19 @@ export class UI {
 					if (this.dashopen) {
 						return;
 					}
+
+					// Same two-step guard as restart: leaving discards the match.
+					if (!this.confirmScoreboardAction('exit')) {
+						return;
+					}
+
 					game.gamelog.add({
 						action: 'exit',
 					});
 					game.resetGame();
+				},
+				mouseleave: () => {
+					this.disarmScoreboardConfirm('exit');
 				},
 				state: ButtonStateEnum.normal,
 			},
@@ -923,27 +977,22 @@ export class UI {
 											hex.displayVisualState('abilityRange');
 										}
 										// Kill any in-flight tweens so spamming doesn't stack animations.
-										game.Phaser.tweens.removeFrom(hex.display.scale);
+										game.gameEngine.removeTweensFrom(hex.display.scale);
 										// Hover path: return to 0.5 so circles remain as they were.
 										// Hotkey path: end at 0 and clean up since no hover is active.
 										const finalScale = isHovered ? 0.5 : 0;
-										hex.display.scale.setTo(0.5);
-										hex.display.anchor.setTo(0.5, 0.5);
-										game.Phaser.add
+										hex.display.setScale(0.5, 0.5);
+										hex.display.setOrigin(0.5, 0.5);
+										game.gameEngine
 											.tween(hex.display.scale)
-											.to({ x: 1.0, y: 1.0 }, 180, Phaser.Easing.Quadratic.Out, true, idx * 20)
+											.to({ x: 1.0, y: 1.0 }, 180, Easing.Quadratic.Out, true, idx * 20)
 											.onComplete.addOnce(() => {
-												game.Phaser.add
+												game.gameEngine
 													.tween(hex.display.scale)
-													.to(
-														{ x: finalScale, y: finalScale },
-														180,
-														Phaser.Easing.Quadratic.In,
-														true,
-													)
+													.to({ x: finalScale, y: finalScale }, 180, Easing.Quadratic.In, true)
 													.onComplete.addOnce(() => {
 														if (!isHovered) {
-															hex.display.anchor.setTo(0, 0);
+															hex.display.setOrigin(0, 0);
 															// Only clean this hex individually so circles from a
 															// concurrently hovered ability remain unaffected.
 															hex.cleanDisplayVisualState('abilityRange');
@@ -1010,9 +1059,9 @@ export class UI {
 							if (ability.require() == true && i != 0) {
 								if (ability._abilityRangeHexes?.length) {
 									ability._abilityRangeHexes.forEach((hex) => {
-										this.game.Phaser.tweens.removeFrom(hex.display.scale);
-										hex.display.scale.setTo(0);
-										hex.display.anchor.setTo(0, 0);
+										this.game.gameEngine.removeTweensFrom(hex.display.scale);
+										hex.display.setScale(0, 0);
+										hex.display.setOrigin(0, 0);
 										hex.cleanDisplayVisualState('abilityRange');
 									});
 								}
@@ -1048,8 +1097,8 @@ export class UI {
 								if (ab.message === game.msg.abilities.noTarget && ab._abilityRangeHexes?.length) {
 									ab._abilityRangeHexes.forEach((hex) => {
 										hex.displayVisualState('abilityRange');
-										hex.display.scale.setTo(0.5);
-										hex.display.anchor.setTo(0.5, 0.5);
+										hex.display.setScale(0.5, 0.5);
+										hex.display.setOrigin(0.5, 0.5);
 									});
 								}
 							}
@@ -1083,9 +1132,9 @@ export class UI {
 								if (ab._abilityRangeHexes?.length) {
 									ab._abilityRangeHexes.forEach((hex) => {
 										// Kill any running tween (including ones that would restore to 0.5).
-										this.game.Phaser.tweens.removeFrom(hex.display.scale);
-										hex.display.scale.setTo(0);
-										hex.display.anchor.setTo(0, 0);
+										this.game.gameEngine.removeTweensFrom(hex.display.scale);
+										hex.display.setScale(0, 0);
+										hex.display.setOrigin(0, 0);
 										hex.cleanDisplayVisualState('abilityRange');
 									});
 								}
@@ -1128,7 +1177,23 @@ export class UI {
 
 		// Scoreboard close button
 		$j('.togglescore.close-button').on('click', () => {
-			this.game.signals.ui.dispatch('toggleScore');
+			this.closeScoreboard();
+		});
+
+		// Rebuild the scoreboard table when the viewport flips between phone
+		// landscape and desktop so the transposed layout follows the screen.
+		const rebuildScoreboardOnResize = () => {
+			if (this.$scoreboard.hasClass('hide')) {
+				return;
+			}
+			this.refreshScoreboard();
+		};
+		window.addEventListener('resize', rebuildScoreboardOnResize);
+		window.addEventListener('orientationchange', rebuildScoreboardOnResize);
+
+		// Hotkeys screen close button
+		$j('.togglehotkeys.close-button').on('click', () => {
+			this.closeHotkeysScreen();
 		});
 
 		// ProgressBar
@@ -1190,6 +1255,149 @@ export class UI {
 		this.hotkeys = new Hotkeys(this);
 		const ingameHotkeys = getHotKeys(this.hotkeys);
 
+		// Right-click closes the topmost open view on RELEASE (mouseup), not on
+		// press: holding the button must keep the view visible until release
+		// (the pre-Phaser-4 behaviour). The whole gesture is swallowed here in
+		// window capture — which runs before Phaser's canvas/window listeners
+		// and before any DOM bubble handler — so no part of it can leak into
+		// the hex grid and reopen the dash:
+		//  - mousedown with a view open: swallow, remember the gesture started
+		//    on an overlay, don't close yet (button still held);
+		//  - mouseup: swallow, close exactly one view (topmost first);
+		//  - contextmenu: swallow, close only if a view is somehow still open
+		//    (gestures without a preceding mousedown); otherwise a no-op, so a
+		//    single press can never close twice.
+		const openViews = () => {
+			const open: Array<'music' | 'score' | 'meta' | 'dash' | 'hotkeys'> = [];
+			if (!this.$scoreboard.hasClass('hide')) {
+				open.push('score');
+			}
+			if (!$j('#musicplayerwrapper').hasClass('hide')) {
+				open.push('music');
+			}
+			if (this.metaPowers && !this.metaPowers.$els?.modal?.hasClass('hide')) {
+				open.push('meta');
+			}
+			if (this.dashopen) {
+				open.push('dash');
+			}
+			if (!this.$hotkeys.hasClass('hide')) {
+				open.push('hotkeys');
+			}
+			return open;
+		};
+		const topmostOpenView = (): 'music' | 'score' | 'meta' | 'dash' | 'hotkeys' | null => {
+			// Topmost mirrors z-order: scoreboard > music > meta > hotkeys > dash.
+			const open = openViews();
+			if (open.includes('score')) {
+				return 'score';
+			}
+			if (open.includes('music')) {
+				return 'music';
+			}
+			if (open.includes('meta')) {
+				return 'meta';
+			}
+			if (open.includes('hotkeys')) {
+				return 'hotkeys';
+			}
+			if (open.includes('dash')) {
+				return 'dash';
+			}
+			return null;
+		};
+		const closeViewName = (view: 'music' | 'score' | 'meta' | 'dash' | 'hotkeys') => {
+			if (view === 'music') {
+				this.toggleMusicPlayer(false);
+			} else if (view === 'score') {
+				this.closeScoreboard();
+			} else if (view === 'meta') {
+				this.metaPowers?._closeModal();
+			} else if (view === 'hotkeys') {
+				this.closeHotkeysScreen();
+			} else {
+				this.closeDash();
+			}
+		};
+		// The combat log is also the Meta Powers toggle (bound on the
+		// contextmenu bubble further down). That gesture must toggle the panel
+		// on/off, not close it, so this capture handler stays out of its way:
+		// without the guard below, the panel opened by the contextmenu would be
+		// closed again by the same press' mouseup (it only appeared while the
+		// button was held, then faded out).
+		const isMetaToggleGesture = (e: Event) => {
+			const target = e.target as Element | null;
+			return !!target?.closest?.(META_TOGGLE_SELECTOR);
+		};
+		// A physical right-click fires mousedown -> mouseup -> contextmenu.
+		// Close on mouseup (release): the overlay stays visible while the
+		// button is held, and only the release event closes a view — exactly
+		// one, topmost first. Closing happens here in window capture — which
+		// runs before Phaser's canvas listeners and before any DOM bubble
+		// handler — and propagation is stopped so every other layer stays
+		// silent for the whole gesture.
+		// The consumed-flag covers the gesture's own contextmenu (some
+		// browsers fire contextmenu without a preceding mousedown, e.g. after
+		// preventDefault on an earlier event) and resets there, so each
+		// physical press is a fresh gesture and the flag can't stick.
+		let gestureConsumed = false;
+		const onCaptureRightClick = (e: Event) => {
+			if (game.freezedInput) {
+				return;
+			}
+			const me = e as MouseEvent;
+			const isRightButton = e.type === 'contextmenu' || me.button === 2;
+			if (!isRightButton) {
+				return;
+			}
+			if (e.type !== 'mousedown' && e.type !== 'mouseup' && e.type !== 'contextmenu') {
+				return;
+			}
+			if (gestureConsumed) {
+				// Tail of an already-closed gesture: keep swallowing; the
+				// gesture's own contextmenu ends it and re-arms the next press.
+				// A fresh mousedown here means the previous release was missed
+				// (e.g. released off-window), so re-arm and handle it as new.
+				if (e.type === 'mousedown') {
+					gestureConsumed = false;
+				} else {
+					e.preventDefault();
+					e.stopPropagation();
+					if (e.type === 'contextmenu') {
+						gestureConsumed = false;
+					}
+					return;
+				}
+			}
+			if (openViews().length === 0) {
+				return;
+			}
+			if (isMetaToggleGesture(e) && topmostOpenView() === 'meta') {
+				// Hand the whole press to the combat log's toggle: the native menu
+				// and text selection stay suppressed, but the gesture is no longer
+				// swallowed so the panel toggles instead of closing on release.
+				e.preventDefault();
+				return;
+			}
+			e.preventDefault();
+			e.stopPropagation();
+			if (e.type === 'mouseup') {
+				// Close exactly one view per gesture, topmost first.
+				const topmost = topmostOpenView();
+				if (topmost) {
+					closeViewName(topmost);
+					gestureConsumed = true;
+				}
+			}
+		};
+		// Capture on window: runs before Phaser's canvas/window listeners and
+		// before any per-view bubble handler. Per-view bubble handlers are
+		// gone: closing here (once per gesture) means no second layer can
+		// double-close into the view underneath.
+		window.addEventListener('mousedown', onCaptureRightClick, true);
+		window.addEventListener('mouseup', onCaptureRightClick, true);
+		window.addEventListener('contextmenu', onCaptureRightClick, true);
+
 		// Remove hex grid if window loses focus
 		$j(window).off('blur.ingameHotkeys');
 		$j(window).on('blur.ingameHotkeys', () => {
@@ -1204,28 +1412,19 @@ export class UI {
 				const keydownAction = ingameHotkeys[e.code] && ingameHotkeys[e.code].onkeydown;
 				const isScoreboardOpen = !this.$scoreboard.hasClass('hide');
 				const isInterfaceViewOpen = this.isInterfaceViewOpen();
-				const isScoreboardHotkey =
-					e.code === 'Escape' ||
-					isViewSwitchHotkey(e) ||
-					isFullscreenHotkey(e) ||
-					isScoreboardActionHotkey(e);
 
 				// While scoreboard is open, block gameplay/navigation hotkeys and keep only
 				// scoreboard-scoped actions (Save, Exit, fullscreen, view switching) plus Escape.
-				if (isScoreboardOpen && !isScoreboardHotkey) {
+				if (isScoreboardOpen && !isScoreboardHotkey(e)) {
 					return;
 				}
 
-				const isUtilityHotkey =
-					e.code === 'F11' ||
-					isFullscreenHotkey(e) ||
-					isViewSwitchHotkey(e) ||
-					(e.code === 'Escape' && isInterfaceViewOpen) ||
-					(isScoreboardActionHotkey(e) && isScoreboardOpen) ||
-					(e.code === 'KeyX' && e.shiftKey && e.ctrlKey && !e.metaKey && !e.altKey) ||
-					e.code === 'Backquote' ||
-					e.code === 'Backspace' ||
-					(e.code === 'KeyP' && e.metaKey && e.altKey && !e.ctrlKey && !e.shiftKey);
+				const isUtilityHotkey = isUtilityHotkeyEvent(e, {
+					dashOpen: this.dashopen,
+					interfaceViewOpen: isInterfaceViewOpen,
+					scoreboardOpen: isScoreboardOpen,
+					replayInProgress: game.isReplayInProgress,
+				});
 
 				if (game.freezedInput && !isUtilityHotkey) {
 					return;
@@ -1293,86 +1492,27 @@ export class UI {
 						this.materializeButton.triggerClick();
 					}
 					break;
-				case 3:
-					// Right mouse button pressed
-					e.preventDefault();
-					e.stopPropagation();
-					if (this.dashopen) {
-						this.closeDash();
-					}
-					break;
+				// Right-click (button 3) handled by window capture handler below,
+				// which intercepts before canvas and closes dash.
 			}
 		});
 
-		$j('#dash').on('contextmenu', (e) => {
-			e.preventDefault();
+		// Prevent mouseup from falling through to Phaser canvas after right-click closes dash
+		$j('#dash').on('mouseup', (e) => {
+			if (game.freezedInput) {
+				return;
+			}
 			e.stopPropagation();
-			if (this.dashopen) {
-				this.closeDash();
-			}
 		});
 
-		// Mouse Shortcut
-		$j('#musicplayerwrapper').on('mousedown', (e) => {
-			if (game.freezedInput) {
-				return;
-			}
-			switch (e.which) {
-				case 1:
-					// Left mouse button pressed
-					break;
-				case 2:
-					// Middle mouse button pressed
-					e.stopPropagation();
-					break;
-				case 3:
-					// Right mouse button pressed
-					this.toggleMusicPlayer(false);
-					break;
-			}
-		});
+		// Stale per-view right-click closers, superseded by the window-capture
+		// gesture handler above (closes once per gesture, topmost first). They
+		// are detached so a single gesture can't close twice — e.g. closing
+		// audio and then, on the same gesture, the dash underneath.
+		$j('#meta-powers').off('mousedown.ab-close');
+		$j('#ui').off('mousedown.ab-close');
 
-		// Mouse Shortcut
-		$j('#ui').on('mousedown', (e) => {
-			if (game.freezedInput) {
-				return;
-			}
-			switch (e.which) {
-				case 1:
-					// Left mouse button pressed
-					break;
-				case 2:
-					// Middle mouse button pressed
-					e.stopPropagation();
-					break;
-				case 3:
-					// Right mouse button pressed
-					this.closeScoreboard();
-					break;
-			}
-		});
-
-		// Mouse Shortcut
-		$j('#meta-powers').on('mousedown', (e) => {
-			if (game.freezedInput) {
-				return;
-			}
-			switch (e.which) {
-				case 1:
-					// Left mouse button pressed
-					break;
-				case 2:
-					// Middle mouse button pressed
-					e.stopPropagation();
-					break;
-				case 3:
-					// Right mouse button pressed
-					this.metaPowers?._closeModal();
-					break;
-			}
-		});
-
-		$j('#chatbox, #chatcontent').on('contextmenu', (e) => {
+		$j(META_TOGGLE_SELECTOR).on('contextmenu', (e) => {
 			if (game.freezedInput) {
 				return;
 			}
@@ -1380,7 +1520,7 @@ export class UI {
 			if (this.canToggleMetaPowers()) {
 				e.preventDefault();
 				e.stopPropagation();
-				this.game.signals.ui.dispatch('toggleMetaPowers');
+				this.game.channels.ui.emit('toggleMetaPowers');
 			}
 		});
 
@@ -1452,6 +1592,9 @@ export class UI {
 		this.hoveringNoActionCreature = false;
 		this.queueAnimSpeed = 500; // ms
 		this.dashAnimSpeed = 250; // ms
+		this.cardAssetCache = new Map();
+		this.cardFlipTimeoutId = null;
+		this.abilityCostFlashTimeout = null;
 
 		this.materializeToggled = false;
 		this.lastTurnWarningSecond = null;
@@ -1470,7 +1613,7 @@ export class UI {
 				0.5 +
 				// eslint-disable-next-line prettier/prettier
 				Math.floor(
-					((1 + Math.sin(Math.floor(new Date().valueOf() * Math.PI * 0.2) / 100)) / 4) * 100,
+					((1 + Math.sin(Math.floor(new Date().valueOf() * (Math.PI / 7.775)) / 100)) / 4) * 100,
 				) /
 					100;
 			const opaWeak = opa / 2;
@@ -1528,6 +1671,7 @@ export class UI {
 
 		$j('#tabwrapper a').removeAttr('href'); // Empty links
 
+		this.disarmScoreboardConfirm();
 		this.btnExit.changeState(ButtonStateEnum.hidden);
 		this.btnSaveLog.changeState(ButtonStateEnum.hidden);
 		this.btnRestartMatch.changeState(ButtonStateEnum.hidden);
@@ -1536,7 +1680,85 @@ export class UI {
 		this.$dash.hide();
 
 		// Events
-		this.game.signals.ui.add(this._handleUiEvent, this);
+		this.game.channels.ui.on('toggleDash', () => this.toggleDash(false));
+		this.game.channels.ui.on('toggleScore', () => this.toggleScoreboard(false));
+		this.game.channels.ui.on('toggleMusicPlayer', () => this.toggleMusicPlayer());
+		this.game.channels.ui.on('toggleSecretView', () => toggleSecretView());
+		this.game.channels.ui.on('toggleHotkeys', () => this.toggleHotkeysScreen());
+		this.game.channels.ui.on('toggleMetaPowers', () => {
+			if (!this.canToggleMetaPowers()) {
+				return;
+			}
+
+			this.closeDash();
+			this.closeScoreboard();
+		});
+		this.game.channels.ui.on('closeInterfaceScreens', () => {
+			if (this.isViewOpen('secret')) {
+				toggleSecretView();
+			}
+			this.closeDash();
+			this.toggleMusicPlayer(false);
+			this.closeScoreboard();
+			this.closeHotkeysScreen();
+		});
+	}
+
+	/** Horizontal center of the game viewport, used to center the brand logo. */
+	getBrandLogoCenterX(): number {
+		const worldWidth = this.game.gameEngine?.world?.width;
+		return worldWidth ? worldWidth / 2 : 960;
+	}
+
+	/** Re-center the brand logo, e.g. after the viewport was resized. */
+	centerBrandLogo() {
+		if (this.brandlogo) {
+			this.brandlogo.x = this.getBrandLogoCenterX();
+		}
+	}
+
+	/**
+	 * Show or hide the brand logo, and with it its click target.
+	 *
+	 * Holding Ctrl reveals the logo as a secret control that re-rolls the
+	 * combat location, so it only accepts pointer input while it is on screen.
+	 * Phaser 4 hit-tests interactive objects regardless of alpha — the engine
+	 * adapter deliberately keeps the render mask set so invisible hex hitboxes
+	 * still work — so leaving input enabled on a hidden logo would make it
+	 * swallow clicks meant for the board underneath it.
+	 */
+	setBrandLogoVisible(visible: boolean) {
+		const logo = this.brandlogo;
+		if (!logo) {
+			return;
+		}
+		logo.alpha = visible ? 1 : 0;
+		// The logo dies with its match: a rematch tears the previous Phaser game
+		// down outright, and everything that still hides the logo afterwards (the
+		// tab-switch and Ctrl+Shift+M handlers below, an in-flight hotkey) reaches
+		// into that destroyed world. Phaser 4's `GameObject.destroy()` clears
+		// `scene`, and the input methods dereference it unconditionally — hence a
+		// guard rather than an unconditional `disableInteractive()` on a dead
+		// object. Alpha is set above regardless, so a stale hide still holds.
+		if (!logo.scene) {
+			return;
+		}
+		if (visible) {
+			// `setInteractive` is what creates the interactive object the hand
+			// cursor is stored on, so the cursor has to be set afterwards.
+			logo.setInteractive();
+			setHandCursor(logo, true);
+			return;
+		}
+		// Disabled rather than left enabled-and-transparent: an invisible logo that
+		// still hit-tests would swallow clicks meant for the board underneath.
+		logo.disableInteractive();
+		setHandCursor(logo, false);
+		// Phaser only restores the canvas cursor on a pointer-out it observes
+		// itself, which never arrives for an object hidden mid-hover.
+		if ($j('canvas').css('cursor') === 'pointer') {
+			$j('canvas').css('cursor', '');
+		}
 	}
 
 	/**
@@ -1545,44 +1767,36 @@ export class UI {
 	 * @param {string} message Event name.
 	 * @param {object} payload Event payload.
 	 */
-	_handleUiEvent(message: string, _payload: object) {
-		if (message === 'toggleDash') {
-			this.toggleDash(false);
-		}
-
-		if (message === 'toggleScore') {
-			this.toggleScoreboard(false);
-		}
-
-		if (message === 'toggleMusicPlayer') {
-			this.toggleMusicPlayer();
-		}
-
-		if (message === 'toggleSecretView') {
-			toggleSecretView();
-		}
-
-		if (message === 'toggleMetaPowers') {
-			if (!this.canToggleMetaPowers()) {
-				return;
-			}
-
-			this.closeDash();
-			this.closeScoreboard();
-		}
-
-		if (message === 'closeInterfaceScreens') {
-			if (this.isViewOpen('secret')) {
-				toggleSecretView();
-			}
-			this.closeDash();
-			this.toggleMusicPlayer(false);
-			this.closeScoreboard();
-		}
-	}
-
 	canToggleMetaPowers() {
 		return process.env.NODE_ENV === 'development' && !this.game.multiplayer && !!this.metaPowers;
+	}
+
+	/**
+	 * How an ability's energy cost reads on the bar: the total it needs and the
+	 * part of that total the creature cannot cover.
+	 *
+	 * The total includes the energy every ability keeps in reserve, and the
+	 * shortfall is measured from the energy the creature has right now, so the
+	 * existing energy is always part of the reading.
+	 *
+	 * @returns {object} Fractions of the bar, or null when the ability has no
+	 * energy cost
+	 */
+	energyCostPreview(abilityId: number) {
+		const creature = this.game.activeCreature,
+			cost = creature?.abilities[abilityId]?.costs?.energy;
+
+		if (typeof cost !== 'number') {
+			return null;
+		}
+
+		const requiredEnergy = cost + creature.stats.reqEnergy;
+
+		return {
+			required: requiredEnergy / creature.stats.energy,
+			missing: requiredEnergy / creature.stats.energy - creature.energy / creature.stats.energy,
+			affordable: requiredEnergy <= creature.energy,
+		};
 	}
 
 	showAbilityCosts(abilityId: number) {
@@ -1591,20 +1805,16 @@ export class UI {
 			ab = creature.abilities[abilityId];
 
 		if (ab.costs !== undefined) {
-			if (typeof ab.costs.energy == 'number') {
-				const costsEnergy = ab.costs.energy + creature.stats.reqEnergy;
-				this.energyBar.previewSize(costsEnergy / creature.stats.energy);
+			const cost = this.energyCostPreview(abilityId);
+
+			if (cost) {
+				this.energyBar.previewSize(cost.required);
 				this.energyBar.setAvailableStyle();
 
-				if (costsEnergy > creature.energy) {
+				if (!cost.affordable) {
 					// Indicate the minimum energy required for the hovered ability
 					// if the requirement is not met
-					this.energyBar.setSize(costsEnergy / creature.stats.energy);
-					this.energyBar.previewSize(
-						costsEnergy / creature.stats.energy - creature.energy / creature.stats.energy,
-					);
-
-					this.energyBar.setUnavailableStyle();
+					this.energyBar.showUnavailableCost(cost.required, cost.missing);
 				}
 			} else {
 				this.energyBar.previewSize(0);
@@ -1626,6 +1836,63 @@ export class UI {
 
 		this.energyBar.previewSize(0);
 		this.healthBar.previewSize(0);
+	}
+
+	/**
+	 * Drop a pending cost flash and remove its overlay.
+	 */
+	private clearAbilityCostFlash() {
+		if (this.abilityCostFlashTimeout !== null) {
+			clearTimeout(this.abilityCostFlashTimeout);
+			this.abilityCostFlashTimeout = null;
+		}
+		this.energyBar.clearCostGhost();
+	}
+
+	/**
+	 * Briefly show what an ability costs when its hotkey is pressed while the
+	 * creature cannot afford it.
+	 *
+	 * A disabled ability button drops the click before it reaches the ability
+	 * (see Button#triggerClick), so the cost the hotkey silently refused would
+	 * only ever be visible to players who happen to hover the button. This draws
+	 * the same preview the hover does, on an overlay bar, so the energy the
+	 * creature does have never disappears.
+	 */
+	flashAbilityCosts(abilityId: number) {
+		// A selected ability or the dash already owns the preview.
+		if (this.selectedAbility !== -1 || this.dashopen) {
+			return;
+		}
+
+		const cost = this.energyCostPreview(abilityId);
+
+		// Only an energy shortfall is worth explaining on the bar itself; every
+		// refusal flashes the icon (see flashAbilityBtn), and targetless ones
+		// also pulse the range circles.
+		if (!cost || cost.affordable) {
+			return;
+		}
+
+		this.energyBar.showCostGhost(cost.required, cost.missing);
+
+		if (this.abilityCostFlashTimeout === null) {
+			// Start hidden, otherwise the overlay is already opaque and the fade
+			// in is invisible.
+			this.energyBar.fadeCostGhost(false, 0);
+			this.energyBar.fadeCostGhost(true, ABILITY_COST_FADE_MS);
+		} else {
+			// Already up: only re-arm the timer. Re-fading would make the cost
+			// blink for as long as the key is held down.
+			clearTimeout(this.abilityCostFlashTimeout);
+		}
+
+		this.abilityCostFlashTimeout = setTimeout(() => {
+			this.abilityCostFlashTimeout = null;
+			this.energyBar.fadeCostGhost(false, ABILITY_COST_FADE_MS, () => {
+				this.energyBar.clearCostGhost();
+			});
+		}, ABILITY_COST_FLASH_MS);
 	}
 
 	selectPreviousAbility() {
@@ -1781,8 +2048,14 @@ export class UI {
 		};
 
 		const wasDashClosed = !this.dashopen;
+		const oldCreatureType = this.selectedCreature;
 
 		if (wasDashClosed) {
+			// Invalidate any in-flight close's deferred pointer-events changes
+			// (see closeDash): a racing open before the fade callback runs
+			// would otherwise be left unclickable.
+			this.dashFadeToken = null;
+			this.$dash.css('pointer-events', '');
 			this.$dash.show().css('opacity', 0);
 			this.$dash.transition(
 				{
@@ -1883,310 +2156,381 @@ export class UI {
 			$j('#card .sideA .hexes').html(no_of_hexes);
 		}
 
-		// TODO card animation
-		if (
-			$j.inArray(creatureType, game.players[player].availableCreatures) > 0 ||
-			creatureType == '--'
-		) {
-			this.selectedCreatureObj = undefined;
+		// Card flip animation when switching creatures
+		const isSwitchingCreature =
+			!wasDashClosed && oldCreatureType !== '' && oldCreatureType !== creatureType;
+		const cardAssetUrls = [
+			getUrl('cards/margin'),
+			getCardArtworkUrl(stats.name),
+			getUrl('cards/' + stats.type.substring(0, 1)),
+			...Object.keys(stats.ability_info).map((key) =>
+				getUrl('units/abilities/' + stats.name + ' ' + key),
+			),
+		];
 
-			// retrieve the selected unit
-			game.players[player].creatures.forEach((creature) => {
-				if (creature.type == creatureType) {
-					this.selectedCreatureObj = creature;
-				}
-			});
-
-			// Card A
-			$j('#card .sideA').css({
-				'background-image': `url('${getUrl('cards/margin')}'), url('${getUrlWithFallback(
-					'units/artwork/' + stats.name,
-					'units/artwork/Dark Priest',
-				)}')`,
-			});
-			$j('#card .sideA .section.info')
-				.removeClass('sin- sinA sinE sinG sinL sinP sinS sinW')
-				.addClass('sin' + stats.type.substring(0, 1));
-			addCardCharacterInfo();
-
-			// Card B
-			$j('#card .sideB').css({
-				'background-image': `url('${getUrl('cards/margin')}'), url('${getUrl(
-					'cards/' + stats.type.substring(0, 1),
-				)}')`,
-			});
-
-			const isBrowsing = !this.selectedCreatureObj;
-
-			$j.each(stats.stats, (key, value) => {
-				const $stat = $j('#card .sideB .' + key + ' .value');
-
-				if (this.selectedCreatureObj) {
-					if (key == 'health') {
-						$stat.text(this.selectedCreatureObj.health + '/' + this.selectedCreatureObj.stats[key]);
-					} else if (key == 'movement') {
-						$stat.text(
-							this.selectedCreatureObj.remainingMove + '/' + this.selectedCreatureObj.stats[key],
-						);
-					} else if (key == 'energy') {
-						$stat.text(this.selectedCreatureObj.energy + '/' + this.selectedCreatureObj.stats[key]);
-					} else if (key == 'endurance') {
-						$stat.text(
-							this.selectedCreatureObj.endurance + '/' + this.selectedCreatureObj.stats[key],
-						);
-					} else {
-						$stat.text(this.selectedCreatureObj.stats[key]);
-					}
-				} else {
-					$stat.text(value);
-				}
-
-				applyBuffDebuffStyle($stat, this.selectedCreatureObj, key, value, isBrowsing);
-			});
-			$j.each(game.abilities[stats.id], (key) => {
-				const $ability = $j('#card .sideB .abilities .ability:eq(' + key + ')');
-				const abilityIndex = Number(key);
-				const isUpgraded = Boolean(
-					this.selectedCreatureObj?.abilities?.[abilityIndex]?.isUpgraded(),
-				);
-				$ability.children('.icon').css({
-					'background-image': `url('${getUrl('units/abilities/' + stats.name + ' ' + key)}')`,
-				});
-				$ability.toggleClass('upgraded', isUpgraded);
-				$ability
-					.children('.wrapper')
-					.children('.info')
-					.children('h3')
-					.text(stats.ability_info[key].title);
-				$ability
-					.children('.wrapper')
-					.children('.info')
-					.children('#desc')
-					.text(stats.ability_info[key].desc);
-				$ability
-					.children('.wrapper')
-					.children('.info')
-					.children('#info')
-					.text(stats.ability_info[key].info);
-				$ability
-					.children('.wrapper')
-					.children('.info')
-					.children('#upgrade')
-					.text('Upgrade: ' + stats.ability_info[key].upgrade);
-
-				if (stats.ability_info[key].costs !== undefined && key !== 0) {
-					$ability
-						.children('.wrapper')
-						.children('.info')
-						.children('#cost')
-						.text(' - costs ' + stats.ability_info[key].costs.energy + ' energy pts.');
-				} else {
-					$ability
-						.children('.wrapper')
-						.children('.info')
-						.children('#cost')
-						.text(' - this ability is passive.');
-				}
-			});
-
-			const summonedOrDead = game.players[player].creatures.some(
-				(creature) => creature.type == creatureType,
+		const updateCardContent = () => {
+			const materializedCreature = game.players[player].creatures.find(
+				(creature) => creature.type === creatureType,
+			);
+			$j('#card .sideA').css(
+				'cursor',
+				materializedCreature && !materializedCreature.dead ? 'progress' : 'not-allowed',
 			);
 
-			this.materializeButton.changeState(ButtonStateEnum.disabled);
-			$j('#card .sideA').addClass('disabled').off('click');
-
-			const activeCreature = game.activeCreature;
-
-			if (activeCreature.player.getNbrOfCreatures() > game.configData.creaLimitNbr) {
-				$j('#materialize_button p').text(game.msg.ui.dash.materializeOverload);
-			}
-			// Check if the player is viewing the wrong tab
-			else if (
-				activeCreature.player.id !== player &&
-				activeCreature.isDarkPriest() &&
-				activeCreature.abilities[3].testRequirements() &&
-				activeCreature.abilities[3].used === false
+			if (
+				$j.inArray(creatureType, game.players[player].availableCreatures) > 0 ||
+				creatureType == '--'
 			) {
-				$j('#materialize_button p').text(game.msg.ui.dash.wrongPlayer);
+				this.selectedCreatureObj = undefined;
 
-				// Switch to turn player's dark priest
-				this.materializeButton.click = () => {
-					this.showCreature('--', activeCreature.player.id);
-				};
-
-				$j('#card .sideA').on('click', this.materializeButton.click);
-				$j('#card .sideA').removeClass('disabled');
-				this.materializeButton.changeState(ButtonStateEnum.glowing);
-				$j('#materialize_button').show();
-			} else if (
-				!summonedOrDead &&
-				activeCreature.player.id === player &&
-				activeCreature.type === '--' &&
-				activeCreature.abilities[3].used === false
-			) {
-				const lvl = parseInt(creatureType.substring(1, 2)) - 0,
-					size = game.retrieveCreatureStats(creatureType).size - 0,
-					plasmaCost = lvl + size;
-
-				// Messages (TODO: text strings in a new language file)
-				if (plasmaCost > activeCreature.player.plasma) {
-					$j('#materialize_button p').text(game.msg.ui.dash.lowPlasma);
-				} else {
-					if (creatureType == '--') {
-						$j('#materialize_button p').text(game.msg.ui.dash.selectUnit);
-					} else {
-						$j('#materialize_button p').text(
-							game.msg.ui.dash.materializeUnit(plasmaCost.toString()),
-						);
-
-						// Bind button
-						this.materializeButton.click = () => {
-							this.materializeToggled = false;
-							this.selectAbility(3);
-							this.closeDash();
-							if (this.lastViewedCreature) {
-								activeCreature.abilities[3].materialize(this.lastViewedCreature);
-							} else {
-								activeCreature.abilities[3].materialize(this.selectedCreature);
-								this.lastViewedCreature = this.selectedCreature;
-							}
-						};
-						$j('#card .sideA').on('click', this.materializeButton.click);
-						$j('#card .sideA').removeClass('disabled');
-						this.materializeButton.changeState(ButtonStateEnum.glowing);
-						$j('#materialize_button').show();
+				// retrieve the selected unit
+				game.players[player].creatures.forEach((creature) => {
+					if (creature.type == creatureType) {
+						this.selectedCreatureObj = creature;
 					}
-				}
-			} else {
-				if (creatureType == '--' && !activeCreature.abilities[3].used) {
-					// Figure out if the player has enough plasma to summon any available creatures
-					const activePlayer = game.players[game.activeCreature.player.id];
-					const deadOrSummonedTypes = new Set(
-						activePlayer.creatures.map((creature) => creature.type),
-					);
-					const availableTypes = getSummonCandidates(game, activePlayer.availableCreatures, {
-						excludeTypes: deadOrSummonedTypes,
-					});
-					// Assume we can't afford anything
-					// Check one available creature at a time until we see something we can afford
-					let can_afford_a_unit = false;
-					availableTypes.forEach((type) => {
-						const lvl = parseInt(type.substring(1, 2)) - 0;
-						const size = game.retrieveCreatureStats(type).size - 0;
-						const plasmaCost = lvl + size;
-						if (plasmaCost <= activePlayer.plasma) {
-							can_afford_a_unit = true;
-						}
-					});
-					// If we can't afford anything, tell the player and disable the materialize button
-					if (!can_afford_a_unit) {
-						$j('#materialize_button p').text(game.msg.abilities.noPlasma);
-						this.materializeButton.changeState(ButtonStateEnum.disabled);
-					}
-					// Otherwise, let's have it show a random creature on click
-					else {
-						$j('#materialize_button p').text(game.msg.ui.dash.selectUnit);
-						// Bind button for random unit selection
-						this.materializeButton.click = () => {
-							this.lastViewedCreature = this.showRandomCreature();
-						};
-						// Apply the changes
-						$j('#card .sideA').on('click', this.materializeButton.click);
-						$j('#card .sideA').removeClass('disabled');
-						this.materializeButton.changeState(ButtonStateEnum.glowing);
-					}
-				} else if (
-					activeCreature.abilities[3].used &&
-					game.activeCreature.isDarkPriest() &&
-					player == game.activeCreature.player.id &&
-					(clickMethod === 'emptyHex' || clickMethod === 'portrait' || clickMethod === 'grid')
-				) {
-					if (summonedOrDead) {
-						$j('#materialize_button').hide();
-					} else if (clickMethod === 'portrait' && creatureType !== '--') {
-						$j('#materialize_button').hide();
-					} else {
-						$j('#materialize_button p').text(game.msg.ui.dash.materializeUsed);
-						$j('#materialize_button').show();
-					}
-				} else {
-					$j('#materialize_button').hide();
-				}
-			}
-		} else {
-			// Card A
-			$j('#card .sideA').css({
-				'background-image': `url('${getUrl('cards/margin')}'), url('${getCardArtworkUrl(
-					stats.name,
-				)}')`,
-			});
-			$j('#card .sideA .section.info')
-				.removeClass('sin- sinA sinE sinG sinL sinP sinS sinW')
-				.addClass('sin' + stats.type.substring(0, 1));
-			addCardCharacterInfo();
-
-			// Card B
-			$j.each(stats.stats, (key, value) => {
-				const $stat = $j('#card .sideB .' + key + ' .value');
-				$stat.removeClass('buff debuff');
-				$stat.text(value);
-			});
-
-			// Abilities
-			$j.each(stats.ability_info, (key) => {
-				const $ability = $j('#card .sideB .abilities .ability:eq(' + key + ')');
-				$ability.children('.icon').css({
-					'background-image': `url('${getUrl('units/abilities/' + stats.name + ' ' + key)}')`,
 				});
-				$ability.removeClass('upgraded');
-				$ability
-					.children('.wrapper')
-					.children('.info')
-					.children('h3')
-					.text(stats.ability_info[key].title);
-				$ability
-					.children('.wrapper')
-					.children('.info')
-					.children('#desc')
-					.html(stats.ability_info[key].desc);
-				$ability
-					.children('.wrapper')
-					.children('.info')
-					.children('#info')
-					.html(stats.ability_info[key].info);
-				// Check for an upgrade
-				if (stats.ability_info[key].upgrade) {
+
+				// Card A
+				$j('#card .sideA').css({
+					'background-image': `url('${getUrl('cards/margin')}'), url('${getUrlWithFallback(
+						'units/artwork/' + stats.name,
+						'units/artwork/Dark Priest',
+					)}')`,
+				});
+				$j('#card .sideA .section.info')
+					.removeClass('sin- sinA sinE sinG sinL sinP sinS sinW')
+					.addClass('sin' + stats.type.substring(0, 1));
+				addCardCharacterInfo();
+
+				// Card B
+				$j('#card .sideB').css({
+					'background-image': `url('${getUrl('cards/margin')}'), url('${getUrl(
+						'cards/' + stats.type.substring(0, 1),
+					)}')`,
+				});
+
+				const isBrowsing = !this.selectedCreatureObj;
+
+				$j.each(stats.stats, (key, value) => {
+					const $stat = $j('#card .sideB .' + key + ' .value');
+
+					if (this.selectedCreatureObj) {
+						if (key == 'health') {
+							$stat.text(
+								this.selectedCreatureObj.health + '/' + this.selectedCreatureObj.stats[key],
+							);
+						} else if (key == 'movement') {
+							$stat.text(
+								this.selectedCreatureObj.remainingMove + '/' + this.selectedCreatureObj.maxMovement,
+							);
+						} else if (key == 'energy') {
+							$stat.text(
+								this.selectedCreatureObj.energy + '/' + this.selectedCreatureObj.stats[key],
+							);
+						} else if (key == 'endurance') {
+							$stat.text(
+								this.selectedCreatureObj.endurance + '/' + this.selectedCreatureObj.stats[key],
+							);
+						} else {
+							$stat.text(this.selectedCreatureObj.stats[key]);
+						}
+					} else {
+						$stat.text(value);
+					}
+
+					applyBuffDebuffStyle($stat, this.selectedCreatureObj, key, value, isBrowsing);
+				});
+				$j.each(game.abilities[stats.id], (key) => {
+					const $ability = $j('#card .sideB .abilities .ability:eq(' + key + ')');
+					const abilityIndex = Number(key);
+					const isUpgraded = Boolean(
+						this.selectedCreatureObj?.abilities?.[abilityIndex]?.isUpgraded(),
+					);
+					$ability.children('.icon').css({
+						'background-image': `url('${getUrl('units/abilities/' + stats.name + ' ' + key)}')`,
+					});
+					$ability.toggleClass('upgraded', isUpgraded);
+					$ability
+						.children('.wrapper')
+						.children('.info')
+						.children('h3')
+						.text(stats.ability_info[key].title);
+					$ability
+						.children('.wrapper')
+						.children('.info')
+						.children('#desc')
+						.text(stats.ability_info[key].desc);
+					$ability
+						.children('.wrapper')
+						.children('.info')
+						.children('#info')
+						.text(stats.ability_info[key].info);
 					$ability
 						.children('.wrapper')
 						.children('.info')
 						.children('#upgrade')
 						.text('Upgrade: ' + stats.ability_info[key].upgrade);
-				} else {
-					$ability.children('.wrapper').children('.info').children('#upgrade').text(' ');
-				}
 
-				if (stats.ability_info[key].costs !== undefined && key !== 0) {
+					if (stats.ability_info[key].costs !== undefined && key !== 0) {
+						$ability
+							.children('.wrapper')
+							.children('.info')
+							.children('#cost')
+							.text(' - costs ' + stats.ability_info[key].costs.energy + ' energy pts.');
+					} else {
+						$ability
+							.children('.wrapper')
+							.children('.info')
+							.children('#cost')
+							.text(' - this ability is passive.');
+					}
+				});
+
+				const summonedOrDead = game.players[player].creatures.some(
+					(creature) => creature.type == creatureType,
+				);
+
+				this.materializeButton.changeState(ButtonStateEnum.disabled);
+				$j('#card .sideA').addClass('disabled').off('click');
+
+				const activeCreature = game.activeCreature;
+
+				if (activeCreature.player.getNbrOfCreatures() > game.configData.creaLimitNbr) {
+					$j('#card .sideA').css('cursor', 'no-drop');
+					$j('#materialize_button p').text(game.msg.ui.dash.materializeOverload);
+				}
+				// Check if the player is viewing the wrong tab
+				else if (
+					activeCreature.player.id !== player &&
+					activeCreature.isDarkPriest() &&
+					activeCreature.abilities[3].testRequirements() &&
+					activeCreature.abilities[3].used === false
+				) {
+					$j('#card .sideA').css('cursor', 'alias');
+					$j('#materialize_button p').text(game.msg.ui.dash.wrongPlayer);
+
+					// Switch to turn player's dark priest
+					this.materializeButton.click = () => {
+						this.showCreature('--', activeCreature.player.id);
+					};
+
+					$j('#card .sideA').on('click', this.materializeButton.click);
+					$j('#card .sideA').removeClass('disabled');
+					this.materializeButton.changeState(ButtonStateEnum.glowing);
+					$j('#materialize_button').show();
+				} else if (
+					!summonedOrDead &&
+					activeCreature.player.id === player &&
+					activeCreature.type === '--' &&
+					activeCreature.abilities[3].used === false
+				) {
+					const lvl = parseInt(creatureType.substring(1, 2)) - 0,
+						size = game.retrieveCreatureStats(creatureType).size - 0,
+						plasmaCost = lvl + size;
+
+					// Messages (TODO: text strings in a new language file)
+					if (plasmaCost > activeCreature.player.plasma) {
+						$j('#card .sideA').css('cursor', 'help');
+						$j('#materialize_button p').text(game.msg.ui.dash.lowPlasma);
+					} else {
+						if (creatureType == '--') {
+							$j('#materialize_button p').text(game.msg.ui.dash.selectUnit);
+						} else {
+							$j('#materialize_button p').text(
+								game.msg.ui.dash.materializeUnit(plasmaCost.toString()),
+							);
+							$j('#card .sideA').css('cursor', 'pointer');
+
+							// Bind button
+							this.materializeButton.click = () => {
+								this.materializeToggled = false;
+								this.selectAbility(3);
+								this.closeDash();
+								if (this.lastViewedCreature) {
+									activeCreature.abilities[3].materialize(this.lastViewedCreature);
+								} else {
+									activeCreature.abilities[3].materialize(this.selectedCreature);
+									this.lastViewedCreature = this.selectedCreature;
+								}
+							};
+							$j('#card .sideA').on('click', this.materializeButton.click);
+							$j('#card .sideA').removeClass('disabled');
+							this.materializeButton.changeState(ButtonStateEnum.glowing);
+							$j('#materialize_button').show();
+						}
+					}
+				} else {
+					if (creatureType == '--' && !activeCreature.abilities[3].used) {
+						// Figure out if the player has enough plasma to summon any available creatures
+						const activePlayer = game.players[game.activeCreature.player.id];
+						const deadOrSummonedTypes = new Set(
+							activePlayer.creatures.map((creature) => creature.type),
+						);
+						const availableTypes = getSummonCandidates(game, activePlayer.availableCreatures, {
+							excludeTypes: deadOrSummonedTypes,
+						});
+						// Assume we can't afford anything
+						// Check one available creature at a time until we see something we can afford
+						let can_afford_a_unit = false;
+						availableTypes.forEach((type) => {
+							const lvl = parseInt(type.substring(1, 2)) - 0;
+							const size = game.retrieveCreatureStats(type).size - 0;
+							const plasmaCost = lvl + size;
+							if (plasmaCost <= activePlayer.plasma) {
+								can_afford_a_unit = true;
+							}
+						});
+						// If we can't afford anything, tell the player and disable the materialize button
+						if (!can_afford_a_unit) {
+							$j('#materialize_button p').text(game.msg.abilities.noPlasma);
+							this.materializeButton.changeState(ButtonStateEnum.disabled);
+						}
+						// Otherwise, let's have it show a random creature on click
+						else {
+							$j('#materialize_button p').text(game.msg.ui.dash.selectUnit);
+							// Bind button for random unit selection
+							this.materializeButton.click = () => {
+								this.lastViewedCreature = this.showRandomCreature();
+							};
+							// Apply the changes
+							$j('#card .sideA').on('click', this.materializeButton.click);
+							$j('#card .sideA').removeClass('disabled');
+							this.materializeButton.changeState(ButtonStateEnum.glowing);
+						}
+					} else if (
+						activeCreature.abilities[3].used &&
+						game.activeCreature.isDarkPriest() &&
+						player == game.activeCreature.player.id &&
+						(clickMethod === 'emptyHex' || clickMethod === 'portrait' || clickMethod === 'grid')
+					) {
+						if (summonedOrDead) {
+							$j('#materialize_button').hide();
+						} else if (clickMethod === 'portrait' && creatureType !== '--') {
+							$j('#materialize_button').hide();
+						} else {
+							$j('#materialize_button p').text(game.msg.ui.dash.materializeUsed);
+							$j('#materialize_button').show();
+						}
+					} else {
+						$j('#materialize_button').hide();
+					}
+				}
+			} else {
+				// Card A
+				$j('#card .sideA').css({
+					'background-image': `url('${getUrl('cards/margin')}'), url('${getCardArtworkUrl(
+						stats.name,
+					)}')`,
+				});
+				$j('#card .sideA .section.info')
+					.removeClass('sin- sinA sinE sinG sinL sinP sinS sinW')
+					.addClass('sin' + stats.type.substring(0, 1));
+				addCardCharacterInfo();
+
+				// Card B
+				$j.each(stats.stats, (key, value) => {
+					const $stat = $j('#card .sideB .' + key + ' .value');
+					$stat.removeClass('buff debuff');
+					$stat.text(value);
+				});
+
+				// Abilities
+				$j.each(stats.ability_info, (key) => {
+					const $ability = $j('#card .sideB .abilities .ability:eq(' + key + ')');
+					$ability.children('.icon').css({
+						'background-image': `url('${getUrl('units/abilities/' + stats.name + ' ' + key)}')`,
+					});
+					$ability.removeClass('upgraded');
 					$ability
 						.children('.wrapper')
 						.children('.info')
-						.children('#cost')
-						.text(' - costs ' + stats.ability_info[key].costs.energy + ' energy pts.');
-				} else {
+						.children('h3')
+						.text(stats.ability_info[key].title);
 					$ability
 						.children('.wrapper')
 						.children('.info')
-						.children('#cost')
-						.text(' - this ability is passive.');
-				}
-			});
+						.children('#desc')
+						.html(stats.ability_info[key].desc);
+					$ability
+						.children('.wrapper')
+						.children('.info')
+						.children('#info')
+						.html(stats.ability_info[key].info);
+					// Check for an upgrade
+					if (stats.ability_info[key].upgrade) {
+						$ability
+							.children('.wrapper')
+							.children('.info')
+							.children('#upgrade')
+							.text('Upgrade: ' + stats.ability_info[key].upgrade);
+					} else {
+						$ability.children('.wrapper').children('.info').children('#upgrade').text(' ');
+					}
 
-			// Materialize button
-			this.materializeButton.changeState(ButtonStateEnum.disabled);
-			$j('#materialize_button p').text(game.msg.ui.dash.heavyDev);
-			$j('#materialize_button').show();
-			$j('#card .sideA').addClass('disabled').off('click');
+					if (stats.ability_info[key].costs !== undefined && key !== 0) {
+						$ability
+							.children('.wrapper')
+							.children('.info')
+							.children('#cost')
+							.text(' - costs ' + stats.ability_info[key].costs.energy + ' energy pts.');
+					} else {
+						$ability
+							.children('.wrapper')
+							.children('.info')
+							.children('#cost')
+							.text(' - this ability is passive.');
+					}
+				});
+
+				// Materialize button
+				this.materializeButton.changeState(ButtonStateEnum.disabled);
+				$j('#materialize_button p').text(game.msg.ui.dash.heavyDev);
+				$j('#materialize_button').show();
+				$j('#card .sideA').addClass('disabled').off('click');
+			}
+		};
+
+		if (isSwitchingCreature) {
+			this.flipCard(cardAssetUrls, updateCardContent);
+		} else {
+			updateCardContent();
 		}
+	}
+
+	/**
+	 * Fake a full card flip with one container: rotate to the edge, swap content,
+	 * reset invisibly to the opposite edge, and rotate back to the front.
+	 *
+	 * @param assetUrls - Images needed by the incoming card face.
+	 * @param onMidpoint - Callback invoked when the card is at 90 degrees (edge at screen).
+	 */
+	flipCard(assetUrls: string[], onMidpoint: () => void) {
+		const $cards = $j('#card .sideA, #card .sideB');
+		assetUrls.forEach((url) => {
+			if (!this.cardAssetCache.has(url)) {
+				const image = new Image();
+				image.src = url;
+				this.cardAssetCache.set(url, image);
+			}
+		});
+
+		if (this.cardFlipTimeoutId !== null) {
+			clearTimeout(this.cardFlipTimeoutId);
+		}
+
+		this.game.soundsys.playSFX('sounds/flip');
+		$cards.removeClass('flipping flip-reset').addClass('flipping');
+
+		// At 90 degrees, swap content and reset to -90 degrees without a transition.
+		this.cardFlipTimeoutId = setTimeout(() => {
+			onMidpoint();
+			$cards.removeClass('flipping').addClass('flip-reset');
+			$cards.each((_, card) => void (card as HTMLElement).offsetWidth);
+			window.requestAnimationFrame(() => {
+				$cards.removeClass('flip-reset');
+			});
+			this.cardFlipTimeoutId = null;
+		}, this.dashAnimSpeed / 2);
 	}
 
 	/**
@@ -2204,9 +2548,17 @@ export class UI {
 		// Figure out what the active player can summon
 		const activePlayer = game.players[this.game.activeCreature.player.id];
 		const deadOrSummonedTypes = new Set(activePlayer.creatures.map((creature) => creature.type));
-		const availableTypes = getSummonCandidates(game, activePlayer.availableCreatures, {
+		const summonableTypes = getSummonCandidates(game, activePlayer.availableCreatures, {
 			excludeTypes: deadOrSummonedTypes,
 		});
+		// Skip the unit that was materialized right before, so the random pick
+		// encourages some variety instead of copy-catting it.
+		const availableTypes = getRandomSummonCandidates(
+			game,
+			summonableTypes,
+			activePlayer.plasma,
+			game.lastSummonedType,
+		);
 
 		// Randomize array to grab a random creature
 		for (let i = availableTypes.length - 1; i > 0; i--) {
@@ -2326,10 +2678,18 @@ export class UI {
 	}
 
 	toggleMusicPlayer(force?: boolean) {
+		// Close-then-reopen within one synchronous flow (e.g. toggleDash()
+		// closing audio before opening) must not leave a stale deferred
+		// disable from closeDash() to yank pointer-events off the new open:
+		// invalidate it whenever audio opens.
+		if (force === false && $j('#musicplayerwrapper').hasClass('hide')) {
+			return;
+		}
 		const $musicPlayerWrapper = $j('#musicplayerwrapper');
 		const shouldOpen = force ?? $musicPlayerWrapper.hasClass('hide');
 
 		if (shouldOpen) {
+			this.dashFadeToken = null;
 			this.closeDash();
 			this.closeScoreboard();
 			$musicPlayerWrapper.removeClass('hide');
@@ -2342,12 +2702,16 @@ export class UI {
 	}
 
 	toggleView(view: InterfaceView) {
+		if (this.isViewOpen(view)) {
+			this.closeView(view);
+			return;
+		}
 		(Object.keys(interfaceViewSignals) as InterfaceView[]).forEach((candidate) => {
 			if (candidate !== view) {
 				this.closeView(candidate);
 			}
 		});
-		this.game.signals.ui.dispatch(interfaceViewSignals[view]);
+		this.game.channels.ui.emit(interfaceViewSignals[view]);
 	}
 
 	closeOpenInterfaceViews() {
@@ -2370,6 +2734,9 @@ export class UI {
 					toggleSecretView();
 				}
 				break;
+			case 'hotkeys':
+				this.closeHotkeysScreen();
+				break;
 		}
 	}
 
@@ -2390,11 +2757,53 @@ export class UI {
 				return !$j('#musicplayerwrapper').hasClass('hide');
 			case 'secret':
 				return document.getElementById(SECRET_VIEW_ID)?.style.display === 'flex';
+			case 'hotkeys':
+				return !this.$hotkeys.hasClass('hide');
 		}
 	}
 
 	renderScoreboard(gameOver, disconnectReason?: string) {
 		const game = this.game;
+
+		// Landscape phone: reshape the table so stats become columns with
+		// emoji-only headers (text as tooltips) and players become rows.
+		const isLandscapePhone = window.matchMedia(
+			'(orientation: landscape) and (max-height: 479px)',
+		).matches;
+		this.$scoreboard.toggleClass('scoreboard-landscape-phone', isLandscapePhone);
+
+		// On touch devices, hover doesn't fire, so tap the round buttons to
+		// toggle their tooltips. Delegated so it works for any button added
+		// later (save/restart/exit/flee).
+		this.$scoreboard
+			.off('click.scoreboardTooltips')
+			.on(
+				'click.scoreboardTooltips',
+				'.scoreboardActions .button, .scoreboardActions #save, .scoreboardActions #restart, .scoreboardActions #exit',
+				function () {
+					const $desc = $j(this).next('.desc');
+					const isVisible = $desc.hasClass('tooltip-visible');
+					// Hide any other open tooltip first.
+					$j(this)
+						.closest('.scoreboardActions')
+						.find('.desc')
+						.not($desc)
+						.removeClass('tooltip-visible');
+					$desc.toggleClass('tooltip-visible', !isVisible);
+				},
+			);
+		this.$scoreboard
+			.off('click.scoreEmojiTooltips')
+			.on('click.scoreEmojiTooltips', '.score-emoji-tooltip-wrap', function () {
+				const $tooltip = $j(this);
+				const isVisible = $tooltip.hasClass('tooltip-visible');
+				$tooltip
+					.closest('tr')
+					.find('.score-emoji-tooltip-wrap')
+					.not($tooltip)
+					.removeClass('tooltip-visible');
+				$tooltip.toggleClass('tooltip-visible', !isVisible);
+			});
 
 		// Configure scoreboard data
 		if (disconnectReason) {
@@ -2403,6 +2812,9 @@ export class UI {
 			this.$scoreboard.find('#scoreboardTitle').text('Score');
 		}
 		$j('#winnerMessage').text('');
+
+		// 1 vs 1 has room next to the icons for the score names, so they are shown inline
+		this.$scoreboard.toggleClass('score-labels-inline', game.gameMode === 2);
 
 		const date = new Date().valueOf() - game.pauseTime;
 		const players = game.players;
@@ -2517,14 +2929,22 @@ export class UI {
 
 		// Clear table
 		const tableMeta = [
+			// Bars row first: the per-player overview bars (plasma/health/energy
+			// etc). On the phone landscape this row is hidden - the emoji header
+			// row already shows the stat emojis and there's no room for bars.
+			{
+				cls: 'player_bars',
+			},
 			{
 				cls: 'player_name',
-				title: '',
+				emoji: '&#x1F43A;',
+				title: 'Players',
 			},
 			{
 				cls: 'firstKill',
-				emoji: emoji.get('syringe'),
-				title: 'First blood',
+				// node-emoji has no shortcode for the drop of blood, so it is inlined.
+				emoji: '🩸',
+				title: 'Blood',
 			},
 			{
 				cls: 'kill',
@@ -2548,27 +2968,23 @@ export class UI {
 			},
 			{
 				cls: 'deny',
-				emoji: emoji.get('collision'),
+				emoji: emoji.get('syringe'),
 				title: 'Denies',
 			},
 			{
 				cls: 'pickupDrop',
 				emoji: emoji.get('cherries'),
-				title: 'Drops picked',
+				title: 'Drops',
 			},
 			{
 				cls: 'timebonus',
 				emoji: emoji.get('alarm_clock'),
-				title: 'Time Bonus',
+				title: 'Time',
 			},
 			{
 				cls: 'creaturebonus',
 				emoji: emoji.get('chicken'),
-				title: 'Survivor Units',
-			},
-			{
-				cls: 'darkpriestbonus',
-				title: 'Survivor Dark Priest',
+				title: 'Survivors',
 			},
 			{
 				cls: 'immortal',
@@ -2578,7 +2994,7 @@ export class UI {
 			{
 				cls: 'upgrade',
 				emoji: emoji.get('medal'),
-				title: 'Ability Upgrades',
+				title: 'Upgrades',
 			},
 			{
 				cls: 'total',
@@ -2587,19 +3003,69 @@ export class UI {
 			},
 		];
 
+		// Desktop vertical table: clear any leftover rows from a previous
+		// landscape layout before rebuilding, so both modes can't coexist
+		// after a resize.
+		if (!isLandscapePhone) {
+			$table.empty();
+		}
+
 		tableMeta.forEach((row) => {
-			let firstCellContent = `${row.title}`;
-			if (row.emoji) {
-				firstCellContent = `<span class="score-emoji-tooltip-wrap">${row.emoji}<span class="tooltiptext">${row.title}</span></span>`;
-			}
+			if (isLandscapePhone) {
+				// Transposed layout: header row = emojis, player rows = name + scores.
+				// The header row is the first row; player rows are appended below.
+				if (row.cls === 'player_name') {
+					// Wolf header: visible "Players" label with a tooltip for consistency.
+					const wolf = `<span class="score-emoji-tooltip-wrap"><span class="tooltiptext score-header-tooltip">Players</span>&#x1F43A;</span>`;
+					let headerRow = `<tr class="player_name"><td>${wolf}</td>`;
+					// Skip the bars row (index 0) and the player_name row itself
+					// (index 1) - only the stat rows get emoji cells.
+					tableMeta.slice(2).forEach((statRow) => {
+						const statEmoji = statRow.emoji
+							? `<span class="score-emoji-tooltip-wrap"><span class="tooltiptext score-header-tooltip">${statRow.title}</span>${statRow.emoji}</span>`
+							: '';
+						headerRow += `<td>${statEmoji}</td>`;
+					});
+					headerRow += '</tr>';
+					$table.empty().append(headerRow);
+				}
+				// Player rows are built in the fill loop below.
+			} else {
+				let $row = $table.find(`tr.${row.cls}`);
+				if ($row.length === 0) {
+					$row = $j('<tr class="' + row.cls + '"></tr>');
+					$table.append($row);
+				}
+				if (row.cls === 'player_bars') {
+					// Desktop only: the bars row holds the per-player overview
+					// bars (plasma/health/energy/etc). First cell empty.
+					$row.empty().html('<td class="score-title-cell"></td><td class="score-emoji-cell"></td>');
+					for (let i = 0; i < game.gameMode; i++) {
+						$row.append(
+							`<td><div class="score-player-bars">${playerHeaderMeta[i].barsHtml}</div></td>`,
+						);
+					}
+				} else {
+					// Desktop: first cell = title, second cell = emoji, rest = player data.
+					const titleCell = row.title
+						? `<td class="score-title-cell">${row.title}</td>`
+						: '<td class="score-title-cell"></td>';
+					const emojiCell = row.emoji
+						? `<td class="score-emoji-cell">${row.emoji}</td>`
+						: '<td class="score-emoji-cell"></td>';
+					$row.empty().html(`${titleCell}${emojiCell}`);
 
-			$table.find(`tr.${row.cls}`).empty().html(`<td>
-			${firstCellContent}
-			</td>`);
-
-			// Add cells for each player
-			for (let i = 0; i < game.gameMode; i++) {
-				$table.find(`tr.${row.cls}`).append('<td>--</td>');
+					// Add cells for each player
+					for (let i = 0; i < game.gameMode; i++) {
+						if (row.cls === 'player_name') {
+							$row.append(
+								`<td><div class="score-player-name" style="color:${playerHeaderMeta[i].color}">${playerHeaderMeta[i].playerLabel}</div></td>`,
+							);
+						} else {
+							$row.append('<td>--</td>');
+						}
+					}
+				}
 			}
 		});
 
@@ -2616,26 +3082,49 @@ export class UI {
 			}
 
 			//----------Display-----------//
-			const colId = game.gameMode > 2 ? i + 2 + ((i % 2) * 2 - 1) * Math.min(1, i % 3) : i + 2;
+			// Desktop rows now have 2 extra cells (title + emoji) before the
+			// player data, so the player column index shifts by 2 from the
+			// old `i + 2` base.
+			const colId = game.gameMode > 2 ? i + 3 + ((i % 2) * 2 - 1) * Math.min(1, i % 3) : i + 3;
 
-			$table
-				.children('tr.player_name')
-				.children('td:nth-child(' + colId + ')')
-				.html(
-					`<div class="score-player-header">` +
-						`<div class="score-player-bars">${playerHeaderMeta[i].barsHtml}</div>` +
-						`<div class="score-player-name" style="color:${playerHeaderMeta[i].color}">${playerHeaderMeta[i].playerLabel}</div>` +
-						`</div>`,
-				);
-
-			// Change score
-			$j.each(game.players[i].getScore(), function (index, val) {
-				const text = val === 0 && index !== 'total' ? '--' : val;
+			if (isLandscapePhone) {
+				// Build a player row: player name + one cell per stat.
+				const player = game.players[i];
+				const playerLabel = player.name || `Player${i + 1}`;
+				const playerColor = playerColors[i % playerColors.length];
+				let playerRow = `<tr class="player_row_${i}"><td style="color:${playerColor}">${playerLabel}</td>`;
+				// Skip the bars row (index 0) and the player_name row (index 1)
+				// - only the actual stat rows get score cells.
+				tableMeta.slice(2).forEach((statRow) => {
+					const val = player.getScore()[statRow.cls] ?? 0;
+					const text = val === 0 && statRow.cls !== 'total' ? '--' : val;
+					playerRow += `<td>${text}</td>`;
+				});
+				playerRow += '</tr>';
+				$table.append(playerRow);
+			} else {
 				$table
-					.children('tr.' + index)
-					.children('td:nth-child(' + colId + ')') // Weird expression swaps 2nd and 3rd player
-					.text(text);
-			});
+					.children('tr.player_name')
+					.children('td:nth-child(' + colId + ')')
+					.html(
+						`<div class="score-player-name" style="color:${playerHeaderMeta[i].color}">${playerHeaderMeta[i].playerLabel}</div>`,
+					);
+
+				// Put the per-player overview bars in their own row.
+				$table
+					.children('tr.player_bars')
+					.children('td:nth-child(' + colId + ')')
+					.html(`<div class="score-player-bars">${playerHeaderMeta[i].barsHtml}</div>`);
+
+				// Change score
+				$j.each(game.players[i].getScore(), function (index, val) {
+					const text = val === 0 && index !== 'total' ? '--' : val;
+					$table
+						.children('tr.' + index)
+						.children('td:nth-child(' + colId + ')') // Weird expression swaps 2nd and 3rd player
+						.text(text);
+				});
+			}
 		}
 
 		if (gameOver) {
@@ -2685,6 +3174,54 @@ export class UI {
 		}
 	}
 
+	private getScoreboardConfirmButton(action: ScoreboardConfirmAction): Button {
+		return action === 'restart' ? this.btnRestartMatch : this.btnExit;
+	}
+
+	/**
+	 * Two-step gate for the scoreboard's destructive actions (restart, exit).
+	 * Returns true only on the second activation, when the caller may proceed.
+	 */
+	confirmScoreboardAction(action: ScoreboardConfirmAction): boolean {
+		if (this.scoreboardConfirmAction === action) {
+			this.disarmScoreboardConfirm(action);
+			return true;
+		}
+
+		// Arming a new action cancels the previous one: only one button is ever red.
+		this.disarmScoreboardConfirm();
+		this.scoreboardConfirmAction = action;
+		this.getScoreboardConfirmButton(action).$button.addClass('confirm');
+		this.scoreboardConfirmTimer = setTimeout(() => {
+			this.disarmScoreboardConfirm();
+		}, SCOREBOARD_CONFIRM_TIMEOUT_MS);
+
+		return false;
+	}
+
+	/**
+	 * Un-arm a destructive scoreboard button. Without an argument every armed
+	 * button is cancelled, which is what happens when the scoreboard is closed or
+	 * a non-destructive action is used.
+	 */
+	disarmScoreboardConfirm(action?: ScoreboardConfirmAction) {
+		if (action !== undefined && action !== this.scoreboardConfirmAction) {
+			return;
+		}
+
+		if (this.scoreboardConfirmTimer !== null) {
+			clearTimeout(this.scoreboardConfirmTimer);
+			this.scoreboardConfirmTimer = null;
+		}
+
+		if (this.scoreboardConfirmAction === null) {
+			return;
+		}
+
+		this.getScoreboardConfirmButton(this.scoreboardConfirmAction).$button.removeClass('confirm');
+		this.scoreboardConfirmAction = null;
+	}
+
 	toggleScoreboard(gameOver, disconnectReason?: string) {
 		// If the scoreboard is already displayed, hide it and return
 		if (!this.$scoreboard.hasClass('hide')) {
@@ -2692,9 +3229,11 @@ export class UI {
 			return;
 		}
 
+		this.dashFadeToken = null;
 		this.closeDash();
 		this.toggleMusicPlayer(false);
 
+		this.disarmScoreboardConfirm();
 		this.scoreboardGameOver = gameOver;
 		this.btnSaveLog.changeState(ButtonStateEnum.normal);
 		this.btnRestartMatch.changeState(ButtonStateEnum.normal);
@@ -2714,6 +3253,23 @@ export class UI {
 		const game = this.game;
 		const $table = $j('#scoreboard table tbody');
 
+		// Rebuild the table if the current rows don't match the desired layout
+		// (e.g. switching phone landscape <-> desktop). On the phone the header
+		// row is `<tr class="player_name">`, so checking for player_name rows
+		// alone would not distinguish the two layouts; the transposed phone
+		// layout uses `<tr class="player_row_N">` rows instead.
+		const isLandscapePhone = window.matchMedia(
+			'(orientation: landscape) and (max-height: 479px)',
+		).matches;
+		const hasPlayerRows = $table.children('tr[class^="player_row_"]').length > 0;
+		const needsRebuild = isLandscapePhone ? !hasPlayerRows : hasPlayerRows;
+		if (needsRebuild) {
+			this.$scoreboard.toggleClass('scoreboard-landscape-phone', isLandscapePhone);
+			this.renderScoreboard(this.scoreboardGameOver, game.disconnectReason);
+			return;
+		}
+		this.$scoreboard.toggleClass('scoreboard-landscape-phone', isLandscapePhone);
+
 		if ($table.children('tr.player_name').children('td').length <= 1) {
 			this.renderScoreboard(this.scoreboardGameOver, game.disconnectReason);
 			return;
@@ -2723,6 +3279,20 @@ export class UI {
 		const scores = game.players.map((pl) => pl.getScore().total);
 		const maxScore = Math.max(...scores, 1);
 		const hasFiniteTimePool = game.timePool > 0;
+		const mobileScoreRows: Array<keyof ReturnType<(typeof game.players)[number]['getScore']>> = [
+			'firstKill',
+			'kill',
+			'combo',
+			'humiliation',
+			'annihilation',
+			'deny',
+			'pickupDrop',
+			'timebonus',
+			'creaturebonus',
+			'immortal',
+			'upgrade',
+			'total',
+		];
 
 		for (let i = 0; i < game.gameMode; i++) {
 			if (game.timePool > 0) {
@@ -2734,6 +3304,19 @@ export class UI {
 			}
 
 			const player = game.players[i];
+			if (isLandscapePhone) {
+				const score = player.getScore();
+				const $playerRow = $table.children('tr.player_row_' + i);
+				mobileScoreRows.forEach((row, index) => {
+					const value = score[row] ?? 0;
+					$playerRow
+						.children('td')
+						.eq(index + 1)
+						.text(value === 0 && row !== 'total' ? '--' : value);
+				});
+				continue;
+			}
+
 			const dp = player.creatures.find((c) => c.isDarkPriest && c.isDarkPriest());
 			const dpHealthRatio = dp ? Math.max(0, dp.health) / Math.max(1, dp.stats.health) : 0;
 			const dpEnergyRatio = dp ? Math.max(0, dp.energy) / Math.max(1, dp.stats.energy) : 0;
@@ -2767,9 +3350,9 @@ export class UI {
 				scoreRatio,
 			].filter((_ratio, idx) => hasFiniteTimePool || idx !== 3);
 
-			const colId = game.gameMode > 2 ? i + 2 + ((i % 2) * 2 - 1) * Math.min(1, i % 3) : i + 2;
+			const colId = game.gameMode > 2 ? i + 3 + ((i % 2) * 2 - 1) * Math.min(1, i % 3) : i + 3;
 			const $playerHeaderCell = $table
-				.children('tr.player_name')
+				.children('tr.player_bars')
 				.children('td:nth-child(' + colId + ')');
 			const $fills = $playerHeaderCell.find('.score-header-bar-fill');
 
@@ -2794,11 +3377,28 @@ export class UI {
 
 	closeScoreboard() {
 		this.scoreboardOpenCollectiveBanner.onViewClose();
+		if (this.$scoreboard.hasClass('hide')) {
+			return;
+		}
 		this.scoreboardGameOver = false;
+		this.disarmScoreboardConfirm();
 		this.btnSaveLog.changeState(ButtonStateEnum.hidden);
 		this.btnRestartMatch.changeState(ButtonStateEnum.hidden);
 		this.btnExit.changeState(ButtonStateEnum.hidden);
 		this.$scoreboard.addClass('hide');
+	}
+
+	toggleHotkeysScreen() {
+		if (!this.$hotkeys.hasClass('hide')) {
+			this.closeHotkeysScreen();
+			return;
+		}
+		this.closeOpenInterfaceViews();
+		this.$hotkeys.removeClass('hide');
+	}
+
+	closeHotkeysScreen() {
+		this.$hotkeys.addClass('hide');
 	}
 
 	/**
@@ -2817,14 +3417,17 @@ export class UI {
 		this.closeScoreboard();
 		this.toggleMusicPlayer(false);
 
-		game.signals.ui.dispatch('onOpenDash');
+		game.channels.ui.emit('onOpenDash');
 		if (randomize && !this.lastViewedCreature) {
 			this.showRandomCreature();
 		} else if (!randomize) {
 			this.showCreature('--', game.activeCreature.team, '');
 		} else if (this.lastViewedCreature) {
 			const lastViewedCreatureStats = game.retrieveCreatureStats(this.lastViewedCreature);
-			if (lastViewedCreatureStats?.playable === true) {
+			if (
+				lastViewedCreatureStats?.playable === true ||
+				lastViewedCreatureStats?.playable === 'secret'
+			) {
 				this.showCreature(this.lastViewedCreature, game.activeCreature.team, '');
 			} else {
 				this.lastViewedCreature = '';
@@ -2837,15 +3440,30 @@ export class UI {
 
 	closeDash() {
 		const game = this.game;
+		if (this.cardFlipTimeoutId !== null) {
+			clearTimeout(this.cardFlipTimeoutId);
+			this.cardFlipTimeoutId = null;
+		}
+		$j('#card .sideA, #card .sideB').removeClass('flipping flip-reset');
 		this.dashOpenCollectiveBanner.onViewClose();
 
-		game.signals.ui.dispatch('onCloseDash');
+		game.channels.ui.emit('onCloseDash');
 
 		const isArcade = window.innerWidth <= 600 && window.innerHeight <= 700;
+		// Token for this close's deferred pointer-events changes: a re-open
+		// before they fire must cancel them, or the dash opens unclickable.
+		const fadeToken = Symbol('dashFade');
+		this.dashFadeToken = fadeToken;
 
 		if (isArcade) {
 			// Keep the dash visible (display:flex) during the fade-out so the
 			// transition actually animates; remove .active / hide only after.
+			// While the dash is fading out it still intercepts pointer events
+			// (it sits at the same z-index as the music player/scoreboard below),
+			// so right-clicks meant to close those views were landing on the
+			// dash instead and reopening it. Disable pointer-events during the
+			// fade so clicks fall through to the view underneath.
+			this.$dash.css('pointer-events', 'none');
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			(this.$dash as any).transition(
 				{
@@ -2858,11 +3476,26 @@ export class UI {
 					this.$dash.removeClass('active');
 					if (!this.dashopen) {
 						this.$dash.hide();
+					} else if (this.dashFadeToken !== fadeToken) {
+						// Re-opened while fading: this close is stale, restore
+						// hit-testing so the new open receives clicks.
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
+						(this.$dash as any).css('pointer-events', '');
 					}
 				},
 			);
 		} else {
 			this.$dash.removeClass('active');
+			// Defer pointer-events: none until after the current event cycle (mouseup, contextmenu)
+			// so those events still hit the dash element and are stopped by its handlers,
+			// rather than passing through to the Phaser canvas underneath.
+			setTimeout(() => {
+				if (this.dashFadeToken !== fadeToken) {
+					return;
+				}
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				(this.$dash as any).css('pointer-events', 'none');
+			}, 0);
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			(this.$dash as any).transition(
 				{
@@ -2874,6 +3507,13 @@ export class UI {
 				() => {
 					if (!this.dashopen) {
 						this.$dash.hide();
+						// Re-enable pointer-events after fade-out so the dash can be interacted with when reopened
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
+						(this.$dash as any).css('pointer-events', '');
+					} else if (this.dashFadeToken !== fadeToken) {
+						// Re-opened while fading: stale close, restore hit-testing.
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
+						(this.$dash as any).css('pointer-events', '');
 					}
 				},
 			);
@@ -2960,69 +3600,32 @@ export class UI {
 				excludeTypes: game.players[this.selectedPlayer].creatures.map((creature) => creature.type),
 			}),
 		);
-		let valid: boolean;
-		let nextCreature: string;
+		const creatures = game.players[this.selectedPlayer].creatures;
+		let realmIndex = game.realms.indexOf(creatureType[0]);
+		let column = parseInt(creatureType[1]) + 1;
 
-		if (parseInt(creatureType[1]) - 0 + 1 > 7) {
-			// End of row
-			if (game.realms.indexOf(creatureType[0]) + 1 < game.realms.length) {
-				const realm = game.realms[game.realms.indexOf(creatureType[0]) + 1];
+		while (realmIndex < game.realms.length) {
+			if (column > 7) {
+				realmIndex++;
+				column = 1;
+				continue;
+			}
 
-				// Test If Valid Creature
-				if (candidateTypes.has((realm + '1') as CreatureType)) {
-					valid = true;
+			const nextCreature = (game.realms[realmIndex] + column) as CreatureType;
+			column++;
 
-					for (let i = 0, len = game.players[this.selectedPlayer].creatures.length; i < len; i++) {
-						const creature = game.players[this.selectedPlayer].creatures[i];
-
-						if (creature instanceof Creature && creature.type == realm + '1' && creature.dead) {
-							valid = false;
-						}
-					}
-
-					if (valid) {
-						nextCreature = realm + '1';
-						this.lastViewedCreature = nextCreature;
-						this.showCreature(nextCreature, this.selectedPlayer);
-						return;
-					}
-				}
-
-				this.selectedCreature = realm + '1';
-			} else {
+			if (
+				candidateTypes.has(nextCreature) &&
+				!creatures.some(
+					(creature) =>
+						creature instanceof Creature && creature.type === nextCreature && creature.dead,
+				)
+			) {
+				this.lastViewedCreature = nextCreature;
+				this.showCreature(nextCreature, this.selectedPlayer);
 				return;
 			}
-		} else {
-			// Test If Valid Creature
-			if (
-				candidateTypes.has((creatureType[0] + (parseInt(creatureType[1]) - 0 + 1)) as CreatureType)
-			) {
-				valid = true;
-
-				for (let i = 0, len = game.players[this.selectedPlayer].creatures.length; i < len; i++) {
-					const creature = game.players[this.selectedPlayer].creatures[i];
-
-					if (
-						creature instanceof Creature &&
-						creature.type == creatureType[0] + (parseInt(creatureType[1]) - 0 + 1) &&
-						creature.dead
-					) {
-						valid = false;
-					}
-				}
-
-				if (valid) {
-					nextCreature = creatureType[0] + (parseInt(creatureType[1]) - 0 + 1);
-					this.lastViewedCreature = nextCreature;
-					this.showCreature(nextCreature, this.selectedPlayer);
-					return;
-				}
-			}
-
-			this.selectedCreature = creatureType[0] + (parseInt(creatureType[1]) - 0 + 1);
 		}
-
-		this.gridSelectNext();
 	}
 
 	gridSelectPrevious() {
@@ -3033,67 +3636,32 @@ export class UI {
 				excludeTypes: game.players[this.selectedPlayer].creatures.map((creature) => creature.type),
 			}),
 		);
-		let valid: boolean;
-		let nextCreature: string;
+		const creatures = game.players[this.selectedPlayer].creatures;
+		let realmIndex = game.realms.indexOf(creatureType[0]);
+		let column = parseInt(creatureType[1]) - 1;
 
-		if (parseInt(creatureType[1]) - 1 < 1) {
-			// End of row
-			if (game.realms.indexOf(creatureType[0]) - 1 > -1) {
-				const realm = game.realms[game.realms.indexOf(creatureType[0]) - 1];
+		while (realmIndex >= 0) {
+			if (column < 1) {
+				realmIndex--;
+				column = 7;
+				continue;
+			}
 
-				// Test if valid creature
-				if (candidateTypes.has((realm + '7') as CreatureType)) {
-					valid = true;
+			const previousCreature = (game.realms[realmIndex] + column) as CreatureType;
+			column--;
 
-					for (let i = 0, len = game.players[this.selectedPlayer].creatures.length; i < len; i++) {
-						const creature = game.players[this.selectedPlayer].creatures[i];
-
-						if (creature instanceof Creature && creature.type == realm + '7' && creature.dead) {
-							valid = false;
-						}
-					}
-
-					if (valid) {
-						nextCreature = realm + '7';
-						this.lastViewedCreature = nextCreature;
-						this.showCreature(nextCreature, this.selectedPlayer);
-						return;
-					}
-				}
-
-				this.selectedCreature = realm + '7';
-			} else {
+			if (
+				candidateTypes.has(previousCreature) &&
+				!creatures.some(
+					(creature) =>
+						creature instanceof Creature && creature.type === previousCreature && creature.dead,
+				)
+			) {
+				this.lastViewedCreature = previousCreature;
+				this.showCreature(previousCreature, this.selectedPlayer);
 				return;
 			}
-		} else {
-			// Test if valid creature
-			if (candidateTypes.has((creatureType[0] + (parseInt(creatureType[1]) - 1)) as CreatureType)) {
-				valid = true;
-
-				for (let i = 0, len = game.players[this.selectedPlayer].creatures.length; i < len; i++) {
-					const creature = game.players[this.selectedPlayer].creatures[i];
-
-					if (
-						creature instanceof Creature &&
-						creature.type == creatureType[0] + (parseInt(creatureType[1]) - 1) &&
-						creature.dead
-					) {
-						valid = false;
-					}
-				}
-
-				if (valid) {
-					nextCreature = creatureType[0] + (parseInt(creatureType[1]) - 1);
-					this.lastViewedCreature = nextCreature;
-					this.showCreature(nextCreature, this.selectedPlayer);
-					return;
-				}
-			}
-
-			this.selectedCreature = creatureType[0] + (parseInt(creatureType[1]) - 1);
 		}
-
-		this.gridSelectPrevious();
 	}
 	animateNoTargetAbilityRanges() {
 		const creature = this.game.activeCreature;
@@ -3111,18 +3679,18 @@ export class UI {
 					if (!hex.displayClasses.includes('abilityRange')) {
 						hex.displayVisualState('abilityRange');
 					}
-					this.game.Phaser.tweens.removeFrom(hex.display.scale);
-					hex.display.scale.setTo(0.5);
-					hex.display.anchor.setTo(0.5, 0.5);
-					this.game.Phaser.add
+					this.game.gameEngine.removeTweensFrom(hex.display.scale);
+					hex.display.setScale(0.5, 0.5);
+					hex.display.setOrigin(0.5, 0.5);
+					this.game.gameEngine
 						.tween(hex.display.scale)
-						.to({ x: 1.0, y: 1.0 }, 180, Phaser.Easing.Quadratic.Out, true, idx * 20)
+						.to({ x: 1.0, y: 1.0 }, 180, Easing.Quadratic.Out, true, idx * 20)
 						.onComplete.addOnce(() => {
-							this.game.Phaser.add
+							this.game.gameEngine
 								.tween(hex.display.scale)
-								.to({ x: 0, y: 0 }, 180, Phaser.Easing.Quadratic.In, true)
+								.to({ x: 0, y: 0 }, 180, Easing.Quadratic.In, true)
 								.onComplete.addOnce(() => {
-									hex.display.anchor.setTo(0, 0);
+									hex.display.setOrigin(0, 0);
 									hex.cleanDisplayVisualState('abilityRange');
 								});
 						});
@@ -3145,17 +3713,43 @@ export class UI {
 		setTimeout(() => $btn.removeClass('cancelIcon'), 1000);
 	}
 
+	/**
+	 * True when activating ability `i` is impossible right now, whatever the
+	 * reason: an unmet requirement (energy, plasma, endurance, stats, movement,
+	 * targets) or an ability that is already spent.
+	 *
+	 * checkAbilities() paints those buttons `disabled`, and a disabled button
+	 * drops the click before the ability ever sees it, so without this the icon
+	 * would give no feedback at all. Mirrors checkAbilities() so every refusal
+	 * flashes the icon instead of only "already used" and "no targets".
+	 *
+	 * @param i {number} Ability slot, 0 being the passive slot.
+	 */
+	isAbilityBlocked(i: number): boolean {
+		const game = this.game;
+		const ab = game.activeCreature?.abilities[i];
+		if (!ab) {
+			return false;
+		}
+		if (ab.used) {
+			return true;
+		}
+
+		// The passive slot has no player-activated requirements: its require() is a
+		// trigger gate, not something the player can satisfy, and checkAbilities()
+		// always writes a message on it. `passiveCycle` means other abilities are
+		// usable, so only `passiveUnavailable` counts as a refusal.
+		if (i === 0) {
+			return ab.message === game.msg.abilities.passiveUnavailable;
+		}
+
+		return !ab.require();
+	}
+
 	flashAbilityBtn(i: number) {
-		const ab = this.game.activeCreature?.abilities[i];
-		if (
-			!ab ||
-			!(
-				ab.message === this.game.msg.abilities.noTarget ||
-				ab.used ||
-				ab.message === this.game.msg.abilities.passiveUnavailable
-			)
-		)
+		if (!this.isAbilityBlocked(i)) {
 			return;
+		}
 		const $btn = this.abilitiesButtons[i].$button;
 
 		// During bot turns, skip the blink animation and just show cancelIcon briefly
@@ -3207,6 +3801,17 @@ export class UI {
 		const game = this.game,
 			creature = game.activeCreature,
 			$abilitiesButtons = $j('#abilities .ability');
+		const turnActionButtonsDisabled = areTurnActionButtonsDisabled(game);
+
+		// No active creature (e.g., during snapshot reconstruction before setup completes)
+		if (!creature) {
+			return;
+		}
+
+		if (turnActionButtonsDisabled) {
+			this.btnSkipTurn.changeState(ButtonStateEnum.disabled);
+			this.btnDelay.changeState(ButtonStateEnum.disabled);
+		}
 
 		const localPlayer = game.lobby?.getLocalPlayer();
 		this.active = !game.multiplayer || !game.lobby || !localPlayer || game.lobby.isMyTurn();
@@ -3237,12 +3842,20 @@ export class UI {
 		// Must be called with panel-stacked already active so all data/state changes
 		// happen while slot transitions are disabled — no visual flash before the unfold.
 		const applyDataAndUnfold = () => {
+			if (!creature || game.activeCreature !== creature) {
+				return;
+			}
+
 			$abilities.removeClass('p0 p1 p2 p3').addClass('p' + creature.player.id);
 
+			// A cost flash from the outgoing turn must not survive the swap.
+			this.clearAbilityCostFlash();
 			this.energyBar.setSize(creature.oldEnergy / creature.stats.energy);
 			this.healthBar.setSize(creature.oldHealth / creature.stats.health);
 
-			this.btnSkipTurn.changeState(ButtonStateEnum.normal);
+			this.btnSkipTurn.changeState(
+				areTurnActionButtonsDisabled(game) ? ButtonStateEnum.disabled : ButtonStateEnum.normal,
+			);
 			this.btnFullscreen.changeState(ButtonStateEnum.normal);
 
 			// Snap all elements to the overlapping stacked position (disables slot transitions).
@@ -3264,11 +3877,20 @@ export class UI {
 
 			// After the slowest slot transition completes (250ms unfold), trigger side-panel button slide-ins
 			setTimeout(() => {
+				if (game.activeCreature !== creature) {
+					return;
+				}
+
 				this._abilityPanelAnimating = false;
-				this.btnSkipTurn.changeState(ButtonStateEnum.slideIn);
+				const turnActionButtonsDisabled = areTurnActionButtonsDisabled(game);
+				this.btnSkipTurn.changeState(
+					turnActionButtonsDisabled ? ButtonStateEnum.disabled : ButtonStateEnum.slideIn,
+				);
 				this.btnFullscreen.changeState(ButtonStateEnum.slideIn);
 				if (creature.canWait && game.queue.getCurrentQueueLength() > 1) {
-					this.btnDelay.changeState(ButtonStateEnum.slideIn);
+					this.btnDelay.changeState(
+						turnActionButtonsDisabled ? ButtonStateEnum.disabled : ButtonStateEnum.slideIn,
+					);
 				}
 				// Show skip/delay/abilities as not-allowed during bot turns
 				const isBotTurn = game.botController.isBotTurn();
@@ -3284,9 +3906,9 @@ export class UI {
 				if (game.grid) {
 					game.grid.forEachHex((hex) => {
 						if (isOpponentTurn) {
-							hex.hitBox.input.useHandCursor = false;
+							setHandCursor(hex.hitBox, false);
 						} else if (hex.reachable) {
-							hex.hitBox.input.useHandCursor = true;
+							setHandCursor(hex.hitBox, true);
 						}
 					});
 				}
@@ -3348,6 +3970,14 @@ export class UI {
 	updateAbilityUpgrades() {
 		const game = this.game,
 			creature = game.activeCreature;
+
+		// The ability that just upgraded belongs to a creature whose turn may
+		// already be over — when its Dark Priest died mid-animation, endGame()
+		// clears activeCreature before this deferred callback lands. Nothing to
+		// update against a dead board.
+		if (!creature) {
+			return;
+		}
 
 		// Change ability buttons
 		this.abilitiesButtons.forEach((btn) => {
@@ -3506,6 +4136,10 @@ export class UI {
 			// movement animation had completed (e.g. Molten Hurl moving Infernal into
 			// range of a target that Pulverizing Hit can now reach).
 			game.activeCreature.noActionPossible = false;
+		}
+
+		if (areTurnActionButtonsDisabled(game)) {
+			this.btnSkipTurn.changeState(ButtonStateEnum.disabled);
 		}
 	}
 
@@ -3681,12 +4315,19 @@ export class UI {
 		getActiveConfirmUnloadState = () => this;
 		window.onbeforeunload = confirmUnload;
 
-		if (process.env.NODE_ENV === 'development' && !hasWebpackReloadConfirmListener) {
-			window.addEventListener('message', confirmWebpackDevReload);
-			hasWebpackReloadConfirmListener = true;
-		}
-
 		if (!hasManualRefreshConfirmListener) {
+			// Dedupe across module copies (tests re-import this module, and HMR
+			// can replace it): a stale capture handler would swallow every
+			// refresh shortcut with stopImmediatePropagation and open a prompt
+			// bound to a UI instance that is no longer active.
+			const previousListener = (window as unknown as Record<string, unknown>)[
+				MANUAL_REFRESH_LISTENER_KEY
+			] as ((event: KeyboardEvent) => void) | undefined;
+			if (previousListener) {
+				window.removeEventListener('keydown', previousListener, true);
+			}
+			(window as unknown as Record<string, unknown>)[MANUAL_REFRESH_LISTENER_KEY] =
+				confirmManualRefresh;
 			window.addEventListener('keydown', confirmManualRefresh, true);
 			hasManualRefreshConfirmListener = true;
 		}
@@ -3764,7 +4405,7 @@ export class UI {
 		const playerFormatter = (player) => {
 			const playerTimeStatus =
 				ui.game.turnTimePool < 0 && ui.game.timePool < 0
-					? '<p>Ancient Beast</p>'
+					? `<p>Ancient Beast</p>`
 					: '<p><span class="activePlayer turntime">&#8734;</span> / <span class="timepool">&#8734;</span></p>';
 
 			return `<div class="vignette active p${player.id}">
@@ -3778,16 +4419,89 @@ export class UI {
 		};
 
 		const hexFormatter = (hex) => {
+			const homeOwnerId = hex._swamplerHomeOwner;
+			const isSwamplerHome = typeof homeOwnerId === 'number';
+			const homeOwner = isSwamplerHome
+				? ui.game.creatures.find((creature) => creature.id === homeOwnerId)
+				: undefined;
+			const isHomeOwnerPresent = isSwamplerHome && hex.creature?.id === homeOwnerId;
+			const hasHomeRegrowthBonus =
+				isHomeOwnerPresent &&
+				homeOwner?.effects.some(
+					(effect) => effect.name === 'Natural Habitat' && effect.alterations.regrowth === 20,
+				);
+			const homeBonus = isHomeOwnerPresent
+				? `<p style="margin:2px">Poison +22${hasHomeRegrowthBonus ? '<br>Regrowth +20' : ''}</p>`
+				: '';
+			const cloud = (
+				(
+					ui.game as unknown as {
+						badBreathClouds?: Array<{
+							hex: { x: number; y: number };
+							damage: number;
+							createdTurn?: number;
+							turnLifetime?: number;
+							owner?: { id: number };
+							upgraded?: boolean;
+						}>;
+					}
+				).badBreathClouds || []
+			).find((c) => c.hex.x === hex.x && c.hex.y === hex.y);
 			const name = hex.creature
 				? getCreatureDisplayName(hex.creature)
+				: isSwamplerHome
+				? 'Swamp'
 				: capitalize(hex.drop ? hex.drop.name : hex.coord);
 			const trapOrLocation = capitalize(hex.trap ? hex.trap.name : ui.game.combatLocation);
 			const nameColorClasses =
-				hex.creature && hex.creature.player ? `p${hex.creature.player.id} player-text bright` : '';
+				hex.creature && (hex.creature as any).player
+					? `p${(hex.creature as any).player.id} player-text bright`
+					: '';
+
+			let cloudBlock = '';
+			if (cloud) {
+				const age = (ui.game.turn ?? 0) - (cloud.createdTurn ?? 0);
+				const remaining = Math.max(1, (cloud.turnLifetime ?? (cloud.upgraded ? 6 : 3)) - age);
+				const max = cloud.upgraded ? 6 : 3;
+				const rectHtml = Array.from(
+					{ length: max },
+					(_, i) =>
+						`<span style="width:10px;height:6px;border:1px solid #5f5;background:${
+							i < remaining ? '#5f5' : 'transparent'
+						};display:inline-block"></span>`,
+				).join('');
+				if (hex.creature) {
+					cloudBlock = `<p class="name p${
+						(cloud.owner as any).player?.id ?? 0
+					} player-text bright" style="padding-top:0;margin:2px">Toxic Cloud</p><div style="display:flex;gap:3px;justify-content:center;margin:2px">${rectHtml}</div><hr style="margin:2px" />`;
+				} else {
+					cloudBlock = `<p class="name p${
+						(cloud.owner as any).player?.id ?? 0
+					} player-text bright">Toxic Cloud</p><div style="display:flex;gap:3px;justify-content:center;margin:2px">${rectHtml}</div><hr style="margin:2px" />`;
+				}
+			}
+
+			let body = '';
+			if (isSwamplerHome) {
+				if (hex.creature) {
+					body = `<p class="name ${nameColorClasses}" style="padding-top:0;margin:2px">${name}</p><p style="margin:2px">Swamp</p>${homeBonus}<hr style="margin:2px" /><p style="margin:2px">${trapOrLocation}</p>`;
+				} else {
+					body = `<p class="name" style="padding-top:0;margin:2px">Swamp</p><p style="margin:2px">${trapOrLocation}</p>`;
+				}
+			} else if (cloud) {
+				if (hex.creature) {
+					body = `<p class="name ${nameColorClasses}" style="padding-top:0;margin:2px">${name}</p><p style="margin:2px">${trapOrLocation}</p>`;
+				} else {
+					body = `<p style="margin:2px">${trapOrLocation}</p>`;
+				}
+			} else {
+				body = `<p class="name ${nameColorClasses}">${name}</p><p>${trapOrLocation}</p>`;
+			}
+
 			return `<div class="vignette hex">
 			<div class="hexinfo frame">
-			<p class="name ${nameColorClasses}">${name}</p>
-			<p>${trapOrLocation}</p>
+			${cloudBlock}
+			${body}
 			</div>
 			</div>
 			`;
@@ -3797,13 +4511,13 @@ export class UI {
 			const devvit = getDevvitAppVersion();
 			const devvitLine = devvit ? `<p>r${devvit}</p>` : '';
 			return `<div class="vignette hex">
-			<div class="hexinfo frame">
-			<p class="name">Ancient Beast</p>
-			<p>${version}</p>
-			${devvitLine}
-			</div>
-			</div>
-			`;
+	<div class="hexinfo frame">
+	<p class="name">Ancient Beast</p>
+		<p>${version}</p>
+		${devvitLine}
+		</div>
+		</div>
+		`;
 		};
 
 		/**
@@ -3847,42 +4561,49 @@ export class UI {
 			showCurrentPlayer();
 		};
 
-		ui.game.signals.creature.add((message) => {
-			if (['abilityend', 'activate'].includes(message)) {
-				showDefault();
-				if (window.innerWidth <= 600 && window.innerHeight <= 700 && ui.game.activeCreature) {
-					ui.chat.showExpanded(ui.game.activeCreature);
-				}
+		const showQuickInfoForActiveCreature = () => {
+			showDefault();
+			if (window.innerWidth <= 600 && window.innerHeight <= 700 && ui.game.activeCreature) {
+				ui.chat.showExpanded(ui.game.activeCreature);
 			}
-		});
+		};
+		ui.game.channels.creature.on('abilityend', showQuickInfoForActiveCreature);
+		ui.game.channels.creature.on('activate', showQuickInfoForActiveCreature);
 
-		ui.game.signals.ui.add((message, payload) => {
+		for (const message of [
+			'toggleMusicPlayer',
+			'toggleDash',
+			'toggleScore',
+			'toggleMetaPowers',
+			'closeInterfaceScreens',
+			'vignettecreaturemouseleave',
+			'vignetteturnendmouseleave',
+		] as const) {
+			ui.game.channels.ui.on(message, showDefault);
+		}
+		ui.game.channels.ui.on('vignettecreaturemouseenter', ({ creature }) => showCreature(creature));
+		ui.game.channels.ui.on('vignetteturnendmouseenter', showGameInfo);
+
+		// `hex` carries both directions: `over` shows the hovered hex when it has
+		// something worth describing, `out` always falls back to the player card.
+		ui.game.channels.hex.on('over', ({ hex }) => {
+			const hasCloud = (
+				(ui.game as unknown as { badBreathClouds?: Array<{ hex: { x: number; y: number } }> })
+					.badBreathClouds || []
+			).some((c: any) => c.hex.x === hex.x && c.hex.y === hex.y);
 			if (
-				[
-					'toggleMusicPlayer',
-					'toggleDash',
-					'toggleScore',
-					'toggleMetaPowers',
-					'closeInterfaceScreens',
-					'vignettecreaturemouseleave',
-					'vignetteturnendmouseleave',
-				].includes(message)
+				hex.creature ||
+				hex.drop ||
+				hex.trap ||
+				hasCloud ||
+				typeof hex._swamplerHomeOwner === 'number'
 			) {
-				showDefault();
-			} else if ('vignettecreaturemouseenter' === message) {
-				showCreature(payload.creature);
-			} else if ('vignetteturnendmouseenter' === message) {
-				showGameInfo();
-			}
-		});
-
-		ui.game.signals.hex.add((message, { hex }) => {
-			if (message === 'over' && (hex.creature || hex.drop || hex.trap)) {
 				showHex(hex);
 			} else {
 				showDefault();
 			}
 		});
+		ui.game.channels.hex.on('out', showDefault);
 
 		return quickInfo;
 	}
@@ -3978,13 +4699,13 @@ export class UI {
 		}, 2000);
 
 		const onTurnEndMouseEnter = ifGameNotFrozen(() => {
-			ui.brandlogo.alpha = 0;
+			ui.setBrandLogoVisible(false);
 			ui.game.grid.showGrid(true);
 			ui.game.grid.showCurrentCreatureMovementInOverlay(ui.game.activeCreature);
 		});
 
 		const onTurnEndMouseLeave = () => {
-			ui.brandlogo.alpha = 0;
+			ui.setBrandLogoVisible(false);
 			ui.game.grid.showGrid(false);
 			ui.game.grid.allhexes.forEach((hex) => {
 				hex.cleanOverlayVisualState();
@@ -3993,18 +4714,26 @@ export class UI {
 		};
 
 		// Hide the project logo when navigating away using a hotkey
-		document.addEventListener('visibilitychange', function () {
+		if (hideLogoOnVisibilityChange) {
+			document.removeEventListener('visibilitychange', hideLogoOnVisibilityChange);
+		}
+		hideLogoOnVisibilityChange = () => {
 			if (document.hidden) {
-				ui.brandlogo.alpha = 0;
+				ui.setBrandLogoVisible(false);
 			}
-		});
+		};
+		document.addEventListener('visibilitychange', hideLogoOnVisibilityChange);
 
 		// Hide the project logo when navigating away using a hotkey (Ctrl+Shift+M)
-		document.addEventListener('keydown', (event) => {
+		if (hideLogoOnHotkey) {
+			document.removeEventListener('keydown', hideLogoOnHotkey);
+		}
+		hideLogoOnHotkey = (event) => {
 			if (event.ctrlKey && event.shiftKey && event.key === 'M') {
-				ui.brandlogo.alpha = 0;
+				ui.setBrandLogoVisible(false);
 			}
-		});
+		};
+		document.addEventListener('keydown', hideLogoOnHotkey);
 
 		const SIGNAL_CREATURE_CLICK = 'vignettecreatureclick';
 		const SIGNAL_CREATURE_MOUSE_ENTER = 'vignettecreaturemouseenter';
@@ -4016,46 +4745,37 @@ export class UI {
 		const SIGNAL_TURN_END_MOUSE_ENTER = 'vignetteturnendmouseenter';
 		const SIGNAL_TURN_END_MOUSE_LEAVE = 'vignetteturnendmouseleave';
 
-		ui.game.signals.ui.add((msg, payload) => {
-			switch (msg) {
-				case SIGNAL_CREATURE_CLICK:
-					onCreatureClick(payload.creature);
-					break;
-				case SIGNAL_CREATURE_MOUSE_ENTER:
-					onCreatureMouseEnter(payload.creature);
-					break;
-				case SIGNAL_CREATURE_MOUSE_LEAVE:
-					onCreatureMouseLeave();
-					break;
-				case SIGNAL_TURN_END_CLICK:
-					onTurnEndClick();
-					break;
-				case SIGNAL_TURN_END_MOUSE_ENTER:
-					onTurnEndMouseEnter(payload.turnNumber);
-					break;
-				case SIGNAL_TURN_END_MOUSE_LEAVE:
-					onTurnEndMouseLeave();
-					break;
-			}
-		});
+		// One subscription per vignette message the queue drives, rather than a
+		// single handler switching on the message name.
+		ui.game.channels.ui.on(SIGNAL_CREATURE_CLICK, ({ creature }) => onCreatureClick(creature));
+		ui.game.channels.ui.on(SIGNAL_CREATURE_MOUSE_ENTER, ({ creature }) =>
+			onCreatureMouseEnter(creature),
+		);
+		ui.game.channels.ui.on(SIGNAL_CREATURE_MOUSE_LEAVE, () => onCreatureMouseLeave());
+		ui.game.channels.ui.on(SIGNAL_TURN_END_CLICK, () => onTurnEndClick());
+		ui.game.channels.ui.on(SIGNAL_TURN_END_MOUSE_ENTER, ({ turnNumber }) =>
+			onTurnEndMouseEnter(turnNumber),
+		);
+		ui.game.channels.ui.on(SIGNAL_TURN_END_MOUSE_LEAVE, () => onTurnEndMouseLeave());
 
 		const queueEventHandlers = {
-			onCreatureClick: (creature) =>
-				ui.game.signals.ui.dispatch(SIGNAL_CREATURE_CLICK, { creature }),
+			onCreatureClick: (creature) => ui.game.channels.ui.emit(SIGNAL_CREATURE_CLICK, { creature }),
+			onEventContextMenu: (creature) =>
+				ui.game.channels.ui.emit(SIGNAL_CREATURE_CLICK, { creature }),
 			onCreatureMouseEnter: (creature) =>
-				ui.game.signals.ui.dispatch(SIGNAL_CREATURE_MOUSE_ENTER, { creature }),
-			onCreatureMouseLeave: () => ui.game.signals.ui.dispatch(SIGNAL_CREATURE_MOUSE_LEAVE, {}),
-			onDelayClick: () => ui.game.signals.ui.dispatch(SIGNAL_DELAY_CLICK, {}),
-			onDelayMouseEnter: () => ui.game.signals.ui.dispatch(SIGNAL_DELAY_MOUSE_ENTER, {}),
-			onDelayMouseLeave: () => ui.game.signals.ui.dispatch(SIGNAL_DELAY_MOUSE_LEAVE, {}),
+				ui.game.channels.ui.emit(SIGNAL_CREATURE_MOUSE_ENTER, { creature }),
+			onCreatureMouseLeave: () => ui.game.channels.ui.emit(SIGNAL_CREATURE_MOUSE_LEAVE, {}),
+			onDelayClick: () => ui.game.channels.ui.emit(SIGNAL_DELAY_CLICK, {}),
+			onDelayMouseEnter: () => ui.game.channels.ui.emit(SIGNAL_DELAY_MOUSE_ENTER, {}),
+			onDelayMouseLeave: () => ui.game.channels.ui.emit(SIGNAL_DELAY_MOUSE_LEAVE, {}),
 			onTurnEndClick: (turnNumber: number) =>
-				ui.game.signals.ui.dispatch(SIGNAL_TURN_END_CLICK, { turnNumber }),
+				ui.game.channels.ui.emit(SIGNAL_TURN_END_CLICK, { turnNumber }),
 			onTurnEndMarkerMouseDown: () => {
 				ui.toggleView('secret');
 			},
 			onTurnEndMouseEnter: (turnNumber: number) =>
-				ui.game.signals.ui.dispatch(SIGNAL_TURN_END_MOUSE_ENTER, { turnNumber }),
-			onTurnEndMouseLeave: () => ui.game.signals.ui.dispatch(SIGNAL_TURN_END_MOUSE_LEAVE, {}),
+				ui.game.channels.ui.emit(SIGNAL_TURN_END_MOUSE_ENTER, { turnNumber }),
+			onTurnEndMouseLeave: () => ui.game.channels.ui.emit(SIGNAL_TURN_END_MOUSE_LEAVE, {}),
 		};
 
 		return new Queue(queueDomElement, queueEventHandlers);

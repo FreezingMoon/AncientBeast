@@ -1,9 +1,12 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 
-jest.mock('phaser-ce', () => ({
-	Point: class PointMock {},
-	Polygon: class PolygonMock {},
-}));
+// The real Phaser bundle needs a canvas context at import time, which jsdom
+// does not provide; `plasma-field` reaches it for `BlendModes`.
+jest.mock('phaser', () =>
+	(
+		jest.requireActual('../../../test/phaser-mock') as typeof import('../../../test/phaser-mock')
+	).createPhaserMock(),
+);
 
 jest.mock('../../damage', () => ({
 	Damage: class DamageMock {
@@ -83,8 +86,10 @@ describe('Vehemoth Falling Arrow damage fallback', () => {
 				sprite: {
 					x: number;
 					y: number;
-					anchor: { x: number; y: number };
-					scale: { x: number; y: number };
+					originX: number;
+					originY: number;
+					scaleX: number;
+					scaleY: number;
 					texture: { width: number; height: number };
 				};
 				setDir: ReturnType<typeof jest.fn>;
@@ -97,14 +102,6 @@ describe('Vehemoth Falling Arrow damage fallback', () => {
 	};
 
 	beforeEach(() => {
-		(global as { Phaser?: { Easing: { Linear: { None: string } } } }).Phaser = {
-			Easing: {
-				Linear: {
-					None: 'linear-none',
-				},
-			},
-		};
-
 		game = {
 			abilities: {},
 			Phaser: {
@@ -141,7 +138,11 @@ describe('Vehemoth Falling Arrow damage fallback', () => {
 			grid: {
 				creatureGroup: {
 					create: jest.fn(() => ({
-						anchor: { setTo: jest.fn() },
+						originX: 0.5,
+						originY: 0.5,
+						displayOriginX: 0,
+						displayOriginY: 0,
+						setOrigin: jest.fn().mockReturnThis(),
 						destroy: jest.fn(),
 						mask: null,
 					})),
@@ -150,6 +151,85 @@ describe('Vehemoth Falling Arrow damage fallback', () => {
 		};
 
 		loadVehemothAbilities(game as never);
+
+		// Expose a gameEngine adapter mock so gameplay code that calls
+		// G.gameEngine.* (e.g. cameras.main.shake, add.graphics, tween)
+		// has a stable surface to talk to.
+		(game as any).gameEngine = {
+			cameras: { main: { shake: jest.fn() } },
+			add: {
+				sprite: jest.fn(() => ({
+					setOrigin: jest.fn(),
+					rotation: 0,
+					alpha: 1,
+					x: 0,
+					y: 0,
+					mask: null,
+					destroy: jest.fn(),
+				})),
+				graphics: jest.fn(() => ({
+					beginFill: jest.fn(),
+					drawRect: jest.fn(),
+					endFill: jest.fn(),
+					destroy: jest.fn(),
+				})),
+				bitmapData: jest.fn(() => ({
+					width: 100,
+					height: 100,
+					ctx: {
+						clearRect: jest.fn(),
+						save: jest.fn(),
+						restore: jest.fn(),
+						translate: jest.fn(),
+						scale: jest.fn(),
+						drawImage: jest.fn(),
+					},
+					context: {
+						clearRect: jest.fn(),
+						save: jest.fn(),
+						restore: jest.fn(),
+						translate: jest.fn(),
+						scale: jest.fn(),
+						drawImage: jest.fn(),
+					},
+					dirty: false,
+					update: jest.fn(),
+					destroy: jest.fn(),
+				})),
+				group: jest.fn(() => ({
+					children: [],
+					add: jest.fn(),
+					addAt: jest.fn(),
+					remove: jest.fn(),
+				})),
+				tileSprite: jest.fn(() => ({})),
+				socket: jest.fn(() => ({
+					originX: 0.5,
+					originY: 0.5,
+					displayOriginX: 0,
+					displayOriginY: 0,
+					scaleX: 1,
+					scaleY: 1,
+					setOrigin: jest.fn().mockReturnThis(),
+					setScale: jest.fn().mockReturnThis(),
+					angle: 0,
+					destroy: jest.fn(),
+				})),
+				image: jest.fn(() => ({})),
+				text: jest.fn(() => ({})),
+			},
+			tween: jest.fn(() => {
+				const tween = {
+					onComplete: { add: (fn: () => void) => fn(), addOnce: (fn: () => void) => fn() },
+					to: () => tween,
+					start: () => tween,
+					stop: () => tween,
+					yoyo: () => tween,
+					repeat: () => tween,
+				};
+				return tween;
+			}),
+		};
 
 		const baseAbility = game.abilities[6][3] as typeof ability;
 		ability = {
@@ -165,8 +245,10 @@ describe('Vehemoth Falling Arrow damage fallback', () => {
 					sprite: {
 						x: 0,
 						y: 0,
-						anchor: { x: 0.5, y: 1 },
-						scale: { x: 1, y: 1 },
+						originX: 0.5,
+						originY: 1,
+						scaleX: 1,
+						scaleY: 1,
 						texture: { width: 100, height: 100 },
 					},
 					setDir: jest.fn(),
@@ -194,6 +276,32 @@ describe('Vehemoth Falling Arrow damage fallback', () => {
 			damages: { pierce: number; frost: number };
 		};
 		expect(damage.damages).toEqual({ pierce: 20, frost: 3 });
+	});
+
+	test('fires the arrow without a Graphics mask that would paint over the board', () => {
+		const target = {
+			level: '1',
+			hexagons: [{ displayPos: { x: 1000, y: 10 } }],
+			takeDamage: jest.fn(),
+		};
+
+		ability.activate(target);
+
+		// A Graphics mask in the creature group is drawn by the WebGL renderer, so
+		// it flashed a white slab over the board and hid the projectile itself.
+		expect((game as any).gameEngine.add.graphics).not.toHaveBeenCalled();
+		// The bolt is created through the engine, which parents it into the
+		// creature group; `Group.create` has no Phaser 4 equivalent.
+		const addSprite = (game as any).gameEngine.add.sprite;
+		expect(addSprite).toHaveBeenCalledWith(
+			expect.any(Number),
+			expect.any(Number),
+			'effects_ice-bolt',
+			undefined,
+			game.grid.creatureGroup,
+		);
+		const sprite = addSprite.mock.results[0].value as { mask: unknown };
+		expect(sprite.mask).toBeNull();
 	});
 });
 
@@ -254,6 +362,19 @@ describe('Vehemoth Flat Frons deferred query resume', () => {
 		};
 
 		loadVehemothAbilities(game as never);
+
+		// Expose a gameEngine adapter mock so gameplay code that calls
+		// G.gameEngine.* (e.g. cameras.main.shake) has a stable surface.
+		(game as any).gameEngine = {
+			cameras: {
+				main: {
+					shake: jest.fn(),
+					SHAKE_HORIZONTAL: 'horizontal',
+					SHAKE_VERTICAL: 'vertical',
+					SHAKE_BOTH: 'both',
+				},
+			},
+		};
 	});
 
 	test('resumes query when knockback target is unmoveable', () => {

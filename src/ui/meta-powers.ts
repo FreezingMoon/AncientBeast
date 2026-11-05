@@ -3,6 +3,7 @@ import Cookies from 'js-cookie';
 import { capitalize } from '../utility/string';
 import { Button, ButtonStateEnum } from './button';
 import Game, { MetaPowersState } from '../game';
+import { metaPowerMessage } from '../game-events/factory';
 
 const COOKIE_KEY = 'ab-meta-powers';
 
@@ -69,34 +70,17 @@ export class MetaPowers {
 		this.panelVisible = false;
 		this._bindElements();
 
-		// Events
-		this.game.signals.ui.add(this._handleUiEvent, this);
+		// One subscription per message this panel reacts to, rather than one
+		// handler filtering every `ui` message by name.
+		this.game.channels.ui.on('toggleMetaPowers', () => this._toggleModal());
+		this.game.channels.ui.on('toggleDash', () => this._closeModal());
+		this.game.channels.ui.on('closeInterfaceScreens', () => this._closeModal());
 
 		if (Cookies.get(COOKIE_KEY)) {
 			this._restorePowers();
 		}
 
 		this._updateEnabledPowersPreview();
-	}
-
-	/**
-	 * Handle events on the "ui" channel
-	 *
-	 * @param {string} message Event name
-	 * @param {object} payload Event payload
-	 */
-	_handleUiEvent(message: string, _payload: object) {
-		if (message === 'toggleMetaPowers') {
-			this._toggleModal();
-		}
-
-		if (message === 'toggleDash') {
-			this._closeModal();
-		}
-
-		if (message === 'closeInterfaceScreens') {
-			this._closeModal();
-		}
 	}
 
 	/**
@@ -192,7 +176,7 @@ export class MetaPowers {
 
 		button.changeState(enabled ? ButtonStateEnum.active : ButtonStateEnum.normal);
 
-		this.game.signals.metaPowers.dispatch(`toggle${capitalize(stateKey)}`, enabled);
+		this.game.channels.metaPowers.emit(metaPowerMessage(stateKey), enabled);
 
 		this._updateEnabledPowersPreview();
 		this._persistPowers();

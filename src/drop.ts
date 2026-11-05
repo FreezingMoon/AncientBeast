@@ -1,3 +1,5 @@
+import type { SpriteHandle } from './engine/types';
+import { Easing } from './utility/easing';
 import { Creature } from './creature';
 import Game from './game';
 import { Point, getPointFacade } from './utility/pointfacade';
@@ -54,7 +56,7 @@ export class Drop {
 	alterations: DropAlterations;
 	pickedUp: boolean;
 
-	display: Phaser.Sprite;
+	display: SpriteHandle;
 
 	constructor(name: string, alterations: DropAlterations, x: number, y: number, game: Game) {
 		this.id = game.dropId++;
@@ -71,23 +73,25 @@ export class Drop {
 			.forEach((drop) => drop.destroy());
 		this.game.drops.push(this);
 
-		this.display = game.grid.dropGroup.create(
+		this.display = game.gameEngine.add.sprite(
 			this.hex.displayPos.x + 45,
 			this.hex.displayPos.y + 15,
 			this.name,
+			undefined,
+			game.grid.dropGroup,
 		);
 		this.display.alpha = 0;
-		this.display.anchor.setTo(0.5, 0.5);
-		this.display.scale.setTo(1.5, 1.5);
+		this.display.setOrigin(0.5, 0.5);
+		this.display.setScale(1.5, 1.5);
 
-		game.Phaser.add
+		game.gameEngine
 			.tween(this.display)
 			.to(
 				{
 					alpha: 1,
 				},
 				500,
-				Phaser.Easing.Linear.None,
+				Easing.Linear.None,
 			)
 			.start();
 
@@ -126,10 +130,12 @@ export class Drop {
 		const gainedMessage = Object.keys(alterations)
 			.map((key) => `${alterations[key]} ${key}`)
 			.join(', ')
-			// Replace last comma with "and"
-			.replace(/, ([^,]*)$/, ' and $1');
+			// Replace last comma with "&"
+			.replace(/, ([^,]*)$/, ' & $1');
 
-		game.log(`Gains ${gainedMessage}`);
+		// The list itself reads as the creature's own, so mark the line with the
+		// player's color rather than naming it again.
+		game.log(`Gains ${gainedMessage} %CreatureColor${creature.id}%▲%EndCreatureColor%`);
 
 		creature.player.score.push({
 			type: 'pickupDrop',
@@ -143,9 +149,9 @@ export class Drop {
 		dropGroup.remove(this.display, false);
 		creatureGroup.add(this.display);
 
-		const tween = this.game.Phaser.add
+		const tween = this.game.gameEngine
 			.tween(this.display)
-			.to({ alpha: 0, y: this.display.y - 100 }, 500, Phaser.Easing.Linear.None)
+			.to({ alpha: 0, y: this.display.y - 100 }, 500, Easing.Linear.None)
 			.start();
 
 		tween.onComplete.add(() => {

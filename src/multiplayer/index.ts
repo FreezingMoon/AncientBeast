@@ -1,7 +1,7 @@
 export { LobbyClient } from './LobbyClient';
 export { PeerLobbyProvider } from './PeerLobbyProvider';
-export { DevvitLobbyProvider } from './DevvitLobbyProvider';
-export { DevvitTransport } from './transport/DevvitTransport';
+export { DevvitLobbyProvider } from '../../platforms/devvit/DevvitLobbyProvider';
+export { DevvitTransport } from '../../platforms/devvit/DevvitTransport';
 export { createLobbyProvider, getNetworkMode } from './provider';
 export type {
 	AbilityTarget,

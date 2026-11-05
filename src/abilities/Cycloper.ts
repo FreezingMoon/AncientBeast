@@ -1,12 +1,19 @@
+import { runTimedAnimation } from '../timing/clock';
+import { createGameCanvasSurface, type CanvasSurface } from '../game-display/canvas-surface';
+import type { TimedAnimation } from '../timing/clock';
+import { Easing } from '../utility/easing';
 import { Damage } from '../damage';
 import { Creature } from '../creature';
 import { Hex } from '../utility/hex';
 import { Team, isTeam } from '../utility/team';
 import * as arrayUtils from '../utility/arrayUtils';
 import { extractTextureFrameInfo, createBitmapDataFromTexture } from '../utility/bitmapUtils';
+import { getFrameSize } from '../game-display/texture';
+import { HEX_WIDTH_PX } from '../utility/const';
 import Game from '../game';
 import type { Ability } from '../ability';
 import type { UnitData } from '../data/types';
+import type { SpriteHandle } from '../engine/types';
 
 const CYCLOPER_UNIT_ID = 15;
 const ACRYLIC_WALL_UNIT_ID = 999;
@@ -18,6 +25,8 @@ type DirectionArgs = { direction?: number };
 type CreatureDataEntry = UnitData[number];
 type CycloperAbilityState = {
 	_noAffordableApertureTargetInRange?: boolean;
+	/** True while Power Aperture's destination query is open (bot scoring hint). */
+	_awaitingApertureDestination?: boolean;
 };
 type AcrylicWallRuntimeFlags = {
 	hideFromQueue?: boolean;
@@ -34,8 +43,12 @@ type ShatterTexture = {
 	baseTexture?: { source?: CanvasImageSource };
 };
 type PowerApertureTile = {
-	sprite: Phaser.Sprite;
-	bitmapData: Phaser.BitmapData;
+	/**
+	 * Filled in once the tile is drawn into place; the tile is created with a
+	 * placeholder because its position depends on the draw pass it is born in.
+	 */
+	sprite: SpriteHandle;
+	bitmapData: CanvasSurface;
 	angle: number;
 	dissolveSeed: number;
 	spinDirection: 1 | -1;
@@ -73,15 +86,7 @@ function getCycloperOrigin(cycloper: Creature) {
 	return cycloper.player.flipped ? cycloper.hexagons[cycloper.size - 1] : cycloper.hexagons[0];
 }
 
-function getCycloperEyeOffsets(cycloper: Creature) {
-	return {
-		x: cycloper.sprite?.scale?.x > 0 ? 50 : 40,
-		y: -113,
-	};
-}
-
 function getCycloperEyeEmissionPoint(cycloper: Creature) {
-	const eyeOffsets = getCycloperEyeOffsets(cycloper);
 	const fallbackOrigin = getCycloperOrigin(cycloper);
 	const fallbackPoint = {
 		x: fallbackOrigin?.displayPos?.x ?? cycloper.x * 90,
@@ -89,11 +94,37 @@ function getCycloperEyeEmissionPoint(cycloper: Creature) {
 	};
 	const basePoint = cycloper.legacyProjectileEmissionPoint ?? fallbackPoint;
 
+	// Compute the sprite's local position within its group the same way
+	// CreatureSprite._place() does, using the actual frame size.
+	const creatureSprite = cycloper.creatureSprite.sprite;
+	const creatureSize = getFrameSize(creatureSprite);
+	const originX = cycloper.display['offset-x'] ?? 0;
+	const originY = cycloper.display['offset-y'] ?? -145;
+	const dir = cycloper.player.flipped ? -1 : 1;
+	const spriteLocalX =
+		(dir === 1 ? originX : HEX_WIDTH_PX * cycloper.size - creatureSize.width - originX) +
+		creatureSize.width / 2;
+	const spriteLocalY = originY + creatureSize.height;
+
+	// Eye offsets are local sprite offsets from the pivot (origin 0.5, 1 = bottom center).
+	// Derived from the old world offsets (50/40, -113) minus the sprite local pos above.
+	const eyeLocalX = 5 * (creatureSprite.scaleX > 0 ? 1 : -1);
+	const eyeLocalY = -149; // old world -113 minus spriteLocalY (36)
+
+	// The tilt animation tweens the GROUP's angle, not the sprite's angle.
+	// Read the group's angle to track the tilt.
+	const group = cycloper.creatureSprite.grp;
+	const angle = (group?.angle ?? 0) * (Math.PI / 180);
+	const cos = Math.cos(angle);
+	const sin = Math.sin(angle);
+	const rotX = eyeLocalX * cos - eyeLocalY * sin;
+	const rotY = eyeLocalX * sin + eyeLocalY * cos;
+
 	return {
-		x: basePoint.x + eyeOffsets.x,
-		y: basePoint.y + eyeOffsets.y,
-		offsetX: eyeOffsets.x,
-		offsetY: eyeOffsets.y,
+		x: basePoint.x + spriteLocalX + rotX,
+		y: basePoint.y + spriteLocalY + rotY,
+		offsetX: rotX,
+		offsetY: rotY,
 	};
 }
 
@@ -129,7 +160,7 @@ function blendTint(fromColor: number, toColor: number, progress: number) {
 }
 
 function drawCycloperBeamLayered(
-	beamGraphics: Phaser.Graphics,
+	beamGraphics: SpriteHandle,
 	startX: number,
 	startY: number,
 	baseAngle: number,
@@ -157,6 +188,7 @@ function drawCycloperBeamLayered(
 		beamGraphics.lineStyle(layer.width, layer.color, layer.alpha);
 		beamGraphics.moveTo(layerStartX, layerStartY);
 		beamGraphics.lineTo(layerEndX, layerEndY);
+		beamGraphics.strokePath();
 
 		// Rounded cap at the beam tip to avoid hard pixel edge.
 		const tipRadius = layer.width * 1.1;
@@ -180,14 +212,14 @@ function createOpticBurstLaserEffect(
 	G: Game,
 	onComplete?: () => void,
 ) {
-	if (typeof G.Phaser === 'undefined' || !G.Phaser.add) {
+	if (typeof G.gameEngine === 'undefined' || !G.gameEngine.add) {
 		if (onComplete) {
 			onComplete();
 		}
 		return;
 	}
 
-	if (!G.Phaser.make?.graphics || typeof G.grid?.creatureGroup?.create !== 'function') {
+	if (!G.gameEngine.add.graphics || !G.grid?.creatureGroup) {
 		if (onComplete) {
 			onComplete();
 		}
@@ -196,7 +228,6 @@ function createOpticBurstLaserEffect(
 
 	const eyeEmissionPoint = getCycloperEyeEmissionPoint(ability.creature);
 	const emissionPointX = eyeEmissionPoint.x;
-	const emissionPointY = eyeEmissionPoint.y;
 
 	let distanceFromEye = Number.MAX_SAFE_INTEGER;
 	let targetX = path[0]?.displayPos?.x ?? target.x;
@@ -217,112 +248,168 @@ function createOpticBurstLaserEffect(
 	const targetPointX = targetX + 45;
 	const targetPointY = (targetHex?.displayPos?.y ?? target.y) - 65;
 
-	const impactSprite = G.grid.creatureGroup.create(
+	const impactSprite = G.gameEngine.add.sprite(
 		targetPointX,
 		targetPointY,
 		'effects_optic-burst',
+		undefined,
+		G.grid.creatureGroup,
 	);
-	impactSprite.anchor.setTo(0.5);
+	impactSprite.setOrigin(0.5);
 	impactSprite.tint = 0x55ff77;
 	impactSprite.alpha = 0;
-	impactSprite.scale.setTo(1.4, 1.4);
+	impactSprite.setScale(1.4, 1.4);
 
-	const beamGraphics = G.Phaser.make.graphics(0, 0);
-	G.grid.creatureGroup.addChild(beamGraphics);
+	// Emission point glow sprite (smaller, at eye)
+	const emissionGlowSprite = G.gameEngine.add.sprite(
+		targetPointX,
+		targetPointY,
+		'effects_optic-burst',
+		undefined,
+		G.grid.creatureGroup,
+	);
+	emissionGlowSprite.setOrigin(0.5);
+	emissionGlowSprite.tint = 0x55ff77;
+	emissionGlowSprite.alpha = 0;
+	emissionGlowSprite.setScale(0.5, 0.5);
+
+	// Add beam graphics to the creature's group (same parent as sprite)
+	// We'll manually sync its rotation with the sprite's tilt each frame
+	const creatureGroup = ability.creature.creatureSprite.grp;
+	const beamGraphics = G.gameEngine.add.graphics(0, 0);
+	creatureGroup.add(beamGraphics);
 
 	const travelSteps = baseDist <= 0 ? 1 : baseDist;
 	const straightTravelDurationMs = Math.max(60, Math.min(110, travelSteps * 20));
 	const sweepDurationMs = Math.max(320, travelSteps * 95);
 	const beamDurationMs = straightTravelDurationMs + sweepDurationMs;
-	const totalDx = targetPointX - emissionPointX;
-	const totalDy = targetPointY - emissionPointY;
-	const baseAngle = Math.atan2(totalDy, totalDx);
-	const totalLength = Math.sqrt(totalDx * totalDx + totalDy * totalDy);
-	const totalSweepRadians = (2.5 * Math.PI) / 180;
+	const totalSweepRadians = ((ability.creature.player.flipped ? -1 : 1) * (2.5 * Math.PI)) / 180;
 
-	let startTime: number;
-	const animate = () => {
-		if (startTime === undefined) {
-			startTime = Date.now();
-		}
+	// Pre-calculate sprite local position and eye offset in group coordinates
+	const creatureSprite = ability.creature.creatureSprite.sprite;
+	const creatureSize = getFrameSize(creatureSprite);
+	const originX = ability.creature.display['offset-x'] ?? 0;
+	const originY = ability.creature.display['offset-y'] ?? -145;
+	const dir = ability.creature.player.flipped ? -1 : 1;
+	const spriteLocalX =
+		(dir === 1 ? originX : HEX_WIDTH_PX * ability.creature.size - creatureSize.width - originX) +
+		creatureSize.width / 2;
+	const spriteLocalY = originY + creatureSize.height;
 
-		const elapsed = Date.now() - startTime;
-		const progress = Math.min(1, elapsed / beamDurationMs);
-		const isStraightTravelPhase = elapsed < straightTravelDurationMs;
-		const straightProgress = Math.min(1, elapsed / straightTravelDurationMs);
-		const sweepProgress = Math.min(
-			1,
-			Math.max(0, elapsed - straightTravelDurationMs) / sweepDurationMs,
-		);
-		const currentLength = isStraightTravelPhase ? totalLength * straightProgress : totalLength;
-		const sweepRadians = isStraightTravelPhase ? 0 : totalSweepRadians * sweepProgress;
+	// Eye offset from sprite's pivot (origin 0.5, 1 = bottom center)
+	const eyeLocalX = 5 * (creatureSprite.scaleX > 0 ? 1 : -1);
+	const eyeLocalY = -149;
 
-		ability.creature.faceHex(target);
-		const currentEyeEmissionPoint = getCycloperEyeEmissionPoint(ability.creature);
-		beamGraphics.clear();
-		const beamTip = drawCycloperBeamLayered(
-			beamGraphics,
-			currentEyeEmissionPoint.x,
-			currentEyeEmissionPoint.y,
-			baseAngle,
-			currentLength,
-			sweepRadians,
-		);
+	runTimedAnimation({
+		durationMs: beamDurationMs,
+		onFrame: (elapsed, _progress) => {
+			const isStraightTravelPhase = elapsed < straightTravelDurationMs;
+			const straightProgress = Math.min(1, elapsed / straightTravelDurationMs);
+			const sweepProgress = Math.min(
+				1,
+				Math.max(0, elapsed - straightTravelDurationMs) / sweepDurationMs,
+			);
+			const sweepRadians = isStraightTravelPhase ? 0 : totalSweepRadians * sweepProgress;
 
-		if (isStraightTravelPhase) {
-			impactSprite.alpha = 0;
-		} else {
-			impactSprite.x = beamTip.x;
-			impactSprite.y = beamTip.y;
-			const glowPulse = 0.5 + 0.5 * Math.sin(sweepProgress * Math.PI * 6);
-			impactSprite.alpha = Math.min(0.9, 0.65 + glowPulse * 0.2);
-			impactSprite.scale.setTo(1.4 + glowPulse * 0.35, 1.4 + glowPulse * 0.35);
-		}
+			ability.creature.faceHex(target);
 
-		if (progress < 1) {
-			setTimeout(animate, 16);
-			return;
-		}
+			// Sync beam graphics rotation with sprite's tilt angle
+			const spriteAngleRad = (creatureSprite.angle ?? 0) * (Math.PI / 180);
+			beamGraphics.angle = creatureSprite.angle ?? 0;
 
-		beamGraphics.destroy();
+			// Eye position in group coordinates: sprite local pos + rotated eye offset
+			const cos = Math.cos(spriteAngleRad);
+			const sin = Math.sin(spriteAngleRad);
+			const rotEyeX = eyeLocalX * cos - eyeLocalY * sin;
+			const rotEyeY = eyeLocalX * sin + eyeLocalY * cos;
+			const eyeGroupX = spriteLocalX + rotEyeX;
+			const eyeGroupY = spriteLocalY + rotEyeY;
 
-		G.Phaser.add
-			.tween(impactSprite.scale)
-			.to(
-				{
-					x: 2.5,
-					y: 2.5,
-				},
-				220,
-				Phaser.Easing.Cubic.Out,
-			)
-			.start();
+			// Target position in group coordinates
+			const targetGroupX = targetPointX - ability.creature.creatureSprite.grp.x;
+			const targetGroupY = targetPointY - ability.creature.creatureSprite.grp.y;
 
-		G.Phaser.add
-			.tween(impactSprite)
-			.to(
-				{
-					alpha: 0,
-				},
-				220,
-				Phaser.Easing.Cubic.Out,
-				true,
-			)
-			.onComplete.add(function () {
-				// @ts-expect-error 'this' defaults to type 'any'
-				this.destroy();
-				if (onComplete) {
-					onComplete();
-				}
-			}, impactSprite);
-	};
+			const currentDx = targetGroupX - eyeGroupX;
+			const currentDy = targetGroupY - eyeGroupY;
+			const currentAngle = Math.atan2(currentDy, currentDx);
+			const currentLength = isStraightTravelPhase
+				? Math.hypot(currentDx, currentDy) * straightProgress
+				: Math.hypot(currentDx, currentDy);
 
-	animate();
+			beamGraphics.clear();
+			const beamTip = drawCycloperBeamLayered(
+				beamGraphics,
+				eyeGroupX,
+				eyeGroupY,
+				currentAngle,
+				currentLength,
+				sweepRadians,
+			);
+
+			if (isStraightTravelPhase) {
+				impactSprite.alpha = 0;
+				emissionGlowSprite.alpha = 0;
+			} else {
+				// Convert beamTip from group coords to world coords (rotate by graphics angle)
+				const grp = ability.creature.creatureSprite.grp;
+				const spriteAngleRad = (creatureSprite.angle ?? 0) * (Math.PI / 180);
+				const cos = Math.cos(spriteAngleRad);
+				const sin = Math.sin(spriteAngleRad);
+				const rotatedTipX = beamTip.x * cos - beamTip.y * sin;
+				const rotatedTipY = beamTip.x * sin + beamTip.y * cos;
+				impactSprite.x = rotatedTipX + grp.x;
+				impactSprite.y = rotatedTipY + grp.y;
+				const glowPulse = 0.5 + 0.5 * Math.sin(sweepProgress * Math.PI * 6);
+				impactSprite.alpha = Math.min(0.9, 0.65 + glowPulse * 0.2);
+				impactSprite.setScale(1.4 + glowPulse * 0.35, 1.4 + glowPulse * 0.35);
+
+				// Emission glow at eye position (already world coords)
+				emissionGlowSprite.x = eyeGroupX + grp.x;
+				emissionGlowSprite.y = eyeGroupY + grp.y;
+				emissionGlowSprite.alpha = Math.min(0.7, 0.45 + glowPulse * 0.15);
+				emissionGlowSprite.setScale(0.5 + glowPulse * 0.15, 0.5 + glowPulse * 0.15);
+			}
+		},
+		onDone: () => {
+			beamGraphics.destroy();
+			emissionGlowSprite.destroy();
+
+			G.gameEngine
+				.tween(impactSprite.scale)
+				.to(
+					{
+						x: 2.5,
+						y: 2.5,
+					},
+					220,
+					Easing.Cubic.Out,
+				)
+				.start();
+
+			G.gameEngine
+				.tween(impactSprite)
+				.to(
+					{
+						alpha: 0,
+					},
+					220,
+					Easing.Cubic.Out,
+					true,
+				)
+				.onComplete.add(function () {
+					// @ts-expect-error 'this' defaults to type 'any'
+					this.destroy();
+					if (onComplete) {
+						onComplete();
+					}
+				}, impactSprite);
+		},
+	});
 }
 
 function createPowerApertureTiles(
 	G: Game,
-	targetSprite: Phaser.Sprite,
+	targetSprite: SpriteHandle,
 	spriteLeft: number,
 	spriteTop: number,
 	displayWidth: number,
@@ -359,10 +446,10 @@ function createPowerApertureTiles(
 		for (let sx = 0; sx < targetTexW; sx += tileSize) {
 			const sw = Math.min(tileSize, targetTexW - sx);
 			const sh = Math.min(tileSize, targetTexH - sy);
-			const bitmapData = G.Phaser.add.bitmapData(sw, sh);
+			const bitmapData = createGameCanvasSurface(G, sw, sh);
 			bitmapData.ctx.clearRect(0, 0, sw, sh);
 			bitmapData.ctx.drawImage(orientedBitmapData.canvas, sx, sy, sw, sh, 0, 0, sw, sh);
-			bitmapData.dirty = true;
+			bitmapData.commit();
 			const tileCenterX = sx + sw / 2;
 			const tileCenterY = sy + sh / 2;
 			const screenTileX = tileCenterX;
@@ -370,7 +457,7 @@ function createPowerApertureTiles(
 			const destinationY = spriteTop + tileCenterY * scaleY;
 
 			tiles.push({
-				sprite: null as unknown as Phaser.Sprite,
+				sprite: null as unknown as SpriteHandle,
 				bitmapData,
 				angle: -18 + Math.random() * 36,
 				dissolveSeed: Math.random(),
@@ -399,7 +486,7 @@ function createPowerAperturePhase1Effect(
 	G: Game,
 	onComplete?: () => void,
 ) {
-	if (typeof G.Phaser === 'undefined' || !G.Phaser.add || !G.Phaser.make?.graphics) {
+	if (!G.gameEngine.add.graphics) {
 		if (onComplete) {
 			onComplete();
 		}
@@ -428,7 +515,6 @@ function createPowerAperturePhase1Effect(
 	const preservedSign = originalScaleX < 0 ? -1 : 1;
 	target.creatureSprite.setDir(preservedSign);
 	cycloper.faceHex(target);
-	const lockedEyeEmissionPoint = getCycloperEyeEmissionPoint(cycloper);
 	const tiles = createPowerApertureTiles(
 		G,
 		targetSprite,
@@ -447,15 +533,17 @@ function createPowerAperturePhase1Effect(
 		target.creatureSprite.setAlpha(0, 0);
 	}
 
-	const impactSprite = G.grid.creatureGroup.create(
+	const impactSprite = G.gameEngine.add.sprite(
 		targetCapPoint.x,
 		targetCapPoint.y,
 		'effects_optic-burst',
+		undefined,
+		G.grid.creatureGroup,
 	);
-	impactSprite.anchor.setTo(0.5, 0.5);
+	impactSprite.setOrigin(0.5, 0.5);
 	impactSprite.tint = laserColor;
 	impactSprite.alpha = 0.8;
-	impactSprite.scale.setTo(2, 1.5);
+	impactSprite.setScale(2, 1.5);
 
 	if (!tiles.length) {
 		impactSprite.destroy();
@@ -474,87 +562,142 @@ function createPowerAperturePhase1Effect(
 		const spawnProgress = tile.phase1StartProgress;
 		const spawnScatterX = normalX * tile.phase1Scatter;
 		const spawnScatterY = normalY * tile.phase1Scatter;
-		tile.sprite = G.grid.creatureGroup.create(
+		tile.sprite = G.gameEngine.add.sprite(
 			tile.sourceX + lineDeltaX * spawnProgress + spawnScatterX,
 			tile.sourceY + lineDeltaY * spawnProgress + spawnScatterY,
-			tile.bitmapData,
+			tile.bitmapData.key,
+			undefined,
+			G.grid.creatureGroup,
 		);
-		tile.sprite.anchor.setTo(0.5, 0.5);
+		tile.sprite.setOrigin(0.5, 0.5);
 		tile.sprite.alpha = 0.45 + tile.dissolveSeed * 0.35;
 		tile.sprite.tint = laserColor;
-		tile.sprite.scale.setTo(tile.renderScaleX, tile.renderScaleY);
+		tile.sprite.setScale(tile.renderScaleX, tile.renderScaleY);
 		tile.sprite.angle = 0;
 	});
 
-	const beamGraphics = G.Phaser.make.graphics(0, 0);
-	G.grid.creatureGroup.addChild(beamGraphics);
+	// Emission point glow sprite (smaller, at eye)
+	const emissionGlowSprite = G.gameEngine.add.sprite(
+		targetCapPoint.x,
+		targetCapPoint.y,
+		'effects_optic-burst',
+		undefined,
+		G.grid.creatureGroup,
+	);
+	emissionGlowSprite.setOrigin(0.5, 0.5);
+	emissionGlowSprite.tint = laserColor;
+	emissionGlowSprite.alpha = 0;
+	emissionGlowSprite.setScale(0.5, 0.5);
 
-	let startTime: number;
-	const animateLaser = () => {
-		if (startTime === undefined) {
-			startTime = Date.now();
-		}
+	// Add beam graphics to the Cycloper's group (same parent as sprite)
+	// We'll manually sync its rotation with the sprite's tilt each frame
+	const creatureGroup = cycloper.creatureSprite.grp;
+	const beamGraphics = G.gameEngine.add.graphics(0, 0);
+	creatureGroup.add(beamGraphics);
 
-		const elapsed = Date.now() - startTime;
-		const progress = Math.min(1, elapsed / laserDurationMs);
-		const suctionProgress = progress;
+	// Pre-calculate sprite local position and eye offset in group coordinates
+	const creatureSprite = cycloper.creatureSprite.sprite;
+	const creatureSize = getFrameSize(creatureSprite);
+	const originX = cycloper.display['offset-x'] ?? 0;
+	const originY = cycloper.display['offset-y'] ?? -145;
+	const dir = cycloper.player.flipped ? -1 : 1;
+	const spriteLocalX =
+		(dir === 1 ? originX : HEX_WIDTH_PX * cycloper.size - creatureSize.width - originX) +
+		creatureSize.width / 2;
+	const spriteLocalY = originY + creatureSize.height;
 
-		beamGraphics.clear();
-		const beamTip = drawCycloperBeamLayered(
-			beamGraphics,
-			lockedEyeEmissionPoint.x,
-			lockedEyeEmissionPoint.y,
-			Math.atan2(
-				targetCapPoint.y - lockedEyeEmissionPoint.y,
-				targetCapPoint.x - lockedEyeEmissionPoint.x,
-			),
-			Math.hypot(
-				targetCapPoint.x - lockedEyeEmissionPoint.x,
-				targetCapPoint.y - lockedEyeEmissionPoint.y,
-			),
-			0,
-		);
+	// Eye offset from sprite's pivot (origin 0.5, 1 = bottom center)
+	const eyeLocalX = 5 * (creatureSprite.scaleX > 0 ? 1 : -1);
+	const eyeLocalY = -149;
 
-		impactSprite.x = beamTip.x;
-		impactSprite.y = beamTip.y;
-		impactSprite.alpha = 0.55 + 0.35 * Math.sin(progress * Math.PI * 4) * 0.5;
-		impactSprite.scale.setTo(2 + suctionProgress * 0.4, 1.5 + suctionProgress * 0.25);
+	runTimedAnimation({
+		durationMs: laserDurationMs,
+		onFrame: (elapsed, progress) => {
+			const suctionProgress = progress;
 
-		tiles.forEach((tile) => {
-			const lineDeltaX = targetCapPoint.x - tile.sourceX;
-			const lineDeltaY = targetCapPoint.y - tile.sourceY;
-			const lineLength = Math.max(1, Math.hypot(lineDeltaX, lineDeltaY));
-			const normalX = -lineDeltaY / lineLength;
-			const normalY = lineDeltaX / lineLength;
-			const speedFactor = 0.7 + tile.dissolveSeed * 0.9;
-			const adjustedProgress = Math.min(1, suctionProgress * speedFactor);
-			const motionProgress =
-				tile.phase1StartProgress + (1 - tile.phase1StartProgress) * adjustedProgress;
-			const scatterFalloff = 1 - adjustedProgress;
-			tile.sprite.x =
-				tile.sourceX + lineDeltaX * motionProgress + normalX * tile.phase1Scatter * scatterFalloff;
-			tile.sprite.y =
-				tile.sourceY + lineDeltaY * motionProgress + normalY * tile.phase1Scatter * scatterFalloff;
-			tile.sprite.alpha = Math.max(0, 1 - motionProgress * (0.85 + tile.dissolveSeed * 0.1));
-			tile.sprite.scale.setTo(tile.renderScaleX, tile.renderScaleY);
-		});
-		if (progress < 1) {
-			setTimeout(animateLaser, 16);
-			return;
-		}
+			// Sync beam graphics rotation with sprite's tilt angle
+			const spriteAngleRad = (creatureSprite.angle ?? 0) * (Math.PI / 180);
+			beamGraphics.angle = creatureSprite.angle ?? 0;
 
-		tiles.forEach((tile) => {
-			tile.sprite.destroy();
-			tile.bitmapData.destroy();
-		});
-		beamGraphics.destroy();
-		impactSprite.destroy();
-		if (onComplete) {
-			onComplete();
-		}
-	};
+			// Eye position in group coordinates: sprite local pos + rotated eye offset
+			const cos = Math.cos(spriteAngleRad);
+			const sin = Math.sin(spriteAngleRad);
+			const rotEyeX = eyeLocalX * cos - eyeLocalY * sin;
+			const rotEyeY = eyeLocalX * sin + eyeLocalY * cos;
+			const eyeGroupX = spriteLocalX + rotEyeX;
+			const eyeGroupY = spriteLocalY + rotEyeY;
 
-	animateLaser();
+			// Target position in group coordinates
+			const targetGroupX = targetCapPoint.x - cycloper.creatureSprite.grp.x;
+			const targetGroupY = targetCapPoint.y - cycloper.creatureSprite.grp.y;
+
+			beamGraphics.clear();
+			const beamTip = drawCycloperBeamLayered(
+				beamGraphics,
+				eyeGroupX,
+				eyeGroupY,
+				Math.atan2(targetGroupY - eyeGroupY, targetGroupX - eyeGroupX),
+				Math.hypot(targetGroupX - eyeGroupX, targetGroupY - eyeGroupY),
+				0,
+			);
+
+			// Convert beamTip from group coords to world coords (rotate by graphics angle)
+			const grp1 = cycloper.creatureSprite.grp;
+			const spriteAngleRad1 = (creatureSprite.angle ?? 0) * (Math.PI / 180);
+			const cos1 = Math.cos(spriteAngleRad1);
+			const sin1 = Math.sin(spriteAngleRad1);
+			const rotatedTipX1 = beamTip.x * cos1 - beamTip.y * sin1;
+			const rotatedTipY1 = beamTip.x * sin1 + beamTip.y * cos1;
+			impactSprite.x = rotatedTipX1 + grp1.x;
+			impactSprite.y = rotatedTipY1 + grp1.y;
+			impactSprite.alpha = 0.55 + 0.35 * Math.sin(progress * Math.PI * 4) * 0.5;
+			impactSprite.setScale(2 + suctionProgress * 0.4, 1.5 + suctionProgress * 0.25);
+
+			// Emission glow at eye position (already world coords)
+			emissionGlowSprite.x = eyeGroupX + grp1.x;
+			emissionGlowSprite.y = eyeGroupY + grp1.y;
+			emissionGlowSprite.alpha = 0.4 + 0.2 * Math.sin(progress * Math.PI * 4);
+			emissionGlowSprite.setScale(
+				0.5 + 0.1 * Math.sin(progress * Math.PI * 4),
+				0.5 + 0.1 * Math.sin(progress * Math.PI * 4),
+			);
+
+			tiles.forEach((tile) => {
+				const lineDeltaX = targetCapPoint.x - tile.sourceX;
+				const lineDeltaY = targetCapPoint.y - tile.sourceY;
+				const lineLength = Math.max(1, Math.hypot(lineDeltaX, lineDeltaY));
+				const normalX = -lineDeltaY / lineLength;
+				const normalY = lineDeltaX / lineLength;
+				const speedFactor = 0.7 + tile.dissolveSeed * 0.9;
+				const adjustedProgress = Math.min(1, suctionProgress * speedFactor);
+				const motionProgress =
+					tile.phase1StartProgress + (1 - tile.phase1StartProgress) * adjustedProgress;
+				const scatterFalloff = 1 - adjustedProgress;
+				tile.sprite.x =
+					tile.sourceX +
+					lineDeltaX * motionProgress +
+					normalX * tile.phase1Scatter * scatterFalloff;
+				tile.sprite.y =
+					tile.sourceY +
+					lineDeltaY * motionProgress +
+					normalY * tile.phase1Scatter * scatterFalloff;
+				tile.sprite.alpha = Math.max(0, 1 - motionProgress * (0.85 + tile.dissolveSeed * 0.1));
+				tile.sprite.setScale(tile.renderScaleX, tile.renderScaleY);
+			});
+		},
+		onDone: () => {
+			tiles.forEach((tile) => {
+				tile.sprite.destroy();
+				tile.bitmapData.destroy();
+			});
+			beamGraphics.destroy();
+			impactSprite.destroy();
+			emissionGlowSprite.destroy();
+			if (onComplete) {
+				onComplete();
+			}
+		},
+	});
 }
 
 function createPowerAperturePhase2Effect(
@@ -565,7 +708,7 @@ function createPowerAperturePhase2Effect(
 	G: Game,
 	onComplete?: () => void,
 ) {
-	if (typeof G.Phaser === 'undefined' || !G.Phaser.add || !G.Phaser.make?.graphics) {
+	if (!G.gameEngine.add.graphics) {
 		if (onComplete) {
 			onComplete();
 		}
@@ -585,7 +728,6 @@ function createPowerAperturePhase2Effect(
 	}
 	const preservedSign = originalScaleX < 0 ? -1 : 1;
 	target.creatureSprite.setDir(preservedSign);
-	const lockedEyeEmissionPoint = getCycloperEyeEmissionPoint(cycloper);
 
 	const applyTargetReformState = (alpha: number, tintProgress: number) => {
 		// Use only group alpha to avoid double-alpha (group × sprite = alpha²).
@@ -645,15 +787,17 @@ function createPowerAperturePhase2Effect(
 		target.creatureSprite.setAlpha(0, 0);
 	}
 
-	const impactSprite = G.grid.creatureGroup.create(
+	const impactSprite = G.gameEngine.add.sprite(
 		destinationCapPoint.x,
 		destinationCapPoint.y,
 		'effects_optic-burst',
+		undefined,
+		G.grid.creatureGroup,
 	);
-	impactSprite.anchor.setTo(0.5, 0.5);
+	impactSprite.setOrigin(0.5, 0.5);
 	impactSprite.tint = laserColor;
 	impactSprite.alpha = 0.8;
-	impactSprite.scale.setTo(2.5, 1.8);
+	impactSprite.setScale(2.5, 1.8);
 
 	if (!tiles.length) {
 		impactSprite.destroy();
@@ -664,110 +808,159 @@ function createPowerAperturePhase2Effect(
 	}
 
 	tiles.forEach((tile) => {
-		tile.sprite = G.grid.creatureGroup.create(
+		tile.sprite = G.gameEngine.add.sprite(
 			destinationCapPoint.x,
 			destinationCapPoint.y,
-			tile.bitmapData,
+			tile.bitmapData.key,
+			undefined,
+			G.grid.creatureGroup,
 		);
-		tile.sprite.anchor.setTo(0.5, 0.5);
+		tile.sprite.setOrigin(0.5, 0.5);
 		tile.sprite.alpha = 0;
 		tile.sprite.tint = laserColor;
-		tile.sprite.scale.setTo(tile.renderScaleX, tile.renderScaleY);
+		tile.sprite.setScale(tile.renderScaleX, tile.renderScaleY);
 		tile.sprite.angle = 0;
 	});
 
-	const beamGraphics = G.Phaser.make.graphics(0, 0);
-	G.grid.creatureGroup.addChild(beamGraphics);
+	// Emission point glow sprite (smaller, at eye)
+	const emissionGlowSprite = G.gameEngine.add.sprite(
+		destinationCapPoint.x,
+		destinationCapPoint.y,
+		'effects_optic-burst',
+		undefined,
+		G.grid.creatureGroup,
+	);
+	emissionGlowSprite.setOrigin(0.5, 0.5);
+	emissionGlowSprite.tint = laserColor;
+	emissionGlowSprite.alpha = 0;
+	emissionGlowSprite.setScale(0.5, 0.5);
 
-	let startTime: number;
-	const animateLaser = () => {
-		if (startTime === undefined) {
-			startTime = Date.now();
-		}
+	// Add beam graphics to the Cycloper's group (same parent as sprite)
+	// We'll manually sync its rotation with the sprite's tilt each frame
+	const creatureGroup = cycloper.creatureSprite.grp;
+	const beamGraphics = G.gameEngine.add.graphics(0, 0);
+	creatureGroup.add(beamGraphics);
 
-		const elapsed = Date.now() - startTime;
-		const progress = Math.min(1, elapsed / laserDurationMs);
+	// Pre-calculate sprite local position and eye offset in group coordinates
+	const creatureSprite = cycloper.creatureSprite.sprite;
+	const creatureSize = getFrameSize(creatureSprite);
+	const originX = cycloper.display['offset-x'] ?? 0;
+	const originY = cycloper.display['offset-y'] ?? -145;
+	const dir = cycloper.player.flipped ? -1 : 1;
+	const spriteLocalX =
+		(dir === 1 ? originX : HEX_WIDTH_PX * cycloper.size - creatureSize.width - originX) +
+		creatureSize.width / 2;
+	const spriteLocalY = originY + creatureSize.height;
 
-		beamGraphics.clear();
-		const beamTip = drawCycloperBeamLayered(
-			beamGraphics,
-			lockedEyeEmissionPoint.x,
-			lockedEyeEmissionPoint.y,
-			Math.atan2(
-				destinationCapPoint.y - lockedEyeEmissionPoint.y,
-				destinationCapPoint.x - lockedEyeEmissionPoint.x,
-			),
-			Math.hypot(
-				destinationCapPoint.x - lockedEyeEmissionPoint.x,
-				destinationCapPoint.y - lockedEyeEmissionPoint.y,
-			),
-			0,
-		);
-		const reassembleProgress = Math.min(1, elapsed / reformDurationMs);
-		const pulseIntensity = 0.5 + 0.5 * Math.sin(progress * Math.PI * 4);
-		// Fade creature in only in the last 400ms so tiles finish assembling first.
-		const revealStartMs = laserDurationMs - 400;
-		const revealProgress = Math.min(1, Math.max(0, elapsed - revealStartMs) / 400);
-		applyTargetReformState(revealProgress, revealProgress);
-		impactSprite.x = beamTip.x;
-		impactSprite.y = beamTip.y;
-		impactSprite.alpha = 0.6 + pulseIntensity * 0.3;
-		impactSprite.scale.setTo(2.5 + pulseIntensity * 0.6, 1.8 + pulseIntensity * 0.4);
+	// Eye offset from sprite's pivot (origin 0.5, 1 = bottom center)
+	const eyeLocalX = 5 * (creatureSprite.scaleX > 0 ? 1 : -1);
+	const eyeLocalY = -149;
 
-		tiles.forEach((tile) => {
-			const phaseSeed = Math.abs(Math.sin(tile.dissolveSeed * 97.13));
-			const staggeredProgress = getStaggeredProgress(reassembleProgress, phaseSeed, 0.92);
-			if (staggeredProgress <= 0) {
-				tile.sprite.x = destinationCapPoint.x;
-				tile.sprite.y = destinationCapPoint.y;
-				tile.sprite.alpha = 0;
-				tile.sprite.scale.setTo(tile.renderScaleX, tile.renderScaleY);
-				return;
+	runTimedAnimation({
+		durationMs: laserDurationMs,
+		onFrame: (elapsed, progress) => {
+			// Sync beam graphics rotation with sprite's tilt angle
+			const spriteAngleRad = (creatureSprite.angle ?? 0) * (Math.PI / 180);
+			beamGraphics.angle = creatureSprite.angle ?? 0;
+
+			// Eye position in group coordinates: sprite local pos + rotated eye offset
+			const cos = Math.cos(spriteAngleRad);
+			const sin = Math.sin(spriteAngleRad);
+			const rotEyeX = eyeLocalX * cos - eyeLocalY * sin;
+			const rotEyeY = eyeLocalX * sin + eyeLocalY * cos;
+			const eyeGroupX = spriteLocalX + rotEyeX;
+			const eyeGroupY = spriteLocalY + rotEyeY;
+
+			// Target position in group coordinates
+			const targetGroupX = destinationCapPoint.x - cycloper.creatureSprite.grp.x;
+			const targetGroupY = destinationCapPoint.y - cycloper.creatureSprite.grp.y;
+
+			beamGraphics.clear();
+			const beamTip = drawCycloperBeamLayered(
+				beamGraphics,
+				eyeGroupX,
+				eyeGroupY,
+				Math.atan2(targetGroupY - eyeGroupY, targetGroupX - eyeGroupX),
+				Math.hypot(targetGroupX - eyeGroupX, targetGroupY - eyeGroupY),
+				0,
+			);
+
+			// Emission glow at eye position
+			emissionGlowSprite.x = eyeGroupX + cycloper.creatureSprite.grp.x;
+			emissionGlowSprite.y = eyeGroupY + cycloper.creatureSprite.grp.y;
+			emissionGlowSprite.alpha = 0.4 + 0.2 * Math.sin(progress * Math.PI * 4);
+			emissionGlowSprite.setScale(
+				0.5 + 0.1 * Math.sin(progress * Math.PI * 4),
+				0.5 + 0.1 * Math.sin(progress * Math.PI * 4),
+			);
+			const reassembleProgress = Math.min(1, elapsed / reformDurationMs);
+			const pulseIntensity = 0.5 + 0.5 * Math.sin(progress * Math.PI * 4);
+			// Fade creature in only in the last 400ms so tiles finish assembling first.
+			const revealStartMs = laserDurationMs - 400;
+			const revealProgress = Math.min(1, Math.max(0, elapsed - revealStartMs) / 400);
+			applyTargetReformState(revealProgress, revealProgress);
+			// Convert beamTip from group coords to world coords (rotate by graphics angle)
+			const grp2 = cycloper.creatureSprite.grp;
+			const spriteAngleRad2 = (creatureSprite.angle ?? 0) * (Math.PI / 180);
+			const cos2 = Math.cos(spriteAngleRad2);
+			const sin2 = Math.sin(spriteAngleRad2);
+			const rotatedTipX2 = beamTip.x * cos2 - beamTip.y * sin2;
+			const rotatedTipY2 = beamTip.x * sin2 + beamTip.y * cos2;
+			impactSprite.x = rotatedTipX2 + grp2.x;
+			impactSprite.y = rotatedTipY2 + grp2.y;
+			impactSprite.alpha = 0.6 + pulseIntensity * 0.3;
+			impactSprite.setScale(2.5 + pulseIntensity * 0.6, 1.8 + pulseIntensity * 0.4);
+
+			tiles.forEach((tile) => {
+				const phaseSeed = Math.abs(Math.sin(tile.dissolveSeed * 97.13));
+				const staggeredProgress = getStaggeredProgress(reassembleProgress, phaseSeed, 0.92);
+				if (staggeredProgress <= 0) {
+					tile.sprite.x = destinationCapPoint.x;
+					tile.sprite.y = destinationCapPoint.y;
+					tile.sprite.alpha = 0;
+					tile.sprite.setScale(tile.renderScaleX, tile.renderScaleY);
+					return;
+				}
+
+				const adjustedProgress = staggeredProgress;
+				tile.sprite.x =
+					destinationCapPoint.x + (tile.destinationX - destinationCapPoint.x) * adjustedProgress;
+				tile.sprite.y =
+					destinationCapPoint.y + (tile.destinationY - destinationCapPoint.y) * adjustedProgress;
+				tile.sprite.alpha = Math.min(1, 0.82 + adjustedProgress * 0.18);
+				tile.sprite.setScale(tile.renderScaleX, tile.renderScaleY);
+			});
+		},
+		onDone: () => {
+			beamGraphics.destroy();
+			impactSprite.destroy();
+			emissionGlowSprite.destroy();
+
+			tiles.forEach((tile) => {
+				tile.sprite.destroy();
+				tile.bitmapData.destroy();
+			});
+
+			target.grp.alpha = 1;
+			target.grp.visible = true;
+			target.grp.renderable = true;
+			targetSprite.alpha = 1;
+			targetSprite.visible = true;
+			targetSprite.renderable = true;
+			targetSprite.tint = 0xffffff;
+			targetSprite.angle = targetOriginalState.angle;
+			target.creatureSprite.setDir(preservedSign);
+			targetSprite.scale.y = targetOriginalState.scaleY;
+			enforcePowerApertureFacing(target, preservedSign);
+			if (typeof target.creatureSprite?.setAlpha === 'function') {
+				target.creatureSprite.setAlpha(1, 0);
 			}
-
-			const adjustedProgress = staggeredProgress;
-			tile.sprite.x =
-				destinationCapPoint.x + (tile.destinationX - destinationCapPoint.x) * adjustedProgress;
-			tile.sprite.y =
-				destinationCapPoint.y + (tile.destinationY - destinationCapPoint.y) * adjustedProgress;
-			tile.sprite.alpha = Math.min(1, 0.82 + adjustedProgress * 0.18);
-			tile.sprite.scale.setTo(tile.renderScaleX, tile.renderScaleY);
-		});
-
-		if (progress < 1) {
-			setTimeout(animateLaser, 16);
-			return;
-		}
-
-		beamGraphics.destroy();
-		impactSprite.destroy();
-
-		tiles.forEach((tile) => {
-			tile.sprite.destroy();
-			tile.bitmapData.destroy();
-		});
-
-		target.grp.alpha = 1;
-		target.grp.visible = true;
-		target.grp.renderable = true;
-		targetSprite.alpha = 1;
-		targetSprite.visible = true;
-		targetSprite.renderable = true;
-		targetSprite.tint = 0xffffff;
-		targetSprite.angle = targetOriginalState.angle;
-		target.creatureSprite.setDir(preservedSign);
-		targetSprite.scale.y = targetOriginalState.scaleY;
-		enforcePowerApertureFacing(target, preservedSign);
-		if (typeof target.creatureSprite?.setAlpha === 'function') {
-			target.creatureSprite.setAlpha(1, 0);
-		}
-		cycloper.facePlayerDefault?.();
-		if (onComplete) {
-			onComplete();
-		}
-	};
-
-	animateLaser();
+			cycloper.facePlayerDefault?.();
+			if (onComplete) {
+				onComplete();
+			}
+		},
+	});
 }
 
 function getApertureEnergyCost(target: Creature, useCurrentHealth: boolean) {
@@ -1079,81 +1272,176 @@ function createAcrylicWall3DPrintEffect(
 	const wallHeight = Math.abs(wallSprite.height);
 	const wallWidth = Math.abs(wallSprite.width);
 
-	if (typeof G.Phaser === 'undefined' || !G.Phaser.add || !G.Phaser.make?.graphics) {
+	if (!G.gameEngine.add.graphics || typeof wallSprite.setCrop !== 'function') {
 		if (onComplete) {
 			onComplete();
 		}
 		return;
 	}
 
-	// Use an invisible graphics mask to reveal the wall bottom-to-top without stretching.
-	const maskGraphics = G.Phaser.make.graphics(0, 0);
-	maskGraphics.alpha = 0;
-	G.grid.creatureGroup.addChild(maskGraphics);
-	wallSprite.mask = maskGraphics;
+	// Phaser 4 masks only work under the Canvas renderer; the WebGL renderer
+	// ignores the `mask` property entirely.  Use setCrop (which works in both
+	// renderers) instead.  Also stop the spawn fade-in tween that summon()
+	// starts on the group alpha so the crop is the sole reveal controller.
+	G.gameEngine.removeTweensFrom(wall.grp);
 	wall.creatureSprite.setAlpha(1, 0);
+	// Crop to zero-height at the texture bottom; the loop grows it upward.
+	wallSprite.setCrop(0, wallHeight, wallWidth, 0);
 
-	// Create beam graphics for laser line
-	const beamGraphics = G.Phaser.make.graphics(0, 0);
-	G.grid.creatureGroup.addChild(beamGraphics);
+	// Add beam graphics to the Cycloper's group (same parent as sprite)
+	// We'll manually sync its rotation with the sprite's tilt each frame
+	const creatureGroup = cycloper.creatureSprite.grp;
+	const beamGraphics = G.gameEngine.add.graphics(0, 0);
+	creatureGroup.add(beamGraphics);
 
-	// Create horizontal green flash
-	const flashSprite = G.grid.creatureGroup.create(wallCenterX, wallBottomY, 'effects_optic-burst');
-	flashSprite.anchor.setTo(0.5, 0.5);
+	// Pre-calculate sprite local position and eye offset in group coordinates
+	const creatureSprite = cycloper.creatureSprite.sprite;
+	const creatureSize = getFrameSize(creatureSprite);
+	const originX = cycloper.display['offset-x'] ?? 0;
+	const originY = cycloper.display['offset-y'] ?? -145;
+	const dir = cycloper.player.flipped ? -1 : 1;
+	const spriteLocalX =
+		(dir === 1 ? originX : HEX_WIDTH_PX * cycloper.size - creatureSize.width - originX) +
+		creatureSize.width / 2;
+	const spriteLocalY = originY + creatureSize.height;
+
+	// Eye offset from sprite's pivot (origin 0.5, 1 = bottom center)
+	const eyeLocalX = 5 * (creatureSprite.scaleX > 0 ? 1 : -1);
+	const eyeLocalY = -149;
+
+	// Emission point glow sprite (smaller, at eye) - in group coords
+	const emissionGlowSprite = G.gameEngine.add.sprite(
+		0,
+		0,
+		'effects_optic-burst',
+		undefined,
+		creatureGroup,
+	);
+	emissionGlowSprite.setOrigin(0.5, 0.5);
+	emissionGlowSprite.tint = laserColor;
+	emissionGlowSprite.alpha = 0;
+	emissionGlowSprite.setScale(0.5, 0.5);
+
+	// Create horizontal green flash (in group coords)
+	const flashSprite = G.gameEngine.add.sprite(
+		wallCenterX - cycloper.creatureSprite.grp.x,
+		wallBottomY - cycloper.creatureSprite.grp.y,
+		'effects_optic-burst',
+		undefined,
+		creatureGroup,
+	);
+	flashSprite.setOrigin(0.5, 0.5);
 	flashSprite.tint = laserColor;
 	flashSprite.alpha = 0.96;
-	flashSprite.scale.setTo(4.5, 0.7);
+	flashSprite.setScale(4.5, 0.7);
 
-	let startTime: number;
-	const animate = () => {
-		if (startTime === undefined) {
-			startTime = Date.now();
+	let settled = false;
+	let reveal: TimedAnimation | null = null;
+
+	/**
+	 * Ends the print. The crop is the only thing standing between the wall and
+	 * being invisible, so it is cleared first and unconditionally: if anything
+	 * below throws — or the wall is retired mid-print, which happens when the
+	 * Cycloper prints again before the reveal finished — the reveal must not be
+	 * left half-applied.
+	 *
+	 * Cancelling the loop here is what the old `settled` early-return in the
+	 * frame callback did. Cancelling rather than merely ignoring later frames
+	 * matters now: the loop is a repeating scene timer, so a frame that kept
+	 * running would keep redrawing the beam over a destroyed wall.
+	 */
+	const finish = () => {
+		if (settled) {
+			return;
 		}
-
-		const elapsed = Date.now() - startTime;
-		const progress = Math.min(1, elapsed / laserDuration);
-
-		// Reveal wall from bottom to top with an invisible mask.
-		const revealHeight = wallHeight * progress;
-		const currentFlashY = wallBottomY - revealHeight;
-		maskGraphics.clear();
-		maskGraphics.beginFill(0xffffff, 1);
-		maskGraphics.drawRect(
-			wallCenterX - wallWidth / 2,
-			wallBottomY - revealHeight,
-			wallWidth,
-			revealHeight,
-		);
-		maskGraphics.endFill();
-
-		// Move flash upward along the wall
-		flashSprite.y = currentFlashY;
-
-		// Keep Cycloper facing the print direction for the full effect duration.
-		cycloper.faceHex(wall);
-		const currentEyeEmissionPoint = getCycloperEyeEmissionPoint(cycloper);
-
-		// Draw laser beam from eye to flash
-		beamGraphics.clear();
-		beamGraphics.lineStyle(5, laserColor, 0.95);
-		beamGraphics.moveTo(currentEyeEmissionPoint.x, currentEyeEmissionPoint.y);
-		beamGraphics.lineTo(wallCenterX, currentFlashY);
-
-		if (progress < 1) {
-			setTimeout(animate, 16);
-		} else {
-			// Animation complete - remove mask and clean up effects
-			wallSprite.mask = null;
-			maskGraphics.destroy();
-			beamGraphics.destroy();
-			flashSprite.destroy();
-			if (onComplete) {
-				onComplete();
-			}
+		settled = true;
+		reveal?.cancel();
+		reveal = null;
+		try {
+			wallSprite.setCrop();
+		} catch {
+			// The sprite was torn down along with the wall mid-print. There is
+			// nothing left to reveal, and nothing to report either.
+		}
+		beamGraphics.destroy();
+		flashSprite.destroy();
+		emissionGlowSprite.destroy();
+		if (onComplete) {
+			onComplete();
 		}
 	};
 
-	animate();
+	/**
+	 * One frame of the reveal.
+	 *
+	 * Failures are reported and the effect settled here rather than at the call
+	 * site alone, because the original guard only covered the very first frame: a
+	 * throw on a later frame killed the `setTimeout` chain for free, while a
+	 * repeating scene timer would otherwise carry on.
+	 *
+	 * Rethrown after settling, so the clock's own stop-and-propagate path also
+	 * runs. `finish()` cannot cancel frame 0 — there is no handle yet — which is
+	 * exactly the case a swallowed error would leave running against a destroyed
+	 * wall.
+	 */
+	const drawFrame = (elapsed: number, progress: number) => {
+		try {
+			// Reveal wall from bottom to top by growing the crop rectangle upward.
+			const revealHeight = wallHeight * progress;
+			const currentFlashY = wallBottomY - revealHeight;
+			if (revealHeight > 0) {
+				wallSprite.setCrop(0, wallHeight - revealHeight, wallWidth, revealHeight);
+			}
+
+			// Move flash upward along the wall (in group coords)
+			const flashGroupY = currentFlashY - cycloper.creatureSprite.grp.y;
+			flashSprite.y = flashGroupY;
+
+			// Keep Cycloper facing the print direction for the full effect duration.
+			cycloper.faceHex(wall);
+
+			// Sync beam graphics rotation with sprite's tilt angle
+			const spriteAngleRad = (creatureSprite.angle ?? 0) * (Math.PI / 180);
+			beamGraphics.angle = creatureSprite.angle ?? 0;
+
+			// Eye position in group coordinates: sprite local pos + rotated eye offset
+			const cos = Math.cos(spriteAngleRad);
+			const sin = Math.sin(spriteAngleRad);
+			const rotEyeX = eyeLocalX * cos - eyeLocalY * sin;
+			const rotEyeY = eyeLocalX * sin + eyeLocalY * cos;
+			const eyeGroupX = spriteLocalX + rotEyeX;
+			const eyeGroupY = spriteLocalY + rotEyeY;
+
+			// Flash position in group coordinates
+			const flashGroupX = wallCenterX - cycloper.creatureSprite.grp.x;
+
+			// Emission glow at eye position (in group coords)
+			emissionGlowSprite.x = eyeGroupX;
+			emissionGlowSprite.y = eyeGroupY;
+			emissionGlowSprite.alpha = 0.4 + 0.2 * Math.sin(progress * Math.PI * 4);
+			emissionGlowSprite.setScale(
+				0.5 + 0.1 * Math.sin(progress * Math.PI * 4),
+				0.5 + 0.1 * Math.sin(progress * Math.PI * 4),
+			);
+
+			// Draw laser beam from eye to flash (both in group coords)
+			beamGraphics.clear();
+			beamGraphics.lineStyle(5, laserColor, 0.95);
+			beamGraphics.moveTo(eyeGroupX, eyeGroupY);
+			beamGraphics.lineTo(flashGroupX, flashGroupY);
+			beamGraphics.strokePath();
+		} catch (error) {
+			console.error('Acrylic wall print effect failed', error);
+			finish();
+			throw error;
+		}
+	};
+
+	reveal = runTimedAnimation({
+		durationMs: laserDuration,
+		onFrame: drawFrame,
+		onDone: finish,
+	});
 }
 
 function ensureAcrylicWallData(G: Game) {
@@ -1182,6 +1470,8 @@ function ensureAcrylicWallData(G: Game) {
 			offense: 0,
 			defense: 0,
 			movement: 0,
+		},
+		masteries: {
 			pierce: 0,
 			slash: 0,
 			crush: 0,
@@ -1564,12 +1854,8 @@ export default (G: Game) => {
 				let wallPlacementConfirmed = false;
 				const hideWallPreviewInstantly = () => {
 					const gridAny = G.grid as unknown as {
-						_flickerTween?: Phaser.Tween;
 						materialize_overlay?: { alpha: number } | null;
 					};
-					if (gridAny._flickerTween) {
-						gridAny._flickerTween.stop(true);
-					}
 					if (gridAny.materialize_overlay) {
 						gridAny.materialize_overlay.alpha = 0;
 					}
@@ -1611,21 +1897,20 @@ export default (G: Game) => {
 					targetedWall.health = targetedWall.stats.health;
 					targetedWall.updateHealth();
 					targetedWall.healthShow();
-					this._lastBonus = targetedWall.id;
 					G.updateQueueDisplay();
 					this.end();
 					return;
 				}
 
-				const previousShield = G.creatures[this._lastBonus ?? -1];
-				if (
-					previousShield instanceof Creature &&
-					!previousShield.dead &&
-					previousShield.type === ACRYLIC_WALL_TYPE
-				) {
-					previousShield.destroy();
-				}
-
+				// The previously printed wall is deliberately left standing. Riot
+				// Shield beams relay through its own walls (see
+				// `getRiotShieldPlacementRange`, which widens the range by the number
+				// of relay walls already on the board), so a Cycloper is meant to
+				// accumulate them. Destroying the last one here took that wall's
+				// cardboard off the board while the wall itself stayed on it as a
+				// corpse with no sprite — attackable and shatterable at its original
+				// hex, but invisible, and re-appearing displaced once something else
+				// touched the orphaned sprite.
 				const wallBase = ensureAcrylicWallData(G);
 
 				const wallData = {
@@ -1646,15 +1931,10 @@ export default (G: Game) => {
 				wallFlags.hideFromCreatureCount = true;
 
 				const gridAny = G.grid as unknown as {
-					_flickerTween?: Phaser.Tween;
 					materialize_overlay?: { alpha: number } | null;
 					secondary_overlay?: { alpha: number } | null;
-					_flickerTweenSecondary?: Phaser.Tween;
 				};
 				const previewOverlay = gridAny.materialize_overlay;
-				if (gridAny._flickerTween) {
-					gridAny._flickerTween.stop(true);
-				}
 				if (previewOverlay) {
 					previewOverlay.alpha = 0;
 				}
@@ -1673,7 +1953,6 @@ export default (G: Game) => {
 				wallFlags._nextGameTurnActive = Number.MAX_SAFE_INTEGER;
 				wall.remainingMove = 0;
 				wall.noActionPossible = true;
-				this._lastBonus = wall.id;
 				this.creature.faceHex(hex);
 
 				// Create 3D print laser effect from Cycloper's eye.
@@ -1772,6 +2051,8 @@ export default (G: Game) => {
 			query: function () {
 				const ability = this;
 				const cycloper = this.creature;
+				// Re-entering the target query means any destination query was cancelled.
+				(this as CycloperAbilityState)._awaitingApertureDestination = false;
 				const baseRange = this.range.regular;
 				const useCurrentHealthCost = this.isUpgraded();
 				const abilityRange = baseRange + (isRiotShieldUpgraded(cycloper) ? 1 : 0);
@@ -1877,19 +2158,8 @@ export default (G: Game) => {
 					};
 
 					const targetStats = G.retrieveCreatureStats(target.type);
-					let activeTweens: Phaser.Tween[] = [];
-
-					const cleanupTweens = () => {
-						activeTweens.forEach((tween) => {
-							if (tween.isRunning) {
-								tween.stop(true);
-							}
-						});
-						activeTweens = [];
-					};
 
 					const restoreState = () => {
-						cleanupTweens();
 						if (target.sprite) {
 							target.sprite.alpha = 1;
 							target.sprite.visible = true;
@@ -1906,12 +2176,6 @@ export default (G: Game) => {
 						}
 						if (G.grid.secondary_overlay) {
 							G.grid.secondary_overlay.alpha = 0;
-						}
-						if (G.grid._flickerTween && G.grid._flickerTween.isRunning) {
-							G.grid._flickerTween.stop(true);
-						}
-						if (G.grid._flickerTweenSecondary && G.grid._flickerTweenSecondary.isRunning) {
-							G.grid._flickerTweenSecondary.stop(true);
 						}
 					};
 
@@ -1930,20 +2194,17 @@ export default (G: Game) => {
 						G.grid.updateDisplay();
 					}
 
+					// Bots flag the destination query so their strategy scores drop hexes
+					// instead of targets.
+					(ability as CycloperAbilityState)._awaitingApertureDestination = true;
+
 					// Defer queryHexes to next frame to ensure queryDirection/queryChoice handlers are fully removed
-					setTimeout(() => {
+					const openDestinationQuery = () => {
 						G.grid.queryHexes({
 							fnOnConfirm: function (hex) {
 								const preview = G.grid.materialize_overlay;
 								const oldPreview = G.grid.secondary_overlay;
 
-								if (G.grid._flickerTween && G.grid._flickerTween.isRunning) {
-									G.grid._flickerTween.stop(true);
-								}
-								if (G.grid._flickerTweenSecondary && G.grid._flickerTweenSecondary.isRunning) {
-									G.grid._flickerTweenSecondary.stop(true);
-								}
-								cleanupTweens();
 								// Immediately remove all grid path visualizations
 								G.grid.forEachHex((gridHex: Hex) => {
 									gridHex.cleanOverlayVisualState();
@@ -1986,18 +2247,7 @@ export default (G: Game) => {
 								if (target.sprite) {
 									target.sprite.alpha = 0;
 								}
-								cleanupTweens();
 								G.grid.previewCreature(hex.pos, targetStats, target.player);
-
-								if (G.grid._flickerTween && G.grid._flickerTween.isRunning) {
-									G.grid._flickerTween.stop(true);
-								}
-
-								if (!G.grid.materialize_overlay) {
-									return;
-								}
-
-								G.grid.materialize_overlay.alpha = 0.5;
 							},
 							hexes: extendedDestinations,
 							hexesDashed: extendedDashed,
@@ -2013,17 +2263,24 @@ export default (G: Game) => {
 										target.player,
 										true,
 									);
-									if (G.grid._flickerTweenSecondary && G.grid._flickerTweenSecondary.isRunning) {
-										G.grid._flickerTweenSecondary.stop(true);
-									}
-									if (G.grid.secondary_overlay) {
-										G.grid.secondary_overlay.alpha = 0.5;
-									}
 								}
 							},
 							ownCreatureHexShade: true,
 						});
-					}, 0); // End setTimeout
+					};
+
+					// A bot confirms the direction query from inside its own resolver and
+					// releases the pending action the moment that resolver returns, so a
+					// destination query opened on the next tick has nothing left to resolve
+					// it: input stays frozen and the bot burns its remaining decisions
+					// without ever firing the ultimate. Open it inline so the bot chains onto
+					// it, and keep the deferral for players, where it exists to let the
+					// queryDirection handlers go away before the new ones are installed.
+					if (G.botController?.shouldAutoResolveQuery?.()) {
+						openDestinationQuery();
+					} else {
+						setTimeout(openDestinationQuery, 0); // End setTimeout
+					}
 				};
 
 				G.grid.queryDirection({
@@ -2102,6 +2359,8 @@ export default (G: Game) => {
 					return;
 				}
 
+				(this as CycloperAbilityState)._awaitingApertureDestination = false;
+
 				const restoreTargetVisibility = () => {
 					target.grp.alpha = 1;
 					target.grp.visible = true;
@@ -2130,15 +2389,21 @@ export default (G: Game) => {
 					return;
 				}
 
-				const finalizeAbility = () => {
+				/**
+				 * The part of the cost that scales with the victim. The flat part
+				 * (`costs.energy`) is charged by `end()` through `applyCost()`.
+				 */
+				const deductVariableEnergyCost = () => {
 					const extraCost = Math.max(0, energyCost - (this.costs?.energy || 0));
 					if (extraCost > 0) {
 						this.creature.energy = Math.max(0, this.creature.energy - extraCost);
-						if (this.creature.id === G.activeCreature.id) {
+						if (this.creature.id === G.activeCreature?.id) {
 							G.UI.energyBar.animSize(this.creature.energy / this.creature.stats.energy);
 						}
 					}
+				};
 
+				const finalizeAbility = () => {
 					G.grid.forEachHex((gridHex: Hex) => {
 						gridHex.cleanOverlayVisualState();
 						gridHex.cleanDisplayVisualState();
@@ -2148,15 +2413,24 @@ export default (G: Game) => {
 						G.grid.updateDisplay();
 					}
 
-					this.end();
+					// The turn was already ended when the cast was committed, so
+					// this only releases the freeze it took.
+					this.creature.queryMove();
 				};
 
-				if (G.grid._flickerTween && G.grid._flickerTween.isRunning) {
-					G.grid._flickerTween.stop(true);
-				}
-				if (G.grid._flickerTweenSecondary && G.grid._flickerTweenSecondary.isRunning) {
-					G.grid._flickerTweenSecondary.stop(true);
-				}
+				// Commit to the cast before anything is hidden or moved: pay the
+				// energy, mark the ability spent and freeze input for the whole
+				// ~2.4 s teleport, the same deferred ending Riot Shield uses.
+				//
+				// Nothing used to freeze here, because `end()` only ran once the
+				// animation finished — so the Cycloper stayed actionable, and
+				// unspent, for its own 2.4 s. A bot, which re-decides on a timer and
+				// gates only on `game.freezedInput`, walked straight back into this
+				// query and cast the ultimate several times per turn, dragging the
+				// same victim over and over until its decisions ran out.
+				deductVariableEnergyCost();
+				this.end(false, true);
+
 				if (G.grid.materialize_overlay) {
 					G.grid.materialize_overlay.destroy();
 					G.grid.materialize_overlay = null;
@@ -2243,12 +2517,6 @@ export default (G: Game) => {
 								}
 								if (G.grid.secondary_overlay) {
 									G.grid.secondary_overlay.alpha = 0;
-								}
-								if (G.grid._flickerTween && G.grid._flickerTween.isRunning) {
-									G.grid._flickerTween.stop(true);
-								}
-								if (G.grid._flickerTweenSecondary && G.grid._flickerTweenSecondary.isRunning) {
-									G.grid._flickerTweenSecondary.stop(true);
 								}
 								G.updateQueueDisplay();
 

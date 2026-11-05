@@ -3,6 +3,7 @@ import { isTeam, Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import { Effect } from '../effect';
 import Game from '../game';
+import { shakeBoard } from '../game-display/camera';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -151,7 +152,12 @@ export default (G: Game) => {
 			activate: function (target) {
 				const ability = this;
 				ability.end();
-				G.Phaser.camera.shake(0.01, 90, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 90,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				const d = {
 					pierce: 11,
@@ -318,12 +324,13 @@ export default (G: Game) => {
 					headless.moveTo(hex, {
 						ignoreMovementPoint: true,
 						ignorePath: true,
+						afterimages: true,
 						callback: function () {
 							const interval = setInterval(function () {
 								if (!G.freezedInput) {
 									clearInterval(interval);
 									if (G.activeCreature?.player?.controller !== 'bot') {
-										G.activeCreature.queryMove();
+										G.activeCreature?.queryMove();
 									}
 									headless.facePlayerDefault();
 								}
@@ -338,12 +345,13 @@ export default (G: Game) => {
 					target.moveTo(hex, {
 						ignoreMovementPoint: true,
 						ignorePath: true,
+						afterimages: true,
 						callback: function () {
 							const interval = setInterval(function () {
 								if (!G.freezedInput) {
 									clearInterval(interval);
 									if (G.activeCreature?.player?.controller !== 'bot') {
-										G.activeCreature.queryMove();
+										G.activeCreature?.queryMove();
 									}
 									headless.facePlayerDefault();
 								}
@@ -412,7 +420,12 @@ export default (G: Game) => {
 
 				const ability = this;
 				ability.end();
-				G.Phaser.camera.shake(0.02, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				shakeBoard({
+					amplitude: 0.02,
+					durationMs: 100,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				ability.areaDamage(
 					ability.creature, //Attacker

@@ -6,7 +6,14 @@
  */
 
 // Mock heavy DOM/Phaser dependencies before any imports
-jest.mock('../../../node_modules/phaser-ce/build/phaser.js', () => ({}));
+// The real Phaser bundle needs a canvas context at import time, which jsdom
+// does not provide; `plasma-field` reaches it for `BlendModes`.
+jest.mock('phaser', () =>
+	(
+		jest.requireActual('../../../test/phaser-mock') as typeof import('../../../test/phaser-mock')
+	).createPhaserMock(),
+);
+
 jest.mock('../../utility/hex', () => ({
 	Hex: class Hex {
 		x: number;
@@ -609,6 +616,24 @@ describe('Snow Bunny sequencing', () => {
 			soundsys: {
 				playSFX: jest.fn(),
 			},
+			gameEngine: {
+				add: {
+					graphics: () => ({}),
+					bitmapData: () => ({}),
+					group: () => ({ children: [], add: () => {}, addAt: () => {}, remove: () => {} }),
+					tileSprite: () => ({}),
+				},
+				tween: () => ({
+					to: () => ({
+						start: () => ({ stop: () => ({}), onComplete: { add: () => {}, addOnce: () => {} } }),
+						stop: () => ({}),
+						onComplete: { add: () => {}, addOnce: () => {} },
+					}),
+					start: () => ({ stop: () => ({}), onComplete: { add: () => {}, addOnce: () => {} } }),
+					stop: () => ({}),
+					onComplete: { add: () => {}, addOnce: () => {} },
+				}),
+			},
 		};
 
 		return {
@@ -626,11 +651,16 @@ describe('Snow Bunny sequencing', () => {
 					None: {},
 				},
 			},
+			camera: {
+				SHAKE_HORIZONTAL: 0,
+				SHAKE_VERTICAL: 1,
+			},
 		};
 	});
 
 	test('Blowing Wind defers turn handoff until push movement callback resolves', () => {
 		const { game, queryMove, getHexMap, projectileHarness } = makeAbilityGame();
+		globalThis.G = game as any;
 		createSnowBunnyAbilities(game as any);
 
 		const ability = (game.abilities as any[])[12][2];
@@ -671,6 +701,7 @@ describe('Snow Bunny sequencing', () => {
 
 	test('Blowing Wind resumes turn when target cannot be pushed', () => {
 		const { game, queryMove, getHexMap, projectileHarness } = makeAbilityGame();
+		globalThis.G = game as any;
 		createSnowBunnyAbilities(game as any);
 
 		const ability = (game.abilities as any[])[12][2];
@@ -711,6 +742,7 @@ describe('Snow Bunny sequencing', () => {
 
 	test('Freezing Spit defers and resumes on projectile impact', () => {
 		const { game, queryMove, projectileHarness } = makeAbilityGame();
+		globalThis.G = game as any;
 		createSnowBunnyAbilities(game as any);
 
 		const ability = (game.abilities as any[])[12][3];

@@ -162,13 +162,19 @@ export class Button {
 		});
 
 		this.$button.bind('mouseleave', () => {
+			if (this.hasShortcut) {
+				this.$button.removeClass('hover');
+			}
+
+			const $desc = this.$button.next('.desc');
+			if ($desc.length) {
+				$desc.removeClass('tooltip-visible');
+			}
+
 			if (!this.overridefreeze) {
 				if (!this.isGameAcceptingInput() || !this.clickable) {
 					return;
 				}
-			}
-			if (this.hasShortcut) {
-				this.$button.removeClass('hover');
 			}
 
 			this.mouseleave();
@@ -194,14 +200,19 @@ export class Button {
 		this.$button.bind('touchend', (event) => {
 			event.preventDefault();
 			event.stopPropagation();
+			if (this.hasShortcut) {
+				this.$button.removeClass('hover');
+			}
+
+			const $desc = this.$button.next('.desc');
+			if ($desc.length) {
+				$desc.removeClass('tooltip-visible');
+			}
+
 			if (!this.overridefreeze) {
 				if (!this.isGameAcceptingInput() || !this.clickable) {
 					return;
 				}
-			}
-
-			if (this.hasShortcut) {
-				this.$button.removeClass('hover');
 			}
 
 			if (

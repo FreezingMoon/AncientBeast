@@ -1,4 +1,4 @@
-import * as $j from 'jquery';
+import $j from 'jquery';
 import { Damage } from '../damage';
 import { Team, isTeam } from '../utility/team';
 import * as matrices from '../utility/matrices';
@@ -9,11 +9,76 @@ import { once } from 'underscore';
 import { Direction } from '../utility/hex';
 import Game from '../game';
 import { QueryOptions } from '../utility/hexgrid';
+import { shakeBoard } from '../game-display/camera';
+import { SnapshotCompatibilityError } from '../engine/GameSnapshot';
+import { NUTCASE_HAMMERED_EFFECT, NUTCASE_TENTACLE_BUSH_EFFECT } from '../engine/snapshotBehaviors';
+
+type NutcaseEffectSnapshotData = {
+	nutcaseId: number;
+	targetId: number;
+};
+
+const getSnapshotCreature = (G: Game, id: unknown, behavior: string): Creature => {
+	if (!Number.isInteger(id) || !(G.creatures?.[id as number] instanceof Creature)) {
+		throw new SnapshotCompatibilityError(
+			`Cannot restore ${behavior}: creature reference is invalid.`,
+		);
+	}
+	return G.creatures[id as number];
+};
+
+const bindTentacleBushEffect = (
+	G: Game,
+	effect: Effect,
+	data: Record<string, unknown> | undefined,
+) => {
+	const candidate = data as Partial<NutcaseEffectSnapshotData> | undefined;
+	const nutcase = getSnapshotCreature(G, candidate?.nutcaseId, 'Nutcase Tentacle Bush');
+	const target = getSnapshotCreature(G, candidate?.targetId, 'Nutcase Tentacle Bush');
+	const ability = nutcase.abilities[0];
+	if (
+		nutcase.name !== 'Nutcase' ||
+		effect.owner !== nutcase ||
+		effect.target !== target ||
+		typeof ability?._activateOnAttacker !== 'function'
+	) {
+		throw new SnapshotCompatibilityError(
+			'Cannot restore Nutcase Tentacle Bush: effect references or ability are invalid.',
+		);
+	}
+	effect.snapshotBehaviorId = NUTCASE_TENTACLE_BUSH_EFFECT;
+	effect.snapshotBehaviorData = { nutcaseId: nutcase.id, targetId: target.id };
+	effect.effectFn = (...args) => ability._activateOnAttacker(...args);
+};
+
+const bindHammeredEffect = (G: Game, effect: Effect, data: Record<string, unknown> | undefined) => {
+	const candidate = data as Partial<NutcaseEffectSnapshotData> | undefined;
+	const attacker = getSnapshotCreature(G, candidate?.nutcaseId, 'Nutcase Hammered');
+	const target = getSnapshotCreature(G, candidate?.targetId, 'Nutcase Hammered');
+	if (attacker.name !== 'Nutcase' || effect.owner !== attacker || effect.target !== target) {
+		throw new SnapshotCompatibilityError(
+			'Cannot restore Nutcase Hammered: effect references are invalid.',
+		);
+	}
+	effect.snapshotBehaviorId = NUTCASE_HAMMERED_EFFECT;
+	effect.snapshotBehaviorData = { nutcaseId: attacker.id, targetId: target.id };
+	effect.effectFn = once((activeEffect) => {
+		target.takeDamage(new Damage(attacker, { slash: 10 }, 1, [], G));
+		activeEffect.deleteEffect();
+	});
+};
+
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
  */
 export default (G: Game) => {
+	G.registerSnapshotEffectBehavior(NUTCASE_TENTACLE_BUSH_EFFECT, (effect, data) =>
+		bindTentacleBushEffect(G, effect, data),
+	);
+	G.registerSnapshotEffectBehavior(NUTCASE_HAMMERED_EFFECT, (effect, data) =>
+		bindHammeredEffect(G, effect, data),
+	);
 	G.abilities[40] = [
 		/**
 		 * First Ability: Tentacle Bush
@@ -59,12 +124,17 @@ export default (G: Game) => {
 					this.creature,
 					'onUnderAttack',
 					{
-						effectFn: (...args) => this._activateOnAttacker(...args),
+						snapshotBehaviorId: NUTCASE_TENTACLE_BUSH_EFFECT,
+						snapshotBehaviorData: {
+							nutcaseId: this.creature.id,
+							targetId: this.creature.id,
+						},
 						deleteTrigger: 'onStartPhase',
 						turnLifetime: 1,
 					},
 					G,
 				);
+				bindTentacleBushEffect(G, damageShieldEffect, damageShieldEffect.snapshotBehaviorData);
 				this.creature.addEffect(immoveableEffect);
 				this.creature.addEffect(damageShieldEffect);
 			},
@@ -157,8 +227,8 @@ export default (G: Game) => {
 					];
 					G.grid.queryChoice({
 						fnOnSelect: function (choice, args) {
-							G.activeCreature.faceHex(args.hex, undefined, true);
-							args.hex.overlayVisualState('creature selected player' + G.activeCreature.team);
+							G.activeCreature?.faceHex(args.hex, undefined, true);
+							args.hex.overlayVisualState('creature selected player' + ability.creature.team);
 						},
 						fnOnConfirm: function () {
 							// eslint-disable-next-line
@@ -174,7 +244,12 @@ export default (G: Game) => {
 			activate: function (targetOrChoice, args) {
 				const ability = this;
 				ability.end();
-				G.Phaser.camera.shake(0.02, 100, true, G.Phaser.camera.SHAKE_VERTICAL, true);
+				shakeBoard({
+					amplitude: 0.02,
+					durationMs: 100,
+					force: true,
+					axis: 'vertical',
+				});
 
 				if (!this.isUpgraded()) {
 					this._activateOnTarget(targetOrChoice);
@@ -221,6 +296,11 @@ export default (G: Game) => {
 					'onStepOut', // Trigger
 					{
 						// Listener activates just once
+						snapshotBehaviorId: NUTCASE_HAMMERED_EFFECT,
+						snapshotBehaviorData: {
+							nutcaseId: this.creature.id,
+							targetId: target.id,
+						},
 						effectFn: once((eff) => {
 							if (!(eff.target instanceof Creature)) return;
 							eff.target.takeDamage(new Damage(eff.owner as Creature, { slash: 10 }, 1, [], G));
@@ -230,6 +310,7 @@ export default (G: Game) => {
 					},
 					G,
 				);
+				bindHammeredEffect(G, effect, effect.snapshotBehaviorData);
 
 				const damage = new Damage(
 					this.creature, // Attacker
@@ -361,7 +442,7 @@ export default (G: Game) => {
 
 				// If no creature found in path, abort gracefully.
 				if (runPath === undefined || target === undefined) {
-					G.activeCreature.queryMove();
+					G.activeCreature?.queryMove();
 					return;
 				}
 
@@ -381,22 +462,26 @@ export default (G: Game) => {
 					nutcase.moveTo(destination, {
 						overrideSpeed: 100,
 						ignoreMovementPoint: true,
+						afterimages: true,
 						turnAroundOnComplete: !isChargingBackwards,
 						callback: function () {
 							// Damage before any other creature movement is complete and before push.
 							ability._damage(target, runPath);
-							G.Phaser.camera.shake(0.01, 250, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+							shakeBoard({
+								amplitude: 0.01,
+								durationMs: 250,
+								force: true,
+								axis: 'horizontal',
+							});
 
-							const interval = setInterval(function () {
-								if (!G.freezedInput) {
-									clearInterval(interval);
-
-									if (ability.isUpgraded()) {
-										ability._pushTarget(target, pushPath, args);
-									} else if (G.activeCreature?.player?.controller !== 'bot') {
-										G.activeCreature.queryMove();
-									}
+							G.poll(function () {
+								if (G.freezedInput) return;
+								if (ability.isUpgraded()) {
+									ability._pushTarget(target, pushPath, args);
+								} else if (G.activeCreature?.player?.controller !== 'bot') {
+									G.activeCreature?.queryMove();
 								}
+								return true;
 							}, 100);
 						},
 					});
@@ -465,10 +550,15 @@ export default (G: Game) => {
 				if (args.direction === Direction.Left) {
 					nutcaseDestination =
 						nutcaseDestination &&
-						G.grid.hexes[nutcaseDestination.y][nutcaseDestination.x + nutcase.size - 1];
+						G.grid.hexes[nutcaseDestination.y]?.[nutcaseDestination.x + nutcase.size - 1];
 					targetDestination =
 						targetDestination &&
-						G.grid.hexes[targetDestination.y][targetDestination.x + target.size - 1];
+						G.grid.hexes[targetDestination.y]?.[targetDestination.x + target.size - 1];
+				}
+
+				if (!nutcaseDestination) {
+					console.warn('[Nutcase] No valid nutcase destination for push');
+					return;
 				}
 
 				this._pushMove(nutcaseDestination, target, targetDestination);
@@ -484,15 +574,19 @@ export default (G: Game) => {
 			_pushMove(nutcaseDestination, target, targetDestination) {
 				const nutcase = this.creature;
 
+				if (!nutcaseDestination) {
+					console.warn('[Nutcase] No valid destination for push, aborting');
+					return;
+				}
+
 				/* Regardless of the outcome, we want to restore the player's UI and control
 				when all movement is complete. */
-				const interval = setInterval(function () {
-					if (!G.freezedInput) {
-						clearInterval(interval);
-						if (G.activeCreature?.player?.controller !== 'bot') {
-							G.activeCreature.queryMove();
-						}
+				G.poll(function () {
+					if (G.freezedInput) return;
+					if (G.activeCreature?.player?.controller !== 'bot') {
+						G.activeCreature?.queryMove();
 					}
+					return true;
 				}, 100);
 
 				// Sense check if we can still push with the Nutcase, or into the target.
@@ -512,6 +606,7 @@ export default (G: Game) => {
 					overrideSpeed: 500,
 					ignorePath: true,
 					ignoreMovementPoint: true,
+					afterimages: true,
 					turnAroundOnComplete: false,
 				};
 
@@ -586,7 +681,12 @@ export default (G: Game) => {
 				const ability = this;
 				const crea = ability.creature;
 				ability.end();
-				G.Phaser.camera.shake(0.02, 200, true, G.Phaser.camera.SHAKE_BOTH, true);
+				shakeBoard({
+					amplitude: 0.02,
+					durationMs: 200,
+					force: true,
+					axis: 'both',
+				});
 
 				const damage = new Damage(
 					crea, // Attacker
@@ -611,6 +711,7 @@ export default (G: Game) => {
 				target.moveTo(G.grid.hexes[crea.y][targetX], {
 					ignorePath: true,
 					ignoreMovementPoint: true,
+					afterimages: true,
 					callback: function () {
 						target.updateHex();
 						target.takeDamage(damage);

@@ -1,0 +1,52 @@
+# Binary files - prevent Git from trying to diff them
+*.ogg binary
+*.mp3 binary
+*.wav binary
+*.flac binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.svg binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.otf binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.tar binary
+*.7z binary
+*.rar binary
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary
+*.class binary
+*.jar binary
+*.war binary
+*.ear binary
+
+# Large text files that shouldn't be diffed
+*.lock binary
+*.log binary
+
+# Explicitly mark text files
+*.ts text
+*.tsx text
+*.js text
+*.jsx text
+*.json text
+*.css text
+*.html text
+*.md text
+*.txt text
+*.yml text
+*.yaml text
+*.xml text
+*.svg text
+*.graphql text
+*.proto text

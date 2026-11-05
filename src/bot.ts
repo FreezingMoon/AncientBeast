@@ -26,6 +26,8 @@ import HeadlessStrategy from './bots/Headless';
 import NutcaseStrategy from './bots/Nutcase';
 import ScavengerStrategy from './bots/Scavenger';
 import ChimeraStrategy from './bots/Chimera';
+import MissCreeperStrategy from './bots/Miss-Creeper';
+import AsherStrategy from './bots/Asher';
 
 /**
  * Optional per-unit behaviour overrides for BotController.
@@ -53,6 +55,18 @@ export interface UnitBotStrategy {
 	): number | undefined;
 	/** Override the retreat health/energy threshold check. */
 	isRetreating?(creature: Creature, controller: BotController): boolean | undefined;
+	/**
+	 * Value of holding position (not moving) this turn.
+	 *
+	 * Acts as the bar the best reachable destination has to beat for the bot to
+	 * move at all: when the winner scores at or below this value the bot stands
+	 * still instead. Useful for units that gain from staying put, such as a
+	 * passive that only stacks while the unit does not move.
+	 *
+	 * Ignored while retreating — survival repositioning always wins. Return
+	 * `undefined` (or omit the hook) to always allow moving when able.
+	 */
+	getHoldPositionScore?(creature: Creature, controller: BotController): number | undefined;
 	/** Override the preferred board-x position for zone scoring. */
 	getPreferredX?(creature: Creature, controller: BotController): number | undefined;
 	/**
@@ -126,6 +140,8 @@ export const unitStrategies: Partial<Record<string, UnitBotStrategy>> = {
 	E2: NutcaseStrategy,
 	P3: ScavengerStrategy,
 	P6: ChimeraStrategy,
+	G4: MissCreeperStrategy,
+	L1: AsherStrategy,
 };
 
 type BotPendingAction =
@@ -149,6 +165,21 @@ export default class BotController {
 	failedAbilityIds = new Set<number>();
 	isResolvingQuery = false;
 	stalePendingActionMs = 2200;
+	/**
+	 * Aggression coefficients. These live as named fields rather than inline
+	 * literals so the simulation harness can sweep them by assignment. Copying
+	 * `getAggressionFactor` wholesale to tweak one number is how the sweep
+	 * silently dropped `engagementPressure` and tested a two-variable change
+	 * while reporting it as one.
+	 */
+	/** Aggression gained per turn a creature has been active past turn 4. */
+	agePressureCoeff = 0.8;
+	/** Aggression gained per global damage-free round past round 3. */
+	stagnationPressureCoeff = 3.5;
+	/** Weight applied to team engagement pressure. */
+	engagementPressureCoeff = 1.25;
+	/** Decisions allowed within one creature turn before the bot gives up. */
+	maxDecisionCount = 12;
 	/** Delay before the onSelect callback fires in resolveQuery (ms). */
 	selectDelayMs = 50;
 	/** Delay before the onConfirm callback fires in resolveQuery (ms). */
@@ -161,10 +192,29 @@ export default class BotController {
 	startTurnDelayMs = -1; // -1 = use default formula
 	/** The game round during which damage was last dealt to any creature. */
 	lastDamageRound = 0;
+	/** Total damage dealt by each team (index 0 = team 0/2, index 1 = team 1/3). */
+	teamDamageDealt = [0, 0];
+	/** Which team is currently forced offensive (0 or 1), -1 = none. */
+	forcedOffensiveTeam = -1;
+	/** Round when forced offensive mode was activated. */
+	forcedOffensiveSince = 0;
+	/** Minimum stagnant rounds before forcing one side offensive. */
+	forcedOffensiveThreshold = 3;
 
 	constructor(game: Game) {
 		this.game = game;
-		this.game.signals.creature.add(this.handleCreatureSignal, this);
+		// One subscription per message this controller acts on. The former single
+		// `Signal` handler switched on the message name; `EventEmitter` dispatches
+		// by name, so the filter became the subscription key.
+		this.game.channels.creature.on('activate', (payload: { creature: Creature }) =>
+			this.startTurn(payload?.creature),
+		);
+		this.game.channels.creature.on('abilityend', (payload: { creature: Creature }) =>
+			this.onCreatureTurnIdle(payload),
+		);
+		this.game.channels.creature.on('movementComplete', (payload: { creature: Creature }) =>
+			this.onCreatureTurnIdle(payload),
+		);
 	}
 
 	/** Returns the unit-specific strategy for the given creature, if one exists. */
@@ -172,20 +222,16 @@ export default class BotController {
 		return unitStrategies[creature.type as string];
 	}
 
-	handleCreatureSignal(message: string, payload?: { creature?: Creature }) {
-		if (message === 'activate') {
-			this.startTurn(payload?.creature);
+	/**
+	 * `abilityend` and `movementComplete` mean the active unit has finished
+	 * resolving and can be asked for its next decision.
+	 */
+	private onCreatureTurnIdle(payload: { creature: Creature }): void {
+		if (!this.canActThisTurn()) {
 			return;
 		}
 
-		if (!this.isBotTurn()) {
-			return;
-		}
-
-		if (
-			(message === 'abilityend' || message === 'movementComplete') &&
-			payload?.creature?.id === this.game.activeCreature?.id
-		) {
+		if (payload?.creature?.id === this.game.activeCreature?.id) {
 			this.queueDecision(this.turnDelayMs);
 		}
 	}
@@ -208,8 +254,10 @@ export default class BotController {
 				// Frozen/dizzied unit — the creature's activate() interval will handle the skip
 				return;
 			}
-			// Minimize the combat log so it doesn't obstruct bot actions
-			this.game.UI?.chat?.hide();
+			// Minimize the combat log so it doesn't obstruct bot actions. This
+			// defers to a log the player has opened (or closed) themselves —
+			// force-collapsing it every turn made their toggle look broken.
+			this.game.UI?.chat?.autoHide();
 			this.queueDecision(
 				this.startTurnDelayMs >= 0 ? this.startTurnDelayMs : this.turnDelayMs * 4 + 150,
 			);
@@ -226,8 +274,41 @@ export default class BotController {
 	/**
 	 * Called whenever any creature takes damage. Resets the stagnation clock.
 	 */
-	notifyDamage() {
-		this.lastDamageRound = this.game.turn;
+	notifyDamage(damageAmount = 0, attacker?: Creature) {
+		const currentTurn = Number(this.game.turn ?? 0);
+		this.lastDamageRound = currentTurn;
+		if (attacker && damageAmount > 0) {
+			const teamIdx = attacker.team % 2 === 0 ? 0 : 1;
+			this.teamDamageDealt[teamIdx] += damageAmount;
+		}
+		// Check if we should force one side offensive due to stagnation
+		this.maybeForceOffensive();
+	}
+
+	/**
+	 * After N damage-free rounds, force the less aggressive team to go offensive.
+	 * Only one team gets the boost at a time, alternating if stagnation persists.
+	 * Called each round from Game.nextRound() to check stagnation even without damage.
+	 */
+	maybeForceOffensive(): void {
+		const currentTurn = Number(this.game.turn ?? 0);
+		const stagnantRounds = currentTurn - this.lastDamageRound;
+
+		if (stagnantRounds >= this.forcedOffensiveThreshold) {
+			if (this.forcedOffensiveTeam === -1) {
+				// First time hitting threshold - pick the team that dealt LESS damage
+				const lessAggressiveTeam = this.teamDamageDealt[0] <= this.teamDamageDealt[1] ? 0 : 1;
+				this.forcedOffensiveTeam = lessAggressiveTeam;
+				this.forcedOffensiveSince = currentTurn;
+			} else if (currentTurn - this.forcedOffensiveSince >= 5) {
+				// Stuck for 5+ rounds with same team - swap to the other team
+				this.forcedOffensiveTeam = this.forcedOffensiveTeam === 0 ? 1 : 0;
+				this.forcedOffensiveSince = currentTurn;
+			}
+		} else {
+			// Damage happened recently, reset forced offensive
+			this.forcedOffensiveTeam = -1;
+		}
 	}
 
 	/**
@@ -235,17 +316,36 @@ export default class BotController {
 	 * (turns it has personally taken) and when no damage has been dealt
 	 * globally for a while, breaking stagnant stand-offs.
 	 *
-	 * - Age pressure: rises after the creature has taken 4 turns (+0.5 per turn).
-	 * - Stagnation pressure: rises after 3 global damage-free rounds (+1.5 per round).
+	 * - Age pressure: rises after the creature has taken 4 turns (+`agePressureCoeff` per turn).
+	 * - Stagnation pressure: rises after 3 global damage-free rounds
+	 *   (+`stagnationPressureCoeff` per round).
+	 * - Anti-chicken pressure: after 3+ stagnant rounds, ONLY the less aggressive team
+	 *   gets a large aggression boost to break the stalemate.
+	 * - Engagement pressure: rewards committing to a fight the team is already in.
 	 */
 	getAggressionFactor(creature: Creature): number {
 		const turnsActive = Number(creature.turnsActive ?? 0);
-		const ageFactor = Math.max(0, turnsActive - 4) * 0.8;
+		const ageFactor = Math.max(0, turnsActive - 4) * this.agePressureCoeff;
 		const currentTurn = Number(this.game.turn ?? 0);
 		const stagnantRounds = currentTurn - this.lastDamageRound;
-		const stagnationFactor = Math.max(0, stagnantRounds - 3) * 2.5;
+		const stagnationFactor = Math.max(0, stagnantRounds - 3) * this.stagnationPressureCoeff;
+
+		// Anti-chicken: asymmetric boost for the forced offensive team
+		const creatureTeamIdx = creature.team % 2 === 0 ? 0 : 1;
+		const antiChickenFactor =
+			this.forcedOffensiveTeam === creatureTeamIdx &&
+			stagnantRounds >= this.forcedOffensiveThreshold
+				? 8 + stagnantRounds * 1.5 // Strong boost that grows with stagnation
+				: 0;
+
 		const engagementPressure = Math.max(0, this.getTeamEngagementPressure(creature));
-		return Math.min(10, ageFactor + stagnationFactor + engagementPressure * 1.25);
+		return Math.min(
+			10,
+			ageFactor +
+				stagnationFactor +
+				antiChickenFactor +
+				engagementPressure * this.engagementPressureCoeff,
+		);
 	}
 
 	getLateMatchAggressionFactor(creature: Creature): number {
@@ -303,7 +403,7 @@ export default class BotController {
 	}
 
 	private isLivingUnit(creature: Creature | undefined): boolean {
-		if (!creature || creature.dead || creature.temp || creature.undead) {
+		if (!creature || creature.dead || creature.temp) {
 			return false;
 		}
 		if ((creature as Creature & { hideFromCreatureCount?: boolean }).hideFromCreatureCount) {
@@ -403,8 +503,27 @@ export default class BotController {
 		);
 	}
 
+	/**
+	 * Whether the bot may *act* this turn.
+	 *
+	 * Turn-taking is suppressed during replay (`game.isReplayInProgress`): the
+	 * replay scheduler drives each recorded action itself, and a bot that
+	 * independently picks and executes its own action would race it. The result
+	 * was a diverging board — the bot's random pick landed on a different unit
+	 * (or a different player's turn) than the recorded action, so later
+	 * materializations were attributed to the wrong player and units from the
+	 * original match went missing entirely.
+	 *
+	 * Kept separate from {@link isBotTurn} because that method also answers the
+	 * cosmetic "whose turn is this?" question for cursors and the ability panel,
+	 * which should look unchanged while a match is being replayed.
+	 */
+	private canActThisTurn(): boolean {
+		return this.isBotTurn() && !this.game.isReplayInProgress;
+	}
+
 	queueDecision(delay = 300) {
-		if (!this.isBotTurn()) {
+		if (!this.canActThisTurn()) {
 			return;
 		}
 
@@ -415,7 +534,7 @@ export default class BotController {
 	}
 
 	takeTurn() {
-		if (!this.isBotTurn()) {
+		if (!this.canActThisTurn()) {
 			return;
 		}
 
@@ -445,7 +564,7 @@ export default class BotController {
 			return;
 		}
 
-		if (this.decisionCount >= 12) {
+		if (this.decisionCount >= this.maxDecisionCount) {
 			this.game.skipTurn({ noTooltip: true });
 			return;
 		}
@@ -679,7 +798,7 @@ export default class BotController {
 	}
 
 	shouldAutoResolveQuery() {
-		return this.isBotTurn() && this.pendingAction !== null;
+		return this.canActThisTurn() && this.pendingAction !== null;
 	}
 
 	resolveQuery(queryOptions: { hexes: Hex[] }, handlers: QueryHandlers) {
@@ -783,6 +902,17 @@ export default class BotController {
 				return undefined;
 			}
 
+			// Holding position can be worth more than the best reachable hex
+			// (e.g. a passive that only stacks while standing still). A unit
+			// strategy opts in via getHoldPositionScore; without one the bot
+			// keeps its usual "move when able" behaviour.
+			const holdScore = retreating
+				? undefined
+				: this.getStrategyFor(activeCreature)?.getHoldPositionScore?.(activeCreature, this);
+			if (holdScore !== undefined && best.score <= holdScore) {
+				return undefined;
+			}
+
 			return best.hex;
 		}
 
@@ -869,6 +999,7 @@ export default class BotController {
 		}
 
 		if (this.isRetreating(activeCreature)) {
+			// scoreRetreatHex applies its own (heavier) trap penalty.
 			return this.scoreRetreatHex(hex);
 		}
 
@@ -917,29 +1048,63 @@ export default class BotController {
 			const preferredX = this.getPreferredX(activeCreature);
 			const zoneWeight = Math.max(1, 10 - aggression);
 			score -= Math.abs(hex.x - preferredX) * zoneWeight;
-
-			// Penalize trap exposure both on the destination and along the walk path.
-			score -= this.getMovePathTrapPenalty(activeCreature, hex);
 		}
+
+		// Trap exposure is cross-cutting: a unit strategy override replaces the
+		// scorer wholesale, so the penalty is applied here — once — on top of
+		// whatever score the unit produced. That keeps every strategy trap-aware
+		// (destination, walk path, and departure traps) without each one having
+		// to remember the penalty.
+		score -= this.getMovePathTrapPenalty(activeCreature, hex);
 
 		return score + this.getDefenselessTargetMovementBonus(activeCreature, hex);
 	}
 
-	private getMovePathTrapPenalty(
+	/**
+	 * Total trap-exposure penalty for moving to `destination`:
+	 * - damaging traps on the destination hex;
+	 * - damaging traps that fire on departure and sit on the hexes the creature
+	 *   currently occupies (Poisonous Vine, Hammered — paid by every move);
+	 * - damaging traps crossed along the walking path, unless `skipPathScan` is
+	 *   set (flying/teleport moves never cross them).
+	 *
+	 * Public so unit strategies can fold the same penalty into their own move
+	 * scoring instead of reimplementing (or silently dropping) it.
+	 */
+	getMovePathTrapPenalty(
 		creature: Creature,
 		destination: Hex,
-		opts: { retreating: boolean } = { retreating: false },
+		opts: { retreating?: boolean; skipPathScan?: boolean } = {},
 	): number {
+		const retreating = opts.retreating ?? false;
+		const trapOpts = { retreating };
 		let penalty = 0;
 		// Always check destination hex — getTrapsForHex falls back to hex.trap for unit tests.
 		this.getTrapsForHex(destination).forEach((trap) => {
-			penalty += this.getTrapExposurePenalty(creature, trap, true, opts);
+			penalty += this.getTrapExposurePenalty(creature, trap, true, trapOpts);
+		});
+
+		// Traps that fire on departure (Poisonous Vine, Hammered) sit on the
+		// hexes the creature already occupies, so every possible move pays that
+		// cost exactly once. Pricing it in here is what makes holding position a
+		// real alternative to moving out of a trap-wreathed hex.
+		creature.hexagons.forEach((originHex) => {
+			if (originHex.x === destination.x && originHex.y === destination.y) {
+				// A hex the unit already occupies can't be departed from.
+				return;
+			}
+			this.getTrapsForHex(originHex).forEach((trap) => {
+				if (!this.isLikelyDamagingDepartureTrap(trap)) {
+					return;
+				}
+				penalty += this.getTrapExposurePenalty(creature, trap, true, trapOpts);
+			});
 		});
 
 		// Skip the expensive A* path scan when no traps are registered in the game.
 		// game.traps is the authoritative source for live traps; unit tests that set
 		// hex.trap directly still get the destination check above.
-		if (!this.game.traps?.length) {
+		if (opts.skipPathScan || !this.game.traps?.length) {
 			return penalty;
 		}
 
@@ -952,7 +1117,7 @@ export default class BotController {
 					return;
 				}
 				this.getTrapsForHex(pathHex).forEach((trap) => {
-					penalty += this.getTrapExposurePenalty(creature, trap, false, opts);
+					penalty += this.getTrapExposurePenalty(creature, trap, false, trapOpts);
 				});
 			});
 		} catch {
@@ -1019,9 +1184,28 @@ export default class BotController {
 		opts: { retreating: boolean },
 	): number {
 		const healthRatio = creature.health / creature.stats.health;
-		let penalty = Math.round(80 + (1 - healthRatio) * 270);
-
 		const enduranceRatio = creature.endurance / Math.max(1, creature.stats.endurance);
+
+		return this.computeTrapExposurePenalty(
+			{ healthRatio, enduranceRatio },
+			trap,
+			isDestination,
+			opts,
+		);
+	}
+
+	/**
+	 * Trap-exposure maths shared by creature moves and materializations.
+	 * `ratios` describe the unit that would be exposed to the trap.
+	 */
+	private computeTrapExposurePenalty(
+		ratios: { healthRatio: number; enduranceRatio: number },
+		trap: Trap,
+		isDestination: boolean,
+		opts: { retreating: boolean },
+	): number {
+		const { healthRatio, enduranceRatio } = ratios;
+		let penalty = Math.round(80 + (1 - healthRatio) * 270);
 
 		if (this.isLikelyDamagingTrap(trap)) {
 			penalty += healthRatio <= 0.35 ? 700 : 240;
@@ -1062,26 +1246,54 @@ export default class BotController {
 				return false;
 			}
 
-			const name = `${effect?.name ?? ''}`.toLowerCase();
-			const hint = `${effect?.specialHint ?? ''}`.toLowerCase();
-			if (/damage|burn|poison|shock|frost|mental|pure/.test(name + hint)) {
-				return true;
-			}
-
-			const effectFn = effect?.effectFn;
-			if (typeof effectFn !== 'function') {
-				return true;
-			}
-
-			const effectSource = Function.prototype.toString.call(effectFn);
-			if (/takeDamage|new Damage|applyDamage|damages/.test(effectSource)) {
-				return true;
-			}
-
-			// Step-triggered traps with opaque effect functions should still be
-			// treated as dangerous for movement planning.
-			return true;
+			return this.isDamagingTrapEffect(effect);
 		});
+	}
+
+	/**
+	 * True when the trap punishes the creature for *leaving* the hex it stands
+	 * on — Poisonous Vine being the prime example. Every move off the hex pays
+	 * that price, no matter the destination.
+	 */
+	private isLikelyDamagingDepartureTrap(trap: Trap): boolean {
+		const effects = trap.effects;
+		if (!Array.isArray(effects) || effects.length === 0) {
+			return false;
+		}
+
+		return effects.some((effect) => {
+			const trigger = `${effect?.trigger ?? ''}`;
+			// `onOtherStepOut` fires on other creatures leaving the hex, not on
+			// the one standing on it, so it must not match here.
+			if (!trigger.includes('onStepOut')) {
+				return false;
+			}
+
+			return this.isDamagingTrapEffect(effect);
+		});
+	}
+
+	/** Whether a step-triggered trap effect looks like it deals damage. */
+	private isDamagingTrapEffect(effect: Trap['effects'][number]): boolean {
+		const name = `${effect?.name ?? ''}`.toLowerCase();
+		const hint = `${effect?.specialHint ?? ''}`.toLowerCase();
+		if (/damage|burn|poison|shock|frost|mental|pure/.test(name + hint)) {
+			return true;
+		}
+
+		const effectFn = effect?.effectFn;
+		if (typeof effectFn !== 'function') {
+			return true;
+		}
+
+		const effectSource = Function.prototype.toString.call(effectFn);
+		if (/takeDamage|new Damage|applyDamage|damages/.test(effectSource)) {
+			return true;
+		}
+
+		// Step-triggered traps with opaque effect functions should still be
+		// treated as dangerous for movement planning.
+		return true;
 	}
 
 	scoreSummonHex(hex: Hex) {
@@ -1100,7 +1312,64 @@ export default class BotController {
 
 		let score = 200 - nearestEnemyDistance * 12;
 		score += adjacentEnemy ? 40 : 0;
+		// A summoned unit triggers every trap under its hexes the moment it
+		// materializes, so never drop a fresh unit onto fire, scorched ground or
+		// the like when somewhere safe is in range.
+		score -= this.getSummonTrapPenalty(hex);
 		return score;
+	}
+
+	/**
+	 * Penalty for materializing onto `hex` while damaging traps sit where the new
+	 * unit would land. A unit occupies `size` hexes and triggers the traps under
+	 * each of them, so the whole footprint — not just the confirmed hex — is
+	 * checked. The unit arrives at full health and endurance, so those ratios are
+	 * fixed.
+	 */
+	private getSummonTrapPenalty(hex: Hex): number {
+		const action = this.pendingAction;
+		if (action?.type !== 'summon') {
+			return 0;
+		}
+
+		let penalty = 0;
+		this.getSummonFootprintHexes(hex).forEach((footprintHex) => {
+			this.getTrapsForHex(footprintHex).forEach((trap) => {
+				penalty += this.computeTrapExposurePenalty(
+					{ healthRatio: 1, enduranceRatio: 1 },
+					trap,
+					true,
+					{ retreating: false },
+				);
+			});
+		});
+		return penalty;
+	}
+
+	/**
+	 * Hexes a unit of the given size occupies when its anchor lands on `hex`.
+	 * Mirrors how `HexGrid.queryHexes` slides the anchor along the row so the
+	 * footprint fits: away from the player's default side to the left, towards it
+	 * to the right. Falls back to the anchor hex when the grid is unavailable.
+	 */
+	private getSummonFootprintHexes(hex: Hex): Hex[] {
+		const activeCreature = this.game.activeCreature;
+		const summonType = this.pendingAction?.type === 'summon' ? this.pendingAction.summonType : '--';
+		const size = this.game.retrieveCreatureStats?.(summonType)?.size ?? 1;
+		const flipped = Boolean(activeCreature?.player?.flipped);
+		const row = this.game.grid?.hexes?.[hex.y];
+		if (!row) {
+			return [hex];
+		}
+
+		const footprint: Hex[] = [];
+		for (let i = 0; i < size; i++) {
+			const footprintHex = row[flipped ? hex.x + i : hex.x - i];
+			if (footprintHex) {
+				footprint.push(footprintHex);
+			}
+		}
+		return footprint.length > 0 ? footprint : [hex];
 	}
 
 	scoreAbilityHex(hex: Hex) {
@@ -1181,6 +1450,15 @@ export default class BotController {
 		}
 
 		return 100 - this.closestDistanceToEnemy(hex) * 10;
+	}
+
+	/**
+	 * Value of holding position this turn, as declared by the unit strategy.
+	 * Returns `undefined` when the strategy has no opinion, which keeps the
+	 * default "move whenever able" behaviour.
+	 */
+	getHoldPositionScore(creature: Creature): number | undefined {
+		return this.getStrategyFor(creature)?.getHoldPositionScore?.(creature, this);
 	}
 
 	/**

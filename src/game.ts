@@ -1,21 +1,43 @@
 import $j from 'jquery';
 import { Animations } from './animations';
-import { CreatureQueue } from './creature_queue';
-import { GameLog } from './utility/gamelog';
+import { EventQueue, isQueueEvent, type QueueEvent } from './event_queue';
+import { GameLog, type LogPerformer, type ReplayMode } from './utility/gamelog';
 import { SoundSys, SoundSysAudioBufferSourceNode } from './sound/soundsys';
-import { Hex } from './utility/hex';
+import { Hex, stopAllCursorSpinning } from './utility/hex';
 import { HexGrid } from './utility/hexgrid';
-import { getUrl, use as assetsUse, soundPaths } from './assets';
-import { Player, PlayerColor, PlayerID, getDarkPriestAvatarUrl } from './player';
+import { Easing } from './utility/easing';
+import { getUrl, use as assetsUse, soundPaths, ensureCardboardReady, loadTexture } from './assets';
+import {
+	Player,
+	PlayerColor,
+	PlayerID,
+	getDarkPriestAvatarUrl,
+	getDarkPriestCardboardKey,
+	getPlayerColor,
+} from './player';
 import { UI } from './ui/interface';
+import {
+	GameSnapshotSerializer,
+	SNAPSHOT_VERSION,
+	SnapshotCompatibilityError,
+	type QueueEventSnapshot,
+} from './engine/GameSnapshot';
 import { Creature, CreatureHintType } from './creature';
-import { refreshPlasmaRenderScales } from './plasma-field';
+import { refreshPlasmaRenderScales, precompilePlasmaShader } from './vfx/plasma/field';
+import {
+	disperseBadBreathCloudsAt,
+	expireBadBreathClouds,
+	ageBadBreathClouds,
+} from './vfx/bad-breath';
 import { unitData } from './data/units';
-import 'pixi';
-import 'p2';
-import 'p2';
-// @ts-expect-error: Phaser CE has no official type declarations
-import Phaser, { Signal } from 'phaser';
+import type { GameChannels, MetaPowersState } from './game-events/channels.types';
+import { createGameChannels } from './game-events/factory';
+import { resetClock, setClockScene } from './timing/clock';
+import type Phaser from 'phaser';
+import { loadPhaser, getPhaser } from './phaser/runtime';
+import { applyBoardScale, refreshScale } from './game-display/scale';
+import { startCursorAutoHide } from './game-display/cursor-auto-hide';
+import { createGameConfig } from './phaser/boot';
 import { LobbyClient } from './multiplayer';
 import { createLobbyProvider } from './multiplayer/provider';
 import type {
@@ -29,16 +51,29 @@ import type { AbilityTarget } from './multiplayer/types';
 import { getVisibilityAwareDelay } from './utility/time';
 import { DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG, DEBUG_DISABLE_MUSIC } from './debug';
 import { Point, configure as configurePointFacade } from './utility/pointfacade';
-import { pretty as version } from './utility/version';
+import { full as version } from './utility/version';
 import { Ability } from './ability';
 import { Effect } from './effect';
 import { GameConfig } from './script';
 import { Trap } from './utility/trap';
 import { Drop } from './drop';
 import { CreatureType, Realm, UnitData } from './data/types';
-import { setAudioMode } from './sound/soundsys';
+import { setAudioMode, getAudioMode, DEFAULT_AUDIO_MODE } from './sound/soundsys';
 import BotController from './bot';
 import { locationPaths } from '../assets/index';
+import type { GameEngine, SpriteHandle } from './engine/types';
+import { GameStateMachine, type GameState } from './engine/GameStateMachine';
+import {
+	clearHoveredHex,
+	onPointerUp,
+	rejectIfTurnFrozen,
+	resetPointerWithinBoard,
+	trackPointerWithinBoard,
+} from './input/input';
+
+type SnapshotEffectBehavior = (effect: Effect, data: Record<string, unknown> | undefined) => void;
+type SnapshotTrapBehavior = (trap: Trap, data: Record<string, unknown> | undefined) => void;
+type SnapshotEventBehavior = (snapshot: QueueEventSnapshot) => QueueEvent;
 
 /* eslint-disable prefer-rest-params */
 
@@ -65,16 +100,58 @@ type AnimationID = number;
 
 const webKitGtkUserAgent = /(X11|Linux).*AppleWebKit\/.*Version\/.*Safari\//i;
 
+/**
+ * How long the game-over drum roll plays before it is cut off.
+ *
+ * The asset is a 12s continuous pattern, not a short sting, so playing it in
+ * full means it drums over the entire scoreboard.
+ */
+const END_GAME_SOUND_DURATION = 4;
+
+/** Cross-fade length, in ms, of the secret combat-location switch. */
+const LOCATION_FADE_DURATION = 400;
+
+/**
+ * Render depths of the match backdrop.
+ *
+ * The board draws in bands of `row * 100` (see HexGrid#getDepthAtBand), so
+ * row 0 starts at depth 0: anything at or above that would cover the first row
+ * of hexes. The fading-in copy therefore gets its own fixed slot just above the
+ * backdrop rather than being offset from whatever it replaces — offsetting
+ * from the outgoing sprite would walk the depth up by a step on every switch
+ * and eventually lift the backdrop over the board.
+ */
+const BACKGROUND_DEPTH = -1;
+const BACKGROUND_FADE_DEPTH = -0.5;
+
 function shouldUseCanvasRenderer() {
 	return webKitGtkUserAgent.test(navigator.userAgent);
 }
 
-export type MetaPowersState = {
-	executeMonster: boolean;
-	resetCooldowns: boolean;
-	disableMaterializationSickness: boolean;
-	infiniteEnergy: boolean;
-};
+/** Re-exported for the existing `import Game, { MetaPowersState }` call sites. */
+export type { MetaPowersState } from './game-events/channels.types';
+
+/**
+ * Overrides for {@link Game.createPhaser}.
+ *
+ * The browser path needs none of this: it picks its renderer from the device's
+ * capabilities and mounts into the `#combatwrapper` element the page provides.
+ * The headless runners pass `Phaser.HEADLESS` because there is no display to
+ * pick for, and they drive the game by stepping frames by hand rather than from
+ * `requestAnimationFrame`.
+ */
+export interface CreatePhaserOptions {
+	/** Renderer constant. Defaults to `CANVAS` or `AUTO` per device capability. */
+	type?: number;
+	/**
+	 * DOM id or element to mount into. Defaults to `'combatwrapper'`.
+	 *
+	 * `null` mounts nowhere, which is what `Phaser.HEADLESS` needs: it has no
+	 * canvas to parent, and Phaser throws rather than mounting at the document
+	 * body when handed an element that does not exist.
+	 */
+	parent?: string | null;
+}
 
 export default class Game {
 	/* Attributes
@@ -93,7 +170,7 @@ export default class Game {
 	 * grid :               Grid :  Grid object
 	 * UI :             UI :    UI object
 	 *
-	 * queue :              CreatureQueue : queue of creatures to manage phase order
+	 * queue :              EventQueue : queue of creatures and scheduled events
 	 *
 	 * turn :               Integer :   Current's turn number
 	 *
@@ -107,6 +184,7 @@ export default class Game {
 	players: Player[];
 	creatures: Creature[];
 	traps: Trap[];
+	badBreathClouds: any[];
 	drops: Drop[];
 	effects: Effect[];
 	activeCreature: Creature | undefined;
@@ -114,14 +192,25 @@ export default class Game {
 	playersReady: boolean;
 	preventSetup: boolean;
 	animations: Animations;
-	queue: CreatureQueue;
+	queue: EventQueue;
 	creatureData: typeof unitData | [];
 	pause: boolean;
-	gameState: 'initialized' | 'loading' | 'loaded' | 'playing' | 'ended';
+	private readonly gameStateMachine = new GameStateMachine();
+	get gameState(): GameState {
+		return this.gameStateMachine.state;
+	}
+	set gameState(nextState: GameState) {
+		if (nextState === 'initialized') {
+			this.gameStateMachine.reset();
+			return;
+		}
+		this.gameStateMachine.transition(nextState);
+	}
 	pauseTime: number;
 	unitDrops: number;
 	minimumTurnBeforeFleeing: number;
 	availableCreatures: CreatureType[];
+	lastSummonedType: CreatureType | null;
 	animationQueue: (Animation | AnimationID)[];
 	checkTimeFrequency: number;
 	gamelog: GameLog;
@@ -146,20 +235,94 @@ export default class Game {
 	realms: Realm[];
 	availableMusic = [];
 	inputMethod = 'Mouse';
-	firstKill: boolean;
+	/** How many kills have already been paid a `BLOOD_BONUS` tier this match. */
+	bloodCount: number;
 	freezedInput: boolean;
 	isReplayInProgress: boolean;
+	/** Replay playback mode; `load` fast-forwards the same recorded actions. */
+	replayMode: ReplayMode | null;
+	_replayInterval: ReturnType<typeof setInterval> | null = null;
+	_replayStartTimeout: ReturnType<typeof setTimeout> | null = null;
+	_replayResume: (() => void) | null = null;
+	_replayActions: any[] = [];
+	_pendingReplayFastForward = false;
 	turnThrottle: boolean;
 	turn: number;
+	round: number;
+	/** Pending snapshot for reconstruction after setup() creates creatures. */
+	_pendingSnapshot: any;
 	metaPowersState: MetaPowersState;
 	/** Counts abilities that called end(false,true) but haven't yet invoked queryMove(). */
 	_deferredQueryMovePending: number;
-	Phaser: Phaser;
+	private readonly _snapshotEffectBehaviors = new Map<string, SnapshotEffectBehavior>();
+	private readonly _snapshotTrapBehaviors = new Map<string, SnapshotTrapBehavior>();
+	private readonly _snapshotEventBehaviors = new Map<string, SnapshotEventBehavior>();
+	Phaser: Phaser.Game | null;
+	/** The single Phaser 4 scene that replaces Phaser 2 CE's `game.state`. */
+	private phaserScene: import('./phaser/scenes/GameScene').GameScene | null = null;
+
+	/** Unsubscribes the scene's pointer-boundary listeners. See phaserSceneCreated. */
+	private _stopPointerTracking: (() => void) | null = null;
+	/**
+	 * Releases the bot-only-match cursor auto-hider. See `setup` and
+	 * `destroyPhaser`.
+	 */
+	private _stopCursorAutoHide: (() => void) | null = null;
+	/**
+	 * The concrete Phaser-backed engine adapter, captured at construction.
+	 *
+	 * `Phaser4Engine` is loaded through a dynamic `import()`, so it cannot be named
+	 * in a static `instanceof`. Keeping a reference to the instance lets
+	 * {@link phaserUpdate} reach `advanceClock`, which is specific to the Phaser
+	 * clock and intentionally not part of the headless `GameEngine` interface.
+	 */
+	private _phaserEngine: import('./engine/Phaser4Engine').Phaser4Engine | null = null;
+	/**
+	 * Fires once, after the preload batch and after setup has had its Dark Priest
+	 * cardboards. Detached from the loader in `destroyPhaser`.
+	 */
+	private _pendingLoadCompleteFn: (() => void) | undefined;
+	/**
+	 * Detaches the preload progress listener from the scene's loader.
+	 *
+	 * Released in `finishLoading` once the preload batch lands, and again in
+	 * `destroyPhaser` for a game that is torn down before it does.
+	 */
+	private _unsubscribeLoadProgress: (() => void) | undefined;
+	/**
+	 * Resolves once the `GameScene` has run `create()`, which is the first point
+	 * its GameObject factory (`scene.add`) exists.
+	 *
+	 * `new Phaser.Game()` returns long before that: the scene boots on a later
+	 * tick, and under `Phaser.HEADLESS` nothing else will ever drive the tick.
+	 * Callers that go on to build display objects — `setup()` and the headless
+	 * server alike — must await this or they read `scene.add.sprite` off
+	 * `undefined`. The browser path does not need it today because its scene is
+	 * built before `setup()` runs, but it is the same ordering hazard.
+	 */
+	private _sceneReady: Promise<void> = Promise.resolve();
+	private _resolveSceneReady: (() => void) | null = null;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	msg: any; // type this properly
 	triggers: Record<string, RegExp>;
-	signals: Record<string, Signal>;
+	/**
+	 * Gameplay message channels.
+	 *
+	 * Created in `createPhaser()` rather than the constructor, because they are
+	 * Phaser `EventEmitter`s and the Phaser runtime is only loaded from
+	 * `createPhaser()`. Callers that need them earlier than that have a real
+	 * ordering bug, so the getter throws with that explanation.
+	 */
+	channels!: GameChannels;
 	botController: BotController;
+	/** Engine adapter abstraction layer — gameplay code should use this instead of `this.Phaser` directly. */
+	private _gameEngine?: GameEngine;
+	get gameEngine(): GameEngine {
+		if (!this._gameEngine) {
+			throw new Error('gameEngine not initialized — createPhaser() must be called first');
+		}
+		return this._gameEngine;
+	}
 
 	// The optionals below are created by the various methods of `Game`, mainly by `setup` and `loadGame`
 
@@ -167,6 +330,17 @@ export default class Game {
 	soundsys?: SoundSys;
 	fullscreenMode?: boolean;
 	background_image?: string;
+	/**
+	 * The location whose backdrop is on screen, e.g. `'Dark Forest'`. Kept in
+	 * sync with `background_image` so the quick-info tooltips and the secret
+	 * location switch agree on what is being fought over.
+	 */
+	combatLocation?: string;
+	/**
+	 * The backdrop sprite created by {@link setup}. Retained so a location
+	 * change can fade the old image out instead of tearing the world down.
+	 */
+	backgroundSprite?: SpriteHandle;
 
 	gameMode?: number;
 
@@ -179,11 +353,71 @@ export default class Game {
 
 	startMatchTime?: Date;
 	$combatFrame?: JQuery<HTMLElement>; //eslint-disable-line no-undef
-	timeInterval?: NodeJS.Timeout; //eslint-disable-line no-undef
-
-	windowResizeTimeout?: string | number | NodeJS.Timeout; //eslint-disable-line no-undef
+	timeInterval?: ReturnType<typeof setTimeout>; //eslint-disable-line no-undef
+	windowResizeTimeout?: string | number | ReturnType<typeof setTimeout>; //eslint-disable-line no-undef
 
 	pauseStartTime?: Date;
+
+	/**
+	 * True once `destroyPhaser()` has torn this instance down, false again once a
+	 * new match is set up on it.
+	 *
+	 * Teardown nulls `grid` and `UI` so late callbacks notice they are dead, but
+	 * gameplay schedules untracked `setTimeout`/`setInterval` work that nothing
+	 * cancels, so those callbacks fire against a dead board and throw. Every
+	 * deferred entry point checks this, and `defer`/`poll` below both check it and
+	 * unregister on teardown, so the usual case needs no guard at all.
+	 */
+	tornDown = false;
+
+	/**
+	 * Handles for deferred work scheduled through `defer`/`poll`, cleared on
+	 * teardown. Timers created with bare `setTimeout` cannot be reached this way.
+	 */
+	private _deferredTimers = new Set<ReturnType<typeof setTimeout>>();
+
+	/**
+	 * `setTimeout` that is cancelled by teardown and skipped if the board is
+	 * already gone. Prefer this over a bare `setTimeout` for gameplay callbacks.
+	 */
+	defer(callback: () => void, ms: number): void {
+		if (this.tornDown) return;
+		const handle = setTimeout(() => {
+			this._deferredTimers.delete(handle);
+			if (this.tornDown) return;
+			callback();
+		}, ms);
+		this._deferredTimers.add(handle);
+	}
+
+	/**
+	 * `setInterval` that stops at teardown and stops early if `callback` returns
+	 * true. Prefer this over a bare `setInterval` for gameplay polling.
+	 */
+	poll(callback: () => boolean | void, ms: number): void {
+		if (this.tornDown) return;
+		const handle = setInterval(() => {
+			if (this.tornDown || callback() === true) {
+				clearInterval(handle);
+				this._deferredTimers.delete(handle);
+			}
+		}, ms);
+		this._deferredTimers.add(handle);
+	}
+
+	/**
+	 * Cancel every timer scheduled through `defer`/`poll`.
+	 *
+	 * Both are registered as timeouts, so one store is enough; clearing by
+	 * `clearTimeout` also stops the intervals. Called from `destroyPhaser()`.
+	 */
+	private _cancelDeferredTimers(): void {
+		for (const handle of this._deferredTimers) {
+			clearTimeout(handle);
+			clearInterval(handle);
+		}
+		this._deferredTimers.clear();
+	}
 
 	timePool?: number;
 	turnTimePool?: number;
@@ -191,38 +425,125 @@ export default class Game {
 	endGameSound?: SoundSysAudioBufferSourceNode;
 	disconnectReason?: string;
 
-	createPhaser() {
+	/**
+	 * Boot the Phaser runtime and build the scene/engine for a match.
+	 *
+	 * Phaser is a large, non-tree-shakeable dependency that the pre-match screen
+	 * never touches, so it is loaded on demand here rather than at page load. The
+	 * two engine modules are pulled in through `import()` for the same reason:
+	 * `GameScene` subclasses `Scene`, which can only be evaluated once the
+	 * runtime is present.
+	 */
+	async createPhaser(options: CreatePhaserOptions = {}) {
 		// Always destroy existing Phaser first to prevent duplicate canvas elements
 		if (this.Phaser) {
 			this.destroyPhaser();
 		}
-		const renderer = shouldUseCanvasRenderer() ? Phaser.CANVAS : Phaser.AUTO;
-		this.Phaser = new Phaser.Game(1920, 1080, renderer, 'combatwrapper', {
-			update: this.phaserUpdate.bind(this),
-			render: this.phaserRender.bind(this),
-			// Browsers fully suspend native requestAnimationFrame (not just throttle it)
-			// once a tab is hidden/backgrounded. Phaser's TweenManager (movement/ability
-			// animations) and its whole update loop run off that rAF, so a backgrounded
-			// client's creature moves/abilities would completely freeze mid-animation —
-			// never dispatching movementComplete/activateAbility, never advancing the
-			// turn — until the tab regains focus. That is the "moves desync between
-			// tabs" symptom seen when testing two clients side-by-side with one
-			// unfocused. Forcing Phaser onto a setTimeout-driven loop in multiplayer
-			// keeps it ticking (just throttled, like our other multiplayer timers)
-			// instead of fully stopping while backgrounded.
-			forceSetTimeOut: this.multiplayer,
+
+		await loadPhaser();
+		const [{ GameScene }, { Phaser4Engine }] = await Promise.all([
+			import('./phaser/scenes/GameScene'),
+			import('./engine/Phaser4Engine'),
+		]);
+
+		const renderer =
+			options.type ?? (shouldUseCanvasRenderer() ? getPhaser().CANVAS : getPhaser().AUTO);
+		// Armed before the `Game` is constructed, because the scene can run its
+		// `create()` before `new Phaser.Game()` has even returned.
+		this._sceneReady = new Promise<void>((resolve) => {
+			this._resolveSceneReady = resolve;
 		});
+		// The scene is handed its host explicitly instead of reaching for a
+		// global: Phaser 2 CE's `game.state` bag is gone, and so is the
+		// `sys.game.GAME_INSTANCE` back-reference that used to replace it.
+		this.phaserScene = new GameScene({
+			onSceneReady: () => this.phaserSceneCreated(),
+			onSceneUpdate: (time, delta) => this.phaserUpdate(time, delta),
+		});
+		// Shared with the headless runner, so the browser and simulation boots
+		// cannot drift apart on viewport, scale mode or renderer selection.
+		this.Phaser = new (getPhaser().Game)(
+			createGameConfig({
+				type: renderer,
+				parent: options.parent === undefined ? 'combatwrapper' : options.parent,
+				scene: [this.phaserScene],
+			}),
+		);
+		// Wrap the raw Phaser instance in the engine adapter so gameplay code
+		// talks to a stable GameEngine interface instead of raw Phaser APIs.
+		this._phaserEngine = new Phaser4Engine(this.Phaser, this.phaserScene);
+		this._gameEngine = this._phaserEngine;
+		// Gameplay channels are Phaser `EventEmitter`s, so they cannot be built
+		// before the runtime is present. `createPhaser()` is the first point where
+		// that is guaranteed, and every subscriber (BotController, players,
+		// abilities, UI) is constructed after it.
+		this.channels = createGameChannels();
+		this.botController = new BotController(this);
+		// AB timing now reads the scene's clock instead of the wall clock, so a
+		// headless virtual clock steps hand-driven ability animations in step with
+		// Phaser's tweens instead of racing them.
+		setClockScene(this.phaserScene);
 		// Note: Scale manager configuration happens in setup() after Phaser is ready
 	}
 
-	whenPhaserBooted(phaser: Phaser.Game | null, onBooted: (phaser: Phaser.Game) => void) {
+	phaserSceneCreated() {
+		// Phaser scene created - boot complete, Phaser is ready for use
+		//
+		// Phaser 2 CE published "is the pointer over the canvas" on the pointer as
+		// `withinGame`; Phaser 4 reports the same boundary as scene events. Hex
+		// hover-out needs the distinction, so the scene input is the source.
+		this._stopPointerTracking?.();
+		this._stopPointerTracking = trackPointerWithinBoard(this.phaserScene);
+		this._resolveSceneReady?.();
+		this._resolveSceneReady = null;
+	}
+
+	/**
+	 * Resolve once the scene's GameObject factory exists.
+	 *
+	 * Already resolved for a game whose Phaser instance was never created, so a
+	 * caller can await this unconditionally instead of branching on whether it
+	 * booted.
+	 */
+	whenSceneReady(): Promise<void> {
+		return this._sceneReady;
+	}
+
+	/**
+	 * The live `GameScene`, for callers that need to point AB's engine
+	 * registries at this game before driving it.
+	 *
+	 * `src/timing/clock.ts` and `src/game-display/camera.ts` hold module-level
+	 * singletons, because gameplay reaches them without a handle to the match.
+	 * That is fine while one game runs at a time — the browser, the server's one
+	 * game per lobby, the simulation — but a process driving two engines has to
+	 * re-point them before it steps either one, or the second game's
+	 * registration wins and the first reads the wrong clock.
+	 */
+	get scene(): import('./phaser/scenes/GameScene').GameScene | null {
+		return this.phaserScene;
+	}
+
+	whenPhaserBooted(phaser: Phaser.Game, onBooted: (phaser: Phaser.Game) => void) {
 		if (!phaser) {
 			return;
 		}
 
-		if (phaser === this.Phaser && phaser.isBooted && phaser.load) {
+		// In Phaser 4 the loader lives on the scene, not on the game object.
+		const load = this.getPhaserLoad(phaser);
+
+		if (phaser === this.Phaser && phaser.isBooted && load) {
+			console.log('[Game] Phaser booted and loader ready');
 			onBooted(phaser);
 			return;
+		}
+
+		// Debug: log state
+		if (phaser === this.Phaser) {
+			console.log('[Game] Waiting for Phaser boot:', {
+				isBooted: phaser.isBooted,
+				hasLoad: !!load,
+			});
 		}
 
 		window.setTimeout(() => {
@@ -231,10 +552,20 @@ export default class Game {
 			}
 
 			this.whenPhaserBooted(phaser, onBooted);
-		}, 0);
+		}, 50);
+	}
+
+	/** Get the Phaser 4 loader, which lives on the scene. */
+	private getPhaserLoad(phaser: Phaser.Game): Phaser.Loader.LoaderPlugin | null {
+		if (phaser !== this.Phaser) return null;
+		return this.phaserScene?.load ?? null;
 	}
 
 	destroyPhaser() {
+		// Raise the flag and cancel tracked deferred work first, so a `defer`/`poll`
+		// callback cannot start while the rest of teardown is still running.
+		this.tornDown = true;
+		this._cancelDeferredTimers();
 		if (this.Phaser) {
 			const phaser = this.Phaser;
 
@@ -260,43 +591,60 @@ export default class Game {
 			}
 
 			// Detach pending async callbacks before destroying.
-			// Phaser.Game.destroy() stops the rAF loop but leaves the Cache's
-			// `onReady` signal and the Loader's completion signals registered.
-			// If createPhaser() is called again before those async callbacks
-			// (default/missing texture decodes, asset loads) settle, they fire
-			// on the already-destroyed game, calling raf.start() -> Game.update()
-			// -> this.time.update() where `this.time` is now null. This throws
-			// "can't access property 'update', this.time is null" (phaser-split.js
-			// Game.update, line ~14835). Clearing them prevents a dead game from
-			// starting its loop or running finishLoading/loadFinish after death.
-			if (phaser.cache && phaser.cache.onReady && phaser.cache.onReady.removeAll) {
-				phaser.cache.onReady.removeAll();
-			}
-			if (phaser.load) {
-				if (phaser.load.onLoadComplete && phaser.load.onLoadComplete.removeAll) {
-					phaser.load.onLoadComplete.removeAll();
-				}
-				if (phaser.load.onFileComplete && phaser.load.onFileComplete.removeAll) {
-					phaser.load.onFileComplete.removeAll();
-				}
-			}
+			// Phaser 4 `Game.destroy()` tears the scene systems down, but any
+			// asset decode still in flight can settle afterwards and fire
+			// `finishLoading`/`loadFinish` on a dead game. Dropping the loader
+			// subscriptions — this one and the scene's own `shutdown()` hook —
+			// prevents a destroyed game from restarting its loop.
+			this._unsubscribeLoadProgress?.();
+			this._unsubscribeLoadProgress = undefined;
 
 			// IMPORTANT: Remove the canvas element from the DOM before destroying Phaser
-			// Phaser.destroy() does NOT remove the canvas, so we'd end up duplicated canvases
+			// `Game.destroy(true)` removes the canvas itself; doing it first keeps
+			// the DOM clean even if destroy is interrupted.
 			const canvas = phaser.canvas;
 			if (canvas && canvas.parentNode) {
 				canvas.parentNode.removeChild(canvas);
 			}
 
-			// Destroy Phaser with cleanup to avoid memory leaks
-			// Parameters: clearWorld=true (remove game objects), clearCache=false
-			// Stop the rAF loop first so a pending frame can't fire Game.update()
-			// (this.time is null) on the dying instance after destroy() returns.
-			if (phaser.raf && typeof phaser.raf.stop === 'function') {
-				phaser.raf.stop();
-			}
-			phaser.destroy(true, false);
+			// Phaser 4 stops the rAF loop inside destroy(). `removeCanvas` is false
+			// because the canvas is detached just above.
+			//
+			// `noReturn` MUST stay false. Phaser treats it as "this page will never
+			// run Phaser again" and responds by wiping its global core-plugin cache
+			// (PluginCache.destroyCorePlugins), after which any subsequent
+			// `new Phaser.Game()` aborts in Game.boot() with
+			// "Aborting. Core Plugins missing." — leaving a rematch stuck on the
+			// loading overlay forever. It does not affect teardown synchronicity:
+			// destroy() still runs synchronously either way.
+			phaser.destroy(false, false);
 			this.Phaser = null;
+			this.phaserScene = null;
+			this._phaserEngine = null;
+			// The scene is gone, so nothing should read its clock. Left registered,
+			// an ability animation started before teardown would keep polling a dead
+			// scene and never advance.
+			resetClock();
+
+			// Pointer state is per-match, not per-scene. Carrying it into a rematch
+			// would leave the new board believing the pointer is off-screen and skip
+			// the hover replay.
+			//
+			// The canvas cursor needs no equivalent reset: `InputPlugin.destroy()`
+			// calls its own `shutdown()`, which assigns `defaultCursor` to
+			// `canvas.style.cursor`. That was not obvious enough to leave to chance
+			// in review, so the engine was read rather than the comment believed —
+			// the earlier claim that Phaser resets the cursor only on an observed
+			// pointer-out was wrong.
+			this._stopPointerTracking?.();
+			this._stopPointerTracking = null;
+			resetPointerWithinBoard();
+			clearHoveredHex();
+			stopAllCursorSpinning();
+			// Release the bot-only-match cursor auto-hider so its listener does not
+			// outlive the canvas it was toggling (a rematch re-armed it in setup()).
+			this._stopCursorAutoHide?.();
+			this._stopCursorAutoHide = null;
 
 			// Reset game state (this.UI is already nulled above when its interval
 			// was cleared, kept here for clarity)
@@ -311,6 +659,7 @@ export default class Game {
 		this.players = [];
 		this.creatures = [];
 		this.traps = [];
+		this.badBreathClouds = [];
 		this.drops = [];
 		this.effects = [];
 		this.activeCreature = undefined;
@@ -318,7 +667,10 @@ export default class Game {
 		this.playersReady = false;
 		this.preventSetup = false;
 		this.animations = new Animations(this);
-		this.queue = new CreatureQueue(() => this.creatures);
+		this.queue = new EventQueue(
+			() => this.creatures,
+			() => this.turn,
+		);
 		this.creatureData = [];
 		this.pause = false;
 		this.gameState = 'initialized';
@@ -326,12 +678,22 @@ export default class Game {
 		this.unitDrops = 0;
 		this.minimumTurnBeforeFleeing = 12;
 		this.availableCreatures = [];
+		this.lastSummonedType = null;
 		this.animationQueue = [];
 		this.checkTimeFrequency = 1000;
 		this._deferredQueryMovePending = 0;
 		this.gamelog = new GameLog(
 			(log) => this.onLogSave(log),
-			(log) => this.onLogLoad(log),
+			(log, mode) => this.onLogLoad(log, mode),
+			() => {
+				const creature = this.activeCreature;
+				if (!creature) return null;
+				return {
+					id: creature.id,
+					name: creature.name,
+					player: creature.player?.id ?? -1,
+				};
+			},
 		);
 		this.configData = {};
 		this.match = {};
@@ -347,9 +709,10 @@ export default class Game {
 		this.inputMethod = 'Mouse';
 		this.isAcceptingInput = () => !this.freezedInput;
 		// Gameplay properties
-		this.firstKill = false;
+		this.bloodCount = 0;
 		this.freezedInput = false;
 		this.isReplayInProgress = false;
+		this.replayMode = null;
 		this.turnThrottle = false;
 		this.turn = 0;
 		this.metaPowersState = {
@@ -432,10 +795,6 @@ export default class Game {
 			onQuery: /\bonQuery\b/,
 			oncePerDamageChain: /\boncePerDamageChain\b/,
 		};
-
-		const signalChannels = ['ui', 'metaPowers', 'creature', 'hex'];
-		this.signals = this.setupSignalChannels(signalChannels);
-		this.botController = new BotController(this);
 	}
 
 	loadUnitData(data: UnitData) {
@@ -477,15 +836,36 @@ export default class Game {
 			// For code compatibility
 			this.availableCreatures[creatureId] = type;
 		});
+	}
 
-		this.Phaser.load.start();
+	/**
+	 * Fire-and-forget wrapper around {@link loadGame}.
+	 *
+	 * `loadGame` awaits the Phaser chunk, so it is async. Most call sites are event
+	 * handlers (lobby messages, restart, replay) that cannot await it; without this
+	 * wrapper a failed load would surface as an unhandled rejection instead of a
+	 * logged error.
+	 */
+	private startGameLoad(
+		setupOpt: Partial<GameConfig>,
+		matchInitialized?: boolean,
+		matchid?: string,
+		onLoadCompleteFn?: () => void,
+	): void {
+		this.loadGame(setupOpt, matchInitialized, matchid, onLoadCompleteFn).catch((error) => {
+			if (this.isReplayInProgress) {
+				this.isReplayInProgress = false;
+				this.replayMode = null;
+			}
+			console.error('[Game] loadGame failed', error);
+		});
 	}
 
 	/**
 	 * @param {Partial<GameConfig>} setupOpt - Setup options from matchmaking menu
 	 * Load all required game files
 	 */
-	loadGame(
+	async loadGame(
 		setupOpt: Partial<GameConfig>,
 		matchInitialized?: boolean,
 		matchid?: string,
@@ -504,9 +884,32 @@ export default class Game {
 			return;
 		}
 
-		// Create a fresh Phaser instance for this game session
-		// (createPhaser safely destroys any existing Phaser first to prevent duplicates)
-		this.createPhaser();
+		// Claim the loading state synchronously, before the first `await`.
+		// createPhaser() now loads the Phaser chunk asynchronously, so without this
+		// a second match-start delivery arriving during that fetch would still see
+		// 'initialized' and start a competing load.
+		this.gameState = 'loading';
+
+		// The old match's drum roll would keep ringing over the loading screen and
+		// the new music, since loadGame() below swaps in a brand new SoundSys
+		// (and with it a new AudioContext) while the old node is still live.
+		this.stopEndGameSound();
+
+		try {
+			// Create a fresh Phaser instance for this game session
+			// (createPhaser safely destroys any existing Phaser first to prevent duplicates)
+			await this.createPhaser();
+		} catch (error) {
+			// Release the guard so the player can retry instead of being stuck on a
+			// screen that will never finish loading.
+			this.gameState = 'initialized';
+			console.error('[Game] Failed to start Phaser', error);
+			throw error;
+		}
+
+		// createPhaser() destroys any previous instance, and destroyPhaser() resets
+		// the state to 'initialized' — re-assert the loading state it just cleared.
+		this.gameState = 'loading';
 
 		// Need to remove keydown listener before new game start
 		// to prevent memory leak and mixing hotkeys between start screen and game
@@ -516,7 +919,6 @@ export default class Game {
 			this.matchid = matchid;
 		}
 
-		this.gameState = 'loading';
 		this.preventSetup = false;
 		if (setupOpt) {
 			this.configData = setupOpt;
@@ -535,7 +937,8 @@ export default class Game {
 			// (`load`) is created during boot, so a stale/cached build can call this
 			// with `phaser.load` still null and throw "can't access property
 			// 'onFileComplete', this.Phaser.load is null". Re-wait rather than crash.
-			if (!phaser.load) {
+			const load = this.getPhaserLoad(phaser);
+			if (!load) {
 				this.whenPhaserBooted(phaser, () => this.startAssetLoad(phaser, onLoadCompleteFn));
 				return;
 			}
@@ -545,22 +948,30 @@ export default class Game {
 
 	/** Wire up loader completion hooks and queue the game's asset downloads. */
 	private startAssetLoad(phaser: Phaser.Game, onLoadCompleteFn: () => void): void {
-		if (!phaser.load) {
+		// `phaserScene.assets` is the scene's loader seam: the preload batch, the
+		// on-demand texture path, and the progress the loader bar reads.
+		const load = this.phaserScene?.assets;
+		if (!load) {
+			console.error('[Game] startAssetLoad: no scene loader');
 			return;
 		}
 
-		phaser.load.onFileComplete.add(this.loadFinish, this);
-		phaser.load.onLoadComplete.add(this.finishLoading, this);
-		phaser.load.onLoadComplete.add(onLoadCompleteFn, this);
+		console.log('[Game] Setting up loader events...');
+		// The preload batch reports its own progress; the on-demand textures that
+		// follow would otherwise keep driving the bar past 100%.
+		this._unsubscribeLoadProgress = load.onFileComplete(() => this.loadFinish());
+		// One-shot: on-demand textures keep flowing through the same Phaser
+		// loader during the match, and its `complete` event fires for every one
+		// of them. Re-running setup (or the replay scheduler) on those would
+		// re-create the world mid-match.
+		load.onceComplete(() => this.finishLoading());
+		load.onceComplete(onLoadCompleteFn);
+		this._pendingLoadCompleteFn = onLoadCompleteFn;
 
-		const assetsRaw = assetsUse(phaser);
-		const assets = Array.isArray(assetsRaw) ? assetsRaw : [];
-
-		console.log('[DEBUG] Safe assets list:', assets);
-
-		assets.forEach((_asset) => {
-			// safely process each asset here
-		});
+		// Preload only what the board needs before it can be drawn: the hex/frame
+		// chrome, the shared unit sprites, and the background. Per-unit
+		// cardboards, drop pickups and the UI art are fetched on demand — see #678.
+		assetsUse(phaser);
 
 		// Background
 		const backgroundImage =
@@ -568,13 +979,18 @@ export default class Game {
 			this.configData.background_image ||
 			this.configData.combatLocation ||
 			locationPaths[0];
-		phaser.load.image('background', getUrl('locations/' + backgroundImage));
+		load.image('background', getUrl('locations/' + backgroundImage));
+		load.image('AncientBeastLogo', getUrl('interface/AncientBeast'));
 
-		// Branding
-		phaser.load.image('AncientBeastLogo', getUrl('interface/AncientBeast'));
-
-		// Load artwork, shout and avatar for each unit
+		// Prime the browser cache for the shout, artwork and avatar of each unit
+		// that can appear. These are UI sounds and art rather than Phaser
+		// textures, so they are warmed rather than queued.
 		this.loadUnitData(unitData);
+
+		// Start the loader in Phaser 4
+		console.log('[Game] Starting loader...');
+		load.start();
+		console.log('[Game] Loader started, progress:', load.progress);
 	}
 
 	hexAt(x: number, y: number): Hex | undefined {
@@ -595,19 +1011,22 @@ export default class Game {
 		$j('#gameSetupContainer').hide();
 		$j('#loader').removeClass('hide');
 		$j('body').css('cursor', 'wait');
-		if (this.Phaser?.stage) {
-			this.Phaser.stage.disableVisibilityChange = true;
-		}
+		// Phaser 2 CE's `game.stage.disableVisibilityChange` had no Phaser 4
+		// counterpart; visibility is handled through the browser's own events.
 	}
 
 	loadFinish() {
-		const progress = this.Phaser.load.progress,
+		const progress = this.phaserScene?.assets.progress ?? 0,
 			progressWidth = progress + '%';
 
 		$j('#barLoader .progress').css('width', progressWidth);
 	}
 
 	finishLoading() {
+		// On-demand textures keep flowing through the loader during the match;
+		// the progress bar belongs to the preload batch only.
+		this._unsubscribeLoadProgress?.();
+		this._unsubscribeLoadProgress = undefined;
 		this.gameState = 'loaded';
 		$j('#combatwrapper').show();
 		$j('body').css('cursor', 'default');
@@ -616,13 +1035,70 @@ export default class Game {
 		// Headless browsers and tab-switching shouldn't block multiplayer initialization
 		if (this.multiplayer || !this.preventSetup) {
 			this.preventSetup = false;
-			this.setup(this.gameMode);
+			void this.setupAfterDarkPriestCards();
 		}
 	}
 
-	phaserUpdate() {
+	/**
+	 * Fetch the Dark Priest cardboards this match needs, then build the world.
+	 *
+	 * Every player starts with a Dark Priest, and setup() summons it with no
+	 * placement preview in between, so nothing else would ever ask for its
+	 * cardboard. Waiting here keeps that one unit out of the general preload: a
+	 * 1v1 hotseat match fetches two 45 KiB cardboards rather than all eight
+	 * variants, and only for the seats that are actually in play.
+	 */
+	private async setupAfterDarkPriestCards(): Promise<void> {
+		try {
+			await Promise.all(this.darkPriestCardboardKeys().map(ensureCardboardReady));
+		} catch (error) {
+			console.error('[Game] failed to preload Dark Priest cardboards', error);
+		}
+		// The match may have been torn down while the cardboards were in flight.
+		if (this.gameState !== 'loaded') {
+			return;
+		}
+		// Precompile the plasma field shader so the first Dark Priest's
+		// shield appears instantly (avoids shader compilation delay on the
+		// first field created, which affects the red priest in player 0).
+		if (this._phaserEngine) {
+			precompilePlasmaShader(this._phaserEngine);
+		}
+		this.setup(this.gameMode);
+	}
+
+	/**
+	 * Dark Priest cardboard keys for the seats configured in this match, derived
+	 * from the same id → colour and human/bot rules that `setup()` uses.
+	 */
+	private darkPriestCardboardKeys(): string[] {
+		const gameMode = this.gameMode || 2;
+		const humanSeats: number[] = this.multiplayer
+			? [0, 1, 2, 3].slice(0, gameMode)
+			: this.configData.players ?? [0];
+		return Array.from({ length: gameMode }, (_, id) =>
+			getDarkPriestCardboardKey({
+				color: getPlayerColor(id as PlayerID),
+				controller:
+					this.multiplayer || humanSeats.includes(id) || this.botOpponentIds.has(id as PlayerID)
+						? 'human'
+						: 'bot',
+			}),
+		);
+	}
+
+	/** Called by {@link GameScene#update} once per Phaser frame. */
+	phaserUpdate(_time?: number, delta?: number) {
+		if (this._phaserEngine && typeof delta === 'number') {
+			this._phaserEngine.advanceClock(delta);
+		}
 		if (this.gameState != 'playing') {
 			return;
+		}
+		for (const creature of this.creatures) {
+			if (creature instanceof Creature && !creature.creatureSprite.destroyed) {
+				creature.creatureSprite.tickXray();
+			}
 		}
 	}
 
@@ -659,7 +1135,7 @@ export default class Game {
 
 	// If no red flags, remove the loading bar and begin rendering the game.
 	maybeSetup() {
-		if (this.preventSetup) {
+		if (this.preventSetup || this.gameState !== 'loaded') {
 			return;
 		}
 
@@ -673,48 +1149,35 @@ export default class Game {
 	 * Launch the game with the given number of player.
 	 */
 	setup(gameMode: number) {
+		// A rematch reuses this instance, so clear the teardown state before
+		// anything schedules deferred work against the new board.
+		this.tornDown = false;
+		this._deferredTimers.clear();
+
 		// Clear existing Phaser objects if setup() was already called once
 		// This prevents duplicate input handlers in multiplayer scenarios
 		if (this.grid) {
-			this.Phaser.world.removeAll(true);
+			// Before the world goes away: the board's targeting cursors turn in a
+			// loop shared between them, so leaving one registered would keep a
+			// removed sprite rotating for the rest of the session.
+			stopAllCursorSpinning();
+			this.gameEngine.world.removeAll(true);
 			this.grid = undefined;
 		}
 
-		// Phaser
-		this.Phaser.scale.parentIsWindow = window.innerWidth > 600 || window.innerHeight > 700;
-		this.Phaser.scale.pageAlignHorizontally = true;
-		this.Phaser.scale.pageAlignVertically = window.innerWidth > 600 || window.innerHeight > 700;
-		this.Phaser.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-		this.Phaser.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
-		this.Phaser.scale.refresh();
+		applyBoardScale(this.Phaser?.scale);
 
-		if (!this.Phaser.device.desktop) {
-			this.Phaser.stage.forcePortrait = true;
+		const bg = this.createBackgroundSprite('background');
+		this.backgroundSprite = bg;
+		// Mirror the resolution order in startAssetLoad so the secret location
+		// switch knows what is currently on screen. Multiplayer lobbies send the
+		// placeholder 'default', which names no real location, so fall back to
+		// the first backdrop rather than treating it as switchable.
+		if (!locationPaths.includes(this.combatLocation)) {
+			this.combatLocation = locationPaths.includes(this.background_image)
+				? this.background_image
+				: locationPaths[0];
 		}
-
-		const bg = this.Phaser.add.sprite(0, 0, 'background');
-
-		bg.inputEnabled = true;
-		bg.events.onInputUp.add((Sprite, Pointer) => {
-			if (this.freezedInput || !this.UI || this.UI.dashopen) {
-				return;
-			}
-
-			switch (Pointer.button) {
-				case 0:
-					// Left mouse button pressed
-					break;
-				case 1:
-					// Middle mouse button pressed
-					break;
-				case 2:
-					// Right mouse button pressed
-					if (this.activeCreature) {
-						this.UI.showCreature(this.activeCreature.type, this.activeCreature.player.id);
-					}
-					break;
-			}
-		}, this);
 
 		// Reset global counters
 		this.trapId = 0;
@@ -765,6 +1228,7 @@ export default class Game {
 		// onCloseDash signal that bounces every creature on the board.
 		this.creatures = [];
 		this.traps = [];
+		this.badBreathClouds = [];
 		this.drops = [];
 		this.effects = [];
 		for (let i = 0; i < gameMode; i++) {
@@ -833,6 +1297,12 @@ export default class Game {
 
 		if (this.players.length && this.players[0].creatures.length) {
 			this.activeCreature = this.players[0].creatures[0]; // Prevent errors
+			// Show plasma field for the active Dark Priest immediately at match
+			// start, instead of waiting for the first activate() call which is
+			// delayed by nextCreature() → nextRound() → nextCreature() chain.
+			if (this.activeCreature.isDarkPriest()) {
+				this.activeCreature.setPlasmaFieldActiveTurn(true);
+			}
 		}
 
 		this.UI = new UI(
@@ -842,7 +1312,12 @@ export default class Game {
 			this,
 		); // Create UI (not before because some functions require creatures to already exist)
 
-		setAudioMode('full', this.soundsys, this.UI);
+		if (this._pendingReplayFastForward) {
+			this.setReplayFastForwardUI?.(false);
+			this._pendingReplayFastForward = false;
+		}
+
+		setAudioMode(DEFAULT_AUDIO_MODE, this.soundsys, this.UI);
 		// DO NOT CALL LOG BEFORE UI CREATION
 		this.gameState = 'playing';
 
@@ -853,7 +1328,13 @@ export default class Game {
 			this.checkTime();
 		}, this.checkTimeFrequency);
 
-		this.nextCreature();
+		for (const creature of this.creatures) {
+			creature.updateHealth();
+		}
+
+		if (!this._pendingSnapshot) {
+			this.nextCreature();
+		}
 
 		this.resizeCombatFrame(); // Resize while the game is starting
 		this.UI.resizeDash();
@@ -871,16 +1352,149 @@ export default class Game {
 			// Throttle down to 1 event every 100ms of inactivity
 			resizeGame();
 			// Refresh Phaser scale to fit the resized window
-			if (this.Phaser && this.Phaser.scale) {
-				this.Phaser.scale.refresh();
-			}
+			refreshScale(this.Phaser?.scale);
 			refreshPlasmaRenderScales();
 		});
 
-		this.soundsys.playMusic();
+		if (getAudioMode() === 'full') {
+			this.soundsys.playMusic();
+		}
 		if (DEBUG_DISABLE_MUSIC) {
 			this.musicPlayer.audio.pause();
 		}
+
+		// In a demo ("bot only") match every seat is an AI — there is no local
+		// human at all — so the whole round is a spectator event and the cursor
+		// blanks after a few seconds of inactivity: a "watching video" feel that
+		// restores on the first mouse move. A player-vs-bot match is *not* demo
+		// mode: that local human still needs the cursor on their turns, so it is
+		// left alone. (See destroyPhaser for the matching teardown.)
+		if (
+			!this.multiplayer &&
+			this.players.length > 0 &&
+			this.players.every((player) => player.controller === 'bot')
+		) {
+			this._stopCursorAutoHide = startCursorAutoHide();
+		}
+		// If a snapshot was loaded, reconstruct the board now that creatures exist
+		if (this._pendingSnapshot) {
+			this.reconstructFromSnapshot(this._pendingSnapshot);
+			this._pendingSnapshot = null;
+		}
+		// Prevent a duplicate setup() (e.g. a late focus event) from wiping the
+		// restored state back to a fresh match.
+		this.preventSetup = true;
+	}
+
+	/**
+	 * Build the full-viewport backdrop and wire the right-click shortcut that
+	 * opens the active creature's card.
+	 *
+	 * Extracted from {@link setup} so a location change can build an identical
+	 * sprite (same size, depth and gestures) and fade one into the other.
+	 */
+	private createBackgroundSprite(textureKey: string): SpriteHandle {
+		const bg = this.gameEngine.add.sprite(0, 0, textureKey);
+		// Re-apply (0, 0) after anchoring: Phaser 4 keeps the rendered top-left
+		// and shifts x/y by half the texture, which would leave the backdrop
+		// hanging off the top-left corner of the viewport.
+		bg.setOrigin(0, 0);
+		bg.x = 0;
+		bg.y = 0;
+		bg.setDisplaySize(1920, 1080);
+		bg.setDepth(BACKGROUND_DEPTH);
+
+		bg.setInteractive();
+		onPointerUp(bg, (pointer) => {
+			if (rejectIfTurnFrozen(this) || !this.UI || this.UI.dashopen) {
+				return;
+			}
+
+			switch (pointer.button) {
+				case 0:
+					// Left mouse button pressed
+					break;
+				case 1:
+					// Middle mouse button pressed
+					break;
+				case 2:
+					// Right mouse button pressed
+					if (this.activeCreature) {
+						this.UI.showCreature(this.activeCreature.type, this.activeCreature.player.id);
+					}
+					break;
+			}
+		});
+
+		return bg;
+	}
+
+	/**
+	 * Move the fight to a different combat location, chosen at random.
+	 *
+	 * Backs the secret Ctrl + click-on-the-logo gesture in {@link UI}. The new
+	 * backdrop is cross-faded over the old one so the board never flashes, and
+	 * the location is only recorded locally: it is cosmetic scenery, not
+	 * gameplay state, so a peer that never switched keeps its own backdrop.
+	 */
+	randomizeCombatLocation(): string | undefined {
+		if (!this.backgroundSprite) {
+			return undefined;
+		}
+		// "A different one": exclude the location already on screen so repeated
+		// clicks always visibly change something.
+		const alternatives = locationPaths.filter((path) => path !== this.combatLocation);
+		const pool = alternatives.length > 0 ? alternatives : locationPaths;
+		const next = pool[Math.floor(Math.random() * pool.length)];
+		this.setCombatLocation(next);
+		return next;
+	}
+
+	/**
+	 * Point the match at `location`, fading the backdrop across to it.
+	 *
+	 * The location texture is fetched on demand (locations are not part of the
+	 * preload batch) and the swap only completes once it has decoded, so the
+	 * fade never reveals an empty backdrop.
+	 */
+	private setCombatLocation(location: string): void {
+		const previous = this.backgroundSprite;
+		if (!previous || !location || location === this.combatLocation) {
+			return;
+		}
+
+		this.combatLocation = location;
+		this.background_image = location;
+		if (this.configData) {
+			this.configData.combatLocation = location;
+			this.configData.background_image = location;
+		}
+
+		loadTexture(location, `locations/${location}`, () => {
+			// A rematch or a reset may have replaced the backdrop while the
+			// texture was still in flight; that world owns its own scenery now.
+			if (this.backgroundSprite !== previous) {
+				return;
+			}
+			const engine = this.gameEngine;
+			// The incoming backdrop takes a fixed depth just above the outgoing
+			// one so the two overlap exactly, then the old sprite is retired. It
+			// stops taking input straight away: both cover the viewport, and the
+			// right-click shortcut must not fire twice mid-fade.
+			const incoming = this.createBackgroundSprite(location);
+			incoming.alpha = 0;
+			incoming.setDepth(BACKGROUND_FADE_DEPTH);
+			previous.disableInteractive();
+			engine.tween(incoming).to({ alpha: 1 }, LOCATION_FADE_DURATION, Easing.Linear.None).start();
+			const fadeOut = engine
+				.tween(previous)
+				.to({ alpha: 0 }, LOCATION_FADE_DURATION, Easing.Linear.None);
+			fadeOut.onComplete.addOnce(() => {
+				previous.destroy();
+			});
+			fadeOut.start();
+			this.backgroundSprite = incoming;
+		});
 	}
 
 	async createLobby(config: MultiplayerGameConfig): Promise<LobbySession> {
@@ -918,7 +1532,7 @@ export default class Game {
 			hostPeerId: lobbyState.hostPeerId,
 		});
 		this.multiplayer = true;
-		this.loadGame(config as Partial<GameConfig>, true);
+		this.startGameLoad(config as Partial<GameConfig>, true);
 	}
 
 	handleLobbyMessage(message: GameMessage): void {
@@ -978,7 +1592,7 @@ export default class Game {
 					.filter((player) => player.isBot)
 					.map((player) => player.playerIndex),
 			);
-			this.loadGame(message.config as Partial<GameConfig>, true);
+			this.startGameLoad(message.config as Partial<GameConfig>, true);
 			return;
 		}
 		if (message.type === 'match-loaded') {
@@ -990,7 +1604,7 @@ export default class Game {
 			// missing priests, repeated round logs). Only allow bootstrap-time use.
 			if (this.gameState === 'initialized' || this.gameState === 'ended') {
 				this.multiplayer = true;
-				this.loadGame(message.config as Partial<GameConfig>, true);
+				this.startGameLoad(message.config as Partial<GameConfig>, true);
 			}
 			return;
 		}
@@ -1061,6 +1675,20 @@ export default class Game {
 						ability.animation2({ arg: args });
 					}
 				}
+			}
+			return;
+		}
+		if (message.type === 'creature-died') {
+			// Authoritative death confirmation broadcast by the client whose action
+			// caused it (see Creature.die()). The acting client already applied the
+			// death locally before sending, so the receiver only force-applies it
+			// when its own state still has the creature alive — this is what
+			// prevents "creature died for one player, still alive for the other".
+			// `remote=true` suppresses re-broadcasting to avoid an echo loop.
+			const creature = this.creatures[message.creatureId];
+			if (creature && !creature.dead) {
+				const killer = message.killerId != null ? this.creatures[message.killerId] : undefined;
+				creature.die(killer ?? { player: creature.player }, true);
 			}
 			return;
 		}
@@ -1172,6 +1800,9 @@ export default class Game {
 			creature.dead = snap.dead;
 			if ('isVaporized' in creature) creature.isVaporized = snap.vaporized;
 			creature.remainingMove = snap.remainingMove;
+			if (typeof snap.movementPool === 'number') {
+				creature.movementPool = snap.movementPool;
+			}
 			if (creature.status) {
 				creature.status.frozen = snap.status.frozen;
 				creature.status.dizzy = snap.status.dizzy;
@@ -1184,10 +1815,13 @@ export default class Game {
 					/* best-effort; state fields already set above */
 				}
 			}
-			const sprite = creature.sprite;
-			if (sprite && sprite.position && typeof sprite.position.set === 'function') {
+			// Keep the cardboard, its hex occupancy and the health indicator on the
+			// same hex the authoritative state says the creature is on. Writing
+			// grid coordinates straight to the sprite (as the previous code did)
+			// left the cardboard sitting at (x, y) pixels, far off the board.
+			if (typeof creature.setPosition === 'function') {
 				try {
-					sprite.position.set(snap.x, snap.y);
+					creature.setPosition(snap.x, snap.y);
 				} catch {
 					/* non-fatal */
 				}
@@ -1196,7 +1830,7 @@ export default class Game {
 
 		g.turn = state.turn;
 		g.round = state.round;
-		g.gameState = state.gameState;
+		this.gameStateMachine.synchronize(state.gameState);
 		g.activeCreature =
 			state.activeCreatureId != null ? g.creatures[state.activeCreatureId] : g.activeCreature;
 
@@ -1222,8 +1856,19 @@ export default class Game {
 	 */
 	nextRound(remote?: boolean) {
 		this.turn++;
+		try {
+			ageBadBreathClouds(this);
+		} catch {
+			// ignore
+		}
+		try {
+			expireBadBreathClouds(this);
+		} catch {
+			// ignore
+		}
 		this.log(`Round ${this.turn}`, 'roundmarker', true);
 		this.onStartOfRound();
+		this.botController.maybeForceOffensive();
 		this.nextCreature(remote);
 	}
 
@@ -1242,8 +1887,20 @@ export default class Game {
 		// same transition, causing races between the two players' turn state.
 		const previousActiveCreature = this.activeCreature;
 
-		this.UI.closeDash();
-		this.UI.btnToggleDash.changeState('normal');
+		// The dash belongs to the turn being handed over, so it is dismissed
+		// whenever the next queued creature is a different one. Match start is
+		// the exception: setup() parks activeCreature on the first queued
+		// creature as a placeholder and then calls nextCreature() at turn 0,
+		// which only defers to nextRound() — which calls straight back in here
+		// for the real first turn. Both entries used to dismiss the dash, and
+		// the second one lands a few hundred milliseconds after setup(), long
+		// enough for a player who opened the dash during the match start to
+		// watch it slam shut again over that very same creature.
+		if (this.queue.queue[0] !== this.activeCreature) {
+			this.UI.closeDash();
+			this.UI.btnToggleDash.changeState('normal');
+		}
+
 		this.grid.clearAllXray(); // Clear Xray without re-triggering ghostOverlap
 
 		if (this.gameState == 'ended') {
@@ -1253,8 +1910,17 @@ export default class Game {
 		this.stopTimer();
 		// Delay (skipped while backgrounded — see getVisibilityAwareDelay)
 		setTimeout(() => {
+			// This chain outlives the call that scheduled it by
+			// hundreds of milliseconds, so `destroyPhaser()` can run
+			// first — a rematch tearing the old match down, or a
+			// headless match released the moment it settled. `UI` is
+			// nulled by that teardown and `tornDown` is the designed
+			// "dead board" signal every deferred entry point reads, so
+			// notice it here rather than write to a torn-down game.
+			if (this.tornDown) return;
 			const interval = setInterval(() => {
 				clearInterval(interval);
+				if (this.tornDown) return;
 
 				let differentPlayer = false;
 
@@ -1263,6 +1929,19 @@ export default class Game {
 					return;
 				} else {
 					const next = this.queue.queue[0];
+					if (isQueueEvent(next)) {
+						let completed = false;
+						next.resolve(() => {
+							if (completed) return;
+							completed = true;
+							this.queue.removeEvent(next);
+							this.updateQueueDisplay();
+							this.nextCreature(remote);
+						});
+						this.updateQueueDisplay();
+						return;
+					}
+
 					if (this.activeCreature && this.activeCreature) {
 						differentPlayer = this.activeCreature.player != next.player;
 					} else {
@@ -1307,7 +1986,7 @@ export default class Game {
 				// Updates UI to match new creature
 				this.UI.updateActivebox();
 				this.updateQueueDisplay();
-				this.signals.creature.dispatch('activate', { creature: this.activeCreature });
+				this.channels.creature.emit('activate', { creature: this.activeCreature });
 				// Only the client whose own player controlled the *outgoing* creature
 				// broadcasts the turn transition. Without this, a locally-replayed
 				// remote action that ends in the opponent's creature dying (and thus
@@ -1334,8 +2013,8 @@ export default class Game {
 				} else {
 					this.playersReady = true;
 				}
-			}, getVisibilityAwareDelay(50));
-		}, getVisibilityAwareDelay(300));
+			}, getVisibilityAwareDelay(this.replayMode === 'load' ? 0 : 50));
+		}, getVisibilityAwareDelay(this.replayMode === 'load' ? 0 : 300));
 	}
 
 	updateQueueDisplay(excludeActiveCreature?) {
@@ -1370,6 +2049,16 @@ export default class Game {
 				);
 			}
 		}
+
+		// Player-colored fragments: %CreatureColor<id>%text%EndCreatureColor%
+		stringLog = stringLog.replace(
+			/%CreatureColor(\d+)%([\s\S]*?)%EndCreatureColor%/g,
+			(match, id, text) => {
+				const colored = this.creatures[Number(id)];
+				return colored ? "<span class='" + colored.player.color + "'>" + text + '</span>' : text;
+			},
+		);
+		stringConsole = stringConsole.replace(/%CreatureColor\d+%([\s\S]*?)%EndCreatureColor%/g, '$1');
 
 		if (!DEBUG_DISABLE_GAME_STATUS_CONSOLE_LOG) {
 			console.log(stringConsole);
@@ -1408,9 +2097,14 @@ export default class Game {
 		return (
 			this.multiplayer &&
 			!!this.lobby &&
-			this.activeCreature?.player?.controller !== 'bot' &&
+			this.activeCreature &&
+			this.activeCreature.player?.controller !== 'bot' &&
 			!this.lobby.isMyTurn()
 		);
+	}
+
+	private isTurnActionUnavailable(): boolean {
+		return this.activeCreature?.player?.controller !== 'human' || this.isOtherPlayersTurn();
 	}
 
 	/**
@@ -1455,16 +2149,19 @@ export default class Game {
 		this.UI.btnSkipTurn.changeState('disabled');
 		this.UI.btnDelay.changeState('disabled');
 
-		setTimeout(() => {
-			this.turnThrottle = false;
-			this.UI.btnSkipTurn.changeState('normal');
+		setTimeout(
+			() => {
+				this.turnThrottle = false;
+				this.UI.btnSkipTurn.changeState(this.isTurnActionUnavailable() ? 'disabled' : 'normal');
 
-			if (this.activeCreature?.canWait && this.queue.queue.length > 1) {
-				this.UI.btnDelay.changeState('normal');
-			}
+				if (this.activeCreature?.canWait && this.queue.queue.length > 1) {
+					this.UI.btnDelay.changeState(this.isTurnActionUnavailable() ? 'disabled' : 'normal');
+				}
 
-			o.callback.apply();
-		}, 1000);
+				o.callback.apply();
+			},
+			this.replayMode === 'load' ? 0 : 1000,
+		);
 
 		if (this.activeCreature) {
 			this.activeCreature.facePlayerDefault();
@@ -1486,11 +2183,14 @@ export default class Game {
 			const activeCreature = this.activeCreature;
 			this.nextCreature(remote);
 
-			setTimeout(() => {
-				if (!o.noTooltip) {
-					activeCreature.hint(o.tooltip, 'msg_effects');
-				}
-			}, 350);
+			setTimeout(
+				() => {
+					if (!o.noTooltip) {
+						activeCreature.hint(o.tooltip, 'msg_effects');
+					}
+				},
+				this.replayMode === 'load' ? 0 : 350,
+			);
 		}
 	}
 
@@ -1537,15 +2237,18 @@ export default class Game {
 		this.UI.btnSkipTurn.changeState('disabled');
 		this.UI.btnDelay.changeState('disabled');
 
-		setTimeout(() => {
-			this.turnThrottle = false;
-			this.UI.btnSkipTurn.changeState('normal');
-			if (this.activeCreature?.canWait && !this.queue.isCurrentEmpty()) {
-				this.UI.btnDelay.changeState('slideIn');
-			}
+		setTimeout(
+			() => {
+				this.turnThrottle = false;
+				this.UI.btnSkipTurn.changeState(this.isTurnActionUnavailable() ? 'disabled' : 'normal');
+				if (this.activeCreature?.canWait && !this.queue.isCurrentEmpty()) {
+					this.UI.btnDelay.changeState(this.isTurnActionUnavailable() ? 'disabled' : 'slideIn');
+				}
 
-			o.callback.apply();
-		}, 1000);
+				o.callback.apply();
+			},
+			this.replayMode === 'load' ? 0 : 1000,
+		);
 
 		const skipTurn = new Date(),
 			p = this.activeCreature.player;
@@ -1557,6 +2260,10 @@ export default class Game {
 
 	startTimer() {
 		clearInterval(this.timeInterval);
+
+		// The timer is restarted from async ability callbacks; the active creature
+		// can already be gone by the time one lands.
+		if (!this.activeCreature?.player) return;
 
 		const totalTime = new Date().valueOf();
 		this.activeCreature.player.startTime = new Date(totalTime - this.pauseTime);
@@ -1675,6 +2382,7 @@ export default class Game {
 	 */
 	retrieveCreatureStats(type: CreatureType) {
 		const totalCreatures = this.creatureData.length;
+		let fallback: (typeof unitData)[number] | undefined;
 
 		for (let i = totalCreatures - 1; i >= 0; i--) {
 			if (
@@ -1685,12 +2393,24 @@ export default class Game {
 					// When type property is missing, create it using formula: concat(realm + level)
 					this.creatureData[i].type = this.creatureData[i].realm + this.creatureData[i].level;
 				}
-				return this.creatureData[i];
+				if (this.creatureData[i].playable) {
+					return this.creatureData[i];
+				}
+				if (!fallback) {
+					fallback = this.creatureData[i];
+				}
 			}
 		}
+
+		return fallback;
 	}
 
 	triggerAbility(trigger, arg, retValue?) {
+		// Reached from deferred callbacks that can outlive teardown. Every ability
+		// requirement below queries the board, so bailing here covers the whole fan-out
+		// rather than each ability's own deref.
+		if (this.tornDown || !this.grid) return retValue;
+
 		const [triggeredCreature, required] = arg;
 
 		// For triggered creature
@@ -1708,13 +2428,22 @@ export default class Game {
 		});
 
 		// For other creatures
+		// Resolve the matcher once: this runs for every ability of every creature
+		// on a trigger that fires several times per walk step and per damage, so
+		// the `trigger + '_other'` concat and the property lookup were being redone
+		// for every single one.
+		const otherTrigger = this.triggers[trigger + '_other'];
+		if (!otherTrigger) {
+			return retValue;
+		}
+
 		this.creatures.forEach((creature) => {
 			if (!creature || triggeredCreature === creature || creature.dead === true) {
 				return;
 			}
 
 			creature.abilities.forEach((ability) => {
-				if (this.triggers[trigger + '_other'].test(ability.getTrigger())) {
+				if (otherTrigger.test(ability.getTrigger())) {
 					if (ability.require(required)) {
 						retValue = ability.animation(required, triggeredCreature);
 					}
@@ -1740,6 +2469,13 @@ export default class Game {
 		});
 
 		// For other creatures
+		// See `triggerAbility`: resolve the matcher once rather than rebuilding
+		// `trigger + '_other'` for every effect of every creature.
+		const otherTrigger = this.triggers[trigger + '_other'];
+		if (!otherTrigger) {
+			return retValue;
+		}
+
 		this.creatures.forEach((creature) => {
 			if (creature) {
 				if (triggeredCreature === creature || creature.dead === true) {
@@ -1747,7 +2483,7 @@ export default class Game {
 				}
 
 				creature.effects.forEach((effect) => {
-					if (this.triggers[trigger + '_other'].test(effect.trigger)) {
+					if (otherTrigger.test(effect.trigger)) {
 						retValue = effect.activate(required);
 					}
 				});
@@ -1797,6 +2533,14 @@ export default class Game {
 		// the trap's effects will be triggered twice.
 		if (!opts || !opts.ignoreTraps) {
 			this.triggerTrap('onStepIn', arguments);
+		}
+		// Disperse persistent Bad Breath clouds when a non-Swampler unit steps in.
+		try {
+			if (creature instanceof Creature && creature.name !== 'Swampler') {
+				disperseBadBreathCloudsAt(this, hex.x, hex.y, creature);
+			}
+		} catch {
+			// ignore
 		}
 	}
 
@@ -1900,6 +2644,15 @@ export default class Game {
 					// `this.effects` might be the wrong type or need to look at `EffectTarget` type definition
 					effect.target.updateHealth();
 				}
+
+				const activeCreature = this.activeCreature;
+				if (
+					effect.target === activeCreature &&
+					effect.alterations.moveable === false &&
+					activeCreature?.stats.moveable
+				) {
+					activeCreature.queryMove();
+				}
 			});
 	}
 
@@ -1923,7 +2676,11 @@ export default class Game {
 	onDamage(/* creature, damage */) {
 		this.triggerAbility('onDamage', arguments);
 		this.triggerEffect('onDamage', arguments);
-		this.botController.notifyDamage();
+		const _creature = arguments[0];
+		const damage = arguments[1];
+		const damageAmount = damage?.amount ?? 0;
+		const attacker = damage?.attacker;
+		this.botController.notifyDamage(damageAmount, attacker);
 	}
 
 	// Removed individual args from definition because we are using the arguments variable.
@@ -2011,8 +2768,6 @@ export default class Game {
 		}
 
 		for (let i = 0; i < totalEffects; i++) {
-			// @ts-expect-error 2339
-			// `this.effects` might be the wrong type or need to look at `EffectTarget` type definition
 			this.effects[i].triggeredThisChain = false;
 		}
 	}
@@ -2028,7 +2783,11 @@ export default class Game {
 		}
 
 		this.soundsys.stopMusic();
-		this.endGameSound = this.soundsys.playSFX('sounds/drums');
+		// A disconnect is not a match result, so it gets no victory drum roll.
+		// Full audio only, since the sting is long enough to grate on repeated matches.
+		if (!reason && getAudioMode() === 'full') {
+			this.endGameSound = this.soundsys.playSFX('sounds/drums', END_GAME_SOUND_DURATION);
+		}
 
 		this.stopTimer();
 		this.activeCreature = undefined;
@@ -2133,41 +2892,79 @@ export default class Game {
 				});
 				break;
 			case 'ability': {
-				// Reconstruct the live ability args. The recorded action stores
-				// `args` as everything AFTER the target (gamelog: `args.slice(1)`),
-				// so the full live arg array is `[target, ...o.args]`. This mirrors
-				// handleLobbyMessage's action-ability path; the previous
-				// `$j.makeArray(o.args[1])` reconstruction dropped `arg[1]` and all
-				// later args, breaking replay of multi-argument abilities.
 				const ability = this.activeCreature.abilities[o.id];
-				if (!ability) break;
+				if (!ability) {
+					opt.callback();
+					break;
+				}
 
 				const args = Array.isArray(o.args) ? [...o.args] : [];
 
 				if (o.target.type == 'hex') {
-					args.unshift(this.grid.hexes[o.target.y][o.target.x]);
-					ability.animation2({
-						callback: opt.callback,
-						arg: args,
-					});
+					const hex = this.grid.hexes[o.target.y]?.[o.target.x];
+					if (hex && Number.isFinite(hex.x) && Number.isFinite(hex.y)) {
+						args.unshift(hex);
+						ability.animation2({
+							callback: opt.callback,
+							arg: args,
+						});
+					} else {
+						console.warn(
+							'[Replay] Invalid or missing target hex for ability',
+							o.id,
+							'target:',
+							o.target.y,
+							o.target.x,
+						);
+						opt.callback();
+					}
 				} else if (o.target.type == 'creature') {
 					const targetCreature = this.creatures[o.target.crea];
-					if (targetCreature) {
+					if (
+						targetCreature instanceof Creature &&
+						typeof targetCreature.takeDamage === 'function'
+					) {
 						args.unshift(targetCreature);
 						ability.animation2({
 							callback: opt.callback,
 							arg: args,
 						});
+					} else {
+						console.warn(
+							'[Replay] Invalid or missing target creature for ability',
+							o.id,
+							'target ID:',
+							o.target.crea,
+						);
+						opt.callback();
 					}
 				} else if (o.target.type == 'array') {
-					const array = o.target.array.map((item) => this.grid.hexes[item.y][item.x]);
-
-					args.unshift(array);
-					ability.animation2({
-						callback: opt.callback,
-						arg: args,
-					});
+					const array = o.target.array
+						.map((item) => this.grid.hexes[item.y]?.[item.x])
+						.filter(Boolean);
+					if (array.length > 0) {
+						args.unshift(array);
+						ability.animation2({
+							callback: opt.callback,
+							arg: args,
+						});
+					} else {
+						console.warn('[Replay] No valid target hexes for array-target ability', o.id);
+						opt.callback();
+					}
+				} else {
+					console.warn('[Replay] Unknown target type for ability', o.id, 'type:', o.target.type);
+					opt.callback();
 				}
+				break;
+			}
+			default: {
+				// 'restart' and 'exit' are recorded when a match is thrown away, so a
+				// stored log can end in one. They have no replayable effect, but
+				// without a case here the switch falls through and never calls back,
+				// which stalls the replay loop on that entry forever.
+				console.warn('[Replay] Ignoring action that cannot be replayed:', o.action);
+				opt.callback();
 				break;
 			}
 		}
@@ -2181,7 +2978,19 @@ export default class Game {
 		};
 	}
 
+	/**
+	 * Silence a still-ringing game-over drum roll.
+	 *
+	 * Called whenever the match is torn down (new game, restart, main menu,
+	 * replay) so the sting does not follow the player onto the next screen.
+	 */
+	stopEndGameSound() {
+		this.soundsys?.stopSFX(this.endGameSound);
+		this.endGameSound = undefined;
+	}
+
 	resetGame() {
+		this.stopEndGameSound();
 		this.UI?.metaPowers?._clearPowers();
 		this.UI.showGameSetup();
 		this.stopTimer();
@@ -2193,20 +3002,41 @@ export default class Game {
 		this.playersReady = false;
 		this.preventSetup = false;
 		this.animations = new Animations(this);
-		this.queue = new CreatureQueue(() => this.creatures);
+		this.queue = new EventQueue(
+			() => this.creatures,
+			() => this.turn,
+		);
 		this.creatureData = [];
 		this.pause = false;
 		this.gameState = 'initialized';
 		this.availableCreatures = [];
+		this.lastSummonedType = null;
 		this.animationQueue = [];
 		this.configData = {};
+		// The backdrop belongs to the Phaser instance that resetGame is about to
+		// tear down, and the location comes back with the next match's config.
+		this.backgroundSprite = undefined;
+		this.combatLocation = undefined;
+		this.background_image = undefined;
 		this.match = {};
 		this.lobby = null;
 		this.lobbyCode = '';
 		this.lobbyState = null;
-		this.firstKill = false;
+		this.bloodCount = 0;
 		this.freezedInput = false;
 		this.isReplayInProgress = false;
+		this.replayMode = null;
+		if (this._replayInterval) {
+			clearInterval(this._replayInterval);
+			this._replayInterval = null;
+		}
+		if (this._replayStartTimeout) {
+			clearTimeout(this._replayStartTimeout);
+			this._replayStartTimeout = null;
+		}
+		this._replayResume = null;
+		this._replayActions = [];
+		this._pendingReplayFastForward = false;
 		this.turnThrottle = false;
 		this.turn = 0;
 
@@ -2214,12 +3044,21 @@ export default class Game {
 		this.traps.forEach((trap) => trap.destroy());
 		this.drops.forEach((drop) => drop.destroy());
 		this.traps = [];
+		this.badBreathClouds = [];
 		this.drops = [];
 
-		// Recreate signal channels to avoid accumulating UI listeners between restarts.
-		const signalChannels = ['ui', 'metaPowers', 'creature', 'hex'];
-		this.signals = this.setupSignalChannels(signalChannels);
+		// Rebuild the channels so UI listeners registered for the previous match do
+		// not accumulate. `BotController` re-subscribes to the fresh `creature`
+		// channel as part of being reconstructed.
+		this.channels = createGameChannels();
 		this.botController = new BotController(this);
+
+		const skipButton = this.UI?.btnSkipTurn;
+		if (skipButton) {
+			skipButton.$button.removeClass('iconInvertFlash');
+		}
+		this.soundsys?.setEffectsMuted(false);
+		this.setReplayFastForwardUI?.(false);
 
 		this.gamelog.reset();
 	}
@@ -2238,48 +3077,31 @@ export default class Game {
 		};
 
 		this.resetGame();
-		this.loadGame(restartConfig);
-	}
-
-	/**
-	 * Setup signal channels based on a list of channel names.
-	 *
-	 * @example setupSignalChannels(['ui', 'game'])
-	 * // ... another file
-	 * this.game.signals.ui.add((message, payload) => console.log(message, payload), this);
-	 *
-	 * @see https://photonstorm.github.io/phaser-ce/Phaser.Signal.html
-	 *
-	 * @param {array} channels List of channel names.
-	 * @returns {object} Phaser signals keyed by channel name.
-	 */
-	setupSignalChannels(channels) {
-		const signals = channels.reduce((acc, curr) => {
-			return {
-				...acc,
-				[curr]: new Signal(),
-			};
-		}, {});
-
-		return signals;
+		this.startGameLoad(restartConfig);
 	}
 
 	onLogSave(log) {
 		log.custom.configData = this.configData;
 	}
 
-	onLogLoad(log) {
+	onLogLoad(log, mode: ReplayMode = 'play') {
 		if (this.gameState !== 'initialized') {
 			alert('Can only load game from configuration menu.');
 			return;
 		}
 
 		this.isReplayInProgress = true;
-
-		const actions = [...log.actions];
+		this.replayMode = 'play';
+		this._replayInterval = null;
+		this._replayStartTimeout = null;
+		this._replayResume = null;
+		this._pendingReplayFastForward = true;
+		this.soundsys?.setEffectsMuted(false);
+		this._replayActions = [...(log?.actions ?? [])];
+		const actions = this._replayActions;
 		const numTotalActions = actions.length;
-		const configData = log.custom.configData;
-		this.configData = log.custom.configData ?? this.configData;
+		const configData = log?.custom?.configData;
+		this.configData = log?.custom?.configData ?? this.configData;
 
 		const restoreInteractiveState = (pollAttempt = 0) => {
 			if (this.gameState !== 'playing' || this.pause || !this.activeCreature) {
@@ -2305,16 +3127,46 @@ export default class Game {
 				return;
 			}
 
-			this.activeCreature.queryMove();
+			this.UI?.updateActivebox?.();
+			this.activeCreature?.queryMove();
 			this.grid?.refreshHoverState();
 		};
 
+		const performerMatches = (performer: LogPerformer, creature: Creature | undefined) => {
+			if (!creature) return false;
+
+			if (typeof performer?.name === 'string' && performer.name) {
+				return creature.name === performer.name && creature.player?.id === performer.player;
+			}
+
+			return typeof performer?.id === 'number' && performer.id === creature.id;
+		};
+
 		const nextAction = () => {
-			if (actions.length === 0) {
+			if (actions.length === 0 || this.gameState === 'ended') {
+				actions.length = 0;
 				this.isReplayInProgress = false;
-				// Replay finishes between turns for some logs; explicitly re-arm the
-				// active creature query to restore live input controls.
+				this.replayMode = null;
+				if (this._replayInterval) {
+					clearInterval(this._replayInterval);
+					this._replayInterval = null;
+				}
+				if (this._replayStartTimeout) {
+					clearTimeout(this._replayStartTimeout);
+					this._replayStartTimeout = null;
+				}
+				this._replayResume = null;
 				setTimeout(() => restoreInteractiveState(), 0);
+				this.soundsys?.setEffectsMuted(false);
+				const button = this.UI?.btnSkipTurn;
+				if (button) {
+					const desc = button.$button.next('.desc');
+					if (desc?.length) {
+						desc.removeClass('tooltip-visible');
+					}
+				}
+				this.setReplayFastForwardUI?.(false);
+				this.UI?.updateActivebox?.();
 				return;
 			}
 
@@ -2322,19 +3174,957 @@ export default class Game {
 				console.log(`${1 + numTotalActions - actions.length} / ${numTotalActions}`);
 			}
 
-			const interval = setInterval(() => {
-				if (!this.freezedInput && !this.turnThrottle) {
-					clearInterval(interval);
-					this.activeCreature.queryMove();
-					this.action(actions.shift(), {
-						callback: nextAction,
-					});
-				}
-			}, 100);
+			const performer = actions[0]?.performer as LogPerformer | undefined;
+			const performerWaitLimitMs = () => (this.replayMode === 'load' ? 30000 : 5000);
+			let performerWaitedMs = 0;
+			let turnHandOffPending = false;
+			let lastSeenCreature: Creature | undefined = this.activeCreature;
+
+			const runInterval = () => {
+				this._replayInterval = setInterval(
+					() => {
+						if (this.freezedInput || this.turnThrottle) {
+							return;
+						}
+
+						const activeCreature = this.activeCreature;
+						if (activeCreature !== lastSeenCreature) {
+							lastSeenCreature = activeCreature;
+							turnHandOffPending = false;
+						}
+
+						if (performer && !performerMatches(performer, this.activeCreature)) {
+							performerWaitedMs += this.replayMode === 'load' ? 1 : 100;
+							if (performerWaitedMs > performerWaitLimitMs()) {
+								if (this._replayInterval) {
+									clearInterval(this._replayInterval);
+									this._replayInterval = null;
+								}
+								this._replayResume = null;
+								console.warn(
+									'[Replay] Dropping action whose creature never became active.',
+									actions[0],
+								);
+								actions.shift();
+								nextAction();
+								return;
+							}
+
+							if (!turnHandOffPending && this.activeCreature) {
+								turnHandOffPending = true;
+								this.activeCreature.deactivate('turn-end');
+								this.nextCreature();
+								setTimeout(() => {
+									turnHandOffPending = false;
+								}, 100);
+							}
+							return;
+						}
+
+						if (this._replayInterval) {
+							clearInterval(this._replayInterval);
+							this._replayInterval = null;
+						}
+						this._replayResume = null;
+						this.activeCreature?.queryMove();
+						this.action(actions.shift(), {
+							callback: nextAction,
+						});
+					},
+					this.replayMode === 'load' ? 1 : 100,
+				);
+			};
+
+			this._replayResume = runInterval;
+			runInterval();
 		};
 
-		this.loadGame(configData, undefined, undefined, () => {
-			setTimeout(() => nextAction(), 3000);
+		this.startGameLoad(configData, undefined, undefined, () => {
+			const startReplay = () => {
+				this._replayStartTimeout = setTimeout(
+					() => {
+						this._replayStartTimeout = null;
+						this._replayResume = null;
+						nextAction();
+					},
+					mode === 'load' ? 0 : 3000,
+				);
+			};
+			this._replayResume = startReplay;
+			startReplay();
 		});
+	}
+
+	toggleReplayFastForward() {
+		if (!this.isReplayInProgress || this.replayMode === null) {
+			return;
+		}
+		const wasFast = this.replayMode === 'load';
+		this.replayMode = wasFast ? 'play' : 'load';
+		this.soundsys?.setEffectsMuted(!wasFast);
+		this.setReplayFastForwardUI(!wasFast);
+		if (this._replayInterval) {
+			clearInterval(this._replayInterval);
+			this._replayInterval = null;
+			this._replayResume?.();
+		} else if (this._replayStartTimeout) {
+			clearTimeout(this._replayStartTimeout);
+			this._replayStartTimeout = null;
+			this._replayResume?.();
+		}
+		const button = this.UI?.btnSkipTurn;
+		if (button) {
+			const desc = button.$button.next('.desc');
+			if (desc?.length) {
+				desc.removeClass('tooltip-visible');
+			}
+			button.$button[0]?.blur();
+		}
+	}
+
+	setReplayFastForwardUI(fastForward: boolean) {
+		const button = this.UI?.btnSkipTurn;
+		if (button) {
+			const isReplay = this.isReplayInProgress;
+			button.$button.toggleClass('replayControl', isReplay);
+			button.$button.toggleClass('replayFastForward', isReplay && fastForward);
+			const desc = button.$button.next('.desc');
+			if (desc?.length) {
+				desc.find('span').text(isReplay ? 'Fast Forward' : 'Skip turn');
+				desc.find('.shortcut').text(isReplay ? 'hotkey F' : 'hotkey S');
+				desc
+					.find('p')
+					.text(
+						isReplay
+							? fastForward
+								? 'Click to return to normal replay speed.'
+								: 'Click to fast-forward replay.'
+							: 'End the turn of the current creature and proceed with the next in queue.',
+					);
+				if (!fastForward) {
+					desc.removeClass('tooltip-visible');
+				}
+			}
+			button.overridefreeze = isReplay;
+			button.clickable = true;
+			button.$button.removeClass('disabled');
+			console.log('[Game] setReplayFastForwardUI:', fastForward, 'button found:', true);
+		} else {
+			console.warn('[Game] setReplayFastForwardUI: skip button NOT FOUND', fastForward);
+		}
+	}
+
+	/**
+	 * Serialize the current game state to a snapshot object.
+	 */
+	registerSnapshotEffectBehavior(id: string, bind: SnapshotEffectBehavior): void {
+		this._snapshotEffectBehaviors.set(id, bind);
+	}
+
+	registerSnapshotTrapBehavior(id: string, bind: SnapshotTrapBehavior): void {
+		this._snapshotTrapBehaviors.set(id, bind);
+	}
+
+	registerSnapshotEventBehavior(id: string, restore: SnapshotEventBehavior): void {
+		this._snapshotEventBehaviors.set(id, restore);
+	}
+
+	private restoreSnapshotEffectBehavior(
+		effect: Effect,
+		id?: string,
+		data?: Record<string, unknown>,
+	) {
+		if (!id) return;
+		const bind = this._snapshotEffectBehaviors.get(id);
+		if (!bind) {
+			throw new SnapshotCompatibilityError(`Snapshot effect behavior "${id}" is not registered.`);
+		}
+		effect.snapshotBehaviorId = id;
+		effect.snapshotBehaviorData = data;
+		bind(effect, data);
+	}
+
+	private restoreSnapshotTrapBehavior(trap: Trap, id?: string, data?: Record<string, unknown>) {
+		if (!id) return;
+		const bind = this._snapshotTrapBehaviors.get(id);
+		if (!bind) {
+			throw new SnapshotCompatibilityError(`Snapshot trap behavior "${id}" is not registered.`);
+		}
+		trap.snapshotBehaviorId = id;
+		trap.snapshotBehaviorData = data;
+		bind(trap, data);
+	}
+
+	serializeSnapshot(): any {
+		const unsupportedState: string[] = [];
+		const callbackEffects = this.effects.filter(
+			(effect) =>
+				effect.hasCustomCallbacks &&
+				(!effect.snapshotBehaviorId ||
+					!this._snapshotEffectBehaviors.has(effect.snapshotBehaviorId)),
+		);
+		if (callbackEffects.length) {
+			unsupportedState.push(
+				`unregistered effect callback(s): ${callbackEffects
+					.map((effect) => effect.name)
+					.join(', ')}`,
+			);
+		}
+		const callbackTraps = this.traps.filter(
+			(trap) =>
+				typeof trap.onDestroyFn === 'function' &&
+				(!trap.snapshotBehaviorId || !this._snapshotTrapBehaviors.has(trap.snapshotBehaviorId)),
+		);
+		if (callbackTraps.length) {
+			unsupportedState.push(
+				`unregistered trap destruction callback(s): ${callbackTraps
+					.map((trap) => trap.name)
+					.join(', ')}`,
+			);
+		}
+		const unsupportedEvents = this.queue.pendingEvents.filter(
+			(event) =>
+				!event.snapshotBehaviorId ||
+				!this._snapshotEventBehaviors.has(event.snapshotBehaviorId) ||
+				!event.snapshotBehaviorData,
+		);
+		if (unsupportedEvents.length) {
+			unsupportedState.push(
+				`unregistered queued event(s): ${unsupportedEvents.map((event) => event.title).join(', ')}`,
+			);
+		}
+		if (this.animationQueue.length) {
+			unsupportedState.push(`${this.animationQueue.length} in-progress animation(s)`);
+		}
+		if (this._deferredQueryMovePending) {
+			unsupportedState.push(`${this._deferredQueryMovePending} deferred move query(s)`);
+		}
+		if (this.creatures.some((creature) => creature?._lastBurningSpiritDamage)) {
+			unsupportedState.push('transient Burning Spirit damage state');
+		}
+		if (unsupportedState.length) {
+			throw new SnapshotCompatibilityError(
+				`Cannot save a match-faithful snapshot while the game has ${unsupportedState.join(
+					', ',
+				)}. ` + 'Wait for the action to finish or resolve the pending effect/event first.',
+			);
+		}
+
+		const players = this.players.map((p: any) => ({
+			id: p.id,
+			controller: p.controller,
+			color: p.color,
+			plasma: p.plasma,
+			flipped: p.flipped,
+			hasLost: p.hasLost,
+			hasFled: p.hasFled,
+			bonusTimePool: p.bonusTimePool,
+			totalTimePool: p.totalTimePool,
+			startTime: p.startTime.toISOString(),
+			summonCreaturesWithMaterializationSickness: p._summonCreaturesWithMaterializationSickness,
+			score: p.score.map((score: any) => ({
+				type: score.type,
+				creatureId: score.creature?.id ?? null,
+				player: score.player,
+				kills: score.kills,
+				ability: score.ability,
+				points: score.points,
+			})),
+		}));
+
+		const creatures = (this.creatures || []).filter(Boolean).map((c: any) => ({
+			id: c.id,
+			type: c.type,
+			name: c.name,
+			x: c.x,
+			y: c.y,
+			team: c.team,
+			temp: c.temp,
+			dead: c.dead,
+			hasWait: c.hasWait,
+			travelDist: c.travelDist,
+			protectedFromFatigue: c.protectedFromFatigue,
+			_waitedTurn: (c as any)._waitedTurn ?? 0,
+			_hinderedTurn: (c as any)._hinderedTurn ?? 0,
+			_nextGameTurnActive: (c as any)._nextGameTurnActive ?? this.turn,
+			turnsActive: c.turnsActive,
+			materializationSickness: c.materializationSickness,
+			noActionPossible: c.noActionPossible,
+			health: c.health,
+			oldHealth: c.oldHealth,
+			plasmaFieldActiveTurn: (c as any)._plasmaFieldActiveTurn ?? false,
+			endurance: c.endurance,
+			energy: c.energy,
+			oldEnergy: c.oldEnergy,
+			remainingMove: c.remainingMove,
+			movementPool: c.movementPool,
+			accumulatedTeleportRange: c.accumulatedTeleportRange,
+			_brbActive: c._brbActive,
+			_brbState: c._brbState
+				? {
+						killer: c._brbState.killer
+							? c._brbState.killer instanceof Creature
+								? { type: 'creature', id: c._brbState.killer.id }
+								: { type: 'player', id: c._brbState.killer.player.id }
+							: null,
+						gooTrapId: c._brbState.gooTrap.id,
+				  }
+				: null,
+			_brbSpent: c._brbSpent,
+			_lastBurningSpiritDamage: c._lastBurningSpiritDamage,
+			_bonfireSpringCount: c._bonfireSpringCount,
+			_afterimages: c._afterimages,
+			killer: c.killer?.id ?? null,
+			status: { ...c.status },
+			baseStats: { ...c.baseStats },
+			stats: { ...c.stats },
+			abilities: c.abilities.map((a: any) => ({
+				id: a.id,
+				used: a.used,
+				priority: a.priority,
+				timesUsed: a.timesUsed,
+				timesUsedThisTurn: a.timesUsedThisTurn,
+				token: a.token,
+				upgraded: a.upgraded,
+				trigger: a.trigger,
+				triggeredThisChain: a.triggeredThisChain ?? false,
+				...(a._strikes ? { _strikes: { ...a._strikes } } : {}),
+				...(Number.isInteger(a._lastTargetId) ? { _lastTargetId: a._lastTargetId } : {}),
+			})),
+			effects: c.effects.map((e: any) => e.id),
+			dropCollection: c.dropCollection.map((drop: any) => ({
+				name: drop.name,
+				alterations: { ...drop.alterations },
+			})),
+		}));
+
+		const traps = this.traps.map((t: any) => ({
+			id: t.id,
+			x: t.x,
+			y: t.y,
+			type: t.type,
+			name: t.name,
+			creationTurn: t.creationTurn,
+			turnLifetime: t.turnLifetime,
+			fullTurnLifetime: t.fullTurnLifetime,
+			ownerCreature: t.ownerCreature?.id,
+			destroyOnActivate: t.destroyOnActivate,
+			typeOver: t.typeOver,
+			destroyAnimation: t.destroyAnimation,
+			owner: t.owner.id,
+			effects: t.effects.map((e: any) => e.id),
+			onDestroyCallback: typeof t.onDestroyFn === 'function',
+			snapshotBehaviorId: t.snapshotBehaviorId,
+			snapshotBehaviorData: t.snapshotBehaviorData,
+		}));
+
+		const drops = this.drops.map((d: any) => ({
+			id: d.id,
+			name: d.name,
+			x: d.pos.x,
+			y: d.pos.y,
+			alterations: d.alterations,
+			pickedUp: d.pickedUp,
+		}));
+
+		const effects = this.effects.map((e: any) => ({
+			id: e.id,
+			name: e.name,
+			trigger: e.trigger,
+			creationTurn: e.creationTurn,
+			turnLifetime: e.turnLifetime,
+			deleteTrigger: e.deleteTrigger,
+			stackable: e.stackable,
+			deleteOnOwnerDeath: e.deleteOnOwnerDeath,
+			isDeleted: e.isDeleted,
+			attacker: e.attacker?.id ?? null,
+			triggeredThisChain: e.triggeredThisChain ?? false,
+			alterations: e.alterations,
+			specialHint: e.specialHint,
+			ownerType:
+				e.owner instanceof Creature ? 'creature' : e.owner instanceof Trap ? 'trap' : 'hex',
+			ownerId:
+				e.owner instanceof Creature ? e.owner.id : e.owner instanceof Trap ? e.owner.id : null,
+			ownerX: e.owner instanceof Hex ? e.owner.x : undefined,
+			ownerY: e.owner instanceof Hex ? e.owner.y : undefined,
+			targetType:
+				e.target instanceof Creature ? 'creature' : e.target instanceof Trap ? 'trap' : 'hex',
+			targetId:
+				e.target instanceof Creature ? e.target.id : e.target instanceof Trap ? e.target.id : null,
+			targetX: e.target instanceof Hex ? e.target.x : undefined,
+			targetY: e.target instanceof Hex ? e.target.y : undefined,
+			runtimeCallbacks: e.hasCustomCallbacks,
+			snapshotBehaviorId: e.snapshotBehaviorId,
+			snapshotBehaviorData: e.snapshotBehaviorData,
+		}));
+		const queuedEvents = this.queue.pendingEvents.map((event) => {
+			if (!event.snapshotBehaviorId || !event.snapshotBehaviorData) {
+				throw new SnapshotCompatibilityError(
+					`Queued event "${event.title}" has no registered snapshot behavior data.`,
+				);
+			}
+			return {
+				id: event.id,
+				snapshotBehaviorId: event.snapshotBehaviorId,
+				turn: event.turn,
+				initiative: event.initiative,
+				delayed: event.delayed,
+				title: event.title,
+				data: event.snapshotBehaviorData,
+			};
+		});
+
+		return {
+			version: SNAPSHOT_VERSION,
+			runtimeSafety: {
+				version: 1,
+				pendingQueueEvents: queuedEvents.length,
+				activeAnimations: false,
+				deferredQueryMoves: 0,
+			},
+			date: new Date().toISOString(),
+			turn: this.turn,
+			round: this.round,
+			fastForward: this.replayMode === 'load',
+			gameState: this.gameState,
+			activeCreatureId: this.activeCreature?.id ?? null,
+			playersReady: this.playersReady,
+			turnThrottle: this.turnThrottle,
+			bloodCount: this.bloodCount,
+			trapId: this.trapId,
+			effectId: this.effectId,
+			dropId: this.dropId,
+			metaPowersState: { ...this.metaPowersState },
+			configData: this.configData,
+			availableCreatures: this.availableCreatures,
+			lastSummonedType: this.lastSummonedType,
+			plasmaAmount: (this as any).plasma_amount ?? this.configData.plasma_amount,
+			players,
+			creatures,
+			traps,
+			drops,
+			effects,
+			queue: (this.queue?.queue.filter((entry) => !isQueueEvent(entry)).map((c) => c.id) ??
+				[]) as number[],
+			queuedEvents,
+		};
+	}
+
+	/**
+	 * Save a state snapshot to an .abs file.
+	 */
+	saveSnapshot(): void {
+		let snapshot: any;
+		try {
+			snapshot = this.serializeSnapshot();
+		} catch (error) {
+			if (error instanceof SnapshotCompatibilityError) {
+				window.alert(error.message);
+				return;
+			}
+			throw error;
+		}
+		const blob = new Blob([GameSnapshotSerializer.stringify(snapshot)], { type: 'text/plain' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = `ancientbeast-snapshot-${new Date()
+			.toISOString()
+			.slice(0, 19)
+			.replace(/:/g, '-')}.abs`;
+		a.click();
+		URL.revokeObjectURL(url);
+	}
+
+	/**
+	 * Load a state snapshot from an .abs file string.
+	 */
+	loadSnapshot(str: string): void {
+		if (this.gameState !== 'initialized') {
+			window.alert('Can only load snapshot from configuration menu.');
+			return;
+		}
+		let snapshot: any;
+		try {
+			snapshot = GameSnapshotSerializer.from(str);
+			for (const effect of snapshot.effects) {
+				if (
+					effect.runtimeCallbacks &&
+					!this._snapshotEffectBehaviors.has(effect.snapshotBehaviorId)
+				) {
+					throw new SnapshotCompatibilityError(
+						`Snapshot effect behavior "${effect.snapshotBehaviorId}" is not available in this build.`,
+					);
+				}
+			}
+			for (const trap of snapshot.traps) {
+				if (trap.onDestroyCallback && !this._snapshotTrapBehaviors.has(trap.snapshotBehaviorId)) {
+					throw new SnapshotCompatibilityError(
+						`Snapshot trap behavior "${trap.snapshotBehaviorId}" is not available in this build.`,
+					);
+				}
+			}
+			for (const event of snapshot.queuedEvents) {
+				if (!this._snapshotEventBehaviors.has(event.snapshotBehaviorId)) {
+					throw new SnapshotCompatibilityError(
+						`Snapshot event behavior "${event.snapshotBehaviorId}" is not available in this build.`,
+					);
+				}
+			}
+		} catch (error) {
+			if (error instanceof Error) {
+				window.alert(`Unable to load snapshot: ${error.message}`);
+				return;
+			}
+			throw error;
+		}
+		const plasmaAmount =
+			snapshot.plasmaAmount ?? snapshot.configData?.plasma_amount ?? (this as any).plasma_amount;
+		const configData = {
+			...snapshot.configData,
+			...(plasmaAmount === undefined ? {} : { plasma_amount: plasmaAmount }),
+		};
+		this.configData = configData;
+		this.metaPowersState = snapshot.metaPowersState;
+		this.bloodCount = snapshot.bloodCount;
+		this.trapId = snapshot.trapId;
+		this.effectId = snapshot.effectId;
+		this.dropId = snapshot.dropId;
+		this.availableCreatures = snapshot.availableCreatures;
+		this.lastSummonedType = snapshot.lastSummonedType;
+		(this as any).plasma_amount = plasmaAmount;
+		this.turn = snapshot.turn;
+		this.round = snapshot.round;
+		this.playersReady = snapshot.playersReady;
+		this.turnThrottle = snapshot.turnThrottle;
+		this._pendingSnapshot = snapshot;
+		this.replayMode = 'load';
+
+		this.startGameLoad(configData, undefined, undefined, () => {
+			// Reconstruction happens in setup() via _pendingSnapshot
+		});
+	}
+
+	/**
+	 * Reconstruct the game board from a snapshot.
+	 */
+	private reconstructFromSnapshot(snapshot: any): void {
+		const findMatchingCreature = (cSnap: any): Creature | null => {
+			const c = this.creatures[cSnap.id];
+			if (c && c.type === cSnap.type && c.team === cSnap.team) return c;
+			for (const candidate of this.creatures) {
+				if (
+					candidate &&
+					candidate.type === cSnap.type &&
+					candidate.team === cSnap.team &&
+					candidate.name === cSnap.name &&
+					candidate.x === cSnap.x &&
+					candidate.y === cSnap.y
+				) {
+					return candidate;
+				}
+			}
+			for (const candidate of this.creatures) {
+				if (
+					candidate &&
+					candidate.type === cSnap.type &&
+					candidate.team === cSnap.team &&
+					candidate.name === cSnap.name
+				) {
+					return candidate;
+				}
+			}
+			return null;
+		};
+
+		snapshot.creatures.forEach((cSnap: any) => {
+			let c = findMatchingCreature(cSnap);
+			if (!c) {
+				const player = this.players[cSnap.team];
+				if (player) {
+					const baseCreatureData = this.retrieveCreatureStats(cSnap.type);
+					const creatureData = $j.extend({}, baseCreatureData, {
+						x: cSnap.x,
+						y: cSnap.y,
+						team: cSnap.team,
+						temp: cSnap.temp,
+					});
+					const CreatureClass = this.creatures[0]?.constructor;
+					if (!CreatureClass) return;
+					c = new (CreatureClass as any)(creatureData, this);
+					const createdId = c.id;
+					if (createdId !== cSnap.id) {
+						if (this.creatures[createdId] === c) this.creatures[createdId] = undefined;
+						c.id = cSnap.id;
+						this.creatures[cSnap.id] = c;
+					}
+					player.creatures.push(c);
+					c.materializationSickness = false;
+					c._restoringFromSnapshot = false;
+				}
+			}
+			if (c) {
+				c.id = cSnap.id;
+				c.player = this.players[cSnap.team];
+				c.team = cSnap.team;
+				c._restoringFromSnapshot = false;
+				c.setPosition(cSnap.x, cSnap.y);
+				c.facePlayerDefault();
+				c.temp = cSnap.temp;
+				c.dead = cSnap.dead;
+				c.hasWait = cSnap.hasWait;
+				c.travelDist = cSnap.travelDist;
+				c.protectedFromFatigue = cSnap.protectedFromFatigue;
+				c.turnsActive = cSnap.turnsActive;
+				c.materializationSickness = cSnap.materializationSickness;
+				c.noActionPossible = cSnap.noActionPossible;
+				c.baseStats = cSnap.baseStats;
+				c.stats = cSnap.stats;
+				c.abilities.forEach((a: any, i: number) => {
+					const aSnap = cSnap.abilities[i];
+					if (aSnap) {
+						if (a.id !== aSnap.id) {
+							throw new SnapshotCompatibilityError(
+								`Ability slot ${i} changed for ${c.name}; refusing an unsafe snapshot restore.`,
+							);
+						}
+						a.used = aSnap.used;
+						a.priority = aSnap.priority;
+						a.timesUsed = aSnap.timesUsed;
+						a.timesUsedThisTurn = aSnap.timesUsedThisTurn;
+						a.token = aSnap.token;
+						a.upgraded = aSnap.upgraded;
+						a.trigger = aSnap.trigger;
+						a.triggeredThisChain = aSnap.triggeredThisChain ?? false;
+						if (aSnap._strikes !== undefined) a._strikes = { ...aSnap._strikes };
+						if (aSnap._lastTargetId !== undefined) a._lastTargetId = aSnap._lastTargetId;
+					}
+				});
+				c.effects = cSnap.effects
+					.map((id: number) => this.effects.find((e: any) => e.id === id))
+					.filter(Boolean);
+				c.dropCollection = (cSnap.dropCollection || []).map((drop: any) =>
+					typeof drop === 'string'
+						? { name: drop, alterations: {} }
+						: { name: drop.name, alterations: drop.alterations ?? {} },
+				);
+				c.status = cSnap.status;
+				c.health = cSnap.health;
+				c.oldHealth = cSnap.oldHealth ?? c.oldHealth;
+				c.endurance = cSnap.endurance;
+				c.energy = cSnap.energy;
+				c.oldEnergy = cSnap.oldEnergy ?? c.oldEnergy;
+				c.setPlasmaFieldActiveTurn(cSnap.plasmaFieldActiveTurn ?? false);
+				c.updateHealth();
+				c.remainingMove = cSnap.remainingMove;
+				c.movementPool = cSnap.movementPool;
+				c.accumulatedTeleportRange = cSnap.accumulatedTeleportRange;
+				(c as any)._waitedTurn = cSnap._waitedTurn ?? -1;
+				(c as any)._hinderedTurn = cSnap._hinderedTurn ?? -1;
+				(c as any)._nextGameTurnActive = cSnap._nextGameTurnActive ?? this.turn;
+				c._brbActive = cSnap._brbActive;
+				c._brbState = null;
+				c._brbSpent = cSnap._brbSpent;
+				c._lastBurningSpiritDamage = cSnap._lastBurningSpiritDamage;
+				c._bonfireSpringCount = cSnap._bonfireSpringCount;
+				(c as any)._afterimages = cSnap._afterimages ?? (c as any)._afterimages;
+				c.killer = cSnap.killer == null ? undefined : this.players[cSnap.killer];
+			}
+		});
+
+		// Reconstruct traps
+		snapshot.traps.forEach((tSnap: any) => this.reconstructTrap(tSnap));
+
+		// Reconstruct drops
+		snapshot.drops.forEach((dSnap: any) => this.reconstructDrop(dSnap));
+
+		// Reconstruct effects
+		snapshot.effects.forEach((eSnap: any) => this.reconstructEffect(eSnap));
+
+		snapshot.creatures.forEach((cSnap: any) => {
+			const creature = this.creatures[cSnap.id];
+			if (creature) {
+				creature.effects = cSnap.effects
+					.map((id: number) => this.effects.find((effect: any) => effect.id === id))
+					.filter(Boolean);
+				creature.healthShow();
+			}
+		});
+
+		snapshot.traps.forEach((tSnap: any) => {
+			const trap = this.traps.find((candidate) => candidate.id === tSnap.id);
+			if (!trap) return;
+			trap.effects = tSnap.effects
+				.map((id: number) => this.effects.find((effect: any) => effect.id === id))
+				.filter(Boolean);
+			trap.effects.forEach((effect: any) => {
+				effect.trap = trap;
+			});
+		});
+
+		snapshot.creatures.forEach((cSnap: any) => {
+			const creature = this.creatures[cSnap.id];
+			const brbState = cSnap._brbState;
+			if (!creature || !brbState || typeof brbState !== 'object') return;
+			const killer =
+				brbState.killer?.type === 'creature'
+					? this.creatures[brbState.killer.id]
+					: brbState.killer?.type === 'player'
+					? { player: this.players[brbState.killer.id] }
+					: null;
+			const gooTrap = this.traps.find((trap) => trap.id === brbState.gooTrapId);
+			creature._brbState = gooTrap ? { killer, gooTrap } : null;
+		});
+
+		this.players.forEach((player) => {
+			player.creatures = snapshot.creatures
+				.map((creatureSnap: any) => this.creatures[creatureSnap.id])
+				.filter((creature: Creature | undefined) => creature?.team === player.id);
+		});
+
+		// Restore player data (plasma, time pools, score)
+		snapshot.players.forEach((pSnap: any) => {
+			const p = this.players[pSnap.id];
+			if (p) {
+				p.plasma = pSnap.plasma;
+				p.flipped = pSnap.flipped;
+				p.hasLost = pSnap.hasLost;
+				p.hasFled = pSnap.hasFled;
+				p.bonusTimePool = pSnap.bonusTimePool;
+				p.totalTimePool = pSnap.totalTimePool;
+				p.startTime = new Date(pSnap.startTime);
+				if (pSnap.controller === 'human' || pSnap.controller === 'bot') {
+					p.controller = pSnap.controller;
+				}
+				p.color = pSnap.color ?? p.color;
+				p.avatar = getDarkPriestAvatarUrl(p);
+				p._summonCreaturesWithMaterializationSickness =
+					pSnap.summonCreaturesWithMaterializationSickness;
+				p.score = (pSnap.score ?? []).map((score: any) => {
+					const { creatureId, ...event } = score;
+					return {
+						...event,
+						...(creatureId == null ? {} : { creature: this.creatures[creatureId] }),
+					};
+				});
+			}
+		});
+
+		// Restore counters (setup() resets them to 0)
+		this.trapId = snapshot.trapId;
+		this.effectId = snapshot.effectId;
+		this.dropId = snapshot.dropId;
+		this.bloodCount = snapshot.bloodCount;
+		this.turn = snapshot.turn;
+		this.round = snapshot.round;
+		this.playersReady = snapshot.playersReady;
+		this.turnThrottle = snapshot.turnThrottle;
+
+		for (const eventSnapshot of snapshot.queuedEvents as QueueEventSnapshot[]) {
+			const restore = this._snapshotEventBehaviors.get(eventSnapshot.snapshotBehaviorId);
+			if (!restore) {
+				throw new SnapshotCompatibilityError(
+					`Snapshot event behavior "${eventSnapshot.snapshotBehaviorId}" is not registered.`,
+				);
+			}
+			this.queue.addEvent(restore(eventSnapshot));
+		}
+
+		// Set active creature - match by snapshot data
+		this.activeCreature =
+			snapshot.activeCreatureId == null ? null : this.creatures[snapshot.activeCreatureId] ?? null;
+		if (this.activeCreature) {
+			this.activeCreature._restoringFromSnapshot = true;
+			this.activeCreature.activate();
+		}
+
+		// Update UI
+		this.UI?.updateActivebox?.();
+		this.UI?.refreshScoreboard?.();
+		this.UI?.renderScoreboard?.(false);
+		// Refresh per-player plasma readouts (player tabs + dash) for all players,
+		// not just the active one, so restored plasma shows correctly.
+		for (let i = 0; i < this.players.length; i++) {
+			$j('#dash .playertabs.p' + i + ' .plasma').text('Plasma ' + this.players[i].plasma);
+		}
+		this.updateQueueDisplay?.();
+		this.grid?.refreshHoverState?.();
+		// Clear replay mode so SFX unmutes
+		this.replayMode = null;
+		this.soundsys?.setEffectsMuted(false);
+	}
+
+	// --- Helper methods ---
+
+	private findMatchingCreature(cSnap: any): Creature | null {
+		const c = this.creatures[cSnap.id];
+		if (c) return c;
+		for (const candidate of this.creatures) {
+			if (
+				candidate &&
+				candidate.type === cSnap.type &&
+				candidate.name === cSnap.name &&
+				candidate.x === cSnap.x &&
+				candidate.y === cSnap.y
+			) {
+				return candidate;
+			}
+		}
+		for (const candidate of this.creatures) {
+			if (candidate && candidate.type === cSnap.type && candidate.name === cSnap.name) {
+				return candidate;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Reconstruct a trap from snapshot data. Creates missing traps.
+	 */
+	private reconstructTrap(tSnap: any): void {
+		let t = this.traps.find((t: any) => t.id === tSnap.id);
+		if (!t) {
+			t = new Trap(
+				tSnap.x,
+				tSnap.y,
+				tSnap.type,
+				tSnap.effects
+					.map((id: number) => this.effects.find((e: any) => e.id === id))
+					.filter(Boolean),
+				this.players[tSnap.owner] ??
+					this.players[this.creatures[tSnap.ownerCreature]?.player?.id ?? 0],
+				{
+					id: tSnap.id,
+					name: tSnap.name,
+					creationTurn: tSnap.creationTurn,
+					turnLifetime: tSnap.turnLifetime,
+					fullTurnLifetime: tSnap.fullTurnLifetime,
+					destroyOnActivate: tSnap.destroyOnActivate,
+					typeOver: tSnap.typeOver,
+					destroyAnimation: tSnap.destroyAnimation,
+					owner: this.players[tSnap.owner],
+					ownerCreature: this.creatures[tSnap.ownerCreature],
+				},
+				this,
+				tSnap.name,
+			);
+		} else {
+			t.owner = this.players[tSnap.owner] ?? t.owner;
+			t.x = tSnap.x;
+			t.y = tSnap.y;
+			t.creationTurn = tSnap.creationTurn;
+			t.turnLifetime = tSnap.turnLifetime;
+			t.fullTurnLifetime = tSnap.fullTurnLifetime;
+			t.destroyOnActivate = tSnap.destroyOnActivate;
+			t.typeOver = tSnap.typeOver;
+			t.destroyAnimation = tSnap.destroyAnimation;
+			t.ownerCreature = this.creatures[tSnap.ownerCreature];
+		}
+		t.effects = tSnap.effects
+			.map((id: number) => this.effects.find((e: any) => e.id === id))
+			.filter(Boolean);
+		this.restoreSnapshotTrapBehavior(t, tSnap.snapshotBehaviorId, tSnap.snapshotBehaviorData);
+	}
+
+	/**
+	 * Reconstruct a drop from snapshot data. Creates missing drops.
+	 */
+	private reconstructDrop(dSnap: any): void {
+		let d = this.drops.find((d: any) => d.id === dSnap.id);
+		if (!d) {
+			d = new Drop(dSnap.name, dSnap.alterations, dSnap.x, dSnap.y, this);
+			d.id = dSnap.id;
+			d.pickedUp = dSnap.pickedUp;
+		} else {
+			d.id = dSnap.id;
+			d.pos = { x: dSnap.x, y: dSnap.y };
+			d.alterations = dSnap.alterations;
+			d.pickedUp = dSnap.pickedUp;
+		}
+	}
+
+	private resolveSnapshotEffectReference(
+		type: string,
+		id: number | null,
+		x: number | undefined,
+		y: number | undefined,
+	): Creature | Trap | Hex {
+		if (type === 'creature') {
+			const creature = this.creatures[id as number];
+			if (creature) return creature;
+		} else if (type === 'trap') {
+			const trap = this.traps.find((candidate) => candidate.id === id);
+			if (trap) return trap;
+		} else if (type === 'hex' && Number.isInteger(x) && Number.isInteger(y)) {
+			const hex = this.hexAt(x as number, y as number);
+			if (hex) return hex;
+		}
+		throw new SnapshotCompatibilityError(
+			`Snapshot effect ${type} reference could not be resolved (id: ${id}, hex: ${x},${y}).`,
+		);
+	}
+
+	/**
+	 * Reconstruct an effect from snapshot data. Creates missing effects.
+	 */
+	private reconstructEffect(eSnap: any): void {
+		let e = this.effects.find((e: any) => e.id === eSnap.id);
+		if (!e) {
+			e = new Effect(
+				eSnap.name,
+				this.resolveSnapshotEffectReference(
+					eSnap.ownerType,
+					eSnap.ownerId,
+					eSnap.ownerX,
+					eSnap.ownerY,
+				) as any,
+				this.resolveSnapshotEffectReference(
+					eSnap.targetType,
+					eSnap.targetId,
+					eSnap.targetX,
+					eSnap.targetY,
+				) as any,
+				eSnap.trigger || 'onStartOfRound',
+				{
+					id: eSnap.id,
+					creationTurn: eSnap.creationTurn,
+					turnLifetime: eSnap.turnLifetime,
+					deleteTrigger: eSnap.deleteTrigger || 'onStartOfRound',
+					stackable: eSnap.stackable,
+					deleteOnOwnerDeath: eSnap.deleteOnOwnerDeath,
+					isDeleted: eSnap.isDeleted,
+					attacker: this.creatures[eSnap.attacker],
+					alterations: eSnap.alterations,
+					specialHint: eSnap.specialHint,
+				},
+				this,
+			);
+		} else {
+			e.name = eSnap.name;
+			e.trigger = eSnap.trigger || e.trigger;
+			e.creationTurn = eSnap.creationTurn;
+			e.turnLifetime = eSnap.turnLifetime;
+			e.deleteTrigger = eSnap.deleteTrigger || e.deleteTrigger;
+			e.stackable = eSnap.stackable;
+			e.deleteOnOwnerDeath = eSnap.deleteOnOwnerDeath;
+			e.isDeleted = eSnap.isDeleted;
+			e.attacker = this.creatures[eSnap.attacker];
+			e.alterations = eSnap.alterations;
+			e.specialHint = eSnap.specialHint;
+		}
+		e.triggeredThisChain = eSnap.triggeredThisChain ?? false;
+		this.restoreSnapshotEffectBehavior(e, eSnap.snapshotBehaviorId, eSnap.snapshotBehaviorData);
+		e.owner = this.resolveSnapshotEffectReference(
+			eSnap.ownerType,
+			eSnap.ownerId,
+			eSnap.ownerX,
+			eSnap.ownerY,
+		) as any;
+		e.target = this.resolveSnapshotEffectReference(
+			eSnap.targetType,
+			eSnap.targetId,
+			eSnap.targetX,
+			eSnap.targetY,
+		) as any;
 	}
 }

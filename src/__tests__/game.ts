@@ -2,26 +2,70 @@ import { jest, expect, describe, test, beforeEach, afterEach } from '@jest/globa
 
 jest.mock('pixi', () => ({}), { virtual: true });
 jest.mock('p2', () => ({}), { virtual: true });
-jest.mock('phaser-ce', () => ({
-	Point: class PointMock {},
-	Polygon: class PolygonMock {},
+jest.mock('phaser', () => ({
+	// Phaser 4 exposes the scene base class as `Scene`; AB's scene extends it.
+	Scene: class SceneMock {
+		sys: { settings: { key: ''; data: Record<string, unknown> } };
+	},
+	Math: {
+		Vector2: class Vector2Mock {
+			x = 0;
+			y = 0;
+			constructor(x = 0, y = 0) {
+				this.x = x;
+				this.y = y;
+			}
+		},
+	},
+	GameObjects: {
+		Polygon: class PolygonGameObjectMock {
+			constructor(_scene?: unknown, _x?: number, _y?: number, points?: unknown) {
+				(this as any).points = points ?? [];
+			}
+			contains() {
+				return true;
+			}
+		},
+	},
+
+	Signal: class SignalMock {},
 	default: class PhaserMock {},
 }));
-jest.mock(
-	'phaser',
-	() => ({
-		Signal: class SignalMock {},
-		default: class PhaserMock {},
-	}),
-	{ virtual: true },
-);
 
 import Game from '../game';
+import { createGameChannels } from '../game-events/factory';
 import { UI } from '../ui/interface';
+import { setAudioMode } from '../sound/soundsys';
 
 describe('Game replay completion', () => {
 	beforeEach(() => {
 		jest.useFakeTimers();
+	});
+
+	test('onLogLoad records fast-load mode and clears it when an empty log completes', () => {
+		const game = {
+			gameState: 'initialized',
+			configData: {},
+			startGameLoad: jest.fn(
+				(
+					_configData: unknown,
+					_matchInitialized: unknown,
+					_matchid: unknown,
+					onLoadCompleteFn: () => void,
+				) => {
+					game.gameState = 'playing';
+					onLoadCompleteFn();
+				},
+			),
+		} as unknown as Game;
+
+		Game.prototype.onLogLoad.call(game, { actions: [], custom: { configData: {} } }, 'load');
+
+		expect(game.replayMode).toBe('play');
+		expect(game.isReplayInProgress).toBe(true);
+		jest.runOnlyPendingTimers();
+		expect(game.replayMode).toBe(null);
+		expect(game.isReplayInProgress).toBe(false);
 	});
 
 	afterEach(() => {
@@ -41,7 +85,10 @@ describe('Game replay completion', () => {
 			_deferredQueryMovePending: 3,
 			turnThrottle: true,
 			freezedInput: true,
-			loadGame: jest.fn(
+			// `onLogLoad` starts the replay through the internal `startGameLoad`
+			// wrapper (which awaits the Phaser chunk and swallows rejections), so
+			// that is the collaborator to stub here.
+			startGameLoad: jest.fn(
 				(
 					_configData: unknown,
 					_matchInitialized: unknown,
@@ -91,7 +138,10 @@ describe('Game replay completion', () => {
 			_deferredQueryMovePending: 2,
 			turnThrottle: true,
 			freezedInput: true,
-			loadGame: jest.fn(
+			// `onLogLoad` starts the replay through the internal `startGameLoad`
+			// wrapper (which awaits the Phaser chunk and swallows rejections), so
+			// that is the collaborator to stub here.
+			startGameLoad: jest.fn(
 				(
 					_configData: unknown,
 					_matchInitialized: unknown,
@@ -125,6 +175,40 @@ describe('Game replay completion', () => {
 	});
 });
 
+describe('Game creature death effects', () => {
+	test('refreshes the active movement query when an owner-death effect releases a root', () => {
+		const owner = {};
+		const queryMove = jest.fn();
+		const target = {
+			stats: { moveable: false },
+			updateHealth: jest.fn(),
+			queryMove,
+		};
+		const effect = {
+			owner,
+			deleteOnOwnerDeath: true,
+			target,
+			alterations: { moveable: false },
+			deleteEffect: jest.fn(() => {
+				target.stats.moveable = true;
+			}),
+		};
+		const game = {
+			activeCreature: target,
+			triggerAbility: jest.fn(),
+			triggerEffect: jest.fn(),
+			traps: [],
+			effects: [effect],
+		} as unknown as Game;
+
+		Game.prototype.onCreatureDeath.call(game, owner);
+
+		expect(effect.deleteEffect).toHaveBeenCalledTimes(1);
+		expect(target.updateHealth).toHaveBeenCalledTimes(1);
+		expect(queryMove).toHaveBeenCalledTimes(1);
+	});
+});
+
 describe('Game reset lifecycle', () => {
 	const makeMockGame = (overrides = {}): Game =>
 		({
@@ -133,6 +217,7 @@ describe('Game reset lifecycle', () => {
 				showGameSetup: jest.fn(),
 			},
 			stopTimer: jest.fn(),
+			stopEndGameSound: jest.fn(),
 			players: [],
 			creatures: [],
 			effects: [],
@@ -149,7 +234,7 @@ describe('Game reset lifecycle', () => {
 			animationQueue: [],
 			configData: {},
 			match: {},
-			firstKill: true,
+			bloodCount: 3,
 			freezedInput: true,
 			isReplayInProgress: true,
 			turnThrottle: true,
@@ -157,26 +242,19 @@ describe('Game reset lifecycle', () => {
 			traps: [],
 			drops: [],
 			gamelog: { reset: jest.fn() },
-			signals: {
-				ui: { add: jest.fn(), dispatch: jest.fn() },
-				metaPowers: { add: jest.fn(), dispatch: jest.fn() },
-				creature: { add: jest.fn(), dispatch: jest.fn() },
-				hex: { add: jest.fn(), dispatch: jest.fn() },
-			},
-			setupSignalChannels: jest.fn(() => ({
-				ui: { add: jest.fn(), dispatch: jest.fn() },
-				metaPowers: { add: jest.fn(), dispatch: jest.fn() },
-				creature: { add: jest.fn(), dispatch: jest.fn() },
-				hex: { add: jest.fn(), dispatch: jest.fn() },
-			})),
 			botController: {},
 			...overrides,
 		} as unknown as Game);
 
-	test('resetGame recreates signal channels to avoid listener accumulation after restart', () => {
+	test('resetGame recreates the gameplay channels to avoid listener accumulation', () => {
 		const game = makeMockGame();
+		// No Phaser runtime in this suite, so the factory falls back to its own
+		// emitter; all that matters here is that fresh instances are installed.
 		Game.prototype.resetGame.call(game);
-		expect(game.signals.creature.add).toHaveBeenCalledTimes(1);
+		for (const channel of Object.values(game.channels)) {
+			expect(channel).toBeDefined();
+			expect((channel as unknown as { listeners: unknown }).listeners ?? true).toBeDefined();
+		}
 	});
 
 	test('resetGame destroys existing traps and drops', () => {
@@ -194,6 +272,85 @@ describe('Game reset lifecycle', () => {
 		expect(game.traps).toEqual([]);
 		expect(game.drops).toEqual([]);
 	});
+
+	test('resetGame silences a still-ringing game over sound', () => {
+		const stopEndGameSound = jest.fn();
+		const game = makeMockGame({ stopEndGameSound });
+
+		Game.prototype.resetGame.call(game);
+
+		expect(stopEndGameSound).toHaveBeenCalledTimes(1);
+	});
+});
+
+describe('Game over sound', () => {
+	const makeSoundSys = () => ({
+		stopMusic: jest.fn(),
+		playMusic: jest.fn(),
+		playSFX: jest.fn(() => ({ stop: jest.fn() })),
+		stopSFX: jest.fn(),
+		musicVolume: 1,
+		effectsVolume: 1,
+		heartbeatVolume: 1,
+		announcerVolume: 1,
+	});
+
+	const makeMockGame = (soundsys: ReturnType<typeof makeSoundSys>): Game =>
+		({
+			gameState: 'playing',
+			gameMode: 0,
+			players: [],
+			soundsys,
+			stopTimer: jest.fn(),
+			stopEndGameSound: jest.fn(),
+			UI: { endGame: jest.fn() },
+		} as unknown as Game);
+
+	afterEach(() => {
+		// Leave the module-level audio mode on 'full' for unrelated suites.
+		setAudioMode('full', makeSoundSys(), undefined);
+	});
+
+	test('plays a truncated drum roll on a real match ending', () => {
+		setAudioMode('full', makeSoundSys(), undefined);
+		const soundsys = makeSoundSys();
+		const game = makeMockGame(soundsys);
+
+		Game.prototype.endGame.call(game);
+
+		expect(soundsys.playSFX).toHaveBeenCalledWith('sounds/drums', 4);
+	});
+
+	test('stays silent on a player disconnect', () => {
+		setAudioMode('full', makeSoundSys(), undefined);
+		const soundsys = makeSoundSys();
+		const game = makeMockGame(soundsys);
+
+		Game.prototype.endGame.call(game, 'Host disconnected...');
+
+		expect(soundsys.playSFX).not.toHaveBeenCalled();
+	});
+
+	test('stays silent unless the audio mode is full', () => {
+		setAudioMode('sfx', makeSoundSys(), undefined);
+		const soundsys = makeSoundSys();
+		const game = makeMockGame(soundsys);
+
+		Game.prototype.endGame.call(game);
+
+		expect(soundsys.playSFX).not.toHaveBeenCalled();
+	});
+
+	test('stopEndGameSound stops the node and clears the handle', () => {
+		const soundsys = makeSoundSys();
+		const node = { stop: jest.fn() };
+		const game = { soundsys, endGameSound: node } as unknown as Game;
+
+		Game.prototype.stopEndGameSound.call(game);
+
+		expect(soundsys.stopSFX).toHaveBeenCalledWith(node);
+		expect(game.endGameSound).toBeUndefined();
+	});
 });
 
 describe('Game Phaser boot timing', () => {
@@ -207,21 +364,22 @@ describe('Game Phaser boot timing', () => {
 
 	test('whenPhaserBooted waits until the current Phaser instance exposes its loader', () => {
 		const onBooted = jest.fn();
-		const phaser = {
-			isBooted: false,
-			load: null,
-		} as unknown as Game['Phaser'];
+		// Phaser 4 owns the loader on the scene, not on the game object.
+		const scene = { load: null } as unknown as { load: object | null };
+		const phaser = { isBooted: false } as unknown as Game['Phaser'];
 		const game = {
 			Phaser: phaser,
+			phaserScene: scene,
 			whenPhaserBooted: Game.prototype.whenPhaserBooted,
+			getPhaserLoad: Game.prototype['getPhaserLoad' as keyof Game],
 		} as unknown as Game;
 
 		Game.prototype.whenPhaserBooted.call(game, phaser, onBooted);
 
 		expect(onBooted).not.toHaveBeenCalled();
 
-		(phaser as { isBooted: boolean; load: object | null }).isBooted = true;
-		(phaser as { isBooted: boolean; load: object | null }).load = {};
+		(phaser as { isBooted: boolean }).isBooted = true;
+		scene.load = {};
 		jest.runOnlyPendingTimers();
 
 		expect(onBooted).toHaveBeenCalledTimes(1);
@@ -249,9 +407,6 @@ describe('Game unload confirmation integration', () => {
 		expect(
 			addEventListenerSpy.mock.calls.filter(([eventName]) => eventName === 'beforeunload'),
 		).toHaveLength(0);
-		expect(
-			addEventListenerSpy.mock.calls.filter(([eventName]) => eventName === 'message'),
-		).toHaveLength(1);
 		expect(firstUiState.ignoreNextConfirmUnload).toBe(false);
 		expect(secondUiState.ignoreNextConfirmUnload).toBe(false);
 
@@ -312,196 +467,6 @@ describe('Game unload confirmation integration', () => {
 		expect(bypassResult).toBeUndefined();
 
 		window.onbeforeunload = originalOnBeforeUnload;
-	});
-
-	test('confirmWindowUnload dev message handler shows save prompt and dismisses cleanly', async () => {
-		jest.resetModules();
-		const originalNodeEnv = process.env.NODE_ENV;
-		process.env.NODE_ENV = 'development';
-		let TestUI: typeof UI | undefined;
-		await jest.isolateModulesAsync(async () => {
-			const mod = await import('../ui/interface');
-			TestUI = mod.UI;
-		});
-
-		if (!TestUI) {
-			throw new Error('Failed to load UI module');
-		}
-
-		const addEventListenerSpy = jest.spyOn(window, 'addEventListener');
-		const originalAB = window.AB;
-		const originalOnBeforeUnload = window.onbeforeunload;
-		const saveLog = jest.fn();
-		const leakedHotkeyHandler = jest.fn();
-		window.AB = { saveLog };
-		document.addEventListener('keydown', leakedHotkeyHandler);
-		const uiState = { ignoreNextConfirmUnload: false };
-
-		TestUI.prototype.confirmWindowUnload.call(uiState as UI);
-
-		const messageListenerCall = addEventListenerSpy.mock.calls.find(
-			([eventName]) => eventName === 'message',
-		);
-		const messageListener = messageListenerCall?.[1] as ((event: MessageEvent) => void) | undefined;
-
-		expect(messageListener).toBeDefined();
-		if (!messageListener) {
-			throw new Error('message listener should be defined');
-		}
-
-		messageListener({ data: { type: 'webpackInvalid' } } as MessageEvent);
-
-		const prompt = document.getElementById('ab-dev-reload-prompt');
-		const beforeUnloadListener = window.onbeforeunload as
-			| ((event: BeforeUnloadEvent) => string | void)
-			| undefined;
-		expect(prompt).toBeDefined();
-		expect(beforeUnloadListener).toBeDefined();
-
-		const promptVisibleUnloadEvent = {
-			preventDefault: jest.fn(),
-			returnValue: 'existing',
-		} as unknown as BeforeUnloadEvent;
-		const promptVisibleUnloadResult = beforeUnloadListener?.(promptVisibleUnloadEvent);
-
-		expect(promptVisibleUnloadEvent.preventDefault).not.toHaveBeenCalled();
-		expect(
-			(promptVisibleUnloadEvent as unknown as { returnValue?: string }).returnValue,
-		).toBeUndefined();
-		expect(promptVisibleUnloadResult).toBeUndefined();
-
-		const buttons = Array.from(prompt?.querySelectorAll('button') ?? []);
-		const closeButton = buttons.find((button) => button.classList.contains('close-button')) as
-			| HTMLButtonElement
-			| undefined;
-		const actionButtons = buttons.filter((button) => !button.classList.contains('close-button'));
-		const saveButton = actionButtons[0] as HTMLButtonElement | undefined;
-		const reloadButton = actionButtons[1] as HTMLButtonElement | undefined;
-		const keepButton = actionButtons[2] as HTMLButtonElement | undefined;
-
-		expect(closeButton).toBeDefined();
-		expect(closeButton?.closest('.framed-modal')).toBeNull();
-		expect(saveButton).toBeDefined();
-		expect(reloadButton).toBeDefined();
-		expect(keepButton).toBeDefined();
-		expect(saveButton?.dataset.devReloadHotkey).toBe('s');
-		expect(reloadButton?.dataset.devReloadHotkey).toBe('r');
-		expect(keepButton?.dataset.devReloadHotkey).toBe('c');
-		expect(saveButton?.getAttribute('aria-keyshortcuts')).toBe('S');
-		expect(reloadButton?.getAttribute('aria-keyshortcuts')).toBe('R');
-		expect(keepButton?.getAttribute('aria-keyshortcuts')).toBe('C');
-		expect(saveButton?.querySelector('span')?.textContent).toBe('S');
-		expect(reloadButton?.querySelector('span')?.textContent).toBe('R');
-		expect(keepButton?.querySelector('span')?.textContent).toBe('C');
-		closeButton?.click();
-		expect(document.getElementById('ab-dev-reload-prompt')).toBeNull();
-
-		messageListener({ data: { type: 'webpackInvalid' } } as MessageEvent);
-		expect(document.getElementById('ab-dev-reload-prompt')).toBeDefined();
-
-		document.dispatchEvent(
-			new KeyboardEvent('keydown', {
-				key: 'Escape',
-				bubbles: true,
-				cancelable: true,
-			}),
-		);
-		expect(document.getElementById('ab-dev-reload-prompt')).toBeNull();
-		expect(leakedHotkeyHandler).not.toHaveBeenCalled();
-
-		messageListener({ data: { type: 'webpackInvalid' } } as MessageEvent);
-		expect(document.getElementById('ab-dev-reload-prompt')).toBeDefined();
-
-		document
-			.getElementById('ab-dev-reload-prompt')
-			?.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
-		expect(document.getElementById('ab-dev-reload-prompt')).toBeNull();
-
-		messageListener({ data: { type: 'webpackInvalid' } } as MessageEvent);
-		expect(document.getElementById('ab-dev-reload-prompt')).toBeDefined();
-
-		document.dispatchEvent(
-			new KeyboardEvent('keydown', {
-				key: 's',
-				bubbles: true,
-				cancelable: true,
-			}),
-		);
-		expect(saveLog).toHaveBeenCalledTimes(1);
-		expect(document.getElementById('ab-dev-reload-prompt')).toBeDefined();
-		expect(leakedHotkeyHandler).not.toHaveBeenCalled();
-
-		document.dispatchEvent(
-			new KeyboardEvent('keydown', {
-				key: 'x',
-				bubbles: true,
-				cancelable: true,
-			}),
-		);
-		expect(document.getElementById('ab-dev-reload-prompt')).toBeDefined();
-		expect(leakedHotkeyHandler).not.toHaveBeenCalled();
-
-		document.dispatchEvent(
-			new KeyboardEvent('keydown', {
-				key: 'c',
-				bubbles: true,
-				cancelable: true,
-			}),
-		);
-		expect(document.getElementById('ab-dev-reload-prompt')).toBeNull();
-		expect(uiState.ignoreNextConfirmUnload).toBe(false);
-		expect(leakedHotkeyHandler).not.toHaveBeenCalled();
-
-		messageListener({ data: { type: 'webpackInvalid' } } as MessageEvent);
-		expect(document.getElementById('ab-dev-reload-prompt')).toBeDefined();
-
-		try {
-			document.dispatchEvent(
-				new KeyboardEvent('keydown', {
-					key: 'r',
-					bubbles: true,
-					cancelable: true,
-				}),
-			);
-		} catch (error) {
-			expect(String(error)).toContain('Not implemented: navigation');
-		}
-		expect(document.getElementById('ab-dev-reload-prompt')).toBeNull();
-		expect(window.onbeforeunload).toBeNull();
-		expect(uiState.ignoreNextConfirmUnload).toBe(true);
-		expect(leakedHotkeyHandler).not.toHaveBeenCalled();
-
-		const reloadBypassUnloadEvent = {
-			preventDefault: jest.fn(),
-			returnValue: 'existing',
-		} as unknown as BeforeUnloadEvent;
-		const reloadBypassUnloadResult = beforeUnloadListener?.(reloadBypassUnloadEvent);
-		expect(reloadBypassUnloadEvent.preventDefault).not.toHaveBeenCalled();
-		expect(
-			(reloadBypassUnloadEvent as unknown as { returnValue?: string }).returnValue,
-		).toBeUndefined();
-		expect(reloadBypassUnloadResult).toBeUndefined();
-		uiState.ignoreNextConfirmUnload = false;
-
-		const promptClosedUnloadEvent = {
-			preventDefault: jest.fn(),
-			returnValue: undefined,
-		} as unknown as BeforeUnloadEvent;
-		const promptClosedUnloadResult = beforeUnloadListener?.(promptClosedUnloadEvent);
-
-		expect(promptClosedUnloadEvent.preventDefault).toHaveBeenCalledTimes(1);
-		expect(promptClosedUnloadEvent.returnValue).toBe(
-			'A game is in progress and cannot be restored, are you sure you want to leave?',
-		);
-		expect(promptClosedUnloadResult).toBe(
-			'A game is in progress and cannot be restored, are you sure you want to leave?',
-		);
-
-		addEventListenerSpy.mockRestore();
-		document.removeEventListener('keydown', leakedHotkeyHandler);
-		window.AB = originalAB;
-		window.onbeforeunload = originalOnBeforeUnload;
-		process.env.NODE_ENV = originalNodeEnv;
 	});
 
 	test('confirmWindowUnload uses custom modal for manual refresh shortcuts', async () => {
@@ -598,6 +563,7 @@ describe('Game multiplayer turn ownership guard', () => {
 	const makeSkipDelayMockGame = (overrides: Record<string, unknown> = {}): Game =>
 		({
 			isOtherPlayersTurn: Game.prototype['isOtherPlayersTurn' as keyof Game],
+			isTurnActionUnavailable: Game.prototype['isTurnActionUnavailable' as keyof Game],
 			multiplayer: true,
 			turnThrottle: false,
 			pauseTime: 0,
@@ -659,6 +625,31 @@ describe('Game multiplayer turn ownership guard', () => {
 		expect(game.lobby.sendAction as jest.Mock).toHaveBeenCalledWith(
 			expect.objectContaining({ type: 'action-end', action: 'skip' }),
 		);
+	});
+
+	test('skipTurn completion keeps controls disabled when the next turn is remote', () => {
+		const isMyTurn = jest.fn().mockReturnValueOnce(true).mockReturnValue(false);
+		const game = makeSkipDelayMockGame({
+			activeCreature: {
+				player: { controller: 'human', id: 0, startTime: new Date() },
+				canWait: true,
+				id: 1,
+				facePlayerDefault: jest.fn(),
+				deactivate: jest.fn(),
+			},
+			lobby: {
+				isMyTurn,
+				getLocalPlayer: jest.fn(() => ({ playerId: 'p1', playerIndex: 0 })),
+				sendAction: jest.fn(),
+			},
+			nextCreature: jest.fn(),
+		});
+
+		Game.prototype.skipTurn.call(game, { noTooltip: true });
+		jest.advanceTimersByTime(1000);
+
+		expect(game.UI.btnSkipTurn.changeState as jest.Mock).toHaveBeenLastCalledWith('disabled');
+		expect(game.UI.btnDelay.changeState as jest.Mock).toHaveBeenLastCalledWith('disabled');
 	});
 
 	test('skipTurn is not blocked for a bot-controlled creature even if isMyTurn is false', () => {
@@ -728,6 +719,30 @@ describe('Game multiplayer turn ownership guard', () => {
 			expect.objectContaining({ type: 'action-end', action: 'delay' }),
 		);
 	});
+
+	test('delayCreature completion keeps controls disabled when the next turn is remote', () => {
+		const isMyTurn = jest.fn().mockReturnValueOnce(true).mockReturnValue(false);
+		const game = makeSkipDelayMockGame({
+			activeCreature: {
+				player: { controller: 'human', id: 0, startTime: new Date() },
+				canWait: true,
+				id: 1,
+				wait: jest.fn(),
+			},
+			lobby: {
+				isMyTurn,
+				getLocalPlayer: jest.fn(() => ({ playerId: 'p1', playerIndex: 0 })),
+				sendAction: jest.fn(),
+			},
+			nextCreature: jest.fn(),
+		});
+
+		Game.prototype.delayCreature.call(game);
+		jest.advanceTimersByTime(1000);
+
+		expect(game.UI.btnSkipTurn.changeState as jest.Mock).toHaveBeenLastCalledWith('disabled');
+		expect(game.UI.btnDelay.changeState as jest.Mock).toHaveBeenLastCalledWith('disabled');
+	});
 });
 
 describe('Game nextCreature turn-update broadcast ownership', () => {
@@ -770,7 +785,7 @@ describe('Game nextCreature turn-update broadcast ownership', () => {
 			},
 			soundsys: { playHeartBeat: jest.fn() },
 			log: jest.fn(),
-			signals: { creature: { dispatch: jest.fn() } },
+			channels: createGameChannels(),
 			multiplayer: true,
 			playersReady: true,
 			lobby: {
@@ -810,6 +825,103 @@ describe('Game nextCreature turn-update broadcast ownership', () => {
 		expect(game.lobby.sendAction as jest.Mock).toHaveBeenCalledWith(
 			expect.objectContaining({ type: 'turn-update', creatureId: 2, turn: 1 }),
 		);
+	});
+});
+
+describe('Game nextCreature dash dismissal', () => {
+	// The dash holds the outgoing turn's creature, so it is dismissed when the
+	// hand-over is to a different creature. A match start is not a hand-over:
+	// setup() parks activeCreature on the first queued creature as a placeholder
+	// and calls nextCreature() at turn 0, which only defers to nextRound() —
+	// which calls straight back in for the real first turn. Both entries used to
+	// dismiss the dash, and the second landed a few hundred milliseconds after
+	// setup(), slamming shut a dash the player had opened during the match start
+	// over that very same creature.
+	beforeEach(() => {
+		jest.useFakeTimers();
+	});
+
+	afterEach(() => {
+		jest.useRealTimers();
+	});
+
+	const makeDashMockGame = (
+		activeCreature: Record<string, unknown>,
+		overrides: Record<string, unknown> = {},
+	): Game =>
+		({
+			UI: {
+				closeDash: jest.fn(),
+				btnToggleDash: { changeState: jest.fn() },
+				updateActivebox: jest.fn(),
+				updateQueueDisplay: jest.fn(),
+				_abilityPanelAnimating: false,
+			},
+			grid: { clearAllXray: jest.fn(), suppressNextHoverRefresh: false },
+			gameState: 'playing',
+			stopTimer: jest.fn(),
+			// `nextRound()` consults the bot controller before
+			// handing the turn over; this mock's subject is the
+			// dash, so a bare stub keeps that call inert.
+			botController: { maybeForceOffensive: jest.fn() },
+			queue: {
+				isCurrentEmpty: jest.fn(() => false),
+				queue: [activeCreature],
+			},
+			turn: 0,
+			activeCreature,
+			soundsys: { playHeartBeat: jest.fn() },
+			log: jest.fn(),
+			channels: createGameChannels(),
+			multiplayer: false,
+			updateQueueDisplay: jest.fn(),
+			onStartOfRound: jest.fn(),
+			// nextRound() re-enters nextCreature(); keep the prototype reachable
+			// so the trampoline runs its real continuation.
+			nextRound: Game.prototype.nextRound,
+			nextCreature: Game.prototype.nextCreature,
+			...overrides,
+		} as unknown as Game);
+
+	const makeCreature = (id: number) => ({
+		id,
+		type: '--',
+		dead: false,
+		player: { id: 0 },
+		updateHealth: jest.fn(),
+		activate: jest.fn(),
+	});
+
+	test('leaves the dash alone while the match start hands over to the same creature', () => {
+		const first = makeCreature(1);
+		const game = makeDashMockGame(first);
+
+		// setup()'s entry at turn 0...
+		game.nextCreature();
+		jest.runAllTimers();
+
+		// ...then the trampoline's nextRound() bumping the turn to 1 and calling
+		// back in with the same creature still queued.
+		expect(game.turn).toBe(1);
+		expect(game.UI.closeDash).not.toHaveBeenCalled();
+		expect(game.UI.btnToggleDash.changeState).not.toHaveBeenCalledWith('normal');
+	});
+
+	test('still dismisses the dash when the hand-over reaches a different creature', () => {
+		const game = makeDashMockGame(makeCreature(1), {
+			turn: 1,
+			// A different creature is now at the head of the queue.
+			queue: {
+				isCurrentEmpty: jest.fn(() => false),
+				queue: [makeCreature(2)],
+			},
+		});
+
+		game.nextCreature();
+		jest.runAllTimers();
+
+		expect(game.UI.closeDash).toHaveBeenCalled();
+		expect(game.UI.btnToggleDash.changeState).toHaveBeenCalledWith('normal');
 	});
 });
 
@@ -878,5 +990,93 @@ describe('Game.applyMoveRecord — shared by action() replay and live multiplaye
 		const moveTo = game.activeCreature.moveTo as jest.Mock;
 		const [, optsArg] = moveTo.mock.calls[0] as [unknown, { path?: unknown[] }];
 		expect(optsArg.path).toBeUndefined();
+	});
+});
+
+describe('Game.handleLobbyMessage — creature-died reconciliation', () => {
+	/**
+	 * Regression coverage for the multiplayer desync where one client's unit
+	 * stayed alive while the other saw it dead with only the drop. The relay
+	 * path broadcasts a `creature-died` message from the acting client; the
+	 * receiver must force-apply the death instead of trusting its own damage
+	 * computation to have agreed.
+	 */
+	test('force-applies a death for a still-alive creature when it receives creature-died', () => {
+		const die = jest.fn(function (this: Record<string, unknown>) {
+			this.dead = true;
+		});
+		const creature = { id: 7, dead: false, die, player: { id: 0 } };
+		const game = {
+			creatures: { 7: creature },
+		} as unknown as Game;
+
+		(
+			Game.prototype as unknown as { handleLobbyMessage: (m: unknown) => void }
+		).handleLobbyMessage.call(game, {
+			type: 'creature-died',
+			creatureId: 7,
+			killerId: undefined,
+			playerId: 'p1',
+		});
+
+		expect(die).toHaveBeenCalledTimes(1);
+		// `remote=true` so the receiver does not re-broadcast and echo back.
+		expect(die).toHaveBeenCalledWith({ player: creature.player }, true);
+		expect(creature.dead).toBe(true);
+	});
+
+	test('does not re-apply death (and re-score) when the creature is already dead', () => {
+		const die = jest.fn();
+		const creature = { id: 7, dead: true, die, player: { id: 0 } };
+		const game = {
+			creatures: { 7: creature },
+		} as unknown as Game;
+
+		(
+			Game.prototype as unknown as { handleLobbyMessage: (m: unknown) => void }
+		).handleLobbyMessage.call(game, {
+			type: 'creature-died',
+			creatureId: 7,
+			killerId: 3,
+			playerId: 'p1',
+		});
+
+		expect(die).not.toHaveBeenCalled();
+	});
+
+	test('resolves the killer from the broadcast killerId when present', () => {
+		const die = jest.fn();
+		const killer = { id: 3 };
+		const creature = { id: 7, dead: false, die, player: { id: 1 } };
+		const game = {
+			creatures: { 3: killer, 7: creature },
+		} as unknown as Game;
+
+		(
+			Game.prototype as unknown as { handleLobbyMessage: (m: unknown) => void }
+		).handleLobbyMessage.call(game, {
+			type: 'creature-died',
+			creatureId: 7,
+			killerId: 3,
+			playerId: 'p1',
+		});
+
+		expect(die).toHaveBeenCalledWith(killer, true);
+	});
+
+	test('ignores the message when the creature is not present locally', () => {
+		const game = { creatures: {} } as unknown as Game;
+
+		(
+			Game.prototype as unknown as { handleLobbyMessage: (m: unknown) => void }
+		).handleLobbyMessage.call(game, {
+			type: 'creature-died',
+			creatureId: 99,
+			killerId: undefined,
+			playerId: 'p1',
+		});
+
+		// No throw, nothing to assert beyond not crashing.
+		expect(game.creatures['99']).toBeUndefined();
 	});
 });

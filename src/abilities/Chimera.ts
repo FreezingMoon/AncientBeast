@@ -3,6 +3,7 @@ import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import Game from '../game';
+import { shakeBoard } from '../game-display/camera';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -284,11 +285,16 @@ export default (G: Game) => {
 			activate: function (path, args) {
 				const ability = this;
 				this.end();
-				G.Phaser.camera.shake(0.02, 300, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				shakeBoard({
+					amplitude: 0.02,
+					durationMs: 300,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				const knockback = (_target, _crush, _range) => {
 					if (!_target) {
-						G.activeCreature.queryMove();
+						G.activeCreature?.queryMove();
 						return;
 					}
 					const damage = new Damage(
@@ -344,7 +350,7 @@ export default (G: Game) => {
 							const range = ability.isUpgraded() ? _range : _range - 1;
 							knockback(nextHex.creature, crush, range);
 						} else {
-							G.activeCreature.queryMove();
+							G.activeCreature?.queryMove();
 						}
 					};
 

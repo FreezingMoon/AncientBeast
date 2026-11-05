@@ -7,7 +7,7 @@ import { Team, isTeam } from '../utility/team';
 
 // Ability slot indices
 const ABILITY = {
-	WING_FEATHERS: 0, // passive: hover movement; flying if upgraded
+	WING_FEATHERS: 0, // passive: always flying; stores unused movement if upgraded
 	SLICING_POUNCE: 1, // melee pounce; permanent -1 offense debuff on target if upgraded
 	ESCORT_SERVICE: 2, // paired movement ability: move self and adjacent creature together
 	DEADLY_TOXIN: 3, // melee poison; ongoing damage per turn

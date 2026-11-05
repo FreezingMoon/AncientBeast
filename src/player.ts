@@ -38,7 +38,18 @@ export type ScoreEvent = {
 	player?: PlayerID;
 	kills?: number;
 	ability?: AbilitySlot;
+	/** Points already resolved by the game, for events whose value depends on match state. */
+	points?: number;
 };
+
+/**
+ * Bonus for the first three kills of the match, in order: 25, then 20, then 15.
+ *
+ * The bonus shrinks rather than being all-or-nothing on the very first kill, so
+ * it is a race several players can take part in (first, second and third can all
+ * go to different players) or sweep entirely with one player.
+ */
+export const BLOOD_BONUS = [25, 20, 15];
 
 export type PlayerColor = 'red' | 'blue' | 'orange' | 'green';
 
@@ -49,6 +60,26 @@ type DarkPriestOwner = {
 	controller: PlayerController;
 	color: PlayerColor;
 };
+
+/**
+ * The colour a player seat is drawn in, derived purely from its id.
+ *
+ * Exported so a Dark Priest cardboard can be requested before the `Player`
+ * objects exist (see `Game#preloadDarkPriestCardboards`) without duplicating this
+ * mapping.
+ */
+export function getPlayerColor(id: PlayerID): PlayerColor {
+	switch (id) {
+		case 0:
+			return 'red';
+		case 1:
+			return 'blue';
+		case 2:
+			return 'orange';
+		default:
+			return 'green';
+	}
+}
 
 export function getDarkPriestCardboardKey(owner: DarkPriestOwner): string {
 	const variant = owner.controller === 'bot' ? 'clone' : 'player';
@@ -100,20 +131,7 @@ export class Player {
 		this.game = game;
 		this.creatures = [];
 		this.name = ('Player' + (id + 1)) as PlayerName;
-		switch (id) {
-			case 0:
-				this.color = 'red';
-				break;
-			case 1:
-				this.color = 'blue';
-				break;
-			case 2:
-				this.color = 'orange';
-				break;
-			default:
-				this.color = 'green';
-				break;
-		}
+		this.color = getPlayerColor(id);
 		this.avatar = getDarkPriestAvatarUrl({ controller: 'human', color: this.color });
 		this.score = [];
 		// @ts-expect-error ts(2339)
@@ -140,7 +158,9 @@ export class Player {
 			!this.game.metaPowersState.disableMaterializationSickness;
 
 		// Events
-		this.game.signals.metaPowers.add(this.handleMetaPowerEvent, this);
+		this.game.channels.metaPowers.on('toggleDisableMaterializationSickness', (enabled: boolean) => {
+			this._summonCreaturesWithMaterializationSickness = !enabled;
+		});
 	}
 
 	// TODO: Is this even right? it should be off by 1 based on this code...
@@ -154,11 +174,7 @@ export class Player {
 		for (let i = 0; i < count; i++) {
 			creature = creatures[i];
 
-			if (
-				!creature.dead &&
-				!creature.undead &&
-				!(creature as CreatureCountFlag).hideFromCreatureCount
-			) {
+			if (!creature.dead && !(creature as CreatureCountFlag).hideFromCreatureCount) {
 				nbr++;
 			}
 		}
@@ -174,8 +190,14 @@ export class Player {
 		const game = this.game;
 		const baseCreatureData = game.retrieveCreatureStats(type);
 
-		// Create the full data for creature creation
-		const creatureData = $j.extend(baseCreatureData, pos, {
+		// Create the full data for creature creation.
+		// Clone the shared stats entry so summoning does not mutate
+		// `game.creatureData` (which `retrieveCreatureStats` returns by
+		// reference) — otherwise a later summon reads back the previous
+		// summon's `x`/`y`/`team`/`temp`, placing the new unit at the
+		// wrong location. This is most visible during replay, where the
+		// Dark Priest materializes several units in a row.
+		const creatureData = $j.extend({}, baseCreatureData, pos, {
 			team: this.id,
 			temp: false,
 		});
@@ -188,6 +210,9 @@ export class Player {
 
 		this.creatures.push(creature);
 		creature.summon(!this._summonCreaturesWithMaterializationSickness);
+		// Remember what was materialized last so a random materialization can
+		// offer something else instead of copy-catting this one.
+		game.lastSummonedType = type;
 		// @ts-expect-error 2554
 		game.onCreatureSummon(creature);
 	}
@@ -229,7 +254,7 @@ export class Player {
 
 			switch (s.type) {
 				case 'firstKill':
-					points += 20;
+					points += s.points ?? 0;
 					break;
 				case 'kill':
 					// Prevent issues with non-leveled creatures, e.g. Dark Priest
@@ -244,7 +269,7 @@ export class Player {
 					points += 50;
 					break;
 				case 'annihilation':
-					points += 100;
+					points += 99;
 					break;
 				case 'deny':
 					points += -1 * s.creature.size * 5;
@@ -336,11 +361,5 @@ export class Player {
 
 	get summonCreaturesWithMaterializationSickness() {
 		return this._summonCreaturesWithMaterializationSickness;
-	}
-
-	handleMetaPowerEvent(message, payload) {
-		if (message === 'toggleDisableMaterializationSickness') {
-			this._summonCreaturesWithMaterializationSickness = !payload;
-		}
 	}
 }

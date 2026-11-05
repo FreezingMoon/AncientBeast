@@ -1,16 +1,91 @@
-import { Damage } from '../damage';
+import { Damage, DamageStats } from '../damage';
 import { Team } from '../utility/team';
 import { Creature } from '../creature';
 import { Effect } from '../effect';
+import { Hex } from '../utility/hex';
 import * as arrayUtils from '../utility/arrayUtils';
 import { getPointFacade } from '../utility/pointfacade';
 import Game from '../game';
+import { shakeBoard } from '../game-display/camera';
+import { SnapshotCompatibilityError } from '../engine/GameSnapshot';
+import { ABOLISHED_BONFIRE_SPRING_EFFECT } from '../engine/snapshotBehaviors';
+
+type BonfireSpringSnapshotData = {
+	attackerId: number;
+	damages: DamageStats;
+};
+
+const bindBonfireSpringEffect = (
+	G: Game,
+	effect: Effect,
+	data: Record<string, unknown> | undefined,
+) => {
+	const candidate = data as Partial<BonfireSpringSnapshotData> | undefined;
+	const attackerId = candidate?.attackerId;
+	const attacker = Number.isInteger(attackerId) && G.creatures?.[attackerId as number];
+	const damages = candidate?.damages;
+	if (
+		!(attacker instanceof Creature) ||
+		attacker.name !== 'Abolished' ||
+		effect.owner !== attacker ||
+		!(effect.target instanceof Hex) ||
+		!damages ||
+		typeof damages !== 'object' ||
+		Array.isArray(damages) ||
+		Object.values(damages).some((amount) => typeof amount !== 'number' || !Number.isFinite(amount))
+	) {
+		throw new SnapshotCompatibilityError(
+			'Cannot restore Abolished Bonfire Spring: effect data is invalid.',
+		);
+	}
+
+	const behaviorData: BonfireSpringSnapshotData = {
+		attackerId: attacker.id,
+		damages: { ...damages },
+	};
+	effect.attacker = attacker;
+	effect.snapshotBehaviorId = ABOLISHED_BONFIRE_SPRING_EFFECT;
+	effect.snapshotBehaviorData = behaviorData;
+	effect.requireFn = function () {
+		if (!this.trap) {
+			throw new SnapshotCompatibilityError(
+				'Cannot activate Abolished Bonfire Spring without its trap.',
+			);
+		}
+		const creature = this.trap.hex.creature;
+		const type = (creature && creature.type) || null;
+		return type !== attacker.type;
+	};
+	effect.effectFn = (activeEffect, creatureOrHex: Creature | Hex) => {
+		const creature = creatureOrHex instanceof Creature ? creatureOrHex : creatureOrHex?.creature;
+		if (!(creature instanceof Creature)) {
+			throw new SnapshotCompatibilityError(
+				'Cannot activate Abolished Bonfire Spring without a creature target.',
+			);
+		}
+
+		creature.takeDamage(new Damage(attacker, behaviorData.damages, 1, [], G), {
+			isFromTrap: true,
+		});
+		creature.creatureSprite.showBonfireSpringHint();
+		if (!activeEffect.trap) {
+			throw new SnapshotCompatibilityError(
+				'Cannot activate Abolished Bonfire Spring without its trap.',
+			);
+		}
+		activeEffect.trap.destroy();
+		activeEffect.deleteEffect();
+	};
+};
 
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
  */
 export default (G: Game) => {
+	G.registerSnapshotEffectBehavior(ABOLISHED_BONFIRE_SPRING_EFFECT, (effect, data) =>
+		bindBonfireSpringEffect(G, effect, data),
+	);
 	G.abilities[7] = [
 		//	First Ability: Burning Spirit
 		{
@@ -28,37 +103,67 @@ export default (G: Game) => {
 					return;
 				}
 
+				// Skip passive for Greater Pyre - it handles effects manually
+				if (damage.isFromGreaterPyre) {
+					return;
+				}
+
+				const caster = this.creature;
+				const game = G;
+
+				// Add effect WITHOUT default hint (we'll show emoji instead)
 				target.addEffect(
 					new Effect(
-						'Burning Spirit', // Name
-						this.creature, // Caster
-						target, // Target
-						'', // Trigger
+						'Burning Spirit',
+						caster,
+						target,
+						'',
 						{
 							turnLifetime: -1,
 							alterations: {
 								burn: -1,
 							},
-						}, // Optional arguments
-						G,
+						},
+						game,
 					),
+					undefined,
+					undefined,
+					false,
+					true, // disableHint
 				);
+
+				// Only show separate debuff hint if damage doesn't already include emoji
+				// (Greater Pyre, Fiery Touch, and traps already show it on damage line)
+				if (!damage.isFromBurningSpirit && !damage.isFromTrap) {
+					target.hint('❤️‍🔥', 'msg_effects');
+				}
+
 				if (this.isUpgraded()) {
-					this.creature.addEffect(
+					// Add self-buff WITHOUT default hint
+					caster.addEffect(
 						new Effect(
-							'Burning Spirit', // Name
-							this.creature, // Caster
-							this.creature, // Target
-							'', // Trigger
+							'Burning Spirit',
+							caster,
+							caster,
+							'',
 							{
 								turnLifetime: -1,
 								alterations: {
 									burn: 1,
 								},
-							}, // Optional arguments
-							G,
+							},
+							game,
 						),
+						undefined,
+						undefined,
+						false,
+						true, // disableHint
 					);
+
+					// Show fireheart on caster for each buff gained from upgraded passive
+					// For AoE attacks like Greater Pyre, damage.area = number of targets hit
+					const buffCount = damage.area || 1;
+					caster.hint('❤️‍🔥'.repeat(buffCount), 'msg_effects');
 				}
 			},
 		},
@@ -136,7 +241,12 @@ export default (G: Game) => {
 				const target = getPointFacade().getCreaturesAt(hexWithTarget.x, hexWithTarget.y)[0];
 
 				ability.end();
-				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 100,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				const startX = ability.creature.sprite.scale.x > 0 ? 232 : 52;
 				const projectileInstance = G.animations.projectile(
@@ -148,10 +258,12 @@ export default (G: Game) => {
 					args,
 					startX,
 					-20,
+					true,
 				);
 				const tween = projectileInstance[0];
 				const sprite = projectileInstance[1];
 				const damage = this._getDamage(path);
+				damage.isFromBurningSpirit = true;
 
 				tween.onComplete.add(function () {
 					// `this` refers to the animation object, _not_ the ability
@@ -206,6 +318,11 @@ export default (G: Game) => {
 				return this.testRequirements();
 			},
 
+			getAnimationData: function () {
+				return {
+					noTilt: true,
+				};
+			},
 			query() {
 				const ability = this;
 				const crea = this.creature;
@@ -249,30 +366,28 @@ export default (G: Game) => {
 				const createBonfireSpringTraps = (ownerCreature: Creature) => {
 					const createdTraps = [];
 					ownerCreature.hexagons.forEach(function (h) {
-						const trap = h.createTrap(
-							'bonfire-spring',
-							[
-								new Effect(
-									'Bonfire Spring',
-									ownerCreature,
-									h,
-									'onStepIn',
-									{
-										requireFn: requireFn,
-										effectFn: effectFn,
-										attacker: ownerCreature,
-									},
-									G,
-								),
-							],
-							ownerCreature.player,
+						const effect = new Effect(
+							'Bonfire Spring',
+							ownerCreature,
+							h,
+							'onStepIn',
 							{
-								turnLifetime: 1,
-								ownerCreature,
-								fullTurnLifetime: true,
-								destroyAnimation: 'shrinkDown',
+								attacker: ownerCreature,
+								snapshotBehaviorId: ABOLISHED_BONFIRE_SPRING_EFFECT,
+								snapshotBehaviorData: {
+									attackerId: ownerCreature.id,
+									damages: { ...ability.damages },
+								},
 							},
+							G,
 						);
+						bindBonfireSpringEffect(G, effect, effect.snapshotBehaviorData);
+						const trap = h.createTrap('bonfire-spring', [effect], ownerCreature.player, {
+							turnLifetime: 1,
+							ownerCreature,
+							fullTurnLifetime: true,
+							destroyAnimation: 'shrinkDown',
+						});
 						createdTraps.push(trap);
 					});
 
@@ -280,30 +395,6 @@ export default (G: Game) => {
 				};
 
 				// Leave a Firewall in current location
-				const effectFn = function (effect, creatureOrHex) {
-					let creature = creatureOrHex;
-					if (!(creatureOrHex instanceof Creature)) {
-						creature = creatureOrHex.creature;
-					}
-					creature.takeDamage(new Damage(effect.attacker, ability.damages, 1, [], G), {
-						isFromTrap: true,
-					});
-					// @ts-expect-error 'this' defauls to type 'any'
-					this.trap.destroy();
-					effect.deleteEffect();
-				};
-
-				const requireFn = function () {
-					// @ts-expect-error 'this' defauls to type 'any'
-					const creature = this.trap.hex.creature,
-						type = (creature && creature.type) || null;
-
-					if (creature === 0) {
-						return false;
-					}
-					return type !== ability.creature.type;
-				};
-
 				const crea = this.creature;
 				createBonfireSpringTraps(crea);
 
@@ -315,7 +406,7 @@ export default (G: Game) => {
 					teleportEffect: 'abolishedBonfire',
 					createTeleportDestinationTraps: () => createBonfireSpringTraps(crea),
 					callback: function () {
-						G.activeCreature.queryMove();
+						G.activeCreature?.queryMove();
 					},
 				});
 			},
@@ -396,17 +487,74 @@ export default (G: Game) => {
 					this.damages.burn = 30;
 				}
 
+				// Total hexes affected = sum of hexesHit across all targets
+				const totalHexesHit = targets.reduce((sum, item) => sum + item.hexesHit, 0);
+
 				targets.forEach(function (item) {
-					item.target.takeDamage(
-						new Damage(
-							ability.creature, // Attacker
-							ability.damages, // Damage Type
-							1, // Area
-							[], // Effects
-							G,
-						),
+					const hexesHit = item.hexesHit;
+
+					// Apply debuff once per hexagon affected
+					for (let i = 0; i < hexesHit; i++) {
+						item.target.addEffect(
+							new Effect(
+								'Burning Spirit',
+								ability.creature,
+								item.target,
+								'',
+								{
+									turnLifetime: -1,
+									alterations: {
+										burn: -1,
+									},
+								},
+								G,
+							),
+							undefined,
+							undefined,
+							false,
+							true, // disableHint
+						);
+					}
+
+					// Damage with area = hexesHit for this target
+					const dmg = new Damage(
+						ability.creature, // Attacker
+						ability.damages, // Damage Type
+						hexesHit, // Area = hexes of this target affected
+						[], // Effects
+						G,
 					);
+					dmg.isFromBurningSpirit = true;
+					dmg.isFromGreaterPyre = true;
+					item.target.takeDamage(dmg);
 				});
+
+				// Apply buff to caster = total hexes hit
+				if (totalHexesHit > 0) {
+					for (let i = 0; i < totalHexesHit; i++) {
+						crea.addEffect(
+							new Effect(
+								'Burning Spirit',
+								crea,
+								crea,
+								'',
+								{
+									turnLifetime: -1,
+									alterations: {
+										burn: 1,
+									},
+								},
+								G,
+							),
+							undefined,
+							undefined,
+							false,
+							true, // disableHint
+						);
+					}
+					// Show buff count on caster
+					crea.hint(`❤️‍🔥 x${totalHexesHit}`, 'msg_effects');
+				}
 			},
 		},
 	];

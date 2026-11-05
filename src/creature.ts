@@ -1,19 +1,45 @@
+import { Easing } from './utility/easing';
 import $j from 'jquery';
 import { Ability } from './ability';
 import { search } from './utility/pathfinding';
 import { Hex } from './utility/hex';
+import { disperseBadBreathCloudsAt } from './vfx/bad-breath';
 import Game from './game';
 import * as arrayUtils from './utility/arrayUtils';
 import { Drop, DropDefinition } from './drop';
+import { ensureCardboard, ensureDropTexture, isTextureReady } from './assets';
 import { Point, getPointFacade } from './utility/pointfacade';
 import { Effect } from './effect';
-import { Player, PlayerID, getDarkPriestCardboardKey, getDarkPriestDisplayOffsetX } from './player';
+import {
+	BLOOD_BONUS,
+	Player,
+	PlayerID,
+	getDarkPriestCardboardKey,
+	getDarkPriestDisplayOffsetX,
+} from './player';
 import { Damage, DamageResult } from './damage';
 import { AugmentedMatrix } from './utility/matrices';
 import { Trap } from './utility/trap';
-import { HEX_WIDTH_PX, hashOffsetCoords, offsetNeighbors } from './utility/const';
+import {
+	GHOST_PREVIEW_ALPHA,
+	HEX_WIDTH_PX,
+	hashOffsetCoords,
+	offsetNeighbors,
+} from './utility/const';
 import { CreatureType, Level, Realm, Unit, UnitName } from './data/types';
-import { PlasmaField, detectWeakHardware, detectVeryWeakHardware } from './plasma-field';
+import { PlasmaField, detectWeakHardware, detectVeryWeakHardware } from './vfx/plasma/field';
+import type {
+	GameEngine,
+	GroupHandle,
+	NativePassthrough,
+	SpriteHandle,
+	TweenHandle,
+} from './engine/types';
+import { GOOEY_BODY_BRB_TRAP_BEHAVIOR } from './engine/snapshotBehaviors';
+import { getFrameSize, MISSING_TEXTURE_KEY } from './game-display/texture';
+import { onPointerDown } from './input/input';
+import { setHandCursor } from './game-display/cursor';
+import { createGameCanvasSurface, type CanvasSurface } from './game-display/canvas-surface';
 
 /** Vertical distance (in pixels) between the Dark Priest's feet and the Plasma Field center. */
 const PLASMA_FIELD_OFFSET_Y = 90;
@@ -35,10 +61,18 @@ const PLASMA_FIELD_HUE_BY_COLOR: Record<string, number> = {
  *
  * Returns 0 when the texture cannot be read (e.g. mocked environment).
  */
-function computeCardboardCenterOffset(phaser: Phaser.Game, sprite: Phaser.Sprite): number {
+function computeCardboardCenterOffset(
+	textures: Phaser.Textures.TextureManager | null,
+	sprite: SpriteHandle,
+): number {
 	const key = sprite.key;
 	if (typeof key !== 'string') return 0;
-	const src = phaser.cache.getImage(key) as HTMLImageElement | HTMLCanvasElement | null;
+
+	// Use Texture Manager instead of Cache: textures are loaded into the
+	// Texture Manager for GPU rendering, not the Cache. The Cache may not
+	// have the decoded image data even after the loader's filecomplete event.
+	const texture = textures?.get(key);
+	const src = texture?.getSourceImage() as HTMLImageElement | HTMLCanvasElement | null;
 	if (!src || !(src.width > 0) || !(src.height > 0)) return 0;
 
 	const w = src.width;
@@ -71,6 +105,22 @@ function computeCardboardCenterOffset(phaser: Phaser.Game, sprite: Phaser.Sprite
 		}
 	}
 	return 0;
+}
+
+/**
+ * Evaluates a stat alteration expression such as `5*2` or `10/3`
+ * without `eval`. String alterations only ever encode a single
+ * multiplication or division, so a strict numeric parse covers
+ * every expression the game data produces; anything else leaves
+ * the base value untouched.
+ */
+function applyStatExpression(base: number, expression: string): number {
+	const match = /^(-?\d+(?:\.\d+)?)\s*([*/])\s*(-?\d+(?:\.\d+)?)$/.exec(expression.trim());
+	if (!match) {
+		return base;
+	}
+	const operand = Number(match[3]);
+	return match[2] === '*' ? base * operand : base / operand;
 }
 import { UnitDisplayInfo, UnitSize } from './data/units';
 
@@ -135,10 +185,11 @@ type Status = {
 	dizzy: boolean;
 };
 
+export type CreatureDeathAnimationType = 'shatterDown' | 'melt' | 'disintegrate';
+
 type CreatureRuntimeFlags = {
 	hideFromQueue?: boolean;
 	hideFromCreatureCount?: boolean;
-	deathAnimationType?: string;
 };
 
 /**
@@ -195,7 +246,10 @@ export class Creature {
 	animation: { walk_speed: number };
 	display: UnitDisplayInfo;
 	drop: DropDefinition;
+	deathAnimationType?: CreatureDeathAnimationType;
 	_movementType: Movement;
+	/** Set from the unit's `afterimages` flag in `data/units.ts`. */
+	private _afterimages = false;
 	temp: boolean;
 	hexagons: Hex[];
 	team: PlayerID;
@@ -203,12 +257,11 @@ export class Creature {
 
 	// Game
 	dead: boolean;
-	undead: boolean;
 	killer: Player;
 	hasWait: boolean;
 	travelDist: number;
 	effects: Array<Effect>;
-	dropCollection: Drop[];
+	dropCollection: Pick<Drop, 'name' | 'alterations'>[];
 	protectedFromFatigue: boolean;
 	turnsActive: number;
 	private _nextGameTurnActive: number;
@@ -216,6 +269,7 @@ export class Creature {
 	private _hinderedTurn: number;
 	materializationSickness: boolean;
 	noActionPossible: boolean;
+	_restoringFromSnapshot = false;
 
 	// Statistics
 	baseStats: CreatureStats;
@@ -227,6 +281,12 @@ export class Creature {
 	energy: number;
 	oldEnergy: number;
 	remainingMove: number;
+	/**
+	 * Movement banked from previous turns by an ability that stores unused movement
+	 * (see `stashedMovementCap()`). Added on top of `this.stats.movement` to form
+	 * `this.maxMovement`, and spent first during a turn.
+	 */
+	movementPool: number;
 	abilities: Ability[];
 	accumulatedTeleportRange = 0; // Used for Abolished's third ability
 	// BRB state — used by Gumble's upgraded Gooey Body to defer death
@@ -235,6 +295,11 @@ export class Creature {
 	/** True after BRB has fired once; prevents Gooey Body re-triggering on the follow-up death. */
 	_brbSpent: boolean;
 
+	// Burning Spirit passive: track last Damage instance to aggregate multi-target attacks (Abolished)
+	_lastBurningSpiritDamage: Damage | undefined;
+	// Bonfire Spring trap: track number of traps triggered in current movement (Abolished)
+	_bonfireSpringCount: number | undefined;
+
 	creatureSprite: CreatureSprite;
 
 	/** Procedural Plasma Field visual, shown for Dark Priests with plasma. */
@@ -242,6 +307,12 @@ export class Creature {
 
 	/** Base horizontal offset used to center the field on the cardboard's top opaque row. */
 	private _plasmaFieldBaseOffsetX = 0;
+
+	/**
+	 * The per-frame hook that keeps {@link plasmaField} centred on the priest.
+	 * Held so it can be unregistered when the field is torn down.
+	 */
+	private _plasmaFieldPositionHook: (() => void) | null = null;
 
 	/**
 	 * Whether the Plasma Field is currently shown because this Dark Priest is the
@@ -289,12 +360,20 @@ export class Creature {
 		this.animation = obj.animation;
 		this.display = obj.display;
 		this.drop = obj.drop;
+		// A unit only leaves its drop behind when it dies, which can be many turns
+		// away — so the pickup art is fetched here, while there is still time for
+		// it to land, rather than being part of the match preload.
+		if (obj.drop) {
+			ensureDropTexture(obj.drop.name);
+		}
 		this._movementType = 'normal';
 		this.temp = obj.temp;
 
 		if (obj.movementType) {
 			this._movementType = obj.movementType;
 		}
+
+		this._afterimages = Boolean(obj.afterimages);
 
 		this.hexagons = [];
 
@@ -308,6 +387,13 @@ export class Creature {
 		this.effects = [];
 		this.dropCollection = [];
 		this.protectedFromFatigue = this.isDarkPriest() ? true : false;
+		// Safety net for a unit that reaches the board without a placement preview
+		// to trigger its own cardboard load — the Dark Priest builds its temp
+		// creature before the first preview, and `player.summon` can run straight
+		// after a click. Setup already waits for the Dark Priest's own variant, so
+		// in practice this is a no-op for it and a genuine request for a summoned
+		// unit's board art.
+		ensureCardboard(this.isDarkPriest() ? getDarkPriestCardboardKey(this.player) : this.name);
 		this.turnsActive = 0;
 		this._brbActive = false;
 		this._brbState = null;
@@ -324,15 +410,15 @@ export class Creature {
 			offense: obj.stats.offense - 0,
 			defense: obj.stats.defense - 0,
 			movement: obj.stats.movement - 0,
-			pierce: obj.stats.pierce - 0,
-			slash: obj.stats.slash - 0,
-			crush: obj.stats.crush - 0,
-			shock: obj.stats.shock - 0,
-			burn: obj.stats.burn - 0,
-			frost: obj.stats.frost - 0,
-			poison: obj.stats.poison - 0,
-			sonic: obj.stats.sonic - 0,
-			mental: obj.stats.mental - 0,
+			pierce: (obj.masteries?.pierce ?? (obj.stats as any)?.pierce) - 0,
+			slash: (obj.masteries?.slash ?? (obj.stats as any)?.slash) - 0,
+			crush: (obj.masteries?.crush ?? (obj.stats as any)?.crush) - 0,
+			shock: (obj.masteries?.shock ?? (obj.stats as any)?.shock) - 0,
+			burn: (obj.masteries?.burn ?? (obj.stats as any)?.burn) - 0,
+			frost: (obj.masteries?.frost ?? (obj.stats as any)?.frost) - 0,
+			poison: (obj.masteries?.poison ?? (obj.stats as any)?.poison) - 0,
+			sonic: (obj.masteries?.sonic ?? (obj.stats as any)?.sonic) - 0,
+			mental: (obj.masteries?.mental ?? (obj.stats as any)?.mental) - 0,
 
 			/* TODO: Move boolean flags into this.status, because updateAlterations() resets
 			this.stats unless they've been applied via an effect. */
@@ -399,8 +485,11 @@ export class Creature {
 		this.endurance = obj.stats.endurance;
 		// Current energy. Maximum energy is `this.stats.energy`.
 		this.energy = obj.stats.energy;
-		// Current movement. Maximum movement is `this.stats.movement`.
+		// Current movement. Maximum movement is `this.maxMovement`.
 		this.remainingMove = 0; //Default value recovered each turn
+		// Movement banked from previous turns. Only abilities granting a
+		// `stashedMovementCap()` can fill this; see `stashMovement()`.
+		this.movementPool = 0;
 
 		// Abilities
 		this.abilities = [
@@ -472,6 +561,18 @@ export class Creature {
 	}
 
 	/**
+	 * Set creature position and sync sprite/hex state.
+	 * Used for snapshot reconstruction and direct placement.
+	 */
+	setPosition(x: number, y: number) {
+		this.x = x;
+		this.y = y;
+		this.pos = { x, y };
+		this.updateHex();
+		this.creatureSprite.setHex(this.hexagons[this.size - 1], 0);
+	}
+
+	/**
 	 * Summon animation.
 	 */
 	summon(disableMaterializationSickness = false) {
@@ -487,9 +588,14 @@ export class Creature {
 
 		// Materialization fade-in: 1 second per occupied hex
 		const fadeMs = 1000 * this.size;
+		// The cardboard comes in at the ghost opacity the player was just
+		// previewing, so the confirmed unit rises out of the ghost rather than
+		// popping into existence — the ghost itself fades out over the same span
+		// (see HexGrid.fadeOutTempCreature).
+		this.creatureSprite.setAlpha(GHOST_PREVIEW_ALPHA, 0);
 		game.grid.fadeOutTempCreature(undefined, fadeMs);
 		this.creatureSprite.setAlpha(1, fadeMs);
-		setTimeout(() => {
+		game.defer(() => {
 			if (this.dead) {
 				return;
 			}
@@ -502,8 +608,7 @@ export class Creature {
 
 		// Ghost creatures in front so the materializing unit is spotlighted
 		this.hexagons.forEach((hex) => hex.ghostOverlap(this));
-		setTimeout(() => {
-			if (!game.grid) return;
+		game.defer(() => {
 			if (game.grid.lastXrayHex) {
 				game.grid.xray(game.grid.lastXrayHex);
 			} else {
@@ -520,6 +625,13 @@ export class Creature {
 		// Trigger trap under
 		this.hexagons.forEach((hex) => {
 			hex.activateTrap(game.triggers.onStepIn, this);
+			if (this.name !== 'Swampler') {
+				try {
+					disperseBadBreathCloudsAt(game, hex.x, hex.y, this);
+				} catch {
+					// ignore
+				}
+			}
 		});
 
 		// Pickup drop
@@ -541,15 +653,19 @@ export class Creature {
 	 * Activate the creature by showing movement range and binding controls to this creature
 	 */
 	activate() {
-		this.travelDist = 0;
-		this.oldEnergy = this.energy;
-		this.oldHealth = this.health;
-		this.noActionPossible = false;
+		const restoringFromSnapshot = this._restoringFromSnapshot;
+		this._restoringFromSnapshot = false;
+		if (!restoringFromSnapshot) {
+			this.travelDist = 0;
+			this.oldEnergy = this.energy;
+			this.oldHealth = this.health;
+			this.noActionPossible = false;
 
-		// Show the Plasma Field for an active Dark Priest with plasma so the player
-		// can see their shield during their own turn. Cleared in deactivate() once
-		// the creature performs an action.
-		this._plasmaFieldActiveTurn = this.isDarkPriest() && this.hasCreaturePlayerGotPlasma();
+			// Show the Plasma Field for an active Dark Priest with plasma so the player
+			// can see their shield during their own turn. Cleared in deactivate() once
+			// the creature performs an action.
+			this._plasmaFieldActiveTurn = this.isDarkPriest() && this.hasCreaturePlayerGotPlasma();
+		}
 
 		const game = this.game;
 		const stats = this.stats;
@@ -557,7 +673,7 @@ export class Creature {
 			this.game.onReset(this);
 			// Variables reset
 			this.updateAlteration();
-			this.remainingMove = stats.movement;
+			this.remainingMove = this.maxMovement;
 
 			if (!this.materializationSickness) {
 				// Fatigued creatures (endurance 0) should not regenerate.
@@ -578,7 +694,7 @@ export class Creature {
 				this.hint('♣', 'damage');
 			}
 
-			setTimeout(() => {
+			game.defer(() => {
 				game.UI.energyBar.animSize(this.energy / stats.energy);
 				game.UI.healthBar.animSize(this.health / stats.health);
 			}, 1000);
@@ -595,15 +711,14 @@ export class Creature {
 		varReset.bind(this);
 
 		// Frozen or dizzy effect
-		if (this.isFrozen() || this.isDizzy()) {
+		if (!restoringFromSnapshot && (this.isFrozen() || this.isDizzy())) {
 			varReset();
-			const interval = setInterval(() => {
-				if (!game.turnThrottle) {
-					clearInterval(interval);
-					game.skipTurn({
-						tooltip: this.isFrozen() ? 'Frozen' : 'Dizzy',
-					});
-				}
+			game.poll(() => {
+				if (game.turnThrottle) return;
+				game.skipTurn({
+					tooltip: this.isFrozen() ? 'Frozen' : 'Dizzy',
+				});
+				return true;
 			}, 50);
 			return;
 		}
@@ -611,13 +726,12 @@ export class Creature {
 		// Dazzled effect — ronin units whose Dark Priest has been killed in 2vs2
 		if (this.player.hasLost) {
 			varReset();
-			const interval = setInterval(() => {
-				if (!game.turnThrottle) {
-					clearInterval(interval);
-					game.skipTurn({
-						tooltip: 'Dazzled',
-					});
-				}
+			game.poll(() => {
+				if (game.turnThrottle) return;
+				game.skipTurn({
+					tooltip: 'Dazzled',
+				});
+				return true;
 			}, 50);
 			return;
 		}
@@ -626,60 +740,15 @@ export class Creature {
 		if (this._brbState) {
 			varReset();
 			const brbState = this._brbState;
-			const brbInterval = setInterval(() => {
-				if (!game.turnThrottle) {
-					clearInterval(brbInterval);
-
-					// Trap hex is occupied — skip this turn and try again next
-					if (brbState.gooTrap.hex.creature) {
-						game.skipTurn({ tooltip: 'BRB' });
-						return;
-					}
-
-					// Hex is free — revive!
-					this._brbSpent = false; // reset so ability can fire again if Gumble dies later
-					this._brbState = null;
-					this.x = brbState.gooTrap.x;
-					this.y = brbState.gooTrap.y;
-					this.pos = { x: this.x, y: this.y };
-					this.health = this.stats.health;
-					this.energy = this.stats.energy;
-					this.endurance = this.stats.endurance;
-					this.updateHex();
-					this.facePlayerDefault();
-
-					// Revive with rise animation (inverse of melt)
-					const reviveFadeMs = 1000;
-					this.creatureSprite.setAngle(0, 0);
-					this.creatureSprite.setHex(brbState.gooTrap.hex, 0);
-
-					// Fade trap out while Gumble rises back in
-					brbState.gooTrap.hide(reviveFadeMs);
-					setTimeout(() => brbState.gooTrap.destroy(), reviveFadeMs);
-					this.healthShow();
-					this.updateHealth();
-
-					game.animations.rise(this, {
-						callback: () => {
-							game.updateQueueDisplay();
-							game.grid.updateDisplay();
-						},
-						overrideSpeed: reviveFadeMs,
-					});
-
-					game.log('%CreatureName' + this.id + '% rises from the goo!');
-					this.hint('Back!', 'msg_effects');
-
-					setTimeout(() => {
-						game.startTimer();
-						this.queryMove(null);
-					}, reviveFadeMs);
-				}
+			// `poll` stops itself at teardown, so this no longer needs its own
+			// clearInterval or a guard for a dead board.
+			game.poll(() => {
+				if (game.turnThrottle) return;
+				return this._finishBRB(brbState);
 			}, 50);
 			return;
 		}
-
-		if (!this.hasWait) {
+		if (!restoringFromSnapshot && !this.hasWait) {
 			varReset();
 
 			// Trigger
@@ -687,28 +756,117 @@ export class Creature {
 			game.onStartPhase(this);
 		}
 
-		this.materializationSickness = false;
+		if (!restoringFromSnapshot) {
+			this.materializationSickness = false;
+		}
 
-		const interval = setInterval(() => {
+		// The opening movement query is deferred a second so the activation
+		// animation plays first, and by then the board may no longer be waiting for
+		// it: the dash is not input-gated, so a player can open it and start an
+		// action inside that window — most sharply a Dark Priest confirming a
+		// materialize, whose placement query carries a temp creature that
+		// queryMove() would destroy along with the query itself, cancelling the
+		// summon outright. Snapshot the query generation and only install the
+		// default movement query if nothing has claimed the board since; the timer
+		// and the hover replay below belong to the activation either way.
+		const queryGenerationAtActivation = game.grid?.queryGeneration;
+
+		// `poll` fires once after the delay and then stops (returning true).
+		// Scheduling it this way means teardown during the delay cancels it outright
+		// instead of the callback arriving to dereference a dead board.
+		game.poll(() => {
 			// if (!game.freezedInput) { remove for muliplayer
-			clearInterval(interval);
 			if (game.turn >= game.minimumTurnBeforeFleeing) {
 				game.UI.btnFlee?.changeState('normal');
 			}
 
 			game.startTimer();
-			this.queryMove(null);
+			// An ability animation in flight owns the turn hand-back: it installs
+			// the movement query itself once its effect is over. Handing the turn
+			// back from here would re-install the query and reset the unit's facing
+			// mid-animation — Horn Head wheeling back to his default facing while
+			// the Meat Sickle hook is still flying at a foe behind him — and let
+			// the player walk the caster away from the effect.
+			if (
+				game.grid?.queryGeneration === queryGenerationAtActivation &&
+				(game.animationQueue?.length ?? 0) === 0 &&
+				!game._deferredQueryMovePending
+			) {
+				this.queryMove(null);
+			}
 			game.grid?.refreshHoverState();
 			// }
+			return true;
 		}, 1000);
 
 		// Apply active-unit xray immediately; queryMove() starts after a delay and
 		// can otherwise leave one-hex units visually hidden during turn handoff.
-		game.grid.refreshActiveCreatureXray();
+		game.grid?.refreshActiveCreatureXray();
 		this.xray(false);
 
 		// Elevate health indicator above all creatures while this unit is active
 		this.startBounce();
+	}
+
+	/**
+	 * Resolve Gumble's BRB (Gooey Body) state once the turn throttle clears.
+	 *
+	 * Split out of `activate()` so the poll that drives it is a one-liner. Returns
+	 * true when the caller should stop polling — either the trap hex was still
+	 * occupied, or the revive was started.
+	 */
+	private _finishBRB(brbState: NonNullable<Creature['_brbState']>): boolean {
+		const game = this.game;
+
+		// Trap hex is occupied — skip this turn. Stop polling so the next
+		// activation (when Gumble's turn comes around again) re-checks;
+		// otherwise the poll keeps firing skipTurn every second, showing
+		// "BRB" non-stop and stalling the queue (notably in bot/sim games).
+		if (brbState.gooTrap.hex.creature) {
+			game.skipTurn({ tooltip: 'BRB' });
+			return true;
+		}
+
+		// Hex is free — revive!
+		this._brbSpent = false; // reset so ability can fire again if Gumble dies later
+		this._brbState = null;
+		this.x = brbState.gooTrap.x;
+		this.y = brbState.gooTrap.y;
+		this.pos = { x: this.x, y: this.y };
+		this.health = this.stats.health;
+		this.energy = this.stats.energy;
+		this.endurance = this.stats.endurance;
+		this.updateHex();
+		this.facePlayerDefault();
+
+		// Revive with rise animation (inverse of melt)
+		const reviveFadeMs = 1000;
+		this.creatureSprite.setAngle(0, 0);
+		this.creatureSprite.setHex(brbState.gooTrap.hex, 0);
+
+		// Fade trap out while Gumble rises back in
+		brbState.gooTrap.hide(reviveFadeMs);
+		game.defer(() => brbState.gooTrap.destroy(), reviveFadeMs);
+		this.healthShow();
+		this.updateHealth();
+
+		game.animations.rise(this, {
+			callback: () => {
+				game.updateQueueDisplay();
+				game.grid.updateDisplay();
+			},
+			overrideSpeed: reviveFadeMs,
+		});
+
+		game.log('%CreatureName' + this.id + '% rises from the goo!');
+		this.hint('Back!', 'msg_effects');
+
+		game.defer(() => {
+			game.startTimer();
+			this.queryMove(null);
+		}, reviveFadeMs);
+
+		return true;
 	}
 
 	/**
@@ -735,14 +893,34 @@ export class Creature {
 			// turn handoff, which can briefly render the active unit preview at cursor.
 			game.grid.lastMouseHex = undefined;
 			game.grid.suppressNextHoverRefresh = true;
-			this.remainingMove = 0;
+			this.stashMovement();
 			this.queryMove(null);
 			this.turnsActive += 1;
 			this._nextGameTurnActive = game.turn + 1;
+			// Round-based (passive) abilities upgrade on active rounds, not uses,
+			// so they cross their threshold here — announce them on the turn-end
+			// that crossed, not on whatever damage triggers them next.
+			this.abilities.forEach((ability) => {
+				if (
+					!ability.isUpgradedPerUse() &&
+					ability.isUpgraded() &&
+					ability.usesLeftBeforeUpgrade() == 0
+				) {
+					ability.announceUpgrade();
+				}
+			});
 			// @ts-expect-error 2554
 			game.onEndPhase(this);
 		}
 		this.hasWait = this.isDelayed;
+	}
+
+	/**
+	 * Enable the plasma field display for the active turn.
+	 * Used at match start for the first active Dark Priest.
+	 */
+	setPlasmaFieldActiveTurn(enabled: boolean): void {
+		this._plasmaFieldActiveTurn = enabled;
 	}
 
 	get isInCurrentQueue() {
@@ -876,22 +1054,28 @@ export class Creature {
 				callback: function (hex: Hex, args) {
 					if (hex.x == args.creature.x && hex.y == args.creature.y) {
 						// Prevent null movement
-						game.activeCreature.queryMove();
+						game.activeCreature?.queryMove();
 						return;
 					}
 
 					if (game.grid.materialize_overlay) {
-						const creature = game.retrieveCreatureStats(game.activeCreature.type);
-						game.Phaser.add
-							.tween(game.grid.materialize_overlay)
-							.to(
-								{
-									alpha: 0,
-								},
-								creature.animation.walk_speed,
-								Phaser.Easing.Linear.None,
-							)
-							.start();
+						// The active creature can be cleared by endGame() (e.g. when the
+						// Dark Priest dies mid-animation) while a stale query is still
+						// pending — there is no creature left to preview against, so
+						// skip just the overlay fade rather than aborting the move.
+						if (game.activeCreature) {
+							const creature = game.retrieveCreatureStats(game.activeCreature.type);
+							game.gameEngine
+								.tween(game.grid.materialize_overlay)
+								.to(
+									{
+										alpha: 0,
+									},
+									creature.animation.walk_speed,
+									Easing.Linear.None,
+								)
+								.start();
+						}
 					}
 
 					// Calculate the path once here so the exact same route is recorded
@@ -910,7 +1094,14 @@ export class Creature {
 						},
 						path: movePath.map((pathHex) => ({ x: pathHex.x, y: pathHex.y })),
 					};
-					game.gamelog.add(moveRecord);
+					// Stamp the mover so replay can wait for this creature's turn.
+					// `activeCreature` is normally the same one, but a move can be
+					// recorded from a creature that is only just becoming active.
+					game.gamelog.add(moveRecord, {
+						id: args.creature.id,
+						name: args.creature.name,
+						player: args.creature.player?.id ?? -1,
+					});
 					if (game.multiplayer) {
 						game.sendMultiplayerMove(moveRecord.target, moveRecord.path);
 					}
@@ -919,7 +1110,7 @@ export class Creature {
 						animation: isFlying ? 'fly' : 'walk',
 						path: movePath,
 						callback: function () {
-							game.activeCreature.queryMove();
+							game.activeCreature?.queryMove();
 						},
 					});
 				},
@@ -976,7 +1167,13 @@ export class Creature {
 			if (!game.grid.isRefreshingHoverState) {
 				game.grid.redoLastQuery();
 			}
-			const creature = game.retrieveCreatureStats(game.activeCreature.type);
+			// The active creature can be cleared by endGame() (e.g. when the Dark
+			// Priest dies mid-animation) while a stale hover query is still pending.
+			const activeCreature = game.activeCreature;
+			if (!activeCreature) {
+				return;
+			}
+			const creature = game.retrieveCreatureStats(activeCreature.type);
 			game.grid.previewCreature(hex, creature, game.activePlayer);
 			args.creature.tracePosition({
 				x: hex.x,
@@ -1047,6 +1244,12 @@ export class Creature {
 			return; // Break if not walkable
 		}
 
+		// The active creature can be cleared by endGame() (e.g. when the Dark
+		// Priest dies mid-animation) while a stale hover query is still pending,
+		// so guard before reading its type — there is no preview to draw.
+		if (!game.activeCreature) {
+			return;
+		}
 		const creat = game.retrieveCreatureStats(game.activeCreature.type);
 		game.grid.previewCreature(hex.pos, creat, game.activePlayer);
 
@@ -1082,9 +1285,19 @@ export class Creature {
 	 */
 	updateHex() {
 		const count = this.size;
-		let i;
 
-		for (i = 0; i < count; i++) {
+		// Detach from any hexes we previously occupied so a moved creature does
+		// not leave a stale `creature` reference (and a ghost health indicator)
+		// behind on its old tiles.
+		this.hexagons.forEach((hex) => {
+			if (hex && hex.creature === this) {
+				hex.creature = undefined;
+			}
+		});
+		// Clear existing hexagons first to avoid duplicates
+		this.hexagons.length = 0;
+
+		for (let i = 0; i < count; i++) {
 			this.hexagons.push(this.game.grid.hexes[this.y][this.x - i]);
 		}
 
@@ -1096,8 +1309,9 @@ export class Creature {
 	highlightCurrentHexesAsDashed() {
 		const dashedTexture = `hex_dashed_p${this.player.id}`;
 		this.hexagons.forEach((hex) => {
+			if (typeof hex._swamplerHomeOwner === 'number') return;
 			if (hex.display.key !== dashedTexture) {
-				hex.display.loadTexture(dashedTexture);
+				hex.display.setTexture(dashedTexture);
 			}
 		});
 	}
@@ -1105,8 +1319,9 @@ export class Creature {
 	clearDashedOverlayOnHexes() {
 		const playerTexture = `hex_p${this.player.id}`;
 		this.hexagons.forEach((hex) => {
+			if (typeof hex._swamplerHomeOwner === 'number') return;
 			if (hex.display.key !== playerTexture) {
-				hex.display.loadTexture(playerTexture);
+				hex.display.setTexture(playerTexture);
 			}
 		});
 	}
@@ -1148,6 +1363,11 @@ export class Creature {
 				return;
 			}
 			faceto = faceto.size < 2 ? faceto.hexagons[0] : faceto.hexagons[1];
+		}
+
+		if (!faceto) {
+			this.facePlayerDefault();
+			return;
 		}
 
 		if (faceto.x == facefrom.x && faceto.y == facefrom.y) {
@@ -1220,7 +1440,7 @@ export class Creature {
 				game.UI.checkAbilities();
 				game.UI.selectAbility(-1);
 			}
-			game.signals.creature.dispatch('movementComplete', { creature: this, hex });
+			game.channels.creature.emit('movementComplete', { creature: this, hex });
 			// @ts-expect-error 2554
 			game.onCreatureMove(this, hex); // Trigger
 		};
@@ -1274,7 +1494,14 @@ export class Creature {
 		// Otherwise previewCreature() can erase penultimate adj hexes that overlap
 		// the previous destination after the new path has already been drawn.
 		const last = arrayUtils.last(path) as { x: number; y: number };
-		const creature = this.game.retrieveCreatureStats(this.game.activeCreature.type);
+		// The active creature can be cleared by endGame() (e.g. when the Dark
+		// Priest dies mid-animation) while a stale hover query is still pending,
+		// so guard before reading its type — there is no preview to draw.
+		const activeCreature = this.game.activeCreature;
+		if (!activeCreature) {
+			return;
+		}
+		const creature = this.game.retrieveCreatureStats(activeCreature.type);
 		this.game.grid.previewCreature(last, creature, this.game.activePlayer);
 
 		path.forEach((item: { x: number; y: number }) => {
@@ -1319,6 +1546,11 @@ export class Creature {
 			}
 			if (canDraw) {
 				const hex = this.game.grid.hexes[args.y][args.x - i];
+				// Skip hexes marked by Crashing Globe — clicking them shouldn't
+				// show a movement/selection hexagon on top.
+				if (hex._markedByCrashingGlobe) {
+					continue;
+				}
 				this.game.grid.cleanHex(hex);
 				hex.overlayVisualState(args.overlayClass);
 				hex.displayVisualState(args.displayClass);
@@ -1384,11 +1616,15 @@ export class Creature {
 	 * @returns{Hex[]} Array of adjacent hexagons
 	 */
 	adjacentHexes(distance: number): Hex[] {
+		// Ability requirements query this from deferred callbacks that can outlive
+		// teardown, which nulls `game.grid`. No board means no neighbours.
+		if (!this.game.grid) return [];
 		const hash = hashOffsetCoords;
 		const closed = new Set<number>(this.hexagons.map(hash));
 		const close = (point: Point) => closed.add(hash(point));
 		const isClosed = (point: Point) => closed.has(hash(point));
-		const isInBounds = (point: Point) => this.game.grid.isInBounds(point);
+		const grid = this.game.grid;
+		const isInBounds = (point: Point) => grid.isInBounds(point);
 
 		let atCurrRadius = this.hexagons;
 		let atNextRadius = [];
@@ -1445,12 +1681,12 @@ export class Creature {
 
 	/**
 	 * Restore remaining movement to a creature. Will be capped against the creature's
-	 * maximum movement (this.stats.movement).
+	 * maximum movement (this.maxMovement).
 	 *
 	 * @param {*} amount Number of movement points to restore.
 	 */
 	restoreMovement(amount: number, log = true) {
-		this.remainingMove = Math.min(this.stats.movement, this.remainingMove + amount);
+		this.remainingMove = Math.min(this.maxMovement, this.remainingMove + amount);
 
 		if (log) {
 			this.game.log('%CreatureName' + this.id + '% recovers +' + amount + ' movement');
@@ -1567,7 +1803,19 @@ export class Creature {
 
 			// Display
 			const nbrDisplayed = dmgAmount ? '-' + dmgAmount : 0;
-			this.hint(nbrDisplayed + '', 'damage');
+			let emoji = '';
+			if (damage.isFromTrap) {
+				// Bonfire Spring: show count if multiple traps triggered
+				const count = this._bonfireSpringCount || 1;
+				emoji = ' ❤️‍🔥'.repeat(count);
+				// Reset counter after showing
+				this._bonfireSpringCount = 0;
+			} else if (damage.isFromBurningSpirit) {
+				// Greater Pyre / Burning Spirit: show fire hearts equal to area (targets hit)
+				const count = damage.area || 1;
+				emoji = ' ❤️‍🔥'.repeat(count);
+			}
+			this.hint(nbrDisplayed + emoji, 'damage');
 
 			if (!damage.noLog) {
 				game.log('%CreatureName' + this.id + '% is hit : ' + nbrDisplayed + ' health');
@@ -1618,8 +1866,22 @@ export class Creature {
 
 			// Health display Update
 			// Note: update health after adding effects as some effects may affect
-			// health display
 			this.updateHealth();
+			// A cardboard tilt back from the blow, matching the lightning demo's
+			// hit reaction — a lean away from the attacker, not a back-and-forth
+			// slide. The tilt is on the creature group's angle so the silhouette
+			// stays on its hex while the body absorbs the hit, and it scales
+			// with the damage dealt: a hard hit rocks the cardboard further.
+			(
+				game as unknown as {
+					animations: {
+						tiltBackward: (c: Creature, o: { tiltDir?: number; tiltDamage?: number }) => void;
+					};
+				}
+			).animations.tiltBackward(this, {
+				tiltDir: this._tiltAwayFrom(damage.attacker),
+				tiltDamage: dmgAmount,
+			});
 			game.UI.updateFatigue();
 			/* Some of the active creature's abilities may become active/inactive depending
 			on new health/endurance values. */
@@ -1669,7 +1931,37 @@ export class Creature {
 		}; // Not killed
 	}
 
+	/**
+	 * Facing direction a unit should lean *away* from when it takes damage from
+	 * `attacker`. The tilt is mirrored with the unit's own facing, so a unit
+	 * hit from the side it faces leans back, and one hit from behind leans
+	 * forward — the silhouette stays on its hex either way.
+	 *
+	 * `attacker` may be a creature or a trap/object without a position; traps
+	 * and unknown sources default to the unit's own facing, which is the
+	 * least surprising lean for a hit that has no clear origin side.
+	 */
+	private _tiltAwayFrom(attacker: Creature | { player: Player } | undefined): number {
+		if (!attacker || typeof (attacker as Creature).x !== 'number') {
+			return this.sprite.scaleX < 0 ? 1 : -1;
+		}
+		const a = attacker as Creature;
+		if (a.x === this.x && a.y === this.y) {
+			return this.sprite.scaleX < 0 ? 1 : -1;
+		}
+		return a.x < this.x ? 1 : -1;
+	}
+
 	updateHealth(noAnimBar = false) {
+		// Reached from deferred callbacks (turn hand-off, animation callbacks) that
+		// can outlive teardown, and `destroyPhaser()` nulls `UI` and `grid`. A dead
+		// board has no health bar to resize.
+		if (this.game.tornDown || !this.game.UI) return;
+
+		// Dead creatures stay in `game.creatures` and their effects stay in
+		// `game.effects`, so a round-start effect teardown can refresh a sprite
+		// whose Phaser objects are already freed (see CreatureSprite.destroyed).
+		if (this.creatureSprite.destroyed) return;
 		const game = this.game;
 
 		if (this == game.activeCreature && !noAnimBar) {
@@ -1729,8 +2021,8 @@ export class Creature {
 
 	/** Ensures the procedural Plasma Field visual exists and is visible. */
 	private showPlasmaShield() {
-		const phaser = this.game.Phaser;
-		if (!phaser || typeof phaser.add?.bitmapData !== 'function' || !this.creatureSprite.grp) {
+		const gameEngine = this.game.gameEngine;
+		if (!gameEngine || !this.creatureSprite.grp) {
 			return;
 		}
 
@@ -1740,8 +2032,11 @@ export class Creature {
 
 			// On lower-end machines, reduce the plasma field rendering cost by
 			// lowering its internal render resolution.
-			this._plasmaFieldBaseOffsetX = computeCardboardCenterOffset(phaser, cardboard);
-			const offsetXMirror = (cardboard.scale.x < 0 ? -1 : 1) * this._plasmaFieldBaseOffsetX;
+			this._plasmaFieldBaseOffsetX = computeCardboardCenterOffset(
+				this.game.Phaser?.textures ?? null,
+				cardboard,
+			);
+			const offsetXMirror = (cardboard.scaleX < 0 ? -1 : 1) * this._plasmaFieldBaseOffsetX;
 
 			const opts: Record<string, unknown> = {
 				parent: this.creatureSprite.grp,
@@ -1758,24 +2053,70 @@ export class Creature {
 			}
 
 			this.plasmaField = new PlasmaField(
-				phaser,
+				gameEngine,
 				cardboard.x + offsetXMirror,
 				cardboard.y - PLASMA_FIELD_OFFSET_Y,
-				opts,
+				// The field draws its own shield surface, so it needs the texture
+				// manager the match is using rather than the adapter it renders through.
+				{ ...opts, surfaceSource: { textures: this.game.Phaser?.textures ?? null } },
 			);
-			this.creatureSprite.addPostUpdateHook(() => {
-				if (this.plasmaField) {
-					const dir = this.creatureSprite.sprite.scale.x < 0 ? -1 : 1;
-					this.plasmaField.positionTo(
-						this.creatureSprite.sprite,
-						dir * this._plasmaFieldBaseOffsetX,
-						PLASMA_FIELD_OFFSET_Y,
-					);
-				}
-			});
-		}
 
-		this.plasmaField.setVisible(true);
+			// Show the field IMMEDIATELY with instant fade (no 240ms delay) so it
+			// appears at the same time as other players' fields. The position
+			// hook will correct the horizontal offset once the texture is decoded.
+			const field = this.plasmaField;
+			const originalFadeMs = field.fadeMs;
+			field.fadeMs = 0;
+			field.setVisible(true);
+			// Force an immediate draw for the CPU path (which only draws on the
+			// shared 24 FPS ticker) so the field appears in the same frame it's
+			// created, not on the next ticker interval.
+			if (!field.usesShader) {
+				field.tick();
+			}
+			field.fadeMs = originalFadeMs;
+
+			// Keep the field centred on the priest without recreating it. The hook
+			// outlives the field it tracks, so it is unregistered on teardown —
+			// otherwise every shield re-show added another permanently-running
+			// per-frame closure.
+			const positionHook = () => {
+				if (!this.plasmaField) return;
+				const dir = this.creatureSprite.sprite.scaleX < 0 ? -1 : 1;
+
+				// If the base offset wasn't computed correctly (e.g. texture
+				// wasn't fully decoded when the field was created), try to
+				// recompute it now. This fixes the red Dark Priest's plasma
+				// field appearing later than other players because player 0's
+				// Dark Priest is created first and its updateHealth() runs
+				// before textures are fully decoded.
+				if (this._plasmaFieldBaseOffsetX === 0) {
+					const recomputed = computeCardboardCenterOffset(
+						this.game.Phaser?.textures ?? null,
+						this.creatureSprite.sprite,
+					);
+					if (recomputed !== 0) {
+						this._plasmaFieldBaseOffsetX = recomputed;
+					}
+				}
+
+				this.plasmaField.positionTo(
+					this.creatureSprite.sprite,
+					dir * this._plasmaFieldBaseOffsetX,
+					PLASMA_FIELD_OFFSET_Y,
+				);
+
+				// Line weight tracks remaining plasma, so a well-stocked priest
+				// reads as a fat, bright field and a nearly-spent one as thin
+				// wisps. Updated here rather than on show, because plasma is
+				// spent mid-turn and the hook already runs every frame.
+				this.plasmaField.setPlasmaFraction(this.getPlasmaFraction());
+			};
+			this._plasmaFieldPositionHook = positionHook;
+			this.creatureSprite.addPostUpdateHook(positionHook);
+		} else {
+			this.plasmaField.setVisible(true);
+		}
 	}
 
 	/** Hide the field without tearing it down, so it can be reused (no reset). */
@@ -1787,8 +2128,14 @@ export class Creature {
 
 	/**
 	 * Removes and frees the procedural Plasma Field visual, if present.
-	 * When a block burst is currently playing, the removal is deferred until
-	 * the burst finishes so the player actually gets to see the block flash.
+	 *
+	 * By default the field fades out first and is destroyed once it has collapsed,
+	 * which is what makes the shield disappear as the priest commits to an action
+	 * or runs its last plasma out. `setVisible(false)` keeps the field on the shared
+	 * ticker for the length of the fade, so a block flash still plays and still
+	 * decays rather than being frozen mid-flash — that is also why this no longer
+	 * needs a burst-specific deferral of its own.
+	 *
 	 * Call with `immediate = true` to tear the field down right away (used on
 	 * creature death / destroy where a deferred cleanup would leak visuals).
 	 */
@@ -1796,15 +2143,25 @@ export class Creature {
 		if (!this.plasmaField) return;
 		const field = this.plasmaField;
 
-		if (!immediate && field.burstPowerVisible > 0) {
-			// Don't overwrite existing onBurstEnd callback
-			if (!field.onBurstEnd) {
-				field.onBurstEnd = () => this.removePlasmaShield(true);
-			}
+		if (!immediate) {
+			// Not an overwrite guard like `onBurstEnd`: this is the *only* thing that
+			// sets `onHidden`, and re-arming it is a no-op while a fade is already in
+			// flight — `setVisible(false)` leaves a running fade alone.
+			field.onHidden = () => this.removePlasmaShield(true);
+			field.setVisible(false);
 			return;
 		}
 
+		// Drop the per-frame centring hook before the field goes away: it is
+		// registered on the sprite (not the field), so tearing down the field
+		// would otherwise leave it running forever.
+		if (this._plasmaFieldPositionHook) {
+			this.creatureSprite.removePostUpdateHook(this._plasmaFieldPositionHook);
+			this._plasmaFieldPositionHook = null;
+		}
+
 		field.onBurstEnd = null;
+		field.onHidden = null;
 		field.destroy();
 		this.plasmaField = null;
 	}
@@ -1831,6 +2188,33 @@ export class Creature {
 
 	hasCreaturePlayerGotPlasma() {
 		return this.player.plasma > 0;
+	}
+
+	hasActivePlasmaShield() {
+		return (
+			this.isDarkPriest() &&
+			this.hasCreaturePlayerGotPlasma() &&
+			(this !== this.game.activeCreature || this._plasmaFieldActiveTurn)
+		);
+	}
+
+	/**
+	 * This creature's player's plasma as a fraction of the pool they allocated,
+	 * for the plasma field's line weight.
+	 *
+	 * Falls back to a full tank when the allocation is unknown or zero, so the
+	 * field never renders as a hairline because of a missing config value.
+	 */
+	getPlasmaFraction(): number {
+		// `plasma_amount` is attached to the Game instance from the game-setup
+		// form rather than declared on the class, so it is read through a cast
+		// and treated as optional. Same defensive access as `Player`'s own
+		// initialiser.
+		const max = (this.game as unknown as { plasma_amount?: number }).plasma_amount;
+		if (typeof max !== 'number' || !(max > 0)) {
+			return 1;
+		}
+		return Math.max(0, Math.min(1, this.player.plasma / max));
 	}
 
 	addFatigue(dmgAmount: number) {
@@ -1940,12 +2324,12 @@ export class Creature {
 				if (typeof value === 'string') {
 					// Multiplication Buff
 					if (value.match(/\*/)) {
-						this.stats[key] = eval(this.stats[key] + value);
+						this.stats[key] = applyStatExpression(this.stats[key], this.stats[key] + value);
 					}
 
 					// Division Debuff
 					if (value.match(/\//)) {
-						this.stats[key] = eval(this.stats[key] + value);
+						this.stats[key] = applyStatExpression(this.stats[key], this.stats[key] + value);
 					}
 				}
 
@@ -1977,7 +2361,20 @@ export class Creature {
 		this.health = Math.min(this.health, this.stats.health);
 		this.endurance = Math.min(this.endurance, this.stats.endurance);
 		this.energy = Math.min(this.energy, this.stats.energy);
-		this.remainingMove = Math.min(this.remainingMove, this.stats.movement);
+		// A pool the creature can no longer bank (ability lost / un-upgraded) is
+		// dropped before capping this turn's movement, which includes it.
+		this.movementPool = Math.min(this.movementPool, this.stashedMovementCap());
+		this.remainingMove = Math.min(this.remainingMove, this.maxMovement);
+	}
+
+	/**
+	 * Resolve destruction of the goo trap holding this Gumble in BRB.
+	 */
+	onBRBTrapDestroyed(destroyer?: Creature, remote = false): void {
+		if (!this._brbState) return;
+		const savedState = this._brbState;
+		this._brbState = null;
+		this.die(destroyer ?? savedState.killer, remote);
 	}
 
 	/**
@@ -2009,12 +2406,10 @@ export class Creature {
 			// If the goo trap is destroyed while Gumble is in BRB state (e.g. another
 			// trap overwrites it), Gumble dies immediately with full score/queue update.
 			// The destroyer (the creature whose trap caused the overwrite) becomes the killer.
-			this._brbState.gooTrap.onDestroyFn = (destroyer?: Creature) => {
-				if (!this._brbState) return; // already resolved (revived or died)
-				const savedState = this._brbState;
-				this._brbState = null;
-				this.die(destroyer ?? savedState.killer, remote);
-			};
+			const brbTrap = this._brbState.gooTrap;
+			brbTrap.snapshotBehaviorId = GOOEY_BODY_BRB_TRAP_BEHAVIOR;
+			brbTrap.snapshotBehaviorData = { creatureId: this.id };
+			brbTrap.onDestroyFn = (destroyer?: Creature) => this.onBRBTrapDestroyed(destroyer, remote);
 
 			// Clear the hex first so the trap spot is immediately walkable
 			// and pathfinding/queue-display sees the correct state.
@@ -2037,7 +2432,7 @@ export class Creature {
 				game.nextCreature();
 				return;
 			}
-			game.activeCreature.queryMove();
+			this.queryMoveAfterDeath();
 			return;
 		}
 
@@ -2057,7 +2452,8 @@ export class Creature {
 			!remote &&
 			game.multiplayer &&
 			game.lobby &&
-			game.activeCreature?.player?.controller !== 'bot' &&
+			game.activeCreature &&
+			game.activeCreature.player?.controller !== 'bot' &&
 			game.lobby.isMyTurn()
 		) {
 			game.lobby.sendAction({
@@ -2085,12 +2481,17 @@ export class Creature {
 			}
 		}
 
-		if (!game.firstKill && !isDeny) {
-			// First Kill
-			this.killer.score.push({
-				type: 'firstKill',
-			});
-			game.firstKill = true;
+		if (!isDeny) {
+			// Blood bonus: a shrinking 25/20/15 ladder shared by the whole match,
+			// so its tiers can go to different players or all to the same one.
+			const bloodBonus = BLOOD_BONUS[game.bloodCount];
+			if (bloodBonus !== undefined) {
+				this.killer.score.push({
+					type: 'firstKill',
+					points: bloodBonus,
+				});
+				game.bloodCount++;
+			}
 		}
 
 		if (this.isDarkPriest()) {
@@ -2110,21 +2511,18 @@ export class Creature {
 			}
 		}
 
-		if (!this.undead) {
-			// Only if not undead
-			if (isDeny) {
-				// TEAM KILL (DENY)
-				this.killer.score.push({
-					type: 'deny',
-					creature: this,
-				});
-			} else {
-				// KILL
-				this.killer.score.push({
-					type: 'kill',
-					creature: this,
-				});
-			}
+		if (isDeny) {
+			// TEAM KILL (DENY)
+			this.killer.score.push({
+				type: 'deny',
+				creature: this,
+			});
+		} else {
+			// KILL
+			this.killer.score.push({
+				type: 'kill',
+				creature: this,
+			});
 		}
 
 		if (this.player.isAnnihilated()) {
@@ -2166,9 +2564,18 @@ export class Creature {
 			}
 		}
 
-		const customDeathAnimation = (this as CreatureRuntimeFlags).deathAnimationType;
+		const customDeathAnimation = this.deathAnimationType;
+		// Release the hints before the animation swings the cardboard
+		// group: every death animation arcs, rotates and fades the whole
+		// group, and the hints about this unit are children of it, so
+		// they used to be dragged down the same curve.
+		this.creatureSprite.releaseHints();
 		if (customDeathAnimation === 'shatterDown') {
 			game.animations.shatterDown(this, opts);
+		} else if (customDeathAnimation === 'disintegrate') {
+			this.healthHide();
+			this.sprite.alpha = 0;
+			opts.callback();
 		} else if (customDeathAnimation === 'melt') {
 			game.animations.melt(this, opts);
 		} else {
@@ -2179,13 +2586,40 @@ export class Creature {
 		game.updateQueueDisplay();
 		game.grid.updateDisplay();
 
+		// If the active creature belongs to the player whose Dark Priest just died,
+		// end its turn immediately — it's now dazzled and shouldn't act further.
+		if (game.activeCreature?.player === this.player) {
+			game.nextCreature();
+			return;
+		}
+
+		// End turn if current active creature die
 		if (game.activeCreature === this) {
 			game.nextCreature();
 			return;
-		} // End turn if current active creature die
+		}
 
 		// As hex occupation changes, path must be recalculated for the current creature not the dying one
-		game.activeCreature.queryMove();
+		this.queryMoveAfterDeath();
+	}
+
+	/**
+	 * Hand the turn back to the active creature after this creature died.
+	 *
+	 * While a deferred ability animation is still playing (`Ability#end(true,
+	 * true)` incremented `game._deferredQueryMovePending` and only that ability's
+	 * own `queryMove()` releases it), the death must not hand the turn back
+	 * early: doing so turns the acting unit back to its default facing — e.g.
+	 * Horn Head's Meat Sickle wheeling around while its hook is still flying at
+	 * the foe it just killed behind it — and unfreezes input mid-animation. The
+	 * ability's pending `queryMove()` covers this when its effect is over.
+	 */
+	private queryMoveAfterDeath() {
+		if (this.game._deferredQueryMovePending > 0) {
+			return;
+		}
+
+		this.game.activeCreature?.queryMove();
 	}
 
 	isFatigued() {
@@ -2200,10 +2634,15 @@ export class Creature {
 	 * Shortcut convenience function to grid.getHexMap
 	 */
 	getHexMap(map: AugmentedMatrix, invertFlipped: boolean) {
+		// Ability queries are fired from deferred callbacks that can outlive
+		// teardown, which nulls `game.grid`. `grid === null` means the board is
+		// gone, not that the caller should crash.
+		const grid = this.game.grid;
+		if (!grid) return null;
 		const x = (this.player.flipped ? !invertFlipped : invertFlipped)
 			? this.x + 1 - this.size
 			: this.x;
-		return this.game.grid.getHexMap(
+		return grid.getHexMap(
 			x,
 			this.y - map.origin[1],
 			0 - map.origin[0],
@@ -2266,6 +2705,53 @@ export class Creature {
 	}
 
 	/**
+	 * Does this unit trail cardboard afterimages while it moves,
+	 * and move a fifth faster for it? Set per unit in `data/units.ts`.
+	 */
+	get hasAfterimages(): boolean {
+		return this._afterimages;
+	}
+
+	/**
+	 * Total movement available for this turn: the creature's own movement plus
+	 * anything banked in `this.movementPool`. This is the ceiling `this.remainingMove`
+	 * respects.
+	 */
+	get maxMovement(): number {
+		return this.stats.movement + this.movementPool;
+	}
+
+	/**
+	 * Maximum movement points an ability of this creature allows to be banked
+	 * between turns. 0 when no ability stores unused movement.
+	 */
+	stashedMovementCap(): number {
+		// If the creature has an ability that stores movement, that ability owns the
+		// cap, otherwise nothing can be banked.
+		for (const ability of this.abilities) {
+			if (typeof ability.stashedMovementCap === 'function') {
+				return Math.max(0, ability.stashedMovementCap());
+			}
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Bank the movement left over at the end of a turn so it counts towards next
+	 * turn's movement, then end this turn's movement.
+	 *
+	 * Only the leftover is banked — the banked points themselves are never banked
+	 * again, they are spent first. Whatever is left at the end of a turn simply
+	 * becomes the new pool, capped by `stashedMovementCap()`, which also means
+	 * stashing cannot be farmed by delaying a turn.
+	 */
+	stashMovement(): void {
+		this.movementPool = Math.min(this.stashedMovementCap(), Math.max(this.remainingMove, 0));
+		this.remainingMove = 0;
+	}
+
+	/**
 	 * Is this unit a Dark Priest?
 	 */
 	isDarkPriest(): boolean {
@@ -2310,7 +2796,7 @@ export class Creature {
 		// Show frozen fatigue text effect in queue.
 		this.game.UI.updateFatigue();
 
-		this.game.signals.creature.dispatch('frozen', { creature: this, cryostasis });
+		this.game.channels.creature.emit('frozen', { creature: this, cryostasis });
 	}
 
 	get fatigueText(): string {
@@ -2368,27 +2854,91 @@ export class Creature {
 	}
 }
 
-class CreatureSprite {
-	private _creature: Creature;
-	private _group: Phaser.Group;
-	private _sprite: Phaser.Sprite;
-	private _hintGrp: Phaser.Group;
+/**
+ * Per-hint bookkeeping: the type tag and the three tweens that drive it.
+ *
+ * Phaser 2 CE gave every game object a `DataManager` and this subsystem hung
+ * all of its state off `hint.data.*`. Phaser 4 has no equivalent, and the
+ * engine facade had been answering `data` with an untyped bag, so nothing
+ * checked these names and every read was `any`. A `WeakMap` keyed by the hint
+ * itself is the native-phaser-4 replacement: entries die with the element, and
+ * the shape is declared once rather than inferred at 114 call sites.
+ */
+type HintState = {
+	/** `null` until the element is registered; see {@link hintState}. */
+	hintType: CreatureHintType | 'confirm_deleted';
+	tweenAlpha: TweenHandle | null;
+	tweenPos: TweenHandle | null;
+	tweenBounce: TweenHandle | null;
+	/** Resting y, captured on first bounce so a stop returns the hint to it. */
+	baseY?: number;
+	/** `confirm` hints that must not animate into place, e.g. skip turn. */
+	skipTurnStatic: boolean;
+};
 
-	private _healthIndicatorGroup: Phaser.Group;
-	private _healthIndicatorSprite: Phaser.Sprite;
-	private _healthIndicatorText: Phaser.Text;
-	private _healthIndicatorTween: Phaser.Tween | null;
-	private _noActionHintElements: Array<Phaser.Text | Phaser.Sprite> = [];
-	private _noActionHintGroup: Phaser.Group | null = null;
-	private _noActionHintTween: Phaser.Tween | null = null;
+const hintStates = new WeakMap<object, HintState>();
+
+/** Reads the state for a hint element, if it has ever been registered. */
+function peekHintState(hint: object): HintState | undefined {
+	return hintStates.get(hint);
+}
+
+/**
+ * Reads the state for a hint element, registering a blank one on first use.
+ *
+ * Every hint element the code creates is registered as it is built, so this
+ * only ever fills in for the two paths that deliberately clear all three
+ * tweens at once: `hint()` and the skip-turn confirm branch.
+ */
+function hintState(hint: object): HintState {
+	let state = hintStates.get(hint);
+	if (!state) {
+		state = {
+			hintType: 'confirm_deleted',
+			tweenAlpha: null,
+			tweenPos: null,
+			tweenBounce: null,
+			skipTurnStatic: false,
+		};
+		hintStates.set(hint, state);
+	}
+	return state;
+}
+
+class CreatureSprite {
+	/**
+	 * Whether a sprite is still parked on Phaser's placeholder texture.
+	 *
+	 * Phaser substitutes a 32x32 "image ready" texture when the requested one is
+	 * not resident, and a sprite created against it keeps sampling it forever:
+	 * registering the real texture later does not re-resolve an existing sprite.
+	 * So the load callback below has to notice and swap it.
+	 */
+	private _isOnPlaceholderTexture(): boolean {
+		return this._sprite?.key === MISSING_TEXTURE_KEY;
+	}
+
+	private _creature: Creature;
+	private _group: GroupHandle;
+	private _sprite: SpriteHandle;
+	private _hintGrp: GroupHandle;
+
+	private _healthIndicatorGroup: GroupHandle;
+	private _healthIndicatorSprite: SpriteHandle;
+	private _healthIndicatorText: SpriteHandle;
+	private _healthIndicatorTween: TweenHandle | null | undefined;
+	private _noActionHintElements: SpriteHandle[] = [];
+	private _noActionHintGroup: SpriteHandle | null = null;
+	private _noActionHintTween: TweenHandle | null = null;
 	private _healthBounceOffset = 0; // y-offset driven by the bounce tween
-	private _healthUiGroup: Phaser.Group; // elevated layer for active/hovered indicators
+	private _healthUiGroup: GroupHandle; // elevated layer for active/hovered indicators
 	private _healthInUiGroup = false; // whether the indicator is currently elevated
 
-	private _phaser: Phaser.Game;
+	private _gameEngine: GameEngine;
 	private _frameInfo: { originX: number; originY: number };
 	private _creatureSize: number;
 	private _creatureTeam: PlayerID;
+	private _dir: 1 | -1 = 1;
 
 	private _isXray = false;
 	get isXrayed(): boolean {
@@ -2399,74 +2949,136 @@ class CreatureSprite {
 		return this._xrayAlpha;
 	}
 	private _xrayTargetAlpha = 0; // target intensity for fade animation
-	private _xrayBmd: Phaser.BitmapData | null = null;
+	private _xrayBmd: CanvasSurface | null = null;
 	private _originalTextureKey: string;
-	private _xrayOriginalSrc: CanvasImageSource | null = null;
+	/** Cardboard pixel rows for the obstructor, built once per xray session. */
+	private _xrayOriginalAlpha: Uint8ClampedArray | null = null;
+	/** Cardboard silhouettes for the refs, snapped once per xray session. */
+	private _xrayRefAlpha: {
+		size: number;
+		entries: Array<{
+			rgba: Uint8ClampedArray;
+			width: number;
+			height: number;
+			xrayDepth: number;
+		} | null>;
+	} | null = null;
+	/** Union of ref-creature cardboard silhouettes, in obstructor bitmap pixels. */
+	private _xrayMaskAlpha: Uint8Array | null = null;
 	private _xrayRefCreatures: Creature[] = []; // all ref creatures whose shape we cut out
-	private _xrayScratch: HTMLCanvasElement | null = null; // Part B scratch
-	private _xrayMask: HTMLCanvasElement | null = null; // union of all ref shapes
 
 	private _postUpdateHooks: Array<() => void> = [];
+
+	/**
+	 * Whether {@link releaseHints} has moved the hint group out of
+	 * the creature group. `destroy()` then has to tear the released
+	 * group down itself, since the creature group teardown no longer
+	 * reaches it.
+	 */
+	private _hintsReleased = false;
+
+	/**
+	 * True once the Phaser objects owned by this sprite have been torn down.
+	 * Dead creatures stay in `game.creatures` and their effects stay in
+	 * `game.effects`, so per-frame and per-round callbacks (tickXray,
+	 * updateHealth) can still arrive after `destroy()` — every one of them must
+	 * bail out instead of touching freed Phaser objects, which in Phaser 4 crash
+	 * on `this.data`/`this.scene` access.
+	 */
+	private _destroyed = false;
+
+	get destroyed(): boolean {
+		return this._destroyed;
+	}
 
 	constructor(creature: Creature) {
 		const { game, player, type, team, display, size, id, health } = creature;
 		const dir = player.flipped ? -1 : 1;
-		const phaser = game.Phaser;
+		const gameEngine = game.gameEngine;
 
 		this._creature = creature;
-		this._phaser = phaser;
+		this._gameEngine = gameEngine;
 		this._creatureSize = size;
 		this._creatureTeam = team;
 		this._frameInfo = { originX: display['offset-x'], originY: display['offset-y'] };
 
-		const group: Phaser.Group = phaser.add.group(game.grid.creatureGroup, 'creatureGrp_' + id);
+		const group = gameEngine.add.group(game.grid.creatureGroup, 'creatureGrp_' + id);
 		group.alpha = 0;
 
 		const isDarkPriest = type === '--';
-		const darkPriestOffsetX = isDarkPriest ? getDarkPriestDisplayOffsetX(creature.player) : 0;
-		const originX = display['offset-x'] + darkPriestOffsetX;
 
 		// Adding sprite
 		const spriteKey = isDarkPriest ? getDarkPriestCardboardKey(creature.player) : creature.name;
-		const sprite = group.create(0, 0, spriteKey);
-		sprite.anchor.setTo(0.5, 1);
-		// Placing sprite
-		sprite.x =
-			(!player.flipped ? originX : HEX_WIDTH_PX * size - sprite.texture.width - originX) +
-			sprite.texture.width / 2;
-		sprite.y = display['offset-y'] + sprite.texture.height;
+		const sprite = gameEngine.add.sprite(0, 0, spriteKey, undefined, group);
+		sprite.setOrigin(0.5, 1);
+		// Placed by `setDir()` below, once the sprite and the hint group are
+		// both reachable — see `_place()` for the offset maths.
 
-		if (creature.name === 'Infernal') {
+		// A temp creature is the placement placeholder the Dark Priest shows while
+		// the player picks a hex: it sits at a fixed placeholder hex and is hidden
+		// with `sprite.alpha = 0`. That hides the cardboard only -- the glow
+		// overlays and smoke are separate sprites, so they went on rendering and
+		// left a lit cardboard ghost sitting near the caster until the real unit
+		// replaced the temp. A hidden unit gets no FX; the materialised creature
+		// builds its own at its real hex.
+		if (creature.name === 'Infernal' && !creature.temp) {
 			game.animations.initInfernalCardboardEffect(creature, sprite);
 		}
 
 		// Hint Group
-		const hintGrp = phaser.add.group(group, 'creatureHintGrp_' + id);
+		const hintGrp = gameEngine.add.group(group, 'creatureHintGrp_' + id);
 		hintGrp.x = 0.5 * HEX_WIDTH_PX * size;
-		hintGrp.y = -sprite.texture.height + 5;
+		// Default hint group position above cardboard (will be corrected in _place()
+		// when actual texture loads). Phaser 2 used -sprite.texture.height + 5 which
+		// worked because textures were preloaded; Phaser 4 loads on-demand so we
+		// estimate based on size.
+		const estimatedHeight = size === 1 ? 160 : 220;
+		hintGrp.y = -estimatedHeight + 5;
 
-		const healthIndicatorGroup = phaser.add.group(group, 'creatureHealthGrp_' + id);
+		const healthIndicatorGroup = gameEngine.add.group(group, 'creatureHealthGrp_' + id);
 
-		const healthIndicatorSprite = healthIndicatorGroup.create(
-			player.flipped ? 19 : 19 + HEX_WIDTH_PX * (size - 1),
-			49,
+		const healthIndicatorX = player.flipped ? 19 : 19 + HEX_WIDTH_PX * (size - 1);
+		const healthIndicatorY = 49;
+		const healthIndicatorSprite = gameEngine.add.sprite(
+			healthIndicatorX,
+			healthIndicatorY,
 			'p' + team + '_health',
+			undefined,
+			healthIndicatorGroup,
 		);
+		// Phaser 4 sprites default to origin (0.5, 0.5) — centred on the
+		// coordinates — but the indicator positions below were tuned for
+		// Phaser 2's top-left (0, 0) default. Pin the sprite to top-left so
+		// the health/plasma text lands in the centre of the pill.
+		//
+		// Setting the anchor alone is not enough: Phaser 4 keeps the rendered
+		// top-left put and shifts x/y by half the texture, which would slide the
+		// pill half a pill-width (26px) west of the text centred on it. Re-apply
+		// the intended top-left. See Hex#pinTopLeft for the same fix
+		// on the hex artwork.
+		healthIndicatorSprite.setOrigin(0, 0);
+		healthIndicatorSprite.x = healthIndicatorX;
+		healthIndicatorSprite.y = healthIndicatorY;
 
-		const healthIndicatorText = phaser.add.text(
+		const healthIndicatorText = gameEngine.add.text(
 			player.flipped ? HEX_WIDTH_PX * 0.5 : HEX_WIDTH_PX * (size - 0.5),
-			63,
-			health,
+			60,
+			// `health` is a number and `setHealth` owns the real value; the
+			// placeholder only has to be renderable. Stringify it here rather than
+			// casting: the cast let Phaser coerce it implicitly, and this is the
+			// same laundered cast that let a CanvasSurface reach `add.sprite` as a
+			// texture key and silently fall back to the missing-texture placeholder.
+			String(health),
 			{
 				font: 'bold 15pt Play',
-				fill: '#fff',
+				color: '#fff',
 				align: 'center',
 				stroke: '#000',
 				strokeThickness: 6,
 			},
+			healthIndicatorGroup,
 		);
-		healthIndicatorText.anchor.setTo(0.5, 0.5);
-		healthIndicatorGroup.add(healthIndicatorText);
+		healthIndicatorText.setOrigin(0.5, 0.5);
 		healthIndicatorGroup.visible = false;
 
 		this._group = group;
@@ -2482,49 +3094,25 @@ class CreatureSprite {
 
 		this._originalTextureKey = spriteKey;
 
-		// Install a per-frame update hook on the group. Phaser calls group.update()
-		// every step AFTER tweens have run, which is exactly when we need to redraw
-		// the xray BitmapData so the cutout tracks movement smoothly.
-		const _groupUpdate = this._group.update.bind(this._group);
-		const XRAY_FADE_RATE = 0.08; // ~160 ms fade at 60 fps
+		// Phaser 4 containers have no `update()` tick — `phaserUpdate()` drives
+		// the fade/cutout below via `tickXray()`. Keep the historic `_group.update`
+		// override (tests and any legacy callers may still invoke it) but make
+		// it a no-op rather than delegating: Phaser still calls `_group.update()`
+		// every step, so delegating ticked the Infernal effect a second time per
+		// frame. The effect advances `uTime` from the frame delta, so the double
+		// tick ran its pulse and smoke at double speed.
+		const groupHandle = this._group as { update?: unknown };
+		const _groupUpdate =
+			typeof groupHandle.update === 'function'
+				? (groupHandle.update as () => void).bind(this._group)
+				: () => undefined;
 		this._group.update = () => {
 			_groupUpdate();
-			game.animations.tickInfernalCardboardEffect(this._creature);
-			// Animate xray alpha toward target
-			if (this._xrayAlpha < this._xrayTargetAlpha) {
-				this._xrayAlpha = Math.min(this._xrayTargetAlpha, this._xrayAlpha + XRAY_FADE_RATE);
-			} else if (this._xrayAlpha > this._xrayTargetAlpha) {
-				this._xrayAlpha = Math.max(this._xrayTargetAlpha, this._xrayAlpha - XRAY_FADE_RATE);
-			}
-			// Sync health indicator world position when it lives in the elevated UI group
-			if (this._healthInUiGroup) {
-				this._healthIndicatorGroup.x = this._group.x;
-				this._healthIndicatorGroup.y = this._group.y + this._healthBounceOffset;
-			}
-			// Fade health indicator group in sync with the xray sprite effect.
-			// The health group is a separate Phaser object rendered on top of the
-			// sprite, so sprite BitmapData tricks can't hide it — we must set its
-			// alpha directly so the reference creature's badge shows through.
-			const hiAlpha = 1.0 - (1.0 - 0.2) * this._xrayAlpha;
-			this._healthIndicatorGroup.alpha = hiAlpha;
-			if (this._xrayBmd && this._xrayRefCreatures.length > 0) {
-				if (this._xrayAlpha <= 0 && this._xrayTargetAlpha === 0) {
-					// Fade-out complete — restore original texture
-					this._finalizeXrayOff();
-				} else {
-					this._drawXrayBmd(this._xrayRefCreatures, this._xrayBmd);
-				}
-			}
-
-			// Run per-frame hooks registered by effects attached to this creature
-			// (e.g. keeping the Plasma Field visual centered on the Dark Priest).
-			for (let i = 0; i < this._postUpdateHooks.length; i++) {
-				this._postUpdateHooks[i]();
-			}
 		};
 
 		this.setHex(creature.hexagons[size - 1]);
 		this.setDir(dir);
+		this._bindCardboardWhenReady();
 	}
 
 	// NOTE: This is the old API exposed by Creature.
@@ -2542,6 +3130,74 @@ class CreatureSprite {
 		this._postUpdateHooks.push(fn);
 	}
 
+	/**
+	 * Unregisters a hook added by {@link addPostUpdateHook}.
+	 *
+	 * Hooks run every frame and were previously push-only, so anything that
+	 * re-registered on teardown (the Plasma Field hook re-adds itself whenever
+	 * the shield is re-shown) grew the array without bound and kept running
+	 * after the thing it tracked was gone.
+	 */
+	removePostUpdateHook(fn: () => void): void {
+		const index = this._postUpdateHooks.indexOf(fn);
+		if (index !== -1) {
+			this._postUpdateHooks.splice(index, 1);
+		}
+	}
+
+	/**
+	 * Advances the xray fade and redraws the cutout so it tracks movement.
+	 * Called once per Phaser frame from `Game.phaserUpdate()`; the `_group.update`
+	 * override above delegates here too for legacy callers.
+	 */
+	tickXray(): void {
+		if (this._destroyed) return;
+		this._creature.game.animations?.tickInfernalCardboardEffect?.(this._creature);
+		const XRAY_FADE_RATE = 0.08; // ~160 ms fade at 60 fps
+		// Animate xray alpha toward target
+		if (this._xrayAlpha < this._xrayTargetAlpha) {
+			this._xrayAlpha = Math.min(this._xrayTargetAlpha, this._xrayAlpha + XRAY_FADE_RATE);
+		} else if (this._xrayAlpha > this._xrayTargetAlpha) {
+			this._xrayAlpha = Math.max(this._xrayTargetAlpha, this._xrayAlpha - XRAY_FADE_RATE);
+		}
+		// Sync health indicator world position when it lives in the elevated UI group
+		if (this._healthInUiGroup) {
+			this._healthIndicatorGroup.x = this._group.x;
+			this._healthIndicatorGroup.y = this._group.y + this._healthBounceOffset;
+		}
+		// Fade health indicator group in sync with the xray sprite effect.
+		// The health group is a separate Phaser object rendered on top of the
+		// sprite, so canvas-surface tricks can't hide it — we must set its
+		// alpha directly so the reference creature's badge shows through.
+		//
+		// This is the only place the badge's opacity is written. Anything else
+		// that sets it fights this fade: see `_finalizeXrayOff`.
+		const hiAlpha = 1.0 - (1.0 - 0.2) * this._xrayAlpha;
+		this._healthIndicatorGroup.alpha = hiAlpha;
+		if (this._xrayBmd && this._xrayRefCreatures.length > 0) {
+			if (this._xrayAlpha <= 0 && this._xrayTargetAlpha === 0) {
+				// Fade-out complete — restore original texture
+				this._finalizeXrayOff();
+			} else if (!this._safeDrawXray(this._xrayRefCreatures, this._xrayBmd)) {
+				// Keep the original cardboard when a redraw can't produce
+				// pixels (missing source, blank mask) instead of stranding the
+				// sprite on a blank bitmap. The xray request stays live so the
+				// next frame can retry — a reference's cardboard may not have
+				// finished loading. Tearing the whole effect down here instead
+				// is what made a faded badge pop to full opacity on every hover
+				// step, because `HexGrid.xray()` re-requests the xray for each
+				// hex the cursor crosses.
+				this._restoreOriginalTexture();
+			}
+		}
+
+		// Run per-frame hooks registered by effects attached to this creature
+		// (e.g. keeping the Plasma Field visual centered on the Dark Priest).
+		for (let i = 0; i < this._postUpdateHooks.length; i++) {
+			this._postUpdateHooks[i]();
+		}
+	}
+
 	// TODO: Refactor
 	// This currently has one user.
 	// Refactoring into some combination of left, right, top, bottom, centerX, centerY would be welcome.
@@ -2553,9 +3209,9 @@ class CreatureSprite {
 		target: object,
 		tweenProperties: Record<string, number>,
 		durationMS = 1000,
-		easing = Phaser.Easing.Linear.None,
+		easing = Easing.Linear.None,
 	): Promise<CreatureSprite> {
-		const tween = this._phaser.add.tween(target).to(tweenProperties, durationMS, easing);
+		const tween = this._gameEngine.tween(target).to(tweenProperties, durationMS, easing);
 		const promise: Promise<CreatureSprite> = new Promise((resolve) => {
 			tween.onComplete.add(() => resolve(this));
 		});
@@ -2590,7 +3246,7 @@ class CreatureSprite {
 
 	setPx(pos: { x: number; y: number }, durationMS = 0): Promise<CreatureSprite> {
 		if (durationMS === 0) {
-			this._group.position.set(pos.x, pos.y);
+			this._group.setPosition(pos.x, pos.y);
 			return new Promise((resolve) => {
 				resolve(this);
 			});
@@ -2600,29 +3256,94 @@ class CreatureSprite {
 	}
 
 	setDir(dir: 1 | -1) {
-		this._sprite.scale.setTo(dir, 1);
-
-		const originX =
-			this._frameInfo.originX +
-			(this._creature.isDarkPriest() ? getDarkPriestDisplayOffsetX(this._creature.player) : 0);
-		this._sprite.x =
-			(dir === 1
-				? originX
-				: HEX_WIDTH_PX * this._creatureSize - this._sprite.texture.width - originX) +
-			this._sprite.texture.width / 2;
+		this._dir = dir;
+		this._sprite.setScale(dir, 1);
+		this._place();
 		this._healthIndicatorSprite.x = dir === -1 ? 19 : 19 + HEX_WIDTH_PX * (this._creatureSize - 1);
 		this._healthIndicatorText.x =
 			dir === -1 ? HEX_WIDTH_PX * 0.5 : HEX_WIDTH_PX * (this._creatureSize - 0.5);
 	}
 
+	/**
+	 * Places the cardboard inside its group, and the hint group above it.
+	 *
+	 * The hex artwork is *not* concentric with its hit area: the base `hex`
+	 * texture is drawn with its top-left on the hit point (see
+	 * Hex#pinTopLeft), so the visible centre of a hex sits half a hex-width
+	 * east of `displayPos.x`. The creature group, by contrast, is placed on
+	 * `displayPos.x`, hence the half-texture term below — it re-centres the
+	 * unit on the hex *artwork*, it is not a double count.
+	 *
+	 * Every term is read off the texture's own size, so this has to be re-run
+	 * whenever that size changes — see `_bindCardboardWhenReady()`.
+	 */
+	private _place(): void {
+		const originX =
+			this._frameInfo.originX +
+			(this._creature.isDarkPriest() ? getDarkPriestDisplayOffsetX(this._creature.player) : 0);
+		// Frame size, not source size: this positions the cardboard relative to the
+		// hex artwork, and `texture.width` is the whole source image.
+		const { width, height } = getFrameSize(this._sprite);
+		this._sprite.x =
+			(this._dir === 1 ? originX : HEX_WIDTH_PX * this._creatureSize - width - originX) + width / 2;
+		this._sprite.y = this._frameInfo.originY + height;
+		// Hints (skip turn, no action possible, …) hang just above the cardboard.
+		this._hintGrp.y = -height + 5;
+	}
+
+	/**
+	 * Rebinds the cardboard once its on-demand download lands.
+	 *
+	 * Cardboards are fetched the first time a unit is shown rather than at match
+	 * start, so a creature is regularly constructed while its texture is still
+	 * in flight — always on the client that replays a materialization, since it
+	 * has no placement preview to warm the fetch. Phaser resolves the missing
+	 * key to its 32×32 `__MISSING` placeholder and never re-resolves an
+	 * existing sprite, which left the unit invisible *and* offset by the
+	 * placeholder's size (see `_place()`) until some unrelated code path
+	 * happened to call `setTexture` again — the xray teardown at the start of
+	 * Abolished's Bonfire Spring teleport, for one.
+	 */
+	private _bindCardboardWhenReady(): void {
+		const spriteKey = this._originalTextureKey;
+		if (isTextureReady(spriteKey)) {
+			// Texture already cached: re-place with correct dimensions.
+			if (this._isOnPlaceholderTexture()) {
+				this._sprite.setTexture(spriteKey);
+			}
+			this._place();
+			return;
+		}
+		ensureCardboard(spriteKey, () => {
+			// The unit may have died, or been replaced by its materialized twin,
+			// while its cardboard was still downloading.
+			if (!this._group?.parent) {
+				return;
+			}
+			// Only the placeholder is worth swapping: a sprite parked on an xray
+			// bitmap is restored by `_finalizeXrayOff()` instead.
+			if (this._isOnPlaceholderTexture()) {
+				this._sprite.setTexture(spriteKey);
+			}
+			this._place();
+		});
+	}
+
 	xray(enable: boolean, referenceCreature?: Creature | Creature[]) {
+		if (this._destroyed) return;
 		if (!enable && !this._isXray && this._xrayTargetAlpha === 0) return;
 		if (enable && referenceCreature) {
 			const nextRefCreatures = Array.isArray(referenceCreature)
 				? referenceCreature
 				: [referenceCreature];
+			// Test liveness with `_xrayTargetAlpha`, not `_isXray`. `HexGrid.xray()`
+			// opens every hover by clearing the xray on every creature and then
+			// re-requesting it for the ones still obscured, so `_isXray` is false by
+			// the time the same reference set comes back round and the memo below
+			// never hit. Each miss cost a full cardboard pixel snapshot per
+			// reference plus a canvas redraw — dozens of those per cursor sweep.
 			const hasSameReferences =
-				this._isXray &&
+				this._xrayTargetAlpha > 0 &&
 				this._xrayRefCreatures.length === nextRefCreatures.length &&
 				this._xrayRefCreatures.every((reference, index) => reference === nextRefCreatures[index]);
 			if (hasSameReferences) {
@@ -2631,14 +3352,10 @@ class CreatureSprite {
 			this._isXray = true;
 			this._xrayTargetAlpha = 1;
 			// Replace the active hover reference instead of accumulating old ones.
-			const alpha = this._xrayAlpha;
-			const targetAlpha = this._xrayTargetAlpha;
-			this._xrayScratch = null;
-			this._xrayMask = null;
+			// Re-snap both the obstructor and the refs: a rebuilt bitmap is only
+			// correct when every silhouette comes from the pre-swap cardboards.
+			this._xrayMaskAlpha = null;
 			this._xrayRefCreatures = nextRefCreatures.slice();
-			this._xrayAlpha = alpha;
-			this._xrayTargetAlpha = targetAlpha;
-			this._isXray = true;
 			this._buildXrayTexture(this._xrayRefCreatures);
 		} else if (enable) {
 			// Ignore legacy calls that try to enable xray without a reference target.
@@ -2664,80 +3381,206 @@ class CreatureSprite {
 		this._finalizeXrayOff();
 	}
 
-	/** Restores the original texture and frees all xray canvas resources. */
-	private _finalizeXrayOff() {
-		this._healthIndicatorGroup.alpha = 1;
-		this._xrayRefCreatures = [];
-		this._xrayScratch = null;
-		this._xrayMask = null;
-		if (this._xrayBmd && this._isDrawableImageSource(this._xrayOriginalSrc)) {
-			const bmd = this._xrayBmd;
-			const ctx = bmd.context;
-			ctx.clearRect(0, 0, bmd.width, bmd.height);
-			const drewOriginal = this._drawSpriteFrame(
-				ctx,
-				this._sprite,
-				this._xrayOriginalSrc,
-				0,
-				0,
-				bmd.width,
-				bmd.height,
-			);
-			if (!drewOriginal) {
-				this._sprite.loadTexture(this._originalTextureKey);
-				return;
-			}
-			bmd.dirty = true;
-			bmd.update();
-
-			if (this._sprite.texture.baseTexture.source !== (bmd.canvas as CanvasImageSource)) {
-				this._sprite.loadTexture(bmd);
-			}
+	/**
+	 * Swaps the sprite back to the untouched cardboard.
+	 *
+	 * Separate from {@link _finalizeXrayOff} because restoring the artwork is
+	 * also the right response to a single failed redraw: the cutout is retried
+	 * on the next frame, but the sprite must not sit on a blank bitmap in the
+	 * meantime.
+	 */
+	private _restoreOriginalTexture() {
+		if (this._destroyed) {
 			return;
 		}
+		this._sprite.setTexture(this._originalTextureKey);
+		this._place();
+	}
 
-		this._sprite.loadTexture(this._originalTextureKey);
+	/** Restores the original texture and frees all xray canvas resources. */
+	private _finalizeXrayOff() {
+		if (this._destroyed) {
+			this._freeXrayState();
+			return;
+		}
+		// The health indicator's opacity is derived from `_xrayAlpha` every
+		// frame in `tickXray()`. Writing it here fought that fade: `_finalizeXrayOff`
+		// is reachable while an xray request is still live (see `tickXray`), so it
+		// slammed the faded badge to full opacity for one frame before the next
+		// `tickXray()` dragged it back down. Hovering across the board re-triggers
+		// that every step, which is the flicker.
+		this._xrayRefCreatures = [];
+		this._xrayOriginalAlpha = null;
+		this._xrayRefAlpha = null;
+		this._xrayMaskAlpha = null;
+		this._restoreOriginalTexture();
+	}
+
+	/**
+	 * Releases the xray bitmaps without touching any Phaser object. Safe to
+	 * call after destroy, where the sprite's scene is already gone.
+	 */
+	private _freeXrayState() {
+		this._xrayAlpha = 0;
+		this._xrayTargetAlpha = 0;
+		this._isXray = false;
+		this._xrayRefCreatures = [];
+		this._xrayOriginalAlpha = null;
+		this._xrayRefAlpha = null;
+		this._xrayMaskAlpha = null;
+		this._postUpdateHooks.length = 0;
+		if (this._xrayBmd) {
+			this._xrayBmd.destroy();
+			this._xrayBmd = null;
+		}
 	}
 
 	private _buildXrayTexture(refCreatures: Creature[]) {
-		const otw = this._sprite.texture.width;
-		const oth = this._sprite.texture.height;
-
-		// Capture the original image source BEFORE swapping the texture to the BitmapData.
-		// After loadTexture(bmd), sprite.texture.baseTexture.source would be the BitmapData
-		// canvas itself, causing a circular self-draw on subsequent frames.
-		if (!this._isDrawableImageSource(this._xrayOriginalSrc)) {
-			this._xrayOriginalSrc = this._resolveSpriteDrawSource(this._sprite);
-			if (!this._xrayOriginalSrc) {
-				this._clearXrayTexture();
-				return;
-			}
+		// Frame size: the xray bitmap is sized to the cardboard it replaces, and the
+		// snapshot below is compared against it.
+		const { width: otw, height: oth } = getFrameSize(this._sprite);
+		if (!(otw > 0) || !(oth > 0)) {
+			return;
 		}
-		this._xrayRefCreatures = refCreatures.slice(); // copy to avoid external mutation
 
-		const scratch = document.createElement('canvas');
-		scratch.width = otw;
-		scratch.height = oth;
-		this._xrayScratch = scratch;
-
-		const mask = document.createElement('canvas');
-		mask.width = otw;
-		mask.height = oth;
-		this._xrayMask = mask;
+		// Snapshot the obstructor's cardboard pixels BEFORE swapping the texture
+		// to the xray surface. After loadTexture(surfaceKey), resolving through
+		// the live sprite would self-sample the xray canvas and blank the redraw.
+		const original = this._snapshotCardboardPixels(this._sprite, this._originalTextureKey);
+		if (!original) {
+			return;
+		}
+		// The snapshot is at native cardboard size; if a stale bitmap from a
+		// different-size texture lingers, drop it so dimensions always match.
+		if (original.width !== otw || original.height !== oth) {
+			return;
+		}
+		const refEntries: Array<{
+			rgba: Uint8ClampedArray;
+			width: number;
+			height: number;
+			xrayDepth: number;
+		} | null> = [];
+		for (const refCreature of refCreatures) {
+			const refSprite = (refCreature as Creature)?.sprite;
+			// Trap/drop reveal markers are `{sprite, grp}` stand-ins without a
+			// `Creature` behind them; use the sprite's own key so the trap art
+			// resolves instead of the obstructor's texture.
+			const refKey =
+				typeof (refCreature as { name?: unknown })?.name === 'string'
+					? ((refCreature as { name: string }).name as string)
+					: typeof refSprite?.key === 'string'
+					? (refSprite.key as string)
+					: undefined;
+			const snapshot = this._snapshotCardboardPixels(refSprite, refKey);
+			if (!snapshot) {
+				refEntries.push(null);
+				continue;
+			}
+			const depthValue = Number(
+				(refCreature as unknown as { grp?: { depth?: unknown } })?.grp?.depth,
+			);
+			refEntries.push({
+				rgba: snapshot.rgba,
+				width: snapshot.width,
+				height: snapshot.height,
+				xrayDepth: Number.isFinite(depthValue) ? depthValue : 0,
+			});
+		}
+		if (!refEntries.some((entry) => entry !== null)) {
+			return;
+		}
+		this._xrayOriginalAlpha = original.rgba;
+		this._xrayRefAlpha = { size: refCreatures.length, entries: refEntries };
+		this._xrayMaskAlpha = null;
 
 		let bmd = this._xrayBmd;
 		if (!bmd || bmd.width !== otw || bmd.height !== oth) {
 			if (bmd) {
 				bmd.destroy();
 			}
-			bmd = this._phaser.add.bitmapData(otw, oth);
+			bmd = createGameCanvasSurface(this._creature.game, otw, oth);
 		}
 		this._xrayBmd = bmd;
+		this._xrayRefCreatures = refCreatures.slice(); // copy to avoid external mutation
 
-		this._drawXrayBmd(this._xrayRefCreatures, bmd);
-		if (this._sprite.texture.baseTexture.source !== (bmd.canvas as CanvasImageSource)) {
-			this._sprite.loadTexture(bmd);
+		if (!this._safeDrawXray(this._xrayRefCreatures, bmd)) {
+			return;
 		}
+		this._sprite.setTexture(bmd.key);
+	}
+
+	private _resolveFrameSourceRect(
+		sprite: SpriteHandle,
+		fallbackW: number,
+		fallbackH: number,
+	): { sx: number; sy: number; sw: number; sh: number } | null {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const texture: any = sprite?.texture as any;
+		if (!texture) {
+			return null;
+		}
+		// `makeTextureView` answers both `crop` and `frame` from the live
+		// Phaser 4 `Frame`; read whichever spelling is present.
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const frame: any = texture.frame ?? texture.crop ?? null;
+		// Phaser 4 Canvas path draws `frame.source.image` at
+		// `(canvasData.x, canvasData.y)` with size `(cutWidth, cutHeight)`.
+		// The legacy `{x, y, width, height}` fallback below assumed the full
+		// source image, which misplaces creatures when the cardboard frame is
+		// trimmed/atlas-packed; prefer the cut rect that the renderer samples.
+		const cutX =
+			typeof frame?.cutX === 'number'
+				? frame.cutX
+				: typeof frame?.canvasData?.x === 'number'
+				? frame.canvasData.x
+				: undefined;
+		const cutY =
+			typeof frame?.cutY === 'number'
+				? frame.cutY
+				: typeof frame?.canvasData?.y === 'number'
+				? frame.canvasData.y
+				: undefined;
+		const cutW =
+			typeof frame?.cutWidth === 'number'
+				? frame.cutWidth
+				: typeof frame?.canvasData?.width === 'number'
+				? frame.canvasData.width
+				: undefined;
+		const cutH =
+			typeof frame?.cutHeight === 'number'
+				? frame.cutHeight
+				: typeof frame?.canvasData?.height === 'number'
+				? frame.canvasData.height
+				: undefined;
+		if (
+			typeof cutX === 'number' &&
+			typeof cutY === 'number' &&
+			typeof cutW === 'number' &&
+			typeof cutH === 'number' &&
+			cutW > 0 &&
+			cutH > 0
+		) {
+			return { sx: cutX, sy: cutY, sw: cutW, sh: cutH };
+		}
+		const sx = typeof frame?.x === 'number' ? frame.x : 0;
+		const sy = typeof frame?.y === 'number' ? frame.y : 0;
+		const sw =
+			typeof frame?.width === 'number' && frame.width > 0
+				? frame.width
+				: fallbackW > 0
+				? fallbackW
+				: 0;
+		const sh =
+			typeof frame?.height === 'number' && frame.height > 0
+				? frame.height
+				: fallbackH > 0
+				? fallbackH
+				: 0;
+		if (sw <= 0 || sh <= 0) {
+			return null;
+		}
+		return { sx, sy, sw, sh };
 	}
 
 	/**
@@ -2746,7 +3589,7 @@ class CreatureSprite {
 	 */
 	private _drawSpriteFrame(
 		ctx: CanvasRenderingContext2D,
-		sprite: Phaser.Sprite,
+		sprite: SpriteHandle,
 		src: CanvasImageSource,
 		dx: number,
 		dy: number,
@@ -2757,25 +3600,39 @@ class CreatureSprite {
 			return false;
 		}
 
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const texture: any = sprite.texture as any;
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const frame: any = texture.crop || texture.frame || { x: 0, y: 0, width: dw, height: dh };
-		const sx = typeof frame.x === 'number' ? frame.x : 0;
-		const sy = typeof frame.y === 'number' ? frame.y : 0;
-		const sw = typeof frame.width === 'number' ? frame.width : dw;
-		const sh = typeof frame.height === 'number' ? frame.height : dh;
-		if (sw <= 0 || sh <= 0) {
+		const rect = this._resolveFrameSourceRect(sprite, dw, dh);
+		if (!rect) {
 			return false;
 		}
 
-		ctx.drawImage(src, sx, sy, sw, sh, dx, dy, dw, dh);
+		ctx.drawImage(src, rect.sx, rect.sy, rect.sw, rect.sh, dx, dy, dw, dh);
 		return true;
 	}
 
 	private _isDrawableImageSource(src: unknown): src is CanvasImageSource {
 		if (!src) {
 			return false;
+		}
+		// Phaser 4 `TextureSource` wrappers carry the pixels under `.image`,
+		// but a CanvasTexture's entry can also be an `HTMLCanvasElement`
+		// itself, which has no `.image`. Only recurse when the property is
+		// present on the object.
+		if (
+			typeof src === 'object' &&
+			'image' in (src as Record<string, unknown>) &&
+			(src as { image?: unknown }).image !== undefined
+		) {
+			return this._isDrawableImageSource((src as { image?: unknown }).image);
+		}
+		if (
+			typeof src === 'object' &&
+			'source' in (src as Record<string, unknown>) &&
+			(src as { source?: unknown }).source !== undefined
+		) {
+			const inner = (src as { source?: unknown }).source;
+			if (inner && inner !== src && typeof inner === 'object') {
+				return this._isDrawableImageSource(inner);
+			}
 		}
 
 		if (typeof HTMLImageElement !== 'undefined' && src instanceof HTMLImageElement) {
@@ -2810,115 +3667,347 @@ class CreatureSprite {
 		return false;
 	}
 
-	private _resolveSpriteDrawSource(sprite: Phaser.Sprite): CanvasImageSource | null {
-		const src = sprite?.texture?.baseTexture?.source;
-		return this._isDrawableImageSource(src) ? src : null;
+	private _resolveSpriteDrawSource(
+		sprite: SpriteHandle,
+		cacheKey?: string,
+	): CanvasImageSource | null {
+		// Prefer the game-engine texture cache (the full cardboard pixels);
+		// fall back to the live Phaser texture chain. The facade must go last:
+		// once xrayed, its `baseTexture` view answers the xray bitmap itself,
+		// which would self-sample and blank the redraw.
+		const key = cacheKey ?? this._originalTextureKey ?? sprite?.key;
+		if (typeof key === 'string') {
+			try {
+				const cached = this._gameEngine.cache.getImage(key) as unknown;
+				if (this._isDrawableImageSource(cached)) {
+					return cached as CanvasImageSource;
+				}
+			} catch {
+				// Cache miss — fall through to the texture chain below.
+			}
+		}
+		const raw = (sprite?.__unwrapped ?? sprite) as
+			| {
+					texture?: { source?: unknown[]; getSourceImage?: (frame?: string) => unknown };
+					frame?: { name?: string };
+			  }
+			| undefined;
+		if (raw?.texture && typeof raw.texture.getSourceImage === 'function') {
+			try {
+				const fromApi = raw.texture.getSourceImage(raw.frame?.name) as unknown;
+				if (this._isDrawableImageSource(fromApi)) {
+					return fromApi as CanvasImageSource;
+				}
+			} catch {
+				// Fall through to the structural candidates below.
+			}
+		}
+		const texture = sprite?.texture as
+			| {
+					baseTexture?: { source?: unknown; image?: unknown };
+					source?: unknown;
+			  }
+			| undefined;
+		// Phaser 4 exposes the pixels as `Texture.source[i].image`
+		// (`TextureSource.image`), while the facade's `baseTexture` view
+		// answers `Texture.source[0]` (the `TextureSource` wrapper). Accept
+		// both so the cardboard can be resolved either through the facade or
+		// a raw game object.
+		const sources = Array.isArray((raw?.texture as { source?: unknown })?.source)
+			? ((raw.texture as { source: unknown[] }).source as unknown[])
+			: [];
+		const candidates = [
+			...sources.map((entry) => (entry as { image?: unknown })?.image ?? entry),
+			texture?.baseTexture?.image,
+			texture?.baseTexture?.source,
+			texture?.source,
+		];
+		for (const candidate of candidates) {
+			const inner =
+				candidate &&
+				typeof candidate === 'object' &&
+				'image' in (candidate as Record<string, unknown>)
+					? (candidate as { image?: unknown }).image
+					: candidate;
+			if (this._isDrawableImageSource(inner)) {
+				return inner;
+			}
+			if (this._isDrawableImageSource(candidate)) {
+				return candidate;
+			}
+		}
+		return null;
 	}
 
 	/**
-	 * Redraws the xray BitmapData in-place using the current creature positions.
+	 * Blits a unit cardboard into an offscreen canvas at its native texture
+	 * size and returns the RGBA rows plus the canvas. The alpha channel is the
+	 * xray mask source: the surface trick samples the *drawn pixels*
+	 * (transparent background stays transparent), not the sprite's AABB, so the
+	 * see-through cutout follows the unit silhouette instead of a rectangle.
+	 */
+	private _snapshotCardboardPixels(
+		sprite: SpriteHandle,
+		cacheKey?: string,
+	): { canvas: HTMLCanvasElement; rgba: Uint8ClampedArray; width: number; height: number } | null {
+		const src = this._resolveSpriteDrawSource(sprite, cacheKey);
+		if (!this._isDrawableImageSource(src)) {
+			return null;
+		}
+		const rect = this._resolveFrameSourceRect(sprite, 0, 0);
+		if (!rect || rect.sw <= 0 || rect.sh <= 0) {
+			return null;
+		}
+		const width = Math.round(rect.sw);
+		const height = Math.round(rect.sh);
+		if (width <= 0 || height <= 0) {
+			return null;
+		}
+		const canvas = document.createElement('canvas');
+		canvas.width = width;
+		canvas.height = height;
+		const ctx = canvas.getContext('2d', { willReadFrequently: true });
+		if (!ctx) {
+			return null;
+		}
+		try {
+			ctx.clearRect(0, 0, width, height);
+			ctx.drawImage(src, rect.sx, rect.sy, rect.sw, rect.sh, 0, 0, width, height);
+			const rgba = ctx.getImageData(0, 0, width, height).data;
+			return { canvas, rgba, width, height };
+		} catch {
+			return null;
+		}
+	}
+
+	/**
+	 * Redraws the xray canvas surface in-place using the current creature positions.
 	 * Called once on initial build and then every frame so the cutout tracks movement.
 	 *
 	 * The mask is the UNION of all refCreatures shapes:
 	 *   - Pixels covered by any ref creature : XRAY_OVERLAP_OPACITY alpha (see-through)
 	 *   - All other pixels                   : 1.0 alpha (fully opaque)
+	 *
+	 * Returns false when nothing drawable was produced, so callers can keep the
+	 * original cardboard instead of swapping in a blank bitmap.
 	 */
-	private _drawXrayBmd(refCreatures: Creature[], bmd: Phaser.BitmapData) {
+	private _safeDrawXray(refCreatures: Creature[], bmd: CanvasSurface): boolean {
+		return this._drawXrayBmd(refCreatures, bmd);
+	}
+
+	private _drawXrayBmd(refCreatures: Creature[], bmd: CanvasSurface): boolean {
 		const oSprite = this._sprite;
+		const oGroup = this._group;
 		const otw = bmd.width;
 		const oth = bmd.height;
-		const oFlipped = oSprite.scale.x < 0;
-		// Guard: skip if sprite hasn't been added to display tree yet
-		if (!oSprite.worldTransform) {
-			return;
+		const unwrapSprite = (handle: SpriteHandle): NativePassthrough =>
+			(handle?.__unwrapped ?? handle) as NativePassthrough;
+		const hasLiveSceneObject = (handle: SpriteHandle) => {
+			const raw = unwrapSprite(handle);
+			return Boolean(raw && raw.scene && raw.texture && raw.frame);
+		};
+		// Phaser 4 dropped Phaser 2's `worldTransform`; its presence was a
+		// pre-migration aliveness check that is now always falsy, so every
+		// draw silently returned and the sprite kept its stale/blank bitmap.
+		if (!hasLiveSceneObject(oSprite)) {
+			return false;
 		}
-		const oBounds = oSprite.getBounds();
-		const oLeft = oBounds.left;
-		const oTop = oBounds.top;
-		const oScaleX = oBounds.width > 0 ? otw / oBounds.width : 1;
-		const oScaleY = oBounds.height > 0 ? oth / oBounds.height : 1;
-
-		const oSrc = this._xrayOriginalSrc;
-		if (!this._isDrawableImageSource(oSrc)) {
-			this._clearXrayTexture();
-			return;
+		if (!this._xrayOriginalAlpha || this._xrayOriginalAlpha.length !== otw * oth * 4) {
+			return false;
 		}
-		const ctx = bmd.context;
-		const scratch = this._xrayScratch as HTMLCanvasElement;
-		const sctx = scratch.getContext('2d') as CanvasRenderingContext2D;
+		if (!this._xrayRefAlpha || this._xrayRefAlpha.size !== refCreatures.length) {
+			return false;
+		}
+		const ctx = bmd?.ctx as CanvasRenderingContext2D | undefined;
+		if (!ctx) {
+			return false;
+		}
 
-		// Build a union mask on scratch2: all ref creature shapes OR'd together
-		// We keep a second scratch for the union mask (reuse _xrayScratch2).
-		const mask = this._xrayMask as HTMLCanvasElement;
-		const mctx = mask.getContext('2d') as CanvasRenderingContext2D;
-		mctx.clearRect(0, 0, otw, oth);
+		// Like the Phaser 2 original, position comes from the local sprite
+		// transform, not `getBounds()` (which is world-space and, post-migration,
+		// snaps to the opaque-pixel box instead of the full cardboard). Both
+		// live under the same `display` parent, so the parent terms cancel and
+		// only the relative group/sprite offsets remain.
+		const anchorX = Number(oSprite.anchor?.x ?? 0.5);
+		const anchorY = Number(oSprite.anchor?.y ?? 1);
+		const oLeft = Number(oGroup.x ?? 0) + Number(oSprite.x ?? 0) - otw * anchorX;
+		const oTop = Number(oGroup.y ?? 0) + Number(oSprite.y ?? 0) - oth * anchorY;
 
-		for (const refCreature of refCreatures) {
-			const refSprite = refCreature.sprite;
-			// Guard: skip ref creatures whose sprites haven't been added to display tree yet
-			if (!refSprite.worldTransform) {
+		// Union of ref silhouettes in obstructor bitmap pixels, rebuilt every
+		// frame so the cutout tracks movement. Reuse the buffer across frames.
+		// The union stores the winning (lowest-row) ref index + 1 per pixel so
+		// the compositor below can sample that unit's cardboard for the blend.
+		if (!this._xrayMaskAlpha || this._xrayMaskAlpha.length !== otw * oth) {
+			this._xrayMaskAlpha = new Uint8Array(otw * oth);
+		} else {
+			this._xrayMaskAlpha.fill(0);
+		}
+		const union = this._xrayMaskAlpha;
+		let drewAnyRef = false;
+
+		// Back rows paint first; nearer (lower-row, higher-depth) refs overwrite
+		// them so each cutout pixel blends exactly one unit — the one the viewer
+		// would actually see there.
+		const order = refCreatures.map((_, index) => index);
+		const depthOf = (index: number) => this._xrayRefAlpha?.entries[index]?.xrayDepth ?? 0;
+		order.sort((a, b) => depthOf(a) - depthOf(b));
+
+		for (const i of order) {
+			const refCreature = refCreatures[i];
+			const refSprite = (refCreature as Creature)?.sprite;
+			if (!hasLiveSceneObject(refSprite)) {
 				continue;
 			}
-			const rBounds = refSprite.getBounds();
-			const rtw = Math.max(1, Math.round(rBounds.width * oScaleX));
-			const rth = Math.max(1, Math.round(rBounds.height * oScaleY));
-			const relX = Math.round((rBounds.left - oLeft) * oScaleX);
-			const relY = Math.round((rBounds.top - oTop) * oScaleY);
-			const drawX = oFlipped ? Math.round(otw - relX - rtw) : relX;
-			const rFlipped = refSprite.scale.x < 0;
-			const flipRef = oFlipped !== rFlipped;
-			const rSrc = this._resolveSpriteDrawSource(refSprite);
-			if (!rSrc) {
+			const cached = this._xrayRefAlpha.entries[i];
+			if (!cached) {
 				continue;
 			}
-
-			// source-over accumulates all ref shapes into the mask (union)
-			mctx.globalCompositeOperation = 'source-over';
-			if (!flipRef) {
-				this._drawSpriteFrame(mctx, refSprite, rSrc, drawX, relY, rtw, rth);
-			} else {
-				mctx.save();
-				mctx.translate(drawX + rtw, relY);
-				mctx.scale(-1, 1);
-				this._drawSpriteFrame(mctx, refSprite, rSrc, 0, 0, rtw, rth);
-				mctx.restore();
+			const refGrp = ((refCreature as Creature)?.grp ?? this._creature.game.grid.creatureGroup) as {
+				x?: unknown;
+				y?: unknown;
+			};
+			const refAnchorX = Number(refSprite.anchor?.x ?? 0.5);
+			const refAnchorY = Number(refSprite.anchor?.y ?? 1);
+			const rLeft = Number(refGrp?.x ?? 0) + Number(refSprite.x ?? 0) - cached.width * refAnchorX;
+			const rTop = Number(refGrp?.y ?? 0) + Number(refSprite.y ?? 0) - cached.height * refAnchorY;
+			// Bitmap pixels map 1:1 onto the local transform (same cardboard at
+			// native size), so only the relative group/sprite offset matters.
+			const offX = Math.round(rLeft - oLeft);
+			const offY = Math.round(rTop - oTop);
+			const oFlipped = Number(oSprite.scale?.x ?? 1) < 0;
+			const rFlipped = Number(refSprite.scale?.x ?? 1) < 0;
+			const { rgba, width: rw, height: rh } = cached;
+			for (let y = 0; y < rh; y++) {
+				const dstY = y + offY;
+				if (dstY < 0 || dstY >= oth) continue;
+				for (let x = 0; x < rw; x++) {
+					// Cardboard edges are anti-aliased: weight the cutout by the
+					// ref pixel's own alpha so soft fringes blend instead of
+					// stamping a hard rectangle.
+					const refA = rgba[(y * rw + x) * 4 + 3];
+					if (refA <= 0) continue;
+					// The ref's own texture column lands at `offX + srcX` on screen;
+					// only the ref's own mirror matters here. The obstructor's mirror
+					// is applied by the renderer, so the destination column is the
+					// one whose rendered position lands on the ref.
+					const srcX = rFlipped ? rw - 1 - x : x;
+					const dstX = (oFlipped ? otw - 1 - (srcX + offX) : srcX + offX) | 0;
+					if (dstX < 0 || dstX >= otw) continue;
+					union[dstY * otw + dstX] = i + 1;
+					drewAnyRef = true;
+				}
 			}
+		}
+		if (!drewAnyRef) {
+			return false;
 		}
 
 		const XRAY_OVERLAP_OPACITY = 0.2;
+		const overlapAlpha = Math.round(255 * (1.0 - (1.0 - XRAY_OVERLAP_OPACITY) * this._xrayAlpha));
 
-		// --- Part A: overlap region — obstructor at reduced alpha, clipped to union mask ---
+		const out = ctx.createImageData(otw, oth);
+		const src = this._xrayOriginalAlpha;
+		const dst = out.data;
+		// The bitmap is written in the obstructor's own texture space: the
+		// renderer mirrors it through `sprite.scaleX`, so the cardboard
+		// snapshot is copied 1:1. Pre-mirroring it here would flip a flipped
+		// (blue) unit's cardboard a second time and it would face backwards
+		// for as long as it stays xrayed.
+		const oFlipped = Number(oSprite.scale?.x ?? 1) < 0;
+		// Cache the winning ref's placement once per frame: the union pass
+		// above already resolved overlaps, so the compositor must reuse the
+		// same offsets instead of re-deriving them per pixel.
+		const refPlacement = refCreatures.map((refCreature, refIndex) => {
+			const entry = this._xrayRefAlpha?.entries[refIndex] ?? null;
+			const refSprite = (refCreature as Creature)?.sprite;
+			if (!entry || !refSprite) return null;
+			const refGrp = ((refCreature as Creature)?.grp ?? this._creature.game.grid.creatureGroup) as {
+				x?: unknown;
+				y?: unknown;
+			};
+			const refAnchorX = Number(refSprite?.anchor?.x ?? 0.5);
+			const refAnchorY = Number(refSprite?.anchor?.y ?? 1);
+			const rLeft = Number(refGrp?.x ?? 0) + Number(refSprite?.x ?? 0) - entry.width * refAnchorX;
+			const rTop = Number(refGrp?.y ?? 0) + Number(refSprite?.y ?? 0) - entry.height * refAnchorY;
+			return {
+				entry,
+				offX: Math.round(rLeft - oLeft),
+				offY: Math.round(rTop - oTop),
+				flipped: Number(refSprite?.scale?.x ?? 1) < 0,
+			};
+		});
+		for (let y = 0; y < oth; y++) {
+			for (let x = 0; x < otw; x++) {
+				const refIndex = union[y * otw + x] - 1;
+				const s = (y * otw + x) * 4;
+				const d = (y * otw + x) * 4;
+				const a = src[s + 3];
+				const placed = refIndex >= 0 ? refPlacement[refIndex] ?? null : null;
+				if (a <= 0 || !placed) {
+					dst[d] = src[s];
+					dst[d + 1] = src[s + 1];
+					dst[d + 2] = src[s + 2];
+					dst[d + 3] = a;
+					continue;
+				}
+				// Map the output pixel back into the winning ref's cardboard so
+				// its silhouette can be multiplied over the obstructor.
+				// `x` is the obstructor's texture column, so the matching point
+				// on screen is the same one the union pass resolved; a flipped
+				// ref reads that point back out of its own mirrored cardboard.
+				const refEntry = placed.entry;
+				const unobX = oFlipped ? otw - 1 - x : x;
+				let rx = unobX - placed.offX;
+				if (placed.flipped) rx = refEntry.width - 1 - rx;
+				const ry = y - placed.offY;
+				const refOff =
+					rx >= 0 && rx < refEntry.width && ry >= 0 && ry < refEntry.height
+						? (ry * refEntry.width + rx) * 4
+						: -1;
+				const blendT = this._xrayAlpha;
+				const fadedA = Math.round((a * overlapAlpha) / 255);
+				if (refOff < 0 || refEntry.rgba[refOff + 3] <= 0) {
+					dst[d] = src[s];
+					dst[d + 1] = src[s + 1];
+					dst[d + 2] = src[s + 2];
+					dst[d + 3] = fadedA;
+					continue;
+				}
+				// Overlay composite: the revealed unit's cardboard modulates the
+				// faded obstructor instead of punching a flat translucent hole.
+				// Multiply turned every semi-transparent shadow pixel (black,
+				// low alpha) into solid black regardless of its alpha, so the
+				// active unit's shadow stamped an awkward dark box. Overlay
+				// keeps midtones and weights the effect by the ref pixel's own
+				// alpha, so faint shadows/highlighter washes barely tint while
+				// opaque body pixels still read through.
+				const ma = refEntry.rgba[refOff + 3] / 255;
+				const t = blendT * ma;
+				const it = 1 - t;
+				const overlayChannel = (base: number, blend: number) => {
+					const b = base / 255;
+					const l = blend / 255;
+					const o = b <= 0.5 ? 2 * b * l : 1 - 2 * (1 - b) * (1 - l);
+					return Math.round(o * 255);
+				};
+				const ovR = overlayChannel(src[s], refEntry.rgba[refOff]);
+				const ovG = overlayChannel(src[s + 1], refEntry.rgba[refOff + 1]);
+				const ovB = overlayChannel(src[s + 2], refEntry.rgba[refOff + 2]);
+				dst[d] = Math.round(src[s] * it + ovR * t);
+				dst[d + 1] = Math.round(src[s + 1] * it + ovG * t);
+				dst[d + 2] = Math.round(src[s + 2] * it + ovB * t);
+				dst[d + 3] = Math.round(a * it + fadedA * t);
+			}
+		}
 		ctx.clearRect(0, 0, otw, oth);
-		ctx.save();
-		ctx.globalAlpha = 1.0 - (1.0 - XRAY_OVERLAP_OPACITY) * this._xrayAlpha;
-		if (!this._drawSpriteFrame(ctx, oSprite, oSrc, 0, 0, otw, oth)) {
-			ctx.restore();
-			this._clearXrayTexture();
-			return;
-		}
-		ctx.globalAlpha = 1.0;
-		ctx.globalCompositeOperation = 'destination-in';
-		ctx.drawImage(mask, 0, 0);
-		ctx.restore();
+		ctx.putImageData(out, 0, 0);
 
-		// --- Part B: non-overlap at full alpha — obstructor minus union mask ---
-		sctx.clearRect(0, 0, otw, oth);
-		sctx.globalCompositeOperation = 'source-over';
-		if (!this._drawSpriteFrame(sctx, oSprite, oSrc, 0, 0, otw, oth)) {
-			this._clearXrayTexture();
-			return;
-		}
-		sctx.globalCompositeOperation = 'destination-out';
-		sctx.drawImage(mask, 0, 0);
-
-		// Composite Part B on top of Part A
-		ctx.drawImage(scratch, 0, 0);
-
-		bmd.dirty = true;
-		bmd.update();
+		bmd.commit();
+		return true;
 	}
 
 	setHealth(number: number | string, type: HealthBubbleType) {
+		if (this._destroyed) return;
 		// Support both Phaser Text API and test doubles without setText()
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const textObj: any = (this as any)._healthIndicatorText;
@@ -2929,12 +4018,13 @@ class CreatureSprite {
 		}
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const spriteObj: any = (this as any)._healthIndicatorSprite;
-		if (spriteObj && typeof spriteObj.loadTexture === 'function') {
-			spriteObj.loadTexture(`p${this._creatureTeam}_${type}`);
+		if (spriteObj && typeof spriteObj.setTexture === 'function') {
+			spriteObj.setTexture(`p${this._creatureTeam}_${type}`);
 		}
 	}
 
 	showHealth(enable: boolean) {
+		if (this._destroyed) return;
 		this._healthIndicatorGroup.visible = enable;
 	}
 
@@ -2944,6 +4034,7 @@ class CreatureSprite {
 	 * active or hovered; false when it returns to normal.
 	 */
 	elevateHealth(enable: boolean) {
+		if (this._destroyed) return;
 		if (enable && !this._healthInUiGroup) {
 			this._healthUiGroup.add(this._healthIndicatorGroup);
 			this._healthIndicatorGroup.x = this._group.x;
@@ -2958,45 +4049,45 @@ class CreatureSprite {
 	}
 
 	setHealthBounce(enable: boolean) {
-		if (enable) {
-			const bounceHeight = 10;
-			const durationMS = 350;
-
-			if (this._healthIndicatorTween && this._healthIndicatorTween.isRunning) {
-				return;
-			}
-
-			if (!this._healthIndicatorTween || !this._healthIndicatorTween.isRunning) {
-				const bounceTgt = { offset: -bounceHeight };
-				const bounceSrc = { offset: 0 };
-				this._healthBounceOffset = 0;
-
-				this._healthIndicatorTween = this._phaser.add
-					.tween(bounceSrc)
-					.to(bounceTgt, durationMS, Phaser.Easing.Quadratic.InOut, true)
-					.yoyo(true)
-					.repeat(-1);
-				this._healthIndicatorTween.onUpdateCallback(() => {
-					this._healthBounceOffset = bounceSrc.offset;
-				});
-			}
-		} else {
-			if (this._healthIndicatorTween && this._healthIndicatorTween.isRunning) {
+		if (!enable) {
+			if (this._healthIndicatorTween?.isRunning) {
 				this._healthIndicatorTween.stop();
 				this._healthBounceOffset = 0;
 			}
+			return;
 		}
+
+		// A second hover-in must not replace the bounce already playing. This reads
+		// the tween chain's real state, so it only short-circuits while that one
+		// runs — a bounce that has been stopped is correctly replaced below.
+		if (this._healthIndicatorTween?.isRunning) {
+			return;
+		}
+
+		const bounceHeight = 10;
+		const durationMS = 350;
+		const bounceTgt = { offset: -bounceHeight };
+		const bounceSrc = { offset: 0 };
+		this._healthBounceOffset = 0;
+
+		this._healthIndicatorTween = this._gameEngine
+			.tween(bounceSrc)
+			.to(bounceTgt, durationMS, Easing.Quadratic.InOut, true)
+			.yoyo(true)
+			.repeat(-1);
+		this._healthIndicatorTween.onUpdateCallback(() => {
+			this._healthBounceOffset = bounceSrc.offset;
+		});
 	}
 
 	getPos() {
 		return this._group.position;
 	}
 
-	private _enableSkipTurnInput(sprite: Phaser.Sprite) {
-		sprite.inputEnabled = true;
-		sprite.input.priorityID = 10;
-		sprite.input.useHandCursor = true;
-		sprite.events.onInputDown.add(() => {
+	private _enableSkipTurnInput(sprite: SpriteHandle) {
+		sprite.setInteractive();
+		setHandCursor(sprite, true);
+		onPointerDown(sprite, () => {
 			if (this._creature.noActionPossible) {
 				// Clear flag and fade out before click so cleanup queryMove doesn't
 				// re-run querySelf and spawn a second marker mid-fade.
@@ -3017,39 +4108,39 @@ class CreatureSprite {
 
 	private restartNoActionHintBounce() {
 		if (this._noActionHintElements.length > 0) {
-			this._noActionHintElements = this._noActionHintElements.filter((hint) => hint.exists);
+			this._noActionHintElements = this._noActionHintElements.filter((hint) => hint.active);
 			this._noActionHintElements.forEach((hint) => {
-				if (typeof hint.data?.baseY !== 'number') {
-					hint.data.baseY = hint.y;
+				if (typeof hintState(hint).baseY !== 'number') {
+					hintState(hint).baseY = hint.y;
 				}
 
-				if (hint.data?.tweenBounce) {
+				if (hintState(hint).tweenBounce) {
 					return;
 				}
 
 				const bounceSrc = { offset: 0 };
 				const bounceTgt = { offset: -10 };
-				hint.y = hint.data.baseY;
-				hint.data.tweenBounce = this._phaser.add
+				hint.y = hintState(hint).baseY;
+				hintState(hint).tweenBounce = this._gameEngine
 					.tween(bounceSrc)
-					.to(bounceTgt, 350, Phaser.Easing.Quadratic.InOut, true)
+					.to(bounceTgt, 350, Easing.Quadratic.InOut, true)
 					.yoyo(true)
 					.repeat(-1);
-				hint.data.tweenBounce.onUpdateCallback(() => {
-					if (!hint.exists) {
+				hintState(hint).tweenBounce.onUpdateCallback(() => {
+					if (!hint.active) {
 						return;
 					}
-					hint.y = hint.data.baseY + bounceSrc.offset;
+					hint.y = hintState(hint).baseY + bounceSrc.offset;
 				});
 			});
 			return;
 		}
 
-		if (!this._noActionHintGroup || !this._noActionHintGroup.exists) {
+		if (!this._noActionHintGroup || !this._noActionHintGroup.active) {
 			return;
 		}
 
-		if (this._noActionHintTween && this._noActionHintTween.isRunning) {
+		if (this._noActionHintTween?.isRunning) {
 			return;
 		}
 
@@ -3059,13 +4150,13 @@ class CreatureSprite {
 		const bounceTgt = { offset: -bounceHeight };
 		this._noActionHintGroup.y = 0;
 
-		this._noActionHintTween = this._phaser.add
+		this._noActionHintTween = this._gameEngine
 			.tween(bounceSrc)
-			.to(bounceTgt, durationMS, Phaser.Easing.Quadratic.InOut, true)
+			.to(bounceTgt, durationMS, Easing.Quadratic.InOut, true)
 			.yoyo(true)
 			.repeat(-1);
 		this._noActionHintTween.onUpdateCallback(() => {
-			if (!this._noActionHintGroup || !this._noActionHintGroup.exists) {
+			if (!this._noActionHintGroup || !this._noActionHintGroup.active) {
 				return;
 			}
 			this._noActionHintGroup.y = bounceSrc.offset;
@@ -3078,69 +4169,89 @@ class CreatureSprite {
 			this._noActionHintTween = null;
 		}
 
-		if (this._noActionHintGroup && this._noActionHintGroup.exists) {
+		if (this._noActionHintGroup && this._noActionHintGroup.active) {
 			this._noActionHintGroup.destroy(true);
 		}
 		this._noActionHintGroup = null;
 	}
 
+	showBonfireSpringHint() {
+		let fireCount = 1;
+		this._hintGrp.each((hint: SpriteHandle) => {
+			const state = peekHintState(hint);
+			if (state?.hintType === 'msg_effects' && hint.text?.startsWith('🔥')) {
+				fireCount = (hint.text.match(/🔥/g) || []).length + 1;
+				hint.destroy();
+			}
+		}, this);
+		this.hint('🔥'.repeat(fireCount), 'msg_effects');
+	}
+
 	hint(text: string, hintType: CreatureHintType) {
 		const tooltipSpeed = 250;
 		const tooltipDisplaySpeed = 500;
-		const tooltipTransition = Phaser.Easing.Linear.None;
+		const tooltipTransition = Easing.Linear.None;
 		// Keep no-action hint bounce synced with the health indicator bounce feel.
 		const noActionBounceHeight = 10;
 		const noActionBounceSpeed = 350;
-		const startNoActionBounce = (hintElement: Phaser.Text | Phaser.Sprite) => {
-			if (hintElement.data.tweenBounce && hintElement.data.tweenBounce.isRunning) {
+		const startNoActionBounce = (hintElement: SpriteHandle) => {
+			if (hintState(hintElement).tweenBounce?.isRunning) {
 				return;
 			}
 
-			if (typeof hintElement.data.baseY !== 'number') {
-				hintElement.data.baseY = hintElement.y;
+			if (typeof hintState(hintElement).baseY !== 'number') {
+				hintState(hintElement).baseY = hintElement.y;
 			}
 
-			hintElement.y = hintElement.data.baseY;
+			hintElement.y = hintState(hintElement).baseY;
 			const bounceSrc = { offset: 0 };
 			const bounceTgt = { offset: -noActionBounceHeight };
 
-			hintElement.data.tweenBounce = this._phaser.add
+			hintState(hintElement).tweenBounce = this._gameEngine
 				.tween(bounceSrc)
-				.to(bounceTgt, noActionBounceSpeed, Phaser.Easing.Quadratic.InOut, true)
+				.to(bounceTgt, noActionBounceSpeed, Easing.Quadratic.InOut, true)
 				.yoyo(true)
 				.repeat(-1);
-			hintElement.data.tweenBounce.onUpdateCallback(() => {
-				hintElement.y = hintElement.data.baseY + bounceSrc.offset;
+			hintState(hintElement).tweenBounce.onUpdateCallback(() => {
+				hintElement.y = hintState(hintElement).baseY + bounceSrc.offset;
 			});
 		};
 
-		const hintColor: Record<CreatureHintType, { fill: string; stroke: string }> = {
+		const hintColor: Record<CreatureHintType, { color: string; stroke: string }> = {
 			damage: {
-				fill: '#ff0000',
+				color: '#ff0000',
 				stroke: '#000000',
 			},
 			confirm: {
-				fill: '#ffffff',
+				color: '#ffffff',
 				stroke: '#000000',
 			},
 			gamehintblack: {
-				fill: '#ffffff',
+				color: '#ffffff',
 				stroke: '#000000',
 			},
 			healing: {
-				fill: '#00ff00',
+				color: '#00ff00',
 				stroke: '#000000',
 			},
 			msg_effects: {
-				fill: '#ffff00',
+				color: '#ffff00',
 				stroke: '#000000',
 			},
 			creature_name: {
-				fill: '#ffffff',
+				color: '#ffffff',
 				stroke: '#AAAAAA',
 			},
 			no_action: {
-				fill: '#ffffff',
+				color: '#ffffff',
+				stroke: '#000000',
+			},
+			no_action_icon: {
+				color: '#ffffff',
+				stroke: '#000000',
+			},
+			no_action_bg: {
+				color: '#ffffff',
 				stroke: '#000000',
 			},
 		};
@@ -3148,7 +4259,7 @@ class CreatureSprite {
 		const style = {
 			...{
 				font: 'bold 20pt Play',
-				fill: '#ff0000',
+				color: '#ff0000',
 				align: 'center',
 				stroke: '#000000',
 				strokeThickness: 2,
@@ -3158,85 +4269,80 @@ class CreatureSprite {
 
 		const isSkipTurnConfirm = hintType === 'confirm' && text === 'Skip turn';
 		if (isSkipTurnConfirm) {
-			const existingSkipHints: Array<Phaser.Text | Phaser.Sprite> = [];
+			const existingSkipHints: SpriteHandle[] = [];
 			let hasSkipTurnLabel = false;
-			this._hintGrp.forEach(
-				(hint: Phaser.Text | Phaser.Sprite) => {
-					if (!hint.exists || !hint.data) {
-						return;
-					}
+			this._hintGrp.each((hint: SpriteHandle) => {
+				const state = peekHintState(hint);
+				if (!hint.active || !state) {
+					return;
+				}
 
-					if (hint.data.hintType !== 'confirm' && !this.isNoActionHintType(hint.data.hintType)) {
-						return;
-					}
+				if (state.hintType !== 'confirm' && !this.isNoActionHintType(state.hintType)) {
+					return;
+				}
 
-					existingSkipHints.push(hint);
-					if (hint instanceof Phaser.Text && hint.text === 'Skip turn') {
-						hasSkipTurnLabel = true;
-					}
-				},
-				this,
-				true,
-			);
+				existingSkipHints.push(hint);
+				if (hint.type === 'Text' && hint.text === 'Skip turn') {
+					hasSkipTurnLabel = true;
+				}
+			}, this);
 
 			if (existingSkipHints.length > 0 && hasSkipTurnLabel) {
 				this._noActionHintElements = [];
 				existingSkipHints.forEach((hint) => {
-					if (hint.data.tweenBounce) {
-						hint.data.tweenBounce.stop();
-						hint.data.tweenBounce = null;
+					if (hintState(hint).tweenBounce) {
+						hintState(hint).tweenBounce.stop();
+						hintState(hint).tweenBounce = null;
 					}
-					if (hint.data.tweenPos) {
-						hint.data.tweenPos.stop();
-						hint.data.tweenPos = null;
+					if (hintState(hint).tweenPos) {
+						hintState(hint).tweenPos.stop();
+						hintState(hint).tweenPos = null;
 					}
-					if (hint.data.tweenAlpha) {
-						hint.data.tweenAlpha.stop();
-						hint.data.tweenAlpha = null;
+					if (hintState(hint).tweenAlpha) {
+						hintState(hint).tweenAlpha.stop();
+						hintState(hint).tweenAlpha = null;
 					}
 					hint.alpha = 1;
-					hint.data.hintType = 'confirm';
-					hint.data.skipTurnStatic = true;
+					hintState(hint).hintType = 'confirm';
+					hintState(hint).skipTurnStatic = true;
 				});
 				return;
 			}
 		}
 
 		if (hintType === 'no_action') {
-			const existingConfirmHints: Array<Phaser.Text | Phaser.Sprite> = [];
-			this._hintGrp.forEach(
-				(hint: Phaser.Text | Phaser.Sprite) => {
-					if (!hint.exists || hint.data?.hintType !== 'confirm') {
-						return;
-					}
+			const existingConfirmHints: SpriteHandle[] = [];
+			this._hintGrp.each((hint: SpriteHandle) => {
+				if (!hint.active || hintState(hint).hintType !== 'confirm') {
+					return;
+				}
 
-					existingConfirmHints.push(hint);
-				},
-				this,
-				true,
-			);
+				existingConfirmHints.push(hint);
+			}, this);
 
 			if (existingConfirmHints.length > 0) {
 				this.destroyNoActionHintGroup();
 				this._noActionHintElements = [];
 
 				existingConfirmHints.forEach((hint) => {
-					if (hint.data?.tweenPos) {
-						hint.data.tweenPos.stop();
-						hint.data.tweenPos = null;
+					if (hintState(hint).tweenPos) {
+						hintState(hint).tweenPos.stop();
+						hintState(hint).tweenPos = null;
 					}
-					if (hint.data?.tweenAlpha) {
-						hint.data.tweenAlpha.stop();
-						hint.data.tweenAlpha = null;
+					if (hintState(hint).tweenAlpha) {
+						hintState(hint).tweenAlpha.stop();
+						hintState(hint).tweenAlpha = null;
 					}
 					hint.alpha = 1;
 
-					if (hint instanceof Phaser.Text) {
-						hint.data.hintType = 'no_action';
-					} else if ((hint as Phaser.Sprite).key === 'skip') {
-						hint.data.hintType = 'no_action_icon';
+					// Phaser 4 replaced `instanceof Phaser.Text` with the native
+					// game object `type`, which the engine handle forwards.
+					if (hint.type === 'Text') {
+						hintState(hint).hintType = 'no_action';
+					} else if (hint.key === 'skip') {
+						hintState(hint).hintType = 'no_action_icon';
 					} else {
-						hint.data.hintType = 'no_action_bg';
+						hintState(hint).hintType = 'no_action_bg';
 					}
 
 					this._noActionHintElements.push(hint);
@@ -3246,7 +4352,7 @@ class CreatureSprite {
 				return;
 			}
 
-			if (this._noActionHintElements.some((hint) => hint.exists)) {
+			if (this._noActionHintElements.some((hint) => hint.active)) {
 				this.restartNoActionHintBounce();
 				return;
 			}
@@ -3254,304 +4360,324 @@ class CreatureSprite {
 			this.clearHints(['confirm', 'no_action']);
 			this.destroyNoActionHintGroup();
 
-			const frame = this._phaser.add.sprite(0, 50, 'frame');
-			const frameBackground = this._phaser.make.bitmapData(frame.width, frame.height);
+			const frame = this._gameEngine.add.sprite(0, 50, 'frame', undefined, this._hintGrp);
+			const frameBackground = createGameCanvasSurface(
+				this._creature.game,
+				frame.width,
+				frame.height,
+			);
 			frameBackground.ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
 			frameBackground.ctx.fillRect(0, 0, frameBackground.width, frameBackground.height);
-			frameBackground.draw('frame', 0, 0);
+			// Commit the wash before drawing the artwork over it: `drawTexture`
+			// commits too, but it returns early without committing when the source
+			// texture is missing, and the wash would then never reach the GPU.
+			frameBackground.commit();
+			frameBackground.drawTexture('frame', 0, 0);
 			frame.destroy();
 
-			const noActionFrame = this._phaser.add.sprite(0, 50, frameBackground);
-			noActionFrame.anchor.setTo(0.5, 0.175);
-			noActionFrame.setScaleMinMax(0.75, 0.75, 0.75, 0.75);
+			const noActionFrame = this._gameEngine.add.sprite(
+				0,
+				50,
+				frameBackground.key,
+				undefined,
+				this._hintGrp,
+			);
+			noActionFrame.setOrigin(0.5, 0.175);
+			noActionFrame.setScale(0.75);
 			noActionFrame.alpha = 0;
 			noActionFrame.visible = true;
-			noActionFrame.data.hintType = 'no_action_bg';
-			noActionFrame.data.tweenAlpha = null;
-			noActionFrame.data.tweenPos = null;
-			noActionFrame.data.tweenBounce = null;
-			this._phaser.add
+			hintState(noActionFrame).hintType = 'no_action_bg';
+			hintState(noActionFrame).tweenAlpha = null;
+			hintState(noActionFrame).tweenPos = null;
+			hintState(noActionFrame).tweenBounce = null;
+			this._gameEngine
 				.tween(noActionFrame)
 				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
 				.start();
 			this._enableSkipTurnInput(noActionFrame);
 
-			const noActionIcon = this._phaser.add.sprite(0, 29, 'skip');
-			noActionIcon.anchor.setTo(0.5, 0.745);
-			noActionIcon.setScaleMinMax(0.15, 0.15, 0.15, 0.15);
+			const noActionIcon = this._gameEngine.add.sprite(0, 29, 'skip', undefined, this._hintGrp);
+			noActionIcon.setOrigin(0.5, 0.745);
+			noActionIcon.setScale(0.15);
 			noActionIcon.alpha = 0;
 			noActionIcon.visible = true;
-			noActionIcon.data.hintType = 'no_action_icon';
-			noActionIcon.data.tweenAlpha = null;
-			noActionIcon.data.tweenPos = null;
-			noActionIcon.data.tweenBounce = null;
-			this._phaser.add
+			hintState(noActionIcon).hintType = 'no_action_icon';
+			hintState(noActionIcon).tweenAlpha = null;
+			hintState(noActionIcon).tweenPos = null;
+			hintState(noActionIcon).tweenBounce = null;
+			this._gameEngine
 				.tween(noActionIcon)
 				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
 				.start();
 			this._enableSkipTurnInput(noActionIcon);
 
-			const noActionText = this._phaser.add.text(0, 50, text, style);
-			noActionText.anchor.setTo(0.5, 0.5);
+			const noActionText = this._gameEngine.add.text(0, 50, text, style, this._hintGrp);
+			noActionText.setOrigin(0.5, 0.5);
 			noActionText.alpha = 0;
-			noActionText.data.hintType = 'no_action';
-			noActionText.data.tweenAlpha = null;
-			noActionText.data.tweenPos = null;
-			noActionText.data.tweenBounce = null;
-			this._phaser.add
+			hintState(noActionText).hintType = 'no_action';
+			hintState(noActionText).tweenAlpha = null;
+			hintState(noActionText).tweenPos = null;
+			hintState(noActionText).tweenBounce = null;
+			this._gameEngine
 				.tween(noActionText)
 				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
 				.start();
 
-			this._hintGrp.add(noActionFrame);
-			this._hintGrp.add(noActionIcon);
-			this._hintGrp.add(noActionText);
 			this._noActionHintElements = [noActionFrame, noActionIcon, noActionText];
 
-			this._hintGrp.forEach(
-				(hint: Phaser.Text | Phaser.Sprite) => {
-					const index = this._hintGrp.total - this._hintGrp.getIndex(hint) - 1;
-					const offset = -50 * index;
+			this._hintGrp.each((hint: SpriteHandle) => {
+				const index = this._hintGrp.total - this._hintGrp.getIndex(hint) - 1;
+				const offset = -50 * index;
+				const state = hintState(hint);
 
-					if (hint.data.tweenBounce) {
-						hint.data.tweenBounce.stop();
-						hint.data.tweenBounce = null;
-					}
+				if (state.tweenBounce) {
+					state.tweenBounce.stop();
+					state.tweenBounce = null;
+				}
 
-					if (hint.data.tweenPos) {
-						hint.data.tweenPos.stop();
-						hint.data.tweenPos = null;
-					}
+				if (state.tweenPos) {
+					state.tweenPos.stop();
+					state.tweenPos = null;
+				}
 
-					if (this.isNoActionHintType(hint.data.hintType)) {
-						hint.y = offset;
-						startNoActionBounce(hint);
-						return;
-					}
+				hint.x = 0;
 
-					hint.data.tweenPos = this._phaser.add
-						.tween(hint)
-						.to({ y: offset }, tooltipSpeed, tooltipTransition)
-						.start();
-				},
-				this,
-				true,
-			);
+				if (this.isNoActionHintType(state.hintType)) {
+					hint.y = offset;
+					startNoActionBounce(hint);
+					return;
+				}
+
+				state.tweenPos = this._gameEngine
+					.tween(hint)
+					.to({ y: offset }, tooltipSpeed, tooltipTransition)
+					.start();
+			}, this);
 			this.restartNoActionHintBounce();
 			return;
 		}
 
 		// Remove constant element
 		// Animation length reduced from 250 to 100 to prevent animation overlap
-		this._hintGrp.forEach(
-			(hint: Phaser.Text | Phaser.Sprite) => {
-				if (hint.data.hintType === 'confirm' || this.isNoActionHintType(hint.data.hintType)) {
-					if (hint.data.tweenBounce) {
-						hint.data.tweenBounce.stop();
-						hint.data.tweenBounce = null;
-					}
+		this._hintGrp.each((hint: SpriteHandle) => {
+			const state = peekHintState(hint);
+			if (!state || (state.hintType !== 'confirm' && !this.isNoActionHintType(state.hintType))) {
+				return;
+			}
 
-					hint.data.hintType = 'confirm_deleted';
-					hint.data.tweenAlpha = this._phaser.add
-						.tween(hint)
-						.to({ alpha: 0 }, 100, tooltipTransition)
-						.start();
-					hint.data.tweenAlpha.onComplete.add(() => hint.destroy());
-				}
-			},
-			this,
-			true,
-		);
+			if (state.tweenBounce) {
+				state.tweenBounce.stop();
+				state.tweenBounce = null;
+			}
 
-		const hint = this._phaser.add.text(0, 50, text, style);
-		hint.anchor.setTo(0.5, 0.5);
+			state.hintType = 'confirm_deleted';
+			state.tweenAlpha = this._gameEngine
+				.tween(hint)
+				.to({ alpha: 0 }, 100, tooltipTransition)
+				.start();
+			state.tweenAlpha.onComplete.add(() => hint.destroy());
+		}, this);
+
+		const hint = this._gameEngine.add.text(0, 50, text, style, this._hintGrp);
+		hint.setOrigin(0.5, 0.5);
 
 		hint.alpha = isSkipTurnConfirm ? 1 : 0;
-		hint.data.hintType = hintType;
-		hint.data.tweenAlpha = null;
-		hint.data.tweenPos = null;
-		hint.data.tweenBounce = null;
-		hint.data.skipTurnStatic = isSkipTurnConfirm;
+		hintState(hint).hintType = hintType;
+		hintState(hint).tweenAlpha = null;
+		hintState(hint).tweenPos = null;
+		hintState(hint).tweenBounce = null;
+		hintState(hint).skipTurnStatic = isSkipTurnConfirm;
 
 		if (hintType === 'confirm') {
 			if (!isSkipTurnConfirm) {
-				hint.data.tweenAlpha = this._phaser.add
+				hintState(hint).tweenAlpha = this._gameEngine
 					.tween(hint)
 					.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
 					.start();
 			}
 		} else {
-			hint.data.tweenAlpha = this._phaser.add
+			hintState(hint).tweenAlpha = this._gameEngine
 				.tween(hint)
 				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
 				.to({ alpha: 1 }, tooltipDisplaySpeed, tooltipTransition)
 				.to({ alpha: 0 }, tooltipSpeed, tooltipTransition)
 				.start();
-			hint.data.tweenAlpha.onComplete.add(() => hint.destroy());
+			hintState(hint).tweenAlpha.onComplete.add(() => hint.destroy());
 		}
 
 		if (hintType === 'confirm') {
 			// Add "Skip turn" frame
-			const frame = this._phaser.add.sprite(0, 50, 'frame');
-			const frameBackground = this._phaser.make.bitmapData(frame.width, frame.height);
+			const frame = this._gameEngine.add.sprite(0, 50, 'frame', undefined, this._hintGrp);
+			const frameBackground = createGameCanvasSurface(
+				this._creature.game,
+				frame.width,
+				frame.height,
+			);
 			frameBackground.ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
 			frameBackground.ctx.fillRect(0, 0, frameBackground.width, frameBackground.height);
-			frameBackground.draw('frame', 0, 0);
+			// Commit the wash before drawing the artwork over it: `drawTexture`
+			// commits too, but it returns early without committing when the source
+			// texture is missing, and the wash would then never reach the GPU.
+			frameBackground.commit();
+			frameBackground.drawTexture('frame', 0, 0);
 			// Destroy the temporary frame sprite after using it as a texture source
 			// to prevent it from lingering in the upper-left corner of the canvas
 			frame.destroy();
-			const combinedSprite = this._phaser.add.sprite(0, 50, frameBackground);
-			combinedSprite.anchor.setTo(0.5, 0.175);
-			combinedSprite.setScaleMinMax(0.75, 0.75, 0.75, 0.75);
+			const combinedSprite = this._gameEngine.add.sprite(
+				0,
+				50,
+				frameBackground.key,
+				undefined,
+				this._hintGrp,
+			);
+			combinedSprite.setOrigin(0.5, 0.175);
+			combinedSprite.setScale(0.75);
 			combinedSprite.alpha = isSkipTurnConfirm ? 1 : 0;
 			combinedSprite.visible = true;
-			combinedSprite.data.hintType = hintType;
-			combinedSprite.data.tweenAlpha = null;
-			combinedSprite.data.tweenPos = null;
-			combinedSprite.data.tweenBounce = null;
-			combinedSprite.data.skipTurnStatic = isSkipTurnConfirm;
+			hintState(combinedSprite).hintType = hintType;
+			hintState(combinedSprite).tweenAlpha = null;
+			hintState(combinedSprite).tweenPos = null;
+			hintState(combinedSprite).tweenBounce = null;
+			hintState(combinedSprite).skipTurnStatic = isSkipTurnConfirm;
 			if (!isSkipTurnConfirm) {
-				this._phaser.add
+				this._gameEngine
 					.tween(combinedSprite)
 					.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
 					.start();
 			}
 			this._enableSkipTurnInput(combinedSprite);
-			this._hintGrp.add(combinedSprite);
 
 			// Add "Skip turn" icon
-			const skipTurnIcon = this._phaser.add.sprite(0, 29, 'skip');
-			skipTurnIcon.anchor.setTo(0.5, 0.745);
-			skipTurnIcon.setScaleMinMax(0.15, 0.15, 0.15, 0.15);
+			const skipTurnIcon = this._gameEngine.add.sprite(0, 29, 'skip', undefined, this._hintGrp);
+			skipTurnIcon.setOrigin(0.5, 0.745);
+			skipTurnIcon.setScale(0.15);
 			skipTurnIcon.alpha = isSkipTurnConfirm ? 1 : 0;
 			skipTurnIcon.visible = true;
-			skipTurnIcon.data.hintType = hintType;
-			skipTurnIcon.data.tweenAlpha = null;
-			skipTurnIcon.data.tweenPos = null;
-			skipTurnIcon.data.tweenBounce = null;
-			skipTurnIcon.data.skipTurnStatic = isSkipTurnConfirm;
+			hintState(skipTurnIcon).hintType = hintType;
+			hintState(skipTurnIcon).tweenAlpha = null;
+			hintState(skipTurnIcon).tweenPos = null;
+			hintState(skipTurnIcon).tweenBounce = null;
+			hintState(skipTurnIcon).skipTurnStatic = isSkipTurnConfirm;
 			if (!isSkipTurnConfirm) {
-				this._phaser.add
+				this._gameEngine
 					.tween(skipTurnIcon)
 					.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
 					.start();
 			}
 			this._enableSkipTurnInput(skipTurnIcon);
-			this._hintGrp.add(skipTurnIcon);
 		}
 
-		this._hintGrp.add(hint);
-
 		// Stacking
-		this._hintGrp.forEach(
-			(hint: Phaser.Text | Phaser.Sprite) => {
-				const index = this._hintGrp.total - this._hintGrp.getIndex(hint) - 1;
-				const offset = -50 * index;
+		this._hintGrp.each((hint: SpriteHandle) => {
+			const index = this._hintGrp.total - this._hintGrp.getIndex(hint) - 1;
+			const offset = -50 * index;
+			const state = hintState(hint);
 
-				if (hint.data.tweenBounce) {
-					hint.data.tweenBounce.stop();
-					hint.data.tweenBounce = null;
-				}
+			if (state.tweenBounce) {
+				state.tweenBounce.stop();
+				state.tweenBounce = null;
+			}
 
-				if (hint.data.tweenPos) {
-					hint.data.tweenPos.stop();
-					hint.data.tweenPos = null;
-				}
+			if (state.tweenPos) {
+				state.tweenPos.stop();
+				state.tweenPos = null;
+			}
 
-				if (hint.data.hintType === 'no_action') {
-					this.setSkipButtonNoActionVisibility(true);
-					// Keep no-action hints stable on first show: place immediately, then bounce.
-					hint.y = offset;
-					startNoActionBounce(hint);
-					return;
-				}
+			hint.x = 0;
 
-				if (hint.data.skipTurnStatic) {
-					hint.y = offset;
-					return;
-				}
+			if (state.hintType === 'no_action') {
+				this.setSkipButtonNoActionVisibility(true);
+				// Keep no-action hints stable on first show: place immediately, then bounce.
+				hint.y = offset;
+				startNoActionBounce(hint);
+				return;
+			}
 
-				hint.data.tweenPos = this._phaser.add
-					.tween(hint)
-					.to({ y: offset }, tooltipSpeed, tooltipTransition)
-					.start();
-			},
-			this,
-			true,
-		);
+			if (state.skipTurnStatic) {
+				hint.y = offset;
+				return;
+			}
+
+			state.tweenPos = this._gameEngine
+				.tween(hint)
+				.to({ y: offset }, tooltipSpeed, tooltipTransition)
+				.start();
+		}, this);
 	}
 
 	stopNoActionHintBounce() {
 		this._noActionHintElements.forEach((hint) => {
-			if (!hint.exists || !hint.data) {
+			const state = peekHintState(hint);
+			if (!hint.active || !state) {
 				return;
 			}
 
-			if (hint.data.tweenBounce) {
-				hint.data.tweenBounce.stop();
-				hint.data.tweenBounce = null;
+			if (state.tweenBounce) {
+				state.tweenBounce.stop();
+				state.tweenBounce = null;
 			}
 
-			if (typeof hint.data.baseY === 'number') {
-				hint.y = hint.data.baseY;
+			if (typeof state.baseY === 'number') {
+				hint.y = state.baseY;
 			}
 		});
-		this._noActionHintElements = this._noActionHintElements.filter((hint) => hint.exists);
+		this._noActionHintElements = this._noActionHintElements.filter((hint) => hint.active);
 
 		if (this._noActionHintTween) {
 			this._noActionHintTween.stop();
 			this._noActionHintTween = null;
 		}
-		if (this._noActionHintGroup && this._noActionHintGroup.exists) {
+		if (this._noActionHintGroup && this._noActionHintGroup.active) {
 			this._noActionHintGroup.y = 0;
 		}
 	}
 
 	fadeOutNoActionHints() {
 		const tooltipSpeed = 250;
-		const tooltipTransition = Phaser.Easing.Linear.None;
-		const noActionHints = this._noActionHintElements.filter((hint) => hint.exists);
+		const tooltipTransition = Easing.Linear.None;
+		const noActionHints = this._noActionHintElements.filter((hint) => hint.active);
 		this._noActionHintElements = [];
 
 		// Tag as deleted immediately so any concurrent hint('Skip turn','confirm') call
 		// (e.g. from cleanup queryMove on turn-end) does not detect these as live hints
 		// and spawn a second marker on top of the fading one.
 		noActionHints.forEach((hint) => {
-			if (hint.data) {
-				hint.data.hintType = 'confirm_deleted';
+			const state = peekHintState(hint);
+			if (state) {
+				state.hintType = 'confirm_deleted';
 			}
 		});
 
 		noActionHints.forEach((hint) => {
-			if (!hint.data) {
+			if (!peekHintState(hint)) {
 				return;
 			}
 
-			if (hint.data.tweenBounce) {
-				hint.data.tweenBounce.stop();
-				hint.data.tweenBounce = null;
+			if (hintState(hint).tweenBounce) {
+				hintState(hint).tweenBounce.stop();
+				hintState(hint).tweenBounce = null;
 			}
-			if (hint.data.tweenPos) {
-				hint.data.tweenPos.stop();
-				hint.data.tweenPos = null;
+			if (hintState(hint).tweenPos) {
+				hintState(hint).tweenPos.stop();
+				hintState(hint).tweenPos = null;
 			}
-			if (hint.data.tweenAlpha) {
-				hint.data.tweenAlpha.stop();
-				hint.data.tweenAlpha = null;
+			if (hintState(hint).tweenAlpha) {
+				hintState(hint).tweenAlpha.stop();
+				hintState(hint).tweenAlpha = null;
 			}
 
 			const targetY = hint.y - 30;
-			hint.data.tweenPos = this._phaser.add
+			hintState(hint).tweenPos = this._gameEngine
 				.tween(hint)
 				.to({ y: targetY }, tooltipSpeed, tooltipTransition)
 				.start();
 
-			hint.data.tweenAlpha = this._phaser.add
+			hintState(hint).tweenAlpha = this._gameEngine
 				.tween(hint)
 				.to({ alpha: 0 }, tooltipSpeed, tooltipTransition)
 				.start();
-			hint.data.tweenAlpha.onComplete.add(() => {
-				if (hint.exists) {
+			hintState(hint).tweenAlpha.onComplete.add(() => {
+				if (hint.active) {
 					hint.destroy();
 				}
 			});
@@ -3561,15 +4687,15 @@ class CreatureSprite {
 			this._noActionHintTween.stop();
 			this._noActionHintTween = null;
 		}
-		if (this._noActionHintGroup && this._noActionHintGroup.exists) {
+		if (this._noActionHintGroup && this._noActionHintGroup.active) {
 			const group = this._noActionHintGroup;
 			this._noActionHintGroup = null;
 
-			this._phaser.add
+			this._gameEngine
 				.tween(group)
 				.to({ y: group.y - 30 }, tooltipSpeed, tooltipTransition)
 				.start();
-			const fadeTween = this._phaser.add
+			const fadeTween = this._gameEngine
 				.tween(group)
 				.to({ alpha: 0 }, tooltipSpeed, tooltipTransition)
 				.start();
@@ -3578,48 +4704,127 @@ class CreatureSprite {
 	}
 
 	clearHints(hintTypes: CreatureHintType[] = ['confirm', 'no_action']) {
-		const tooltipTransition = Phaser.Easing.Linear.None;
+		const tooltipTransition = Easing.Linear.None;
 		if (hintTypes.includes('no_action')) {
 			this._noActionHintElements = [];
 			this.destroyNoActionHintGroup();
 		}
 
-		this._hintGrp.forEach(
-			(hint: Phaser.Text | Phaser.Sprite) => {
-				if (!hint.data || typeof hint.data.hintType !== 'string') {
-					return;
-				}
+		this._hintGrp.each((hint: SpriteHandle) => {
+			// An element with no recorded type was never one of ours (the group
+			// also holds the health/frame sprites), so it is not ours to clear.
+			const state = peekHintState(hint);
+			if (!state || !state.hintType) {
+				return;
+			}
 
-				const isNoAction = this.isNoActionHintType(hint.data.hintType);
-				if (
-					!hintTypes.includes(hint.data.hintType) &&
-					!(isNoAction && hintTypes.includes('no_action'))
-				) {
-					return;
-				}
+			// An earlier clear already tagged this one and started its fade.
+			// Re-tagging it would orphan that tween and let the element be
+			// destroyed twice.
+			if (state.hintType === 'confirm_deleted') {
+				return;
+			}
 
-				hint.data.hintType = 'confirm_deleted';
-				if (hint.data.tweenBounce) {
-					hint.data.tweenBounce.stop();
-					hint.data.tweenBounce = null;
-				}
-				if (hint.data.tweenAlpha) {
-					hint.data.tweenAlpha.stop();
-				}
-				hint.data.tweenAlpha = this._phaser.add
-					.tween(hint)
-					.to({ alpha: 0 }, 100, tooltipTransition)
-					.start();
-				hint.data.tweenAlpha.onComplete.add(() => hint.destroy());
-			},
-			this,
-			true,
-		);
+			const isNoAction = this.isNoActionHintType(state.hintType);
+			if (!hintTypes.includes(state.hintType) && !(isNoAction && hintTypes.includes('no_action'))) {
+				return;
+			}
+
+			state.hintType = 'confirm_deleted';
+			if (state.tweenBounce) {
+				state.tweenBounce.stop();
+				state.tweenBounce = null;
+			}
+			if (state.tweenAlpha) {
+				state.tweenAlpha.stop();
+			}
+			state.tweenAlpha = this._gameEngine
+				.tween(hint)
+				.to({ alpha: 0 }, 100, tooltipTransition)
+				.start();
+			state.tweenAlpha.onComplete.add(() => hint.destroy());
+		}, this);
+	}
+
+	/**
+	 * Detaches the hint group from this creature's cardboard group,
+	 * leaving it floating at the same world position.
+	 *
+	 * The death animations swing the whole cardboard group — arc,
+	 * rotate, fade — and every hint parked in the hint group (damage
+	 * numbers, effect names, the skip-turn frame) is a child of it,
+	 * so a unit dying on a trap dragged the hints about it down the
+	 * same curve. Releasing the group first lets the hints fade out
+	 * where they were shown while the cardboard falls away alone.
+	 * The released group is torn down by `destroy()`, which the
+	 * creature group teardown can no longer reach.
+	 */
+	releaseHints(): void {
+		if (this._destroyed || this._hintsReleased) return;
+
+		const parent = this._hintGrp.parent as GroupHandle | null;
+		if (!parent || parent !== this._group) {
+			// Not parented to the creature group: either the headless
+			// doubles that never wire a parent chain, or an already
+			// released group. Nothing to detach either way.
+			return;
+		}
+
+		// The static layer the creature group lives in.
+		const layer = this._group.parent as GroupHandle | null;
+		if (!layer) {
+			return;
+		}
+
+		// The creature group and the display layer may have different scales
+		// (e.g., board vertical scale 0.75 on gridGroup). Convert the hint
+		// group's local position through world space to preserve the exact
+		// rendered position when reparenting.
+		const worldPos = this._group.toGlobal({ x: this._hintGrp.x, y: this._hintGrp.y });
+		const layerPos = layer.toLocal(worldPos);
+
+		parent.remove(this._hintGrp, false);
+		layer.add(this._hintGrp);
+		this._hintGrp.setPosition(layerPos.x, layerPos.y);
+		// Keep the released group in the dying unit's depth band so
+		// `orderCreatureZ`'s layer sort doesn't sink it behind the
+		// units it used to render among.
+		this._hintGrp.depth = this._group.depth;
+		this._hintsReleased = true;
+
+		// Hints that outlive the cardboard (skip turn, no action) must
+		// not linger at the death spot with no unit behind them: fade
+		// them out in place. Transient hints (damage, effect names)
+		// already fade and destroy themselves on their own tweens.
+		this.clearHints(['confirm', 'no_action']);
 	}
 
 	destroy() {
+		if (this._destroyed) return;
+		this._destroyed = true;
+		this._freeXrayState();
 		this._creature.game.animations.disposeInfernalCardboardEffect(this._creature);
-		this._group.parent?.removeChild(this._group);
+		this._healthIndicatorTween?.stop();
+		this._noActionHintTween?.stop();
+		// A hover reparents the health bar out of the creature group and into the
+		// elevated UI layer, so it is no longer covered by the container teardown
+		// below and has to be released explicitly.
+		if (this._healthInUiGroup) {
+			this._healthUiGroup?.remove(this._healthIndicatorGroup, true);
+			this._healthInUiGroup = false;
+		}
+		// The death animations release the hint group into the static
+		// creature layer (see `releaseHints`), so the teardown below no
+		// longer reaches it — destroy it here or the fading hints leak.
+		if (this._hintsReleased) {
+			this._hintsReleased = false;
+			this._hintGrp.parent?.remove(this._hintGrp, true);
+		}
+		// Phaser 2's `removeChild` only detached the container, leaving the
+		// cardboard, the hint group and their tweens alive with no owner — the
+		// wall's sprite outlived the wall. Phaser 4 spells it `remove`, and
+		// `remove(child, true)` destroys the whole subtree.
+		this._group.parent?.remove(this._group, true);
 	}
 }
 
@@ -3630,6 +4835,14 @@ export type CreatureHintType =
 	| 'healing'
 	| 'msg_effects'
 	| 'creature_name'
-	| 'no_action';
+	| 'no_action'
+	/**
+	 * The two satellites of a `no_action` hint. They are separate elements in the
+	 * hint group so they can be faded and bounced independently, so each needs
+	 * its own tag even though {@link CreatureSprite.isNoActionHintType} treats all
+	 * three alike.
+	 */
+	| 'no_action_icon'
+	| 'no_action_bg';
 
 type HealthBubbleType = 'plasma' | 'frozen' | 'health';

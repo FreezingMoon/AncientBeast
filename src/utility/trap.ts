@@ -1,9 +1,11 @@
+import { Easing } from './easing';
 import Game from '../game';
 import { Effect } from '../effect';
 import { Hex } from './hex';
 import { Player } from '../player';
 import { Creature } from '../creature';
 import { capitalize } from './string';
+import type { GroupHandle, SpriteHandle, TweenHandle } from '../engine/types';
 import { getPointFacade } from './pointfacade';
 import { HEX_WIDTH_PX, offsetCoordsToPx } from './const';
 
@@ -37,18 +39,20 @@ export class Trap {
 	 *  Receives the creature whose trap placement caused the destruction, if known.
 	 */
 	onDestroyFn?: (destroyer?: Creature) => void;
+	snapshotBehaviorId: string | undefined = undefined;
+	snapshotBehaviorData: Record<string, unknown> | undefined = undefined;
 
 	//
-	display: Phaser.Sprite;
-	displayOver: Phaser.Sprite;
+	display: SpriteHandle;
+	displayOver: SpriteHandle;
 
 	/** Tweens running the idle sprite animation (e.g. flame flicker). Stopped on destroy. */
-	private _idleTweens: Phaser.Tween[] = [];
+	private _idleTweens: TweenHandle[] = [];
 	/** Extra sprites created by the idle animation (e.g. flame layers). Destroyed with the trap. */
-	private _overlaySprites: Phaser.Sprite[] = [];
+	private _overlaySprites: SpriteHandle[] = [];
 
-	private _moveSpriteToGroup(sprite: Phaser.Sprite, targetGroup: Phaser.Group) {
-		const sourceGroup = sprite.parent as Phaser.Group | null;
+	private _moveSpriteToGroup(sprite: SpriteHandle, targetGroup: GroupHandle) {
+		const sourceGroup = sprite.parent as GroupHandle | null;
 		if (!sourceGroup || sourceGroup === targetGroup) {
 			return;
 		}
@@ -56,19 +60,19 @@ export class Trap {
 		const worldPos = sourceGroup.toGlobal(sprite.position.clone());
 		sourceGroup.remove(sprite, false);
 		targetGroup.add(sprite);
-		const localPos = targetGroup.toLocal(worldPos, this.game.Phaser.world);
-		sprite.position.set(localPos.x, localPos.y);
+		const localPos = targetGroup.toLocal(worldPos);
+		sprite.setPosition(localPos.x, localPos.y);
 	}
 
 	private _moveVisualsToOverLayer(enabled: boolean) {
 		const targetGroup = enabled ? this.game.grid.creatureGroup : this.game.grid.trapGroup;
 		this._moveSpriteToGroup(this.display, targetGroup);
 		this._overlaySprites.forEach((sprite) => {
-			if (sprite && sprite.exists) {
+			if (sprite && sprite.active) {
 				this._moveSpriteToGroup(sprite, targetGroup);
 			}
 		});
-		if (this.displayOver && this.displayOver.exists) {
+		if (this.displayOver && this.displayOver.active) {
 			this._moveSpriteToGroup(this.displayOver, targetGroup);
 		}
 	}
@@ -135,8 +139,14 @@ export class Trap {
 		// Traps are created in the base trap layer.
 		// Bonfire-spring is moved above units only while a creature occupies the same hex.
 		const targetGroup = game.grid.trapGroup;
-		this.display = targetGroup.create(px.x + HEX_WIDTH_PX / 2, px.y + 60, spriteName);
-		this.display.anchor.setTo(0.5);
+		this.display = game.gameEngine.add.sprite(
+			px.x + HEX_WIDTH_PX / 2,
+			px.y + 60,
+			spriteName,
+			undefined,
+			targetGroup,
+		);
+		this.display.setOrigin(0.5, 0.5);
 
 		if (type === 'bonfire-spring') {
 			game.animations.startBonfireSpringTrapAnimation(
@@ -181,25 +191,21 @@ export class Trap {
 
 	destroy(destroyer?: Creature) {
 		const game = this.game;
-		const phaser: Phaser.Game = game.Phaser;
 		const tweenDuration = 500;
 
 		// Stop idle animations so they don't interfere with the destroy tween.
 		this._idleTweens.forEach((t) => t.stop());
 		this._idleTweens = [];
 
-		const destroySprite = (sprite: Phaser.Sprite, animation: string) => {
+		const destroySprite = (sprite: SpriteHandle, animation: string) => {
 			if (animation === 'shrinkDown') {
 				// Flame animation may have already set anchor to bottom; only compensate once.
-				if (sprite.anchor.y !== 1) {
-					sprite.anchor.y = 1;
+				if (sprite.originY !== 1) {
+					sprite.originY = 1;
 					sprite.y += sprite.height / 2;
 				}
 
-				const tween = phaser.add
-					.tween(sprite.scale)
-					.to({ y: 0 }, tweenDuration, Phaser.Easing.Linear.None)
-					.start();
+				const tween = game.gameEngine.tween(sprite.scale).to({ y: 0 }, tweenDuration).start();
 				tween.onComplete.add(() => sprite.destroy());
 			} else {
 				sprite.destroy();
@@ -218,22 +224,16 @@ export class Trap {
 	}
 
 	hide(duration = 0) {
-		this.game.Phaser.add
-			.tween(this.display)
-			.to({ alpha: 0 }, duration, Phaser.Easing.Linear.None)
-			.start();
+		this.game.gameEngine.tween(this.display).to({ alpha: 0 }, duration, Easing.Linear.None).start();
 	}
 
 	show(duration = 0) {
-		this.game.Phaser.add
-			.tween(this.display)
-			.to({ alpha: 1 }, duration, Phaser.Easing.Linear.None)
-			.start();
+		this.game.gameEngine.tween(this.display).to({ alpha: 1 }, duration, Easing.Linear.None).start();
 	}
 
-	getVisualSprites(): Phaser.Sprite[] {
+	getVisualSprites(): SpriteHandle[] {
 		const sprites = [this.display, ...this._overlaySprites];
-		return sprites.filter((sprite): sprite is Phaser.Sprite => Boolean(sprite && sprite.exists));
+		return sprites.filter((sprite): sprite is SpriteHandle => Boolean(sprite && sprite.active));
 	}
 
 	pauseIdleAnimation() {
@@ -242,7 +242,7 @@ export class Trap {
 	}
 
 	resumeIdleAnimation() {
-		if (!this.display || !this.display.exists) {
+		if (!this.display || !this.display.active) {
 			return;
 		}
 
@@ -251,13 +251,13 @@ export class Trap {
 		}
 
 		this._overlaySprites.forEach((sprite) => {
-			if (sprite && sprite.exists) {
+			if (sprite && sprite.active) {
 				sprite.destroy();
 			}
 		});
 		this._overlaySprites = [];
 
-		const group = this.display.parent as Phaser.Group | null;
+		const group = this.display.parent as GroupHandle | null;
 		if (!group) {
 			return;
 		}

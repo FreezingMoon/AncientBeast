@@ -5,6 +5,14 @@ import { Creature } from '../creature';
 import { Hex } from '../utility/hex';
 import { Team, isTeam } from '../utility/team';
 
+// Axis-alignment helper (straight row or hex-grid diagonal) — same axes used by Icicle Spear
+function isOnSameAxis(ax: number, ay: number, bx: number, by: number): boolean {
+	const dx = Math.abs(bx - ax);
+	const dy = Math.abs(by - ay);
+	if (dy === 0) return true;
+	return Math.floor(dy / 2) === dx;
+}
+
 // Ability slot indices
 const ABILITY = {
 	FRIGID_TOWER: 0, // passive: stacks frost/defense buff when not moved; also offense if upgraded
@@ -15,6 +23,18 @@ const ABILITY = {
 
 const ICY_TALONS_ESTIMATED_DAMAGE = 18;
 const ICICLE_SPEAR_ESTIMATED_DAMAGE = 20;
+
+/** Effect name of the Frigid Tower stack applied by the passive. */
+const FRIGID_TOWER_EFFECT = 'Frostified';
+/** Frigid Tower stops stacking at this many charges — holding then gains nothing. */
+const FRIGID_TOWER_MAX_STACKS = 10;
+/**
+ * Worth of one forfeited Frigid Tower stack (+5 frost and defense, +5 offense
+ * once upgraded). Sized just under the score of stepping next to a single enemy
+ * so the Knightmare still commits to a fight it can reach, but does not drift
+ * for free.
+ */
+const FRIGID_TOWER_STACK_VALUE = 80;
 
 const ABILITY_MIN_SCORE: Partial<Record<number, number>> = {
 	[ABILITY.ICY_TALONS]: 340,
@@ -147,16 +167,23 @@ const KnightmareStrategy: UnitBotStrategy = {
 	getPreferredX(creature, controller) {
 		const gridRow = controller.game.grid.hexes[0];
 		const boardWidth = gridRow ? gridRow.length - 1 : 15;
-		// Prefer mid-range to leverage Icicle Spear while staying in melee reach
-		return creature.player.flipped ? boardWidth * 0.42 : boardWidth * 0.58;
+		// Base preference: mid-range to leverage Icicle Spear while staying in melee reach
+		const basePreferredX = creature.player.flipped ? boardWidth * 0.42 : boardWidth * 0.58;
+		// As aggression rises, shift preference toward enemy side to break stalemates
+		const aggression = controller.getAggressionFactor(creature);
+		const enemyX = creature.player.flipped ? boardWidth * 0.1 : boardWidth * 0.9;
+		const shift = Math.min(0.4, aggression * 0.04); // Up to 40% shift at max aggression
+		return basePreferredX + (enemyX - basePreferredX) * shift;
 	},
 
 	/**
-	 * Knightmare gains Frigid Tower stacking when it does NOT move. The move
+	 * Knightmare gains Frigid Tower stacks when it does NOT move. The move
 	 * scoring makes it prefer positions where it can stay: adjacent to one enemy
-	 * (for melee reach) while not being surrounded. If it's already in a good
-	 * spot the generic logic will find a lower-scored destination and the bot
-	 * might not move at all when no hex scores better than staying.
+	 * (for melee reach) while not being surrounded. `getHoldPositionScore`
+	 * prices the stack the move would forfeit, so the generic bot compares those
+	 * positions against staying put instead of always drifting.
+	 *
+	 * Trap exposure is applied by the generic scorer on top of this score.
 	 */
 	scoreMoveHex(hex, controller) {
 		const activeCreature = controller.game.activeCreature;
@@ -176,14 +203,39 @@ const KnightmareStrategy: UnitBotStrategy = {
 			score -= (adjacentEnemyCount - 1) * 180;
 		}
 
-		// Small penalty for moving at all (losing potential Frigid Tower stack)
-		score -= 30;
+		// Alignment bonus: reward positions on same row/diagonal as enemies
+		// so Icicle Spear can hit them. Grows with aggression.
+		const aggression = controller.getAggressionFactor(activeCreature);
+		controller.game.creatures.forEach((enemy) => {
+			if (!enemy || enemy.dead || enemy.temp || !isTeam(activeCreature, enemy, Team.Enemy)) return;
+			if (isOnSameAxis(hex.x, hex.y, enemy.x, enemy.y)) {
+				const dy = Math.abs(hex.y - enemy.y);
+				const bonus = dy === 0 ? 120 : 80; // straight row > diagonal
+				score += Math.round(bonus * (0.5 + aggression * 0.1));
+			}
+		});
 
 		const preferredX = controller.getPreferredX(activeCreature);
-		score -= Math.abs(hex.x - preferredX) * 8;
-		if (hex.trap) score -= 240;
+		const zoneWeight = Math.max(1, 10 - aggression);
+		score -= Math.abs(hex.x - preferredX) * zoneWeight;
 
 		return score;
+	},
+
+	/**
+	 * Value of holding position for the Knightmare: one Frigid Tower stack
+	 * (+5 frost and defense, plus offense once upgraded) is forfeited the turn
+	 * it moves, up to 10 stacks. Once the passive is capped — or as aggression
+	 * rises and breaks a stalemate — the bar shrinks and the Knightmare commits.
+	 */
+	getHoldPositionScore(creature, controller) {
+		const stacks = creature.effects.filter((effect) => effect.name === FRIGID_TOWER_EFFECT).length;
+		if (stacks >= FRIGID_TOWER_MAX_STACKS) {
+			return 0;
+		}
+
+		const aggression = controller.getAggressionFactor(creature);
+		return Math.round(FRIGID_TOWER_STACK_VALUE * Math.max(0.3, 1 - aggression / 15));
 	},
 
 	scoreAbilityHex(hex, abilityIndex, controller) {

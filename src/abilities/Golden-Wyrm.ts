@@ -5,12 +5,45 @@ import { Creature } from '../creature';
 import { Effect } from '../effect';
 import Game from '../game';
 import { Hex } from '../utility/hex';
+import { shakeBoard } from '../game-display/camera';
+import { SnapshotCompatibilityError } from '../engine/GameSnapshot';
+import { GOLDEN_WYRM_MOMENTUM_EFFECT } from '../engine/snapshotBehaviors';
+
+type GoldenWyrmMomentumSnapshotData = {
+	creatureId: number;
+};
+
+const getGoldenWyrmSnapshotCreature = (G: Game, id: unknown, behavior: string): Creature => {
+	if (!Number.isInteger(id) || !(G.creatures?.[id as number] instanceof Creature)) {
+		throw new SnapshotCompatibilityError(
+			`Cannot restore ${behavior}: creature reference is invalid.`,
+		);
+	}
+	return G.creatures[id as number];
+};
+
+const bindGoldenWyrmMomentumEffect = (
+	G: Game,
+	effect: Effect,
+	data: Record<string, unknown> | undefined,
+) => {
+	const candidate = data as Partial<GoldenWyrmMomentumSnapshotData> | undefined;
+	const creature = getGoldenWyrmSnapshotCreature(G, candidate?.creatureId, 'Golden Wyrm Momentum');
+	effect.snapshotBehaviorId = GOLDEN_WYRM_MOMENTUM_EFFECT;
+	effect.snapshotBehaviorData = { creatureId: creature.id };
+	effect.effectFn = (eff) => {
+		eff.deleteEffect();
+	};
+};
 
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
  */
 export default (G: Game) => {
+	G.registerSnapshotEffectBehavior(GOLDEN_WYRM_MOMENTUM_EFFECT, (effect, data) =>
+		bindGoldenWyrmMomentumEffect(G, effect, data),
+	);
 	G.abilities[33] = [
 		// 	First Ability: Battle Cry
 		{
@@ -51,7 +84,12 @@ export default (G: Game) => {
 				const creature = this.creature;
 				const damage = new Damage(creature, { sonic: 30 }, this._targets.length, [], G);
 				const hits: Set<Creature> = new Set();
-				G.Phaser.camera.shake(0.02, 300, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				shakeBoard({
+					amplitude: 0.02,
+					durationMs: 300,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				this._targets.forEach((target) => {
 					if (target.creature === undefined || hits.has(target.creature)) {
@@ -127,7 +165,12 @@ export default (G: Game) => {
 
 			activate: function (target: Creature) {
 				this.end();
-				G.Phaser.camera.shake(0.02, 200, true, G.Phaser.camera.SHAKE_BOTH, true);
+				shakeBoard({
+					amplitude: 0.02,
+					durationMs: 200,
+					force: true,
+					axis: 'both',
+				});
 				// Removes bounce after use
 				G.UI.abilitiesButtons[1].$button.removeClass('bounce');
 
@@ -155,7 +198,9 @@ export default (G: Game) => {
 						if (this.isUpgraded()) {
 							this.setUsed(false);
 							// Refresh UI to show ability still able to be used.
-							this.game.UI.selectAbility(-1);
+							// Guarded: this runs from a deferred damage callback that can
+							// outlive teardown, which nulls `game.UI`.
+							this.game.UI?.selectAbility(-1);
 						}
 					}
 				} else {
@@ -246,9 +291,15 @@ export default (G: Game) => {
 				ability.creature.moveTo(hex, {
 					ignoreMovementPoint: true,
 					ignorePath: true,
+					afterimages: true,
 					callback: function () {
-						G.activeCreature.queryMove();
-						G.Phaser.camera.shake(0.04, 100, true, G.Phaser.camera.SHAKE_VERTICAL, true);
+						G.activeCreature?.queryMove();
+						shakeBoard({
+							amplitude: 0.04,
+							durationMs: 100,
+							force: true,
+							axis: 'vertical',
+						});
 
 						if (ability.isUpgraded()) {
 							// Add offense buff after landing
@@ -276,9 +327,8 @@ export default (G: Game) => {
 					ability.creature,
 					'',
 					{
-						effectFn: function (effect) {
-							effect.deleteEffect();
-						},
+						snapshotBehaviorId: GOLDEN_WYRM_MOMENTUM_EFFECT,
+						snapshotBehaviorData: { creatureId: ability.creature.id },
 						alterations: {
 							/* This can technically only apply to Executioner's Axe because
 							the Golden Wyrm only has a single direct attack ability. */
@@ -291,6 +341,11 @@ export default (G: Game) => {
 						turnLifetime: 1,
 					},
 					this.game,
+				);
+				bindGoldenWyrmMomentumEffect(
+					this.game,
+					offenseBuffEffect,
+					offenseBuffEffect.snapshotBehaviorData,
 				);
 				ability.creature.addEffect(offenseBuffEffect);
 

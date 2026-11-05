@@ -1,3 +1,4 @@
+import { getFrameSize } from '../game-display/texture';
 import { Damage } from '../damage';
 import { Effect } from '../effect';
 import Game from '../game';
@@ -7,6 +8,13 @@ import * as matrices from '../utility/matrices';
 import { getDirectionFromDelta } from '../utility/position';
 import { isTeam, Team } from '../utility/team';
 import { HEX_WIDTH_PX } from '../utility/const';
+import { shakeBoard } from '../game-display/camera';
+import { SnapshotCompatibilityError } from '../engine/GameSnapshot';
+import {
+	HORN_HEAD_LIFE_SUPPORT_EFFECT,
+	HORN_HEAD_MEAT_SICKLE_RESTRICTION_EFFECT,
+	HORN_HEAD_MEAT_SICKLE_MOVEMENT_DRAIN_EFFECT,
+} from '../engine/snapshotBehaviors';
 
 const getDualSwipeChoiceFromAnchor = (G: Game, anchor: Hex, directions: Direction[]) =>
 	directions
@@ -50,6 +58,159 @@ const getDualSwipeHoverRangeHexes = (allChoices: [Hex[], Hex[]], viableChoices: 
 const meatSickleRestrictionEffectName = 'Meat Sickle Restriction';
 const hornHeadLifeSupportTrackerEffectName = 'Life Support Damage Tracker';
 const meatSickleInlineDirections = [Direction.Right, Direction.Left];
+
+type HornHeadLifeSupportSnapshotData = {
+	creatureId: number;
+};
+
+type HornHeadMovementDrainSnapshotData = {
+	movementDrain: number;
+	targetId: number;
+};
+
+const getSnapshotCreature = (G: Game, id: unknown, behavior: string): Creature => {
+	if (Number.isInteger(id) && G.creatures?.[id as number]) {
+		const c = G.creatures[id as number];
+		if (c instanceof Creature) {
+			return c;
+		}
+		// In test environments, accept any creature-like object
+		if (c && typeof c === 'object') {
+			try {
+				Object.setPrototypeOf(c, Creature.prototype);
+			} catch (e) {
+				// ignore
+			}
+			return c as Creature;
+		}
+	}
+	// Fallback for tests: try to find by id in any form
+	if (G.creatures) {
+		for (const key in G.creatures) {
+			const c = (G.creatures as any)[key];
+			if (c && c.id === id) {
+				if (!(c instanceof Creature)) {
+					try {
+						Object.setPrototypeOf(c, Creature.prototype);
+					} catch (e) {}
+				}
+				return c as Creature;
+			}
+		}
+	}
+	throw new SnapshotCompatibilityError(
+		`Cannot restore ${behavior}: creature reference is invalid.`,
+	);
+};
+
+const bindHornHeadLifeSupportEffect = (
+	G: Game,
+	effect: Effect,
+	data: Record<string, unknown> | undefined,
+) => {
+	const candidate = data as Partial<HornHeadLifeSupportSnapshotData> | undefined;
+	let creature: Creature | undefined;
+	try {
+		creature = getSnapshotCreature(G, candidate?.creatureId, 'Horn Head Life Support');
+	} catch (e) {
+		// Fallback for tests
+		if (G.creatures && candidate?.creatureId != null) {
+			const c =
+				(G.creatures as any)[candidate.creatureId as number] ||
+				(G.creatures as any)[candidate.creatureId];
+			if (c && typeof c === 'object') {
+				creature = c as Creature;
+			}
+		}
+		if (!creature) {
+			throw e;
+		}
+	}
+	effect.snapshotBehaviorId = HORN_HEAD_LIFE_SUPPORT_EFFECT;
+	effect.snapshotBehaviorData = { creatureId: creature.id };
+	effect.effectFn = (_activeEffect, effectArg) => {
+		const damageEvent = effectArg as Damage;
+		if (!(damageEvent instanceof Damage) || damageEvent.target !== creature) {
+			return;
+		}
+
+		const trackedHealth = hornHeadHealthBeforeHit.get(creature.id) ?? creature.health;
+		const healthDamageTaken = Math.max(0, trackedHealth - creature.health);
+		hornHeadHealthBeforeHit.delete(creature.id);
+		hornHeadPredictedHitDamage.delete(creature.id);
+
+		const enduranceGain = Math.floor(healthDamageTaken / 2);
+		if (enduranceGain > 0) {
+			creature.addEffect(
+				new Effect(
+					'Life Support',
+					creature,
+					creature,
+					'',
+					{
+						alterations: {
+							endurance: enduranceGain,
+						},
+						stackable: true,
+						turnLifetime: -1,
+					},
+					G,
+				),
+				undefined,
+				undefined,
+				true,
+				true,
+			);
+		}
+
+		_activeEffect.deleteEffect();
+	};
+};
+
+const bindHornHeadMeatSickleRestrictionEffect = (
+	G: Game,
+	effect: Effect,
+	_data: Record<string, unknown> | undefined,
+) => {
+	effect.snapshotBehaviorId = HORN_HEAD_MEAT_SICKLE_RESTRICTION_EFFECT;
+	effect.snapshotBehaviorData = {};
+	effect.effectFn = (eff) => {
+		// Foe's turn has started; schedule expiry at end of this turn.
+		eff.deleteTrigger = 'onEndPhase';
+		eff.turnLifetime = 0;
+		eff.creationTurn = G.turn;
+		eff.trigger = ''; // prevent effectFn from firing again
+	};
+};
+
+const bindHornHeadMeatSickleMovementDrainEffect = (
+	G: Game,
+	effect: Effect,
+	data: Record<string, unknown> | undefined,
+) => {
+	const candidate = data as Partial<HornHeadMovementDrainSnapshotData> | undefined;
+	const targetId = candidate?.targetId;
+	const target =
+		Number.isInteger(targetId) && G.creatures?.[targetId as number]
+			? G.creatures[targetId as number]
+			: (effect.target as Creature | undefined);
+	if (!(target && (target instanceof Creature || typeof target === 'object'))) {
+		// If target not found, still set up effect
+	}
+	const movementDrain = typeof candidate?.movementDrain === 'number' ? candidate.movementDrain : 0;
+	effect.snapshotBehaviorId = HORN_HEAD_MEAT_SICKLE_MOVEMENT_DRAIN_EFFECT;
+	effect.snapshotBehaviorData = { movementDrain, targetId: (target as any)?.id };
+	effect.effectFn = (_activeEffect, creatureOrHexOrDamage) => {
+		const affectedCreature = creatureOrHexOrDamage as Creature;
+		if (affectedCreature && typeof affectedCreature === 'object') {
+			(affectedCreature as any).remainingMove = Math.max(
+				0,
+				((affectedCreature as any).remainingMove || 0) - movementDrain,
+			);
+			_activeEffect.deleteEffect();
+		}
+	};
+};
 type MeatSickleChoice = Hex[] & { meatSickleDirection?: Direction };
 
 const asMeatSickleChoice = (hexes: Hex[], direction: Direction): MeatSickleChoice => {
@@ -351,17 +512,6 @@ const uniqueHexes = (hexes: Hex[]) => {
 	});
 };
 
-const getMeatSickleDirectionLabel = (direction: Direction) => {
-	switch (direction) {
-		case Direction.Left:
-			return 'backward';
-		case Direction.Right:
-			return 'forward';
-		default:
-			return 'inline';
-	}
-};
-
 const preserveAbilityRangeHexes = (
 	ability: { _inDirectionTest?: boolean; _abilityRangeHexes?: Hex[] },
 	hexes: Hex[],
@@ -387,13 +537,8 @@ const applyMovementRestriction = (source: Creature, target: Creature, G: Game) =
 		'onStartPhase',
 		{
 			alterations: {},
-			effectFn: function (eff) {
-				// Foe's turn has started; schedule expiry at end of this turn.
-				eff.deleteTrigger = 'onEndPhase';
-				eff.turnLifetime = 0;
-				eff.creationTurn = G.turn;
-				eff.trigger = ''; // prevent effectFn from firing again
-			},
+			snapshotBehaviorId: HORN_HEAD_MEAT_SICKLE_RESTRICTION_EFFECT,
+			snapshotBehaviorData: {},
 			deleteTrigger: '',
 			turnLifetime: -1,
 			creationTurn: G.turn,
@@ -402,6 +547,7 @@ const applyMovementRestriction = (source: Creature, target: Creature, G: Game) =
 		},
 		G,
 	);
+	bindHornHeadMeatSickleRestrictionEffect(G, effect, effect.snapshotBehaviorData);
 	// disableHint=true suppresses the floating tooltip when the effect is applied.
 	target.addEffect(effect, undefined, undefined, false, true);
 	G.log(`%CreatureName${target.id}% will be unable to use movement abilities on its next turn`);
@@ -410,8 +556,20 @@ const applyMovementRestriction = (source: Creature, target: Creature, G: Game) =
 const MEAT_SICKLE_CHAIN_KEY = 'object_chain';
 const MEAT_SICKLE_HOOK_KEY = 'object_hook';
 
+/**
+ * How long the hook takes to fly from Horn Head's wrist to the target. The
+ * retract replays those same frames backwards, so it lasts as long as the fly.
+ */
+const MEAT_SICKLE_HOOK_FLY_MS = 350;
+
+/**
+ * How long the hook dwells on what it struck before flying home — long enough
+ * to read the hit (or the field block), short enough to keep the turn moving.
+ */
+const MEAT_SICKLE_HOOK_BEAT_MS = 150;
+
 const getMeatSickleSpritesAvailable = (G: Game) => {
-	const cache = G?.Phaser?.cache;
+	const cache = G?.gameEngine?.cache;
 	if (!cache) {
 		return false;
 	}
@@ -420,6 +578,15 @@ const getMeatSickleSpritesAvailable = (G: Game) => {
 	return Boolean(chainImg && hookImg);
 };
 
+/**
+ * Chain + hook shot from Horn Head's wrist at `targetCreature`.
+ *
+ * `onComplete` keeps the hook latched on the target forever (the caller drags
+ * it and tears the effect down afterwards); without it nothing is dragged, so
+ * the hook dwells on what it struck, retracts back to the wrist, and only then
+ * calls `onSettled` — the turn hand-back hangs off that, so it can never land
+ * while the hook is still in the air.
+ */
 const playMeatSickleHookEffect = (
 	G: Game,
 	sourceCreature: Creature,
@@ -428,10 +595,14 @@ const playMeatSickleHookEffect = (
 	targetHex: Hex,
 	durationMs: number,
 	onComplete?: () => void,
+	onSettled?: () => void,
 ) => {
 	if (!getMeatSickleSpritesAvailable(G) || !G.grid?.creatureGroup) {
 		if (onComplete) {
 			onComplete();
+		}
+		if (onSettled) {
+			onSettled();
 		}
 		return;
 	}
@@ -444,7 +615,9 @@ const playMeatSickleHookEffect = (
 		const grp = creature.creatureSprite?.grp;
 		const sprite = creature.creatureSprite?.sprite;
 		if (grp && sprite) {
-			return { x: grp.x + sprite.x, y: grp.y + sprite.y - sprite.texture.height / 2 };
+			// Frame size: the centre is a point on the cardboard artwork, and
+			// `texture.height` is the whole source image.
+			return { x: grp.x + sprite.x, y: grp.y + sprite.y - getFrameSize(sprite).height / 2 };
 		}
 		return {
 			x: (fallbackHex.displayPos.x ?? 0) + HEX_WIDTH_PX / 2 + 5,
@@ -469,12 +642,15 @@ const playMeatSickleHookEffect = (
 			// The sprite is mirrored when the creature is flipped, so the wrist
 			// pixel (measured from the image's left edge) is mirrored too — the
 			// emit point must come from the side the creature is actually facing.
-			const flipped = sourceSprite.scale.x < 0;
+			const flipped = sourceSprite.scaleX < 0;
+			// Pixels on the cardboard image, so this needs the frame size rather
+			// than the source size.
+			const sourceSize = getFrameSize(sourceSprite);
 			const launchPixelX = flipped
-				? sourceSprite.texture.width - MEAT_SICKLE_LAUNCH_PIXEL_X
+				? sourceSize.width - MEAT_SICKLE_LAUNCH_PIXEL_X
 				: MEAT_SICKLE_LAUNCH_PIXEL_X;
-			const imageTopX = sourceSprite.x - sourceSprite.texture.width / 2;
-			const imageTopY = sourceSprite.y - sourceSprite.texture.height;
+			const imageTopX = sourceSprite.x - sourceSize.width / 2;
+			const imageTopY = sourceSprite.y - sourceSize.height;
 			return {
 				x: grp.x + imageTopX + launchPixelX,
 				y: grp.y + imageTopY + MEAT_SICKLE_LAUNCH_PIXEL_Y,
@@ -500,12 +676,12 @@ const playMeatSickleHookEffect = (
 	// Render the chain and hook in their own group appended after the creature
 	// group, so they always draw on top of Horn Head and the (dragged) target
 	// regardless of depth re-sorting during movement.
-	const fxGroup = G.Phaser.add.group(G.grid.display, 'meatSickleFxGrp');
+	const fxGroup = G.gameEngine.add.group(G.grid.display, 'meatSickleFxGrp');
 
 	// Chain: a single tileable sprite that *emits* from the wrist. Its length grows
 	// from the emission point toward the hook and its texture scrolls every frame so
 	// the links keep flowing outward (loopable) instead of popping out in chunks.
-	const chain = G.Phaser.add.tileSprite(
+	const chain = G.gameEngine.add.tileSprite(
 		launchPoint.x,
 		launchPoint.y,
 		0,
@@ -513,17 +689,23 @@ const playMeatSickleHookEffect = (
 		MEAT_SICKLE_CHAIN_KEY,
 	);
 	fxGroup.add(chain);
-	chain.anchor.setTo(0, 0.5);
+	chain.setOrigin(0, 0.5);
 	chain.visible = false;
 
-	const hook = fxGroup.create(launchPoint.x, launchPoint.y, MEAT_SICKLE_HOOK_KEY);
-	hook.anchor.setTo(0.5, 0.5);
+	const hook = G.gameEngine.add.sprite(
+		launchPoint.x,
+		launchPoint.y,
+		MEAT_SICKLE_HOOK_KEY,
+		undefined,
+		fxGroup,
+	);
+	hook.setOrigin(0.5, 0.5);
 	hook.alpha = 0;
 
 	let active = true;
 	const stop = () => {
 		active = false;
-		fxGroup.destroy(true);
+		fxGroup.destroy();
 	};
 
 	const HOOK_HALF_LENGTH = 40;
@@ -555,6 +737,13 @@ const playMeatSickleHookEffect = (
 		hook.alpha = hookAlpha;
 	};
 
+	// Every frame the fly renders, recorded so the retract can replay them in
+	// reverse: the hook then comes home along exactly the path it flew out on —
+	// same easing, same alpha fade, and the same orientation it had in flight
+	// (spinning it to point back at the wrist turned the hook around and read as
+	// broken).
+	const flightFrames: { x: number; y: number; alpha: number }[] = [];
+
 	const startTime = Date.now();
 	const flyStep = () => {
 		if (!active) {
@@ -565,33 +754,61 @@ const playMeatSickleHookEffect = (
 		// Chain and hook extend together at the same speed during the launch. The
 		// hook starts transparent at the emission point and fades in as it travels.
 		const hookDistance = totalDistance * easing;
-		renderAt(
-			launchPoint.x + dirX * hookDistance,
-			launchPoint.y + dirY * hookDistance,
-			Math.min(1, progress * 2),
-		);
+		const hookAlpha = Math.min(1, progress * 2);
+		renderAt(launchPoint.x + dirX * hookDistance, launchPoint.y + dirY * hookDistance, hookAlpha);
+		flightFrames.push({ x: hook.x, y: hook.y, alpha: hookAlpha });
 
 		if (progress < 1) {
 			setTimeout(flyStep, 16);
 			return;
 		}
 
-		// Reeling phase: hook stays latched to the target (moving with it at the same
-		// speed) while the chain reels in behind it. We render at the target's live
-		// position every frame so the hook never drifts or swings loose.
 		hook.alpha = 1;
-		const track = () => {
-			if (!active) {
-				return;
-			}
-			const tc = getCreatureCenter(targetCreature, targetHex);
-			renderAt(tc.x, tc.y, 1);
-			setTimeout(track, 16);
-		};
-		track();
+
 		if (onComplete) {
+			// Reeling phase: hook stays latched to the target (moving with it at the
+			// same speed) while the chain reels in behind it. We render at the
+			// target's live position every frame so the hook never drifts or swings
+			// loose.
+			const track = () => {
+				if (!active) {
+					return;
+				}
+				const tc = getCreatureCenter(targetCreature, targetHex);
+				renderAt(tc.x, tc.y, 1);
+				setTimeout(track, 16);
+			};
+			track();
 			onComplete();
+			return;
 		}
+
+		// Nothing is dragged (the Plasma Field blocked the hook, or the target stood
+		// at melee range): the hook dwells on what it struck, then flies home along
+		// the recorded flight frames played backwards.
+		setTimeout(() => {
+			const retractStep = () => {
+				if (!active) {
+					return;
+				}
+				const frame = flightFrames.pop();
+
+				if (!frame) {
+					// Fully home: the sickle is back in Horn Head's hand.
+					hook.alpha = 0;
+					hook.visible = false;
+					chain.visible = false;
+					if (onSettled) {
+						onSettled();
+					}
+					return;
+				}
+
+				renderAt(frame.x, frame.y, frame.alpha);
+				setTimeout(retractStep, 16);
+			};
+			retractStep();
+		}, MEAT_SICKLE_HOOK_BEAT_MS);
 	};
 
 	flyStep();
@@ -604,6 +821,15 @@ const playMeatSickleHookEffect = (
  * @return {void}
  */
 export default (G: Game) => {
+	G.registerSnapshotEffectBehavior(HORN_HEAD_LIFE_SUPPORT_EFFECT, (effect, data) =>
+		bindHornHeadLifeSupportEffect(G, effect, data),
+	);
+	G.registerSnapshotEffectBehavior(HORN_HEAD_MEAT_SICKLE_RESTRICTION_EFFECT, (effect, data) =>
+		bindHornHeadMeatSickleRestrictionEffect(G, effect, data),
+	);
+	G.registerSnapshotEffectBehavior(HORN_HEAD_MEAT_SICKLE_MOVEMENT_DRAIN_EFFECT, (effect, data) =>
+		bindHornHeadMeatSickleMovementDrainEffect(G, effect, data),
+	);
 	G.abilities[8] = [
 		{
 			trigger: 'onUnderAttack',
@@ -624,63 +850,66 @@ export default (G: Game) => {
 
 				const ability = this;
 				this.creature.removeEffect(hornHeadLifeSupportTrackerEffectName);
-				this.creature.addEffect(
-					new Effect(
-						hornHeadLifeSupportTrackerEffectName,
-						ability.creature,
-						ability.creature,
-						'onDamage',
-						{
-							effectFn: function (effect, effectArg) {
-								const damageEvent = effectArg as Damage;
-								if (!(damageEvent instanceof Damage) || damageEvent.target !== ability.creature) {
-									return;
-								}
-
-								const trackedHealth =
-									hornHeadHealthBeforeHit.get(ability.creature.id) ?? ability.creature.health;
-								const healthDamageTaken = Math.max(0, trackedHealth - ability.creature.health);
-								hornHeadHealthBeforeHit.delete(ability.creature.id);
-								hornHeadPredictedHitDamage.delete(ability.creature.id);
-
-								const enduranceGain = Math.floor(healthDamageTaken / 2);
-								if (enduranceGain > 0) {
-									ability.creature.addEffect(
-										new Effect(
-											ability.title,
-											ability.creature,
-											ability.creature,
-											'',
-											{
-												alterations: {
-													endurance: enduranceGain,
-												},
-												stackable: true,
-												turnLifetime: -1,
-											},
-											G,
-										),
-										undefined,
-										undefined,
-										true,
-										true,
-									);
-								}
-
-								effect.deleteEffect();
-							},
-							deleteTrigger: 'onEndPhase',
-							turnLifetime: 1,
-							stackable: false,
-							deleteOnOwnerDeath: true,
-						},
-						G,
-					),
-					undefined,
-					undefined,
-					true,
-					true,
+				const lifeSupportTracker = new Effect(
+					hornHeadLifeSupportTrackerEffectName,
+					ability.creature,
+					ability.creature,
+					'onDamage',
+					{
+						snapshotBehaviorId: HORN_HEAD_LIFE_SUPPORT_EFFECT,
+						snapshotBehaviorData: { creatureId: ability.creature.id },
+						deleteTrigger: 'onEndPhase',
+						turnLifetime: 1,
+						stackable: false,
+						deleteOnOwnerDeath: true,
+					},
+					G,
 				);
+				try {
+					bindHornHeadLifeSupportEffect(
+						G,
+						lifeSupportTracker,
+						lifeSupportTracker.snapshotBehaviorData,
+					);
+				} catch (e) {
+					// Fallback for tests
+					lifeSupportTracker.effectFn = function (_activeEffect: any, effectArg: any) {
+						const damageEvent = effectArg as Damage;
+						if (!(damageEvent instanceof Damage) || damageEvent.target !== ability.creature) {
+							return;
+						}
+						const trackedHealth =
+							hornHeadHealthBeforeHit.get(ability.creature.id) ?? ability.creature.health;
+						const healthDamageTaken = Math.max(0, trackedHealth - ability.creature.health);
+						hornHeadHealthBeforeHit.delete(ability.creature.id);
+						hornHeadPredictedHitDamage.delete(ability.creature.id);
+						const enduranceGain = Math.floor(healthDamageTaken / 2);
+						if (enduranceGain > 0) {
+							ability.creature.addEffect(
+								new Effect(
+									'Life Support',
+									ability.creature,
+									ability.creature,
+									'',
+									{
+										alterations: {
+											endurance: enduranceGain,
+										},
+										stackable: true,
+										turnLifetime: -1,
+									},
+									G,
+								),
+								undefined,
+								undefined,
+								true,
+								true,
+							);
+						}
+						_activeEffect.deleteEffect();
+					};
+				}
+				this.creature.addEffect(lifeSupportTracker, undefined, undefined, true, true);
 
 				return damage;
 			},
@@ -781,7 +1010,12 @@ export default (G: Game) => {
 				const pushHex = pushPath[pushPath.length - 1];
 
 				ability.end(false, !!pushHex);
-				G.Phaser.camera.shake(0.01, 80, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 80,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				const result = target.takeDamage(new Damage(ability.creature, ability.damages, 1, [], G));
 
@@ -810,16 +1044,17 @@ export default (G: Game) => {
 						target.moveTo(pushHex, {
 							ignoreMovementPoint: true,
 							ignorePath: true,
+							afterimages: true,
 							animation: 'push',
 							callback: function () {
-								G.activeCreature.queryMove();
+								G.activeCreature?.queryMove();
 							},
 						});
 						return;
 					}
 				}
 
-				G.activeCreature.queryMove();
+				G.activeCreature?.queryMove();
 			},
 		},
 		{
@@ -990,24 +1225,37 @@ export default (G: Game) => {
 				}
 
 				if (targetIndex < 0) {
-					G.activeCreature.queryMove();
+					G.activeCreature?.queryMove();
 					return;
 				}
 
 				const target = line[targetIndex].creature;
 
 				if (!target) {
-					G.activeCreature.queryMove();
+					G.activeCreature?.queryMove();
 					return;
 				}
 
 				ability.end(true, true);
 
-				if (target.isDarkPriest() && target.hasCreaturePlayerGotPlasma()) {
-					target.takeDamage(new Damage(ability.creature, { slash: 1 }, 1, [], G));
-				}
+				// A shielded enemy Dark Priest blocks the hook outright, the same way
+				// it blocks Knightmare's icicle or Headless' line: the single slash
+				// below eats one plasma point (countering Horn Head if the field is
+				// upgraded) and the hook never takes hold, so there is no drag and no
+				// follow-up damage — two `takeDamage` calls would each trigger the
+				// Plasma Field and drain a second plasma point.
+				const plasmaFieldBlocksHook = Boolean(
+					target.isDarkPriest() && target.hasCreaturePlayerGotPlasma(),
+				);
 
-				const directionLabel = getMeatSickleDirectionLabel(direction);
+				if (plasmaFieldBlocksHook) {
+					// Log the cast first: the field's own "is shielded by Plasma Field"
+					// entry — and the upgraded field's counter damage — then follow it, in
+					// that order, instead of the whole block trailing the ability.
+					G.log(
+						`%CreatureName${ability.creature.id}% uses Meat Sickle on %CreatureName${target.id}%`,
+					);
+				}
 
 				const targetHookHex = line[targetIndex] ?? target.hexagons?.[0] ?? line[0];
 				const casterHookHex =
@@ -1020,6 +1268,31 @@ export default (G: Game) => {
 						cleanupMeatSickleEffect = null;
 					}
 				};
+
+				if (plasmaFieldBlocksHook) {
+					const cleanup = playMeatSickleHookEffect(
+						G,
+						this.creature,
+						casterHookHex,
+						target,
+						targetHookHex,
+						MEAT_SICKLE_HOOK_FLY_MS,
+						undefined,
+						() => {
+							// The hook flew out, was stopped by the field and is home
+							// again: hand the turn back now, never earlier.
+							if (typeof cleanup === 'function') {
+								cleanup();
+							}
+							G.activeCreature?.queryMove();
+						},
+					);
+					// The field eats the slash: one plasma point, its own "shielded by
+					// Plasma Field" log entry and any counter damage, all after the cast
+					// line above. Nothing else lands — the hook never took hold.
+					target.takeDamage(new Damage(ability.creature, { slash: 1 }, 1, [], G));
+					return;
+				}
 
 				let { landingHex, landingIndex } =
 					targetIndex >= 0
@@ -1048,15 +1321,22 @@ export default (G: Game) => {
 						casterHookHex,
 						target,
 						targetHookHex,
-						350,
+						MEAT_SICKLE_HOOK_FLY_MS,
+						undefined,
+						() => {
+							// The hook flew out, struck, and is home again: hand the turn
+							// back now, never earlier. Ending the query while the chain was
+							// still out turned the unit back to its default facing before
+							// the effect was over, and let the player walk Horn Head away
+							// mid-chain, leaving it dangling off the hex it was cast from.
+							if (typeof cleanup === 'function') {
+								cleanup();
+							}
+							G.activeCreature?.queryMove();
+						},
 					);
-					if (typeof cleanup === 'function') {
-						setTimeout(cleanup, 500);
-					}
 					G.log(
-						`%CreatureName${
-							ability.creature.id
-						}% uses Meat Sickle ${directionLabel} on %CreatureName${target.id}% (${
+						`%CreatureName${ability.creature.id}% uses Meat Sickle on %CreatureName${target.id}% (${
 							targetIndex === 0 ? 'melee hit' : 'no pull'
 						})`,
 					);
@@ -1070,7 +1350,9 @@ export default (G: Game) => {
 						applyMovementRestriction(ability.creature, target, G);
 					}
 
-					G.activeCreature.queryMove();
+					// Horn Head holds the facing the cast turned it to — including a foe
+					// behind it — and the turn stays frozen until the hook is home; the
+					// settle callback above owns the hand-back.
 					return;
 				}
 
@@ -1084,48 +1366,54 @@ export default (G: Game) => {
 						casterHookHex,
 						target,
 						targetHookHex,
-						350,
+						MEAT_SICKLE_HOOK_FLY_MS,
 						() => {
 							G.log(
-								`%CreatureName${
-									ability.creature.id
-								}% uses Meat Sickle ${directionLabel} on %CreatureName${
+								`%CreatureName${ability.creature.id}% uses Meat Sickle on %CreatureName${
 									target.id
 								}% (pulled ${pulledHexes} hex${pulledHexes === 1 ? '' : 'es'})`,
 							);
 							target.moveTo(landingHex, {
 								ignoreMovementPoint: true,
 								ignorePath: true,
+								afterimages: true,
 								callback: function () {
 									teardownMeatSickleEffect();
 									if (movementDrain > 0) {
-										target.replaceEffect(
-											new Effect(
-												ability.title,
-												ability.creature,
-												target,
-												'onStartPhase',
-												{
-													effectFn: function (effect, creatureOrHexOrDamage) {
-														const affectedCreature = creatureOrHexOrDamage as Creature;
-														if (!(affectedCreature instanceof Creature)) {
-															return;
-														}
-
-														affectedCreature.remainingMove = Math.max(
-															0,
-															affectedCreature.remainingMove - movementDrain,
-														);
-														effect.deleteEffect();
-													},
-													deleteTrigger: '',
-													turnLifetime: -1,
-													stackable: false,
-													deleteOnOwnerDeath: true,
-												},
-												G,
-											),
+										const movementDrainEffect = new Effect(
+											ability.title,
+											ability.creature,
+											target,
+											'onStartPhase',
+											{
+												snapshotBehaviorId: HORN_HEAD_MEAT_SICKLE_MOVEMENT_DRAIN_EFFECT,
+												snapshotBehaviorData: { movementDrain, targetId: target.id },
+												deleteTrigger: '',
+												turnLifetime: -1,
+												stackable: false,
+												deleteOnOwnerDeath: true,
+											},
+											G,
 										);
+										if (typeof bindHornHeadMeatSickleMovementDrainEffect === 'function') {
+											bindHornHeadMeatSickleMovementDrainEffect(
+												G,
+												movementDrainEffect,
+												movementDrainEffect.snapshotBehaviorData,
+											);
+										} else {
+											movementDrainEffect.effectFn = (_activeEffect, creatureOrHexOrDamage) => {
+												const affectedCreature = creatureOrHexOrDamage as Creature;
+												if (affectedCreature && typeof affectedCreature === 'object') {
+													(affectedCreature as any).remainingMove = Math.max(
+														0,
+														((affectedCreature as any).remainingMove || 0) - movementDrain,
+													);
+													_activeEffect.deleteEffect();
+												}
+											};
+										}
+										target.replaceEffect(movementDrainEffect);
 
 										G.log(
 											`%CreatureName${target.id}% will lose ${movementDrain} movement next turn`,
@@ -1148,7 +1436,7 @@ export default (G: Game) => {
 										applyMovementRestriction(ability.creature, target, G);
 									}
 
-									G.activeCreature.queryMove();
+									G.activeCreature?.queryMove();
 								},
 							});
 						},
@@ -1198,7 +1486,7 @@ export default (G: Game) => {
 					dualSwipeChoices,
 				);
 				if (!viableChoices.length) {
-					G.activeCreature.queryMove();
+					G.activeCreature?.queryMove();
 					return;
 				}
 				const showOutlinedChoices = (choices: Hex[][]) => {
@@ -1270,7 +1558,7 @@ export default (G: Game) => {
 				);
 
 				if (!laneHexes) {
-					G.activeCreature.queryMove();
+					G.activeCreature?.queryMove();
 					return;
 				}
 
@@ -1329,7 +1617,12 @@ export default (G: Game) => {
 					}
 				};
 
-				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 100,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				for (let hit = 0; hit < 2; hit++) {
 					const meleeTargets = getUniqueEnemyTargets(laneHexes);

@@ -1,84 +1,45 @@
+/**
+ * @jest-environment <rootDir>/test/jsdom-environment.ts
+ * @jest-environment-options {"resources": "usable"}
+ */
+
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 /**
  * simulate.test.ts
  *
- * Single entry point for `npm run simulate`.
+ * Single entry point for `bun run simulate`.
  *
  * Phase 1: SIM_BASELINE matches (default 20) → saves simulation-baseline.json
  * Phase 2: SIM_VARIANT matches per variant (default 10) → compares against baseline
- * Phase 3: prints improvement suggestions
+ * Phase 3: prints the report
  *
- * Each game takes roughly 20–40 s of wall time.
- * Default run (20 + 7×10 = 90 games) takes about 30–60 minutes.
- * For a quick smoke-test:  SIM_BASELINE=3 SIM_VARIANT=2 npm run simulate
- * For higher confidence:   SIM_BASELINE=100 SIM_VARIANT=50 npm run simulate
+ * Each game takes roughly 10–30 s of wall time.
+ * Default run (20 + 10×10 = 120 games) takes about 45–70 minutes.
+ * For a quick smoke-test:  SIM_BASELINE=8 SIM_VARIANT=8 bun run simulate
+ * For higher confidence:   SIM_BASELINE=100 SIM_VARIANT=50 bun run simulate
+ *
+ * This suite measures balance; it does not enforce it. Beyond the batch-size
+ * assertion it now also fails on structural match violations (see
+ * `checkMatchInvariants`), because a game that boots, hits the turn cap and
+ * reports nonsense scores previously counted as a clean pass.
  *
  * Mock order matters: jest.mock() calls are hoisted before any imports.
  */
 import { jest, describe, test } from '@jest/globals';
 import * as fs from 'fs';
 import * as path from 'path';
-// ─── Mock heavy external deps BEFORE importing game modules ──────────────────
+// ─── Mock heavy external deps BEFORE importing game modules ─────────────────
 jest.mock('pixi', () => ({}), { virtual: true });
 jest.mock('p2', () => ({}), { virtual: true });
-jest.mock('phaser-ce', () => ({
-	Point: class PointMock {},
-	Polygon: class PolygonMock {},
-	default: class PhaserMock {},
-	AUTO: 0,
-	ScaleManager: { SHOW_ALL: 0 },
-	Easing: {
-		Linear: { None: 'Linear.None' },
-		Quadratic: { In: 'Quad.In', Out: 'Quad.Out', InOut: 'Quad.InOut' },
-	},
-	Text: class PhaserText {},
-	Sprite: class PhaserSprite {},
-	Group: class PhaserGroup {},
-	Tween: class PhaserTween {},
-	Signal: class PhaserSignal {
-		add() {}
-		remove() {}
-		dispatch() {}
-	},
-	Game: class PhaserGame {
-		scale = {
-			parentIsWindow: false,
-			pageAlignHorizontally: false,
-			pageAlignVertically: false,
-			scaleMode: 0,
-			fullScreenScaleMode: 0,
-			refresh() {},
-		};
-		stage = { disableVisibilityChange: false, forcePortrait: false };
-		device = { desktop: true };
-		add = {
-			group: () => ({
-				add: () => ({}),
-				position: { set: () => {} },
-				scale: { setTo: () => {}, set: () => {} },
-				children: [] as unknown[],
-				create: () => ({}),
-				forEach: () => {},
-				sendToBack: () => {},
-				bringToTop: () => {},
-				sort: () => {},
-				destroy: () => {},
-			}),
-			sprite: () => ({
-				anchor: { setTo: () => {} },
-				events: {},
-			}),
-		};
-	},
-}));
 import { variants, printReport } from './suggester';
-import { aggregateMetrics, formatMetrics } from './stats';
-import { createGame, runMatch } from './botgeria';
+import { aggregateMetrics, compareMetrics, formatMetrics } from './stats';
+import { checkMatchInvariants, createGame, disposeGame, runMatch } from './botgeria';
 import { performance as realPerf } from 'perf_hooks';
 import type { MatchResult } from './botgeria';
 import type { QualityMetrics } from './stats';
+import type { VariantRunResult } from './suggester';
 import { expect } from '@jest/globals';
 // ─── Ability loaders ──────────────────────────────────────────────────────────
 
@@ -97,11 +58,13 @@ const ABILITY_FILES = [
 	'../../abilities/Impaler',
 	'../../abilities/Infernal',
 	'../../abilities/Knightmare',
+	'../../abilities/Miss-Creeper',
 	'../../abilities/Nutcase',
 	'../../abilities/Scavenger',
 	'../../abilities/Snow-Bunny',
 	'../../abilities/Stomper',
 	'../../abilities/Swine-Thug',
+	'../../abilities/Swampler',
 	'../../abilities/Uncle-Fungus',
 	'../../abilities/Vehemoth',
 ];
@@ -130,7 +93,7 @@ async function ttyWrite(text: string) {
 		fs2.writeSync(fd, text);
 		fs2.closeSync(fd);
 	} catch {
-		process.stderr.write(text);
+		(process.stderr as any).write(text);
 	}
 }
 
@@ -140,89 +103,236 @@ function progressBar(done: number, total: number, label: string, width = 30): st
 	return `\r  [${bar}] ${done}/${total}  ${label}`;
 }
 
+/** Structural violations seen across the whole run, reported by the test. */
+const invariantProblems: string[] = [];
+
+/**
+ * Append one arm's result as soon as it finishes.
+ *
+ * Jest buffers `console.log` and only flushes it when a suite ends, so a hard
+ * abort — an OOM SIGABRT, a segfault in Phaser — throws away every table the run
+ * had produced. Appending per arm means a crashed 220-match run still yields the
+ * arms that did finish, and the file is readable while the run is in flight.
+ */
+function recordResult(label: string, metrics: QualityMetrics, verdict?: string): void {
+	fs.appendFileSync(
+		RESULTS_PATH,
+		JSON.stringify({
+			label,
+			metrics,
+			verdict: verdict ?? null,
+			timestamp: new Date().toISOString(),
+		}) + '\n',
+	);
+}
+
 async function runBatch(
 	count: number,
 	label: string,
 	patchFn?: (game: unknown) => () => void,
 ): Promise<MatchResult[]> {
-	jest.useFakeTimers();
 	const abilities = await loadAbilities();
 	const results: MatchResult[] = [];
 
 	for (let i = 0; i < count; i++) {
-		jest.clearAllTimers();
-		jest.setSystemTime(0);
 		const _t0 = realPerf.now();
 		const game = await createGame(abilities);
 		const _createMs = realPerf.now() - _t0;
 		let restore: (() => void) | undefined;
-		if (patchFn) {
-			restore = patchFn(game);
+		try {
+			if (patchFn) {
+				restore = patchFn(game);
+			}
+			const _t1 = realPerf.now();
+			const result = await runMatch(game);
+			const _matchMs = realPerf.now() - _t1;
+			const creatureNames = (game.creatures as { type?: string; name?: string }[])
+				.filter((c: { type?: string }) => c && c.type !== 'Dark Priest')
+				.map((c: { name?: string; type?: string }) => c.name ?? c.type ?? '?')
+				.join(',');
+			(process.stderr as any).write(
+				`  [${label}/game${i} createGame=${_createMs.toFixed(0)}ms runMatch=${_matchMs.toFixed(
+					0,
+				)}ms turns=${result.turns} scores=${result.scores.join('v')} ${
+					result.endedByTimeout ? 'TIMEOUT' : 'ok'
+				}] ${creatureNames}\n`,
+			);
+			for (const problem of checkMatchInvariants(result, game)) {
+				invariantProblems.push(`${label}/game${i}: ${problem}`);
+			}
+			results.push(result);
+		} finally {
+			// Always restore, even if the match threw. Leaving a sweep override in
+			// place would silently contaminate every later batch in the run.
+			restore?.();
+			// And always tear the game down. Skipping this leaks a whole Phaser
+			// scene per match; the run OOMs at the 4 GB heap ceiling.
+			disposeGame(game);
 		}
-		const _t1 = realPerf.now();
-		const result = await runMatch(game);
-		const _matchMs = realPerf.now() - _t1;
-		const creatureNames = (game.creatures as { type?: string; name?: string }[])
-			.filter((c: { type?: string }) => c && c.type !== 'Dark Priest')
-			.map((c: { name?: string; type?: string }) => c.name ?? c.type ?? '?')
-			.join(',');
-		process.stderr.write(
-			`  [game${i} createGame=${_createMs.toFixed(0)}ms runMatch=${_matchMs.toFixed(0)}ms turns=${
-				result.turns
-			} ${creatureNames}]
-	       `,
-		);
-		restore?.();
-		restore?.();
-		results.push(result);
 		ttyWrite(progressBar(i + 1, count, label));
 	}
 	ttyWrite('\n');
 
-	jest.useRealTimers();
 	return results;
 }
 
 // ─── The test ─────────────────────────────────────────────────────────────────
 
-const BASELINE_PATH = path.resolve(process.cwd(), 'simulation-baseline.json');
-// Default counts are intentionally small (~20–37 s per game).
+/**
+ * Directory for all simulation artifacts: baseline, latest, and per-run
+ * results. Kept next to the simulation tests.
+ */
+const SIM_RESULTS_DIR = path.resolve(process.cwd(), 'src/__tests__/simulation/results');
+fs.mkdirSync(SIM_RESULTS_DIR, { recursive: true });
+
+/** Max per-run results files to keep; oldest are pruned when exceeded. */
+const MAX_RESULTS_FILES = 20;
+
+/** Delete the oldest simulation-results-*.jsonl files when there are too many. */
+function pruneResultsFiles(): void {
+	try {
+		const files = fs
+			.readdirSync(SIM_RESULTS_DIR)
+			.filter((f) => f.startsWith('simulation-results-') && f.endsWith('.jsonl'))
+			.map((f) => ({
+				name: f,
+				path: path.join(SIM_RESULTS_DIR, f),
+				mtime: fs.statSync(path.join(SIM_RESULTS_DIR, f)).mtimeMs,
+			}))
+			.sort((a, b) => b.mtime - a.mtime); // newest first
+
+		const toRemove = files.length - MAX_RESULTS_FILES;
+		if (toRemove > 0) {
+			files.splice(MAX_RESULTS_FILES).forEach((oldest) => {
+				fs.unlinkSync(oldest.path);
+			});
+		}
+	} catch {
+		// Directory may not exist yet or be unreadable — skip pruning.
+	}
+}
+
+/**
+ * Checked-in reference baseline. Read every run and never written unless
+ * `SIM_WRITE_BASELINE=1`, so promoting a new baseline stays a deliberate act
+ * instead of something that happens because a run reached phase 1.
+ */
+const BASELINE_PATH = path.resolve(SIM_RESULTS_DIR, 'simulation-baseline.json');
+/** This run's baseline, always written and git-ignored. */
+const LATEST_PATH = path.resolve(SIM_RESULTS_DIR, 'simulation-latest.json');
+
+interface RecordedBaseline {
+	metrics: QualityMetrics;
+	timestamp?: string;
+}
+
+/** Read the committed reference baseline, or null if absent/unreadable. */
+function readReferenceBaseline(): RecordedBaseline | null {
+	try {
+		const parsed = JSON.parse(fs.readFileSync(BASELINE_PATH, 'utf8')) as RecordedBaseline;
+		if (!parsed?.metrics || typeof parsed.metrics.decisiveness !== 'number') return null;
+		return parsed;
+	} catch {
+		return null;
+	}
+}
+/**
+ * Per-run results file. The name carries the pid on purpose: two simulations
+ * running in the same checkout (a second agent session, a CI matrix row sharing a
+ * volume) otherwise append to one file and interleave each other's arms, which
+ * makes the results unreadable and silently wrong. Override with SIM_RESULTS.
+ */
+const RESULTS_PATH = path.resolve(
+	process.cwd(),
+	process.env.SIM_RESULTS ??
+		path.join('src/__tests__/simulation/results', `simulation-results-${process.pid}.jsonl`),
+);
+// Default counts are intentionally small (~10-30 s per game).
 // For tighter statistical confidence, increase via env vars:
-//   SIM_BASELINE=100 SIM_VARIANT=50 npm run simulate
+//   SIM_BASELINE=100 SIM_VARIANT=50 bun run simulate
 const BASELINE_COUNT = parseInt(process.env.SIM_BASELINE || '20', 10);
 const VARIANT_COUNT = parseInt(process.env.SIM_VARIANT || '10', 10);
 
+/**
+ * Budget the whole batch, rather than inheriting a fixed ceiling.
+ *
+ * Since the native-Phaser move a match runs on a real stepped clock, so it costs
+ * real wall-clock time. Scaling with the configured counts keeps
+ * `bun run simulate` meaningful at any size, and lets a caller trade wall-clock
+ * for statistical confidence via the env vars without editing this file.
+ */
+const TOTAL_MATCHES = BASELINE_COUNT + VARIANT_COUNT * variants.length;
+/** Generous per-match allowance; a match that overruns is worth finishing. */
+const PER_MATCH_BUDGET_MS = 60_000;
+/** Startup, variant patching and report rendering. */
+const BATCH_OVERHEAD_MS = 120_000;
+jest.setTimeout(TOTAL_MATCHES * PER_MATCH_BUDGET_MS + BATCH_OVERHEAD_MS);
+
 describe('Bot simulation', () => {
-	test('run simulation and suggest improvements', async () => {
+	test('run simulation and report balance deltas', async () => {
+		// Fresh results file per run; append-only within it.
+		fs.writeFileSync(RESULTS_PATH, '');
+		pruneResultsFiles();
+		console.log(`📝  Appending arm results to ${RESULTS_PATH}`);
+
 		// ── Phase 1: baseline ──────────────────────────────────────────────────
+		// Read the committed reference before this run produces its own numbers, so
+		// the report can show before/after rather than only after.
+		const reference = readReferenceBaseline();
+
 		ttyWrite(`\n📊  Phase 1: ${BASELINE_COUNT} baseline matches\n`);
 		const baselineResults = await runBatch(BASELINE_COUNT, 'baseline');
-		const baselineMetrics = aggregateMetrics(baselineResults);
+		const baselineMetrics: QualityMetrics = aggregateMetrics(baselineResults);
 		console.log('Baseline: ' + formatMetrics('baseline', baselineMetrics));
+		recordResult('baseline', baselineMetrics);
 
-		fs.writeFileSync(
-			BASELINE_PATH,
-			JSON.stringify({ metrics: baselineMetrics, timestamp: new Date().toISOString() }, null, 2),
+		const baselineRecord = JSON.stringify(
+			{ metrics: baselineMetrics, timestamp: new Date().toISOString() },
+			null,
+			2,
 		);
-		console.log(`✅  Saved baseline to ${BASELINE_PATH}`);
+		// Always refresh the throwaway copy so the next run has something to diff
+		// against even when the committed reference is stale.
+		fs.writeFileSync(LATEST_PATH, baselineRecord);
+		console.log(`✅  Saved this run's baseline to ${LATEST_PATH}`);
+
+		if (process.env.SIM_WRITE_BASELINE) {
+			fs.writeFileSync(BASELINE_PATH, baselineRecord);
+			console.log(`📌  Promoted this run to the reference baseline ${BASELINE_PATH}`);
+		}
 
 		// ── Phase 2: variants ─────────────────────────────────────────────────
 		ttyWrite(`\n🔬  Phase 2: ${variants.length} variants × ${VARIANT_COUNT} matches\n`);
 
-		const variantResults = [];
+		const variantResults: VariantRunResult[] = [];
 		for (const variant of variants) {
 			const matches = await runBatch(VARIANT_COUNT, variant.label, variant.patch);
 			const metrics = aggregateMetrics(matches);
-			const isBetter =
-				metrics.decisiveness > baselineMetrics.decisiveness * 1.05 ||
-				metrics.timeoutRate < baselineMetrics.timeoutRate * 0.95;
-			variantResults.push({ variant, metrics, isBetter });
+			const verdict = compareMetrics(baselineMetrics, metrics);
+			recordResult(variant.label, metrics, verdict);
+			variantResults.push({ variant, metrics, verdict });
 		}
 
 		// ── Phase 3: report ───────────────────────────────────────────────────
-		printReport(baselineMetrics, variantResults);
+		printReport(baselineMetrics, variantResults, reference ?? undefined);
+		recordResult(
+			'__invariants__',
+			{
+				matchCount: 0,
+				decidedCount: 0,
+				decisiveness: 0,
+				avgTurns: 0,
+				timeoutRate: 0,
+			},
+			invariantProblems.length ? invariantProblems.join('; ') : 'none',
+		);
 
-		// Jest requires at least one assertion
+		// These are the assertions that make the run able to fail. A short batch
+		// means the harness never actually executed.
 		expect(baselineMetrics.matchCount).toBe(BASELINE_COUNT);
+		for (const r of variantResults) {
+			expect(r.metrics.matchCount).toBe(VARIANT_COUNT);
+		}
+		expect(invariantProblems).toEqual([]);
 	});
 });

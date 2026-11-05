@@ -4,7 +4,20 @@ import { MusicPlayer } from './musicplayer';
 import { clamp } from '../utility/math';
 
 export type AudioMode = 'full' | 'sfx' | 'muted';
-let currentAudioMode: AudioMode = 'full';
+
+// NOTE: Start with SFX only while developing so that
+// music does not interfere with audio the developer is working on.
+export const DEFAULT_AUDIO_MODE: AudioMode =
+	process.env.NODE_ENV === 'development' ? 'sfx' : 'full';
+
+/**
+ * The turn-skip heartbeat is an ambient cue that fires on every turn handoff,
+ * so it plays well below the requested heartbeat volume. The asset peaks at
+ * 0 dBFS, which makes small reductions inaudible, hence the sizeable cut.
+ */
+const HEARTBEAT_VOLUME_SCALE = 0.25;
+
+let currentAudioMode: AudioMode = DEFAULT_AUDIO_MODE;
 
 export function getAudioMode(): AudioMode {
 	return currentAudioMode;
@@ -35,6 +48,21 @@ export class SoundSys {
 	private _heartbeatVol = 1;
 	private _announcerVol = 1;
 	private _allEffectsCoeff = 1;
+	/** Sounds currently being fetched, so repeated warm-ups do not re-decode. */
+	private _pendingSoundPaths = new Set<string>();
+
+	/**
+	 * True while a fast replay (`replayMode === 'load'`) is running.
+	 *
+	 * When set, every effects/heartbeat/announcer gain is forced to zero — the
+	 * same outcome as guarding each individual `playSFX`/`playShout` call site,
+	 * but centralized: new sounds, sounds started mid-replay, and even a
+	 * `setAudioMode()` call from `setup()` cannot un-mute it, because the
+	 * volume setters consult this flag instead of blindly applying the
+	 * requested level. Music is left alone so a muted match still has its
+	 * background track.
+	 */
+	private _effectsMuted = false;
 
 	constructor(config: SoundSysConfig) {
 		this.musicPlayer = new MusicPlayer();
@@ -55,6 +83,7 @@ export class SoundSys {
 			}
 
 			this.heartbeatGainNode = this.context.createGain();
+			this.heartbeatGainNode.gain.value = HEARTBEAT_VOLUME_SCALE;
 			this.heartbeatGainNode.connect(this.context.destination);
 			if ('heartbeatVolume' in config) {
 				this.heartbeatVolume = config.heartbeatVolume;
@@ -89,7 +118,8 @@ export class SoundSys {
 	set effectsVolume(level: number) {
 		if (this.envHasSound) {
 			this._effectsVol = clamp(level, 0, 1);
-			this.effectsGainNode.gain.value = this._effectsVol * this._allEffectsCoeff;
+			this.effectsGainNode.gain.value =
+				this._effectsVol * this._allEffectsCoeff * (this._effectsMuted ? 0 : 1);
 		}
 	}
 
@@ -99,7 +129,11 @@ export class SoundSys {
 	set heartbeatVolume(level: number) {
 		if (this.envHasSound) {
 			this._heartbeatVol = clamp(level, 0, 1);
-			this.heartbeatGainNode.gain.value = this._heartbeatVol * this._allEffectsCoeff;
+			this.heartbeatGainNode.gain.value =
+				this._heartbeatVol *
+				HEARTBEAT_VOLUME_SCALE *
+				this._allEffectsCoeff *
+				(this._effectsMuted ? 0 : 1);
 		}
 	}
 
@@ -109,7 +143,8 @@ export class SoundSys {
 	set announcerVolume(level: number) {
 		if (this.envHasSound) {
 			this._announcerVol = clamp(level, 0, 1);
-			this.announcerGainNode.gain.value = this._announcerVol * this._allEffectsCoeff;
+			this.announcerGainNode.gain.value =
+				this._announcerVol * this._allEffectsCoeff * (this._effectsMuted ? 0 : 1);
 		}
 	}
 
@@ -124,6 +159,28 @@ export class SoundSys {
 		}
 	}
 
+	/**
+	 * Force every effects/heartbeat/announcer gain to zero while a fast replay
+	 * is running, without touching the music track.
+	 *
+	 * The gain is applied through the volume setters (not by zeroing the gain
+	 * node directly) so a later `setAudioMode()` call — which setup() makes —
+	 * cannot restore it. Music is intentionally left alone: a muted match
+	 * still has its background track, and the drum roll on game over is a
+	 * stinger that already guards on `getAudioMode() === 'full'`.
+	 */
+	setEffectsMuted(muted: boolean) {
+		this._effectsMuted = muted;
+		// Re-apply through the setters so the gain nodes pick up the flag.
+		this.effectsVolume = this._effectsVol;
+		this.heartbeatVolume = this._heartbeatVol;
+		this.announcerVolume = this._announcerVol;
+	}
+
+	get effectsMuted(): boolean {
+		return this._effectsMuted;
+	}
+
 	playMusic() {
 		this.musicPlayer.playRandom();
 	}
@@ -133,32 +190,91 @@ export class SoundSys {
 	}
 
 	loadSound(relativePath: string) {
-		if (this.envHasSound) {
-			const url = getUrl(relativePath);
-			const bufferLoader = new BufferLoader(this.context, [url], (arraybuffer: AudioBuffer[]) => {
-				this.loadedPaths[relativePath] = arraybuffer[0];
-			});
+		if (!this.envHasSound) {
+			return;
+		}
+		// The constructor already walks every path, and callers warm individual
+		// sounds on top of that. Decoding an ogg is expensive, so only ever fetch
+		// a given sound once: skip it if it has landed or is already in flight.
+		if (
+			this.loadedPaths.hasOwnProperty(relativePath) ||
+			this._pendingSoundPaths.has(relativePath)
+		) {
+			return;
+		}
 
-			bufferLoader.load();
+		let url: string;
+		try {
+			url = getUrl(relativePath);
+		} catch {
+			console.warn(`[soundsys] unknown sound "${relativePath}"`);
+			return;
+		}
+
+		this._pendingSoundPaths.add(relativePath);
+		const bufferLoader = new BufferLoader(this.context, [url], (arraybuffer: AudioBuffer[]) => {
+			this._pendingSoundPaths.delete(relativePath);
+			this.loadedPaths[relativePath] = arraybuffer[0];
+		});
+
+		bufferLoader.load();
+	}
+
+	/** Stop a source returned by one of the play methods, tolerating an already-ended one. */
+	stopSFX(source?: SoundSysAudioBufferSourceNode) {
+		if (isNullAudioBufferSourcNode(source)) {
+			return;
+		}
+		try {
+			// Throws if the node never started or already stopped.
+			(source as AudioBufferSourceNode).stop();
+		} catch {
+			// Already finished; nothing left to silence.
 		}
 	}
 
-	private playSound(sound: AudioBuffer, node: GainNode): SoundSysAudioBufferSourceNode {
+	/**
+	 * @param duration - optional length in seconds to play, cutting the sound short.
+	 * Useful for long stingers that would otherwise linger over the whole screen.
+	 * @param loop - repeat the buffer until the returned node is passed to
+	 * {@link stopSFX}. Used for continuous cues such as a unit in flight, whose
+	 * length is not known up front.
+	 */
+	private playSound(
+		sound: AudioBuffer,
+		node: GainNode,
+		duration?: number,
+		loop?: boolean,
+	): SoundSysAudioBufferSourceNode {
 		if (!this.envHasSound) {
 			return new NullAudioBufferSourceNode();
 		}
 
 		const source = this.context.createBufferSource();
 		source.buffer = sound;
+		if (loop) {
+			source.loop = true;
+		}
 		source.connect(node);
-		source.start(0);
+		source.start(0, 0, duration);
 
 		return source;
 	}
 
-	playSFX(relativePath: string): SoundSysAudioBufferSourceNode {
+	playSFX(relativePath: string, duration?: number): SoundSysAudioBufferSourceNode {
 		if (this.envHasSound && this.loadedPaths.hasOwnProperty(relativePath)) {
-			return this.playSound(this.loadedPaths[relativePath], this.effectsGainNode);
+			return this.playSound(this.loadedPaths[relativePath], this.effectsGainNode, duration);
+		}
+		return new NullAudioBufferSourceNode();
+	}
+
+	/**
+	 * Start a repeating SFX. The caller owns the returned node and must hand it to
+	 * {@link stopSFX} when the sound should stop, otherwise it plays forever.
+	 */
+	playSFXLoop(relativePath: string): SoundSysAudioBufferSourceNode {
+		if (this.envHasSound && this.loadedPaths.hasOwnProperty(relativePath)) {
+			return this.playSound(this.loadedPaths[relativePath], this.effectsGainNode, undefined, true);
 		}
 		return new NullAudioBufferSourceNode();
 	}
@@ -190,6 +306,9 @@ class NullAudioBufferSourceNode {
 		// pass
 	}
 	pause() {
+		// pass
+	}
+	stop() {
 		// pass
 	}
 }

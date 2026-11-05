@@ -12,6 +12,7 @@ export class ProgressBar {
 	$bar: any;
 	$preview: any;
 	$current: any;
+	costGhost: ProgressBar | null;
 	width: number;
 	height: number;
 	color: string;
@@ -55,6 +56,8 @@ export class ProgressBar {
 
 		this.$bar.append('<div class="currentbar"></div>');
 		this.$current = this.$bar.children('.currentbar');
+
+		this.costGhost = null;
 
 		this.setSize(1);
 	}
@@ -172,10 +175,100 @@ export class ProgressBar {
 		this.$preview.css({
 			'background-image': 'none',
 			'background-color': 'black',
+			// setAvailableStyle() would have left the bar colour behind, so the
+			// unavailable look owns it too and reads the same however it is reached.
+			color: this.color,
 			animation: 'none',
 		});
 
 		this.setStripePattern(this.$current, false);
+	}
+
+	/**
+	 * Fade the bar in or out.
+	 *
+	 * @param {boolean} visible - Whether the bar should end up visible
+	 * @param {number} durationMs - Fade duration
+	 * @param {function} [onComplete] - Called once the fade has finished
+	 */
+	fade(visible: boolean, durationMs = 250, onComplete?: () => void) {
+		// Clearing the queue makes a retriggered fade resume from the opacity it
+		// is currently at, rather than queuing behind the running one. The
+		// interrupted animation's callback is dropped, so it cannot fire late.
+		this.$bar
+			.stop(true, false)
+			.animate({ opacity: visible ? 1 : 0 }, durationMs, 'linear', onComplete);
+	}
+
+	/**
+	 * Frame the bar at what an ability costs in total and black out the part of
+	 * that the creature cannot cover: the "not enough energy" reading.
+	 *
+	 * Shared by the hover preview and the hotkey flash so both always draw the
+	 * same picture from the same numbers.
+	 *
+	 * @param {number} requiredPercentage - Total energy the ability needs
+	 * @param {number} missingPercentage - Part of that energy the creature lacks
+	 */
+	showUnavailableCost(requiredPercentage: number, missingPercentage: number) {
+		this.setSize(requiredPercentage);
+		this.previewSize(missingPercentage);
+		this.setUnavailableStyle();
+	}
+
+	/**
+	 * A second bar layered over this one, so a cost can be previewed without
+	 * disturbing the energy the creature actually has. Created on first use.
+	 */
+	private getCostGhost(): ProgressBar {
+		if (!this.costGhost) {
+			this.costGhost = new ProgressBar({
+				$bar: $j('<div class="bar costghost"></div>').appendTo(this.$bar),
+				color: this.color,
+				width: this.width,
+				height: this.height,
+			});
+		}
+
+		return this.costGhost;
+	}
+
+	/**
+	 * Preview a cost on top of the bar, leaving the bar itself alone.
+	 *
+	 * @param {number} requiredPercentage - Total energy the ability needs
+	 * @param {number} missingPercentage - Part of that energy the creature lacks
+	 */
+	showCostGhost(requiredPercentage: number, missingPercentage: number) {
+		this.getCostGhost().showUnavailableCost(requiredPercentage, missingPercentage);
+	}
+
+	/**
+	 * Fade the cost ghost in or out.
+	 *
+	 * @param {boolean} visible - Whether the ghost should end up visible
+	 * @param {number} durationMs - Fade duration
+	 * @param {function} [onComplete] - Called once the fade has finished
+	 */
+	fadeCostGhost(visible: boolean, durationMs = 250, onComplete?: () => void) {
+		if (!this.costGhost) {
+			onComplete?.();
+			return;
+		}
+
+		this.costGhost.fade(visible, durationMs, onComplete);
+	}
+
+	/**
+	 * Drop the cost ghost and everything it drew.
+	 */
+	clearCostGhost() {
+		if (!this.costGhost) {
+			return;
+		}
+
+		this.costGhost.$bar.stop(true, false).remove();
+		this.costGhost = null;
 	}
 
 	/**

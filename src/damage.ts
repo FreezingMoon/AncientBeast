@@ -19,6 +19,12 @@ export class Damage {
 	target: Creature | undefined = undefined;
 	melee: boolean | undefined = undefined;
 	isFromTrap: boolean | undefined = undefined;
+	// Damage from Burning Spirit / Greater Pyre (Abolished)
+	isFromBurningSpirit: boolean | undefined = undefined;
+	// Damage from Greater Pyre - skip passive effect application
+	isFromGreaterPyre: boolean | undefined = undefined;
+	// Damage from Asher's Heat Haze burn - prevents onDamage re-trigger loop
+	isFromHazeBurn: boolean | undefined = undefined;
 
 	noLog = false;
 

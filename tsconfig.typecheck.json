@@ -1,0 +1,8 @@
+{
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"noEmit": true
+	},
+	"include": ["src", "types/global.d.ts", "assets"],
+	"exclude": ["node_modules", "platforms/devvit/game-entry.ts", "platforms/devvit/splash.ts"]
+}

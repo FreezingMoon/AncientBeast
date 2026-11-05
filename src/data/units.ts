@@ -1,4 +1,4 @@
-import { Movement } from '../creature';
+import { Movement, CreatureVitals, CreatureMasteries } from '../creature';
 
 export type UnitSize = 1 | 2 | 3;
 export type UnitDisplayInfo = {
@@ -38,13 +38,21 @@ type UnitDataStructure = readonly {
 	level: number | string;
 	realm: string;
 	size: UnitSize;
-	stats: Stats;
+	stats: CreatureVitals;
+	masteries: CreatureMasteries;
 	animation: { walk_speed: number };
 	type?: string;
 	drop?: { name: string } & Partial<Stats>;
 	movementType?: Movement;
 	display?: UnitDisplayInfo;
 	set?: 'α' | 'β' | '';
+	/**
+	 * The unit leaves fading cardboard afterimages behind it while it
+	 * moves, and moves a fifth faster for it. Meant for fast units
+	 * (the Scavenger's flight, the Impaler's charge); abilities that
+	 * dash a unit can opt in the same way.
+	 */
+	afterimages?: boolean;
 
 	ability_info: {
 		title: string;
@@ -103,6 +111,8 @@ export const unitData: UnitDataStructure = [
 			offense: 3,
 			defense: 3,
 			movement: 2,
+		},
+		masteries: {
 			pierce: 2,
 			slash: 2,
 			crush: 2,
@@ -195,6 +205,8 @@ export const unitData: UnitDataStructure = [
 			offense: 12,
 			defense: 5,
 			movement: 2,
+		},
+		masteries: {
 			pierce: 5,
 			slash: 2,
 			crush: 3,
@@ -282,7 +294,9 @@ export const unitData: UnitDataStructure = [
 			initiative: 100,
 			offense: 14,
 			defense: 5,
-			movement: 7,
+			movement: 5,
+		},
+		masteries: {
 			pierce: 8,
 			slash: 8,
 			crush: 6,
@@ -350,6 +364,8 @@ export const unitData: UnitDataStructure = [
 			offense: 12,
 			defense: 4,
 			movement: 2,
+		},
+		masteries: {
 			pierce: 5,
 			slash: 5,
 			crush: 5,
@@ -451,6 +467,8 @@ export const unitData: UnitDataStructure = [
 			offense: 7,
 			defense: 12,
 			movement: 2,
+		},
+		masteries: {
 			pierce: 9,
 			slash: 9,
 			crush: 9,
@@ -552,6 +570,8 @@ export const unitData: UnitDataStructure = [
 			offense: 13,
 			defense: 7,
 			movement: 4,
+		},
+		masteries: {
 			pierce: 5,
 			slash: 2,
 			crush: 4,
@@ -567,6 +587,7 @@ export const unitData: UnitDataStructure = [
 			initiative: 5,
 			frost: 5,
 		},
+		afterimages: true,
 		animation: {
 			walk_speed: 200,
 		},
@@ -625,7 +646,7 @@ export const unitData: UnitDataStructure = [
 				title: 'Chain Lightning',
 				desc: 'Releases a lightning bolt that will arch, shocking multiple adjacent creatures.',
 				info: '20 shock damage that can arch nearby.',
-				upgrade: 'The arches will not kill allies.',
+				upgrade: 'It can jump 1 empty hexagon.',
 				damages: {
 					shock: 20,
 				},
@@ -653,6 +674,8 @@ export const unitData: UnitDataStructure = [
 			offense: 9,
 			defense: 18,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 14,
 			slash: 14,
 			crush: 14,
@@ -765,6 +788,8 @@ export const unitData: UnitDataStructure = [
 			offense: 7,
 			defense: 6,
 			movement: 2,
+		},
+		masteries: {
 			pierce: 4,
 			slash: 4,
 			crush: 4,
@@ -792,8 +817,8 @@ export const unitData: UnitDataStructure = [
 		ability_info: [
 			{
 				title: 'Burning Spirit',
-				desc: "Hits reduce the target's burn mastery.",
-				info: '-1 burn mastery each successful strike.',
+				desc: "Hits reduce the target's burn mastery, area attacks can be even more efficient.",
+				info: '-1 burn mastery for every hexagon hit.',
 				upgrade: '1 burn mastery to self on hit.',
 			},
 			{
@@ -861,7 +886,9 @@ export const unitData: UnitDataStructure = [
 			initiative: 100,
 			offense: 12,
 			defense: 8,
-			movement: 4,
+			movement: 3,
+		},
+		masteries: {
 			pierce: 6,
 			slash: 6,
 			crush: 6,
@@ -956,6 +983,8 @@ export const unitData: UnitDataStructure = [
 			offense: 10,
 			defense: 10,
 			movement: 1,
+		},
+		masteries: {
 			pierce: 5,
 			slash: 4,
 			crush: 3,
@@ -1060,6 +1089,8 @@ export const unitData: UnitDataStructure = [
 			offense: 7,
 			defense: 5,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 3,
 			slash: 3,
 			crush: 3,
@@ -1131,6 +1162,8 @@ export const unitData: UnitDataStructure = [
 			offense: 3,
 			defense: 5,
 			movement: 4,
+		},
+		masteries: {
 			pierce: 2,
 			slash: 2,
 			crush: 4,
@@ -1203,6 +1236,8 @@ export const unitData: UnitDataStructure = [
 			offense: 2,
 			defense: 1,
 			movement: 2,
+		},
+		masteries: {
 			pierce: 2,
 			slash: 2,
 			crush: 3,
@@ -1283,7 +1318,7 @@ export const unitData: UnitDataStructure = [
 	{
 		id: 13,
 		name: 'Swampler',
-		playable: false,
+		playable: true,
 		level: 2,
 		realm: 'G',
 		size: 1,
@@ -1297,7 +1332,9 @@ export const unitData: UnitDataStructure = [
 			initiative: 65,
 			offense: 2,
 			defense: 4,
-			movement: 3,
+			movement: 9,
+		},
+		masteries: {
 			pierce: 2,
 			slash: 2,
 			crush: 2,
@@ -1308,19 +1345,34 @@ export const unitData: UnitDataStructure = [
 			sonic: 3,
 			mental: 1,
 		},
+		drop: {
+			name: 'water lily',
+			energy: 5,
+			meditation: 5,
+			poison: 3,
+		},
+		afterimages: true,
 		animation: {
-			walk_speed: 500,
+			walk_speed: 300,
+		},
+		display: {
+			width: 130,
+			height: 120,
+			'offset-x': 0,
+			'offset-y': -100,
 		},
 		ability_info: [
 			{
 				title: 'Natural Habitat',
-				desc: 'Initial spot will become a swamp home.',
-				info: '+15 Poison mastery bonus while inside',
+				desc: 'Initial spot where resting after the first turn will become his own swamp home.',
+				info: '+22 Poison mastery bonus while inside.',
+				upgrade: '+20 regrowth bonus at home.',
 			},
 			{
 				title: 'Rabid Nip',
-				desc: 'Sink poisonous teeth into nearby foe.',
-				info: '10 pierce + 6 poison damage on attack',
+				desc: 'Sink poisonous teeth into nearby foe, effect which will linger for three turns.',
+				info: '10 pierce + 6 poison damage on attack.',
+				upgrade: 'negative regrowth for 1 turn.',
 				damages: {
 					pierce: 10,
 					poison: 6,
@@ -1331,8 +1383,9 @@ export const unitData: UnitDataStructure = [
 			},
 			{
 				title: 'Bad Breath',
-				desc: "Stinks up to three adjacent enemies, doing extra damage if they're facing.",
-				info: '10 poison damage, double if towards',
+				desc: 'Stinks up to three adjacent hexagons, making clouds that remain a few turns.',
+				info: '10 poison damage, toxicity for 3 turns.',
+				upgrade: 'toxic clouds that last 6 turns.',
 				damages: {
 					poison: 10,
 				},
@@ -1342,10 +1395,12 @@ export const unitData: UnitDataStructure = [
 			},
 			{
 				title: 'Goo Sneeze',
-				desc: 'Expels contagious toxin on distant foe, spreading to others that get too close.',
-				info: '15 poison damage, can spread around',
+				desc: 'Expels germs on an enemy, which will become very contagious when active.',
+				info: '4 crush + 6 poison damage contagion.',
+				upgrade: '6 poison at turn start as well.',
 				damages: {
-					poison: 15,
+					crush: 4,
+					poison: 6,
 				},
 				costs: {
 					energy: 30,
@@ -1371,6 +1426,8 @@ export const unitData: UnitDataStructure = [
 			offense: 4,
 			defense: 6,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 8,
 			slash: 3,
 			crush: 8,
@@ -1466,6 +1523,8 @@ export const unitData: UnitDataStructure = [
 			offense: 3,
 			defense: 2,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 2,
 			slash: 2,
 			crush: 2,
@@ -1552,6 +1611,8 @@ export const unitData: UnitDataStructure = [
 			offense: 7,
 			defense: 11,
 			movement: 2,
+		},
+		masteries: {
 			pierce: 8,
 			slash: 8,
 			crush: 8,
@@ -1619,6 +1680,8 @@ export const unitData: UnitDataStructure = [
 			offense: 15,
 			defense: 23,
 			movement: 5,
+		},
+		masteries: {
 			pierce: 12,
 			slash: 12,
 			crush: 12,
@@ -1686,6 +1749,8 @@ export const unitData: UnitDataStructure = [
 			offense: 6,
 			defense: 8,
 			movement: 2,
+		},
+		masteries: {
 			pierce: 45,
 			slash: 20,
 			crush: 35,
@@ -1738,14 +1803,14 @@ export const unitData: UnitDataStructure = [
 	{
 		id: 19,
 		name: 'Miss Creeper',
-		playable: false,
+		playable: true,
 		level: 4,
 		realm: 'G',
 		size: 1,
 		set: 'α',
 		stats: {
 			health: 165,
-			regrowth: 3,
+			regrowth: 22,
 			endurance: 33,
 			energy: 80,
 			meditation: 3,
@@ -1753,42 +1818,65 @@ export const unitData: UnitDataStructure = [
 			offense: 17,
 			defense: 4,
 			movement: 1,
+		},
+		masteries: {
 			pierce: 6,
-			slash: 6,
-			crush: 6,
+			slash: 3,
+			crush: 9,
 			shock: 1,
 			burn: 1,
 			frost: 1,
-			poison: 5,
-			sonic: 5,
-			mental: 9,
+			poison: 7,
+			sonic: 7,
+			mental: 18,
+		},
+		drop: {
+			name: 'tentacle',
+			regrowth: 5,
+			initiative: 8,
+			crush: 4,
+			mental: 6,
 		},
 		animation: {
 			walk_speed: 500,
+		},
+		display: {
+			width: 90,
+			height: 208,
+			'offset-x': 0,
+			'offset-y': -170,
 		},
 		ability_info: [
 			{
 				title: 'Muscous Pillar',
 				desc: 'Any nearby killed units restore health based on their own total amount pool.',
-				info: '5% of maximum health stat recovery.',
+				info: '20% of maximum health stat recovery.',
 				upgrade: 'Doubles the recovery bonus.',
 			},
 			{
 				title: 'Carving Nails',
-				desc: 'Claw swipe gesture on a nearby foe.',
-				info: '12 pierce + 12 slash damage on strike',
-				upgrade: '+4 pierce & +4 slash bonus.',
+				desc: 'Claw swipe gesture on a nearby foe, that cuts deeper with each new blow.',
+				info: '8 pierce + 8 slash, multiplies each hit.',
+				upgrade: 'Restores 8 health each poke.',
+				damages: {
+					pierce: 8,
+					slash: 8,
+				},
 				costs: {
 					energy: 10,
 				},
 			},
 			{
 				title: 'Fatal Attraction',
-				desc: 'Causes a target foe within 6 hexagons to approach her at the start of its turn.',
-				info: 'Ability does not work on summoners.',
-				upgrade: '+4 hexagons bonus range.',
+				desc: 'Mental ability causes target foe to approach her at the start of its turn.',
+				info: 'Effectiveness = mental difference.',
+				upgrade: 'Debuffs mental mastery.',
 				costs: {
 					energy: 20,
+				},
+				range: {
+					regular: 6,
+					upgraded: 10,
 				},
 			},
 			{
@@ -1796,6 +1884,9 @@ export const unitData: UnitDataStructure = [
 				desc: 'All nearby foes have their movement restrained and take a bit of damage.',
 				info: '20 crush damage and no movement.',
 				upgrade: 'Disables ability upgrades.',
+				damages: {
+					crush: 20,
+				},
 				costs: {
 					energy: 30,
 				},
@@ -1820,6 +1911,8 @@ export const unitData: UnitDataStructure = [
 			offense: 10,
 			defense: 6,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 5,
 			slash: 7,
 			crush: 6,
@@ -1874,6 +1967,8 @@ export const unitData: UnitDataStructure = [
 			offense: 17,
 			defense: 10,
 			movement: 4,
+		},
+		masteries: {
 			pierce: 5,
 			slash: 5,
 			crush: 5,
@@ -1925,7 +2020,7 @@ export const unitData: UnitDataStructure = [
 	{
 		id: 22,
 		name: 'Asher',
-		playable: false,
+		playable: true,
 		level: 1,
 		realm: 'L',
 		size: 2,
@@ -1934,21 +2029,30 @@ export const unitData: UnitDataStructure = [
 			health: 65,
 			regrowth: 1,
 			endurance: 15,
-			energy: 60,
-			meditation: 30,
-			initiative: 10,
+			energy: 90,
+			meditation: 45,
+			initiative: 111,
 			offense: 3,
 			defense: 5,
 			movement: 1,
+		},
+		masteries: {
 			pierce: 3,
 			slash: 3,
 			crush: 3,
-			shock: 6,
-			burn: 8,
+			shock: 9,
+			burn: 9,
 			frost: 4,
 			poison: 5,
 			sonic: 1,
 			mental: 1,
+		},
+		drop: {
+			name: 'plasma ball',
+			energy: 6,
+			initiative: 10,
+			shock: 5,
+			burn: 5,
 		},
 		animation: {
 			walk_speed: 500,
@@ -1970,7 +2074,7 @@ export const unitData: UnitDataStructure = [
 				title: 'Glowing Eye',
 				desc: 'Fries any targeted nearby foe, can also hit the smaller ones from sides as well.',
 				info: '15 burn adjacent damage, any target.',
-				upgrade: "Destroys target's initiative.",
+				upgrade: "Nullifies target's meditation.",
 				damages: {
 					burn: 15,
 				},
@@ -1992,11 +2096,12 @@ export const unitData: UnitDataStructure = [
 			},
 			{
 				title: 'Crashing Globe',
-				desc: 'Catapults a flaming orb at any selected inline target, leaving it without cover.',
-				info: '20 crush damage + 10 burn per strike.',
-				upgrade: "Nullifies target's meditation.",
+				desc: 'Catapults a delayed plasma ball to fall at any targeted combat field location.',
+				info: '20 crush damage + 10 shock per strike.',
+				upgrade: 'Leaves a fire trap if misses.',
 				damages: {
 					crush: 20,
+					shock: 10,
 					burn: 10,
 				},
 				costs: {
@@ -2023,6 +2128,8 @@ export const unitData: UnitDataStructure = [
 			offense: 5,
 			defense: 7,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 4,
 			slash: 4,
 			crush: 4,
@@ -2090,6 +2197,8 @@ export const unitData: UnitDataStructure = [
 			offense: 15,
 			defense: 22,
 			movement: 2,
+		},
+		masteries: {
 			pierce: 15,
 			slash: 14,
 			crush: 12,
@@ -2163,6 +2272,8 @@ export const unitData: UnitDataStructure = [
 			offense: 2,
 			defense: 2,
 			movement: 5,
+		},
+		masteries: {
 			pierce: 10,
 			slash: 0,
 			crush: 10,
@@ -2232,6 +2343,8 @@ export const unitData: UnitDataStructure = [
 			offense: 12,
 			defense: 14,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 10,
 			slash: 10,
 			crush: 10,
@@ -2299,6 +2412,8 @@ export const unitData: UnitDataStructure = [
 			offense: 1,
 			defense: 1,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 1,
 			slash: 1,
 			crush: 1,
@@ -2366,6 +2481,8 @@ export const unitData: UnitDataStructure = [
 			offense: 10,
 			defense: 16,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 10,
 			slash: 10,
 			crush: 10,
@@ -2452,6 +2569,8 @@ export const unitData: UnitDataStructure = [
 			offense: 11,
 			defense: 17,
 			movement: 4,
+		},
+		masteries: {
 			pierce: 10,
 			slash: 10,
 			crush: 10,
@@ -2529,6 +2648,8 @@ export const unitData: UnitDataStructure = [
 			offense: 5,
 			defense: 6,
 			movement: 2,
+		},
+		masteries: {
 			pierce: 5,
 			slash: 4,
 			crush: 5,
@@ -2607,6 +2728,8 @@ export const unitData: UnitDataStructure = [
 			offense: 7,
 			defense: 9,
 			movement: 2,
+		},
+		masteries: {
 			pierce: 9,
 			slash: 9,
 			crush: 9,
@@ -2703,6 +2826,8 @@ export const unitData: UnitDataStructure = [
 			offense: 5,
 			defense: 5,
 			movement: 2,
+		},
+		masteries: {
 			pierce: 4,
 			slash: 1,
 			crush: 2,
@@ -2770,6 +2895,8 @@ export const unitData: UnitDataStructure = [
 			offense: 25,
 			defense: 24,
 			movement: 2,
+		},
+		masteries: {
 			pierce: 20,
 			slash: 20,
 			crush: 20,
@@ -2850,6 +2977,8 @@ export const unitData: UnitDataStructure = [
 			offense: 9,
 			defense: 13,
 			movement: 2,
+		},
+		masteries: {
 			pierce: 10,
 			slash: 10,
 			crush: 10,
@@ -2922,6 +3051,8 @@ export const unitData: UnitDataStructure = [
 			offense: 14,
 			defense: 19,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 9,
 			slash: 9,
 			crush: 9,
@@ -2997,6 +3128,8 @@ export const unitData: UnitDataStructure = [
 			offense: 1,
 			defense: 11,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 3,
 			slash: 3,
 			crush: 3,
@@ -3066,6 +3199,8 @@ export const unitData: UnitDataStructure = [
 			offense: 6,
 			defense: 8,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 7,
 			slash: 7,
 			crush: 7,
@@ -3163,6 +3298,8 @@ export const unitData: UnitDataStructure = [
 			offense: 5,
 			defense: 16,
 			movement: 2,
+		},
+		masteries: {
 			pierce: 5,
 			slash: 5,
 			crush: 5,
@@ -3230,6 +3367,8 @@ export const unitData: UnitDataStructure = [
 			offense: 11,
 			defense: 6,
 			movement: 5,
+		},
+		masteries: {
 			pierce: 4,
 			slash: 4,
 			crush: 4,
@@ -3330,6 +3469,8 @@ export const unitData: UnitDataStructure = [
 			offense: 6,
 			defense: 9,
 			movement: 5,
+		},
+		masteries: {
 			pierce: 7,
 			slash: 9,
 			crush: 10,
@@ -3426,6 +3567,8 @@ export const unitData: UnitDataStructure = [
 			offense: 4,
 			defense: 3,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 12,
 			slash: 4,
 			crush: 4,
@@ -3484,6 +3627,8 @@ export const unitData: UnitDataStructure = [
 			offense: 24,
 			defense: 25,
 			movement: 1,
+		},
+		masteries: {
 			pierce: 15,
 			slash: 15,
 			crush: 15,
@@ -3573,6 +3718,8 @@ export const unitData: UnitDataStructure = [
 			offense: 16,
 			defense: 15,
 			movement: 5,
+		},
+		masteries: {
 			pierce: 5,
 			slash: 5,
 			crush: 5,
@@ -3639,7 +3786,9 @@ export const unitData: UnitDataStructure = [
 			initiative: 70,
 			offense: 1,
 			defense: 8,
-			movement: 9,
+			movement: 7,
+		},
+		masteries: {
 			pierce: 7,
 			slash: 7,
 			crush: 3,
@@ -3656,7 +3805,8 @@ export const unitData: UnitDataStructure = [
 			movement: 1,
 			defense: 2,
 		},
-		movementType: 'hover',
+		movementType: 'flying',
+		afterimages: true,
 		animation: {
 			walk_speed: 180,
 		},
@@ -3669,9 +3819,9 @@ export const unitData: UnitDataStructure = [
 		ability_info: [
 			{
 				title: 'Wing Feathers',
-				desc: 'Can fly to available locations within movement range, avoiding all traps.',
+				desc: 'Can fly to available locations within movement range, avoiding obstacles.',
 				info: 'Safely travel towards new locations.',
-				upgrade: 'Flight over all units as well.',
+				upgrade: 'Stores unused movement.',
 			},
 			{
 				title: 'Slicing Pounce',
@@ -3732,6 +3882,8 @@ export const unitData: UnitDataStructure = [
 			offense: 7,
 			defense: 5,
 			movement: 4,
+		},
+		masteries: {
 			pierce: 8,
 			slash: 8,
 			crush: 8,
@@ -3820,6 +3972,8 @@ export const unitData: UnitDataStructure = [
 			offense: 8,
 			defense: 21,
 			movement: 4,
+		},
+		masteries: {
 			pierce: 10,
 			slash: 10,
 			crush: 8,
@@ -3887,6 +4041,8 @@ export const unitData: UnitDataStructure = [
 			offense: 8,
 			defense: 20,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 7,
 			slash: 7,
 			crush: 7,
@@ -3950,6 +4106,8 @@ export const unitData: UnitDataStructure = [
 			offense: 9,
 			defense: 8,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 5,
 			slash: 6,
 			crush: 7,
@@ -4017,6 +4175,8 @@ export const unitData: UnitDataStructure = [
 			offense: 4,
 			defense: 4,
 			movement: 3,
+		},
+		masteries: {
 			pierce: 2,
 			slash: 2,
 			crush: 2,
@@ -4084,6 +4244,8 @@ export const unitData: UnitDataStructure = [
 			offense: 5,
 			defense: 5,
 			movement: 6,
+		},
+		masteries: {
 			pierce: 6,
 			slash: 6,
 			crush: 6,

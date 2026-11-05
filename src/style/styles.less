@@ -3,7 +3,6 @@
 	height: 100%;
 	overflow: hidden;
 	position: relative;
-	text-align: center;
 	display: none;
 }
 
@@ -19,6 +18,14 @@
 	overflow: hidden;
 	box-shadow: 0 0 30px black;
 	margin-bottom: 0 !important;
+}
+
+// In a demo ("bot only") match — every seat is an AI, no human player — blank the
+// pointer after a spell of inactivity: a "watching video" feel while the bots play.
+// Any pointer movement restores it; the `!important` lets it win over the inline
+// `cursor` styles the board's hover handlers and turn state keep setting.
+.ab-cursor-hidden {
+	cursor: none !important;
 }
 
 #grid {
@@ -77,7 +84,7 @@
 }
 
 #hexesDisplay .displayhex {
-	background: url('~assets/autoload/interface/hex.png');
+	background: url('assets/interface/hex.png');
 	transition: opacity 250ms;
 }
 
@@ -140,19 +147,19 @@
 }
 
 #hexesDisplay .adj {
-	background: url('~assets/autoload/interface/hex_path.png');
+	background: url('assets/interface/hex_path.png');
 	z-index: 5;
 	opacity: 1;
 }
 
 #hexesDisplay .displayhex.dashed {
-	background: url('~assets/autoload/interface/hex_dashed.png');
+	background: url('assets/interface/hex_dashed.png');
 	z-index: 5;
 	opacity: 1 !important;
 }
 
 #hexesDisplay .displayhex.deadzone {
-	background: url('~assets/autoload/interface/hex_deadzone.png');
+	background: url('assets/interface/hex_deadzone.png');
 	z-index: 5;
 	opacity: 1 !important;
 }
@@ -173,55 +180,55 @@
 }
 
 #hexesOverlay .displayhex.hover {
-	background: url('~assets/autoload/interface/input.png');
+	background: url('assets/interface/input.png');
 }
 
 /*p0*/
 #hexesOverlay .displayhex.creature.player0.ownCreatureHexShade,
 #hexesOverlay .displayhex.hover.h_player0 {
-	background: url('~assets/autoload/interface/hex_p0.png') !important;
+	background: url('assets/interface/hex_p0.png') !important;
 }
 
 #hexesDisplay .displayhex.creature.player0,
 #hexesOverlay .displayhex.creature.active.player0,
 #hexesOverlay .displayhex.creature.selected.player0 {
-	background: url('~assets/autoload/interface/hex_hover_p0.png');
+	background: url('assets/interface/hex_hover_p0.png');
 }
 
 /*p1*/
 #hexesOverlay .displayhex.creature.player1.ownCreatureHexShade,
 #hexesOverlay .displayhex.hover.h_player1 {
-	background: url('~assets/autoload/interface/hex_p1.png') !important;
+	background: url('assets/interface/hex_p1.png') !important;
 }
 
 #hexesDisplay .displayhex.creature.player1,
 #hexesOverlay .displayhex.creature.active.player1,
 #hexesOverlay .displayhex.creature.selected.player1 {
-	background: url('~assets/autoload/interface/hex_hover_p1.png');
+	background: url('assets/interface/hex_hover_p1.png');
 }
 
 /*p2*/
 #hexesOverlay .displayhex.creature.player2.ownCreatureHexShade,
 #hexesOverlay .displayhex.hover.h_player2 {
-	background: url('~assets/autoload/interface/hex_p2.png') !important;
+	background: url('assets/interface/hex_p2.png') !important;
 }
 
 #hexesDisplay .displayhex.creature.player2,
 #hexesOverlay .displayhex.creature.active.player2,
 #hexesOverlay .displayhex.creature.selected.player2 {
-	background: url('~assets/autoload/interface/hex_hover_p2.png');
+	background: url('assets/interface/hex_hover_p2.png');
 }
 
 /*p3*/
 #hexesOverlay .displayhex.creature.player3.ownCreatureHexShade,
 #hexesOverlay .displayhex.hover.h_player3 {
-	background: url('~assets/autoload/interface/hex_p3.png') !important;
+	background: url('assets/interface/hex_p3.png') !important;
 }
 
 #hexesDisplay .displayhex.creature.player3,
 #hexesOverlay .displayhex.creature.active.player3,
 #hexesOverlay .displayhex.creature.selected.player3 {
-	background: url('~assets/autoload/interface/hex_hover_p3.png');
+	background: url('assets/interface/hex_hover_p3.png');
 }
 
 #hexesDisplay .displayhex.creature.hidden {
@@ -229,7 +236,7 @@
 }
 
 #hexesDisplay .displayhex.creature.dashed {
-	background: url('~assets/autoload/interface/hex_dashed.png');
+	background: url('assets/interface/hex_dashed.png');
 	z-index: 5;
 	opacity: 1 !important;
 }
@@ -346,7 +353,7 @@
 		height: 80px;
 		width: 80px;
 		background-size: 100% 100%;
-		background-image: url('~assets/interface/frame.png');
+		background-image: url('assets/interface/frame.png');
 	}
 
 	&.disabled {
@@ -361,7 +368,7 @@
 	}
 
 	&.upgradeIcon {
-		background-image: url('~assets/icons/upgrade.svg') !important;
+		background-image: url('assets/icons/upgrade.svg') !important;
 	}
 
 	&.upgradeTransition {
@@ -369,10 +376,10 @@
 	}
 
 	&.nextIcon {
-		background-image: url('~assets/icons/next.svg') !important;
+		background-image: url('assets/icons/next.svg') !important;
 	}
 	&.cancelIcon {
-		background-image: url('~assets/icons/cancel.svg') !important;
+		background-image: url('assets/icons/cancel.svg') !important;
 	}
 
 	&.upgraded.noclick:hover:before {
@@ -380,7 +387,7 @@
 	}
 
 	&.upgraded:before {
-		background-image: url('~assets/interface/frame_upgrade.png');
+		background-image: url('assets/interface/frame_upgrade.png');
 	}
 
 	&.disabled {
@@ -406,14 +413,14 @@
 		width: 100px;
 		height: 100px;
 		background-color: rgba(0, 0, 0, 0.55);
-		background-image: url('~assets/interface/frame.png'), url('~assets/icons/fullscreen.svg');
+		background-image: url('assets/interface/frame.png'), url('assets/icons/fullscreen.svg');
 		background-repeat: no-repeat;
 		background-size: cover;
 		margin-bottom: 3px;
 	}
 
 	&.fullscreenMode div {
-		background-image: url('~assets/interface/frame.png'), url('~assets/icons/contract.svg');
+		background-image: url('assets/interface/frame.png'), url('assets/icons/contract.svg');
 	}
 }
 
@@ -431,10 +438,42 @@
 	}
 }
 .button#skip {
-	background-image: url('~assets/autoload/interface/skip.svg');
+	background-image: url('assets/icons/skip.svg');
 
 	&.cancelIcon {
-		background-image: url('~assets/icons/cancel.svg') !important;
+		background-image: url('assets/icons/cancel.svg') !important;
+	}
+
+	&.replayControl {
+		background-image: none;
+		--icon-url: url('assets/icons/forward.svg');
+
+		&::before {
+			z-index: 2;
+		}
+
+		&::after {
+			content: '';
+			position: absolute;
+			inset: 0;
+			z-index: 1;
+			background-image: var(--icon-url);
+			background-size: 100% 100%;
+		}
+
+		&.replayFastForward::after {
+			animation: iconInvertFlash 400ms ease-in-out infinite;
+		}
+
+		&:hover + .desc,
+		&.hover + .desc {
+			visibility: visible;
+			pointer-events: auto;
+		}
+	}
+
+	&.replay-pointer {
+		cursor: pointer;
 	}
 
 	&.disabled {
@@ -448,10 +487,10 @@
 }
 
 .button#delay {
-	background-image: url('~assets/icons/delay.svg');
+	background-image: url('assets/icons/delay.svg');
 
 	&.cancelIcon {
-		background-image: url('~assets/icons/cancel.svg') !important;
+		background-image: url('assets/icons/cancel.svg') !important;
 	}
 
 	&.disabled {
@@ -490,19 +529,19 @@
 }
 
 .button#flee {
-	background-image: url('~assets/icons/flee.svg');
+	background-image: url('assets/icons/flee.svg');
 }
 
 .button#exit {
-	background-image: url('~assets/icons/exit.svg');
+	background-image: url('assets/icons/exit.svg');
 }
 
 .button#save {
-	background-image: url('~assets/icons/save.svg');
+	background-image: url('assets/icons/save.svg');
 }
 
 .button#restart {
-	background-image: url('~assets/icons/rotate.svg');
+	background-image: url('assets/icons/rotate.svg');
 }
 
 .p0.player-text.bright {
@@ -563,6 +602,9 @@
 }
 
 #playerbutton .hexinfo {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
 	text-align: center;
 }
 
@@ -584,14 +626,14 @@
 }
 
 .hexinfo .name {
-	padding-top: 18px;
+	padding-top: 0;
 	padding-bottom: 2px;
 	margin: inherit 4px 0px 12px;
 	border-bottom: 1px solid #555;
 }
 
 .hexinfo .vignette.hex .frame {
-	background-image: url('~assets/interface/frame.png');
+	background-image: url('assets/interface/frame.png');
 }
 
 .alert {
@@ -742,7 +784,7 @@ div.section.info {
 	border: none;
 	height: 100%;
 	width: 100%;
-	background: url('~assets/icons/close.svg');
+	background: url('assets/icons/close.svg');
 	transition: all 0.5s;
 	cursor: pointer;
 
@@ -876,7 +918,6 @@ div.section.info {
 	transition: opacity 0.2s;
 }
 
-
 #audio:hover .tooltiptext {
 	visibility: visible;
 	opacity: 1;
@@ -959,7 +1000,7 @@ div.section.info {
 #card {
 	width: 870px;
 	margin: auto;
-	padding-bottom: 20px;
+	padding-bottom: 10px;
 }
 
 #materialize_button {
@@ -969,7 +1010,7 @@ div.section.info {
 	height: 85px;
 	margin: 0 5px;
 	cursor: default;
-	background-image: url('~assets/interface/long_button.png');
+	background-image: url('assets/interface/long_button.png');
 	background-repeat: no-repeat;
 	background-position: center;
 	display: inline-block;
@@ -997,7 +1038,7 @@ div.section.info {
 .opencollective_banner_slot--dash {
 	width: 860px;
 	max-width: calc(100% - 10px);
-	margin: 0 5px;
+	margin: 0 5px 10px;
 }
 
 .opencollective_banner_slot--fullscreen {
@@ -1168,7 +1209,7 @@ div.section.info {
 	height: 100%;
 	border-radius: 999px;
 	background-color: transparent;
-	background-image: url('~assets/interface/small_button.png');
+	background-image: url('assets/interface/small_button.png');
 	background-repeat: no-repeat;
 	background-size: 100% 100%;
 	border: 0;
@@ -1192,7 +1233,7 @@ div.section.info {
 	border-radius: 999px;
 	text-align: center;
 	background-color: transparent;
-	background-image: url('~assets/interface/small_button.png');
+	background-image: url('assets/interface/small_button.png');
 	background-repeat: no-repeat;
 	background-size: 100% 100%;
 	border: 0;
@@ -1283,8 +1324,39 @@ div.section.info {
 }
 
 .vignette .overlay_frame {
-	background-image: url('~assets/interface/frame_white.png');
+	background-image: url('assets/interface/frame_white.png');
 	opacity: 0;
+}
+
+.vignette.crashing-globe-ability .crashing-globe-bg {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	background-color: rgba(0, 0, 0, 0.85);
+	z-index: 0;
+}
+
+.vignette.crashing-globe-ability .crashing-globe-icon {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	background-size: 100% 100%;
+	background-repeat: no-repeat;
+	background-position: center;
+	opacity: 1;
+	pointer-events: none;
+	z-index: 1;
+}
+
+.vignette.crashing-globe-ability .stats {
+	position: absolute;
+	top: 80px;
+	left: 0;
+	z-index: 3;
 }
 
 .vignette .stats {
@@ -1438,7 +1510,12 @@ div.section.info {
 #abilities .button.disabled {
 	transform: none !important;
 	filter: invert(1);
-	background-color: rgba(255, 255, 255, 0.55); // pre-inverted → appears as rgba(0,0,0,0.55) after filter
+	background-color: rgba(
+		255,
+		255,
+		255,
+		0.55
+	); // pre-inverted → appears as rgba(0,0,0,0.55) after filter
 	opacity: 0.5;
 
 	&::before {
@@ -1451,17 +1528,29 @@ div.section.info {
 	}
 }
 
-// No-target feedback: ::after isolates the icon so filter:invert skips bg-color and frame.
-#abilities .button.iconInvertFlash {
+// Refusal feedback (unmet requirement, already used, no target):
+// ::after isolates the icon so filter:invert skips bg-color and frame.
+#abilities .button.iconInvertFlash,
+.button.iconInvertFlash {
 	background-image: none !important;
-	&::before { z-index: 2; }
+	&::before {
+		z-index: 2;
+	}
 	&::after {
-		content: ''; position: absolute; inset: 0; z-index: 1;
-		background-image: var(--icon-url); background-size: 100% 100%;
+		content: '';
+		position: absolute;
+		inset: 0;
+		z-index: 1;
+		background-image: var(--icon-url);
+		background-size: 100% 100%;
 		animation: iconInvertFlash 400ms ease-in-out;
 	}
 }
-@keyframes iconInvertFlash { 50% { filter: invert(1); } }
+@keyframes iconInvertFlash {
+	50% {
+		filter: invert(1);
+	}
+}
 
 #leftpanel .passive-slot .ability.nextIcon {
 	transform: none;
@@ -1550,22 +1639,22 @@ div.section.info {
 
 #abilities.p0 .ability.active::before,
 .vignette.p0 .frame {
-	background-image: url('~assets/interface/frame_red.png');
+	background-image: url('assets/interface/frame_red.png');
 }
 
 #abilities.p1 .ability.active::before,
 .vignette.p1 .frame {
-	background-image: url('~assets/interface/frame_blue.png');
+	background-image: url('assets/interface/frame_blue.png');
 }
 
 #abilities.p2 .ability.active::before,
 .vignette.p2 .frame {
-	background-image: url('~assets/interface/frame_orange.png');
+	background-image: url('assets/interface/frame_orange.png');
 }
 
 #abilities.p3 .ability.active::before,
 .vignette.p3 .frame {
-	background-image: url('~assets/interface/frame_green.png');
+	background-image: url('assets/interface/frame_green.png');
 }
 
 // Upgraded frame tint: keep selected upgraded buttons free of dark backing/filter
@@ -1581,65 +1670,65 @@ div.section.info {
 
 // Upgraded frame tinted to player color when selected.
 #abilities.p0 .ability.upgraded.active::before {
-	background-image: url('~assets/interface/frame_upgrade_red.png');
+	background-image: url('assets/interface/frame_upgrade_red.png');
 }
 
 #abilities.p1 .ability.upgraded.active::before {
-	background-image: url('~assets/interface/frame_upgrade_blue.png');
+	background-image: url('assets/interface/frame_upgrade_blue.png');
 }
 
 #abilities.p2 .ability.upgraded.active::before {
-	background-image: url('~assets/interface/frame_upgrade_orange.png');
+	background-image: url('assets/interface/frame_upgrade_orange.png');
 }
 
 #abilities.p3 .ability.upgraded.active::before {
-	background-image: url('~assets/interface/frame_upgrade_green.png');
+	background-image: url('assets/interface/frame_upgrade_green.png');
 }
 
 .vignette.type--.p0 {
-	background-image: url('~assets/units/avatars/Dark Priest player red.jpg');
+	background-image: url('assets/units/avatars/Dark Priest player red.jpg');
 }
 
 .vignette.type--.p1 {
-	background-image: url('~assets/units/avatars/Dark Priest player blue.jpg');
+	background-image: url('assets/units/avatars/Dark Priest player blue.jpg');
 }
 
 .vignette.type--.p2 {
-	background-image: url('~assets/units/avatars/Dark Priest player orange.jpg');
+	background-image: url('assets/units/avatars/Dark Priest player orange.jpg');
 }
 
 .vignette.type--.p3 {
-	background-image: url('~assets/units/avatars/Dark Priest player green.jpg');
+	background-image: url('assets/units/avatars/Dark Priest player green.jpg');
 }
 
 .vignette.type--.p0.bot {
-	background-image: url('~assets/units/avatars/Dark Priest clone red.jpg');
+	background-image: url('assets/units/avatars/Dark Priest clone red.jpg');
 }
 
 .vignette.type--.p1.bot {
-	background-image: url('~assets/units/avatars/Dark Priest clone blue.jpg');
+	background-image: url('assets/units/avatars/Dark Priest clone blue.jpg');
 }
 
 .vignette.type--.p2.bot {
-	background-image: url('~assets/units/avatars/Dark Priest clone orange.jpg');
+	background-image: url('assets/units/avatars/Dark Priest clone orange.jpg');
 }
 
 .vignette.type--.p3.bot {
-	background-image: url('~assets/units/avatars/Dark Priest clone green.jpg');
+	background-image: url('assets/units/avatars/Dark Priest clone green.jpg');
 }
 
 .vignette.roundmarker .frame {
-	background-image: url('~assets/interface/frame.png'), url('~assets/interface/round.jpg');
+	background-image: url('assets/interface/frame.png'), url('assets/interface/round.jpg');
 	cursor: help;
 }
 
 .vignette.delaymarker .frame {
-	background-image: url('~assets/interface/frame.png'), url('~assets/icons/delay.svg');
+	background-image: url('assets/interface/frame.png'), url('assets/icons/delay.svg');
 	background-color: rgba(0, 0, 0, 0.85);
 }
 
 .vignette.hex .frame {
-	background-image: url('~assets/interface/frame.png');
+	background-image: url('assets/interface/frame.png');
 	background-color: rgba(0, 0, 0, 0.85);
 }
 
@@ -1829,7 +1918,7 @@ div.section.info {
 	overflow-y: scroll;
 }
 
-#chat.expanded #chatbox{
+#chat.expanded #chatbox {
 	overflow: hidden;
 }
 
@@ -1860,7 +1949,8 @@ div.section.info {
 	padding: 10px 10px 0;
 	font-size: 1.1em;
 	color: white;
-	text-shadow: 1px 1px 0 #333, -1px -1px 0 #333, 1px -1px 0 #333, -1px 1px 0 #333, 0 2px 5px rgba(0, 0, 0, 0.95);
+	text-shadow: 1px 1px 0 #333, -1px -1px 0 #333, 1px -1px 0 #333, -1px 1px 0 #333,
+		0 2px 5px rgba(0, 0, 0, 0.95);
 	position: absolute;
 	bottom: 0;
 }
@@ -1894,29 +1984,34 @@ div.section.info {
 
 .red {
 	color: #f55;
-	text-shadow: 1px 1px 0 #600, -1px -1px 0 #600, 1px -1px 0 #600, -1px 1px 0 #600, 0 2px 6px rgba(0, 0, 0, 0.95);
+	text-shadow: 1px 1px 0 #600, -1px -1px 0 #600, 1px -1px 0 #600, -1px 1px 0 #600,
+		0 2px 6px rgba(0, 0, 0, 0.95);
 }
 
 .blue {
 	color: #88f;
-	text-shadow: 1px 1px 0 #226, -1px -1px 0 #226, 1px -1px 0 #226, -1px 1px 0 #226, 0 2px 6px rgba(0, 0, 0, 0.95);
+	text-shadow: 1px 1px 0 #226, -1px -1px 0 #226, 1px -1px 0 #226, -1px 1px 0 #226,
+		0 2px 6px rgba(0, 0, 0, 0.95);
 }
 
 .green {
 	color: #5f5;
-	text-shadow: 1px 1px 0 #060, -1px -1px 0 #060, 1px -1px 0 #060, -1px 1px 0 #060, 0 2px 6px rgba(0, 0, 0, 0.95);
+	text-shadow: 1px 1px 0 #060, -1px -1px 0 #060, 1px -1px 0 #060, -1px 1px 0 #060,
+		0 2px 6px rgba(0, 0, 0, 0.95);
 }
 
 .orange {
 	color: #fa5;
-	text-shadow: 1px 1px 0 #730, -1px -1px 0 #730, 1px -1px 0 #730, -1px 1px 0 #730, 0 2px 6px rgba(0, 0, 0, 0.95);
+	text-shadow: 1px 1px 0 #730, -1px -1px 0 #730, 1px -1px 0 #730, -1px 1px 0 #730,
+		0 2px 6px rgba(0, 0, 0, 0.95);
 }
 
 #chat #chatbox #chatcontent i {
 	font-size: 80%;
 	color: #ddd;
 	margin: 0 5px;
-	text-shadow: 1px 1px 0 #444, -1px -1px 0 #444, 1px -1px 0 #444, -1px 1px 0 #444, 0 2px 5px rgba(0, 0, 0, 0.95);
+	text-shadow: 1px 1px 0 #444, -1px -1px 0 #444, 1px -1px 0 #444, -1px 1px 0 #444,
+		0 2px 5px rgba(0, 0, 0, 0.95);
 }
 
 /*---------------Active Unit--------------*/
@@ -1956,6 +2051,12 @@ div.section.info {
 .button.hover + .desc {
 	visibility: visible;
 	pointer-events: auto;
+}
+
+.button:hover + .desc,
+.button:focus + .desc,
+.button + .desc.tooltip-visible {
+	visibility: visible;
 }
 
 .button + .desc span {
@@ -2026,10 +2127,15 @@ div.section.info {
 	border-left: 6px solid black;
 }
 
-#rightpanel .button.hover + .desc {
+#rightpanel .button.hover + .desc,
+#rightpanel .button:hover + .desc,
+#rightpanel .button:focus + .desc,
+#rightpanel .button + .desc.tooltip-visible {
 	width: 250px;
 	left: -259px;
 	text-align: right;
+	visibility: visible;
+	pointer-events: auto;
 }
 
 #rightpanel .panel-control,
@@ -2067,9 +2173,9 @@ div.section.info {
 	justify-self: end;
 }
 
-/* Wider scoreboard modal to fit overview bars */
+/* Wider scoreboard modal to fit overview bars and 2vs2 titles */
 .framed-modal--scoreboard {
-	width: 600px;
+	width: 720px;
 	max-height: 820px;
 }
 
@@ -2077,7 +2183,6 @@ div.section.info {
 .scoreboard-inner {
 	padding: 0 20px;
 }
-
 
 .scoreboard-inner--scores {
 	padding-bottom: 22px;
@@ -2184,14 +2289,20 @@ div.section.info {
 	animation: slideTooltipCentered 750ms forwards;
 }
 
+.score-emoji-tooltip-wrap:hover .score-header-tooltip,
+.score-emoji-tooltip-wrap.tooltip-visible .score-header-tooltip {
+	visibility: visible;
+	animation: slideTooltipCentered 750ms forwards;
+}
+
 @keyframes slideTooltipCentered {
 	0% {
 		opacity: 0.3;
-		transform: translate(calc(-50% - 10px), 0px);
+		transform: translate(calc(-50% - 10px), 0);
 	}
 	100% {
 		opacity: 1;
-		transform: translate(-50%, 0px);
+		transform: translate(-50%, 0);
 	}
 }
 
@@ -2270,83 +2381,83 @@ div.section.info {
 }
 
 span.plasma {
-	background-image: url('~assets/stats/plasma.svg');
+	background-image: url('assets/stats/plasma.svg');
 }
 
 span.health {
-	background-image: url('~assets/stats/health.svg');
+	background-image: url('assets/stats/health.svg');
 }
 
 span.regrowth {
-	background-image: url('~assets/stats/regrowth.svg');
+	background-image: url('assets/stats/regrowth.svg');
 }
 
 span.endurance {
-	background-image: url('~assets/stats/endurance.svg');
+	background-image: url('assets/stats/endurance.svg');
 }
 
 span.energy {
-	background-image: url('~assets/stats/energy.svg');
+	background-image: url('assets/stats/energy.svg');
 }
 
 span.meditation {
-	background-image: url('~assets/stats/meditation.svg');
+	background-image: url('assets/stats/meditation.svg');
 }
 
 span.initiative {
-	background-image: url('~assets/stats/initiative.svg');
+	background-image: url('assets/stats/initiative.svg');
 }
 
 span.offense {
-	background-image: url('~assets/stats/offense.svg');
+	background-image: url('assets/stats/offense.svg');
 }
 
 span.defense {
-	background-image: url('~assets/stats/defense.svg');
+	background-image: url('assets/stats/defense.svg');
 }
 
 span.movement {
-	background-image: url('~assets/stats/movement.svg');
+	background-image: url('assets/stats/movement.svg');
 }
 
 span.pierce {
-	background-image: url('~assets/stats/pierce.svg');
+	background-image: url('assets/stats/pierce.svg');
 }
 
 span.slash {
-	background-image: url('~assets/stats/slash.svg');
+	background-image: url('assets/stats/slash.svg');
 }
 
 span.crush {
-	background-image: url('~assets/stats/crush.svg');
+	background-image: url('assets/stats/crush.svg');
 }
 
 span.shock {
-	background-image: url('~assets/stats/shock.svg');
+	background-image: url('assets/stats/shock.svg');
 }
 
 span.burn {
-	background-image: url('~assets/stats/burn.svg');
+	background-image: url('assets/stats/burn.svg');
 }
 
 span.frost {
-	background-image: url('~assets/stats/frost.svg');
+	background-image: url('assets/stats/frost.svg');
 }
 
 span.poison {
-	background-image: url('~assets/stats/poison.svg');
+	background-image: url('assets/stats/poison.svg');
 }
 
 span.sonic {
-	background-image: url('~assets/stats/sonic.svg');
+	background-image: url('assets/stats/sonic.svg');
 }
 
 span.mental {
-	background-image: url('~assets/stats/mental.svg');
+	background-image: url('assets/stats/mental.svg');
 }
 
 span.pure {
-	background-image: url('~assets/stats/pure.svg');
+	background-image: url('assets/stats/pure.svg');
 }
 
 /*-----------------Animations-------------------*/
@@ -2379,6 +2490,17 @@ span.pure {
 	100% {
 		opacity: 1;
 		transform: translate(0px, -50%);
+	}
+}
+
+@keyframes fadeUpTooltip {
+	0% {
+		opacity: 0;
+		transform: translate(-50%) translateY(-4px);
+	}
+	100% {
+		opacity: 1;
+		transform: translate(-50%) translateY(0);
 	}
 }
 
@@ -2473,9 +2595,18 @@ span.pure {
 }
 
 @keyframes intenseSparkle {
-	0%   { background-position: 0% 0%; opacity: 0.8; }
-	50%  { background-position: 20% 50%; opacity: 1; }
-	100% { background-position: 0% 100%; opacity: 0.8; }
+	0% {
+		background-position: 0% 0%;
+		opacity: 0.8;
+	}
+	50% {
+		background-position: 20% 50%;
+		opacity: 1;
+	}
+	100% {
+		background-position: 0% 100%;
+		opacity: 0.8;
+	}
 }
 
 @keyframes tubeSpecularDrift {
@@ -2493,8 +2624,12 @@ span.pure {
 }
 
 @keyframes boldGradient {
-	0%   { background-position: 0% -50%; }
-	100% { background-position: 0% 150%; }
+	0% {
+		background-position: 0% -50%;
+	}
+	100% {
+		background-position: 0% 150%;
+	}
 }
 
 @keyframes button-bounce-left {
@@ -2546,7 +2681,7 @@ span.pure {
 /* Modal window with graphical border and close button. */
 .framed-modal {
 	border: 40px solid transparent;
-	border-image: url('~assets/interface/div.png') 40 fill stretch;
+	border-image: url('assets/interface/div.png') 40 fill stretch;
 	color: white;
 	margin: 15px auto 0;
 	max-height: 560px;
@@ -2570,7 +2705,7 @@ span.pure {
 	opacity: 1;
 	position: absolute;
 	top: 0;
-	transition: 0.7s all ease-out;
+	transition: opacity 0.7s ease-out, visibility 0.7s;
 	visibility: visible;
 	width: 100%;
 	z-index: 100;
@@ -2578,6 +2713,7 @@ span.pure {
 	&.hide {
 		opacity: 0;
 		pointer-events: none;
+		transition: opacity 0.2s ease-in, visibility 0.2s;
 		visibility: hidden;
 	}
 }
@@ -2631,7 +2767,7 @@ span.pure {
 				display: inline-block;
 			}
 
-			.tooltiptext {
+			.tooltiptext:not(.score-header-tooltip) {
 				visibility: hidden;
 				background-color: rgba(0, 0, 0, 0.75);
 				backdrop-filter: blur(3px);
@@ -2648,11 +2784,6 @@ span.pure {
 				transform: translateY(-50%);
 				pointer-events: none;
 				z-index: 1;
-			}
-
-			.score-emoji-tooltip-wrap:hover .tooltiptext {
-				visibility: visible;
-				animation: slideTooltip 750ms forwards;
 			}
 		}
 
@@ -2817,7 +2948,7 @@ span.pure {
 			.button {
 				text-indent: -9999px;
 				&.active:before {
-					background-image: url('~assets/interface/frame_red.png');
+					background-image: url('assets/interface/frame_red.png');
 				}
 			}
 
@@ -2827,29 +2958,29 @@ span.pure {
 			}
 
 			#execute-monster-button {
-				background-image: url('~assets/interface/frame.png'), url('~assets/icons/execute.svg');
+				background-image: url('assets/interface/frame.png'), url('assets/icons/execute.svg');
 				background-position: center, center;
 				background-repeat: no-repeat, no-repeat;
 				background-size: 100% 100%, 100% 100%;
 			}
 
 			#reset-cooldowns-button {
-				background-image: url('~assets/interface/frame.png'), url('~assets/icons/tv-remote.svg');
+				background-image: url('assets/interface/frame.png'), url('assets/icons/tv-remote.svg');
 				background-position: center, center;
 				background-repeat: no-repeat, no-repeat;
 				background-size: 100% 100%, 100% 100%;
 			}
 
 			#disable-materialization-sickness-button {
-				background-image: url('~assets/interface/frame.png'),
-					url('~assets/icons/miracle-medicine.svg');
+				background-image: url('assets/interface/frame.png'),
+					url('assets/icons/miracle-medicine.svg');
 				background-position: center, center;
 				background-repeat: no-repeat, no-repeat;
 				background-size: 100% 100%, 100% 100%;
 			}
 
 			#infinite-energy-button {
-				background-image: url('~assets/interface/frame.png'), url('~assets/icons/battery.svg');
+				background-image: url('assets/interface/frame.png'), url('assets/icons/battery.svg');
 				background-position: center, center;
 				background-repeat: no-repeat, no-repeat;
 				background-size: 100% 100%, 100% 100%;
@@ -2861,7 +2992,7 @@ span.pure {
 
 			#reset-toggled-powers.meta-powers-reset-button {
 				align-items: center;
-				background-image: url('~assets/icons/rotate.svg');
+				background-image: url('assets/icons/rotate.svg');
 				background-position: center;
 				background-repeat: no-repeat;
 				background-size: 100% 100%;
@@ -2892,7 +3023,7 @@ span.pure {
 
 			#meta-powers-close-button.meta-powers-close-inline {
 				align-items: center;
-				background-image: url('~assets/icons/close.svg');
+				background-image: url('assets/icons/close.svg');
 				background-position: center;
 				background-repeat: no-repeat;
 				background-size: 100% 100%;
@@ -2938,10 +3069,28 @@ span.pure {
 		pointer-events: none;
 		z-index: 4;
 		mix-blend-mode: screen;
-		background-image:
-			linear-gradient(90deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.1) 16%, rgba(255, 255, 255, 0) 42%, rgba(0, 0, 0, 0.1) 72%, rgba(255, 255, 255, 0.12) 100%),
-			linear-gradient(104deg, transparent 0%, rgba(255, 255, 255, 0.32) 24%, rgba(255, 255, 255, 0.06) 42%, transparent 60%),
-			linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0) 70%, rgba(255, 255, 255, 0.06) 100%);
+		background-image: linear-gradient(
+				90deg,
+				rgba(255, 255, 255, 0.24) 0%,
+				rgba(255, 255, 255, 0.1) 16%,
+				rgba(255, 255, 255, 0) 42%,
+				rgba(0, 0, 0, 0.1) 72%,
+				rgba(255, 255, 255, 0.12) 100%
+			),
+			linear-gradient(
+				104deg,
+				transparent 0%,
+				rgba(255, 255, 255, 0.32) 24%,
+				rgba(255, 255, 255, 0.06) 42%,
+				transparent 60%
+			),
+			linear-gradient(
+				180deg,
+				rgba(255, 255, 255, 0.08) 0%,
+				rgba(255, 255, 255, 0) 30%,
+				rgba(255, 255, 255, 0) 70%,
+				rgba(255, 255, 255, 0.06) 100%
+			);
 		background-size: 100% 100%, 220% 100%, 100% 100%;
 		background-repeat: no-repeat;
 		background-position: 0 0, 120% 0, 0 0;
@@ -3034,7 +3183,11 @@ span.pure {
 		content: '';
 		position: absolute;
 		inset: 0;
-		background-image: radial-gradient(circle, rgba(255, 255, 255, 0.38) 0 2px, rgba(255, 255, 255, 0) 2.2px),
+		background-image: radial-gradient(
+				circle,
+				rgba(255, 255, 255, 0.38) 0 2px,
+				rgba(255, 255, 255, 0) 2.2px
+			),
 			radial-gradient(circle, rgba(255, 255, 255, 0.26) 0 1.5px, rgba(255, 255, 255, 0) 1.7px),
 			radial-gradient(circle, rgba(0, 0, 0, 0.2) 0 1.3px, rgba(0, 0, 0, 0) 1.5px);
 		background-size: 16px 34px, 13px 42px, 17px 48px;
@@ -3065,28 +3218,62 @@ span.pure {
 	}
 }
 
+/*
+ * A cost preview drawn on top of a bar rather than in place of it: the outline
+ * marks the energy an ability needs and the black block covers the part of it
+ * the creature is short on, while the real fill stays visible underneath. It
+ * sits above the bar's own fill and below the tube's glass highlights. The bar
+ * it lives in has a 1px border, so the overlay is pulled back by that border to
+ * line its outline up with the bar's own.
+ */
+.progressbar .bar .costghost {
+	bottom: -1px;
+	left: -1px;
+	opacity: 0;
+	z-index: 2;
+	pointer-events: none;
+}
+
 /* Health bar: animated white-only sheen on ::before, fizz dots left intact on ::after */
 .progressbar .bar.healthbar .currentbar::before {
-	background-image:
-		linear-gradient(180deg,
+	background-image: linear-gradient(
+			180deg,
 			rgba(255, 255, 255, 0.38) 0%,
 			rgba(255, 255, 255, 0.18) 30%,
 			rgba(255, 255, 255, 0.06) 60%,
-			transparent 100%),
+			transparent 100%
+		),
 		radial-gradient(ellipse 80% 100% at 22% 18%, rgba(255, 255, 255, 0.55) 0%, transparent 55%),
 		radial-gradient(ellipse 80% 100% at 78% 82%, rgba(255, 255, 255, 0.32) 0%, transparent 55%);
 	background-size: 100% 240%, 100% 100%, 100% 100%;
 	background-repeat: repeat, no-repeat, no-repeat;
 	opacity: 0.38;
-	animation: boldGradient 2.4s linear infinite, intenseSparkle 2.0s ease-in-out infinite;
+	animation: boldGradient 2.4s linear infinite, intenseSparkle 2s ease-in-out infinite;
 }
 
 /* Hemoglobin-style particles: filled, pill-like crimson cells */
 .progressbar .bar.healthbar .currentbar::after {
-	background-image:
-		radial-gradient(ellipse 52% 33% at 50% 50%, rgba(220, 70, 70, 0.62) 0 48%, rgba(162, 30, 30, 0.54) 60%, rgba(110, 12, 12, 0.18) 71%, transparent 80%),
-		radial-gradient(ellipse 50% 31% at 50% 50%, rgba(198, 44, 44, 0.54) 0 46%, rgba(142, 24, 24, 0.46) 58%, rgba(98, 10, 10, 0.16) 69%, transparent 79%),
-		radial-gradient(ellipse 54% 35% at 50% 50%, rgba(228, 92, 78, 0.38) 0 44%, rgba(166, 48, 34, 0.32) 56%, rgba(120, 26, 18, 0.13) 67%, transparent 78%);
+	background-image: radial-gradient(
+			ellipse 52% 33% at 50% 50%,
+			rgba(220, 70, 70, 0.62) 0 48%,
+			rgba(162, 30, 30, 0.54) 60%,
+			rgba(110, 12, 12, 0.18) 71%,
+			transparent 80%
+		),
+		radial-gradient(
+			ellipse 50% 31% at 50% 50%,
+			rgba(198, 44, 44, 0.54) 0 46%,
+			rgba(142, 24, 24, 0.46) 58%,
+			rgba(98, 10, 10, 0.16) 69%,
+			transparent 79%
+		),
+		radial-gradient(
+			ellipse 54% 35% at 50% 50%,
+			rgba(228, 92, 78, 0.38) 0 44%,
+			rgba(166, 48, 34, 0.32) 56%,
+			rgba(120, 26, 18, 0.13) 67%,
+			transparent 78%
+		);
 	background-size: 7px 34px, 6px 42px, 8px 48px;
 	background-repeat: repeat;
 	pointer-events: none;
@@ -3099,7 +3286,11 @@ span.pure {
 }
 
 .progressbar .bar.energybar .currentbar::after {
-	background-image: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0 2.2px, rgba(255, 255, 255, 0) 2.5px),
+	background-image: radial-gradient(
+			circle,
+			rgba(255, 255, 255, 0.18) 0 2.2px,
+			rgba(255, 255, 255, 0) 2.5px
+		),
 		radial-gradient(circle, rgba(0, 0, 0, 0.24) 0 1.9px, rgba(0, 0, 0, 0) 2.2px),
 		radial-gradient(circle, rgba(0, 0, 0, 0.16) 0 1.6px, rgba(0, 0, 0, 0) 1.9px);
 	background-size: 6px 34px, 6px 42px, 6px 48px;
@@ -3109,9 +3300,27 @@ span.pure {
 
 /* Turn Time Bar - white fill, ring-based particles for contrast */
 .progressbar .bar.timebar.turntime-mode .currentbar::after {
-	background-image: radial-gradient(circle, rgba(95, 110, 140, 0) 0 1.0px, rgba(95, 110, 140, 0.46) 1.05px 1.75px, rgba(95, 110, 140, 0.16) 1.8px 2.2px, rgba(95, 110, 140, 0) 3.0px),
-		radial-gradient(circle, rgba(45, 55, 75, 0) 0 0.9px, rgba(45, 55, 75, 0.42) 0.95px 1.55px, rgba(45, 55, 75, 0.12) 1.6px 1.95px, rgba(45, 55, 75, 0) 2.6px),
-		radial-gradient(circle, rgba(15, 20, 30, 0) 0 0.7px, rgba(15, 20, 30, 0.34) 0.75px 1.15px, rgba(15, 20, 30, 0.10) 1.2px 1.45px, rgba(15, 20, 30, 0) 2.2px);
+	background-image: radial-gradient(
+			circle,
+			rgba(95, 110, 140, 0) 0 1px,
+			rgba(95, 110, 140, 0.46) 1.05px 1.75px,
+			rgba(95, 110, 140, 0.16) 1.8px 2.2px,
+			rgba(95, 110, 140, 0) 3px
+		),
+		radial-gradient(
+			circle,
+			rgba(45, 55, 75, 0) 0 0.9px,
+			rgba(45, 55, 75, 0.42) 0.95px 1.55px,
+			rgba(45, 55, 75, 0.12) 1.6px 1.95px,
+			rgba(45, 55, 75, 0) 2.6px
+		),
+		radial-gradient(
+			circle,
+			rgba(15, 20, 30, 0) 0 0.7px,
+			rgba(15, 20, 30, 0.34) 0.75px 1.15px,
+			rgba(15, 20, 30, 0.1) 1.2px 1.45px,
+			rgba(15, 20, 30, 0) 2.2px
+		);
 	background-size: 8px 34px, 7px 42px, 9px 48px;
 	background-repeat: repeat;
 	opacity: 0.9;
@@ -3120,8 +3329,12 @@ span.pure {
 
 /* Plasma Bar - restored pre-turntime-tuning particles */
 .progressbar .bar.timebar.plasma-mode .currentbar::after {
-	background-image: radial-gradient(circle, rgba(255, 255, 255, 0.28) 0 2.2px, rgba(255, 255, 255, 0) 2.5px),
-		radial-gradient(circle, rgba(255, 255, 255, 0.20) 0 1.8px, rgba(255, 255, 255, 0) 2.1px),
+	background-image: radial-gradient(
+			circle,
+			rgba(255, 255, 255, 0.28) 0 2.2px,
+			rgba(255, 255, 255, 0) 2.5px
+		),
+		radial-gradient(circle, rgba(255, 255, 255, 0.2) 0 1.8px, rgba(255, 255, 255, 0) 2.1px),
 		radial-gradient(circle, rgba(0, 0, 0, 0.18) 0 1.5px, rgba(0, 0, 0, 0) 1.8px);
 	background-size: 9px 34px, 8px 42px, 10px 48px;
 	background-repeat: repeat;
@@ -3131,7 +3344,13 @@ span.pure {
 
 /* Score Bar Animation Options */
 .progressbar .bar.poolbar .currentbar::after {
-	background-image: linear-gradient(180deg, rgba(200,200,200,0.25) 0%, rgba(220,220,220,0.18) 40%, rgba(200,200,200,0.08) 70%, transparent 100%),
+	background-image: linear-gradient(
+			180deg,
+			rgba(200, 200, 200, 0.25) 0%,
+			rgba(220, 220, 220, 0.18) 40%,
+			rgba(200, 200, 200, 0.08) 70%,
+			transparent 100%
+		),
 		radial-gradient(circle, rgba(255, 255, 255, 0.19) 0 1.7px, rgba(255, 255, 255, 0) 1.9px),
 		radial-gradient(circle, rgba(0, 0, 0, 0.25) 0 1.5px, rgba(0, 0, 0, 0) 1.7px),
 		radial-gradient(circle, rgba(0, 0, 0, 0.17) 0 1.2px, rgba(0, 0, 0, 0) 1.4px);
@@ -3143,7 +3362,11 @@ span.pure {
 
 /* Score Bar - Option 1: Flowing waves like energy */
 .progressbar .bar.poolbar.variant1 .currentbar::after {
-	background-image: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0 2.2px, rgba(255, 255, 255, 0) 2.5px),
+	background-image: radial-gradient(
+			circle,
+			rgba(255, 255, 255, 0.18) 0 2.2px,
+			rgba(255, 255, 255, 0) 2.5px
+		),
 		radial-gradient(circle, rgba(0, 0, 0, 0.24) 0 1.9px, rgba(0, 0, 0, 0) 2.2px),
 		radial-gradient(circle, rgba(0, 0, 0, 0.16) 0 1.6px, rgba(0, 0, 0, 0) 1.9px);
 	background-size: 6px 34px, 6px 42px, 6px 48px;
@@ -3153,12 +3376,13 @@ span.pure {
 
 /* Score Bar - Option 2: Gradient + Sparkle like health */
 .progressbar .bar.poolbar.variant2 .currentbar::after {
-	background-image:
-		linear-gradient(180deg,
-			rgba(200,200,200,0.3) 0%,
-			rgba(220,220,220,0.2) 40%,
-			rgba(200,200,200,0.1) 70%,
-			transparent 100%),
+	background-image: linear-gradient(
+			180deg,
+			rgba(200, 200, 200, 0.3) 0%,
+			rgba(220, 220, 220, 0.2) 40%,
+			rgba(200, 200, 200, 0.1) 70%,
+			transparent 100%
+		),
 		radial-gradient(ellipse 80% 100% at 20% 20%, rgba(255, 255, 255, 0.6) 0%, transparent 50%),
 		radial-gradient(ellipse 80% 100% at 80% 80%, rgba(220, 220, 220, 0.5) 0%, transparent 50%);
 	background-size: 100% 240%, 100% 100%, 100% 100%;
@@ -3169,19 +3393,27 @@ span.pure {
 
 /* Score Bar - Option 3: Slower shimmer */
 .progressbar .bar.poolbar.variant3 .currentbar::after {
-	background-image: radial-gradient(circle, rgba(255, 255, 255, 0.32) 0 1.8px, rgba(255, 255, 255, 0) 2.0px),
+	background-image: radial-gradient(
+			circle,
+			rgba(255, 255, 255, 0.32) 0 1.8px,
+			rgba(255, 255, 255, 0) 2px
+		),
 		radial-gradient(circle, rgba(255, 255, 255, 0.22) 0 1.3px, rgba(255, 255, 255, 0) 1.5px),
 		radial-gradient(circle, rgba(0, 0, 0, 0.18) 0 1.1px, rgba(0, 0, 0, 0) 1.3px);
 	background-size: 12px 34px, 10px 42px, 14px 48px;
 	opacity: 0.72;
-	animation: barTextureDrift 2.0s linear infinite;
+	animation: barTextureDrift 2s linear infinite;
 }
 
 /* Score Bar - Option 4: Fine particles */
 .progressbar .bar.poolbar.variant4 .currentbar::after {
-	background-image: radial-gradient(circle, rgba(255, 255, 255, 0.16) 0 1.4px, rgba(255, 255, 255, 0) 1.6px),
-		radial-gradient(circle, rgba(0, 0, 0, 0.20) 0 1.2px, rgba(0, 0, 0, 0) 1.4px),
-		radial-gradient(circle, rgba(0, 0, 0, 0.14) 0 1.0px, rgba(0, 0, 0, 0) 1.2px);
+	background-image: radial-gradient(
+			circle,
+			rgba(255, 255, 255, 0.16) 0 1.4px,
+			rgba(255, 255, 255, 0) 1.6px
+		),
+		radial-gradient(circle, rgba(0, 0, 0, 0.2) 0 1.2px, rgba(0, 0, 0, 0) 1.4px),
+		radial-gradient(circle, rgba(0, 0, 0, 0.14) 0 1px, rgba(0, 0, 0, 0) 1.2px);
 	background-size: 5px 34px, 5px 42px, 5px 48px;
 	opacity: 0.78;
 	animation: barTextureDrift 1.6s linear infinite;
@@ -3325,25 +3557,25 @@ input {
 }
 
 /*------------------Interface-------------------*/
-	@media screen and (min-height: 200px) and (max-height: 479px) and (orientation: landscape) {
-		#queue {
-			left: 0;
-			bottom: 0;
-			transform: scale(0.55);
-			transform-origin: left bottom;
-		}
-		#leftpanel {
-			left: 0;
-			bottom: 55px;
-			transform: scale(0.55);
-			transform-origin: left bottom;
-		}
-		#rightpanel {
-			right: 0;
-			bottom: 0;
-			transform: scale(0.55);
-			transform-origin: right bottom;
-		}
+@media screen and (min-height: 200px) and (max-height: 479px) and (orientation: landscape) {
+	#queue {
+		left: 0;
+		bottom: 0;
+		transform: scale(0.55);
+		transform-origin: left bottom;
+	}
+	#leftpanel {
+		left: 0;
+		bottom: 55px;
+		transform: scale(0.55);
+		transform-origin: left bottom;
+	}
+	#rightpanel {
+		right: 0;
+		bottom: 0;
+		transform: scale(0.55);
+		transform-origin: right bottom;
+	}
 
 	#scoreboardTitle {
 		font-size: medium;
@@ -3374,25 +3606,25 @@ input {
 	}
 }
 
-	@media screen and (min-height: 320px) and (max-height: 479px) and (orientation: landscape) {
-		#queue {
-			left: 0;
-			bottom: 0;
-			transform: scale(0.7);
-			transform-origin: left bottom;
-		}
-		#leftpanel {
-			left: 0;
-			bottom: 70px;
-			transform: scale(0.7);
-			transform-origin: left bottom;
-		}
-		#rightpanel {
-			right: 0;
-			bottom: 0;
-			transform: scale(0.7);
-			transform-origin: right bottom;
-		}
+@media screen and (min-height: 320px) and (max-height: 479px) and (orientation: landscape) {
+	#queue {
+		left: 0;
+		bottom: 0;
+		transform: scale(0.7);
+		transform-origin: left bottom;
+	}
+	#leftpanel {
+		left: 0;
+		bottom: 70px;
+		transform: scale(0.7);
+		transform-origin: left bottom;
+	}
+	#rightpanel {
+		right: 0;
+		bottom: 0;
+		transform: scale(0.7);
+		transform-origin: right bottom;
+	}
 
 	#scoreboardTitle {
 		font-size: medium;
@@ -3484,8 +3716,63 @@ input {
 	padding-right: 14px !important;
 }
 
+/* Keep the desktop emoji column compact so stat titles fit in both modes. */
+#scoreboard:not(.scoreboard-landscape-phone) .scoreboard-inner--scores #score td.score-title-cell {
+	white-space: nowrap;
+}
+
+#scoreboard:not(.scoreboard-landscape-phone) .scoreboard-inner--scores #score td.score-emoji-cell {
+	box-sizing: border-box;
+	width: 32px;
+	min-width: 32px;
+	padding-left: 4px !important;
+	padding-right: 4px !important;
+	white-space: nowrap;
+}
+
+/* Right-aligned so the score icons line up in one column, with the names
+   (inline in 1 vs 1, hover tooltips in 2 vs 2) hanging off to their left. */
 #scoreboard .scoreboard-inner--scores #score td:first-child {
 	width: 130px;
+	text-align: right;
+}
+
+/* 1 vs 1: only two score columns, so the row names fit next to their icons
+   instead of being hover-only tooltips. */
+#scoreboard.score-labels-inline .scoreboard-inner--scores #score {
+	.score-emoji-tooltip-wrap {
+		display: inline-flex;
+		flex-direction: row-reverse;
+		align-items: center;
+		gap: 6px;
+		vertical-align: middle;
+	}
+
+	.tooltiptext:not(.score-header-tooltip) {
+		position: static;
+		visibility: visible;
+		transform: none;
+		opacity: 1;
+		white-space: nowrap;
+		padding: 0;
+		background: none;
+		backdrop-filter: none;
+		-webkit-backdrop-filter: none;
+		border: none;
+		border-radius: 0;
+		font-size: 13px;
+		font-weight: bold;
+		text-shadow: 1px 1px 0 #000, -1px -1px 0 #000;
+		animation: none;
+	}
+
+	.score-emoji-tooltip-wrap:hover .tooltiptext:not(.score-header-tooltip) {
+		animation: none;
+	}
+
+	td:first-child {
+		width: 150px;
+	}
 }
 
 #scoreboard .scoreboardActions {
@@ -3515,8 +3802,404 @@ input {
 	}
 }
 
+/* Landscape phone scoreboard transposed layout */
+#scoreboard.scoreboard-landscape-phone {
+	/* No opencollective widget on phone landscape - not enough room. */
+	#opencollective_banner_scoreboard {
+		display: none !important;
+	}
+
+	/* Make modal the positioning context - match desktop but scaled.
+	   Zero the 15px top margin from the base rule so the close button sits
+	   flush at the top of the wrapper. */
+	.framed-modal--scoreboard {
+		position: relative !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		height: auto !important;
+		max-height: none !important;
+		margin: 0 !important;
+		padding-top: 60px !important;
+		/* No div.png frame on phone - it eats margin and looks awkward. */
+		border: none !important;
+		border-image: none !important;
+		background: transparent !important;
+	}
+
+	/* Close button - top right like desktop, just smaller. The base rule
+	   sets top/right on the element itself, but the modal wrapper may add
+	   padding that pushes it down; pin it to the wrapper's top-right corner
+	   so it's truly flush. */
+	.framed-modal__return {
+		position: absolute !important;
+		top: 0 !important;
+		right: 0 !important;
+		height: 60px !important;
+		width: 60px !important;
+		z-index: 30 !important;
+	}
+
+	/* Wrapper: full-screen scrim, no vertical scrollbar. The modal content
+	   (close button + table + action column) fits within the viewport. */
+	.framed-modal__wrapper {
+		overflow: hidden !important;
+		padding: 0 !important;
+	}
+
+	/* Remove wrapper padding so content is flush to modal edges */
+	#scoreboard {
+		padding: 0 !important;
+	}
+	.scoreboard-inner--scores {
+		padding: 0 !important;
+	}
+	/* Keep the current score/match outcome visible above the table. */
+	.scoreboard-inner--scores > h2 {
+		display: block !important;
+		margin: 0 0 8px !important;
+		padding: 0 !important;
+		font-size: 20px !important;
+		line-height: 1.2 !important;
+	}
+	/* Tighten gap between heading area and content so action buttons sit
+	   right under the close button */
+	.scoreboard-inner--scores > p {
+		display: none !important;
+	}
+	.scoreboard-content {
+		margin-top: 0 !important;
+	}
+
+	/* Phone: small margins from screen edge and between columns so nothing
+	   looks awkward. The scoreboard wrapper is the full-screen scrim, so
+	   inset the inner content away from the edges. The right inset is
+	   bigger to leave room for the absolutely-positioned action column
+	   (60px) + gap (6px) so the table never sits under the buttons. */
+	.scoreboard-inner {
+		padding: 6px 66px 0 6px !important;
+	}
+	.scoreboard-content {
+		padding: 0 !important;
+		box-sizing: border-box !important;
+	}
+
+	/* Hide the per-player overview bars row on the phone - the emoji
+	   header row already shows the stat emojis and there's no room
+	   for the bars. */
+	#score tr.player_bars {
+		display: none !important;
+	}
+
+	/* Desktop: separate title and emoji columns. The title column is
+	   hidden on the phone (landscape) - the emoji tooltips carry the
+	   text instead. Wider so titles like "Humiliation" don't wrap. */
+	#score td.score-title-cell {
+		text-align: left !important;
+		white-space: nowrap !important;
+		vertical-align: middle !important;
+		padding: 4px 10px 4px 6px !important;
+		min-width: 90px !important;
+		width: 90px !important;
+	}
+	#score td.score-emoji-cell {
+		text-align: center !important;
+		white-space: nowrap !important;
+		vertical-align: middle !important;
+		padding: 4px 4px !important;
+		min-width: 40px !important;
+		width: 40px !important;
+	}
+	#scoreboard.scoreboard-landscape-phone #score td.score-title-cell {
+		display: none !important;
+	}
+
+	/* Override the old responsive `#score { transform: scale(0.8/0.9) }` rule:
+	   scaling the table makes it wider than the viewport and forces
+	   horizontal scrolling. Instead, size the columns to fit the
+	   available width (content area = viewport minus the action column
+	   and edge margins). */
+	#score {
+		transform: none !important;
+		width: 100% !important;
+		max-width: none !important;
+		table-layout: fixed !important;
+	}
+
+	/* Override the old responsive transposition (`tr/td { display: block;
+	   float: left }`). The JS now builds the transposed table itself, so
+	   the CSS block-floating would scramble the rows. */
+	#score tr {
+		display: table-row !important;
+	}
+	#score td {
+		display: table-cell !important;
+	}
+
+	/* Override the old responsive `.tooltiptext { right: -25px/-20px;
+	   bottom: 30px/25px !important }` rules (from the two media-query
+	   blocks above). These push the tooltip off to the side instead of
+	   above the emoji. The tooltip positioning is set inline by the JS
+	   with !important, but the media-query rules also use !important, so
+	   we reset them here with a higher-specificity selector. */
+	#scoreboard.scoreboard-landscape-phone #score tr td .tooltiptext:not(.score-header-tooltip) {
+		right: auto !important;
+		bottom: auto !important;
+		left: 50% !important;
+	}
+
+	/* Content area: table on left, actions on right. The action column is
+	   absolutely positioned over the right edge, so the table is given the
+	   remaining width and can scroll horizontally if the stat columns are
+	   narrower than the screen. The right padding is inherited from
+	   .scoreboard-inner (66px = 60px action column + 6px gap). */
+	.scoreboard-content {
+		display: flex !important;
+		flex-direction: row !important;
+		align-items: flex-start !important;
+		justify-content: flex-start !important;
+		width: 100% !important;
+		gap: 0 !important;
+		padding: 0 !important;
+		box-sizing: border-box !important;
+		overflow: visible !important;
+	}
+
+	/* Table fills the content area; columns distribute the available width
+	   evenly (table-layout: fixed above). The stat columns are sized to
+	   fit the screen so no horizontal scrolling is needed. */
+	#score {
+		flex: 0 0 auto !important;
+		max-width: none !important;
+		margin: 0 !important;
+		table-layout: fixed !important;
+		border-collapse: collapse !important;
+		display: table !important;
+	}
+
+	#score tr {
+		display: table-row !important;
+	}
+
+	#score td {
+		text-align: center !important;
+		white-space: nowrap !important;
+		vertical-align: middle !important;
+		padding: 3px 4px !important;
+		display: table-cell !important;
+	}
+
+	/* Header row: first cell = wolf "Players" header (visible, left-aligned like
+	 * player name column), emoji cells large */
+	/* Phone header row: all emoji cells (including the wolf) are centered and
+	   auto-width so the spacing between emojis is even. The player rows
+	   keep the name column left-aligned and wider for readability. */
+	#score tr:first-child td:first-child {
+		text-align: center !important;
+		width: auto !important;
+		min-width: 50px !important;
+		padding: 6px !important;
+		font-size: 22px !important;
+	}
+	#score tr:first-child td:first-child .score-emoji-tooltip-wrap {
+		display: inline-block;
+	}
+
+	#score tr:first-child td {
+		padding: 6px !important;
+		font-size: 22px !important;
+	}
+
+	/* Player rows: first column = name (left), rest = scores (center) */
+	#score tr[class^='player_row_'] td:first-child {
+		text-align: left !important;
+		width: 60px !important;
+		min-width: 60px !important;
+		padding-left: 4px !important;
+		font-weight: 700 !important;
+	}
+
+	#score tr[class^='player_row_'] td:not(:first-child) {
+		text-align: center !important;
+		width: auto !important;
+		min-width: 50px !important;
+	}
+
+	/* Tooltip for header emojis - show on hover only, animated. The wrap is
+	   the positioning context; the tooltip floats above it. */
+	.score-emoji-tooltip-wrap {
+		display: inline-block;
+		position: relative;
+		cursor: help;
+	}
+
+	/* On the phone the wolf emoji sits in the leftmost column; right-align
+	   it so it hugs the edge instead of floating in the middle. */
+	#scoreboard.scoreboard-landscape-phone
+		#score
+		tr.player_name
+		td:first-child
+		.score-emoji-tooltip-wrap {
+		display: flex;
+		justify-content: flex-end;
+	}
+
+	.tooltiptext:not(.score-header-tooltip) {
+		white-space: nowrap !important;
+		visibility: hidden !important;
+		opacity: 0;
+		z-index: 40 !important;
+		-webkit-backdrop-filter: blur(4px) !important;
+		color: #fff !important;
+		text-align: center !important;
+		pointer-events: none !important;
+		background: #000000d9 !important;
+		border: 1px solid #ffffff26 !important;
+		border-radius: 4px !important;
+		margin-bottom: 8px !important;
+		padding: 6px 10px !important;
+		font-size: 12px !important;
+	}
+
+	/* Actions column on right, below close button - flush right edge.
+	   The close button is at top:0,right:0 (60x60). This column sits directly
+	   beneath it with the same 6px gap as between the actions themselves,
+	   so all four buttons (close + 3 actions) share one even spacing. */
+	.scoreboardActions {
+		position: absolute !important;
+		top: 66px !important; /* 60px close + 6px gap */
+		right: 0 !important;
+		bottom: 0 !important;
+		width: 60px !important;
+		max-width: 60px !important;
+		height: auto !important;
+		max-height: none !important;
+		display: flex !important;
+		flex-direction: column !important;
+		align-items: flex-end !important;
+		justify-content: flex-start !important;
+		gap: 6px !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		z-index: 20 !important;
+		overflow: visible !important;
+	}
+
+	/* Force action buttons flush right (overrides desktop `margin: 0 auto !important` */
+	.scoreboardActions .button,
+	#scoreboard .scoreboardActions #save,
+	#scoreboard .scoreboardActions #restart,
+	#scoreboard .scoreboardActions #exit {
+		margin: 0 !important;
+		width: 60px !important;
+		height: 60px !important;
+	}
+
+	/* Place the shared desktop tooltips beside the compact action column. */
+	.scoreboardActions .button + .desc,
+	#scoreboard .scoreboardActions #save + .desc,
+	#scoreboard .scoreboardActions #restart + .desc,
+	#scoreboard .scoreboardActions #exit + .desc {
+		z-index: 50 !important;
+		bottom: auto !important;
+		top: 50% !important;
+		left: auto !important;
+		right: calc(100% + 10px) !important;
+		transform: translateY(-50%) !important;
+		width: max-content !important;
+		max-width: calc(100vw - 76px) !important;
+		text-align: center !important;
+		white-space: normal !important;
+		box-sizing: border-box !important;
+		visibility: hidden !important;
+		pointer-events: none !important;
+	}
+	/* Reveal the tooltip on hover/focus; clicks also toggle it for touch. */
+	.scoreboardActions .button:hover + .desc,
+	.scoreboardActions .button:focus + .desc,
+	.scoreboardActions .button + .desc.tooltip-visible,
+	#scoreboard .scoreboardActions #save:hover + .desc,
+	#scoreboard .scoreboardActions #restart:hover + .desc,
+	#scoreboard .scoreboardActions #exit:hover + .desc,
+	#scoreboard .scoreboardActions #save + .desc.tooltip-visible,
+	#scoreboard .scoreboardActions #restart + .desc.tooltip-visible,
+	#scoreboard .scoreboardActions #exit + .desc.tooltip-visible {
+		visibility: visible !important;
+		transform: translateY(-50%) !important;
+	}
+
+	/* Transposed table: normal table display, emoji headers */
+	#score {
+		display: table !important;
+	}
+}
+
 #scoreboard .scoreboardActions #exitWrapper {
 	justify-self: center;
+}
+
+/* Shrink the per-button wrapper on the phone so it doesn't overflow the
+   60px action column. Top-level (NOT nested inside the phone block) so the
+   selector actually matches the DOM: `#ui > #scoreboard.scoreboard-landscape-phone`.
+   Scoped with #ui too: the default rule compiles to
+   `#ui #scoreboard .scoreboardActions #saveWrapper { width: 80px }`,
+   which needs the extra ID + class to outrank. */
+#ui #scoreboard.scoreboard-landscape-phone .scoreboardActions #saveWrapper,
+#ui #scoreboard.scoreboard-landscape-phone .scoreboardActions #restartWrapper,
+#ui #scoreboard.scoreboard-landscape-phone .scoreboardActions #exitWrapper,
+#ui #scoreboard.scoreboard-landscape-phone .scoreboardActions #fleeWrapper {
+	width: 60px !important;
+	height: 60px !important;
+	justify-content: flex-end !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+/* Landscape phone: only reposition and constrain the shared score-bar
+   tooltip styling when it is attached to an emoji. */
+#scoreboard.scoreboard-landscape-phone
+	.scoreboard-inner--scores
+	#score
+	.score-emoji-tooltip-wrap
+	.score-header-tooltip {
+	position: absolute !important;
+	bottom: calc(100% + 2px) !important;
+	left: 50% !important;
+	right: auto !important;
+	width: max-content !important;
+	max-width: calc(100vw - 84px) !important;
+	box-sizing: border-box !important;
+	white-space: normal !important;
+	overflow-wrap: break-word !important;
+	pointer-events: auto !important;
+	z-index: 60 !important;
+}
+
+/* Override the inherited downward tooltip arrow with a right-pointing
+   triangle aimed at each button in the landscape action column. */
+#ui #scoreboard.scoreboard-landscape-phone .scoreboardActions #saveWrapper .desc::after,
+#ui #scoreboard.scoreboard-landscape-phone .scoreboardActions #restartWrapper .desc::after,
+#ui #scoreboard.scoreboard-landscape-phone .scoreboardActions #exitWrapper .desc::after {
+	content: '' !important;
+	position: absolute !important;
+	left: auto !important;
+	right: -8px !important;
+	top: 50% !important;
+	bottom: auto !important;
+	transform: translateY(-50%) !important;
+	border-top: 7px solid transparent !important;
+	border-right: 0 !important;
+	border-bottom: 7px solid transparent !important;
+	border-left: 8px solid rgba(0, 0, 0, 0.6) !important;
+}
+
+#ui #scoreboard.scoreboard-landscape-phone .scoreboardActions .desc > p:not(.confirmHint),
+#ui #scoreboard.scoreboard-landscape-phone .scoreboardActions .desc .shortcut {
+	display: none !important;
+}
+
+#ui #scoreboard.scoreboard-landscape-phone .scoreboardActions .desc > span {
+	margin: 0 !important;
+	padding: 7px 10px !important;
 }
 
 #scoreboard .scoreboardActions #saveWrapper {
@@ -3544,9 +4227,15 @@ input {
 		height: auto;
 		width: auto;
 		border-radius: 50%;
-		background-image: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.2), rgba(48, 48, 48, 0.88) 62%, rgba(10, 10, 10, 0.96));
+		background-image: radial-gradient(
+			circle at 30% 30%,
+			rgba(255, 255, 255, 0.2),
+			rgba(48, 48, 48, 0.88) 62%,
+			rgba(10, 10, 10, 0.96)
+		);
 		border: 2px solid rgba(186, 191, 198, 0.92);
 		box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.55), 0 8px 18px rgba(0, 0, 0, 0.35);
+		transition: border-color 150ms ease, box-shadow 150ms ease;
 	}
 
 	&::after {
@@ -3557,29 +4246,67 @@ input {
 		background-position: center center;
 		background-repeat: no-repeat;
 		background-size: 58% 58%;
-		transition: transform 180ms ease;
+		transition: transform 180ms ease, filter 150ms ease;
 	}
 
 	&:hover::after,
 	&.hover::after {
 		transform: rotate(-20deg);
 	}
+
+	// Armed state for the destructive actions (restart, exit): the first click or
+	// hotkey press only arms them, the red outline asks for a second one.
+	&.confirm {
+		&::before {
+			border-color: rgba(226, 68, 68, 0.98);
+			box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.55), 0 0 0 3px rgba(226, 68, 68, 0.4),
+				0 8px 18px rgba(0, 0, 0, 0.35);
+		}
+
+		&::after {
+			filter: drop-shadow(0 0 6px rgba(226, 68, 68, 0.85));
+		}
+	}
 }
 
 #scoreboard .scoreboardActions #save {
-	--scoreboard-action-icon: url('~assets/icons/save.svg');
+	--scoreboard-action-icon: url('assets/icons/save.svg');
 }
 
 #scoreboard .scoreboardActions #restart {
-	--scoreboard-action-icon: url('~assets/icons/rotate.svg');
+	--scoreboard-action-icon: url('assets/icons/rotate.svg');
 }
 
 #scoreboard .scoreboardActions #exit {
-	--scoreboard-action-icon: url('~assets/icons/exit.svg');
+	--scoreboard-action-icon: url('assets/icons/exit.svg');
 }
 
 #scoreboard .scoreboardActions .button.hover + .desc {
 	text-align: center !important;
+}
+
+// The armed confirmation stays readable even when the pointer is not over the
+// button (hotkey armed it), and swaps the tooltip body for the prompt.
+// Scoped with #ui as well: the default tooltip rule below compiles to
+// `#ui #scoreboard .scoreboardActions .button + .desc`, which needs two IDs to
+// outrank.
+#ui #scoreboard .scoreboardActions .button.confirm + .desc {
+	visibility: visible;
+	text-align: center !important;
+
+	p:not(.confirmHint) {
+		display: none;
+	}
+
+	.confirmHint {
+		display: block;
+		color: #ffb3b3;
+		font-weight: bold;
+	}
+}
+
+#scoreboard .scoreboardActions .desc .confirmHint {
+	display: none;
 }
 
 #banner {
@@ -3618,7 +4345,7 @@ input {
 		height: auto;
 	}
 	div {
-		background-image: url('~assets/interface/AncientBeast.png');
+		background-image: url('assets/interface/AncientBeast.png');
 		background-repeat: no-repeat;
 		background-position-x: center;
 		background-position-y: top;
@@ -3746,9 +4473,6 @@ body.in-game .build-badge {
 	}
 }
 
-
-
-
 /*------------------Phone / Portrait Mode-------------------*/
 body.portrait-mode .scrim,
 body.devvit-mode .scrim {
@@ -3756,7 +4480,8 @@ body.devvit-mode .scrim {
 }
 
 @media (orientation: portrait) and (max-width: 600px) {
-	html, body {
+	html,
+	body {
 		overflow: hidden !important;
 		width: 100vw !important;
 		height: 100dvh !important;
@@ -3959,7 +4684,7 @@ body.devvit-mode .scrim {
 	}
 
 	.close-button {
-		background: url('~assets/interface/small_button.png') no-repeat center center !important;
+		background: url('assets/interface/small_button.png') no-repeat center center !important;
 		background-size: 100% 100% !important;
 		border: none !important;
 		height: 100% !important;
@@ -4126,25 +4851,32 @@ body.devvit-mode .scrim {
 	}
 
 	#dash.active #card {
-		width: 870px !important;
+		width: 400px !important;
 		height: 520px !important;
 		margin: 0 auto !important;
 		display: block !important;
+		position: relative !important;
 		padding: 0 !important;
 		box-sizing: border-box !important;
 	}
 
 	#dash.active #card .center {
-		display: inline-block !important;
-		vertical-align: top !important;
+		position: absolute !important;
+		top: 0 !important;
+		left: 0 !important;
+		width: 400px !important;
+		height: 520px !important;
 	}
 
 	#dash.active #card .card.sideA,
 	#dash.active #card .card.sideB {
+		position: absolute !important;
+		top: 0 !important;
+		left: 0 !important;
 		width: 400px !important;
 		height: 520px !important;
 		margin: 0 !important;
-		display: inline-block !important;
+		display: block !important;
 		vertical-align: top !important;
 		background-size: 100% 100% !important;
 		background-position: center !important;
@@ -4152,10 +4884,7 @@ body.devvit-mode .scrim {
 		box-sizing: border-box !important;
 		border-radius: 0 !important;
 		overflow: visible !important;
-	}
-
-	#dash.active #card .card.sideA {
-		margin-right: -18px !important;
+		backface-visibility: hidden !important;
 	}
 
 	#dash.active .opencollective_banner_slot--dash {
@@ -4176,7 +4905,7 @@ body.devvit-mode .scrim {
 		overflow: hidden !important;
 		padding: 8px 6px 72px 6px !important;
 		box-sizing: border-box !important;
-		background: rgba(0,0,0,0.95) !important;
+		background: rgba(0, 0, 0, 0.95) !important;
 		z-index: 50 !important;
 		pointer-events: auto !important;
 	}
@@ -4189,7 +4918,7 @@ body.devvit-mode .scrim {
 		overflow: hidden !important;
 		padding: 8px 6px 72px 6px !important;
 		box-sizing: border-box !important;
-		background: rgba(0,0,0,0.95) !important;
+		background: rgba(0, 0, 0, 0.95) !important;
 		z-index: 50 !important;
 		pointer-events: auto !important;
 	}
@@ -4234,5 +4963,160 @@ body.devvit-mode .scrim {
 		max-width: 85vw !important;
 		max-height: 60vh !important;
 		object-fit: contain;
+	}
+}
+
+/* Unit-card switching is shared by the desktop and portrait dash layouts. */
+#dash.active #cardwrapper_inner {
+	perspective: 1000px !important;
+	transform-style: preserve-3d !important;
+}
+
+#dash.active #playertabswrapper {
+	z-index: 1 !important;
+}
+
+#dash.active #tabwrapper {
+	z-index: 2 !important;
+	overflow: visible !important;
+}
+
+#dash.active #card,
+#dash.active #card .center {
+	transform-style: preserve-3d !important;
+}
+
+#dash.active #card .card.sideA,
+#dash.active #card .card.sideB {
+	transform: none !important;
+	transform-style: preserve-3d !important;
+	transition: transform 125ms ease-in-out !important;
+	transform-origin: center center !important;
+	backface-visibility: hidden !important;
+	-webkit-backface-visibility: hidden !important;
+}
+
+#dash.active #card .card.sideA.flipping,
+#dash.active #card .card.sideB.flipping {
+	transform: rotateY(90deg) !important;
+}
+
+#dash.active #card .card.sideA.flip-reset,
+#dash.active #card .card.sideB.flip-reset {
+	transform: rotateY(-90deg) !important;
+	transition: none !important;
+}
+
+@keyframes rainbowGlow {
+	0% {
+		box-shadow: 0 0 8px rgba(255, 0, 0, 0.8), 0 0 16px rgba(255, 0, 0, 0.4);
+		outline-color: rgba(255, 0, 0, 0.8);
+	}
+	16.66% {
+		box-shadow: 0 0 8px rgba(255, 165, 0, 0.8), 0 0 16px rgba(255, 165, 0, 0.4);
+		outline-color: rgba(255, 165, 0, 0.8);
+	}
+	33.33% {
+		box-shadow: 0 0 8px rgba(255, 255, 0, 0.8), 0 0 16px rgba(255, 255, 0, 0.4);
+		outline-color: rgba(255, 255, 0, 0.8);
+	}
+	50% {
+		box-shadow: 0 0 8px rgba(0, 255, 0, 0.8), 0 0 16px rgba(0, 255, 0, 0.4);
+		outline-color: rgba(0, 255, 0, 0.8);
+	}
+	66.66% {
+		box-shadow: 0 0 8px rgba(0, 0, 255, 0.8), 0 0 16px rgba(0, 0, 255, 0.4);
+		outline-color: rgba(0, 0, 255, 0.8);
+	}
+	83.33% {
+		box-shadow: 0 0 8px rgba(238, 130, 238, 0.8), 0 0 16px rgba(238, 130, 238, 0.4);
+		outline-color: rgba(238, 130, 238, 0.8);
+	}
+	100% {
+		box-shadow: 0 0 8px rgba(255, 0, 0, 0.8), 0 0 16px rgba(255, 0, 0, 0.4);
+		outline-color: rgba(255, 0, 0, 0.8);
+	}
+}
+
+#chat.meta-powers-active {
+	animation: rainbowGlow 20s linear infinite;
+	outline: 2px solid transparent;
+	outline-offset: 0;
+}
+
+#chat.meta-powers-active.peek,
+#chat.meta-powers-active.focus,
+#chat.meta-powers-active.expanded {
+	outline: 2px solid transparent;
+}
+
+// Hotkeys showcase screen (#308)
+.hotkeys-inner {
+	padding: 10px 30px 20px;
+
+	h2 {
+		text-align: center;
+		margin-bottom: 15px;
+	}
+}
+
+.hotkeys-columns {
+	display: flex;
+	gap: 30px;
+	justify-content: center;
+	align-items: flex-start;
+	flex-wrap: wrap;
+}
+
+.hotkeys-column {
+	flex: 1 1 200px;
+	max-width: 320px;
+
+	h3 {
+		margin: 12px 0 6px;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+		padding-bottom: 4px;
+		font-size: 16px;
+	}
+
+	&:first-child h3:first-child {
+		margin-top: 0;
+	}
+}
+
+.hotkeys-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+
+	li {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 4px 0;
+		font-size: 14px;
+	}
+
+	.shortcut {
+		background: rgba(255, 255, 255, 0.1);
+		border: 1px solid rgba(255, 255, 255, 0.3);
+		border-radius: 4px;
+		padding: 2px 8px;
+		font-size: 12px;
+		min-width: 60px;
+		text-align: center;
+		white-space: nowrap;
+	}
+}
+
+@media screen and (min-width: 600px) {
+	.framed-modal--hotkeys {
+		max-width: 700px;
+		width: 640px;
+	}
+
+	.hotkeys-inner {
+		max-height: none;
+		overflow-y: visible;
 	}
 }

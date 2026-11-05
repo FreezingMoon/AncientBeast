@@ -2,6 +2,13 @@ import type { GameMessage, ITransport, PeerId, TransportConnectOptions } from '.
 
 export { type ITransport } from '../types';
 
+interface RTCIceServer {
+	urls: string | string[];
+	username?: string;
+	credential?: string;
+	credentialType?: 'password';
+}
+
 export interface PeerTransportCallbacks {
 	onMessage: (data: GameMessage, peerId: PeerId) => void;
 	onPeerJoin: (peerId: PeerId) => void;
@@ -21,7 +28,67 @@ export class PeerTransport implements ITransport {
 	private hostPeerId?: string;
 	private disconnected = false;
 	private _reconnectTimers = new Map<PeerId, number>();
+	private _connectionOpenResolver: (() => void) | null = null;
 	private static readonly RECONNECT_TIMEOUT_MS = 10000;
+
+	private getIceServers(): RTCIceServer[] {
+		const iceServers: RTCIceServer[] = [
+			{ urls: 'stun:stun.l.google.com:19302' },
+			{ urls: 'stun:stun1.l.google.com:19302' },
+			{ urls: 'stun:stun2.l.google.com:19302' },
+			{ urls: 'stun:stun3.l.google.com:19302' },
+			{ urls: 'stun:stun4.l.google.com:19302' },
+		];
+
+		// Add TURN servers for NAT traversal when direct P2P fails (e.g., same NAT, symmetric NAT)
+		// Configure via environment variables for production:
+		// TURN_URLS=turn:your-turn.example.com:3478?transport=udp,turns:your-turn.example.com:5349?transport=tcp
+		// TURN_USERNAME=your-username
+		// TURN_CREDENTIAL=your-password
+		const turnUrls = process.env.TURN_URLS || '';
+		const turnUsername = process.env.TURN_USERNAME || '';
+		const turnCredential = process.env.TURN_CREDENTIAL || '';
+
+		if (turnUrls) {
+			for (const url of turnUrls.split(',')) {
+				const trimmed = url.trim();
+				if (trimmed) {
+					iceServers.push({
+						urls: trimmed,
+						username: turnUsername,
+						credential: turnCredential,
+					});
+				}
+			}
+		} else {
+			// Fallback to free public TURN servers for development/testing
+			// Note: These are rate-limited and not suitable for production
+			iceServers.push(
+				{ urls: 'stun:openrelay.metered.ca:80' },
+				{
+					urls: 'turn:openrelay.metered.ca:80?transport=udp',
+					username: 'openrelayproject',
+					credential: 'openrelayproject',
+				},
+				{
+					urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+					username: 'openrelayproject',
+					credential: 'openrelayproject',
+				},
+				{
+					urls: 'turns:openrelay.metered.ca:443?transport=tcp',
+					username: 'openrelayproject',
+					credential: 'openrelayproject',
+				},
+			);
+		}
+
+		console.log(
+			'[PeerTransport] ICE servers configured:',
+			iceServers.map((s) => (typeof s.urls === 'string' ? s.urls : s.urls.join(','))),
+		);
+		return iceServers;
+	}
 
 	async connect(lobbyId: string, options: TransportConnectOptions = {}): Promise<void> {
 		this.isHost = Boolean(options.isHost);
@@ -44,7 +111,12 @@ export class PeerTransport implements ITransport {
 		}
 
 		const Peer = (await import('peerjs')).default;
-		this.peer = new Peer(localPeerId);
+		this.peer = new Peer(localPeerId, {
+			debug: process.env.NODE_ENV === 'development' ? 3 : 0,
+			config: {
+				iceServers: this.getIceServers(),
+			},
+		});
 
 		// Log PeerJS connection state changes for diagnostics
 		this.peer.on('disconnected', () => {
@@ -63,7 +135,7 @@ export class PeerTransport implements ITransport {
 		return new Promise((resolve, reject) => {
 			const timeout = window.setTimeout(() => {
 				reject(new Error('Timed out connecting to multiplayer lobby'));
-			}, 3000);
+			}, 10000);
 
 			let connectionReady: Promise<void> | null = null;
 
@@ -88,9 +160,12 @@ export class PeerTransport implements ITransport {
 				this.myPeerId = id;
 
 				if (!this.isHost) {
-					const connection = this.openConnection(hostPeerId);
+					this.openConnection(hostPeerId);
 					connectionReady = new Promise((resolveConnection) => {
-						connection.on('open', () => resolveConnection());
+						this._connectionOpenResolver = () => {
+							this._connectionOpenResolver = null;
+							resolveConnection();
+						};
 					});
 				}
 
@@ -280,6 +355,11 @@ export class PeerTransport implements ITransport {
 
 		this.connections.set(connection.peer, connection);
 
+		// Log ICE connection state for debugging NAT traversal
+		connection.on('iceStateChanged', (state) => {
+			console.log('[PeerTransport] ICE state for', connection.peer, ':', state);
+		});
+
 		// Clear any pending reconnect timer for this peer
 		const reconnectTimer = this._reconnectTimers.get(connection.peer);
 		if (reconnectTimer) {
@@ -292,6 +372,12 @@ export class PeerTransport implements ITransport {
 
 			if (this.isHost) {
 				this.peerJoinHandlers.forEach((handler) => handler(connection.peer));
+			}
+
+			if (!this.isHost && connection.peer === this.hostPeerId && this._connectionOpenResolver) {
+				const resolver = this._connectionOpenResolver;
+				this._connectionOpenResolver = null;
+				resolver();
 			}
 		};
 

@@ -252,6 +252,227 @@ describe('CycloperStrategy.scoreAbilityHex', () => {
 		expect(tempScore).toBe(Number.NEGATIVE_INFINITY);
 		expect(validScore).toBeGreaterThan(Number.NEGATIVE_INFINITY);
 	});
+
+	/**
+	 * Power Aperture accepts acrylic walls — the ability never excludes them — so
+	 * the bot has to score them too. A wall is frequently the only thing in range
+	 * (it blocks the very lines the beam needs), and refusing every hex of the
+	 * query made the resolver abandon the ultimate and mark it spent for the turn.
+	 */
+	describe('Power Aperture acrylic walls', () => {
+		const makeApertureCycloper = () =>
+			makeCreature({
+				team: 0,
+				x: 6,
+				y: 4,
+				energy: 150,
+				maxEnergy: 150,
+				abilities: [{}, {}, {}, { isUpgraded: () => false }],
+			});
+
+		test('scores a stranded wall instead of refusing the query', () => {
+			const cycloper = makeApertureCycloper();
+			const wall = makeCreature({
+				id: 40,
+				team: 0,
+				type: 'O0',
+				realm: 'O',
+				health: 30,
+				maxHealth: 30,
+			});
+			const wallHex = makeHex({ x: 7, y: 4, creature: wall });
+			const controller = makeController({ activeCreature: cycloper, creatures: [wall] });
+
+			expect(scoreAbilityHex(wallHex, 3, controller as any)).toBeGreaterThan(
+				Number.NEGATIVE_INFINITY,
+			);
+		});
+
+		test('prefers an enemy wall over a friendly one', () => {
+			const cycloper = makeApertureCycloper();
+			const allyWall = makeCreature({
+				id: 41,
+				team: 0,
+				type: 'O0',
+				realm: 'O',
+				health: 30,
+				maxHealth: 30,
+			});
+			const enemyWall = makeCreature({
+				id: 42,
+				team: 1,
+				type: 'O0',
+				realm: 'O',
+				health: 30,
+				maxHealth: 30,
+			});
+			const allyHex = makeHex({ x: 7, y: 4, creature: allyWall });
+			const enemyHex = makeHex({ x: 5, y: 4, creature: enemyWall });
+			const controller = makeController({
+				activeCreature: cycloper,
+				creatures: [allyWall, enemyWall],
+			});
+
+			expect(scoreAbilityHex(enemyHex, 3, controller as any)).toBeGreaterThan(
+				scoreAbilityHex(allyHex, 3, controller as any) as number,
+			);
+		});
+
+		test('leaves a wall alone once it is touching the fight', () => {
+			const cycloper = makeApertureCycloper();
+			const ally = makeCreature({ id: 43, team: 0, health: 60, maxHealth: 60 });
+			const wall = makeCreature({
+				id: 44,
+				team: 0,
+				type: 'O0',
+				realm: 'O',
+				health: 30,
+				maxHealth: 30,
+				adjacentHexes: () => [makeHex({ creature: ally })],
+			});
+			const wallHex = makeHex({ x: 7, y: 4, creature: wall });
+			const controller = makeController({ activeCreature: cycloper, creatures: [ally, wall] });
+
+			// A wall that already touches a unit is doing its job; re-dropping it
+			// every turn just shuffles it around the board.
+			expect(scoreAbilityHex(wallHex, 3, controller as any)).toBe(Number.NEGATIVE_INFINITY);
+		});
+
+		test('still prefers a real creature over any wall', () => {
+			const cycloper = makeApertureCycloper();
+			const wall = makeCreature({
+				id: 45,
+				team: 0,
+				type: 'O0',
+				realm: 'O',
+				health: 30,
+				maxHealth: 30,
+			});
+			const enemy = makeCreature({ id: 46, team: 1, health: 40, maxHealth: 40, x: 8, y: 4 });
+			const wallHex = makeHex({ x: 7, y: 4, creature: wall });
+			const enemyHex = makeHex({ x: 8, y: 4, creature: enemy });
+			const controller = makeController({
+				activeCreature: cycloper,
+				creatures: [wall, enemy],
+			});
+
+			expect(scoreAbilityHex(enemyHex, 3, controller as any)).toBeGreaterThan(
+				scoreAbilityHex(wallHex, 3, controller as any) as number,
+			);
+		});
+	});
+
+	/**
+	 * Power Aperture is a two-stage query: pick a target, then pick the hex it gets
+	 * dragged onto. The ability flags the second stage, and the destination hexes
+	 * must be scored there — otherwise every one of them is rejected and the bot
+	 * abandons the ultimate mid-use.
+	 */
+	describe('Power Aperture destination stage', () => {
+		const makeAwaitingApertureCycloper = (overrides = {}) =>
+			makeCreature({
+				team: 0,
+				x: 6,
+				y: 4,
+				energy: 150,
+				maxEnergy: 150,
+				abilities: [
+					{},
+					{ isUpgraded: () => false },
+					{ isUpgraded: () => false },
+					{ isUpgraded: () => false, _awaitingApertureDestination: true },
+				],
+				...overrides,
+			});
+
+		test('drags the target next to the Cycloper instead of dropping it far away', () => {
+			const cycloper = makeAwaitingApertureCycloper();
+			const adjacentHex = makeHex({ x: 5, y: 4 });
+			const farHex = makeHex({ x: 12, y: 4 });
+			const controller = makeController({ activeCreature: cycloper });
+
+			const adjacentScore = scoreAbilityHex(adjacentHex, 3, controller as any) as number;
+			const farScore = scoreAbilityHex(farHex, 3, controller as any) as number;
+
+			expect(adjacentScore).toBeGreaterThan(Number.NEGATIVE_INFINITY);
+			expect(adjacentScore).toBeGreaterThan(farScore);
+		});
+
+		test('drops the target behind the Cycloper, away from the enemy half', () => {
+			const cycloper = makeAwaitingApertureCycloper();
+			const behindHex = makeHex({ x: 5, y: 4 });
+			const frontHex = makeHex({ x: 7, y: 4 });
+			const controller = makeController({ activeCreature: cycloper });
+
+			expect(scoreAbilityHex(behindHex, 3, controller as any)).toBeGreaterThan(
+				scoreAbilityHex(frontHex, 3, controller as any),
+			);
+		});
+
+		test('rewards an allied relay wall and punishes traps and enemy crowding', () => {
+			const wall = makeCreature({ id: 30, team: 0, type: 'O0', realm: 'O', x: 5, y: 4 });
+			const cycloper = makeAwaitingApertureCycloper();
+			const enemy = makeCreature({ id: 31, team: 1, x: 5, y: 3 });
+			const secondEnemy = makeCreature({ id: 33, team: 1, x: 4, y: 4 });
+
+			const wallHex = makeHex({ x: 5, y: 4, adjacentHex: () => [makeHex({ creature: wall })] });
+			const trappedHex = makeHex({
+				x: 5,
+				y: 4,
+				trap: true,
+				adjacentHex: () => [makeHex({ creature: wall })],
+			});
+			const crowdedHex = makeHex({
+				x: 5,
+				y: 4,
+				adjacentHex: () => [
+					makeHex({ creature: enemy }),
+					makeHex({ creature: secondEnemy }),
+					makeHex({ creature: wall }),
+				],
+			});
+			const plainHex = makeHex({ x: 5, y: 4 });
+			const controller = makeController({
+				activeCreature: cycloper,
+				creatures: [wall, enemy, secondEnemy],
+			});
+
+			const wallScore = scoreAbilityHex(wallHex, 3, controller as any) as number;
+			expect(wallScore).toBeGreaterThan(scoreAbilityHex(plainHex, 3, controller as any) as number);
+			expect(scoreAbilityHex(trappedHex, 3, controller as any)).toBeLessThan(wallScore);
+			expect(scoreAbilityHex(crowdedHex, 3, controller as any)).toBeLessThan(wallScore);
+		});
+
+		test('never drops a target onto an occupied hex', () => {
+			const cycloper = makeAwaitingApertureCycloper();
+			const occupant = makeCreature({ id: 32, team: 1, x: 5, y: 4 });
+			const occupiedHex = makeHex({ x: 5, y: 4, creature: occupant });
+			const controller = makeController({
+				activeCreature: cycloper,
+				creatures: [occupant],
+			});
+
+			expect(scoreAbilityHex(occupiedHex, 3, controller as any)).toBe(Number.NEGATIVE_INFINITY);
+		});
+
+		test('still scores targets as targets while the target query is open', () => {
+			const cycloper = makeAwaitingApertureCycloper();
+			const enemy = makeCreature({ id: 33, team: 1, health: 40, maxHealth: 40, x: 9, y: 4 });
+			const enemyHex = makeHex({ x: 9, y: 4, creature: enemy });
+			const emptyHex = makeHex({ x: 5, y: 4 });
+			const controller = makeController({
+				activeCreature: cycloper,
+				creatures: [enemy],
+			});
+
+			(cycloper.abilities as any[])[3]._awaitingApertureDestination = false;
+
+			expect(scoreAbilityHex(enemyHex, 3, controller as any)).toBeGreaterThan(
+				Number.NEGATIVE_INFINITY,
+			);
+			expect(scoreAbilityHex(emptyHex, 3, controller as any)).toBe(Number.NEGATIVE_INFINITY);
+		});
+	});
 });
 
 describe('CycloperStrategy.getAbilityPriority', () => {

@@ -1,5 +1,4 @@
 import { UI } from './interface';
-import { Fullscreen } from './fullscreen';
 
 export class Hotkeys {
 	ui: UI;
@@ -33,6 +32,24 @@ export class Hotkeys {
 	}
 
 	pressS(event) {
+		// Shift+S: save snapshot (replaces scoreboard toggle, which moved to T)
+		if (event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey) {
+			this.ui.game.saveSnapshot?.();
+			return;
+		}
+
+		// During replay, bare S toggles fast-forward
+		if (
+			this.ui.game.isReplayInProgress &&
+			!event.shiftKey &&
+			!event.ctrlKey &&
+			!event.altKey &&
+			!event.metaKey
+		) {
+			this.ui.game.toggleReplayFastForward?.();
+			return;
+		}
+
 		if (
 			!this.ui.$scoreboard.hasClass('hide') &&
 			!event.shiftKey &&
@@ -44,9 +61,7 @@ export class Hotkeys {
 			return;
 		}
 
-		if (event.shiftKey) {
-			this.ui.toggleView('score');
-		} else if (event.ctrlKey) {
+		if (event.ctrlKey) {
 			this.ui.game.gamelog.save();
 		} else {
 			if (this.ui.dashopen) {
@@ -90,6 +105,7 @@ export class Hotkeys {
 		}
 		if (!this.ui.dashopen) {
 			this.ui.flashAbilityBtn(1);
+			this.ui.flashAbilityCosts(1);
 			this.ui.abilitiesButtons[1].triggerClick();
 		} else {
 			this.ui.gridSelectUp();
@@ -105,13 +121,14 @@ export class Hotkeys {
 		}
 		if (!this.ui.dashopen) {
 			this.ui.flashAbilityBtn(2);
+			this.ui.flashAbilityCosts(2);
 			this.ui.abilitiesButtons[2].triggerClick();
 		}
 	}
 
 	pressP(event) {
 		if (event.metaKey && event.altKey && this.ui.canToggleMetaPowers()) {
-			this.ui.game.signals.ui.dispatch('toggleMetaPowers');
+			this.ui.game.channels.ui.emit('toggleMetaPowers');
 		}
 	}
 
@@ -131,7 +148,7 @@ export class Hotkeys {
 
 	pressBackspace() {
 		if (this.ui.canToggleMetaPowers()) {
-			this.ui.game.signals.ui.dispatch('toggleMetaPowers');
+			this.ui.game.channels.ui.emit('toggleMetaPowers');
 		}
 	}
 
@@ -159,6 +176,7 @@ export class Hotkeys {
 		}
 		if (!this.ui.dashopen) {
 			this.ui.flashAbilityBtn(3);
+			this.ui.flashAbilityCosts(3);
 			this.ui.abilitiesButtons[3].triggerClick();
 		} else {
 			this.ui.closeDash();
@@ -176,6 +194,18 @@ export class Hotkeys {
 	}
 
 	pressF(event) {
+		// Bare F during replay: toggle fast-forward
+		if (
+			this.ui.game.isReplayInProgress &&
+			!event.shiftKey &&
+			!event.ctrlKey &&
+			!event.altKey &&
+			!event.metaKey
+		) {
+			this.ui.btnSkipTurn.triggerClick();
+			return;
+		}
+
 		if (event.shiftKey) {
 			this.ui.fullscreen.toggle();
 		}
@@ -194,7 +224,7 @@ export class Hotkeys {
 			if (event.shiftKey) this.ui.gridSelectPrevious();
 			else this.ui.gridSelectNext();
 		} else if (event.shiftKey) {
-			this.ui.brandlogo.alpha = 0;
+			this.ui.setBrandLogoVisible(false);
 			this.ui.selectPreviousAbility();
 		} else {
 			this.ui.selectNextAbility();
@@ -269,7 +299,8 @@ export class Hotkeys {
 
 	pressControlKeyDown() {
 		if (!this.ui.dashopen) {
-			this.ui.brandlogo.alpha = 1;
+			this.ui.centerBrandLogo();
+			this.ui.setBrandLogoVisible(true);
 			this.ui.game.grid.showGrid(true);
 			this.ui.game.grid.showCurrentCreatureMovementInOverlay(this.ui.game.activeCreature);
 		}
@@ -277,7 +308,7 @@ export class Hotkeys {
 
 	pressControlKeyUp() {
 		if (!this.ui.dashopen) {
-			this.ui.brandlogo.alpha = 0;
+			this.ui.setBrandLogoVisible(false);
 			this.ui.game.grid.showGrid(false);
 			this.ui.game.grid.allhexes.forEach((hex) => {
 				hex.cleanOverlayVisualState();
@@ -286,19 +317,30 @@ export class Hotkeys {
 		}
 	}
 
-	pressSpace() {
+	pressF11(event: KeyboardEvent) {
+		event.preventDefault();
+		this.ui.fullscreen.toggle();
+	}
+
+	pressSlash() {
+		this.ui.toggleHotkeysScreen();
+	}
+
+	pressSpace(event: KeyboardEvent) {
+		// Browsers repeat `keydown` while a key is held, and again after any
+		// cooldown expires, so a single held Spacebar would otherwise confirm
+		// (and shout) the hovered unit over and over. Skip the synthetic repeats.
+		// jQuery re-wraps the native KeyboardEvent and drops most of its
+		// properties (including `repeat`), so read it off the original event.
+		if ((event as unknown as { originalEvent?: { repeat?: boolean } }).originalEvent?.repeat) {
+			return;
+		}
+
 		if (this.ui.dashopen) {
 			this.ui.materializeButton.triggerClick();
 		} else {
 			this.ui.game.grid.confirmHex();
 		}
-	}
-
-	pressF11(event) {
-		event.preventDefault();
-		const fullscreen = new Fullscreen(document.getElementById('fullscreen'));
-
-		fullscreen.toggle();
 	}
 }
 export function getHotKeys(hk) {
@@ -415,12 +457,13 @@ export function getHotKeys(hk) {
 			},
 		},
 		Space: {
-			onkeydown() {
-				hk.pressSpace();
+			onkeydown(event) {
+				hk.pressSpace(event);
 			},
 		},
 		F11: {
 			onkeydown(event) {
+				event.preventDefault();
 				hk.pressF11(event);
 			},
 		},
@@ -477,6 +520,11 @@ export function getHotKeys(hk) {
 		Backspace: {
 			onkeydown() {
 				hk.pressBackspace();
+			},
+		},
+		Slash: {
+			onkeydown() {
+				hk.pressSlash();
 			},
 		},
 	};

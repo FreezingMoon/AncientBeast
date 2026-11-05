@@ -1,10 +1,13 @@
+import { Easing } from '../utility/easing';
 import { Damage } from '../damage';
 import { Team, isTeam } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import Game from '../game';
 import { Hex } from '../utility/hex';
+import { disperseBadBreathCloudsAlongPath, getBadBreathCloudAlongPath } from '../vfx/bad-breath';
 import { Point, getPointFacade } from '../utility/pointfacade';
+import { shakeBoard } from '../game-display/camera';
 
 /* TODO:
  * Refactor to remove the `arguments` keyword
@@ -100,11 +103,16 @@ export default (G: Game) => {
 				const ability = this;
 
 				ability.end();
-				G.Phaser.camera.shake(0.01, 55, true, G.Phaser.camera.SHAKE_VERTICAL, true);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 55,
+					force: true,
+					axis: 'vertical',
+				});
 
 				this.creature.moveTo(this._getHopHex(), {
 					callback: function () {
-						G.activeCreature.queryMove();
+						G.activeCreature?.queryMove();
 					},
 					ignorePath: true,
 					ignoreMovementPoint: true,
@@ -288,7 +296,12 @@ export default (G: Game) => {
 			activate: function (target) {
 				const ability = this;
 				ability.end();
-				G.Phaser.camera.shake(0.01, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 100,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				const damages = ability.damages;
 				const pureDamage = {
@@ -410,6 +423,15 @@ export default (G: Game) => {
 
 				// Pre-compute the push destination so the gust sprite lands then pushes
 				dir = dir.slice(0, dist + 1);
+
+				const badBreathCloud = getBadBreathCloudAlongPath(G, dir);
+
+				// Disperse Bad Breath clouds caught in the Blowing Wind
+				try {
+					disperseBadBreathCloudsAlongPath(G, dir);
+				} catch {
+					// ignore
+				}
 				let pushHex = target.hexagons[0];
 				for (let j = 0; j < dir.length; j++) {
 					if (dir[j].isWalkable(target.size, target.id, true)) {
@@ -427,11 +449,19 @@ export default (G: Game) => {
 					'effects_blowing-wind',
 					path,
 					args,
-					52,
+					70,
 					-20,
+					true,
 				);
 				const tween = projectileInstance[0];
 				const sprite = projectileInstance[1];
+				if (badBreathCloud) {
+					try {
+						sprite.tint = 0x00ff00;
+					} catch {
+						// ignore
+					}
+				}
 
 				tween.onComplete.add(function () {
 					// @ts-expect-error 'this' refers to the animation object, _not_ the ability
@@ -443,7 +473,7 @@ export default (G: Game) => {
 							return;
 						}
 						didResumeTurn = true;
-						G.activeCreature.queryMove();
+						G.activeCreature?.queryMove();
 					};
 
 					if (!target) {
@@ -451,7 +481,22 @@ export default (G: Game) => {
 						return;
 					}
 
-					G.Phaser.camera.shake(0.01, 400, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+					if (badBreathCloud) {
+						try {
+							target.takeDamage(
+								new Damage(badBreathCloud.owner, { poison: badBreathCloud.damage }, 1, [], G),
+							);
+						} catch {
+							// ignore
+						}
+					}
+
+					shakeBoard({
+						amplitude: 0.01,
+						durationMs: 400,
+						force: true,
+						axis: 'horizontal',
+					});
 
 					const cannotBePushed = target.stats?.moveable === false;
 					const landsInPlace = pushHex.x === target.x && pushHex.y === target.y;
@@ -463,6 +508,7 @@ export default (G: Game) => {
 					target.moveTo(pushHex, {
 						ignoreMovementPoint: true,
 						ignorePath: true,
+						afterimages: true,
 						callback: resumeTurn,
 						animation: 'push',
 					});
@@ -537,6 +583,7 @@ export default (G: Game) => {
 					args,
 					52,
 					-20,
+					true,
 				);
 				const tween = projectileInstance[0];
 				const sprite = projectileInstance[1];
@@ -544,15 +591,18 @@ export default (G: Game) => {
 				const emptyHexDist = arrayUtils.filterCreature(path.slice(0), false, false).length;
 
 				sprite.alpha = 0.4;
-				G.Phaser.add
-					.tween(sprite)
-					.to({ alpha: 1 }, tween.duration, Phaser.Easing.Linear.None, true);
+				G.gameEngine.tween(sprite).to({ alpha: 1 }, tween.duration, Easing.Linear.None, true);
 
 				tween.onComplete.add(function () {
 					// @ts-expect-error 'this' refers to the animation object, _not_ the ability
 					this.destroy();
 
-					G.Phaser.camera.shake(0.01, 90, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+					shakeBoard({
+						amplitude: 0.01,
+						durationMs: 90,
+						force: true,
+						axis: 'horizontal',
+					});
 
 					// Play hit sound when projectile reaches target
 					G.soundsys.playSFX('units/sfx/Snow Bunny 3');
@@ -576,7 +626,7 @@ export default (G: Game) => {
 					}
 
 					// Deferred end() requires explicit handoff when impact resolves.
-					G.activeCreature.queryMove();
+					G.activeCreature?.queryMove();
 				}, sprite); // End tween.onComplete
 			},
 		},

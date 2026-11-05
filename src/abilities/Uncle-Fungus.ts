@@ -3,14 +3,52 @@ import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
+import { Creature } from '../creature';
 import { getDirectionFromDelta } from '../utility/position';
 import Game from '../game';
+import { shakeBoard } from '../game-display/camera';
+import { SnapshotCompatibilityError } from '../engine/GameSnapshot';
+import { UNCLE_FUNGUS_OFFENSE_BONUS_EFFECT } from '../engine/snapshotBehaviors';
+
+type UncleFungusOffenseBonusSnapshotData = {
+	creatureId: number;
+};
+
+const getUncleFungusSnapshotCreature = (G: Game, id: unknown, behavior: string): Creature => {
+	if (!Number.isInteger(id) || !(G.creatures?.[id as number] instanceof Creature)) {
+		throw new SnapshotCompatibilityError(
+			`Cannot restore ${behavior}: creature reference is invalid.`,
+		);
+	}
+	return G.creatures[id as number];
+};
+
+const bindUncleFungusOffenseBonusEffect = (
+	G: Game,
+	effect: Effect,
+	data: Record<string, unknown> | undefined,
+) => {
+	const candidate = data as Partial<UncleFungusOffenseBonusSnapshotData> | undefined;
+	const creature = getUncleFungusSnapshotCreature(
+		G,
+		candidate?.creatureId,
+		'Uncle Fungus Offense Bonus',
+	);
+	effect.snapshotBehaviorId = UNCLE_FUNGUS_OFFENSE_BONUS_EFFECT;
+	effect.snapshotBehaviorData = { creatureId: creature.id };
+	effect.effectFn = (eff) => {
+		eff.deleteEffect();
+	};
+};
 
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
  */
 export default (G: Game) => {
+	G.registerSnapshotEffectBehavior(UNCLE_FUNGUS_OFFENSE_BONUS_EFFECT, (effect, data) =>
+		bindUncleFungusOffenseBonusEffect(G, effect, data),
+	);
 	G.abilities[3] = [
 		// First Ability: Toxic Spores
 		{
@@ -119,7 +157,12 @@ export default (G: Game) => {
 			// activate() :
 			activate: function (target) {
 				this.end();
-				G.Phaser.camera.shake(0.01, 65, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 65,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				const damage = new Damage(
 					this.creature, // Attacker
@@ -131,7 +174,7 @@ export default (G: Game) => {
 
 				const dmg = target.takeDamage(damage);
 
-				if (dmg.damageObj.status === '') {
+				if (dmg.damageObj && dmg.damageObj.status === '') {
 					let amount = dmg.damages.total;
 
 					// If upgraded, heal immediately up to the amount of health lost so far;
@@ -264,40 +307,51 @@ export default (G: Game) => {
 				this.creature.moveTo(hex, {
 					ignoreMovementPoint: true,
 					ignorePath: true,
+					afterimages: true,
 					callback: () => {
 						// Shake the screen upon landing to simulate the jump
-						G.Phaser.camera.shake(0.03, 90, true, G.Phaser.camera.SHAKE_VERTICAL, true);
+						shakeBoard({
+							amplitude: 0.03,
+							durationMs: 90,
+							force: true,
+							axis: 'vertical',
+						});
 
 						G.onStepIn(this.creature, this.creature.hexagons[0], false);
 
-						const interval = setInterval(function () {
+						// `poll` stops itself when the board is torn down, so this no
+						// longer has to check for a dead UI/grid or clear its own interval.
+						G.poll(function () {
 							if (!G.freezedInput) {
-								clearInterval(interval);
 								G.UI.selectAbility(-1);
 								if (G.activeCreature?.player?.controller !== 'bot') {
-									G.activeCreature.queryMove();
+									G.activeCreature?.queryMove();
 								}
+								return true;
 							}
 						}, 100);
 					},
 				});
 
 				// Frogger Leap bonus
-				this.creature.addEffect(
-					new Effect(
-						'Offense Bonus', // Name
-						this.creature, // Caster
-						this.creature, // Target
-						'onStepIn onEndPhase', // Trigger
-						{
-							effectFn: function (effect) {
-								effect.deleteEffect();
-							},
-							alterations: this.effects[0],
-						}, // Optional arguments
-						G,
-					),
+				const offenseBonusEffect = new Effect(
+					'Offense Bonus', // Name
+					this.creature, // Caster
+					this.creature, // Target
+					'onStepIn onEndPhase', // Trigger
+					{
+						snapshotBehaviorId: UNCLE_FUNGUS_OFFENSE_BONUS_EFFECT,
+						snapshotBehaviorData: { creatureId: this.creature.id },
+						alterations: this.effects[0],
+					}, // Optional arguments
+					G,
 				);
+				bindUncleFungusOffenseBonusEffect(
+					G,
+					offenseBonusEffect,
+					offenseBonusEffect.snapshotBehaviorData,
+				);
+				this.creature.addEffect(offenseBonusEffect);
 			},
 
 			_getHexRange: function (stopOnCreature) {
@@ -381,7 +435,12 @@ export default (G: Game) => {
 			// activate() :
 			activate: function (target) {
 				this.end();
-				G.Phaser.camera.shake(0.03, 100, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				shakeBoard({
+					amplitude: 0.03,
+					durationMs: 100,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				const damage = new Damage(
 					this.creature, // Attacker
@@ -403,10 +462,11 @@ export default (G: Game) => {
 					if (hexes.length >= 2 && hexes[1].isWalkable(target.size, target.id, true)) {
 						target.moveTo(hexes[1], {
 							callback: function () {
-								G.activeCreature.queryMove();
+								G.activeCreature?.queryMove();
 							},
 							ignoreMovementPoint: true,
 							ignorePath: true,
+							afterimages: true,
 							overrideSpeed: 500, // Custom speed for knockback
 							animation: 'push',
 						});

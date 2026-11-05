@@ -1,10 +1,5 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 
-jest.mock('phaser-ce', () => ({
-	Point: class PointMock {},
-	Polygon: class PolygonMock {},
-}));
-
 jest.mock('../../utility/hex', () => ({
 	Direction: {
 		Right: 0,
@@ -79,6 +74,8 @@ jest.mock('../../creature', () => ({
 import loadKnightmareAbilities from '../../abilities/Knightmare';
 import { Creature } from '../../creature';
 
+(globalThis as { Phaser?: unknown }).Phaser = {};
+
 type MockEffect = {
 	name: string;
 	alterations: Record<string, number>;
@@ -128,7 +125,7 @@ function createCreature(): MockCreature {
 }
 
 describe('Knightmare Frigid Tower', () => {
-	let game: { abilities: unknown[]; effectId: number; effects: unknown[] };
+	let game: any;
 	let creature: MockCreature;
 	let upgraded: boolean;
 	let frigidTower: {
@@ -145,7 +142,36 @@ describe('Knightmare Frigid Tower', () => {
 			abilities: [],
 			effectId: 0,
 			effects: [],
+			gameEngine: {
+				add: {
+					graphics: () => ({}),
+					sprite: () => ({
+						setOrigin: () => {},
+						rotation: 0,
+						alpha: 1,
+						x: 0,
+						y: 0,
+						destroy: () => {},
+					}),
+					bitmapData: () => ({}),
+					group: () => ({ children: [], add: () => {}, addAt: () => {}, remove: () => {} }),
+					tileSprite: () => ({}),
+				},
+				tween: () => {
+					const onComplete = { add: () => {}, addOnce: () => {} };
+					const afterStart = { stop: () => ({}), onComplete };
+					const afterTo = { start: () => afterStart, stop: () => ({}), onComplete };
+					const chain = {
+						to: () => afterTo,
+						start: () => afterStart,
+						stop: () => ({}),
+						onComplete,
+					};
+					return chain;
+				},
+			},
 		};
+		globalThis.G = game as never;
 		loadKnightmareAbilities(game as never);
 
 		creature = createCreature();
@@ -216,7 +242,37 @@ describe('Knightmare Icy Talons', () => {
 					shake: jest.fn(),
 				},
 			},
+			gameEngine: {
+				add: {
+					graphics: () => ({}),
+					sprite: () => ({
+						setOrigin: () => {},
+						rotation: 0,
+						alpha: 1,
+						x: 0,
+						y: 0,
+						destroy: () => {},
+					}),
+					bitmapData: () => ({}),
+					group: () => ({ children: [], add: () => {}, addAt: () => {}, remove: () => {} }),
+					tileSprite: () => ({}),
+				},
+				tween: () => {
+					const onComplete = { add: () => {}, addOnce: () => {} };
+					const afterStart = { stop: () => ({}), onComplete };
+					const afterTo = { start: () => afterStart, stop: () => ({}), onComplete };
+					const chain = {
+						to: () => afterTo,
+						start: () => afterStart,
+						stop: () => ({}),
+						onComplete,
+					};
+					return chain;
+				},
+			},
 		};
+
+		globalThis.G = game as never;
 		loadKnightmareAbilities(game as never);
 
 		const attacker = {
@@ -269,12 +325,25 @@ describe('Knightmare Icicle Spear', () => {
 					None: 0,
 				},
 			},
+			camera: {
+				SHAKE_HORIZONTAL: 0,
+			},
 		};
 
 		const sprite = {
-			anchor: {
-				setTo: jest.fn(),
-			},
+			originX: 0.5,
+			originY: 0.5,
+			displayOriginX: 0,
+			displayOriginY: 0,
+			setOrigin: jest.fn(function (
+				this: { originX: number; originY: number },
+				ox: number,
+				oy?: number,
+			) {
+				this.originX = ox;
+				this.originY = oy === undefined ? ox : oy;
+				return this;
+			}),
 			destroy: jest.fn(),
 			rotation: 0,
 		};
@@ -315,8 +384,31 @@ describe('Knightmare Icicle Spear', () => {
 					shake: jest.fn(),
 				},
 			},
+			gameEngine: {
+				add: {
+					graphics: () => ({}),
+					sprite: () => ({
+						setOrigin: () => {},
+						rotation: 0,
+						alpha: 1,
+						x: 0,
+						y: 0,
+						destroy: () => {},
+					}),
+					bitmapData: () => ({}),
+					group: () => ({ children: [], add: () => {}, addAt: () => {}, remove: () => {} }),
+					tileSprite: () => ({}),
+				},
+				tween: () => {
+					const onComplete = { add: () => {}, addOnce: () => {} };
+					const afterStart = { stop: () => ({}), onComplete };
+					const afterTo = { start: () => afterStart, stop: () => ({}), onComplete };
+					return { to: () => afterTo, start: () => afterStart, stop: () => ({}), onComplete };
+				},
+			},
 		};
 
+		globalThis.G = game as never;
 		loadKnightmareAbilities(game as never);
 
 		const target = Object.assign(Object.create(Creature.prototype), {
@@ -345,6 +437,17 @@ describe('Knightmare Icicle Spear', () => {
 				facePlayerDefault: jest.fn(),
 				creatureSprite: {
 					setDir: jest.fn(),
+					grp: { x: 0, y: 0 },
+					sprite: {
+						x: 0,
+						y: 0,
+						originX: 0.5,
+						originY: 1,
+						scaleX: 1,
+						scaleY: 1,
+						texture: { width: 170, height: 250 },
+						frame: { realWidth: 170, realHeight: 250 },
+					},
 				},
 			},
 			damages: {

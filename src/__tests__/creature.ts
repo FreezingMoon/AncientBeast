@@ -1,6 +1,16 @@
+import { jest, expect, describe, test, beforeEach, afterEach, beforeAll } from '@jest/globals';
+
+// The real Phaser bundle needs a canvas context at import time, which jsdom
+// does not provide; `plasma-field` reaches it for `BlendModes`.
+jest.mock('phaser', () =>
+	(
+		jest.requireActual('../../test/phaser-mock') as typeof import('../../test/phaser-mock')
+	).createPhaserMock(),
+);
+
 import { Creature } from '../creature';
+import { GHOST_PREVIEW_ALPHA } from '../utility/const';
 import { Effect } from '../effect';
-import { jest, expect, describe, test, beforeEach, beforeAll } from '@jest/globals';
 
 // NOTE: ts-comments are necessary in this file to avoid mocking the entire game.
 /* eslint-disable @typescript-eslint/ban-ts-comment */
@@ -111,6 +121,194 @@ describe('Creature', () => {
 			creature.activate();
 			creature.hinder();
 			expect(creature.canWait).toBe(false);
+		});
+	});
+
+	describe('activation query ownership', () => {
+		// activate() defers its opening movement query by a second so the
+		// activation animation plays first, and the dash is not input-gated — a
+		// player can open it and start an action inside that window. When they
+		// confirmed a Dark Priest materialize in it, the deferred queryMove()
+		// replaced the placement query *and* destroyed the temp creature that
+		// query was carrying, so the summon vanished with a "Canceled" hint
+		// instead of asking for a location. The deferred work now stands down
+		// when a fresh query has claimed the board since activation.
+		beforeEach(() => {
+			jest.useFakeTimers();
+		});
+
+		afterEach(() => {
+			jest.useRealTimers();
+		});
+
+		/**
+		 * `getGameMock()` builds a 100x100 board of `jest.fn()`-bearing hexes, which
+		 * is most of this file's heap. Nothing here looks at the board, so these
+		 * tests get an 8x8 one like the `creature.die()` suite does.
+		 */
+		function getQueryGameMock() {
+			const game = getGameMock();
+			const hexes = game.grid.hexes.slice(0, 8).map((row: unknown[]) => row.slice(0, 8));
+			game.grid.hexes = hexes;
+			game.grid.allhexes = hexes.flat(1);
+			return game;
+		}
+
+		test('still opens the movement query when nothing claimed the board meanwhile', () => {
+			const game = getQueryGameMock();
+			// @ts-ignore
+			const creature = new Creature(getCreatureObjMock(), game);
+			const queryMove = jest.spyOn(creature, 'queryMove');
+
+			creature.activate();
+			jest.advanceTimersByTime(1000);
+
+			expect(queryMove).toHaveBeenCalledWith(null);
+			expect(game.startTimer).toHaveBeenCalled();
+		});
+
+		test('stands down once the player has installed a query of their own', () => {
+			const game = getQueryGameMock();
+			// @ts-ignore
+			const creature = new Creature(getCreatureObjMock(), game);
+			const queryMove = jest.spyOn(creature, 'queryMove');
+
+			creature.activate();
+			// The materialize placement query: a fresh queryHexes() for the spawn
+			// range, with a temp creature queued behind it.
+			game.grid.queryHexes({ hexes: [] });
+			jest.advanceTimersByTime(1000);
+
+			expect(queryMove).not.toHaveBeenCalled();
+			// The activation's own duties still ran: the turn timer is started and
+			// the hover replay is refreshed, it just does not re-query the board.
+			expect(game.startTimer).toHaveBeenCalled();
+			expect(game.grid.refreshHoverState).toHaveBeenCalled();
+		});
+
+		test('a redo of the activation query is not mistaken for a takeover', () => {
+			const game = getQueryGameMock();
+			// @ts-ignore
+			const creature = new Creature(getCreatureObjMock(), game);
+			const queryMove = jest.spyOn(creature, 'queryMove');
+
+			creature.activate();
+			// hover replays re-run the live query rather than claiming the board.
+			game.grid.redoLastQuery();
+			jest.advanceTimersByTime(1000);
+
+			expect(queryMove).toHaveBeenCalledWith(null);
+		});
+	});
+
+	describe('creature.die()', () => {
+		/**
+		 * `getGameMock()` builds a 100x100 board of `jest.fn()`-bearing hexes, which
+		 * is most of this file's heap. Dying only ever touches the two hexes a
+		 * size-2 creature covers, so these tests get an 8x8 board instead.
+		 */
+		function getDieGameMock() {
+			const game = getGameMock();
+			const hexes = game.grid.hexes.slice(0, 8).map((row: unknown[]) => row.slice(0, 8));
+			game.grid.hexes = hexes;
+			game.grid.allhexes = hexes.flat(1);
+			return game;
+		}
+
+		/** A victim of `team`, distinct per call so each one can die once. */
+		function spawnVictim(game: ReturnType<typeof getGameMock>, team: number) {
+			const obj = getCreatureObjMock();
+			obj.team = team;
+			obj.x = 4 + team;
+			// @ts-ignore
+			return new Creature(obj, game);
+		}
+
+		function bloodEvents(player: { score: { type: string }[] }) {
+			return player.score.filter((s) => s.type === 'firstKill');
+		}
+
+		test('the first three kills of a match pay 25, then 20, then 15', () => {
+			const game = getDieGameMock();
+			const killer = spawnVictim(game, 0);
+
+			for (let i = 0; i < 3; i++) {
+				spawnVictim(game, 1).die(killer);
+			}
+
+			expect(game.bloodCount).toBe(3);
+			expect(bloodEvents(game.players[0])).toEqual([
+				{ type: 'firstKill', points: 25 },
+				{ type: 'firstKill', points: 20 },
+				{ type: 'firstKill', points: 15 },
+			]);
+		});
+
+		test('the ladder is match-wide, so different players can each take a tier', () => {
+			const game = getDieGameMock();
+
+			spawnVictim(game, 1).die(spawnVictim(game, 0));
+			spawnVictim(game, 0).die(spawnVictim(game, 1));
+			spawnVictim(game, 1).die(spawnVictim(game, 0));
+
+			expect(bloodEvents(game.players[0])).toEqual([
+				{ type: 'firstKill', points: 25 },
+				{ type: 'firstKill', points: 15 },
+			]);
+			expect(bloodEvents(game.players[1])).toEqual([{ type: 'firstKill', points: 20 }]);
+		});
+
+		test('a fourth kill pays nothing', () => {
+			const game = getDieGameMock();
+			const killer = spawnVictim(game, 0);
+
+			for (let i = 0; i < 4; i++) {
+				spawnVictim(game, 1).die(killer);
+			}
+
+			expect(game.bloodCount).toBe(3);
+			expect(bloodEvents(game.players[0])).toHaveLength(3);
+		});
+
+		test('a team kill is a deny and does not consume a tier', () => {
+			const game = getDieGameMock();
+			// Both creatures share a team, so both players read as the same side.
+			const friendly = spawnVictim(game, 0);
+
+			friendly.die(spawnVictim(game, 0));
+
+			expect(game.bloodCount).toBe(0);
+			expect(bloodEvents(game.players[0])).toHaveLength(0);
+			expect(game.players[0].score.some((s) => s.type === 'deny')).toBe(true);
+		});
+
+		/**
+		 * The death itself used to hand the turn back to the active creature.
+		 * When the kill happens *during* a deferred ability animation — Horn
+		 * Head's Meat Sickle striking a foe behind it at melee range — that
+		 * turned the caster back to its default facing while its hook was still
+		 * flying, and unfroze input mid-animation. `Ability#end(true, true)`
+		 * makes the ability itself own the hand-back, so the death must not.
+		 */
+		test('a death does not hand the turn back while a deferred ability animation is pending', () => {
+			const game = getDieGameMock();
+			(game as unknown as { _deferredQueryMovePending: number })._deferredQueryMovePending = 1;
+			const active = { queryMove: jest.fn() };
+			(game as unknown as { activeCreature: unknown }).activeCreature = active;
+
+			spawnVictim(game, 1).die(spawnVictim(game, 0));
+
+			expect(active.queryMove).not.toHaveBeenCalled();
+		});
+
+		test('a death hands the turn back when no ability animation is pending', () => {
+			const game = getDieGameMock();
+			const active = { queryMove: jest.fn() };
+			(game as unknown as { activeCreature: unknown }).activeCreature = active;
+
+			spawnVictim(game, 1).die(spawnVictim(game, 0));
+
+			expect(active.queryMove).toHaveBeenCalledTimes(1);
 		});
 	});
 
@@ -250,6 +448,161 @@ describe('Creature', () => {
 		});
 	});
 
+	describe('stashed movement', () => {
+		// Mirrors the upgraded Wing Feathers: bank leftover movement, capped at the
+		// creature's base movement.
+		const grantingStash = (creature: Creature, cap: number) => {
+			creature.abilities[0].stashedMovementCap = () => cap;
+		};
+
+		const getScavengerMock = () => {
+			const obj = getCreatureObjMock();
+			obj.stats.movement = 7;
+			return obj;
+		};
+
+		// `displayHealthStats` is UI-only and needs a real engine to draw on.
+		// The game mock is shared by every test here: each one builds a full hex grid
+		// mock, and this suite sits right at the edge of the default jest heap.
+		let sharedGame: Game;
+
+		const getScavenger = (stashes: boolean) => {
+			const obj = getScavengerMock();
+			// @ts-ignore
+			const game: Game = sharedGame;
+			// @ts-ignore
+			const creature = new Creature(obj, game);
+			creature.displayHealthStats = () => undefined;
+
+			if (stashes) {
+				grantingStash(creature, creature.baseStats.movement);
+			}
+
+			return creature;
+		};
+
+		beforeAll(() => {
+			// @ts-ignore
+			sharedGame = getGameMock();
+		});
+
+		test('a creature whose abilities store nothing banks nothing', () => {
+			const creature = getScavenger(false);
+
+			creature.activate();
+			creature.remainingMove = 7;
+			creature.deactivate('turn-end');
+
+			expect(creature.movementPool).toBe(0);
+			expect(creature.maxMovement).toBe(7);
+		});
+
+		test('a creature that skipped a turn starts next turn with 7 + 7 movement', () => {
+			const creature = getScavenger(true);
+
+			creature.activate();
+			expect(creature.remainingMove).toBe(7);
+
+			creature.deactivate('turn-end');
+			expect(creature.movementPool).toBe(7);
+			expect(creature.remainingMove).toBe(0);
+
+			creature.activate();
+			expect(creature.maxMovement).toBe(14);
+			expect(creature.remainingMove).toBe(14);
+		});
+
+		test("spending all of next turn's movement banks nothing", () => {
+			const creature = getScavenger(true);
+
+			creature.activate();
+			creature.deactivate('turn-end');
+			creature.activate();
+
+			creature.remainingMove -= 14;
+			creature.deactivate('turn-end');
+
+			expect(creature.movementPool).toBe(0);
+		});
+
+		test('leftover movement becomes the pool; the pool itself is not banked again', () => {
+			const creature = getScavenger(true);
+
+			// Skip with 3 left over.
+			creature.activate();
+			creature.remainingMove = 3;
+			creature.deactivate('turn-end');
+			expect(creature.movementPool).toBe(3);
+
+			// Next turn: 7 + 3 = 10 movement, spending 4 of it leaves 6.
+			creature.activate();
+			expect(creature.remainingMove).toBe(10);
+			creature.remainingMove -= 4;
+			creature.deactivate('turn-end');
+			expect(creature.movementPool).toBe(6);
+
+			creature.activate();
+			expect(creature.remainingMove).toBe(13);
+		});
+
+		test('the pool is capped at the base movement, however long a unit rests', () => {
+			const creature = getScavenger(true);
+
+			creature.activate();
+			creature.deactivate('turn-end');
+			creature.activate();
+			creature.remainingMove = 20;
+			creature.deactivate('turn-end');
+
+			expect(creature.movementPool).toBe(7);
+
+			creature.activate();
+			expect(creature.remainingMove).toBe(14);
+		});
+
+		test('a delayed turn banks nothing and keeps the movement it had left', () => {
+			const creature = getScavenger(true);
+
+			creature.activate();
+			creature.remainingMove = 5;
+			creature.wait();
+
+			expect(creature.isDelayed).toBe(true);
+			expect(creature.movementPool).toBe(0);
+			expect(creature.remainingMove).toBe(5);
+		});
+
+		test('restored movement cannot exceed movement plus the pool', () => {
+			const creature = getScavenger(true);
+
+			creature.activate();
+			creature.deactivate('turn-end');
+			creature.activate();
+			creature.remainingMove = 2;
+
+			creature.restoreMovement(100, false);
+			expect(creature.remainingMove).toBe(14);
+
+			creature.movementPool = 0;
+			creature.updateAlteration();
+			expect(creature.remainingMove).toBe(7);
+		});
+
+		test('a pool left over from a lost upgrade is dropped', () => {
+			const creature = getScavenger(true);
+
+			creature.activate();
+			creature.deactivate('turn-end');
+			expect(creature.movementPool).toBe(7);
+
+			grantingStash(creature, 0);
+			creature.updateAlteration();
+
+			expect(creature.movementPool).toBe(0);
+			expect(creature.maxMovement).toBe(7);
+		});
+	});
+
 	describe('effect attachment', () => {
 		test('addEffect ignores re-attaching the same Effect instance', () => {
 			const game = getGameMock();
@@ -323,6 +676,173 @@ describe('Creature', () => {
 		});
 	});
 
+	describe('xray bitmap orientation', () => {
+		// The xray bitmap replaces the cardboard *texture*, so it is written in
+		// the sprite's own texture space and the renderer mirrors it through
+		// `sprite.scale.x`. A pre-mirrored bitmap flips a flipped (blue) unit's
+		// cardboard a second time, which is why a freshly materialized blue unit
+		// faced backwards until hovering its hexagons cleared the xray.
+		type Rgba = Uint8ClampedArray;
+
+		const CARD_BOARD_GREY = 128;
+		const makeCardboard = (
+			width: number,
+			height: number,
+			columnColor: (x: number) => number,
+		): Rgba => {
+			const rgba = new Uint8ClampedArray(width * height * 4);
+			for (let y = 0; y < height; y++) {
+				for (let x = 0; x < width; x++) {
+					const i = (y * width + x) * 4;
+					rgba[i] = columnColor(x);
+					rgba[i + 1] = 0;
+					rgba[i + 2] = 0;
+					rgba[i + 3] = 255;
+				}
+			}
+			return rgba;
+		};
+
+		const makeBmd = (width: number, height: number) => {
+			let written: Rgba = new Uint8ClampedArray(0);
+			const context = {
+				createImageData: (_w: number, _h: number) => ({
+					width,
+					height,
+					data: new Uint8ClampedArray(width * height * 4),
+				}),
+				clearRect: jest.fn(),
+				putImageData: (image: { data: Rgba }) => {
+					written = image.data;
+				},
+			};
+			return {
+				width,
+				height,
+				ctx: context,
+				context,
+				commit: jest.fn(),
+				destroy: jest.fn(),
+				read: () => written,
+			};
+		};
+
+		const makeSpriteLike = (x: number, y: number, dir: 1 | -1, textureWidth: number) => ({
+			x,
+			y,
+			scale: { x: dir },
+			anchor: { x: 0.5, y: 1 },
+			texture: { width: textureWidth, height: HEIGHT },
+			frame: { name: 'frame' },
+			scene: {},
+		});
+
+		const HEIGHT = 2;
+
+		const drawXray = (
+			obstructor: ReturnType<typeof makeSpriteLike>,
+			obstructorGrp: { x: number; y: number },
+			ref: ReturnType<typeof makeSpriteLike>,
+			refGrp: { x: number; y: number },
+			original: Rgba,
+			refRgba: Rgba,
+			width: number,
+		) => {
+			const game = getGameMock();
+			// @ts-ignore
+			const creature = new Creature(getCreatureObjMock(), game);
+			// @ts-ignore
+			const sprite: any = (creature as any).creatureSprite;
+			// @ts-ignore
+			const proto: any = Object.getPrototypeOf(sprite);
+			const refCreature = { sprite: ref, grp: refGrp, name: 'ref' };
+			const self = {
+				_sprite: obstructor,
+				_group: obstructorGrp,
+				_xrayOriginalAlpha: original,
+				_xrayRefAlpha: {
+					size: 1,
+					entries: [{ rgba: refRgba, width: ref.texture.width, height: HEIGHT, xrayDepth: 0 }],
+				},
+				_xrayMaskAlpha: null,
+				_xrayAlpha: 1,
+				_creature: creature,
+			};
+			const bmd = makeBmd(width, HEIGHT);
+			proto._drawXrayBmd.call(self, [refCreature], bmd);
+			return bmd.read();
+		};
+
+		test('a flipped obstructor keeps its cardboard un-mirrored and samples the flipped ref in screen space', () => {
+			const WIDTH = 8;
+			const REF_WIDTH = 4;
+			// Column 0 is the orientation marker: mirroring would move it.
+			const original = makeCardboard(WIDTH, HEIGHT, (x) => (x === 0 ? 200 : CARD_BOARD_GREY));
+			// Mid-grey under the overlay blend keeps the revealed unit's own
+			// column value readable, so the cutout geometry is verifiable.
+			const refRgba = makeCardboard(REF_WIDTH, HEIGHT, (x) => 40 * (x + 1));
+			const obstructorGrp = { x: 100, y: 200 };
+			const obstructor = makeSpriteLike(4, HEIGHT, -1, WIDTH);
+			const refGrp = { x: 102, y: 200 };
+			const ref = makeSpriteLike(2, HEIGHT, -1, REF_WIDTH);
+
+			const bmd = drawXray(obstructor, obstructorGrp, ref, refGrp, original, refRgba, WIDTH);
+			const oLeft = obstructorGrp.x + obstructor.x - WIDTH / 2;
+			const rLeft = refGrp.x + ref.x - REF_WIDTH / 2;
+
+			for (let y = 0; y < HEIGHT; y++) {
+				for (let b = 0; b < WIDTH; b++) {
+					const i = (y * WIDTH + b) * 4;
+					// Texture column `b` renders at this screen offset.
+					const screenOffset = WIDTH - 1 - b;
+					const refColumn = screenOffset - (rLeft - oLeft);
+					if (refColumn >= 0 && refColumn < REF_WIDTH) {
+						// A flipped ref reads this screen point out of its own mirrored cardboard.
+						const t = REF_WIDTH - 1 - refColumn;
+						expect(Math.abs(bmd[i] - refRgba[(y * REF_WIDTH + t) * 4])).toBeLessThanOrEqual(2);
+					} else {
+						// Outside the cutout the cardboard is copied verbatim, in texture space.
+						expect(bmd[i]).toBe(original[i]);
+					}
+				}
+			}
+			// The marker column keeps its own side of the bitmap; the renderer
+			// (sprite.scale.x === -1) is what mirrors the finished cardboard.
+			expect(bmd[0]).toBe(200);
+			expect(bmd[(WIDTH - 1) * 4]).toBe(CARD_BOARD_GREY);
+		});
+
+		test('an unflipped obstructor is unaffected by the texture-space compositor', () => {
+			const WIDTH = 8;
+			const REF_WIDTH = 4;
+			const original = makeCardboard(WIDTH, HEIGHT, (x) => (x === 0 ? 200 : CARD_BOARD_GREY));
+			const refRgba = makeCardboard(REF_WIDTH, HEIGHT, (x) => 40 * (x + 1));
+			const obstructorGrp = { x: 100, y: 200 };
+			const obstructor = makeSpriteLike(4, HEIGHT, 1, WIDTH);
+			const refGrp = { x: 102, y: 200 };
+			const ref = makeSpriteLike(2, HEIGHT, 1, REF_WIDTH);
+
+			const bmd = drawXray(obstructor, obstructorGrp, ref, refGrp, original, refRgba, WIDTH);
+			const oLeft = obstructorGrp.x + obstructor.x - WIDTH / 2;
+			const rLeft = refGrp.x + ref.x - REF_WIDTH / 2;
+
+			for (let y = 0; y < HEIGHT; y++) {
+				for (let b = 0; b < WIDTH; b++) {
+					const i = (y * WIDTH + b) * 4;
+					const refColumn = b - (rLeft - oLeft);
+					if (refColumn >= 0 && refColumn < REF_WIDTH) {
+						expect(Math.abs(bmd[i] - refRgba[(y * REF_WIDTH + refColumn) * 4])).toBeLessThanOrEqual(
+							2,
+						);
+					} else {
+						expect(bmd[i]).toBe(original[i]);
+					}
+				}
+			}
+			expect(bmd[0]).toBe(200);
+		});
+	});
+
 	describe('cardboard effect initialization path', () => {
 		test('creating a cardboard-effect creature calls init without requiring creature.creatureSprite', () => {
 			const game = getGameMock();
@@ -363,6 +883,10 @@ describe('Creature', () => {
 
 			creature.summon();
 
+			// The cardboard rises out of the ghost the player was previewing:
+			// pinned at the ghost opacity, then faded up to full over the
+			// materialization window.
+			expect(setAlphaSpy).toHaveBeenCalledWith(GHOST_PREVIEW_ALPHA, 0);
 			expect(setAlphaSpy).toHaveBeenCalledWith(1, 2000);
 			jest.advanceTimersByTime(2050);
 			expect(setAlphaSpy).toHaveBeenCalledWith(1);
@@ -451,14 +975,14 @@ type MockGame = {
 };
 
 type MockPhaser = {
+	/** Retained only for the members still on the facade; see the comment below. */
 	position: { set: jest.Mock };
 	isRunning?: boolean;
 	add: () => MockPhaser;
 	create: () => MockPhaser;
-	forEach: () => MockPhaser;
+	each: () => MockPhaser;
 	group: () => MockPhaser;
-	removeChild: () => MockPhaser;
-	setTo: () => MockPhaser;
+	remove: () => MockPhaser;
 	start: () => MockPhaser;
 	text: () => MockPhaser;
 	to: () => MockPhaser;
@@ -468,17 +992,33 @@ type MockPhaser = {
 	onUpdateCallback: () => MockPhaser;
 	stop?: jest.Mock;
 	update: jest.Mock;
-	anchor: MockPhaser;
-	data: Record<string, unknown>;
 	onComplete: MockPhaser;
 	parent: MockPhaser;
 	sprite: MockPhaser;
-	scale: MockPhaser;
+	/** Native Phaser 4 members, replacing the facade's `anchor`/`scale` shims. */
+	setOrigin: () => MockPhaser;
+	setScale: () => MockPhaser;
+	setPosition: () => MockPhaser;
+	setActive: () => MockPhaser;
+	active: boolean;
+	originX: number;
+	originY: number;
+	scaleX: number;
+	scaleY: number;
+	key?: string;
+	/** Phaser 4 has no DataManager; gameplay no longer reads it. */
+	data: Record<string, unknown>;
 	texture: { width: number; height: number };
 };
 
-const getPlayerMock = () => {
-	return {};
+const getPlayerMock = (id = 0) => {
+	return {
+		id,
+		score: [] as { type: string; points?: number }[],
+		flipped: Boolean(id % 2),
+		isAnnihilated: () => false,
+		deactivate: jest.fn(),
+	};
 };
 
 const getRandomString = (length: number) => {
@@ -534,8 +1074,14 @@ const getGameMock = () => {
 		players: [],
 		queue: { update: jest.fn() },
 		updateQueueDisplay: jest.fn(),
+		// Mirrors HexGrid.queryHexes(): a fresh query bumps the generation, which
+		// is how deferred turn-opening work detects that the board has already
+		// been claimed (see the activation query ownership tests above).
 		grid: {
-			queryHexes: jest.fn(),
+			queryGeneration: 0,
+			queryHexes: jest.fn(function (this: { queryGeneration: number }, _o: unknown) {
+				this.queryGeneration++;
+			}),
 			redoLastQuery: jest.fn(),
 			forEachHex: jest.fn(),
 			xray: jest.fn(),
@@ -547,9 +1093,14 @@ const getGameMock = () => {
 			allhexes: [] as unknown[],
 			getMovementRange: jest.fn(() => []),
 			refreshActiveCreatureXray: jest.fn(),
+			refreshHoverState: jest.fn(),
 			healthIndicatorUiGroup: { add: jest.fn(), remove: jest.fn() },
 		},
 		Phaser: getPhaserMock(),
+		engine: getPhaserMock(),
+		get gameEngine() {
+			return this.engine;
+		},
 		retrieveCreatureStats: (type: number) => {
 			for (const d of unitData) {
 				if (d.id === type) {
@@ -563,6 +1114,9 @@ const getGameMock = () => {
 			initInfernalCardboardEffect: jest.fn(),
 			tickInfernalCardboardEffect: jest.fn(),
 			disposeInfernalCardboardEffect: jest.fn(),
+			death: jest.fn(),
+			melt: jest.fn(),
+			shatterDown: jest.fn(),
 		},
 		signals: {
 			metaPowers: {
@@ -581,6 +1135,23 @@ const getGameMock = () => {
 		},
 		plasma_amount: 10,
 		onReset: jest.fn(),
+		// Game.defer()/poll() as the real ones behave: plain timers, and poll()
+		// stops as soon as the callback reports it is done.
+		defer(callback: () => void, ms: number) {
+			setTimeout(callback, ms);
+		},
+		poll(callback: () => boolean | void, ms: number) {
+			const handle = setInterval(() => {
+				if (callback() === true) {
+					clearInterval(handle);
+				}
+			}, ms);
+		},
+		startTimer: jest.fn(),
+		onCreatureDeath: jest.fn(),
+		bloodCount: 0,
+		unitDrops: 0,
+		multiplayer: false,
 		onStartPhase: jest.fn(),
 		onEndPhase: jest.fn(),
 		onEffectAttach: jest.fn(),
@@ -588,12 +1159,27 @@ const getGameMock = () => {
 		onHeal: jest.fn(),
 	};
 	self.grid.allhexes = self.grid.hexes.flat(1);
-	self.players = [getPlayerMock(), getPlayerMock()];
+	self.players = [getPlayerMock(0), getPlayerMock(1)];
 	return self;
 };
 
 const getPhaserMock = () => {
-	const self = { position: { set: jest.fn() } } as MockPhaser;
+	const self = {
+		position: { set: jest.fn() },
+		active: true,
+		originX: 0.5,
+		originY: 0.5,
+		scaleX: 1,
+		scaleY: 1,
+		setOrigin: jest.fn().mockReturnThis(),
+		setScale: jest.fn().mockReturnThis(),
+		setPosition: jest.fn().mockReturnThis(),
+		setActive: jest.fn().mockReturnThis(),
+		// Coordinate space conversion (no-op for test double)
+		// Returns a point-like object with x/y to match Phaser.Math.Vector2 shape.
+		toGlobal: (point: { x: number; y: number }) => ({ x: point.x, y: point.y }),
+		toLocal: (point: { x: number; y: number }) => ({ x: point.x, y: point.y }),
+	} as unknown as MockPhaser;
 
 	const makeTween = () => {
 		const tween = {
@@ -617,10 +1203,9 @@ const getPhaserMock = () => {
 
 	self.add = () => self;
 	self.create = () => self;
-	self.forEach = () => self;
+	self.each = () => self;
 	self.group = () => self;
-	self.removeChild = () => self;
-	self.setTo = () => self;
+	self.remove = () => self;
 	self.start = () => self;
 	self.text = () => self;
 	self.to = () => self;
@@ -629,19 +1214,23 @@ const getPhaserMock = () => {
 	self.repeat = () => self;
 	self.onUpdateCallback = () => self;
 	self.update = jest.fn();
-	self.anchor = self;
 	self.data = {};
 	self.onComplete = self;
 	self.parent = self;
 	self.sprite = self;
-	self.scale = self;
 	self.texture = {
 		width: 10,
 		height: 10,
 	};
 
 	return {
-		add: self,
+		// `gameEngine.add.sprite(...)` replaced `group.create(...)`, so `add`
+		// must expose `sprite` as a factory. `self.sprite` is a plain value, so
+		// the function gets its own member rather than aliasing that field.
+		add: Object.assign(() => self, self, { sprite: () => self }),
+		cache: { getImage: () => null },
+		make: self,
+		tween: () => makeTween(),
 	};
 };
 

@@ -1,4 +1,4 @@
-import * as $j from 'jquery';
+import $j from 'jquery';
 import { Damage } from '../damage';
 import { Team } from '../utility/team';
 import * as arrayUtils from '../utility/arrayUtils';
@@ -6,6 +6,12 @@ import { Hex } from '../utility/hex';
 import { Creature } from '../creature';
 import { CreatureType } from '../data/types';
 import Game from '../game';
+import { shakeBoard } from '../game-display/camera';
+import { getDepthAtBand } from '../game-display/layer';
+import { getFrameSize } from '../game-display/texture';
+import { spawnChainLightning } from '../vfx/lightning/effect';
+import { electroShockerLook } from '../vfx/lightning/look';
+import { spawnDisruptorBeam } from '../vfx/disruptor';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -26,25 +32,9 @@ export default (G: Game) => {
 
 			//	activate() :
 			activate: function (damage: Damage) {
-				if (G.activeCreature.id == this.creature.id) {
+				if (G.activeCreature?.id == this.creature.id) {
 					/* only used when unit isn't active */
 					return damage; // Return Damage
-				}
-
-				if (this.isUpgraded() && damage.melee && !damage.counter) {
-					//counter damage
-					const counter = new Damage(
-						this.creature, // Attacker
-						{
-							pure: 9,
-						}, // Damage Type
-						1, // Area
-						[], // Effects
-						G,
-					);
-					counter.counter = true;
-					G.activeCreature.takeDamage(counter);
-					G.Phaser.camera.shake(0.03, 220, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
 				}
 
 				this.creature.player.plasma -= 1;
@@ -70,7 +60,33 @@ export default (G: Game) => {
 
 				this.end(true); // Disable message
 
-				G.log('%CreatureName' + this.creature.id + '% is protected by Plasma Field');
+				G.log('%CreatureName' + this.creature.id + '% is shielded by Plasma Field');
+
+				// The upgraded field retaliates *after* announcing the block, so the
+				// combat log reads: the attack, the shield, then the counter damage
+				// (and whatever that in turn triggers) — not the counter damage and
+				// its fallout first.
+				if (this.isUpgraded() && damage.melee && !damage.counter) {
+					//counter damage
+					const counter = new Damage(
+						this.creature, // Attacker
+						{
+							pure: 9,
+						}, // Damage Type
+						1, // Area
+						[], // Effects
+						G,
+					);
+					counter.counter = true;
+					G.activeCreature?.takeDamage(counter);
+					shakeBoard({
+						amplitude: 0.03,
+						durationMs: 220,
+						force: true,
+						axis: 'horizontal',
+					});
+				}
+
 				return damage; // Return Damage
 			},
 		},
@@ -116,8 +132,99 @@ export default (G: Game) => {
 			//	activate() :
 			activate: function (target) {
 				const ability = this;
+				const caster = ability.creature;
 				ability.end();
-				G.Phaser.camera.shake(0.02, 200, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				shakeBoard({
+					amplitude: 0.02,
+					durationMs: 200,
+					force: true,
+					axis: 'horizontal',
+				});
+
+				const sprite = caster.sprite;
+				const grp = caster.grp;
+
+				// Emission point on the Dark Priest cardboard texture (in texture pixels)
+				// Human (player) DP: 112x200 texture, origin at bottom-center (56, 200), emit at (106, 106)
+				// Bot (clone) DP: 108x200 texture, origin at bottom-center (54, 200), emit at (99, 99)
+				const spriteKey = sprite?.key as string | undefined;
+				const isBot = spriteKey?.includes('clone') ?? false;
+				const emitTexX = isBot ? 99 : 106;
+				const emitTexY = isBot ? 99 : 106;
+
+				const { width, height } = getFrameSize(sprite);
+				const originTexX = width / 2;
+				const originTexY = height;
+
+				// Convert texture-space emission point to local sprite coordinates
+				const emitLocalX = emitTexX - originTexX;
+				const emitLocalY = emitTexY - originTexY;
+
+				// Compute facing direction for horizontal flip
+				const facefrom = { x: caster.x, y: caster.y };
+				const faceto = { x: target.x, y: target.y };
+				if (facefrom.y % 2 === 0 && faceto.y % 2 === 1) {
+					faceto.x += 0.5;
+				} else if (facefrom.y % 2 === 1 && faceto.y % 2 === 0) {
+					faceto.x -= 0.5;
+				}
+				let attackDir: number;
+				if (facefrom.y % 2 === 0) {
+					attackDir = faceto.x <= facefrom.x ? -1 : 1;
+				} else {
+					attackDir = faceto.x < facefrom.x ? -1 : 1;
+				}
+				const facing = attackDir < 0 ? -1 : 1;
+
+				// Apply horizontal flip to local emission X
+				const emitX = facing * emitLocalX;
+				const emitY = emitLocalY;
+
+				const noseTip = {
+					x: (grp?.x ?? 0) + (sprite?.x ?? 0) + emitX,
+					y: (grp?.y ?? 0) + (sprite?.y ?? 0) + emitY,
+				};
+
+				// Save default facing to restore after animation (like Impaler's Chain Lightning)
+				const defaultDir = caster.player.flipped ? -1 : 1;
+
+				// Target point with spread: aim near the target's center but with random offset
+				// so the bolt doesn't converge to a single pixel.
+				const targetSprite = target.sprite;
+				const targetGrp = target.grp;
+				const targetHeight = Number(targetSprite?.height) || 0;
+				const targetCenterX = (targetGrp?.x ?? 0) + (targetSprite?.x ?? 0);
+				const targetCenterY = (targetGrp?.y ?? 0) + (targetSprite?.y ?? 0) - targetHeight * 0.5;
+
+				// Spread radius based on target size - larger creatures get wider spread
+				const spreadRadius = Math.max(12, target.size * 10);
+				const spreadAngle = Math.random() * Math.PI * 2;
+				const spreadX = Math.cos(spreadAngle) * spreadRadius * Math.random();
+				const spreadY = Math.sin(spreadAngle) * spreadRadius * Math.random();
+
+				const targetPoint = {
+					x: targetCenterX + spreadX,
+					y: targetCenterY + spreadY,
+				};
+
+				// Spawn electro shocker lightning bolt
+				if (G.gameEngine) {
+					spawnChainLightning(G.gameEngine, [noseTip, targetPoint], {
+						parent: G.grid.creatureGroup,
+						surfaceSource: { textures: G.Phaser?.textures },
+						depth: getDepthAtBand(Math.max(caster.y, target.y), 'EFFECT_OVER_UNITS'),
+						look: electroShockerLook({ playerColor: caster.player.color }),
+					});
+
+					// Flip back after the lightning vanishes (lifetimeMs 850).
+					if (facing !== defaultDir) {
+						setTimeout(() => {
+							if (!caster.dead && caster.sprite.scale.x !== defaultDir) {
+								caster.facePlayerDefault();
+							}
+						}, 850);
+					}
+				}
 
 				const damageAmount = {
 					shock: 12 * target.size,
@@ -201,8 +308,12 @@ export default (G: Game) => {
 			//	activate() :
 			activate: function (target: Creature) {
 				const ability = this;
-				ability.end();
-				G.Phaser.camera.shake(0.04, 111, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				ability.end(false, true);
+
+				// Guard against undefined baseStats (can happen during replay for dead units)
+				if (!target.baseStats) {
+					return;
+				}
 
 				const plasmaCost = target.size;
 				let damageAmount = target.baseStats.health - target.health;
@@ -223,9 +334,23 @@ export default (G: Game) => {
 					G,
 				);
 
-				ability.end();
+				const willDisintegrate = damageAmount >= target.health;
+				spawnDisruptorBeam(G, ability.creature, target, willDisintegrate, () => {
+					shakeBoard({
+						amplitude: 0.04,
+						durationMs: 111,
+						force: true,
+						axis: 'horizontal',
+					});
 
-				target.takeDamage(damage);
+					const previousDeathAnimation = target.deathAnimationType;
+					if (willDisintegrate) target.deathAnimationType = 'disintegrate';
+					target.takeDamage(damage);
+					if (!target.dead) {
+						target.deathAnimationType = previousDeathAnimation;
+					}
+					G.activeCreature?.queryMove();
+				});
 			},
 		},
 
@@ -255,6 +380,10 @@ export default (G: Game) => {
 			query: function () {
 				// Ask the creature to summon
 				G.UI.materializeToggled = true;
+				// Every usable activation rolls a fresh unit for the dash. A round
+				// can allow more than one materialization, so the previously viewed
+				// or materialized unit must not be restored on repeat activations.
+				G.UI.lastViewedCreature = '';
 				G.UI.toggleDash(true);
 			},
 
@@ -297,7 +426,7 @@ export default (G: Game) => {
 				});
 
 				spawnRange = spawnRange.filter(function (item) {
-					return item.isWalkable(crea.size, 0, false);
+					return item.isWalkable(crea.size, -1, false);
 				});
 
 				spawnRange = arrayUtils.extendToLeft(spawnRange, crea.size, G.grid);
@@ -311,7 +440,7 @@ export default (G: Game) => {
 						G.grid.previewCreature(hex.pos, crea, ability.creature.player);
 					},
 					fnOnCancel: function () {
-						G.activeCreature.queryMove();
+						G.activeCreature?.queryMove();
 					},
 					fnOnConfirm: function (...args) {
 						ability.animation(...args);

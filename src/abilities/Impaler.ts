@@ -1,19 +1,133 @@
-import * as $j from 'jquery';
+import $j from 'jquery';
 import { Damage, DamageStats } from '../damage';
-import { Team, isTeam } from '../utility/team';
+import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Creature } from '../creature';
 import { Effect } from '../effect';
+import { Hex } from '../utility/hex';
 import { once } from 'underscore';
-import { getPointFacade } from '../utility/pointfacade';
+import { getPointFacade, Point } from '../utility/pointfacade';
+import { offsetCoordsToPx } from '../utility/const';
 import Game from '../game';
+import { shakeBoard } from '../game-display/camera';
+import { getDepthAtBand } from '../game-display/layer';
+import { getFrameSize } from '../game-display/texture';
+import { spawnChainLightning } from '../vfx/lightning/effect';
+import { SnapshotCompatibilityError } from '../engine/GameSnapshot';
+import {
+	IMPALER_POISON_VINE_CLEANUP_EFFECT,
+	IMPALER_POISON_VINE_EFFECT,
+} from '../engine/snapshotBehaviors';
+
+function clockHourFromTo(from: Point, to: Point): number {
+	const fromPx = offsetCoordsToPx(from);
+	const toPx = offsetCoordsToPx(to);
+	const degrees = (Math.atan2(toPx.x - fromPx.x, fromPx.y - toPx.y) * 180) / Math.PI;
+	return (((degrees / 30) % 12) + 12) % 12;
+}
+
+type PoisonVineSnapshotData = {
+	attackerId: number;
+	targetId: number;
+	damages: DamageStats;
+};
+
+type PoisonVineCleanupSnapshotData = {
+	targetId: number;
+};
+
+const getSnapshotCreature = (G: Game, id: unknown, behavior: string): Creature => {
+	if (!Number.isInteger(id) || !(G.creatures?.[id as number] instanceof Creature)) {
+		throw new SnapshotCompatibilityError(
+			`Cannot restore ${behavior}: creature reference is invalid.`,
+		);
+	}
+	return G.creatures[id as number];
+};
+
+const readPoisonVineDamages = (value: unknown): DamageStats => {
+	if (
+		!value ||
+		typeof value !== 'object' ||
+		Array.isArray(value) ||
+		Object.values(value).some((amount) => typeof amount !== 'number' || !Number.isFinite(amount))
+	) {
+		throw new SnapshotCompatibilityError(
+			'Cannot restore Impaler Poisonous Vine: damage data is invalid.',
+		);
+	}
+	return { ...(value as DamageStats) };
+};
+
+const bindPoisonVineEffect = (
+	G: Game,
+	effect: Effect,
+	data: Record<string, unknown> | undefined,
+) => {
+	const candidate = data as Partial<PoisonVineSnapshotData> | undefined;
+	const attacker = getSnapshotCreature(G, candidate?.attackerId, 'Impaler Poisonous Vine');
+	const target = getSnapshotCreature(G, candidate?.targetId, 'Impaler Poisonous Vine');
+	if (effect.owner !== attacker || !(effect.target instanceof Hex)) {
+		throw new SnapshotCompatibilityError(
+			'Cannot restore Impaler Poisonous Vine: effect references are invalid.',
+		);
+	}
+	const behaviorData: PoisonVineSnapshotData = {
+		attackerId: attacker.id,
+		targetId: target.id,
+		damages: readPoisonVineDamages(candidate?.damages),
+	};
+	effect.snapshotBehaviorId = IMPALER_POISON_VINE_EFFECT;
+	effect.snapshotBehaviorData = behaviorData;
+	effect.effectFn = once((activeEffect) => {
+		G.log('%CreatureName' + target.id + '% is injured by ' + activeEffect.name);
+		target.takeDamage(new Damage(attacker, behaviorData.damages, 1, [], G), {
+			isFromTrap: true,
+		});
+		activeEffect.deleteEffect();
+		getPointFacade()
+			.getTrapsAt(target)
+			.forEach((trap) => trap.destroy());
+	});
+};
+
+const bindPoisonVineCleanupEffect = (
+	G: Game,
+	effect: Effect,
+	data: Record<string, unknown> | undefined,
+) => {
+	const candidate = data as Partial<PoisonVineCleanupSnapshotData> | undefined;
+	const target = getSnapshotCreature(G, candidate?.targetId, 'Impaler Poisonous Vine cleanup');
+	if (effect.owner !== target || effect.target !== target) {
+		throw new SnapshotCompatibilityError(
+			'Cannot restore Impaler Poisonous Vine cleanup: effect references are invalid.',
+		);
+	}
+	effect.snapshotBehaviorId = IMPALER_POISON_VINE_CLEANUP_EFFECT;
+	effect.snapshotBehaviorData = { targetId: target.id };
+	effect.effectFn = (_activeEffect, damage: Damage) => {
+		if (!damage?.damages) {
+			return;
+		}
+		const result = damage.applyDamage();
+		if (result.total >= target.health) {
+			target.hexagons.forEach((hex) => hex.destroyTrap());
+		}
+	};
+};
 
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
  */
 export default (G: Game) => {
+	G.registerSnapshotEffectBehavior(IMPALER_POISON_VINE_EFFECT, (effect, data) =>
+		bindPoisonVineEffect(G, effect, data),
+	);
+	G.registerSnapshotEffectBehavior(IMPALER_POISON_VINE_CLEANUP_EFFECT, (effect, data) =>
+		bindPoisonVineCleanupEffect(G, effect, data),
+	);
 	G.abilities[5] = [
 		// 	First Ability: Electrified Hair
 		{
@@ -97,7 +211,12 @@ export default (G: Game) => {
 			//	activate() :
 			activate: function (target) {
 				const ability = this;
-				G.Phaser.camera.shake(0.01, 120, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+				shakeBoard({
+					amplitude: 0.01,
+					durationMs: 120,
+					force: true,
+					axis: 'horizontal',
+				});
 
 				const finalDmg: DamageStats = {
 					pierce: 30,
@@ -119,9 +238,9 @@ export default (G: Game) => {
 				const result = target.takeDamage(damage);
 				// Recharge movement if any damage dealt
 				if (result.damages && result.damages.total > 0) {
-					this.creature.remainingMove = this.creature.stats.movement;
+					this.creature.remainingMove = this.creature.maxMovement;
 					G.log('%CreatureName' + this.creature.id + "%'s movement recharged");
-					G.activeCreature.queryMove();
+					G.activeCreature?.queryMove();
 				}
 				ability.end();
 			},
@@ -174,33 +293,25 @@ export default (G: Game) => {
 
 			activate: function (target) {
 				this.end();
-				const damages = this.damages;
+				const damages = { ...this.damages };
 				// Last 1 turn, or indefinitely if upgraded
 				const lifetime = this.isUpgraded() ? -1 : 1;
 				const ability = this;
 
 				// Destroy trap if it wasn't triggered and target is dead
-				target.addEffect(
-					new Effect(
-						ability.title,
-						target,
-						target,
-						'onUnderAttack',
-						{
-							effectFn: (effect, damage: Damage) => {
-								if (damage.damages) {
-									const dmg = damage.applyDamage();
-									if (dmg.total >= target.health) {
-										target.hexagons.forEach(function (hex) {
-											hex.destroyTrap();
-										});
-									}
-								}
-							},
-						},
-						G,
-					),
+				const cleanupEffect = new Effect(
+					ability.title,
+					target,
+					target,
+					'onUnderAttack',
+					{
+						snapshotBehaviorId: IMPALER_POISON_VINE_CLEANUP_EFFECT,
+						snapshotBehaviorData: { targetId: target.id },
+					},
+					G,
 				);
+				bindPoisonVineCleanupEffect(G, cleanupEffect, cleanupEffect.snapshotBehaviorData);
+				target.addEffect(cleanupEffect);
 
 				const effect = new Effect(
 					ability.title,
@@ -208,6 +319,12 @@ export default (G: Game) => {
 					target.hexagons[0],
 					'onStepOut',
 					{
+						snapshotBehaviorId: IMPALER_POISON_VINE_EFFECT,
+						snapshotBehaviorData: {
+							attackerId: ability.creature.id,
+							targetId: target.id,
+							damages: { ...damages },
+						},
 						effectFn: once((effect) => {
 							G.log('%CreatureName' + target.id + '% is injured by ' + effect.name);
 							target.takeDamage(new Damage(ability.creature, damages, 1, [], G), {
@@ -225,6 +342,7 @@ export default (G: Game) => {
 					},
 					G,
 				);
+				bindPoisonVineEffect(G, effect, effect.snapshotBehaviorData);
 
 				// NOTE: Add a trap to every hex of the target
 				// Made it so only one hex has the effect & others are placeholders
@@ -294,10 +412,62 @@ export default (G: Game) => {
 				});
 			},
 
+			//	animation() :
+			animation: function (target) {
+				const ability = this;
+
+				const result = ability.animation2({
+					callback: function () {
+						// Default no-op
+					},
+					arg: [target],
+				});
+
+				return result;
+			},
+
 			//	activate() :
 			activate: function (target) {
 				const ability = this;
+				const caster = ability.creature;
+
+				// Compute the attack direction independently of the sprite's
+				// current scale, so the VFX nose tip is always correct even
+				// if the creature was reset by end() or is being spammed via
+				// metapower before the animation flip lands.
+				const facefrom = { x: caster.x, y: caster.y };
+				const faceto = { x: target.x, y: target.y };
+				if (facefrom.y % 2 === 0 && faceto.y % 2 === 1) {
+					faceto.x += 0.5;
+				} else if (facefrom.y % 2 === 1 && faceto.y % 2 === 0) {
+					faceto.x -= 0.5;
+				}
+				let attackDir: number;
+				if (facefrom.y % 2 === 0) {
+					attackDir = faceto.x <= facefrom.x ? -1 : 1;
+				} else {
+					attackDir = faceto.x < facefrom.x ? -1 : 1;
+				}
+				const savedScaleX = attackDir;
+
+				const sprite = caster.sprite;
+				const grp = caster.grp;
+				const { width, height } = getFrameSize(sprite);
+				const facing = attackDir < 0 ? -1 : 1;
+				const savedNoseTip = {
+					x: (grp?.x ?? 0) + (sprite?.x ?? 0) + (facing * width) / 2,
+					y: (grp?.y ?? 0) + (sprite?.y ?? 0) - height,
+				};
+
 				ability.end();
+
+				// animation2() already faced the creature at the target; end()
+				// reset it back to default. Re-flip in the next frame so it
+				// beats any hover-state reset and the lunge tween reads the
+				// correct direction.
+				requestAnimationFrame(() => {
+					caster.faceHex(target);
+				});
 
 				const targets = [];
 				targets.push(target); // Add First creature hit
@@ -307,42 +477,24 @@ export default (G: Game) => {
 				for (let i = 0; i < targets.length; i++) {
 					const trg = targets[i];
 
-					// If upgraded and the target is an ally, protect it with an effect that
-					// reduces the damage to guarantee at least 1 health remaining
-					if (this.isUpgraded() && isTeam(this.creature, trg, Team.Ally)) {
-						trg.addEffect(
-							new Effect(
-								this.title,
-								this.creature,
-								trg,
-								'onUnderAttack',
-								{
-									effectFn: function (effect, damage: Damage) {
-										// Simulate the damage to determine how much damage would have
-										// been dealt; then reduce the damage so that it will not kill
-										while (true) {
-											const dmg = damage.applyDamage();
-											// If we can't reduce any further, give up and have the damage
-											// be zero
-											if (dmg.total <= 0 || damage.damages.shock <= 0 || trg.health <= 1) {
-												damage.damages = {
-													shock: 0,
-												};
-												break;
-											} else if (dmg.total >= trg.health) {
-												// Too much damage, would have killed; reduce and try again
-												damage.damages.shock--;
-											} else {
-												break;
-											}
-										}
-									},
-									deleteTrigger: 'onEndPhase',
-								},
-								G,
-							),
-						);
-					}
+					// The arc's reach is scouted before the strike
+					// lands: a target killed by the hit is cleaned
+					// off the board, and the chain still has to be
+					// able to leap on from around where it stood.
+					const nearHexes = trg.adjacentHexes(1);
+
+					// Upgraded, the arc can jump one empty hexagon, so a
+					// creature two hexes away is in reach too, as long as
+					// a hexagon between it and the current target is empty.
+					// `adjacentHexes(2)` also holds the near hexes, so those
+					// are filtered back out to leave exactly the far ring.
+					// The bolt arcs through a hex adjacent to both ends of
+					// the jump; at least one of those must be empty for the
+					// arc to have a clear path.
+					const farHexes = trg.adjacentHexes(2).filter((hex) => !nearHexes.includes(hex));
+					const jumpHexes = farHexes.filter((hex) =>
+						nearHexes.some((between) => !between.creature && between.adjacentHex(1).includes(hex)),
+					);
 
 					const damage = new Damage(
 						ability.creature, // Attacker
@@ -356,28 +508,50 @@ export default (G: Game) => {
 					if (curDamage.damages === undefined) {
 						break;
 					} // If attack is dodge
-					if (curDamage.kill) {
-						break;
-					} // If target is killed
 					if (curDamage.damages.total <= 0) {
 						break;
 					} // If damage is too weak
-					if (curDamage.damageObj.status !== '') {
+					if (!curDamage.damageObj || curDamage.damageObj.status !== '') {
 						break;
 					}
 					delete curDamage.damages.total;
 					nextdmg = curDamage.damages;
 
 					// Get next available targets
-					let nextTargets = ability.getTargets(trg.adjacentHexes(1));
+					const prevUnit = i === 0 ? ability.creature : targets[i - 1];
+					const arrivalHour = clockHourFromTo(prevUnit, trg);
+					const scanOrder = (target: Creature) =>
+						(clockHourFromTo(trg, target) - arrivalHour + 12) % 12;
 
-					nextTargets = nextTargets.filter(function (item) {
-						if (item.hexesHit === undefined) {
-							return false; // Remove empty ids
-						}
+					let nextTargets = ability.getTargets(nearHexes).map((item) => ({
+						...item,
+						distance: 1,
+						scan: scanOrder(item.target),
+					}));
 
-						return targets.indexOf(item.target) == -1; // If this creature has already been hit
-					});
+					if (ability.isUpgraded()) {
+						nextTargets = nextTargets.concat(
+							ability.getTargets(jumpHexes).map((item) => ({
+								...item,
+								distance: 2,
+								scan: scanOrder(item.target),
+							})),
+						);
+					}
+
+					nextTargets = nextTargets.filter(
+						(item) =>
+							item.hexesHit !== undefined && // Remove empty ids
+							item.target instanceof Creature &&
+							!targets.includes(item.target), // No loops: can't re-hit anything already in the chain
+					);
+
+					// Prefer non-caster targets; only allow the Impaler itself as
+					// a last resort when nothing else is in reach.
+					const nonCasterTargets = nextTargets.filter((item) => item.target !== ability.creature);
+					if (nonCasterTargets.length > 0) {
+						nextTargets = nonCasterTargets;
+					}
 
 					// If no target
 					if (nextTargets.length === 0) {
@@ -385,13 +559,10 @@ export default (G: Game) => {
 					}
 
 					// Best Target
-					let bestTarget = {
-						size: 0,
-						stats: {
-							defense: -99999,
-							shock: -99999,
-						},
-					};
+					let bestTarget: Creature | null = null;
+					let bestDistance = Infinity;
+					let bestShock = Infinity;
+					let bestScan = Infinity;
 					for (let j = 0; j < nextTargets.length; j++) {
 						// For each creature
 						if (typeof nextTargets[j] == 'undefined') {
@@ -399,37 +570,73 @@ export default (G: Game) => {
 						} // Skip empty ids.
 
 						const t = nextTargets[j].target;
+						const distance = nextTargets[j].distance;
+						const scan = nextTargets[j].scan;
 						// Compare to best target
-						if (t.stats.shock > bestTarget.stats.shock) {
-							if (
-								(t == ability.creature && nextTargets.length == 1) || // If target is Impaler and the only target
-								t != ability.creature
-							) {
-								// Or this is not Impaler
-								bestTarget = t;
-							}
-						} else {
-							continue;
+						if (
+							distance < bestDistance ||
+							(distance === bestDistance && t.stats.shock < bestShock) ||
+							(distance === bestDistance && t.stats.shock === bestShock && scan < bestScan)
+						) {
+							bestTarget = t;
+							bestDistance = distance;
+							bestShock = t.stats.shock;
+							bestScan = scan;
 						}
 					}
 
 					if (bestTarget instanceof Creature) {
 						targets.push(bestTarget);
-						G.Phaser.camera.shake(0.03, 220, true, G.Phaser.camera.SHAKE_HORIZONTAL, true);
+						shakeBoard({
+							amplitude: 0.03,
+							durationMs: 220,
+							force: true,
+							axis: 'horizontal',
+						});
 					} else {
 						break;
+					}
+				}
+
+				// Chain Lightning eye candy: arc the strike between every
+				// creature it hit, in the order it hit them. `targets` holds
+				// the whole chain in sequence, so one bolt per consecutive
+				// pair is the lightning jumping from unit to unit. The arc
+				// sparks off the Impaler's nose tip — where the javelin
+				// points — and connects to each victim's mid-body.
+				if (G.gameEngine && targets.length > 0) {
+					let deepestRow = ability.creature.y;
+					for (const trg of targets) {
+						deepestRow = Math.max(deepestRow, trg.y);
+					}
+					spawnChainLightning(G.gameEngine, [savedNoseTip, ...targets], {
+						parent: G.grid.creatureGroup,
+						surfaceSource: { textures: G.Phaser?.textures },
+						depth: getDepthAtBand(deepestRow, 'EFFECT_OVER_UNITS'),
+					});
+
+					// Flip back after the lightning vanishes (lifetimeMs 420).
+					const defaultDir = caster.player.flipped ? -1 : 1;
+					if (savedScaleX !== defaultDir) {
+						setTimeout(() => {
+							if (!caster.dead && caster.sprite.scale.x !== defaultDir) {
+								caster.facePlayerDefault();
+							}
+						}, 420);
 					}
 				}
 			},
 
 			_getHexes: function () {
-				return G.grid.getHexMap(
-					this.creature.x - 3,
-					this.creature.y - 2,
-					0,
-					false,
-					matrices.frontnback3hex,
+				const range = this.isUpgraded() ? 2 : 1;
+				const hexes = G.grid.hexes[this.creature.y][this.creature.x].adjacentHex(range);
+				const extended = arrayUtils.extendToLeft(hexes, this.creature.size, G.grid);
+				const occupied = new Set(
+					this.creature.hexagons
+						.filter((h) => h.creature === this.creature)
+						.map((h) => `${h.x},${h.y}`),
 				);
+				return extended.filter((h) => !occupied.has(`${h.x},${h.y}`));
 			},
 		},
 	];

@@ -9,6 +9,7 @@ import { PreMatchAudioPlayer } from './sound/pre-match-audio';
 import { Fullscreen } from './ui/fullscreen';
 import { buttonSlide } from './ui/button';
 import { normalizeLobbyCode } from './multiplayer/types';
+import { applyPortraitScale, refreshScale } from './game-display/scale';
 
 import { installAvatarStyles } from './style/avatar-styles';
 import {
@@ -19,6 +20,9 @@ import {
 	DEBUG_HAS_GAME_LOG,
 } from './debug';
 import { getDevvitAppVersion, getGameVersion } from './utility/clientVersion';
+import { prefetchPhaser } from './phaser/runtime';
+import type { ReplayMode } from './utility/gamelog';
+import { GameSnapshotSerializer } from './engine/GameSnapshot';
 
 if (DEBUG && 'serviceWorker' in navigator) {
 	navigator.serviceWorker
@@ -47,16 +51,28 @@ AB.currentGame = G;
 AB.getLog = () => AB.currentGame.gamelog.stringify();
 AB.saveLog = () => AB.currentGame.gamelog.save();
 AB.restoreGame = (str) => AB.currentGame.gamelog.load(str);
+AB.playGame = (str) => AB.currentGame.gamelog.play(str);
 window.AB = AB;
 // Load the abilities
-unitData.forEach(async (creature) => {
+// `import.meta.glob` is required here: a fully dynamic `import()` specifier has
+// no static part for the bundler to resolve, so it is left as a bare runtime
+// request that 404s against the deployed bundle.
+const abilityModules = import.meta.glob<{ default: (game: Game) => void }>('./abilities/*.ts');
+
+unitData.forEach((creature) => {
 	if (!creature.playable) {
 		return;
 	}
 
-	import(`./abilities/${creature.name.split(' ').join('-')}`).then((generator) =>
-		generator.default(G),
-	);
+	const modulePath = `./abilities/${creature.name.split(' ').join('-')}.ts`;
+	const loadAbility = abilityModules[modulePath];
+
+	if (!loadAbility) {
+		console.error(`[Ability] No module found for ${creature.name} (${modulePath})`);
+		return;
+	}
+
+	loadAbility().then((generator) => generator.default(G));
 });
 
 $j(() => {
@@ -85,20 +101,24 @@ $j(() => {
 			$j('#bottompanel').show();
 		}
 
-		if (G.Phaser && G.Phaser.scale) {
-			G.Phaser.scale.parentIsWindow = !isPortrait;
-			G.Phaser.scale.pageAlignVertically = !isPortrait;
-			G.Phaser.scale.refresh();
-			window.setTimeout(() => {
-				if (G.Phaser && G.Phaser.scale) {
-					G.Phaser.scale.refresh();
+		if (G.Phaser) {
+			try {
+				const scale = G.Phaser.scale;
+				if (scale) {
+					applyPortraitScale(scale, isPortrait);
+					// The mobile browser has usually not finished laying out for the
+					// new orientation when this handler runs, so a second pass a
+					// moment later is what actually lands the right size.
+					window.setTimeout(() => {
+						try {
+							refreshScale(G.Phaser?.scale);
+						} catch {}
+					}, 100);
+					window.setTimeout(() => {
+						window.dispatchEvent(new Event('resize'));
+					}, 250);
 				}
-			}, 100);
-			window.setTimeout(() => {
-				if (G.Phaser && G.Phaser.scale) {
-					window.dispatchEvent(new Event('resize'));
-				}
-			}, 250);
+			} catch {}
 		}
 
 		if (wasPortrait && !isPortrait && G.UI) {
@@ -126,6 +146,12 @@ $j(() => {
 	});
 	scrim.removeClass('loading');
 	renderGameModeType(G.multiplayer);
+
+	// The pre-match screen is up and interactive, so this is a safe moment to pull
+	// the Phaser chunk down in the background. Deferring it keeps it off the
+	// critical path; prefetching it here means the first match still starts without
+	// waiting on a download the player could not have avoided anyway.
+	prefetchPhaser();
 
 	let isJoiningLobby = false;
 
@@ -168,7 +194,9 @@ $j(() => {
 					gameMode: 2,
 					players: [0],
 				};
-				G.loadGame(botConfig);
+				void G.loadGame(botConfig).catch((error) => {
+					console.error('[Game] Could not start the bot match', error);
+				});
 			} else if (devvitLaunch.mode === 'queue') {
 				// The splash already opened expanded mode on the click gesture; now we
 				// run the existing, tested queue flow (poll + countdown) in the larger
@@ -398,15 +426,33 @@ $j(() => {
 		},
 		KeyL: {
 			keyDownTest(event) {
-				return event.metaKey && event.ctrlKey;
+				return (
+					!isTyping(event) && (event.ctrlKey || event.metaKey) && !event.shiftKey && !event.altKey
+				);
 			},
 			keyDownAction() {
-				readLogFromFile()
-					.then((log) => G.gamelog.load(log as string))
-					.catch((err) => {
-						alert('An error occurred while loading the log file');
-						console.log(err);
-					});
+				openReplayFile('load');
+			},
+		},
+		KeyS: {
+			keyDownTest(event) {
+				if (isTyping(event)) return false;
+				// Shift+S: save snapshot
+				if (event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey) {
+					return true;
+				}
+				// Bare S during replay: toggle fast-forward
+				if (!event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey) {
+					return AB.currentGame?.isReplayInProgress === true;
+				}
+				return false;
+			},
+			keyDownAction(event) {
+				if (event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey) {
+					AB.currentGame?.saveSnapshot?.();
+				} else if (!event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey) {
+					AB.currentGame?.toggleReplayFastForward?.();
+				}
 			},
 		},
 		Digit1: {
@@ -678,7 +724,13 @@ $j(() => {
 
 	const startGame = () => {
 		G.multiplayer = false;
-		G.loadGame(getGameConfig());
+		// Starting a fresh live match (left-click Start) clears any replay state
+		// so a failed right-click replay doesn't prevent the new match's log
+		// from being persisted on unload.
+		G.gamelog.loadedFromLog = false;
+		void G.loadGame(getGameConfig()).catch((error) => {
+			console.error('[Game] Could not start the match', error);
+		});
 	};
 
 	const restoreGameLog = (log) => {
@@ -686,7 +738,7 @@ $j(() => {
 	};
 
 	const storeLastMatchLog = () => {
-		if (!DEBUG || G.gameState === 'initialized') {
+		if (!DEBUG || G.gameState === 'initialized' || G.gamelog.loadedFromLog) {
 			return;
 		}
 
@@ -880,6 +932,17 @@ $j(() => {
 			$joinButton.val("Can't Join");
 			$joinButton.prop('disabled', true);
 			$joinButton.toggleClass('disabled', true);
+
+			const errorMessage = error instanceof Error ? error.message : String(error);
+			const $lobbyError = $j('#lobbyError');
+			$lobbyError.text(errorMessage).removeClass('hide');
+			window.setTimeout(() => {
+				$lobbyError.addClass('hide').text('');
+				$joinButton.val('Join Match');
+				$joinButton.prop('disabled', false);
+				$joinButton.toggleClass('disabled', false);
+				updateLobbyUi();
+			}, 10000);
 		}
 
 		return false;
@@ -998,7 +1061,7 @@ async function startDevvitBotPractice(playerId: string) {
 			gameMode: 2,
 			players: [0],
 		};
-		G.loadGame(config);
+		await G.loadGame(config);
 	} catch (error) {
 		console.error('Bot practice error:', error);
 		$j('#devvitQueueStatus').text('Could not start bot practice, try again!');
@@ -1215,17 +1278,21 @@ function readLogFromFile() {
 	// TODO: This would probably be better off in ./src/utility/gamelog.ts
 	return new Promise((resolve, reject) => {
 		const fileInput = document.createElement('input') as HTMLInputElement;
-		fileInput.accept = '.ab';
+		fileInput.accept = '.ab,.abs';
 		fileInput.type = 'file';
 
 		fileInput.onchange = (event) => {
-			const file = (event.target as HTMLInputElement).files[0];
+			const file = (event.target as HTMLInputElement).files?.[0];
+			if (!file) {
+				reject(new Error('No game log file selected'));
+				return;
+			}
 			const reader = new FileReader();
 
 			reader.readAsText(file);
 
 			reader.onload = () => {
-				resolve(reader.result);
+				resolve({ content: reader.result, name: file.name });
 			};
 
 			reader.onerror = () => {
@@ -1235,6 +1302,28 @@ function readLogFromFile() {
 
 		fileInput.click();
 	});
+}
+
+function openReplayFile(mode: ReplayMode) {
+	readLogFromFile()
+		.then(({ content, name }) => {
+			const isSnapshot =
+				name.endsWith('.abs') || GameSnapshotSerializer.isSnapshotString(content as string);
+			if (isSnapshot) {
+				AB.currentGame?.loadSnapshot?.(content as string);
+			} else if (mode === 'load') {
+				G.gamelog.load(content as string);
+			} else {
+				G.gamelog.play(content as string);
+			}
+		})
+		.catch((err) => {
+			if (err instanceof Error && err.message === 'No game log file selected') {
+				return;
+			}
+			alert('An error occurred while loading the log file');
+			console.error(err);
+		});
 }
 
 /**

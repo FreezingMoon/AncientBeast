@@ -1,5 +1,30 @@
 import Game from '../game';
-import * as Phaser from 'phaser-ce';
+import { createGameCanvasSurface, type CanvasSurface } from '../game-display/canvas-surface';
+
+/**
+ * Structural view of a Phaser 4 render/dynamic texture: Phaser 4 dropped the
+ * Phaser 2 `BitmapData` class, so the drawing surface is read through these
+ * members instead.
+ */
+export type TextureFrameRect = {
+	x: number;
+	y: number;
+	width: number;
+	height: number;
+	cutX?: number;
+	cutY?: number;
+	cutWidth?: number;
+	cutHeight?: number;
+	canvasData?: { x: number; y: number; width: number; height: number };
+};
+
+export interface DrawableTexture {
+	crop?: TextureFrameRect;
+	frame?: TextureFrameRect;
+	baseTexture?: { source?: CanvasImageSource };
+	width?: number;
+	height?: number;
+}
 
 export interface TextureFrameInfo {
 	frame: { x: number; y: number; width: number; height: number };
@@ -13,16 +38,25 @@ export interface TextureFrameInfo {
  * Handles missing/fallback values for crop, frame, and dimensions.
  */
 export function extractTextureFrameInfo(
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	texture: Phaser.RenderTexture | any,
+	texture: DrawableTexture,
 	defaultFrame?: { x: number; y: number; width: number; height: number },
 ): TextureFrameInfo | null {
-	const frame = texture.crop ?? texture.frame ?? defaultFrame;
+	const raw = (texture.frame ?? texture.crop ?? defaultFrame) as TextureFrameRect | undefined;
 	const source = texture.baseTexture?.source;
 
-	if (!source || !frame) {
+	if (!source || !raw) {
 		return null;
 	}
+
+	// Phaser 4 samples `frame.source.image` at `(cutX, cutY)` with size
+	// `(cutWidth, cutHeight)`; the display `x/y/width/height` is the trimmed
+	// box, so prefer the cut rect to avoid copying the wrong region.
+	const frame = {
+		x: raw.cutX ?? raw.canvasData?.x ?? raw.x,
+		y: raw.cutY ?? raw.canvasData?.y ?? raw.y,
+		width: raw.cutWidth ?? raw.canvasData?.width ?? raw.width,
+		height: raw.cutHeight ?? raw.canvasData?.height ?? raw.height,
+	};
 
 	return {
 		frame,
@@ -33,17 +67,18 @@ export function extractTextureFrameInfo(
 }
 
 /**
- * Create a BitmapData from texture frame with optional horizontal flip.
- * Centralizes canvas setup: clearRect, drawImage, dirty flag.
+ * Copy a texture frame onto a fresh surface, with an optional horizontal flip.
+ *
+ * Centralizes canvas setup: clear, draw, commit.
  */
 export function createBitmapDataFromTexture(
 	game: Game,
 	textureFrameInfo: TextureFrameInfo,
 	flipHorizontally?: boolean,
-): Phaser.BitmapData {
+): CanvasSurface {
 	const { frame, source, width, height } = textureFrameInfo;
-	const bmd = game.Phaser.add.bitmapData(width, height);
-	const { ctx } = bmd;
+	const surface = createGameCanvasSurface(game, width, height);
+	const { ctx } = surface;
 
 	ctx.clearRect(0, 0, width, height);
 
@@ -59,6 +94,6 @@ export function createBitmapDataFromTexture(
 		ctx.restore();
 	}
 
-	bmd.dirty = true;
-	return bmd;
+	surface.commit();
+	return surface;
 }
