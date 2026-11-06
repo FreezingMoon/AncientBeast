@@ -91,6 +91,45 @@ const CURSOR_SPIN_SPEED = 2;
 const spinningCursors = new Set<Hex>();
 let cursorSpinFrame: number | null = null;
 
+/** One cursor over ability highlighting, which shares the hex's overlay sprite. */
+let hoverCursorSprite: SpriteHandle | null = null;
+let hoverCursorHex: Hex | null = null;
+
+/** Show or hide the shared hover cursor for `hex`. */
+function updateHoverCursor(hex: Hex, show: boolean): void {
+	if (!show) {
+		// Only the hex currently carrying the cursor may retire it; every other
+		// hex is restyled far more often than the cursor moves.
+		if (hoverCursorHex === hex) {
+			hoverCursorHex = null;
+			if (hoverCursorSprite && hoverCursorSprite.active !== false) {
+				hoverCursorSprite.visible = false;
+			}
+		}
+		return;
+	}
+	if (!hoverCursorSprite || hoverCursorSprite.active === false) {
+		// The board is destroyed and rebuilt between matches, taking the sprite
+		// with it, so a dead handle is re-created rather than reused.
+		hoverCursorSprite = hex.game.gameEngine.add.sprite(
+			0,
+			0,
+			'input',
+			undefined,
+			hex.grid.overlayHexesGroup,
+		);
+		hoverCursorSprite.setOrigin(0.5, 0.5);
+	}
+	hoverCursorHex = hex;
+	hoverCursorSprite.visible = true;
+	hoverCursorSprite.alpha = 1;
+	// Match the overlay's footprint, so shrunken ability hexes get a cursor
+	// shrunken to the same size.
+	hoverCursorSprite.setScale(hex.overlay.scaleX ?? 1, hex.overlay.scaleY ?? 1);
+	alignIn(hoverCursorSprite, hex.hitBox, ALIGN_CENTER);
+	hex.grid.overlayHexesGroup.bringToTop(hoverCursorSprite);
+}
+
 function spinCursors(): void {
 	for (const hex of spinningCursors) {
 		// A cursor whose sprite has been taken out of the world (a board torn down
@@ -113,8 +152,12 @@ function spinCursors(): void {
 		if (hasCrashingGlobeTarget && !hasSwamplerHome) {
 			hex.display.angle += CURSOR_SPIN_SPEED;
 		}
-		if (!hasCrashingGlobeTarget || (hex.overlay.key === 'input' && hex.overlay.alpha > 0)) {
+		// Area highlighting must not rotate with the separate cursor.
+		if (hex.overlay.key === 'input' && hex.overlay.alpha > 0) {
 			hex.overlay.angle += CURSOR_SPIN_SPEED;
+		}
+		if (hex === hoverCursorHex && hoverCursorSprite && hoverCursorSprite.active !== false) {
+			hoverCursorSprite.angle += CURSOR_SPIN_SPEED;
 		}
 	}
 	if (spinningCursors.size === 0) {
@@ -141,6 +184,13 @@ export function stopAllCursorSpinning(): void {
 		cancelAnimationFrame(cursorSpinFrame);
 		cursorSpinFrame = null;
 	}
+	// The shared hover cursor dies with the board, so drop the handle rather
+	// than leave updateHoverCursor() pointing at a removed sprite.
+	if (hoverCursorSprite && hoverCursorSprite.active !== false) {
+		hoverCursorSprite.visible = false;
+	}
+	hoverCursorSprite = null;
+	hoverCursorHex = null;
 }
 
 /**
@@ -1089,19 +1139,32 @@ export class Hex {
 		// resolved alpha — rather than from the absence of a player class, which
 		// is also true of every plain hex — keeps the shared spin loop down to
 		// the one or two cursors the player can see.
-		if (
+		const overlayShowsCursor =
 			!isGlowControlled &&
 			((this.overlay.key === 'input' && this.overlay.alpha > 0) ||
-				(hasCrashingGlobeTarget && this.display.alpha > 0))
-		) {
+				(hasCrashingGlobeTarget && this.display.alpha > 0));
+
+		const showsHoverCursor =
+			!overlayShowsCursor &&
+			!this.forcedHidden &&
+			this.grid?.selectedHex === this &&
+			!this.grid.materialize_overlay?._previewPos &&
+			!this.grid.secondary_overlay?._previewPos &&
+			Boolean(this.overlayClasses.match(/\bhover\b/));
+		updateHoverCursor(this, showsHoverCursor);
+
+		if (overlayShowsCursor || showsHoverCursor) {
 			this.startSpinning();
 		} else {
 			this.stopSpinning();
+		}
+		if (!overlayShowsCursor) {
 			// Unwind the cursor angle as it leaves the cursor role, rather than on
 			// every `updateStyle()`. The angle is only ever non-zero here if this
-			// hex was the targeting cursor a moment ago, and the `then` branch above
-			// means a hex that stays the cursor is never reset — so the sweep stays
-			// smooth while still spinning.
+			// hex was the targeting cursor a moment ago, and a hex whose overlay
+			// stays the cursor is never reset — so the sweep stays smooth while
+			// still spinning. (A hex spinning only for the shared hover cursor is
+			// unwound too: its overlay shows area/confirmation art, not the cursor.)
 			//
 			// Skipping this left the accumulated angle on the sprite permanently:
 			// the overlay texture is a single reused sprite, so the hex that later

@@ -1565,6 +1565,8 @@ export class HexGrid {
 
 			let { x } = hex;
 			const { y } = hex;
+			const hoveredHex = hex;
+			const queryGeneration = this.queryGeneration;
 
 			// Xray
 			this.xray(hex);
@@ -1641,6 +1643,15 @@ export class HexGrid {
 
 				hex = this.hexes[y][x]; // New coords
 				o.fnOnSelect(hex, o.args);
+				// Choice callbacks can clear overlays while filling an entire area.
+				// Mark the actual input hex afterwards, not the size-adjusted anchor.
+				if (
+					this.queryGeneration === queryGeneration &&
+					!this.materialize_overlay?._previewPos &&
+					!this.secondary_overlay?._previewPos
+				) {
+					hoveredHex.overlayVisualState('hover');
+				}
 			} else if (!hex.reachable) {
 				// Reset the query so the movement path traced on the previous reachable
 				// hex (tracePath's `adj` hexes) is cleaned instead of lingering as dark
