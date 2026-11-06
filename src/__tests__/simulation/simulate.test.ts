@@ -19,6 +19,8 @@
  * Default run (20 + 10×10 = 120 games) takes about 45–70 minutes.
  * For a quick smoke-test:  SIM_BASELINE=8 SIM_VARIANT=8 bun run simulate
  * For higher confidence:   SIM_BASELINE=100 SIM_VARIANT=50 bun run simulate
+ * To sweep only some variants (label substring match, comma-separated):
+ *   SIM_SWEEP_FILTER=maxDecisionCount SIM_VARIANT=30 bun run simulate
  *
  * This suite measures balance; it does not enforce it. Beyond the batch-size
  * assertion it now also fails on structural match violations (see
