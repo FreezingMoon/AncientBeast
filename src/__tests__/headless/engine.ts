@@ -35,6 +35,9 @@ import { afterEach, beforeAll, describe, expect, jest, test } from '@jest/global
 import { bootHeadlessMatch, HEADLESS_FRAME_MS, type HeadlessMatch } from '../../phaser/headless';
 import { loadRealPhaser } from '../../phaser/runtime';
 import { Phaser4Engine } from '../../engine/Phaser4Engine';
+import { animateBoomerang } from '../../phaser/boomerang';
+import Game from '../../game';
+import { Hex } from '../../utility/hex';
 
 /** Whether a sprite is part-way along a 0 -> 100 tween. */
 function isPartWay(sp: { x: number }): boolean {
@@ -66,6 +69,35 @@ afterEach(() => {
 });
 
 describe('booting a real HEADLESS match', () => {
+	test.each([false, true])('Boomerang encounters follow the real tween, left=%s', async (left) => {
+		const match = await boot();
+		const engine = new Phaser4Engine(match.game, match.scene);
+		const game = new Game();
+		// The animation needs only a sprite layer, not a fully materialized match.
+		const layer = engine.add.group();
+		Object.defineProperty(game, 'gameEngine', { value: engine });
+		game.grid = { creatureGroup: layer } as Game['grid'];
+		const start = { x: 7, y: 3, displayPos: { x: 630, y: 200 } } as Hex;
+		const direction = left ? -1 : 1;
+		const hexes = [
+			{ x: 7, y: 2, displayPos: { x: 630 + direction * 45, y: 141.5 } },
+			{ x: 7 + direction * 5, y: 3, displayPos: { x: 630 + direction * 450, y: 200 } },
+			{ x: 7, y: 4, displayPos: { x: 630 + direction * 45, y: 258.5 } },
+		] as Hex[];
+		const hit = jest.fn();
+		const complete = jest.fn();
+		animateBoomerang(game, start, hexes, hit, complete);
+		expect(hit).not.toHaveBeenCalled();
+		match.stepFrames(20);
+		expect(hit.mock.calls.map(([hex]) => hex)).toEqual([hexes[0]]);
+		expect(complete).not.toHaveBeenCalled();
+		match.stepFrames(20);
+		expect(hit.mock.calls.map(([hex]) => hex)).toEqual(hexes.slice(0, 2));
+		match.stepFrames(40);
+		expect(hit.mock.calls.map(([hex]) => hex)).toEqual(hexes);
+		expect(complete).toHaveBeenCalledTimes(1);
+	});
+
 	test(
 		'the game boots, runs, and builds the world root',
 		async () => {

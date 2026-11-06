@@ -5,6 +5,7 @@ import { Effect } from '../effect';
 import Game from '../game';
 import { shakeBoard } from '../game-display/camera';
 import { Hex } from '../utility/hex';
+import { animateBoomerang } from '../phaser/boomerang';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -445,18 +446,47 @@ export default (G: Game) => {
 
 			activate: function (hexes: Hex[]) {
 				const ability = this;
-				ability.end();
+				ability.end(undefined, true);
 				shakeBoard({ amplitude: 0.02, durationMs: 100, force: true, axis: 'horizontal' });
 
 				const valid = this._getDamageHexes(hexes);
-
 				const targets = ability.getTargets(valid);
-				const hits = this.isUpgraded()
-					? targets.flatMap(({ target, hexesHit }) =>
-							Array.from({ length: hexesHit }, () => ({ target, hexesHit: 1 })),
-					  )
-					: targets;
-				ability.areaDamage(this.creature, { slash: 9 }, [], hits, false);
+				const upgraded = this.isUpgraded();
+				const hitUnits = new Set<number>();
+				const creature = this.creature;
+				const left = hexes.length > 0 && hexes[0].x < creature.x;
+				const start = G.grid.hexes[creature.y][left ? creature.x - creature.size + 1 : creature.x];
+				animateBoomerang(
+					G,
+					start,
+					valid,
+					(hex) => {
+						const target = hex.creature;
+						if (!target || target.dead || (!upgraded && hitUnits.has(target.id))) {
+							return;
+						}
+						const area = targets.find((entry) => entry.target === target)?.hexesHit;
+						if (!area) {
+							return;
+						}
+						hitUnits.add(target.id);
+						ability.areaDamage(
+							creature,
+							{ slash: 9 },
+							[],
+							[{ target, hexesHit: upgraded ? 1 : area }],
+							false,
+						);
+					},
+					() => {
+						const kills = targets.filter(({ target }) => target.dead).length;
+						if (kills > 1) {
+							creature.player.score.push({ type: 'combo', kills });
+						}
+						G.activeCreature?.queryMove();
+					},
+					upgraded,
+				);
 			},
 		},
 	];

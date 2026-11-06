@@ -2,6 +2,10 @@ import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+jest.mock('../../phaser/boomerang', () => ({
+	animateBoomerang: jest.fn(),
+}));
+
 jest.mock('phaser', () => ({
 	Math: {
 		Vector2: class Vector2Mock {
@@ -95,6 +99,7 @@ import { Creature } from '../../creature';
 import { Damage } from '../../damage';
 import { unitData } from '../../data/units';
 import $j from 'jquery';
+import { animateBoomerang } from '../../phaser/boomerang';
 
 (globalThis as { Phaser?: unknown }).Phaser = {};
 
@@ -102,6 +107,10 @@ describe('Headless abilities', () => {
 	let game: any;
 
 	beforeEach(() => {
+		jest.mocked(animateBoomerang).mockImplementation((_game, _start, hexes, onHit, onComplete) => {
+			hexes.forEach(onHit);
+			onComplete();
+		});
 		game = {
 			abilities: [],
 			creatureData: [],
@@ -555,6 +564,50 @@ describe('Headless abilities', () => {
 				areaDamage: Ability.prototype.areaDamage,
 			};
 		}
+
+		test.each([false, true])('damage waits for projectile encounters, upgraded=%s', (upgraded) => {
+			const boomerang = createBoomerang(7, 4, false, upgraded);
+			const choice = boomerang._getHexes(false);
+			const occupied = choice.filter((hex) => hex.y === 3).slice(0, 3);
+			const target = new (Creature as any)({ id: 250, size: 3 });
+			occupied.forEach((hex) => {
+				hex.creature = target;
+			});
+			const queryMove = jest.fn();
+			game.activeCreature = { queryMove };
+			let hit: (hex: any) => void;
+			let complete: () => void;
+			jest
+				.mocked(animateBoomerang)
+				.mockImplementationOnce((_game, start, _hexes, onHit, onComplete, vertigo) => {
+					expect(start).toBe(game.grid.hexes[4][7]);
+					expect(vertigo).toBe(upgraded);
+					hit = onHit;
+					complete = onComplete;
+				});
+
+			boomerang.activate(choice);
+			expect(boomerang.end).toHaveBeenCalledWith(undefined, true);
+			expect(target.takeDamage).not.toHaveBeenCalled();
+			expect(queryMove).not.toHaveBeenCalled();
+			for (const [index, hex] of occupied.entries()) {
+				hit(hex);
+				expect(target.takeDamage).toHaveBeenCalledTimes(upgraded ? index + 1 : 1);
+			}
+			complete();
+			expect(queryMove).toHaveBeenCalledTimes(1);
+		});
+
+		test.each([false, true])(
+			'left throws start from the left-facing front hex, flipped=%s',
+			(flipped) => {
+				const boomerang = createBoomerang(7, 4, flipped, false);
+				jest.mocked(animateBoomerang).mockImplementationOnce((_game, start) => {
+					expect(start).toBe(game.grid.hexes[4][6]);
+				});
+				boomerang.activate(boomerang._getHexes(!flipped));
+			},
+		);
 
 		test.each([false, true])(
 			'calculates finite damage for a three-hex target with merged card metadata, upgraded=%s',
