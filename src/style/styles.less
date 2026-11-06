@@ -3512,12 +3512,22 @@ input {
 }
 
 /*------------------Interface-------------------*/
-@media screen and (min-height: 200px) and (max-height: 479px) and (orientation: landscape) {
+@media screen and (max-height: 512px) and (orientation: landscape) {
 	#queue {
 		left: 0;
 		bottom: 0;
 		transform: scale(0.55);
 		transform-origin: left bottom;
+	}
+	#queue .vignette.creature:not(.active),
+	#queue .vignette.roundmarker {
+		height: 56px;
+		width: 56px;
+		margin-top: 24px;
+	}
+	#queue .vignette.creature:not(.active) .stats,
+	#queue .vignette.roundmarker .stats {
+		top: 100%;
 	}
 	#leftpanel {
 		left: 0;
@@ -3531,7 +3541,9 @@ input {
 		transform: scale(0.55);
 		transform-origin: right bottom;
 	}
+}
 
+@media screen and (min-height: 200px) and (max-height: 479px) and (orientation: landscape) {
 	#scoreboardTitle {
 		font-size: medium;
 		margin: 0px !important;
@@ -3561,12 +3573,18 @@ input {
 	}
 }
 
-@media screen and (min-height: 320px) and (max-height: 479px) and (orientation: landscape) {
+@media screen and (min-height: 320px) and (max-height: 512px) and (orientation: landscape) {
 	#queue {
 		left: 0;
 		bottom: 0;
 		transform: scale(0.7);
 		transform-origin: left bottom;
+	}
+	#queue .vignette.creature:not(.active),
+	#queue .vignette.roundmarker {
+		height: 64px;
+		width: 64px;
+		margin-top: 16px;
 	}
 	#leftpanel {
 		left: 0;
@@ -3580,7 +3598,9 @@ input {
 		transform: scale(0.7);
 		transform-origin: right bottom;
 	}
+}
 
+@media screen and (min-height: 320px) and (max-height: 479px) and (orientation: landscape) {
 	#scoreboardTitle {
 		font-size: medium;
 		margin: 0px !important;

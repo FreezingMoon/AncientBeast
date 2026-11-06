@@ -1183,6 +1183,7 @@ export class UI {
 		// Rebuild the scoreboard table when the viewport flips between phone
 		// landscape and desktop so the transposed layout follows the screen.
 		const rebuildScoreboardOnResize = () => {
+			this.queue.resize();
 			if (this.$scoreboard.hasClass('hide')) {
 				return;
 			}
