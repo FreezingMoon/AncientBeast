@@ -25,10 +25,6 @@ interface JQuery<T = HTMLElement> extends ArrayLike<T> {
 	[index: number]: T;
 }
 
-interface JQueryStatic {
-	(selector: string | HTMLElement | JQuery<HTMLElement>): JQuery<HTMLElement>;
-}
-
 import $j from 'jquery';
 
 export class MusicPlayer {
