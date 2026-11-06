@@ -2768,7 +2768,7 @@ export class UI {
 		// Landscape phone: reshape the table so stats become columns with
 		// emoji-only headers (text as tooltips) and players become rows.
 		const isLandscapePhone = window.matchMedia(
-			'(orientation: landscape) and (max-height: 479px)',
+			'(orientation: landscape) and (max-height: 540px)',
 		).matches;
 		this.$scoreboard.toggleClass('scoreboard-landscape-phone', isLandscapePhone);
 
@@ -3002,6 +3002,15 @@ export class UI {
 				title: 'Total',
 			},
 		];
+
+		// When there is no time pool (infinite time), the time bonus is always
+		// zero, so drop that row/column from the table to avoid visual bloat.
+		if (!hasFiniteTimePool) {
+			tableMeta.splice(
+				tableMeta.findIndex((row) => row.cls === 'timebonus'),
+				1,
+			);
+		}
 
 		// Desktop vertical table: clear any leftover rows from a previous
 		// landscape layout before rebuilding, so both modes can't coexist
@@ -3259,7 +3268,7 @@ export class UI {
 		// alone would not distinguish the two layouts; the transposed phone
 		// layout uses `<tr class="player_row_N">` rows instead.
 		const isLandscapePhone = window.matchMedia(
-			'(orientation: landscape) and (max-height: 479px)',
+			'(orientation: landscape) and (max-height: 540px)',
 		).matches;
 		const hasPlayerRows = $table.children('tr[class^="player_row_"]').length > 0;
 		const needsRebuild = isLandscapePhone ? !hasPlayerRows : hasPlayerRows;
@@ -3287,12 +3296,13 @@ export class UI {
 			'annihilation',
 			'deny',
 			'pickupDrop',
-			'timebonus',
 			'creaturebonus',
 			'immortal',
 			'upgrade',
 			'total',
-		];
+		].filter((row) => row !== 'timebonus' || hasFiniteTimePool) as Array<
+			keyof ReturnType<(typeof game.players)[number]['getScore']>
+		>;
 
 		for (let i = 0; i < game.gameMode; i++) {
 			if (game.timePool > 0) {
