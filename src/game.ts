@@ -63,6 +63,7 @@ import BotController from './bot';
 import { locationPaths } from '../assets/index';
 import type { GameEngine, SpriteHandle } from './engine/types';
 import { GameStateMachine, type GameState } from './engine/GameStateMachine';
+import { funje } from '../platforms/funje/funje';
 import {
 	clearHoveredHex,
 	onPointerUp,
@@ -889,6 +890,9 @@ export default class Game {
 		// a second match-start delivery arriving during that fetch would still see
 		// 'initialized' and start a competing load.
 		this.gameState = 'loading';
+		if (process.env.VITE_FUNJE_TARGET === 'true') {
+			funje.loadingStart();
+		}
 
 		// The old match's drum roll would keep ringing over the loading screen and
 		// the new music, since loadGame() below swaps in a brand new SoundSys
@@ -965,6 +969,12 @@ export default class Game {
 		// of them. Re-running setup (or the replay scheduler) on those would
 		// re-create the world mid-match.
 		load.onceComplete(() => this.finishLoading());
+		if (process.env.VITE_FUNJE_TARGET === 'true') {
+			load.onceComplete(() => {
+				funje.loadingStop();
+				funje.gameplayStart();
+			});
+		}
 		load.onceComplete(onLoadCompleteFn);
 		this._pendingLoadCompleteFn = onLoadCompleteFn;
 
@@ -2792,6 +2802,9 @@ export default class Game {
 		this.stopTimer();
 		this.activeCreature = undefined;
 		this.gameState = 'ended';
+		if (process.env.VITE_FUNJE_TARGET === 'true') {
+			funje.gameplayStop();
+		}
 		this.disconnectReason = reason;
 
 		// On disconnect, skip score calculation and go straight to UI
