@@ -123,9 +123,11 @@ export class OpenCollectiveBanner {
 		}
 
 		this.allMembers = this.getCachedMembers();
+		console.log(`[OpenCollective] ${this.allMembers.length} cached members`);
 		this.renderContributors();
 
 		if (this.shouldRefreshMembers()) {
+			console.log('[OpenCollective] refreshing members from feed');
 			this.fetchMembers();
 		}
 	}
@@ -138,6 +140,24 @@ export class OpenCollectiveBanner {
 		if (this.hidden) {
 			return;
 		}
+
+		console.error(
+			`[OpenCollective] onViewOpen for ${this.$banner.attr('id')}: cache=${
+				this.allMembers.length
+			}, hidden=${this.hidden}`,
+		);
+
+		// Always re-render contributors on open so this banner instance reflects
+		// the current cached state (e.g. populated by another view at a larger
+		// window) instead of staying stuck on CTA-only from when init() ran with
+		// an empty cache.
+		this.allMembers = this.getCachedMembers();
+		console.error(
+			`[OpenCollective] onViewOpen for ${this.$banner.attr('id')}: reloaded cache=${
+				this.allMembers.length
+			}`,
+		);
+		this.renderContributors();
 
 		this.refreshMarqueeMetrics();
 		this.startMarquee();
@@ -349,8 +369,14 @@ export class OpenCollectiveBanner {
 			})
 			.then((members) => {
 				const normalizedMembers = this.normalizeMembers(members);
+				console.log(
+					`[OpenCollective] ${members.length} raw members -> ${normalizedMembers.length} active donors`,
+				);
 				if (!normalizedMembers.length) {
-					throw new Error('No OpenCollective members available for banner');
+					// No active donors yet - fall back to CTA-only view (already
+					// rendered in init() / onViewOpen()). Not an error, just no
+					// sponsors to display.
+					return;
 				}
 
 				this.allMembers = normalizedMembers;
@@ -358,8 +384,10 @@ export class OpenCollectiveBanner {
 				localStorage.setItem(OPEN_COLLECTIVE_CACHE_TIME_KEY, Date.now().toString());
 				this.renderContributors();
 			})
-			.catch(() => {
-				// Keep whichever members are already rendered.
+			.catch((error) => {
+				// Surface fetch / normalization failures so they can be diagnosed
+				// instead of silently leaving a CTA-only widget forever.
+				console.warn('[OpenCollective] Failed to load sponsors', error);
 			})
 			.finally(() => {
 				this.isFetching = false;
@@ -438,6 +466,11 @@ export class OpenCollectiveBanner {
 
 	renderContributors() {
 		const contributors = this.getOrderedContributors();
+		console.error(
+			`[OpenCollective] renderContributors for ${this.$banner.attr('id')}: contributors=${
+				contributors.length
+			}`,
+		);
 		if (!contributors.length) {
 			this.renderCtaOnly();
 			return;
