@@ -1734,28 +1734,26 @@ export class Animations {
 											if (hex.displayPos.y > maxY) maxY = hex.displayPos.y;
 										}
 									}
-									const edgeX = dir > 0 ? maxX : minX;
-									const windupX = grp.x + cardboardSprite.x + eyeOffsetX + (dir > 0 ? -fullHeight * 0.4 : fullHeight * 0.4);
+									const windupX =
+										grp.x +
+										cardboardSprite.x +
+										eyeOffsetX +
+										(dir > 0 ? -fullHeight * 0.4 : fullHeight * 0.4);
 
 									game.gameEngine
 										.tween(malletSprite)
-										.to(
-											{ x: windupX, angle: dir > 0 ? -15 : 15 },
-											150,
-											Easing.Cubic.Out,
-											true,
-										)
+										.to({ x: windupX, angle: dir > 0 ? -15 : 15 }, 150, Easing.Cubic.Out, true)
 										.onComplete.add(() => {
 											// Phase 4: Strike - rotate 90 deg, head horizontal over target
 											game.soundsys.playSFX('sounds/swing2');
 											const fullH = malletSprite.height * 1.0;
-									const fullW = malletSprite.width * 1.0;
-									// Head (right side when horizontal) at right edge of target area
-									const mult = dir > 0 ? 0.8 : 1.0;
-									const baseX = dir > 0 ? maxX : minX;
-									const strikeX = dir > 0 ? baseX - fullH * mult : baseX + fullH * mult;
-									// Bottom of hammer at bottom row of target area
-									const strikeY = maxY - fullW * 0.5 - 40;
+											const fullW = malletSprite.width * 1.0;
+											// Head (right side when horizontal) at right edge of target area
+											const mult = dir > 0 ? 0.8 : 1.0;
+											const baseX = dir > 0 ? maxX : minX;
+											const strikeX = dir > 0 ? baseX - fullH * mult : baseX + fullH * mult;
+											// Bottom of hammer at bottom row of target area
+											const strikeY = maxY - fullW * 0.5 - 40;
 
 											game.gameEngine
 												.tween(malletSprite)
@@ -1765,38 +1763,49 @@ export class Animations {
 													Easing.Cubic.In,
 													true,
 												)
-										.onComplete.add(() => {
-											// Trigger damage
-											opts.onHit?.();
-											// Hold at impact
-											game.gameEngine
-												.tween(malletSprite)
-												.to({ angle: dir > 0 ? 100 : -100 }, holdDuration, Easing.Quadratic.Out, true)
 												.onComplete.add(() => {
-													// Phase 5: Return + scale down + morph back
+													// Trigger damage
+													opts.onHit?.();
+													// Hold at impact
 													game.gameEngine
 														.tween(malletSprite)
 														.to(
-															{
-																x: grp.x + cardboardSprite.x + eyeOffsetX,
-																y: cardboardBottomY,
-																angle: 0,
-																scaleX: initialScaleX,
-																scaleY: initialScaleY,
-															},
-															phase5Duration,
-															Easing.Quadratic.In,
+															{ angle: dir > 0 ? 100 : -100 },
+															holdDuration,
+															Easing.Quadratic.Out,
 															true,
 														)
 														.onComplete.add(() => {
-															// Final morph back to cardboard proportions
+															// Phase 5: Return + scale down + morph back
 															game.gameEngine
-																.tween(malletSprite.scale)
-																.to({ x: initialScaleX * 0.85, y: initialScaleY * 1.1 }, 150, Easing.Quadratic.Out, true)
+																.tween(malletSprite)
+																.to(
+																	{
+																		x: grp.x + cardboardSprite.x + eyeOffsetX,
+																		y: cardboardBottomY,
+																		angle: 0,
+																		scaleX: initialScaleX,
+																		scaleY: initialScaleY,
+																	},
+																	phase5Duration,
+																	Easing.Quadratic.In,
+																	true,
+																)
 																.onComplete.add(() => {
-																	cardboardSprite.visible = true;
-																	malletSprite.destroy();
-																	opts.callback?.();
+																	// Final morph back to cardboard proportions
+																	game.gameEngine
+																		.tween(malletSprite.scale)
+																		.to(
+																			{ x: initialScaleX * 0.85, y: initialScaleY * 1.1 },
+																			150,
+																			Easing.Quadratic.Out,
+																			true,
+																		)
+																		.onComplete.add(() => {
+																			cardboardSprite.visible = true;
+																			malletSprite.destroy();
+																			opts.callback?.();
+																		});
 																});
 														});
 												});
@@ -1804,7 +1813,6 @@ export class Animations {
 								});
 						});
 				});
-											});
 		};
 
 		if (isTextureReady(malletTextureKey)) {
