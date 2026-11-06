@@ -559,6 +559,12 @@ export async function createGame(abilities: Array<(G: any) => void>): Promise<an
 		if (this.gameState === 'ended') return;
 		this.stopTimer?.();
 		setTimeout(() => {
+			// Mirror game.ts:nextCreature's `tornDown` guard: this raw timer is not
+			// tracked by `_cancelDeferredTimers`, so without it the callback can fire
+			// after `disposeGame()` tore the board down (or after the match ended) and
+			// activate a creature whose hexagons were already cleaned — crashing any
+			// onStartPhase ability (e.g. Infernal's Scorched Ground `hex.createTrap`).
+			if (this.tornDown || this.gameState === 'ended') return;
 			if (this.queue.isCurrentEmpty() || this.turn === 0) {
 				this.nextRound();
 				return;
