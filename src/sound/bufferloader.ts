@@ -1,5 +1,15 @@
 export class BufferLoader {
-	constructor(context, urlList, callback) {
+	context: AudioContext;
+	urlList: string[];
+	onload: (bufferList: AudioBuffer[]) => void;
+	bufferList: AudioBuffer[];
+	loadCount: number;
+
+	constructor(
+		context: AudioContext,
+		urlList: string[],
+		callback: (bufferList: AudioBuffer[]) => void,
+	) {
 		this.context = context;
 		this.urlList = urlList;
 		this.onload = callback;
@@ -7,7 +17,7 @@ export class BufferLoader {
 		this.loadCount = 0;
 	}
 
-	loadBuffer(url, index) {
+	loadBuffer(url: string, index: number): void {
 		// Load buffer asynchronously
 		const request = new XMLHttpRequest();
 
@@ -17,7 +27,7 @@ export class BufferLoader {
 		request.onload = () => {
 			// Asynchronously decode the audio file data in request.response
 			this.context.decodeAudioData(
-				request.response,
+				request.response as ArrayBuffer,
 				(buffer) => {
 					if (!buffer) {
 						alert('error decoding file data: ' + url);
@@ -42,7 +52,7 @@ export class BufferLoader {
 		request.send();
 	}
 
-	load() {
+	load(): void {
 		for (let i = 0, len = this.urlList.length; i < len; ++i) {
 			this.loadBuffer(this.urlList[i], i);
 		}

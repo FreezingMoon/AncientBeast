@@ -19,6 +19,9 @@ import {
 	AFTERIMAGE_SPEED_BOOST,
 	spawnProjectileVertigoTrail,
 } from './vertigo';
+import { loadTexture, isTextureReady } from './assets';
+import { getFrameSize } from './game-display/texture';
+import { getDepthAtBand } from './game-display/layer';
 
 // to fix @ts-expect-error 2554: properly type the arguments for the trigger functions in `game.ts`
 
@@ -61,6 +64,7 @@ type AnimationOptions = {
 	teleportEffect?: 'abolishedBonfire';
 	createTeleportDestinationTraps?: () => Trap[];
 	callback?: () => void;
+	onHit?: () => void;
 	callbackStepIn?: (hex?: Hex) => void;
 	pushed?: boolean;
 	turnAroundOnComplete?: boolean;
@@ -1621,7 +1625,7 @@ export class Animations {
 				undefined,
 				game.grid.creatureGroup,
 			),
-			duration = dist * 75;
+			duration = game.replayMode === 'load' ? 1 : dist * 75;
 
 		sprite.setOrigin(0.5, 0.5);
 		const rotation = -Math.PI / 3 + (args.direction * Math.PI) / 3;
@@ -1646,6 +1650,176 @@ export class Animations {
 		}
 
 		return [tween, sprite, dist];
+	}
+
+	gummyMallet(ability: Ability, targetHexes: Hex[], opts: AnimationOptions) {
+		const game = this.game;
+		const creature = ability.creature;
+		const sprite = creature.creatureSprite;
+		const grp = sprite.grp;
+		const cardboardSprite = sprite.sprite;
+
+		const { height: cardboardHeight } = getFrameSize(cardboardSprite);
+
+		const dir = cardboardSprite.scaleX < 0 ? -1 : 1;
+
+		const malletTextureKey = 'Gumble - Gummy Mallet';
+		const malletManifestKey = 'units/sprites/Gumble - Gummy Mallet';
+
+		const runAnimation = () => {
+			// Hide Gumble's cardboard while hammer is visible
+			cardboardSprite.visible = false;
+
+			const cardboardBottomY = grp.y + cardboardSprite.y;
+
+			// Eye alignment: shift mallet slightly right so eyes match
+			const eyeOffsetX = dir > 0 ? 8 : -8;
+
+			const malletSprite = game.gameEngine.add.sprite(
+				grp.x + cardboardSprite.x + eyeOffsetX,
+				cardboardBottomY,
+				malletTextureKey,
+				undefined,
+				game.grid.creatureGroup,
+			);
+			malletSprite.setOrigin(0.5, 1); // Bottom-center anchor
+			malletSprite.setDepth(getDepthAtBand(99, 'EFFECT_OVER_UNITS'));
+
+			// Scale to match cardboard height (proper aspect ratio)
+			const initialScaleY = cardboardHeight / malletSprite.height;
+			const initialScaleX = initialScaleY * dir;
+			// Shapeshift: start slightly squished (cardboard-like), then morph
+			malletSprite.setScale(initialScaleX * 0.85, initialScaleY * 1.1);
+
+			const targetHex = targetHexes[0];
+			const targetPos = targetHex.displayPos;
+
+			const phase1Duration = 300; // Shapeshift: cardboard -> mallet
+			const phase2Duration = 250; // Scale up to full size
+			const phase3Duration = 200; // Hover up
+			const phase4Duration = 300; // Swing horizontally to target
+			const holdDuration = 100; // Hold at impact
+			const phase5Duration = 350; // Return + scale down + morph back
+
+			// Phase 1: Shapeshift - morph from cardboard proportions to mallet
+			game.gameEngine
+				.tween(malletSprite.scale)
+				.to({ x: initialScaleX, y: initialScaleY }, phase1Duration, Easing.Quadratic.InOut, true)
+				.onComplete.add(() => {
+					// Phase 2: Scale up to full size (bottom anchored)
+					const fullScaleX = dir * 1.0;
+					const fullScaleY = 1.0;
+
+					game.gameEngine
+						.tween(malletSprite.scale)
+						.to({ x: fullScaleX, y: fullScaleY }, phase2Duration, Easing.Back.Out, true)
+						.onComplete.add(() => {
+							// Phase 3: Hover up
+							const fullHeight = malletSprite.height * fullScaleY;
+							const hoverHeight = fullHeight * 0.3;
+							const hoverY = cardboardBottomY - hoverHeight;
+
+							game.gameEngine
+								.tween(malletSprite)
+								.to({ y: hoverY }, phase3Duration, Easing.Quadratic.Out, true)
+								.onComplete.add(() => {
+									// Wind up: pull back AWAY from target
+									let minX = targetPos.x;
+									let maxX = targetPos.x;
+									let maxY = targetPos.y;
+									for (const hex of targetHexes) {
+										if (hex.displayPos) {
+											if (hex.displayPos.x < minX) minX = hex.displayPos.x;
+											if (hex.displayPos.x > maxX) maxX = hex.displayPos.x;
+											if (hex.displayPos.y > maxY) maxY = hex.displayPos.y;
+										}
+									}
+									const windupX =
+										grp.x +
+										cardboardSprite.x +
+										eyeOffsetX +
+										(dir > 0 ? -fullHeight * 0.4 : fullHeight * 0.4);
+
+									game.gameEngine
+										.tween(malletSprite)
+										.to({ x: windupX, angle: dir > 0 ? -15 : 15 }, 150, Easing.Cubic.Out, true)
+										.onComplete.add(() => {
+											// Phase 4: Strike - rotate 90 deg, head horizontal over target
+											game.soundsys.playSFX('sounds/swing2');
+											const fullH = malletSprite.height * 1.0;
+											const fullW = malletSprite.width * 1.0;
+											// Head (right side when horizontal) at right edge of target area
+											const mult = dir > 0 ? 0.8 : 1.0;
+											const baseX = dir > 0 ? maxX : minX;
+											const strikeX = dir > 0 ? baseX - fullH * mult : baseX + fullH * mult;
+											// Bottom of hammer at bottom row of target area
+											const strikeY = maxY - fullW * 0.5 - 40;
+
+											game.gameEngine
+												.tween(malletSprite)
+												.to(
+													{ x: strikeX, y: strikeY, angle: dir > 0 ? 90 : -90 },
+													phase4Duration,
+													Easing.Cubic.In,
+													true,
+												)
+												.onComplete.add(() => {
+													// Trigger damage
+													opts.onHit?.();
+													// Hold at impact
+													game.gameEngine
+														.tween(malletSprite)
+														.to(
+															{ angle: dir > 0 ? 100 : -100 },
+															holdDuration,
+															Easing.Quadratic.Out,
+															true,
+														)
+														.onComplete.add(() => {
+															// Phase 5: Return + scale down + morph back
+															game.gameEngine
+																.tween(malletSprite)
+																.to(
+																	{
+																		x: grp.x + cardboardSprite.x + eyeOffsetX,
+																		y: cardboardBottomY,
+																		angle: 0,
+																		scaleX: initialScaleX,
+																		scaleY: initialScaleY,
+																	},
+																	phase5Duration,
+																	Easing.Quadratic.In,
+																	true,
+																)
+																.onComplete.add(() => {
+																	// Final morph back to cardboard proportions
+																	game.gameEngine
+																		.tween(malletSprite.scale)
+																		.to(
+																			{ x: initialScaleX * 0.85, y: initialScaleY * 1.1 },
+																			150,
+																			Easing.Quadratic.Out,
+																			true,
+																		)
+																		.onComplete.add(() => {
+																			cardboardSprite.visible = true;
+																			malletSprite.destroy();
+																			opts.callback?.();
+																		});
+																});
+														});
+												});
+										});
+								});
+						});
+				});
+		};
+
+		if (isTextureReady(malletTextureKey)) {
+			runAnimation();
+		} else {
+			loadTexture(malletTextureKey, malletManifestKey, runAnimation);
+		}
 	}
 
 	death(creature: Creature, opts: AnimationOptions) {

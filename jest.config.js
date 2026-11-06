@@ -89,7 +89,7 @@ module.exports = {
 
 	// A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
 	moduleNameMapper: {
-		'^assets/(.*)\\.(png|jpg|jpeg|gif|svg|ogg|ico|cur|woff|woff2)$': '<rootDir>/test/fileMock.js',
+		'^assets/(.*)\\.(png|jpg|jpeg|gif|svg|ogg|ico|cur|woff|woff2)$': '<rootDir>/test/fileMock.ts',
 		'^assets/(.*)$': '<rootDir>/assets/$1',
 	},
 
@@ -145,7 +145,7 @@ module.exports = {
 	// Paths to modules that run some code to configure or set up the testing
 	// environment before each test. Registers the `phaser` stub as the runtime so
 	// `getPhaser()` resolves in suites — see the file for why.
-	setupFiles: ['<rootDir>/test/phaser-runtime-setup.js'],
+	setupFiles: ['<rootDir>/test/phaser-runtime-setup.ts'],
 
 	// A list of paths to modules that run some code to configure or set up the testing framework before each test
 	// setupFilesAfterEnv: [],
@@ -159,7 +159,7 @@ module.exports = {
 	// The test environment that will be used for testing. Wraps
 	// `jest-environment-jsdom` to swallow the `ECONNREFUSED` noise jsdom emits for
 	// every asset it tries to fetch — see the file for the exact filter.
-	testEnvironment: '<rootDir>/test/jsdom-environment.js',
+	testEnvironment: '<rootDir>/test/jsdom-environment.ts',
 
 	// Options that will be passed to the testEnvironment
 	// testEnvironmentOptions: {},

@@ -6,7 +6,7 @@ import {
 	serializeState,
 	destroyHeadlessGame,
 	type HeadlessConfig,
-} from './headlessGame';
+} from '../../src/engine/headlessGame';
 import type { AuthoritativeState, Intent } from './authoritativeTypes';
 
 /**

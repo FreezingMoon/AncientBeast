@@ -194,22 +194,20 @@ export const frontbottom1hex: AugmentedMatrix = asAugmentedMatrix(
 
 export const headlessBoomerang: AugmentedMatrix = asAugmentedMatrix(
 	[
-		[0, 0, 0, 0, 0],
-		[0, 1, 1, 1, 1],
-		[0, 1, 1, 1, 1], //origin line
-		[0, 1, 1, 1, 1],
+		[1, 1, 1, 1, 1],
+		[1, 1, 1, 1, 1], // origin line (middle row)
+		[1, 1, 1, 1, 1],
 	],
-	[0, 2],
+	[0, 1],
 );
 
 export const headlessBoomerangUpgraded: AugmentedMatrix = asAugmentedMatrix(
 	[
-		[0, 0, 0, 0, 0, 0],
-		[0, 1, 1, 1, 1, 1],
-		[0, 1, 1, 1, 1, 1], //origin line
-		[0, 1, 1, 1, 1, 1],
+		[1, 1, 1, 1, 1],
+		[1, 1, 1, 1, 1], // origin line (middle row)
+		[1, 1, 1, 1, 1],
 	],
-	[0, 2],
+	[0, 1],
 );
 
 export const fourDistanceCone: AugmentedMatrix = asAugmentedMatrix(

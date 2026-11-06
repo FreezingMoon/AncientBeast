@@ -457,7 +457,7 @@ describe('Creature', () => {
 
 		const getScavengerMock = () => {
 			const obj = getCreatureObjMock();
-			obj.stats.movement = 7;
+			obj.vitals.movement = 7;
 			return obj;
 		};
 
@@ -982,7 +982,7 @@ const getRandomString = (length: number) => {
 
 const getCreatureObjMock = () => {
 	return {
-		stats: {
+		vitals: {
 			health: 10,
 			movement: 10,
 		},

@@ -4,6 +4,8 @@ import * as matrices from '../utility/matrices';
 import { Effect } from '../effect';
 import Game from '../game';
 import { shakeBoard } from '../game-display/camera';
+import { Hex } from '../utility/hex';
+import { animateBoomerang } from '../phaser/boomerang';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -366,81 +368,124 @@ export default (G: Game) => {
 			},
 		},
 
-		// 	Fourth Ability: Boomerang Tool
+		// Boomerang Tool: three equal rows of up to five hexes per side.
+		// Only the farthest inline hex deals damage; clipping shortens all rows on that side.
 		{
 			//	Type : Can be "onQuery","onStartPhase","onDamage"
 			trigger: 'onQuery',
 
 			damages: {
-				slash: 10,
-				crush: 5,
+				slash: 9,
 			},
 
-			_getHexes: function () {
-				// extra range if upgraded
-				if (this.isUpgraded()) {
-					return matrices.headlessBoomerangUpgraded;
-				} else {
-					return matrices.headlessBoomerang;
+			_getHexes: function (invertFlipped = false): Hex[] {
+				const creature = this.creature;
+				const flipped = creature.player.flipped !== invertFlipped;
+				const inlineStartX = flipped ? creature.x - creature.size : creature.x + 1;
+				const rows: Hex[][] = [];
+				for (const y of [creature.y - 1, creature.y, creature.y + 1]) {
+					const gridRow = G.grid.hexes[y];
+					if (!gridRow) {
+						continue;
+					}
+					// Adjacent rows are shifted half a hex relative to the inline row.
+					const sideOffset = flipped ? 1 - (creature.y % 2) : -(creature.y % 2);
+					const startX = inlineStartX + (y === creature.y ? 0 : sideOffset);
+					const row: Hex[] = [];
+					for (let distance = 0; distance < 5; distance++) {
+						const hex = gridRow[startX + (flipped ? -distance : distance)];
+						if (!hex) {
+							break;
+						}
+						row.push(hex);
+					}
+					rows.push(row);
 				}
+				const length = Math.min(5, ...rows.map((row) => row.length));
+				return rows.flatMap((row) => row.slice(0, length));
 			},
 
-			// 	require() :
+			_getDamageHexes: function (hexes: Hex[]): Hex[] {
+				const creature = this.creature;
+				const middle = hexes.filter((hex) => hex.y === creature.y);
+				const tip = middle.reduce<Hex | undefined>(
+					(farthest, hex) =>
+						!farthest || Math.abs(hex.x - creature.x) > Math.abs(farthest.x - creature.x)
+							? hex
+							: farthest,
+					undefined,
+				);
+				return hexes.filter((hex) => hex.y !== creature.y || hex === tip);
+			},
+
 			require: function () {
-				if (!this.testRequirements()) {
-					return false;
-				}
-				return true;
+				return this.testRequirements();
 			},
 
-			// 	query() :
 			query: function () {
 				const ability = this;
 				const crea = this.creature;
-
-				const hexes = this._getHexes();
+				const choices: Hex[][] = [this._getHexes(false), this._getHexes(true)];
+				const allDeadZone = choices.flatMap((choice) => {
+					const damaging = new Set<Hex>(this._getDamageHexes(choice));
+					return choice.filter((hex) => !damaging.has(hex));
+				});
 
 				G.grid.queryChoice({
-					fnOnConfirm: function () {
-						// eslint-disable-next-line
-						ability.animation(...arguments);
+					fnOnConfirm: function (...args) {
+						ability.animation(...args);
 					},
 					team: Team.Both,
 					requireCreature: 0,
 					id: crea.id,
 					flipped: crea.player.flipped,
-					choices: [crea.getHexMap(hexes, false), crea.getHexMap(hexes, true)],
+					choices,
+					hexesDeadZone: allDeadZone,
 				});
 			},
 
-			activate: function (hexes) {
-				const damages = {
-					slash: 10,
-				};
-
+			activate: function (hexes: Hex[]) {
 				const ability = this;
-				ability.end();
-				shakeBoard({
-					amplitude: 0.02,
-					durationMs: 100,
-					force: true,
-					axis: 'horizontal',
-				});
+				ability.end(undefined, true);
+				shakeBoard({ amplitude: 0.02, durationMs: 100, force: true, axis: 'horizontal' });
 
-				ability.areaDamage(
-					ability.creature, //Attacker
-					damages, //Damage Type
-					[], //Effects
-					ability.getTargets(hexes), //Targets
-					true, //Notriggers avoid double retailiation
-				);
-
-				ability.areaDamage(
-					ability.creature, //Attacker
-					damages, //Damage Type
-					[], //Effects
-					ability.getTargets(hexes), //Targets
-					false,
+				const valid = this._getDamageHexes(hexes);
+				const targets = ability.getTargets(valid);
+				const upgraded = this.isUpgraded();
+				const hitUnits = new Set<number>();
+				const creature = this.creature;
+				const left = hexes.length > 0 && hexes[0].x < creature.x;
+				const start = G.grid.hexes[creature.y][left ? creature.x - creature.size + 1 : creature.x];
+				animateBoomerang(
+					G,
+					start,
+					valid,
+					(hex) => {
+						const target = hex.creature;
+						if (!target || target.dead || (!upgraded && hitUnits.has(target.id))) {
+							return;
+						}
+						const area = targets.find((entry) => entry.target === target)?.hexesHit;
+						if (!area) {
+							return;
+						}
+						hitUnits.add(target.id);
+						ability.areaDamage(
+							creature,
+							{ slash: 9 },
+							[],
+							[{ target, hexesHit: upgraded ? 1 : area }],
+							false,
+						);
+					},
+					() => {
+						const kills = targets.filter(({ target }) => target.dead).length;
+						if (kills > 1) {
+							creature.player.score.push({ type: 'combo', kills });
+						}
+						G.activeCreature?.queryMove();
+					},
+					upgraded,
 				);
 			},
 		},

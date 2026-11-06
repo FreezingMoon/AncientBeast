@@ -438,10 +438,42 @@
 	}
 }
 .button#skip {
-	background-image: url('assets/interface/skip.svg');
+	background-image: url('assets/icons/skip.svg');
 
 	&.cancelIcon {
 		background-image: url('assets/icons/cancel.svg') !important;
+	}
+
+	&.replayControl {
+		background-image: none;
+		--icon-url: url('assets/icons/forward.svg');
+
+		&::before {
+			z-index: 2;
+		}
+
+		&::after {
+			content: '';
+			position: absolute;
+			inset: 0;
+			z-index: 1;
+			background-image: var(--icon-url);
+			background-size: 100% 100%;
+		}
+
+		&.replayFastForward::after {
+			animation: iconInvertFlash 400ms ease-in-out infinite;
+		}
+
+		&:hover + .desc,
+		&.hover + .desc {
+			visibility: visible;
+			pointer-events: auto;
+		}
+	}
+
+	&.replay-pointer {
+		cursor: pointer;
 	}
 
 	&.disabled {
@@ -570,6 +602,9 @@
 }
 
 #playerbutton .hexinfo {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
 	text-align: center;
 }
 
@@ -591,7 +626,7 @@
 }
 
 .hexinfo .name {
-	padding-top: 18px;
+	padding-top: 0;
 	padding-bottom: 2px;
 	margin: inherit 4px 0px 12px;
 	border-bottom: 1px solid #555;
@@ -883,7 +918,6 @@ div.section.info {
 	transition: opacity 0.2s;
 }
 
-
 #audio:hover .tooltiptext {
 	visibility: visible;
 	opacity: 1;
@@ -1009,56 +1043,10 @@ div.section.info {
 
 .opencollective_banner_slot--fullscreen {
 	position: relative;
-	left: auto;
-	bottom: auto;
-	transform: none;
-	width: 100%;
-	height: auto;
-	margin: 10px auto 0;
-	z-index: 2;
-}
-
-#opencollective_banner_scoreboard {
-	display: block;
-	clear: both;
-	width: 100%;
-	max-width: none;
-	margin: 16px auto 0;
-}
-
-#opencollective_banner_musicplayer {
-	width: 450px;
+	width: 860px;
 	max-width: calc(100% - 16px);
 	margin: 12px auto 0;
-}
-
-#opencollective_banner_scoreboard .opencollective_inner,
-#opencollective_banner_musicplayer .opencollective_inner {
-	flex-direction: column;
-	align-items: center;
-	justify-content: flex-start;
-	gap: 8px;
-	height: auto;
-}
-
-#opencollective_banner_scoreboard .opencollective_pill,
-#opencollective_banner_musicplayer .opencollective_pill {
-	width: 100%;
-	height: 85px;
-	flex: 0 0 auto;
-}
-
-#opencollective_banner_scoreboard .opencollective_cta_wrapper,
-#opencollective_banner_musicplayer .opencollective_cta_wrapper {
-	width: 245px;
-	height: 85px;
-	flex: 0 0 auto;
-	padding: 0;
-}
-
-#opencollective_banner_scoreboard[data-oc-view='cta-only'],
-#opencollective_banner_musicplayer[data-oc-view='cta-only'] {
-	height: 85px;
+	z-index: 2;
 }
 
 .opencollective_banner_slot .opencollective_inner {
@@ -1071,6 +1059,7 @@ div.section.info {
 
 .opencollective_banner_slot .opencollective_pill {
 	flex: 1 1 auto;
+	min-width: 0;
 	height: 100%;
 	box-sizing: border-box;
 	background-color: rgba(0, 0, 0, 0.68);
@@ -1318,7 +1307,6 @@ div.section.info {
 	z-index: 1;
 }
 
-
 .vignette.crashing-globe-ability .stats {
 	position: absolute;
 	top: 80px;
@@ -1477,7 +1465,12 @@ div.section.info {
 #abilities .button.disabled {
 	transform: none !important;
 	filter: invert(1);
-	background-color: rgba(255, 255, 255, 0.55); // pre-inverted → appears as rgba(0,0,0,0.55) after filter
+	background-color: rgba(
+		255,
+		255,
+		255,
+		0.55
+	); // pre-inverted → appears as rgba(0,0,0,0.55) after filter
 	opacity: 0.5;
 
 	&::before {
@@ -1492,16 +1485,27 @@ div.section.info {
 
 // Refusal feedback (unmet requirement, already used, no target):
 // ::after isolates the icon so filter:invert skips bg-color and frame.
-#abilities .button.iconInvertFlash {
+#abilities .button.iconInvertFlash,
+.button.iconInvertFlash {
 	background-image: none !important;
-	&::before { z-index: 2; }
+	&::before {
+		z-index: 2;
+	}
 	&::after {
-		content: ''; position: absolute; inset: 0; z-index: 1;
-		background-image: var(--icon-url); background-size: 100% 100%;
+		content: '';
+		position: absolute;
+		inset: 0;
+		z-index: 1;
+		background-image: var(--icon-url);
+		background-size: 100% 100%;
 		animation: iconInvertFlash 400ms ease-in-out;
 	}
 }
-@keyframes iconInvertFlash { 50% { filter: invert(1); } }
+@keyframes iconInvertFlash {
+	50% {
+		filter: invert(1);
+	}
+}
 
 #leftpanel .passive-slot .ability.nextIcon {
 	transform: none;
@@ -1869,7 +1873,7 @@ div.section.info {
 	overflow-y: scroll;
 }
 
-#chat.expanded #chatbox{
+#chat.expanded #chatbox {
 	overflow: hidden;
 }
 
@@ -1900,7 +1904,8 @@ div.section.info {
 	padding: 10px 10px 0;
 	font-size: 1.1em;
 	color: white;
-	text-shadow: 1px 1px 0 #333, -1px -1px 0 #333, 1px -1px 0 #333, -1px 1px 0 #333, 0 2px 5px rgba(0, 0, 0, 0.95);
+	text-shadow: 1px 1px 0 #333, -1px -1px 0 #333, 1px -1px 0 #333, -1px 1px 0 #333,
+		0 2px 5px rgba(0, 0, 0, 0.95);
 	position: absolute;
 	bottom: 0;
 }
@@ -1934,29 +1939,34 @@ div.section.info {
 
 .red {
 	color: #f55;
-	text-shadow: 1px 1px 0 #600, -1px -1px 0 #600, 1px -1px 0 #600, -1px 1px 0 #600, 0 2px 6px rgba(0, 0, 0, 0.95);
+	text-shadow: 1px 1px 0 #600, -1px -1px 0 #600, 1px -1px 0 #600, -1px 1px 0 #600,
+		0 2px 6px rgba(0, 0, 0, 0.95);
 }
 
 .blue {
 	color: #88f;
-	text-shadow: 1px 1px 0 #226, -1px -1px 0 #226, 1px -1px 0 #226, -1px 1px 0 #226, 0 2px 6px rgba(0, 0, 0, 0.95);
+	text-shadow: 1px 1px 0 #226, -1px -1px 0 #226, 1px -1px 0 #226, -1px 1px 0 #226,
+		0 2px 6px rgba(0, 0, 0, 0.95);
 }
 
 .green {
 	color: #5f5;
-	text-shadow: 1px 1px 0 #060, -1px -1px 0 #060, 1px -1px 0 #060, -1px 1px 0 #060, 0 2px 6px rgba(0, 0, 0, 0.95);
+	text-shadow: 1px 1px 0 #060, -1px -1px 0 #060, 1px -1px 0 #060, -1px 1px 0 #060,
+		0 2px 6px rgba(0, 0, 0, 0.95);
 }
 
 .orange {
 	color: #fa5;
-	text-shadow: 1px 1px 0 #730, -1px -1px 0 #730, 1px -1px 0 #730, -1px 1px 0 #730, 0 2px 6px rgba(0, 0, 0, 0.95);
+	text-shadow: 1px 1px 0 #730, -1px -1px 0 #730, 1px -1px 0 #730, -1px 1px 0 #730,
+		0 2px 6px rgba(0, 0, 0, 0.95);
 }
 
 #chat #chatbox #chatcontent i {
 	font-size: 80%;
 	color: #ddd;
 	margin: 0 5px;
-	text-shadow: 1px 1px 0 #444, -1px -1px 0 #444, 1px -1px 0 #444, -1px 1px 0 #444, 0 2px 5px rgba(0, 0, 0, 0.95);
+	text-shadow: 1px 1px 0 #444, -1px -1px 0 #444, 1px -1px 0 #444, -1px 1px 0 #444,
+		0 2px 5px rgba(0, 0, 0, 0.95);
 }
 
 /*---------------Active Unit--------------*/
@@ -1996,6 +2006,12 @@ div.section.info {
 .button.hover + .desc {
 	visibility: visible;
 	pointer-events: auto;
+}
+
+.button:hover + .desc,
+.button:focus + .desc,
+.button + .desc.tooltip-visible {
+	visibility: visible;
 }
 
 .button + .desc span {
@@ -2066,10 +2082,15 @@ div.section.info {
 	border-left: 6px solid black;
 }
 
-#rightpanel .button.hover + .desc {
+#rightpanel .button.hover + .desc,
+#rightpanel .button:hover + .desc,
+#rightpanel .button:focus + .desc,
+#rightpanel .button + .desc.tooltip-visible {
 	width: 250px;
 	left: -259px;
 	text-align: right;
+	visibility: visible;
+	pointer-events: auto;
 }
 
 #rightpanel .panel-control,
@@ -2107,9 +2128,9 @@ div.section.info {
 	justify-self: end;
 }
 
-/* Wider scoreboard modal to fit overview bars */
+/* Wider scoreboard modal to fit overview bars and 2vs2 titles */
 .framed-modal--scoreboard {
-	width: 600px;
+	width: 720px;
 	max-height: 820px;
 }
 
@@ -2117,7 +2138,6 @@ div.section.info {
 .scoreboard-inner {
 	padding: 0 20px;
 }
-
 
 .scoreboard-inner--scores {
 	padding-bottom: 22px;
@@ -2224,14 +2244,20 @@ div.section.info {
 	animation: slideTooltipCentered 750ms forwards;
 }
 
+.score-emoji-tooltip-wrap:hover .score-header-tooltip,
+.score-emoji-tooltip-wrap.tooltip-visible .score-header-tooltip {
+	visibility: visible;
+	animation: slideTooltipCentered 750ms forwards;
+}
+
 @keyframes slideTooltipCentered {
 	0% {
 		opacity: 0.3;
-		transform: translate(calc(-50% - 10px), 0px);
+		transform: translate(calc(-50% - 10px), 0);
 	}
 	100% {
 		opacity: 1;
-		transform: translate(-50%, 0px);
+		transform: translate(-50%, 0);
 	}
 }
 
@@ -2422,6 +2448,17 @@ span.pure {
 	}
 }
 
+@keyframes fadeUpTooltip {
+	0% {
+		opacity: 0;
+		transform: translate(-50%) translateY(-4px);
+	}
+	100% {
+		opacity: 1;
+		transform: translate(-50%) translateY(0);
+	}
+}
+
 @keyframes progressStripeShift {
 	0% {
 		background-position: 0 0;
@@ -2513,9 +2550,18 @@ span.pure {
 }
 
 @keyframes intenseSparkle {
-	0%   { background-position: 0% 0%; opacity: 0.8; }
-	50%  { background-position: 20% 50%; opacity: 1; }
-	100% { background-position: 0% 100%; opacity: 0.8; }
+	0% {
+		background-position: 0% 0%;
+		opacity: 0.8;
+	}
+	50% {
+		background-position: 20% 50%;
+		opacity: 1;
+	}
+	100% {
+		background-position: 0% 100%;
+		opacity: 0.8;
+	}
 }
 
 @keyframes tubeSpecularDrift {
@@ -2533,8 +2579,12 @@ span.pure {
 }
 
 @keyframes boldGradient {
-	0%   { background-position: 0% -50%; }
-	100% { background-position: 0% 150%; }
+	0% {
+		background-position: 0% -50%;
+	}
+	100% {
+		background-position: 0% 150%;
+	}
 }
 
 @keyframes button-bounce-left {
@@ -2672,7 +2722,7 @@ span.pure {
 				display: inline-block;
 			}
 
-			.tooltiptext {
+			.tooltiptext:not(.score-header-tooltip) {
 				visibility: hidden;
 				background-color: rgba(0, 0, 0, 0.75);
 				backdrop-filter: blur(3px);
@@ -2689,11 +2739,6 @@ span.pure {
 				transform: translateY(-50%);
 				pointer-events: none;
 				z-index: 1;
-			}
-
-			.score-emoji-tooltip-wrap:hover .tooltiptext {
-				visibility: visible;
-				animation: slideTooltip 750ms forwards;
 			}
 		}
 
@@ -2979,10 +3024,28 @@ span.pure {
 		pointer-events: none;
 		z-index: 4;
 		mix-blend-mode: screen;
-		background-image:
-			linear-gradient(90deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.1) 16%, rgba(255, 255, 255, 0) 42%, rgba(0, 0, 0, 0.1) 72%, rgba(255, 255, 255, 0.12) 100%),
-			linear-gradient(104deg, transparent 0%, rgba(255, 255, 255, 0.32) 24%, rgba(255, 255, 255, 0.06) 42%, transparent 60%),
-			linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0) 70%, rgba(255, 255, 255, 0.06) 100%);
+		background-image: linear-gradient(
+				90deg,
+				rgba(255, 255, 255, 0.24) 0%,
+				rgba(255, 255, 255, 0.1) 16%,
+				rgba(255, 255, 255, 0) 42%,
+				rgba(0, 0, 0, 0.1) 72%,
+				rgba(255, 255, 255, 0.12) 100%
+			),
+			linear-gradient(
+				104deg,
+				transparent 0%,
+				rgba(255, 255, 255, 0.32) 24%,
+				rgba(255, 255, 255, 0.06) 42%,
+				transparent 60%
+			),
+			linear-gradient(
+				180deg,
+				rgba(255, 255, 255, 0.08) 0%,
+				rgba(255, 255, 255, 0) 30%,
+				rgba(255, 255, 255, 0) 70%,
+				rgba(255, 255, 255, 0.06) 100%
+			);
 		background-size: 100% 100%, 220% 100%, 100% 100%;
 		background-repeat: no-repeat;
 		background-position: 0 0, 120% 0, 0 0;
@@ -3075,7 +3138,11 @@ span.pure {
 		content: '';
 		position: absolute;
 		inset: 0;
-		background-image: radial-gradient(circle, rgba(255, 255, 255, 0.38) 0 2px, rgba(255, 255, 255, 0) 2.2px),
+		background-image: radial-gradient(
+				circle,
+				rgba(255, 255, 255, 0.38) 0 2px,
+				rgba(255, 255, 255, 0) 2.2px
+			),
 			radial-gradient(circle, rgba(255, 255, 255, 0.26) 0 1.5px, rgba(255, 255, 255, 0) 1.7px),
 			radial-gradient(circle, rgba(0, 0, 0, 0.2) 0 1.3px, rgba(0, 0, 0, 0) 1.5px);
 		background-size: 16px 34px, 13px 42px, 17px 48px;
@@ -3124,26 +3191,44 @@ span.pure {
 
 /* Health bar: animated white-only sheen on ::before, fizz dots left intact on ::after */
 .progressbar .bar.healthbar .currentbar::before {
-	background-image:
-		linear-gradient(180deg,
+	background-image: linear-gradient(
+			180deg,
 			rgba(255, 255, 255, 0.38) 0%,
 			rgba(255, 255, 255, 0.18) 30%,
 			rgba(255, 255, 255, 0.06) 60%,
-			transparent 100%),
+			transparent 100%
+		),
 		radial-gradient(ellipse 80% 100% at 22% 18%, rgba(255, 255, 255, 0.55) 0%, transparent 55%),
 		radial-gradient(ellipse 80% 100% at 78% 82%, rgba(255, 255, 255, 0.32) 0%, transparent 55%);
 	background-size: 100% 240%, 100% 100%, 100% 100%;
 	background-repeat: repeat, no-repeat, no-repeat;
 	opacity: 0.38;
-	animation: boldGradient 2.4s linear infinite, intenseSparkle 2.0s ease-in-out infinite;
+	animation: boldGradient 2.4s linear infinite, intenseSparkle 2s ease-in-out infinite;
 }
 
 /* Hemoglobin-style particles: filled, pill-like crimson cells */
 .progressbar .bar.healthbar .currentbar::after {
-	background-image:
-		radial-gradient(ellipse 52% 33% at 50% 50%, rgba(220, 70, 70, 0.62) 0 48%, rgba(162, 30, 30, 0.54) 60%, rgba(110, 12, 12, 0.18) 71%, transparent 80%),
-		radial-gradient(ellipse 50% 31% at 50% 50%, rgba(198, 44, 44, 0.54) 0 46%, rgba(142, 24, 24, 0.46) 58%, rgba(98, 10, 10, 0.16) 69%, transparent 79%),
-		radial-gradient(ellipse 54% 35% at 50% 50%, rgba(228, 92, 78, 0.38) 0 44%, rgba(166, 48, 34, 0.32) 56%, rgba(120, 26, 18, 0.13) 67%, transparent 78%);
+	background-image: radial-gradient(
+			ellipse 52% 33% at 50% 50%,
+			rgba(220, 70, 70, 0.62) 0 48%,
+			rgba(162, 30, 30, 0.54) 60%,
+			rgba(110, 12, 12, 0.18) 71%,
+			transparent 80%
+		),
+		radial-gradient(
+			ellipse 50% 31% at 50% 50%,
+			rgba(198, 44, 44, 0.54) 0 46%,
+			rgba(142, 24, 24, 0.46) 58%,
+			rgba(98, 10, 10, 0.16) 69%,
+			transparent 79%
+		),
+		radial-gradient(
+			ellipse 54% 35% at 50% 50%,
+			rgba(228, 92, 78, 0.38) 0 44%,
+			rgba(166, 48, 34, 0.32) 56%,
+			rgba(120, 26, 18, 0.13) 67%,
+			transparent 78%
+		);
 	background-size: 7px 34px, 6px 42px, 8px 48px;
 	background-repeat: repeat;
 	pointer-events: none;
@@ -3156,7 +3241,11 @@ span.pure {
 }
 
 .progressbar .bar.energybar .currentbar::after {
-	background-image: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0 2.2px, rgba(255, 255, 255, 0) 2.5px),
+	background-image: radial-gradient(
+			circle,
+			rgba(255, 255, 255, 0.18) 0 2.2px,
+			rgba(255, 255, 255, 0) 2.5px
+		),
 		radial-gradient(circle, rgba(0, 0, 0, 0.24) 0 1.9px, rgba(0, 0, 0, 0) 2.2px),
 		radial-gradient(circle, rgba(0, 0, 0, 0.16) 0 1.6px, rgba(0, 0, 0, 0) 1.9px);
 	background-size: 6px 34px, 6px 42px, 6px 48px;
@@ -3166,9 +3255,27 @@ span.pure {
 
 /* Turn Time Bar - white fill, ring-based particles for contrast */
 .progressbar .bar.timebar.turntime-mode .currentbar::after {
-	background-image: radial-gradient(circle, rgba(95, 110, 140, 0) 0 1.0px, rgba(95, 110, 140, 0.46) 1.05px 1.75px, rgba(95, 110, 140, 0.16) 1.8px 2.2px, rgba(95, 110, 140, 0) 3.0px),
-		radial-gradient(circle, rgba(45, 55, 75, 0) 0 0.9px, rgba(45, 55, 75, 0.42) 0.95px 1.55px, rgba(45, 55, 75, 0.12) 1.6px 1.95px, rgba(45, 55, 75, 0) 2.6px),
-		radial-gradient(circle, rgba(15, 20, 30, 0) 0 0.7px, rgba(15, 20, 30, 0.34) 0.75px 1.15px, rgba(15, 20, 30, 0.10) 1.2px 1.45px, rgba(15, 20, 30, 0) 2.2px);
+	background-image: radial-gradient(
+			circle,
+			rgba(95, 110, 140, 0) 0 1px,
+			rgba(95, 110, 140, 0.46) 1.05px 1.75px,
+			rgba(95, 110, 140, 0.16) 1.8px 2.2px,
+			rgba(95, 110, 140, 0) 3px
+		),
+		radial-gradient(
+			circle,
+			rgba(45, 55, 75, 0) 0 0.9px,
+			rgba(45, 55, 75, 0.42) 0.95px 1.55px,
+			rgba(45, 55, 75, 0.12) 1.6px 1.95px,
+			rgba(45, 55, 75, 0) 2.6px
+		),
+		radial-gradient(
+			circle,
+			rgba(15, 20, 30, 0) 0 0.7px,
+			rgba(15, 20, 30, 0.34) 0.75px 1.15px,
+			rgba(15, 20, 30, 0.1) 1.2px 1.45px,
+			rgba(15, 20, 30, 0) 2.2px
+		);
 	background-size: 8px 34px, 7px 42px, 9px 48px;
 	background-repeat: repeat;
 	opacity: 0.9;
@@ -3177,8 +3284,12 @@ span.pure {
 
 /* Plasma Bar - restored pre-turntime-tuning particles */
 .progressbar .bar.timebar.plasma-mode .currentbar::after {
-	background-image: radial-gradient(circle, rgba(255, 255, 255, 0.28) 0 2.2px, rgba(255, 255, 255, 0) 2.5px),
-		radial-gradient(circle, rgba(255, 255, 255, 0.20) 0 1.8px, rgba(255, 255, 255, 0) 2.1px),
+	background-image: radial-gradient(
+			circle,
+			rgba(255, 255, 255, 0.28) 0 2.2px,
+			rgba(255, 255, 255, 0) 2.5px
+		),
+		radial-gradient(circle, rgba(255, 255, 255, 0.2) 0 1.8px, rgba(255, 255, 255, 0) 2.1px),
 		radial-gradient(circle, rgba(0, 0, 0, 0.18) 0 1.5px, rgba(0, 0, 0, 0) 1.8px);
 	background-size: 9px 34px, 8px 42px, 10px 48px;
 	background-repeat: repeat;
@@ -3188,7 +3299,13 @@ span.pure {
 
 /* Score Bar Animation Options */
 .progressbar .bar.poolbar .currentbar::after {
-	background-image: linear-gradient(180deg, rgba(200,200,200,0.25) 0%, rgba(220,220,220,0.18) 40%, rgba(200,200,200,0.08) 70%, transparent 100%),
+	background-image: linear-gradient(
+			180deg,
+			rgba(200, 200, 200, 0.25) 0%,
+			rgba(220, 220, 220, 0.18) 40%,
+			rgba(200, 200, 200, 0.08) 70%,
+			transparent 100%
+		),
 		radial-gradient(circle, rgba(255, 255, 255, 0.19) 0 1.7px, rgba(255, 255, 255, 0) 1.9px),
 		radial-gradient(circle, rgba(0, 0, 0, 0.25) 0 1.5px, rgba(0, 0, 0, 0) 1.7px),
 		radial-gradient(circle, rgba(0, 0, 0, 0.17) 0 1.2px, rgba(0, 0, 0, 0) 1.4px);
@@ -3200,7 +3317,11 @@ span.pure {
 
 /* Score Bar - Option 1: Flowing waves like energy */
 .progressbar .bar.poolbar.variant1 .currentbar::after {
-	background-image: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0 2.2px, rgba(255, 255, 255, 0) 2.5px),
+	background-image: radial-gradient(
+			circle,
+			rgba(255, 255, 255, 0.18) 0 2.2px,
+			rgba(255, 255, 255, 0) 2.5px
+		),
 		radial-gradient(circle, rgba(0, 0, 0, 0.24) 0 1.9px, rgba(0, 0, 0, 0) 2.2px),
 		radial-gradient(circle, rgba(0, 0, 0, 0.16) 0 1.6px, rgba(0, 0, 0, 0) 1.9px);
 	background-size: 6px 34px, 6px 42px, 6px 48px;
@@ -3210,12 +3331,13 @@ span.pure {
 
 /* Score Bar - Option 2: Gradient + Sparkle like health */
 .progressbar .bar.poolbar.variant2 .currentbar::after {
-	background-image:
-		linear-gradient(180deg,
-			rgba(200,200,200,0.3) 0%,
-			rgba(220,220,220,0.2) 40%,
-			rgba(200,200,200,0.1) 70%,
-			transparent 100%),
+	background-image: linear-gradient(
+			180deg,
+			rgba(200, 200, 200, 0.3) 0%,
+			rgba(220, 220, 220, 0.2) 40%,
+			rgba(200, 200, 200, 0.1) 70%,
+			transparent 100%
+		),
 		radial-gradient(ellipse 80% 100% at 20% 20%, rgba(255, 255, 255, 0.6) 0%, transparent 50%),
 		radial-gradient(ellipse 80% 100% at 80% 80%, rgba(220, 220, 220, 0.5) 0%, transparent 50%);
 	background-size: 100% 240%, 100% 100%, 100% 100%;
@@ -3226,19 +3348,27 @@ span.pure {
 
 /* Score Bar - Option 3: Slower shimmer */
 .progressbar .bar.poolbar.variant3 .currentbar::after {
-	background-image: radial-gradient(circle, rgba(255, 255, 255, 0.32) 0 1.8px, rgba(255, 255, 255, 0) 2.0px),
+	background-image: radial-gradient(
+			circle,
+			rgba(255, 255, 255, 0.32) 0 1.8px,
+			rgba(255, 255, 255, 0) 2px
+		),
 		radial-gradient(circle, rgba(255, 255, 255, 0.22) 0 1.3px, rgba(255, 255, 255, 0) 1.5px),
 		radial-gradient(circle, rgba(0, 0, 0, 0.18) 0 1.1px, rgba(0, 0, 0, 0) 1.3px);
 	background-size: 12px 34px, 10px 42px, 14px 48px;
 	opacity: 0.72;
-	animation: barTextureDrift 2.0s linear infinite;
+	animation: barTextureDrift 2s linear infinite;
 }
 
 /* Score Bar - Option 4: Fine particles */
 .progressbar .bar.poolbar.variant4 .currentbar::after {
-	background-image: radial-gradient(circle, rgba(255, 255, 255, 0.16) 0 1.4px, rgba(255, 255, 255, 0) 1.6px),
-		radial-gradient(circle, rgba(0, 0, 0, 0.20) 0 1.2px, rgba(0, 0, 0, 0) 1.4px),
-		radial-gradient(circle, rgba(0, 0, 0, 0.14) 0 1.0px, rgba(0, 0, 0, 0) 1.2px);
+	background-image: radial-gradient(
+			circle,
+			rgba(255, 255, 255, 0.16) 0 1.4px,
+			rgba(255, 255, 255, 0) 1.6px
+		),
+		radial-gradient(circle, rgba(0, 0, 0, 0.2) 0 1.2px, rgba(0, 0, 0, 0) 1.4px),
+		radial-gradient(circle, rgba(0, 0, 0, 0.14) 0 1px, rgba(0, 0, 0, 0) 1.2px);
 	background-size: 5px 34px, 5px 42px, 5px 48px;
 	opacity: 0.78;
 	animation: barTextureDrift 1.6s linear infinite;
@@ -3382,26 +3512,38 @@ input {
 }
 
 /*------------------Interface-------------------*/
-	@media screen and (min-height: 200px) and (max-height: 479px) and (orientation: landscape) {
-		#queue {
-			left: 0;
-			bottom: 0;
-			transform: scale(0.55);
-			transform-origin: left bottom;
-		}
-		#leftpanel {
-			left: 0;
-			bottom: 55px;
-			transform: scale(0.55);
-			transform-origin: left bottom;
-		}
-		#rightpanel {
-			right: 0;
-			bottom: 0;
-			transform: scale(0.55);
-			transform-origin: right bottom;
-		}
+@media screen and (max-height: 512px) and (orientation: landscape) {
+	#queue {
+		left: 0;
+		bottom: 0;
+		transform: scale(0.55);
+		transform-origin: left bottom;
+	}
+	#queue .vignette.creature:not(.active),
+	#queue .vignette.roundmarker {
+		height: 56px;
+		width: 56px;
+		margin-top: 24px;
+	}
+	#queue .vignette.creature:not(.active) .stats,
+	#queue .vignette.roundmarker .stats {
+		top: 100%;
+	}
+	#leftpanel {
+		left: 0;
+		bottom: 55px;
+		transform: scale(0.55);
+		transform-origin: left bottom;
+	}
+	#rightpanel {
+		right: 0;
+		bottom: 0;
+		transform: scale(0.55);
+		transform-origin: right bottom;
+	}
+}
 
+@media screen and (min-height: 200px) and (max-height: 479px) and (orientation: landscape) {
 	#scoreboardTitle {
 		font-size: medium;
 		margin: 0px !important;
@@ -3431,26 +3573,34 @@ input {
 	}
 }
 
-	@media screen and (min-height: 320px) and (max-height: 479px) and (orientation: landscape) {
-		#queue {
-			left: 0;
-			bottom: 0;
-			transform: scale(0.7);
-			transform-origin: left bottom;
-		}
-		#leftpanel {
-			left: 0;
-			bottom: 70px;
-			transform: scale(0.7);
-			transform-origin: left bottom;
-		}
-		#rightpanel {
-			right: 0;
-			bottom: 0;
-			transform: scale(0.7);
-			transform-origin: right bottom;
-		}
+@media screen and (min-height: 320px) and (max-height: 512px) and (orientation: landscape) {
+	#queue {
+		left: 0;
+		bottom: 0;
+		transform: scale(0.7);
+		transform-origin: left bottom;
+	}
+	#queue .vignette.creature:not(.active),
+	#queue .vignette.roundmarker {
+		height: 64px;
+		width: 64px;
+		margin-top: 16px;
+	}
+	#leftpanel {
+		left: 0;
+		bottom: 70px;
+		transform: scale(0.7);
+		transform-origin: left bottom;
+	}
+	#rightpanel {
+		right: 0;
+		bottom: 0;
+		transform: scale(0.7);
+		transform-origin: right bottom;
+	}
+}
 
+@media screen and (min-height: 320px) and (max-height: 479px) and (orientation: landscape) {
 	#scoreboardTitle {
 		font-size: medium;
 		margin: 0px !important;
@@ -3541,6 +3691,20 @@ input {
 	padding-right: 14px !important;
 }
 
+/* Keep the desktop emoji column compact so stat titles fit in both modes. */
+#scoreboard:not(.scoreboard-landscape-phone) .scoreboard-inner--scores #score td.score-title-cell {
+	white-space: nowrap;
+}
+
+#scoreboard:not(.scoreboard-landscape-phone) .scoreboard-inner--scores #score td.score-emoji-cell {
+	box-sizing: border-box;
+	width: 32px;
+	min-width: 32px;
+	padding-left: 4px !important;
+	padding-right: 4px !important;
+	white-space: nowrap;
+}
+
 /* Right-aligned so the score icons line up in one column, with the names
    (inline in 1 vs 1, hover tooltips in 2 vs 2) hanging off to their left. */
 #scoreboard .scoreboard-inner--scores #score td:first-child {
@@ -3559,7 +3723,7 @@ input {
 		vertical-align: middle;
 	}
 
-	.tooltiptext {
+	.tooltiptext:not(.score-header-tooltip) {
 		position: static;
 		visibility: visible;
 		transform: none;
@@ -3577,7 +3741,7 @@ input {
 		animation: none;
 	}
 
-	.score-emoji-tooltip-wrap:hover .tooltiptext {
+	.score-emoji-tooltip-wrap:hover .tooltiptext:not(.score-header-tooltip) {
 		animation: none;
 	}
 
@@ -3595,26 +3759,399 @@ input {
 	margin-top: 8px !important;
 }
 
-#scoreboard #opencollective_banner_scoreboard {
-	width: 530px !important;
-	max-width: calc(100% - 24px) !important;
-	margin: 14px auto 0 !important;
-	position: static !important;
-	z-index: auto !important;
-}
+/* Landscape phone scoreboard transposed layout */
+#scoreboard.scoreboard-landscape-phone {
+	/* Make modal the positioning context - match desktop but scaled.
+	   Zero the 15px top margin from the base rule so the close button sits
+	   flush at the top of the wrapper. */
+	.framed-modal--scoreboard {
+		position: relative !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		height: auto !important;
+		max-height: none !important;
+		margin: 0 !important;
+		padding-top: 60px !important;
+		/* No div.png frame on phone - it eats margin and looks awkward. */
+		border: none !important;
+		border-image: none !important;
+		background: transparent !important;
+	}
 
-#scoreboard #opencollective_banner_scoreboard .opencollective_pill {
-	width: 100% !important;
-}
+	/* Close button - top right like desktop, just smaller. The base rule
+	   sets top/right on the element itself, but the modal wrapper may add
+	   padding that pushes it down; pin it to the wrapper's top-right corner
+	   so it's truly flush. */
+	.framed-modal__return {
+		position: absolute !important;
+		top: 0 !important;
+		right: 0 !important;
+		height: 60px !important;
+		width: 60px !important;
+		z-index: 30 !important;
+	}
 
-@media screen and (min-height: 200px) and (max-height: 479px) and (orientation: landscape) {
-	#scoreboard #opencollective_banner_scoreboard {
-		width: calc(80% + 80px) !important;
+	/* Wrapper: full-screen scrim, no vertical scrollbar. The modal content
+	   (close button + table + action column) fits within the viewport. */
+	.framed-modal__wrapper {
+		overflow: hidden !important;
+		padding: 0 !important;
+	}
+
+	/* Remove wrapper padding so content is flush to modal edges */
+	#scoreboard {
+		padding: 0 !important;
+	}
+	.scoreboard-inner--scores {
+		padding: 0 !important;
+	}
+	/* Keep the current score/match outcome visible above the table. */
+	.scoreboard-inner--scores > h2 {
+		display: block !important;
+		margin: 0 0 8px !important;
+		padding: 0 !important;
+		font-size: 20px !important;
+		line-height: 1.2 !important;
+	}
+	/* Tighten gap between heading area and content so action buttons sit
+	   right under the close button */
+	.scoreboard-inner--scores > p {
+		display: none !important;
+	}
+	.scoreboard-content {
+		margin-top: 0 !important;
+	}
+
+	/* Phone: small margins from screen edge and between columns so nothing
+	   looks awkward. The scoreboard wrapper is the full-screen scrim, so
+	   inset the inner content away from the edges. The right inset is
+	   bigger to leave room for the absolutely-positioned action column
+	   (60px) + gap (6px) so the table never sits under the buttons. */
+	.scoreboard-inner {
+		padding: 6px 66px 0 6px !important;
+	}
+	.scoreboard-content {
+		padding: 0 !important;
+		box-sizing: border-box !important;
+	}
+
+	/* Hide the per-player overview bars row on the phone - the emoji
+	   header row already shows the stat emojis and there's no room
+	   for the bars. */
+	#score tr.player_bars {
+		display: none !important;
+	}
+
+	/* Desktop: separate title and emoji columns. The title column is
+	   hidden on the phone (landscape) - the emoji tooltips carry the
+	   text instead. Wider so titles like "Humiliation" don't wrap. */
+	#score td.score-title-cell {
+		text-align: left !important;
+		white-space: nowrap !important;
+		vertical-align: middle !important;
+		padding: 4px 10px 4px 6px !important;
+		min-width: 90px !important;
+		width: 90px !important;
+	}
+	#score td.score-emoji-cell {
+		text-align: center !important;
+		white-space: nowrap !important;
+		vertical-align: middle !important;
+		padding: 4px 4px !important;
+		min-width: 40px !important;
+		width: 40px !important;
+	}
+	#scoreboard.scoreboard-landscape-phone #score td.score-title-cell {
+		display: none !important;
+	}
+
+	/* Override the old responsive `#score { transform: scale(0.8/0.9) }` rule:
+	   scaling the table makes it wider than the viewport and forces
+	   horizontal scrolling. Instead, size the columns to fit the
+	   available width (content area = viewport minus the action column
+	   and edge margins). */
+	#score {
+		transform: none !important;
+		width: 100% !important;
+		max-width: none !important;
+		table-layout: fixed !important;
+	}
+
+	/* Override the old responsive transposition (`tr/td { display: block;
+	   float: left }`). The JS now builds the transposed table itself, so
+	   the CSS block-floating would scramble the rows. */
+	#score tr {
+		display: table-row !important;
+	}
+	#score td {
+		display: table-cell !important;
+	}
+
+	/* Override the old responsive `.tooltiptext { right: -25px/-20px;
+	   bottom: 30px/25px !important }` rules (from the two media-query
+	   blocks above). These push the tooltip off to the side instead of
+	   above the emoji. The tooltip positioning is set inline by the JS
+	   with !important, but the media-query rules also use !important, so
+	   we reset them here with a higher-specificity selector. */
+	#scoreboard.scoreboard-landscape-phone #score tr td .tooltiptext:not(.score-header-tooltip) {
+		right: auto !important;
+		bottom: auto !important;
+		left: 50% !important;
+	}
+
+	/* Content area: table on left, actions on right. The action column is
+	   absolutely positioned over the right edge, so the table is given the
+	   remaining width and can scroll horizontally if the stat columns are
+	   narrower than the screen. The right padding is inherited from
+	   .scoreboard-inner (66px = 60px action column + 6px gap). */
+	.scoreboard-content {
+		display: flex !important;
+		flex-direction: row !important;
+		align-items: flex-start !important;
+		justify-content: flex-start !important;
+		width: 100% !important;
+		gap: 0 !important;
+		padding: 0 !important;
+		box-sizing: border-box !important;
+		overflow: visible !important;
+	}
+
+	/* Table fills the content area; columns distribute the available width
+	   evenly (table-layout: fixed above). The stat columns are sized to
+	   fit the screen so no horizontal scrolling is needed. */
+	#score {
+		flex: 0 0 auto !important;
+		max-width: none !important;
+		margin: 0 !important;
+		table-layout: fixed !important;
+		border-collapse: collapse !important;
+		display: table !important;
+	}
+
+	#score tr {
+		display: table-row !important;
+	}
+
+	#score td {
+		text-align: center !important;
+		white-space: nowrap !important;
+		vertical-align: middle !important;
+		padding: 3px 4px !important;
+		display: table-cell !important;
+	}
+
+	/* Header row: first cell = wolf "Players" header (visible, left-aligned like
+	 * player name column), emoji cells large */
+	/* Phone header row: all emoji cells (including the wolf) are centered and
+	   auto-width so the spacing between emojis is even. The player rows
+	   keep the name column left-aligned and wider for readability. */
+	#score tr:first-child td:first-child {
+		text-align: center !important;
+		width: auto !important;
+		min-width: 50px !important;
+		padding: 6px !important;
+		font-size: 22px !important;
+	}
+	#score tr:first-child td:first-child .score-emoji-tooltip-wrap {
+		display: inline-block;
+	}
+
+	#score tr:first-child td {
+		padding: 6px !important;
+		font-size: 22px !important;
+	}
+
+	/* Player rows: first column = name (left), rest = scores (center) */
+	#score tr[class^='player_row_'] td:first-child {
+		text-align: left !important;
+		width: 60px !important;
+		min-width: 60px !important;
+		padding-left: 4px !important;
+		font-weight: 700 !important;
+	}
+
+	#score tr[class^='player_row_'] td:not(:first-child) {
+		text-align: center !important;
+		width: auto !important;
+		min-width: 50px !important;
+	}
+
+	/* Tooltip for header emojis - show on hover only, animated. The wrap is
+	   the positioning context; the tooltip floats above it. */
+	.score-emoji-tooltip-wrap {
+		display: inline-block;
+		position: relative;
+		cursor: help;
+	}
+
+	/* On the phone the wolf emoji sits in the leftmost column; right-align
+	   it so it hugs the edge instead of floating in the middle. */
+	#scoreboard.scoreboard-landscape-phone
+		#score
+		tr.player_name
+		td:first-child
+		.score-emoji-tooltip-wrap {
+		display: flex;
+		justify-content: flex-end;
+	}
+
+	.tooltiptext:not(.score-header-tooltip) {
+		white-space: nowrap !important;
+		visibility: hidden !important;
+		opacity: 0;
+		z-index: 40 !important;
+		-webkit-backdrop-filter: blur(4px) !important;
+		color: #fff !important;
+		text-align: center !important;
+		pointer-events: none !important;
+		background: #000000d9 !important;
+		border: 1px solid #ffffff26 !important;
+		border-radius: 4px !important;
+		margin-bottom: 8px !important;
+		padding: 6px 10px !important;
+		font-size: 12px !important;
+	}
+
+	/* Actions column on right, below close button - flush right edge.
+	   The close button is at top:0,right:0 (60x60). This column sits directly
+	   beneath it with the same 6px gap as between the actions themselves,
+	   so all four buttons (close + 3 actions) share one even spacing. */
+	.scoreboardActions {
+		position: absolute !important;
+		top: 66px !important; /* 60px close + 6px gap */
+		right: 0 !important;
+		bottom: 0 !important;
+		width: 60px !important;
+		max-width: 60px !important;
+		height: auto !important;
+		max-height: none !important;
+		display: flex !important;
+		flex-direction: column !important;
+		align-items: flex-end !important;
+		justify-content: flex-start !important;
+		gap: 6px !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		z-index: 20 !important;
+		overflow: visible !important;
+	}
+
+	/* Force action buttons flush right (overrides desktop `margin: 0 auto !important` */
+	.scoreboardActions .button,
+	#scoreboard .scoreboardActions #save,
+	#scoreboard .scoreboardActions #restart,
+	#scoreboard .scoreboardActions #exit {
+		margin: 0 !important;
+		width: 60px !important;
+		height: 60px !important;
+	}
+
+	/* Place the shared desktop tooltips beside the compact action column. */
+	.scoreboardActions .button + .desc,
+	#scoreboard .scoreboardActions #save + .desc,
+	#scoreboard .scoreboardActions #restart + .desc,
+	#scoreboard .scoreboardActions #exit + .desc {
+		z-index: 50 !important;
+		bottom: auto !important;
+		top: 50% !important;
+		left: auto !important;
+		right: calc(100% + 10px) !important;
+		transform: translateY(-50%) !important;
+		width: max-content !important;
+		max-width: calc(100vw - 76px) !important;
+		text-align: center !important;
+		white-space: normal !important;
+		box-sizing: border-box !important;
+		visibility: hidden !important;
+		pointer-events: none !important;
+	}
+	/* Reveal the tooltip on hover/focus; clicks also toggle it for touch. */
+	.scoreboardActions .button:hover + .desc,
+	.scoreboardActions .button:focus + .desc,
+	.scoreboardActions .button + .desc.tooltip-visible,
+	#scoreboard .scoreboardActions #save:hover + .desc,
+	#scoreboard .scoreboardActions #restart:hover + .desc,
+	#scoreboard .scoreboardActions #exit:hover + .desc,
+	#scoreboard .scoreboardActions #save + .desc.tooltip-visible,
+	#scoreboard .scoreboardActions #restart + .desc.tooltip-visible,
+	#scoreboard .scoreboardActions #exit + .desc.tooltip-visible {
+		visibility: visible !important;
+		transform: translateY(-50%) !important;
+	}
+
+	/* Transposed table: normal table display, emoji headers */
+	#score {
+		display: table !important;
 	}
 }
 
 #scoreboard .scoreboardActions #exitWrapper {
 	justify-self: center;
+}
+
+/* Shrink the per-button wrapper on the phone so it doesn't overflow the
+   60px action column. Top-level (NOT nested inside the phone block) so the
+   selector actually matches the DOM: `#ui > #scoreboard.scoreboard-landscape-phone`.
+   Scoped with #ui too: the default rule compiles to
+   `#ui #scoreboard .scoreboardActions #saveWrapper { width: 80px }`,
+   which needs the extra ID + class to outrank. */
+#ui #scoreboard.scoreboard-landscape-phone .scoreboardActions #saveWrapper,
+#ui #scoreboard.scoreboard-landscape-phone .scoreboardActions #restartWrapper,
+#ui #scoreboard.scoreboard-landscape-phone .scoreboardActions #exitWrapper,
+#ui #scoreboard.scoreboard-landscape-phone .scoreboardActions #fleeWrapper {
+	width: 60px !important;
+	height: 60px !important;
+	justify-content: flex-end !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+/* Landscape phone: only reposition and constrain the shared score-bar
+   tooltip styling when it is attached to an emoji. */
+#scoreboard.scoreboard-landscape-phone
+	.scoreboard-inner--scores
+	#score
+	.score-emoji-tooltip-wrap
+	.score-header-tooltip {
+	position: absolute !important;
+	bottom: calc(100% + 2px) !important;
+	left: 50% !important;
+	right: auto !important;
+	width: max-content !important;
+	max-width: calc(100vw - 84px) !important;
+	box-sizing: border-box !important;
+	white-space: normal !important;
+	overflow-wrap: break-word !important;
+	pointer-events: auto !important;
+	z-index: 60 !important;
+}
+
+/* Override the inherited downward tooltip arrow with a right-pointing
+   triangle aimed at each button in the landscape action column. */
+#ui #scoreboard.scoreboard-landscape-phone .scoreboardActions #saveWrapper .desc::after,
+#ui #scoreboard.scoreboard-landscape-phone .scoreboardActions #restartWrapper .desc::after,
+#ui #scoreboard.scoreboard-landscape-phone .scoreboardActions #exitWrapper .desc::after {
+	content: '' !important;
+	position: absolute !important;
+	left: auto !important;
+	right: -8px !important;
+	top: 50% !important;
+	bottom: auto !important;
+	transform: translateY(-50%) !important;
+	border-top: 7px solid transparent !important;
+	border-right: 0 !important;
+	border-bottom: 7px solid transparent !important;
+	border-left: 8px solid rgba(0, 0, 0, 0.6) !important;
+}
+
+#ui #scoreboard.scoreboard-landscape-phone .scoreboardActions .desc > p:not(.confirmHint),
+#ui #scoreboard.scoreboard-landscape-phone .scoreboardActions .desc .shortcut {
+	display: none !important;
+}
+
+#ui #scoreboard.scoreboard-landscape-phone .scoreboardActions .desc > span {
+	margin: 0 !important;
+	padding: 7px 10px !important;
 }
 
 #scoreboard .scoreboardActions #saveWrapper {
@@ -3642,7 +4179,12 @@ input {
 		height: auto;
 		width: auto;
 		border-radius: 50%;
-		background-image: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.2), rgba(48, 48, 48, 0.88) 62%, rgba(10, 10, 10, 0.96));
+		background-image: radial-gradient(
+			circle at 30% 30%,
+			rgba(255, 255, 255, 0.2),
+			rgba(48, 48, 48, 0.88) 62%,
+			rgba(10, 10, 10, 0.96)
+		);
 		border: 2px solid rgba(186, 191, 198, 0.92);
 		box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.55), 0 8px 18px rgba(0, 0, 0, 0.35);
 		transition: border-color 150ms ease, box-shadow 150ms ease;
@@ -3883,9 +4425,6 @@ body.in-game .build-badge {
 	}
 }
 
-
-
-
 /*------------------Phone / Portrait Mode-------------------*/
 body.portrait-mode .scrim,
 body.devvit-mode .scrim {
@@ -3893,7 +4432,8 @@ body.devvit-mode .scrim {
 }
 
 @media (orientation: portrait) and (max-width: 600px) {
-	html, body {
+	html,
+	body {
 		overflow: hidden !important;
 		width: 100vw !important;
 		height: 100dvh !important;
@@ -4262,7 +4802,7 @@ body.devvit-mode .scrim {
 		overflow: visible !important;
 	}
 
-#dash.active #card {
+	#dash.active #card {
 		width: 400px !important;
 		height: 520px !important;
 		margin: 0 auto !important;
@@ -4317,7 +4857,7 @@ body.devvit-mode .scrim {
 		overflow: hidden !important;
 		padding: 8px 6px 72px 6px !important;
 		box-sizing: border-box !important;
-		background: rgba(0,0,0,0.95) !important;
+		background: rgba(0, 0, 0, 0.95) !important;
 		z-index: 50 !important;
 		pointer-events: auto !important;
 	}
@@ -4330,7 +4870,7 @@ body.devvit-mode .scrim {
 		overflow: hidden !important;
 		padding: 8px 6px 72px 6px !important;
 		box-sizing: border-box !important;
-		background: rgba(0,0,0,0.95) !important;
+		background: rgba(0, 0, 0, 0.95) !important;
 		z-index: 50 !important;
 		pointer-events: auto !important;
 	}
@@ -4375,6 +4915,56 @@ body.devvit-mode .scrim {
 		max-width: 85vw !important;
 		max-height: 60vh !important;
 		object-fit: contain;
+	}
+}
+
+/* Small landscape viewports: compact audio player layout. Places controls
+   higher, removes the decorative frame around the playlist, and splits the
+   tracklist into two columns to reduce vertical overflow. */
+@media screen and (orientation: landscape) and (max-height: 700px) {
+	.framed-modal--fluid {
+		border-image: none !important;
+		border: none !important;
+		background: transparent !important;
+		/* Fill most of the window so the two playlist columns are wide
+		   enough that track names fit on one line instead of wrapping. */
+		max-width: none !important;
+		width: auto !important;
+		margin: 0 auto !important;
+		padding: 0 8px !important;
+		box-sizing: border-box !important;
+	}
+
+	.audio-player-controls {
+		margin-top: 6px !important;
+		margin-bottom: 6px !important;
+	}
+
+	#playlist {
+		column-count: 2 !important;
+		column-gap: 12px !important;
+		padding: 0 !important;
+		box-sizing: border-box !important;
+	}
+
+	#playlist li {
+		break-inside: avoid !important;
+		margin-bottom: 6px !important;
+	}
+
+	#playlist li a {
+		white-space: nowrap !important;
+		overflow: hidden !important;
+		text-overflow: ellipsis !important;
+		display: block !important;
+	}
+
+	.opencollective_banner_slot--fullscreen {
+		position: fixed;
+		bottom: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		margin: 0;
 	}
 }
 

@@ -139,6 +139,13 @@ export class OpenCollectiveBanner {
 			return;
 		}
 
+		// Always re-render contributors on open so this banner instance reflects
+		// the current cached state (e.g. populated by another view at a larger
+		// window) instead of staying stuck on CTA-only from when init() ran with
+		// an empty cache.
+		this.allMembers = this.getCachedMembers();
+		this.renderContributors();
+
 		this.refreshMarqueeMetrics();
 		this.startMarquee();
 
@@ -350,7 +357,10 @@ export class OpenCollectiveBanner {
 			.then((members) => {
 				const normalizedMembers = this.normalizeMembers(members);
 				if (!normalizedMembers.length) {
-					throw new Error('No OpenCollective members available for banner');
+					// No active donors yet - fall back to CTA-only view (already
+					// rendered in init() / onViewOpen()). Not an error, just no
+					// sponsors to display.
+					return;
 				}
 
 				this.allMembers = normalizedMembers;
@@ -359,7 +369,8 @@ export class OpenCollectiveBanner {
 				this.renderContributors();
 			})
 			.catch(() => {
-				// Keep whichever members are already rendered.
+				// Fetch/normalization failed (network, CSP, etc.). Fail silently;
+				// the widget already falls back to CTA-only.
 			})
 			.finally(() => {
 				this.isFetching = false;

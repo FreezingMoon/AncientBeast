@@ -61,7 +61,7 @@ describe('Game replay completion', () => {
 
 		Game.prototype.onLogLoad.call(game, { actions: [], custom: { configData: {} } }, 'load');
 
-		expect(game.replayMode).toBe('load');
+		expect(game.replayMode).toBe('play');
 		expect(game.isReplayInProgress).toBe(true);
 		jest.runOnlyPendingTimers();
 		expect(game.replayMode).toBe(null);
@@ -172,6 +172,40 @@ describe('Game replay completion', () => {
 		expect(game._deferredQueryMovePending).toBe(0);
 		expect(refreshHoverState).toHaveBeenCalledTimes(1);
 		expect(queryMove).toHaveBeenCalledTimes(0);
+	});
+});
+
+describe('Game creature death effects', () => {
+	test('refreshes the active movement query when an owner-death effect releases a root', () => {
+		const owner = {};
+		const queryMove = jest.fn();
+		const target = {
+			stats: { moveable: false },
+			updateHealth: jest.fn(),
+			queryMove,
+		};
+		const effect = {
+			owner,
+			deleteOnOwnerDeath: true,
+			target,
+			alterations: { moveable: false },
+			deleteEffect: jest.fn(() => {
+				target.stats.moveable = true;
+			}),
+		};
+		const game = {
+			activeCreature: target,
+			triggerAbility: jest.fn(),
+			triggerEffect: jest.fn(),
+			traps: [],
+			effects: [effect],
+		} as unknown as Game;
+
+		Game.prototype.onCreatureDeath.call(game, owner);
+
+		expect(effect.deleteEffect).toHaveBeenCalledTimes(1);
+		expect(target.updateHealth).toHaveBeenCalledTimes(1);
+		expect(queryMove).toHaveBeenCalledTimes(1);
 	});
 });
 
@@ -529,6 +563,7 @@ describe('Game multiplayer turn ownership guard', () => {
 	const makeSkipDelayMockGame = (overrides: Record<string, unknown> = {}): Game =>
 		({
 			isOtherPlayersTurn: Game.prototype['isOtherPlayersTurn' as keyof Game],
+			isTurnActionUnavailable: Game.prototype['isTurnActionUnavailable' as keyof Game],
 			multiplayer: true,
 			turnThrottle: false,
 			pauseTime: 0,
@@ -590,6 +625,31 @@ describe('Game multiplayer turn ownership guard', () => {
 		expect(game.lobby.sendAction as jest.Mock).toHaveBeenCalledWith(
 			expect.objectContaining({ type: 'action-end', action: 'skip' }),
 		);
+	});
+
+	test('skipTurn completion keeps controls disabled when the next turn is remote', () => {
+		const isMyTurn = jest.fn().mockReturnValueOnce(true).mockReturnValue(false);
+		const game = makeSkipDelayMockGame({
+			activeCreature: {
+				player: { controller: 'human', id: 0, startTime: new Date() },
+				canWait: true,
+				id: 1,
+				facePlayerDefault: jest.fn(),
+				deactivate: jest.fn(),
+			},
+			lobby: {
+				isMyTurn,
+				getLocalPlayer: jest.fn(() => ({ playerId: 'p1', playerIndex: 0 })),
+				sendAction: jest.fn(),
+			},
+			nextCreature: jest.fn(),
+		});
+
+		Game.prototype.skipTurn.call(game, { noTooltip: true });
+		jest.advanceTimersByTime(1000);
+
+		expect(game.UI.btnSkipTurn.changeState as jest.Mock).toHaveBeenLastCalledWith('disabled');
+		expect(game.UI.btnDelay.changeState as jest.Mock).toHaveBeenLastCalledWith('disabled');
 	});
 
 	test('skipTurn is not blocked for a bot-controlled creature even if isMyTurn is false', () => {
@@ -658,6 +718,30 @@ describe('Game multiplayer turn ownership guard', () => {
 		expect(game.lobby.sendAction as jest.Mock).toHaveBeenCalledWith(
 			expect.objectContaining({ type: 'action-end', action: 'delay' }),
 		);
+	});
+
+	test('delayCreature completion keeps controls disabled when the next turn is remote', () => {
+		const isMyTurn = jest.fn().mockReturnValueOnce(true).mockReturnValue(false);
+		const game = makeSkipDelayMockGame({
+			activeCreature: {
+				player: { controller: 'human', id: 0, startTime: new Date() },
+				canWait: true,
+				id: 1,
+				wait: jest.fn(),
+			},
+			lobby: {
+				isMyTurn,
+				getLocalPlayer: jest.fn(() => ({ playerId: 'p1', playerIndex: 0 })),
+				sendAction: jest.fn(),
+			},
+			nextCreature: jest.fn(),
+		});
+
+		Game.prototype.delayCreature.call(game);
+		jest.advanceTimersByTime(1000);
+
+		expect(game.UI.btnSkipTurn.changeState as jest.Mock).toHaveBeenLastCalledWith('disabled');
+		expect(game.UI.btnDelay.changeState as jest.Mock).toHaveBeenLastCalledWith('disabled');
 	});
 });
 
@@ -906,5 +990,93 @@ describe('Game.applyMoveRecord — shared by action() replay and live multiplaye
 		const moveTo = game.activeCreature.moveTo as jest.Mock;
 		const [, optsArg] = moveTo.mock.calls[0] as [unknown, { path?: unknown[] }];
 		expect(optsArg.path).toBeUndefined();
+	});
+});
+
+describe('Game.handleLobbyMessage — creature-died reconciliation', () => {
+	/**
+	 * Regression coverage for the multiplayer desync where one client's unit
+	 * stayed alive while the other saw it dead with only the drop. The relay
+	 * path broadcasts a `creature-died` message from the acting client; the
+	 * receiver must force-apply the death instead of trusting its own damage
+	 * computation to have agreed.
+	 */
+	test('force-applies a death for a still-alive creature when it receives creature-died', () => {
+		const die = jest.fn(function (this: Record<string, unknown>) {
+			this.dead = true;
+		});
+		const creature = { id: 7, dead: false, die, player: { id: 0 } };
+		const game = {
+			creatures: { 7: creature },
+		} as unknown as Game;
+
+		(
+			Game.prototype as unknown as { handleLobbyMessage: (m: unknown) => void }
+		).handleLobbyMessage.call(game, {
+			type: 'creature-died',
+			creatureId: 7,
+			killerId: undefined,
+			playerId: 'p1',
+		});
+
+		expect(die).toHaveBeenCalledTimes(1);
+		// `remote=true` so the receiver does not re-broadcast and echo back.
+		expect(die).toHaveBeenCalledWith({ player: creature.player }, true);
+		expect(creature.dead).toBe(true);
+	});
+
+	test('does not re-apply death (and re-score) when the creature is already dead', () => {
+		const die = jest.fn();
+		const creature = { id: 7, dead: true, die, player: { id: 0 } };
+		const game = {
+			creatures: { 7: creature },
+		} as unknown as Game;
+
+		(
+			Game.prototype as unknown as { handleLobbyMessage: (m: unknown) => void }
+		).handleLobbyMessage.call(game, {
+			type: 'creature-died',
+			creatureId: 7,
+			killerId: 3,
+			playerId: 'p1',
+		});
+
+		expect(die).not.toHaveBeenCalled();
+	});
+
+	test('resolves the killer from the broadcast killerId when present', () => {
+		const die = jest.fn();
+		const killer = { id: 3 };
+		const creature = { id: 7, dead: false, die, player: { id: 1 } };
+		const game = {
+			creatures: { 3: killer, 7: creature },
+		} as unknown as Game;
+
+		(
+			Game.prototype as unknown as { handleLobbyMessage: (m: unknown) => void }
+		).handleLobbyMessage.call(game, {
+			type: 'creature-died',
+			creatureId: 7,
+			killerId: 3,
+			playerId: 'p1',
+		});
+
+		expect(die).toHaveBeenCalledWith(killer, true);
+	});
+
+	test('ignores the message when the creature is not present locally', () => {
+		const game = { creatures: {} } as unknown as Game;
+
+		(
+			Game.prototype as unknown as { handleLobbyMessage: (m: unknown) => void }
+		).handleLobbyMessage.call(game, {
+			type: 'creature-died',
+			creatureId: 99,
+			killerId: undefined,
+			playerId: 'p1',
+		});
+
+		// No throw, nothing to assert beyond not crashing.
+		expect(game.creatures['99']).toBeUndefined();
 	});
 });

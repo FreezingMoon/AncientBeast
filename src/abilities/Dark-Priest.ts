@@ -11,6 +11,7 @@ import { getDepthAtBand } from '../game-display/layer';
 import { getFrameSize } from '../game-display/texture';
 import { spawnChainLightning } from '../vfx/lightning/effect';
 import { electroShockerLook } from '../vfx/lightning/look';
+import { spawnDisruptorBeam } from '../vfx/disruptor';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -307,13 +308,12 @@ export default (G: Game) => {
 			//	activate() :
 			activate: function (target: Creature) {
 				const ability = this;
-				ability.end();
-				shakeBoard({
-					amplitude: 0.04,
-					durationMs: 111,
-					force: true,
-					axis: 'horizontal',
-				});
+				ability.end(false, true);
+
+				// Guard against undefined baseStats (can happen during replay for dead units)
+				if (!target.baseStats) {
+					return;
+				}
 
 				const plasmaCost = target.size;
 				let damageAmount = target.baseStats.health - target.health;
@@ -334,9 +334,23 @@ export default (G: Game) => {
 					G,
 				);
 
-				ability.end();
+				const willDisintegrate = damageAmount >= target.health;
+				spawnDisruptorBeam(G, ability.creature, target, willDisintegrate, () => {
+					shakeBoard({
+						amplitude: 0.04,
+						durationMs: 111,
+						force: true,
+						axis: 'horizontal',
+					});
 
-				target.takeDamage(damage);
+					const previousDeathAnimation = target.deathAnimationType;
+					if (willDisintegrate) target.deathAnimationType = 'disintegrate';
+					target.takeDamage(damage);
+					if (!target.dead) {
+						target.deathAnimationType = previousDeathAnimation;
+					}
+					G.activeCreature?.queryMove();
+				});
 			},
 		},
 
@@ -414,7 +428,7 @@ export default (G: Game) => {
 				});
 
 				spawnRange = spawnRange.filter(function (item) {
-					return item.isWalkable(crea.size, 0, false);
+					return item.isWalkable(crea.size, -1, false);
 				});
 
 				spawnRange = arrayUtils.extendToLeft(spawnRange, crea.size, G.grid);

@@ -5,6 +5,7 @@ dist/
 
 # Generated list of assets
 assets/index.js
+assets/index.ts
 
 # Dotenv
 .env
@@ -39,6 +40,9 @@ build/Release
 
 # Dependency directory
 node_modules
+
+# npm lockfile (project uses Bun; see bun.lock)
+package-lock.json
 
 
 ### PhpStorm ###

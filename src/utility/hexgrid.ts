@@ -300,6 +300,7 @@ export class HexGrid {
 	hexesGroup: any;
 	displayHexesGroup: any;
 	overlayHexesGroup: any;
+	queryDashedHexesGroup: any;
 	dropGroup: any;
 	creatureGroup: any;
 	/**
@@ -409,6 +410,7 @@ export class HexGrid {
 		this.hexesGroup = layers.hexesGroup;
 		this.displayHexesGroup = layers.displayHexesGroup;
 		this.overlayHexesGroup = layers.overlayHexesGroup;
+		this.queryDashedHexesGroup = layers.queryDashedHexesGroup;
 		this.dropGroup = layers.dropGroup;
 		this.creatureGroup = layers.creatureGroup;
 		// Behind the creatures so smoke never draws over a unit, but not a child of
@@ -825,6 +827,9 @@ export class HexGrid {
 							item.cleanDisplayVisualState('adj creature player0 player1 player2 player3');
 						});
 					});
+					(o.hexesDeadZone || []).forEach((hex) => {
+						hex.displayVisualState('deadzone');
+					});
 					choice.forEach((item) => {
 						if (item.creature instanceof Creature) {
 							item.displayVisualState('creature selected player' + item.creature.team);
@@ -843,6 +848,9 @@ export class HexGrid {
 					choice.forEach((item) => {
 						item.cleanDisplayVisualState('adj creature player0 player1 player2 player3');
 					});
+				});
+				(o.hexesDeadZone || []).forEach((hex) => {
+					hex.displayVisualState('deadzone');
 				});
 			}) as (() => void) | undefined,
 			team: Team.Enemy,
@@ -1559,6 +1567,8 @@ export class HexGrid {
 
 			let { x } = hex;
 			const { y } = hex;
+			const hoveredHex = hex;
+			const queryGeneration = this.queryGeneration;
 
 			// Xray
 			this.xray(hex);
@@ -1635,6 +1645,15 @@ export class HexGrid {
 
 				hex = this.hexes[y][x]; // New coords
 				o.fnOnSelect(hex, o.args);
+				// Choice callbacks can clear overlays while filling an entire area.
+				// Mark the actual input hex afterwards, not the size-adjusted anchor.
+				if (
+					this.queryGeneration === queryGeneration &&
+					!this.materialize_overlay?._previewPos &&
+					!this.secondary_overlay?._previewPos
+				) {
+					hoveredHex.overlayVisualState('hover');
+				}
 			} else if (!hex.reachable) {
 				// Reset the query so the movement path traced on the previous reachable
 				// hex (tracePath's `adj` hexes) is cleaned instead of lingering as dark
@@ -1875,6 +1894,9 @@ export class HexGrid {
 		const activeCreature = this.game.activeCreature;
 		const isActiveCreatureHex =
 			activeCreature && hex.creature instanceof Creature && hex.creature.id === activeCreature.id;
+		const preserveDeadzone =
+			Array.isArray(this.lastQueryOpt?.hexesDeadZone) &&
+			this.lastQueryOpt.hexesDeadZone.indexOf(hex) !== -1;
 
 		if (isActiveCreatureHex) {
 			// Preserve the active creature's persistent display/overlay classes so any
@@ -1883,6 +1905,9 @@ export class HexGrid {
 			hex.cleanOverlayVisualState(
 				'reachable weakDmg moveto selected hover ownCreatureHexShade h_player0 h_player1 h_player2 h_player3 p0 p1 p2 p3',
 			);
+			if (preserveDeadzone) {
+				hex.displayVisualState('deadzone');
+			}
 			return;
 		}
 
@@ -1891,11 +1916,17 @@ export class HexGrid {
 		if (hex._markedByCrashingGlobe) {
 			hex.cleanDisplayVisualState();
 			hex.cleanOverlayVisualState();
+			if (preserveDeadzone) {
+				hex.displayVisualState('deadzone');
+			}
 			return;
 		}
 
 		hex.cleanDisplayVisualState();
 		hex.cleanOverlayVisualState();
+		if (preserveDeadzone) {
+			hex.displayVisualState('deadzone');
+		}
 	}
 
 	restoreReachableHexVisual(hex: Hex) {
@@ -1920,6 +1951,9 @@ export class HexGrid {
 		const activeCreature = this.game.activeCreature;
 		const isActiveCreatureHex =
 			activeCreature && hex.creature instanceof Creature && hex.creature.id === activeCreature.id;
+		const preserveDeadzone =
+			Array.isArray(this.lastQueryOpt?.hexesDeadZone) &&
+			this.lastQueryOpt.hexesDeadZone.indexOf(hex) !== -1;
 
 		if (isActiveCreatureHex) {
 			// Clean only transient display state so the creature's persistent `creature`
@@ -1929,6 +1963,9 @@ export class HexGrid {
 			hex.cleanOverlayVisualState(
 				'hover h_player0 h_player1 h_player2 h_player3 p0 p1 p2 p3 crashing-globe-target',
 			);
+			if (preserveDeadzone) {
+				hex.displayVisualState('deadzone');
+			}
 			return;
 		}
 
@@ -1991,7 +2028,7 @@ export class HexGrid {
 			if (isActiveHex) {
 				// Preserve 'active creature playerN' to keep the glowInterval phase
 				// stable; only strip transient hover/query classes.
-				hex.cleanDisplayVisualState('adj hover dashed shrunken deadzone hidden');
+				hex.cleanDisplayVisualState('adj hover dashed shrunken moveRange deadzone hidden');
 				hex.cleanOverlayVisualState(
 					'hover selected reachable weakDmg moveto ownCreatureHexShade h_player0 h_player1 h_player2 h_player3',
 				);
@@ -2193,8 +2230,10 @@ export class HexGrid {
 		// Set reachable the given hexes
 		hexes.forEach((hex) => {
 			hex.setReachable();
-			// Show smaller outlined hexagons for movement range visualization
-			hex.displayVisualState('dashed shrunken');
+			// Show smaller outlined hexagons for movement range visualization.
+			// `moveRange` marks these as movement (not ability) outlines so the
+			// renderer can apply contrast effects on dark combat backgrounds.
+			hex.displayVisualState('dashed shrunken moveRange');
 		});
 	}
 

@@ -75,6 +75,7 @@ export type LayerName =
 	| 'hexesGroup'
 	| 'displayHexesGroup'
 	| 'overlayHexesGroup'
+	| 'queryDashedHexesGroup'
 	| 'dropGroup'
 	| 'infernalSmokeGroup'
 	| 'creatureGroup'
@@ -113,6 +114,8 @@ export const LAYER_SPEC: ReadonlyArray<{
 	{ name: 'hexesGroup', groupName: 'hexesGroup', parent: 'gridGroup' },
 	{ name: 'displayHexesGroup', groupName: 'displayHexesGroup', parent: 'gridGroup' },
 	{ name: 'overlayHexesGroup', groupName: 'overlayHexesGroup', parent: 'gridGroup' },
+	// Persistent occupied-target outlines stay above transient hex highlighting.
+	{ name: 'queryDashedHexesGroup', groupName: 'queryDashedHexesGroup', parent: 'gridGroup' },
 	// Sibling order within `display`, back to front.
 	{ name: 'dropGroup', groupName: 'dropGrp', parent: 'display' },
 	{ name: 'infernalSmokeGroup', groupName: 'infernalSmokeGrp', parent: 'display' },

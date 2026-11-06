@@ -7,12 +7,72 @@ import { Effect } from '../effect';
 import { getPointFacade } from '../utility/pointfacade';
 import { Hex } from '../utility/hex';
 import { shakeBoard } from '../game-display/camera';
+import { SnapshotCompatibilityError } from '../engine/GameSnapshot';
+import { INFERNAL_SCORCHED_GROUND_EFFECT } from '../engine/infernalSnapshotBehaviors';
+
+type InfernalScorchedGroundData = {
+	attackerId: number;
+	damages: Record<string, number>;
+};
+
+const bindScorchedGroundEffect = (
+	G,
+	effect: Effect,
+	data: Record<string, unknown> | undefined,
+	attackerOverride?: Creature,
+) => {
+	const candidate = data as Partial<InfernalScorchedGroundData> | undefined;
+	const attackerId = attackerOverride?.id ?? candidate?.attackerId;
+	const attacker =
+		attackerOverride ?? (Number.isInteger(attackerId) && G.creatures?.[attackerId as number]);
+	const damages = candidate?.damages;
+	if (
+		!attacker ||
+		!Number.isInteger(attackerId) ||
+		!damages ||
+		typeof damages !== 'object' ||
+		Array.isArray(damages) ||
+		Object.values(damages).some((amount) => typeof amount !== 'number' || !Number.isFinite(amount))
+	) {
+		throw new SnapshotCompatibilityError(
+			'Cannot restore Infernal scorched ground: effect data is invalid.',
+		);
+	}
+	const behaviorData: InfernalScorchedGroundData = {
+		attackerId: attackerId as number,
+		damages: { ...damages },
+	};
+	effect.attacker = attacker;
+	effect.snapshotBehaviorId = INFERNAL_SCORCHED_GROUND_EFFECT;
+	effect.snapshotBehaviorData = behaviorData;
+	effect.requireFn = function () {
+		const creature = this.trap?.hex?.creature;
+		return creature instanceof Creature && creature.id !== attacker.id;
+	};
+	effect.effectFn = (activeEffect, targetArg) => {
+		const target =
+			targetArg instanceof Creature
+				? targetArg
+				: targetArg instanceof Hex && targetArg.creature instanceof Creature
+				? targetArg.creature
+				: activeEffect.trap?.hex?.creature;
+		if (!(target instanceof Creature)) return;
+		target.takeDamage(new Damage(attacker, behaviorData.damages, 1, [], G), {
+			isFromTrap: true,
+		});
+		activeEffect.trap.destroy();
+		activeEffect.deleteEffect();
+	};
+};
 
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
  */
 export default (G) => {
+	G.registerSnapshotEffectBehavior(INFERNAL_SCORCHED_GROUND_EFFECT, (effect, data) =>
+		bindScorchedGroundEffect(G, effect, data),
+	);
 	G.abilities[4] = [
 		// 	First Ability: Boiling Point
 		{
@@ -34,60 +94,39 @@ export default (G) => {
 			},
 
 			_addTrap: function (hex) {
-				const ability = this;
+				const effect = new Effect(
+					this.title,
+					this.creature,
+					hex,
+					'onStepIn',
+					{
+						attacker: this.creature,
+						snapshotBehaviorId: INFERNAL_SCORCHED_GROUND_EFFECT,
+						snapshotBehaviorData: {
+							attackerId: this.creature.id,
+							damages: { ...this.damages },
+						},
+					},
+					G,
+				);
+				bindScorchedGroundEffect(
+					G,
+					effect,
+					{
+						attackerId: this.creature.id,
+						damages: { ...this.damages },
+					},
+					this.creature,
+				);
 
 				// Traps last forever if upgraded, otherwise 1 turn
 				const lifetime = this.isUpgraded() ? -1 : 1;
 
-				hex.createTrap(
-					'scorched-ground',
-					[
-						new Effect(
-							this.title,
-							this.creature,
-							hex,
-							'onStepIn',
-							{
-								requireFn: function () {
-									if (!this.trap.hex.creature) {
-										return false;
-									}
-									// Immunity to own trap type
-									return this.trap.hex.creature.id !== ability.creature.id;
-								},
-								effectFn: function (effect, target) {
-									const targetCreature =
-										target instanceof Creature
-											? target
-											: target instanceof Hex && target.creature instanceof Creature
-											? target.creature
-											: this.trap?.hex?.creature;
-
-									if (!(targetCreature instanceof Creature)) {
-										return;
-									}
-
-									targetCreature.takeDamage(
-										new Damage(effect.attacker, ability.damages, 1, [], G),
-										{
-											isFromTrap: true,
-										},
-									);
-									this.trap.destroy();
-									effect.deleteEffect();
-								},
-								attacker: this.creature,
-							},
-							G,
-						),
-					],
-					this.creature.player,
-					{
-						turnLifetime: lifetime,
-						ownerCreature: this.creature,
-						fullTurnLifetime: true,
-					},
-				);
+				hex.createTrap('scorched-ground', [effect], this.creature.player, {
+					turnLifetime: lifetime,
+					ownerCreature: this.creature,
+					fullTurnLifetime: true,
+				});
 			},
 		},
 
@@ -362,7 +401,9 @@ export default (G) => {
 
 					const magmaHex = crea.hexagons[args.direction === 4 ? crea.size - 1 : 0];
 					arrayUtils.filterCreature(_path, false, false);
-					_path.unshift(magmaHex); // Prevent error on empty path
+					if (magmaHex) {
+						_path.unshift(magmaHex); // Prevent error on empty path
+					}
 
 					const offset = args.direction === 4 ? crea.size - 1 : 0;
 					let destination;
@@ -389,7 +430,7 @@ export default (G) => {
 						callback: function () {
 							// Destroy traps along path
 							_path.forEach(function (hex) {
-								if (!hex.trap) {
+								if (!hex || !hex.trap) {
 									return;
 								}
 

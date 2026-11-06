@@ -144,7 +144,8 @@ export class Ability {
 	getMovementBuff?: (buff: number) => number;
 	getOffenseBuff?: (buff: number) => number;
 	_getOffenseBuff?: () => number;
-	_getHexes?: () => any;
+	_getHexes?: (invertFlipped?: boolean) => any;
+	_getDamageHexes?: (hexes: Hex[]) => Hex[];
 	_getMaxDistance: () => number;
 	_directions?: Direction[];
 	_targetTeam: Team;
@@ -172,7 +173,9 @@ export class Ability {
 	// Below methods exist in Miss-Creeper.ts
 	_isNearby: (creature: Creature) => boolean;
 	_isAdjacent: (target: Creature, creeper: Creature) => boolean;
+	_getDistance: (target: Creature, creeper: Creature) => number;
 	_ringDistance: (hex: Hex, creeper: Creature) => number;
+	_getPullStrength: (target: Creature, creeper: Creature) => number;
 	_getStepTowards: (target: Creature, creeper: Creature) => Hex | undefined;
 	_attract: (effect: Effect, target: Creature) => void;
 	_disableAbilityUpgrades: (target: Creature, tendrils: Effect) => void;
@@ -769,15 +772,40 @@ export class Ability {
 			}
 		}
 
-		const interval = setInterval(
-			() => {
-				if (!game.freezedInput) {
-					clearInterval(interval);
+		if (game.replayMode === 'load') {
+			// In fast-forward replay, do not wait on animation/freezedInput;
+			// schedule the callback shortly after activation so the replay
+			// loop always progresses.
+			setTimeout(() => {
+				try {
 					opt.callback();
+				} catch (e) {
+					console.error('[Replay] callback THREW:', e);
 				}
-			},
-			game.replayMode === 'load' ? 1 : 100,
-		);
+			}, 50);
+			return;
+		}
+
+		let callbackCalled = false;
+		const finish = () => {
+			if (callbackCalled) return;
+			callbackCalled = true;
+			clearInterval(interval);
+			clearTimeout(fallback);
+			try {
+				opt.callback();
+			} catch (e) {
+				console.error('[Replay] callback THREW:', e);
+			}
+		};
+
+		const interval = setInterval(() => {
+			if (!game.freezedInput) {
+				finish();
+			}
+		}, 100);
+
+		const fallback = setTimeout(() => finish(), 2000);
 	}
 
 	/**

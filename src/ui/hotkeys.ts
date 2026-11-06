@@ -32,6 +32,24 @@ export class Hotkeys {
 	}
 
 	pressS(event) {
+		// Shift+S: save snapshot (replaces scoreboard toggle, which moved to T)
+		if (event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey) {
+			this.ui.game.saveSnapshot?.();
+			return;
+		}
+
+		// During replay, bare S toggles fast-forward
+		if (
+			this.ui.game.isReplayInProgress &&
+			!event.shiftKey &&
+			!event.ctrlKey &&
+			!event.altKey &&
+			!event.metaKey
+		) {
+			this.ui.game.toggleReplayFastForward?.();
+			return;
+		}
+
 		if (
 			!this.ui.$scoreboard.hasClass('hide') &&
 			!event.shiftKey &&
@@ -43,9 +61,7 @@ export class Hotkeys {
 			return;
 		}
 
-		if (event.shiftKey) {
-			this.ui.toggleView('score');
-		} else if (event.ctrlKey) {
+		if (event.ctrlKey) {
 			this.ui.game.gamelog.save();
 		} else {
 			if (this.ui.dashopen) {
@@ -178,6 +194,18 @@ export class Hotkeys {
 	}
 
 	pressF(event) {
+		// Bare F during replay: toggle fast-forward
+		if (
+			this.ui.game.isReplayInProgress &&
+			!event.shiftKey &&
+			!event.ctrlKey &&
+			!event.altKey &&
+			!event.metaKey
+		) {
+			this.ui.btnSkipTurn.triggerClick();
+			return;
+		}
+
 		if (event.shiftKey) {
 			this.ui.fullscreen.toggle();
 		}

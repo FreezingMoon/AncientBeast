@@ -1460,7 +1460,7 @@ function ensureAcrylicWallData(G: Game) {
 		type: ACRYLIC_WALL_TYPE,
 		size: 1 as const,
 		set: '' as const,
-		stats: {
+		vitals: {
 			health: 30,
 			regrowth: 0,
 			endurance: 0,
@@ -1470,6 +1470,8 @@ function ensureAcrylicWallData(G: Game) {
 			offense: 0,
 			defense: 0,
 			movement: 0,
+		},
+		masteries: {
 			pierce: 0,
 			slash: 0,
 			crush: 0,

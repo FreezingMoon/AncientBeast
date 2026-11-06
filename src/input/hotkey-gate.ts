@@ -22,6 +22,8 @@ export interface HotkeyGateContext {
 	interfaceViewOpen: boolean;
 	/** Whether the scoreboard is showing. */
 	scoreboardOpen: boolean;
+	/** Whether replay controls are active, making bare F a replay toggle. */
+	replayInProgress: boolean;
 }
 
 const hasNoModifierKeys = (event: KeyboardEvent) =>
@@ -38,8 +40,7 @@ export const isDashViewHotkey = (event: KeyboardEvent) =>
 	event.code === 'KeyD' && isShiftOnly(event);
 
 export const isScoreViewHotkey = (event: KeyboardEvent) =>
-	(event.code === 'KeyT' && hasNoModifierKeys(event)) ||
-	(event.code === 'KeyS' && isShiftOnly(event));
+	event.code === 'KeyT' && hasNoModifierKeys(event);
 
 /** Shift+A, which opens and closes the audio view. */
 export const isAudioViewHotkey = (event: KeyboardEvent) =>
@@ -56,7 +57,7 @@ export const isViewSwitchHotkey = (event: KeyboardEvent) =>
 	isHotkeysViewHotkey(event);
 
 export const isScoreboardActionHotkey = (event: KeyboardEvent) =>
-	(event.code === 'KeyS' || event.code === 'KeyR' || event.code === 'KeyX') &&
+	(event.code === 'KeyR' || event.code === 'KeyS' || event.code === 'KeyX') &&
 	hasNoModifierKeys(event);
 
 /**
@@ -76,7 +77,8 @@ export const isScoreboardHotkey = (event: KeyboardEvent) =>
 	event.code === 'Escape' ||
 	isViewSwitchHotkey(event) ||
 	isFullscreenHotkey(event) ||
-	isScoreboardActionHotkey(event);
+	isScoreboardActionHotkey(event) ||
+	(event.code === 'KeyS' && isShiftOnly(event));
 
 /**
  * Keys that stay live while `game.freezedInput` is true, because none of them
@@ -96,7 +98,11 @@ export const isUtilityHotkey = (event: KeyboardEvent, context: HotkeyGateContext
 	(event.code === 'Escape' && context.interfaceViewOpen) ||
 	(isScoreboardActionHotkey(event) && context.scoreboardOpen) ||
 	(event.code === 'KeyX' && event.shiftKey && event.ctrlKey && !event.metaKey && !event.altKey) ||
+	(event.code === 'KeyS' && event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey) ||
 	event.code === 'Backquote' ||
 	event.code === 'Backspace' ||
 	(event.code === 'KeyP' && event.metaKey && event.altKey && !event.ctrlKey && !event.shiftKey) ||
-	(isAudioModeHotkey(event) && !context.dashOpen);
+	(event.code === 'KeyF' && hasNoModifierKeys(event) && context.replayInProgress) ||
+	(isAudioModeHotkey(event) && !context.dashOpen) ||
+	// Shift+S: save snapshot
+	(event.code === 'KeyS' && event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey);

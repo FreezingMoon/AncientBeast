@@ -15,6 +15,7 @@ export class Queue {
 	private vignettes: Array<Vignette>;
 	private eventHandlers: QueueEventHandlers;
 	private delayPreviewEl: HTMLElement | null = null;
+	private layoutKey: string;
 
 	static IMMEDIATE = 1;
 
@@ -23,6 +24,7 @@ export class Queue {
 		this.element.innerHTML = '';
 		this.vignettes = [];
 		this.eventHandlers = eventHandlers;
+		this.layoutKey = this.getLayoutKey();
 	}
 
 	setQueue(eventQueue: EventQueue, turnNumber: number) {
@@ -37,6 +39,34 @@ export class Queue {
 
 	refresh() {
 		this.vignettes.forEach((v) => v.refresh());
+	}
+
+	resize() {
+		const layoutKey = this.getLayoutKey();
+		if (layoutKey === this.layoutKey) {
+			return;
+		}
+		this.layoutKey = layoutKey;
+		this.clearDelayPreview();
+		let x = 0;
+		this.vignettes.forEach((v, index) => {
+			v.pendingActivationAnimation?.cancel();
+			v.pendingActivationAnimation = null;
+			v.el.getAnimations().forEach((animation) => animation.cancel());
+			v.previousQueueX = -1;
+			v.update(index, x);
+			v.el.getAnimations().forEach((animation) => animation.finish());
+			x += v.getWidth();
+		});
+	}
+
+	private getLayoutKey() {
+		if (window.matchMedia('(orientation: landscape) and (max-height: 512px)').matches) {
+			return window.matchMedia('(max-height: 319px)').matches ? 'compact-small' : 'compact';
+		}
+		return window.matchMedia('(orientation: portrait) and (max-width: 600px)').matches
+			? 'portrait'
+			: 'desktop';
 	}
 
 	empty(immediately: number) {
@@ -94,6 +124,21 @@ export class Queue {
 		this.clearDelayPreview();
 		const prevVs = this.vignettes;
 		this.vignettes = Queue.reuseOldDomElements(prevVs, nextVignettes);
+		const nextHashes = new Set(this.vignettes.map((v) => v.getHash()));
+		if (prevVs.some((v) => TurnEndMarkerVignette.is(v) && !nextHashes.has(v.getHash()))) {
+			const first = this.vignettes[0];
+			if (first instanceof CreatureVignette) {
+				first.activatingAfterRoundMarker = true;
+				if (first.previousQueueX > 100) {
+					const width = first.getQueuedWidth();
+					this.vignettes.slice(1).forEach((v) => {
+						if (v instanceof CreatureVignette && v.previousQueueX >= 0) {
+							v.roundHandoff = { width };
+						}
+					});
+				}
+			}
+		}
 		Queue.deleteRemovedVignettes(this.vignettes, prevVs);
 		Queue.insertUpdateNextVignettes(this.vignettes, prevVs, this.element);
 	}
@@ -246,6 +291,7 @@ export class Queue {
 		for (const newV of newVignettes) {
 			const hash = newV.getHash();
 			if (oldVDict.hasOwnProperty(hash)) {
+				oldVDict[hash].pendingActivationAnimation?.cancel();
 				newV.el = oldVDict[hash].el;
 				// Keep the rendered X coordinate, not a gameplay-specific delay flag.
 				// Anything that actually moves this avatar backwards in the current
@@ -268,6 +314,15 @@ export class Queue {
 			0,
 		);
 		const frontDeletedHashes = new Set(vignettesDeletedAtFront.map((v) => v.getHash()));
+		const outgoing = vignettesDeletedAtFront[0];
+		const marker = vignettesDeletedAtFront[1];
+		if (
+			outgoing instanceof CreatureVignette &&
+			outgoing.isActiveCreature &&
+			marker instanceof TurnEndMarkerVignette
+		) {
+			outgoing.followingRoundMarkerWidth = marker.getWidth();
+		}
 
 		let x = 0;
 		prevVignettes.forEach((v, i) => {
@@ -310,6 +365,7 @@ export class Queue {
 }
 
 class Vignette {
+	pendingActivationAnimation: Animation | null = null;
 	queuePosition = -1;
 	xPosition = -1;
 	previousQueueX = -1;
@@ -464,6 +520,9 @@ class Vignette {
 }
 
 class CreatureVignette extends Vignette {
+	followingRoundMarkerWidth: number | null = null;
+	roundHandoff: { width: number } | null = null;
+	activatingAfterRoundMarker = false;
 	creature: Creature;
 	isActiveCreature: boolean;
 	turnNumberIsCurrentTurn: boolean;
@@ -517,9 +576,68 @@ class CreatureVignette extends Vignette {
 	update(queuePosition: number, x: number) {
 		this.queuePosition = queuePosition;
 		this.xPosition = x;
+		if (this.roundHandoff && !this.isActiveCreature) {
+			const { width } = this.roundHandoff;
+			const duration = CONST.animDurationMS;
+			const offset = x - 100;
+			this.updateDOM();
+			const animation = this.el.animate(
+				[{ transform: `translateX(${100 + width + offset}px) translateY(0px) scale(1)` }],
+				{ duration, fill: 'forwards' },
+			);
+			this.pendingActivationAnimation = animation;
+			animation.onfinish = () => {
+				animation.commitStyles();
+				animation.cancel();
+				this.pendingActivationAnimation = null;
+				const frames = Array.from({ length: 9 }, (_, i) => {
+					const p = i / 8;
+					const leaderRight = 100 * (1 - p) + (width + (80 - width) * p) * (1 + 0.25 * p);
+					return {
+						transform: `translateX(${leaderRight + offset}px) translateY(0px) scale(1)`,
+						offset: p,
+					};
+				});
+				this.el.animate(frames, { duration: CONST.animDurationMS, fill: 'forwards' });
+			};
+			return this;
+		}
+		if (this.activatingAfterRoundMarker && this.previousQueueX > 100 && this.isActiveCreature) {
+			const duration = CONST.animDurationMS;
+			const animation = this.el.animate(
+				[{ transform: 'translateX(100px) translateY(0px) scale(1)' }],
+				{ duration, fill: 'forwards' },
+			);
+			this.pendingActivationAnimation = animation;
+			animation.onfinish = () => {
+				animation.commitStyles();
+				animation.cancel();
+				this.pendingActivationAnimation = null;
+				this.activateAndAnimate(queuePosition, x);
+			};
+			return this;
+		}
+		this.activateAndAnimate(queuePosition, x);
+		return this;
+	}
+
+	private activateAndAnimate(queuePosition: number, x: number) {
+		const enteringActive = this.isActiveCreature && !this.el.classList.contains('active');
+		const style = window.getComputedStyle(this.el);
+		const before = {
+			width: style.width,
+			height: style.height,
+			marginTop: style.marginTop,
+		};
 		this.updateDOM();
 		this.animateUpdate(queuePosition, x);
-		return this;
+		if (enteringActive) {
+			const target = window.getComputedStyle(this.el);
+			this.el.animate(
+				[before, { width: target.width, height: target.height, marginTop: target.marginTop }],
+				{ duration: CONST.animDurationMS },
+			);
+		}
 	}
 
 	private updateDOM() {
@@ -644,6 +762,23 @@ class CreatureVignette extends Vignette {
 			return this.animateKill(x);
 		}
 		const scale = this.isActiveCreature ? 1.25 : 1;
+		if (this.followingRoundMarkerWidth !== null) {
+			const animation = this.el.animate(
+				[
+					{ transform: `translateX(${x}px) translateY(0px) scale(${scale})`, offset: 0 },
+					{
+						transform: `translateX(${
+							this.followingRoundMarkerWidth * 0.7 - 100
+						}px) translateY(0px) scale(${scale})`,
+						offset: 0.3,
+					},
+					{ transform: `translateX(-100px) translateY(0px) scale(${scale})`, offset: 1 },
+				],
+				{ duration: CONST.animDurationMS, fill: 'forwards' },
+			);
+			animation.commitStyles();
+			return animation;
+		}
 		const keyframes = [
 			{
 				transform: `translateX(${x - emptySpaceAtFrontOfQueue}px) translateY(0px) scale(${scale})`,
@@ -725,7 +860,14 @@ class CreatureVignette extends Vignette {
 	}
 
 	getWidth() {
-		return this.isActiveCreature ? 100 : 80;
+		return this.isActiveCreature ? 100 : this.getQueuedWidth();
+	}
+
+	getQueuedWidth() {
+		if (window.matchMedia('(orientation: landscape) and (max-height: 512px)').matches) {
+			return window.matchMedia('(max-height: 319px)').matches ? 56 : 64;
+		}
+		return 80;
 	}
 
 	static is(obj: object) {
@@ -749,6 +891,83 @@ class TurnEndMarkerVignette extends Vignette {
 			<div class="frame"></div>
             <div class="stats">Round ${this.turnNumber}</div>
 		</div>`;
+	}
+
+	animateInsert(queuePosition: number, x: number) {
+		const enlarged = queuePosition === 0;
+		const scale = enlarged ? 100 / this.getIconWidth() : 1;
+		const y = enlarged ? 20 + this.getIconWidth() * (1 - scale) : 0;
+		this.el.classList.toggle('active', enlarged);
+		const animation = this.el.animate(
+			[
+				{
+					transform: `translateX(${x + 500}px) translateY(${y - 100}px) scale(${scale})`,
+					easing: 'ease-out',
+				},
+				{
+					transform: `translateX(${x + 500}px) translateY(${y}px) scale(${scale})`,
+					easing: 'ease-in',
+					offset: 0.3,
+				},
+				{ transform: `translateX(${x}px) translateY(${y}px) scale(${scale})` },
+			],
+			{ duration: CONST.animDurationMS, fill: 'forwards' },
+		);
+		animation.commitStyles();
+		return animation;
+	}
+
+	animateUpdate(queuePosition: number, x: number) {
+		const enlarged = queuePosition === 0;
+		const scale = enlarged ? 100 / this.getIconWidth() : 1;
+		this.el.classList.toggle('active', enlarged);
+		const y = enlarged ? 20 + this.getIconWidth() * (1 - scale) : 0;
+		const keyframes = [{ transform: `translateX(${x}px) translateY(${y}px) scale(${scale})` }];
+		const animation = this.el.animate(keyframes, {
+			duration: CONST.animDurationMS,
+			fill: 'forwards',
+		});
+		animation.commitStyles();
+		return animation;
+	}
+
+	animateDeleteFromFront(queuePosition: number, x: number, emptySpaceAtFrontOfQueue: number) {
+		const width = this.getIconWidth();
+		const scale = 100 / width;
+		this.el.classList.add('active');
+		// The active marker has no label: anchor the icon itself to the bottom.
+		const y = 20 + width * (1 - scale);
+		const approachDuration = queuePosition === 0 ? 0 : CONST.animDurationMS;
+		const duration = approachDuration + CONST.animDurationMS;
+		const cornerOffset = approachDuration / duration;
+		const target = {
+			transform: `translateX(-100px) translateY(${y}px) scale(${scale})`,
+			offset: 1,
+		};
+		// Share the following avatar's approach and departure timing, keeping their edges together.
+		const keyframes =
+			approachDuration > 0
+				? [
+						{ transform: `translateX(${x}px) translateY(0px) scale(1)`, offset: 0 },
+						{
+							transform: `translateX(${
+								(emptySpaceAtFrontOfQueue - 100) * 0.7
+							}px) translateY(${y}px) scale(${scale})`,
+							offset: cornerOffset * 0.3,
+						},
+						{
+							transform: `translateX(0px) translateY(${y}px) scale(${scale})`,
+							offset: cornerOffset,
+						},
+						target,
+				  ]
+				: [target];
+		const animation = this.el.animate(keyframes, {
+			duration,
+			fill: 'forwards',
+		});
+		animation.commitStyles();
+		return animation;
 	}
 
 	addEvents() {
@@ -781,6 +1000,17 @@ class TurnEndMarkerVignette extends Vignette {
 		el.addEventListener('mouseleave', () => {
 			if (h.onTurnEndMouseLeave) h.onTurnEndMouseLeave(this.turnNumber);
 		});
+	}
+
+	getWidth() {
+		return this.el?.classList.contains('active') ? 100 : this.getIconWidth();
+	}
+
+	private getIconWidth() {
+		if (window.matchMedia('(orientation: landscape) and (max-height: 512px)').matches) {
+			return window.matchMedia('(max-height: 319px)').matches ? 56 : 64;
+		}
+		return 80;
 	}
 
 	static is(obj: object) {

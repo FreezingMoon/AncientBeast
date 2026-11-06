@@ -1,10 +1,42 @@
-import $j from 'jquery';
 import skin from './skin';
 import beastAudioFile from 'assets/sounds/AncientBeast.ogg';
 
+interface JQueryEventObject {
+	preventDefault(): void;
+	stopPropagation(): void;
+	target: HTMLElement;
+	currentTarget: HTMLElement;
+}
+
+interface JQuery<T = HTMLElement> extends ArrayLike<T> {
+	addClass(className: string): this;
+	removeClass(className?: string): this;
+	toggleClass(className: string, state?: boolean): this;
+	hasClass(className: string): boolean;
+	find(selector: string): JQuery<HTMLElement>;
+	parent(): JQuery<HTMLElement>;
+	children(): JQuery<HTMLElement>;
+	attr(name: string): string | undefined;
+	text(): string;
+	off(event: string): this;
+	on(event: string, handler: (e: JQueryEventObject) => void): this;
+	not(selector: string): JQuery<HTMLElement>;
+	length: number;
+	[index: number]: T;
+}
+
+import $j from 'jquery';
+
 export class MusicPlayer {
+	audio: HTMLAudioElement;
+	playlist: JQuery<HTMLElement>;
+	tracks: JQuery<HTMLElement>;
+	repeat: boolean;
+	beastAudio: HTMLAudioElement;
+	currentlyPlaying?: JQuery<HTMLElement>;
+
 	constructor() {
-		this.audio = skin;
+		this.audio = skin as unknown as HTMLAudioElement;
 		this.playlist = $j('#playlist');
 		this.tracks = this.playlist.find('li.epic');
 
@@ -21,7 +53,7 @@ export class MusicPlayer {
 		// Debug genre selection
 		$j('.musicgenres__title')
 			.off('click')
-			.on('click', (e) => {
+			.on('click', (e: JQuery.ClickEvent) => {
 				e.preventDefault();
 				e.stopPropagation();
 
@@ -31,7 +63,7 @@ export class MusicPlayer {
 				if (!clickedGenre.hasClass('active-text')) {
 					// The inner text is capitalized but the class name is not (e.g Epic vs epic).
 					// We must use toLowerCase so that it works correctly.
-					const clickedGenreClass = e.target.innerText.toLowerCase();
+					const clickedGenreClass = (e.target as HTMLElement).innerText.toLowerCase();
 					const unusedTracks = this.playlist.find(`li.${clickedGenreClass}`);
 					unusedTracks.addClass('hidden');
 				}
@@ -41,11 +73,11 @@ export class MusicPlayer {
 
 				const activeGenresSelectors = Array.prototype.map.call(
 					activeGenres.length === 0 ? allGenres : activeGenres, // Here if no genre is active then all genres shall pass
-					(genreNode) => `li.${genreNode.innerText.toLowerCase()}`,
+					(genreNode: HTMLElement) => `li.${genreNode.innerText.toLowerCase()}`,
 				);
 				const allGenresSelectors = Array.prototype.map.call(
 					allGenres,
-					(genreNode) => `li.${genreNode.innerText.toLowerCase()}`,
+					(genreNode: HTMLElement) => `li.${genreNode.innerText.toLowerCase()}`,
 				);
 				const activeTracks = this.playlist.find(activeGenresSelectors.join());
 				const allTracks = this.playlist.find(allGenresSelectors.join()); // This will fetch all the tracks
@@ -58,7 +90,7 @@ export class MusicPlayer {
 		this.playlist
 			.find('li')
 			.off('click')
-			.on('click', (e) => {
+			.on('click', (e: JQuery.ClickEvent) => {
 				e.preventDefault();
 				e.stopPropagation();
 				this.run($j(e.currentTarget));
@@ -75,7 +107,7 @@ export class MusicPlayer {
 
 		$j('.audio-player-beast')
 			.off('click')
-			.on('click', (e) => {
+			.on('click', (e: JQuery.ClickEvent) => {
 				e.stopPropagation();
 				// Perform on beast click
 				this.beastAudio.play();
@@ -84,32 +116,35 @@ export class MusicPlayer {
 		// Volume sliders requested
 		$j('#vol')
 			.off('change')
-			.on('change', (e) => {
-				this.audio.volume = Number(e.target.value);
+			.on('change', (e: JQuery.ChangeEvent) => {
+				this.audio.volume = Number((e.target as HTMLInputElement).value);
 			});
 
 		$j('#sfx')
 			.off('change')
-			.on('change', (e) => {
-				if (window.game && window.game.soundsys) {
-					window.game.soundsys.allEffectsMultiplier = Number(e.target.value);
+			.on('change', (e: JQuery.ChangeEvent) => {
+				const game = (
+					window as unknown as { game?: { soundsys?: { allEffectsMultiplier: number } } }
+				).game;
+				if (game && game.soundsys) {
+					game.soundsys.allEffectsMultiplier = Number((e.target as HTMLInputElement).value);
 				}
 			});
 	}
 
-	getCurrentTrackIndex() {
-		return Array.prototype.findIndex.call(this.tracks, (track) =>
+	getCurrentTrackIndex(): number {
+		return Array.prototype.findIndex.call(this.tracks, (track: HTMLElement) =>
 			track.classList.contains('active-text'),
 		);
 	}
 
-	playRandom() {
+	playRandom(): void {
 		const currentTrackIndex = this.getCurrentTrackIndex();
 		// Check if any genre is active
 		const genreExists = $j('.musicgenres__items').children().hasClass('active-text');
 		// If a genre is active, get a random track and play it, else stop audio
 		if (genreExists) {
-			let rand;
+			let rand: number;
 
 			do {
 				rand = Math.floor(Math.random() * (this.tracks.length - 1));
@@ -123,7 +158,7 @@ export class MusicPlayer {
 		}
 	}
 
-	playNext() {
+	playNext(): void {
 		const currentTrackIndex = this.getCurrentTrackIndex();
 		const nextTrackIndex = currentTrackIndex + 1;
 		const isNextTrackExists = this.tracks[nextTrackIndex];
@@ -134,7 +169,7 @@ export class MusicPlayer {
 		this.run($j(track));
 	}
 
-	run(track) {
+	run(track: JQuery<HTMLElement>): void {
 		// Style the active track in the playlist
 		const link = track.find('a');
 		const nextSrc = link.attr('href');
@@ -149,7 +184,8 @@ export class MusicPlayer {
 			return;
 		}
 
-		track.addClass('active-text').siblings().removeClass('active-text');
+		track.addClass('active-text');
+		(track as any).siblings?.().removeClass('active-text');
 		this.audio.src = nextSrc;
 		this.audio.load();
 
@@ -161,7 +197,7 @@ export class MusicPlayer {
 		}
 
 		// Play audio
-		this.audio.play().catch((error) => {
+		this.audio.play().catch((error: any) => {
 			if (error?.name === 'AbortError') {
 				return;
 			}
@@ -169,7 +205,9 @@ export class MusicPlayer {
 		});
 	}
 
-	stopMusic() {
-		this.audio.pause();
+	stopMusic(): void {
+		if (this.audio && typeof this.audio.pause === 'function') {
+			this.audio.pause();
+		}
 	}
 }

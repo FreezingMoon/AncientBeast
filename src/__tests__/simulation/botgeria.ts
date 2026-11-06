@@ -1,5 +1,5 @@
 /**
- * @jest-environment <rootDir>/test/jsdom-environment.js
+ * @jest-environment <rootDir>/test/jsdom-environment.ts
  * @jest-environment-options {"resources": "usable"}
  */
 
@@ -559,6 +559,12 @@ export async function createGame(abilities: Array<(G: any) => void>): Promise<an
 		if (this.gameState === 'ended') return;
 		this.stopTimer?.();
 		setTimeout(() => {
+			// Mirror game.ts:nextCreature's `tornDown` guard: this raw timer is not
+			// tracked by `_cancelDeferredTimers`, so without it the callback can fire
+			// after `disposeGame()` tore the board down (or after the match ended) and
+			// activate a creature whose hexagons were already cleaned — crashing any
+			// onStartPhase ability (e.g. Infernal's Scorched Ground `hex.createTrap`).
+			if (this.tornDown || this.gameState === 'ended') return;
 			if (this.queue.isCurrentEmpty() || this.turn === 0) {
 				this.nextRound();
 				return;
@@ -758,7 +764,7 @@ export async function runMatch(game: unknown): Promise<MatchResult> {
 		// and draining microtasks alone never lets those fire.
 		await new Promise((resolve) => setTimeout(resolve, 0));
 		const _dtSlice = realPerf.now() - _t0;
-		if (_dbgTick < 20)
+		if (_dbgTick < 0)
 			(process.stderr as any).write(
 				`  [slice${_dbgTick} t=${(game as any).turn} ${_dtSlice.toFixed(0)}ms]\n`,
 			);

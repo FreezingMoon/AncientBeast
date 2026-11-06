@@ -132,10 +132,9 @@ export function spawnAfterimageTrail(game: Game, creature: Creature, durationMS:
 /**
  * Spawn a vertigo trail for a projectile sprite.
  *
- * The projectile travels in a straight line from startPos to endPos
- * over `durationMS`. Afterimages are sampled along this path at
- * regular intervals, each a copy of the projectile sprite that fades
- * out and rises slightly.
+ * By default, samples a straight path from startPos to endPos over
+ * `durationMS`. Curved, spinning projectiles can sample their live transform
+ * instead. Each copy fades out and rises slightly.
  *
  * @param game The game instance
  * @param sprite The projectile sprite to trail
@@ -143,6 +142,8 @@ export function spawnAfterimageTrail(game: Game, creature: Creature, durationMS:
  * @param endPos Ending position {x, y}
  * @param durationMS Duration of the projectile flight in ms
  * @param rotation Rotation of the projectile (in radians)
+ * @param endRotation Final rotation for interpolated trails
+ * @param sampleLiveTransform Sample the sprite's current position and rotation
  */
 export function spawnProjectileVertigoTrail(
 	game: Game,
@@ -152,6 +153,7 @@ export function spawnProjectileVertigoTrail(
 	durationMS: number,
 	rotation: number,
 	endRotation = rotation,
+	sampleLiveTransform = false,
 ): void {
 	const engine = game.gameEngine;
 	const textureKey = sprite.texture.key;
@@ -168,8 +170,8 @@ export function spawnProjectileVertigoTrail(
 
 			// Interpolate position along the projectile's path
 			const t = Math.min(delay / durationMS, 1);
-			const afterimageX = startPos.x + (endPos.x - startPos.x) * t;
-			const afterimageY = startPos.y + (endPos.y - startPos.y) * t;
+			const afterimageX = sampleLiveTransform ? sprite.x : startPos.x + (endPos.x - startPos.x) * t;
+			const afterimageY = sampleLiveTransform ? sprite.y : startPos.y + (endPos.y - startPos.y) * t;
 
 			const afterimage = engine.add.sprite(
 				afterimageX,
@@ -179,7 +181,9 @@ export function spawnProjectileVertigoTrail(
 				game.grid.creatureGroup,
 			);
 			afterimage.setOrigin(0.5, 0.5);
-			afterimage.rotation = rotation + (endRotation - rotation) * t;
+			afterimage.rotation = sampleLiveTransform
+				? sprite.rotation
+				: rotation + (endRotation - rotation) * t;
 			afterimage.alpha = AFTERIMAGE_ALPHA;
 
 			// Match projectile's depth

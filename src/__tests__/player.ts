@@ -78,4 +78,25 @@ describe('Player#getScore', () => {
 		expect(score.annihilation).toBe(99);
 		expect(score.total).toBe(99);
 	});
+
+	describe('combo', () => {
+		test('gives 5 points per kill', () => {
+			const player = getPlayerMock();
+			player.score.push({ type: 'combo', kills: 2 });
+
+			const score = player.getScore();
+			expect(score.combo).toBe(10);
+			expect(score.total).toBe(10);
+		});
+
+		test('scales with number of kills', () => {
+			const player = getPlayerMock();
+			player.score.push({ type: 'combo', kills: 3 });
+			player.score.push({ type: 'combo', kills: 5 });
+
+			const score = player.getScore();
+			expect(score.combo).toBe(15 + 25);
+			expect(score.total).toBe(40);
+		});
+	});
 });

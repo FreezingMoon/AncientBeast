@@ -3,6 +3,7 @@ import $j from 'jquery';
 import { Ability } from './ability';
 import { search } from './utility/pathfinding';
 import { Hex } from './utility/hex';
+import { disperseBadBreathCloudsAt } from './vfx/bad-breath';
 import Game from './game';
 import * as arrayUtils from './utility/arrayUtils';
 import { Drop, DropDefinition } from './drop';
@@ -34,6 +35,7 @@ import type {
 	SpriteHandle,
 	TweenHandle,
 } from './engine/types';
+import { GOOEY_BODY_BRB_TRAP_BEHAVIOR } from './engine/snapshotBehaviors';
 import { getFrameSize, MISSING_TEXTURE_KEY } from './game-display/texture';
 import { onPointerDown } from './input/input';
 import { setHandCursor } from './game-display/cursor';
@@ -183,10 +185,11 @@ type Status = {
 	dizzy: boolean;
 };
 
+export type CreatureDeathAnimationType = 'shatterDown' | 'melt' | 'disintegrate';
+
 type CreatureRuntimeFlags = {
 	hideFromQueue?: boolean;
 	hideFromCreatureCount?: boolean;
-	deathAnimationType?: string;
 };
 
 /**
@@ -243,6 +246,7 @@ export class Creature {
 	animation: { walk_speed: number };
 	display: UnitDisplayInfo;
 	drop: DropDefinition;
+	deathAnimationType?: CreatureDeathAnimationType;
 	_movementType: Movement;
 	/** Set from the unit's `afterimages` flag in `data/units.ts`. */
 	private _afterimages = false;
@@ -257,7 +261,7 @@ export class Creature {
 	hasWait: boolean;
 	travelDist: number;
 	effects: Array<Effect>;
-	dropCollection: Drop[];
+	dropCollection: Pick<Drop, 'name' | 'alterations'>[];
 	protectedFromFatigue: boolean;
 	turnsActive: number;
 	private _nextGameTurnActive: number;
@@ -265,6 +269,7 @@ export class Creature {
 	private _hinderedTurn: number;
 	materializationSickness: boolean;
 	noActionPossible: boolean;
+	_restoringFromSnapshot = false;
 
 	// Statistics
 	baseStats: CreatureStats;
@@ -396,24 +401,24 @@ export class Creature {
 
 		// Statistics
 		this.baseStats = {
-			health: obj.stats.health - 0,
-			endurance: obj.stats.endurance - 0,
-			regrowth: obj.stats.regrowth - 0,
-			energy: obj.stats.energy - 0,
-			meditation: obj.stats.meditation - 0,
-			initiative: obj.stats.initiative - 0,
-			offense: obj.stats.offense - 0,
-			defense: obj.stats.defense - 0,
-			movement: obj.stats.movement - 0,
-			pierce: obj.stats.pierce - 0,
-			slash: obj.stats.slash - 0,
-			crush: obj.stats.crush - 0,
-			shock: obj.stats.shock - 0,
-			burn: obj.stats.burn - 0,
-			frost: obj.stats.frost - 0,
-			poison: obj.stats.poison - 0,
-			sonic: obj.stats.sonic - 0,
-			mental: obj.stats.mental - 0,
+			health: obj.vitals.health - 0,
+			endurance: obj.vitals.endurance - 0,
+			regrowth: obj.vitals.regrowth - 0,
+			energy: obj.vitals.energy - 0,
+			meditation: obj.vitals.meditation - 0,
+			initiative: obj.vitals.initiative - 0,
+			offense: obj.vitals.offense - 0,
+			defense: obj.vitals.defense - 0,
+			movement: obj.vitals.movement - 0,
+			pierce: (obj.masteries?.pierce ?? (obj.vitals as any)?.pierce) - 0,
+			slash: (obj.masteries?.slash ?? (obj.vitals as any)?.slash) - 0,
+			crush: (obj.masteries?.crush ?? (obj.vitals as any)?.crush) - 0,
+			shock: (obj.masteries?.shock ?? (obj.vitals as any)?.shock) - 0,
+			burn: (obj.masteries?.burn ?? (obj.vitals as any)?.burn) - 0,
+			frost: (obj.masteries?.frost ?? (obj.vitals as any)?.frost) - 0,
+			poison: (obj.masteries?.poison ?? (obj.vitals as any)?.poison) - 0,
+			sonic: (obj.masteries?.sonic ?? (obj.vitals as any)?.sonic) - 0,
+			mental: (obj.masteries?.mental ?? (obj.vitals as any)?.mental) - 0,
 
 			/* TODO: Move boolean flags into this.status, because updateAlterations() resets
 			this.stats unless they've been applied via an effect. */
@@ -475,11 +480,11 @@ export class Creature {
 		};
 
 		// Current health. Maximum health is `this.stats.health`.
-		this.health = obj.stats.health;
+		this.health = obj.vitals.health;
 		// Current endurance. Maximum endurance is `this.stats.endurance`.
-		this.endurance = obj.stats.endurance;
+		this.endurance = obj.vitals.endurance;
 		// Current energy. Maximum energy is `this.stats.energy`.
-		this.energy = obj.stats.energy;
+		this.energy = obj.vitals.energy;
 		// Current movement. Maximum movement is `this.maxMovement`.
 		this.remainingMove = 0; //Default value recovered each turn
 		// Movement banked from previous turns. Only abilities granting a
@@ -556,6 +561,18 @@ export class Creature {
 	}
 
 	/**
+	 * Set creature position and sync sprite/hex state.
+	 * Used for snapshot reconstruction and direct placement.
+	 */
+	setPosition(x: number, y: number) {
+		this.x = x;
+		this.y = y;
+		this.pos = { x, y };
+		this.updateHex();
+		this.creatureSprite.setHex(this.hexagons[this.size - 1], 0);
+	}
+
+	/**
 	 * Summon animation.
 	 */
 	summon(disableMaterializationSickness = false) {
@@ -608,6 +625,13 @@ export class Creature {
 		// Trigger trap under
 		this.hexagons.forEach((hex) => {
 			hex.activateTrap(game.triggers.onStepIn, this);
+			if (this.name !== 'Swampler') {
+				try {
+					disperseBadBreathCloudsAt(game, hex.x, hex.y, this);
+				} catch {
+					// ignore
+				}
+			}
 		});
 
 		// Pickup drop
@@ -629,15 +653,19 @@ export class Creature {
 	 * Activate the creature by showing movement range and binding controls to this creature
 	 */
 	activate() {
-		this.travelDist = 0;
-		this.oldEnergy = this.energy;
-		this.oldHealth = this.health;
-		this.noActionPossible = false;
+		const restoringFromSnapshot = this._restoringFromSnapshot;
+		this._restoringFromSnapshot = false;
+		if (!restoringFromSnapshot) {
+			this.travelDist = 0;
+			this.oldEnergy = this.energy;
+			this.oldHealth = this.health;
+			this.noActionPossible = false;
 
-		// Show the Plasma Field for an active Dark Priest with plasma so the player
-		// can see their shield during their own turn. Cleared in deactivate() once
-		// the creature performs an action.
-		this._plasmaFieldActiveTurn = this.isDarkPriest() && this.hasCreaturePlayerGotPlasma();
+			// Show the Plasma Field for an active Dark Priest with plasma so the player
+			// can see their shield during their own turn. Cleared in deactivate() once
+			// the creature performs an action.
+			this._plasmaFieldActiveTurn = this.isDarkPriest() && this.hasCreaturePlayerGotPlasma();
+		}
 
 		const game = this.game;
 		const stats = this.stats;
@@ -683,7 +711,7 @@ export class Creature {
 		varReset.bind(this);
 
 		// Frozen or dizzy effect
-		if (this.isFrozen() || this.isDizzy()) {
+		if (!restoringFromSnapshot && (this.isFrozen() || this.isDizzy())) {
 			varReset();
 			game.poll(() => {
 				if (game.turnThrottle) return;
@@ -720,7 +748,7 @@ export class Creature {
 			}, 50);
 			return;
 		}
-		if (!this.hasWait) {
+		if (!restoringFromSnapshot && !this.hasWait) {
 			varReset();
 
 			// Trigger
@@ -728,7 +756,9 @@ export class Creature {
 			game.onStartPhase(this);
 		}
 
-		this.materializationSickness = false;
+		if (!restoringFromSnapshot) {
+			this.materializationSickness = false;
+		}
 
 		// The opening movement query is deferred a second so the activation
 		// animation plays first, and by then the board may no longer be waiting for
@@ -1255,9 +1285,19 @@ export class Creature {
 	 */
 	updateHex() {
 		const count = this.size;
-		let i;
 
-		for (i = 0; i < count; i++) {
+		// Detach from any hexes we previously occupied so a moved creature does
+		// not leave a stale `creature` reference (and a ghost health indicator)
+		// behind on its old tiles.
+		this.hexagons.forEach((hex) => {
+			if (hex && hex.creature === this) {
+				hex.creature = undefined;
+			}
+		});
+		// Clear existing hexagons first to avoid duplicates
+		this.hexagons.length = 0;
+
+		for (let i = 0; i < count; i++) {
 			this.hexagons.push(this.game.grid.hexes[this.y][this.x - i]);
 		}
 
@@ -1269,6 +1309,7 @@ export class Creature {
 	highlightCurrentHexesAsDashed() {
 		const dashedTexture = `hex_dashed_p${this.player.id}`;
 		this.hexagons.forEach((hex) => {
+			if (typeof hex._swamplerHomeOwner === 'number') return;
 			if (hex.display.key !== dashedTexture) {
 				hex.display.setTexture(dashedTexture);
 			}
@@ -1278,6 +1319,7 @@ export class Creature {
 	clearDashedOverlayOnHexes() {
 		const playerTexture = `hex_p${this.player.id}`;
 		this.hexagons.forEach((hex) => {
+			if (typeof hex._swamplerHomeOwner === 'number') return;
 			if (hex.display.key !== playerTexture) {
 				hex.display.setTexture(playerTexture);
 			}
@@ -2148,6 +2190,14 @@ export class Creature {
 		return this.player.plasma > 0;
 	}
 
+	hasActivePlasmaShield() {
+		return (
+			this.isDarkPriest() &&
+			this.hasCreaturePlayerGotPlasma() &&
+			(this !== this.game.activeCreature || this._plasmaFieldActiveTurn)
+		);
+	}
+
 	/**
 	 * This creature's player's plasma as a fraction of the pool they allocated,
 	 * for the plasma field's line weight.
@@ -2318,6 +2368,16 @@ export class Creature {
 	}
 
 	/**
+	 * Resolve destruction of the goo trap holding this Gumble in BRB.
+	 */
+	onBRBTrapDestroyed(destroyer?: Creature, remote = false): void {
+		if (!this._brbState) return;
+		const savedState = this._brbState;
+		this._brbState = null;
+		this.die(destroyer ?? savedState.killer, remote);
+	}
+
+	/**
 	 * Play kill animation. Remove creature from queue and from hexes.
 	 * @param{Creature | {player:Player}} killerCreature - Killer of this creature
 	 * @param{boolean} remote - True when this death is being applied because the
@@ -2346,12 +2406,10 @@ export class Creature {
 			// If the goo trap is destroyed while Gumble is in BRB state (e.g. another
 			// trap overwrites it), Gumble dies immediately with full score/queue update.
 			// The destroyer (the creature whose trap caused the overwrite) becomes the killer.
-			this._brbState.gooTrap.onDestroyFn = (destroyer?: Creature) => {
-				if (!this._brbState) return; // already resolved (revived or died)
-				const savedState = this._brbState;
-				this._brbState = null;
-				this.die(destroyer ?? savedState.killer, remote);
-			};
+			const brbTrap = this._brbState.gooTrap;
+			brbTrap.snapshotBehaviorId = GOOEY_BODY_BRB_TRAP_BEHAVIOR;
+			brbTrap.snapshotBehaviorData = { creatureId: this.id };
+			brbTrap.onDestroyFn = (destroyer?: Creature) => this.onBRBTrapDestroyed(destroyer, remote);
 
 			// Clear the hex first so the trap spot is immediately walkable
 			// and pathfinding/queue-display sees the correct state.
@@ -2506,7 +2564,7 @@ export class Creature {
 			}
 		}
 
-		const customDeathAnimation = (this as CreatureRuntimeFlags).deathAnimationType;
+		const customDeathAnimation = this.deathAnimationType;
 		// Release the hints before the animation swings the cardboard
 		// group: every death animation arcs, rotates and fades the whole
 		// group, and the hints about this unit are children of it, so
@@ -2514,6 +2572,10 @@ export class Creature {
 		this.creatureSprite.releaseHints();
 		if (customDeathAnimation === 'shatterDown') {
 			game.animations.shatterDown(this, opts);
+		} else if (customDeathAnimation === 'disintegrate') {
+			this.healthHide();
+			this.sprite.alpha = 0;
+			opts.callback();
 		} else if (customDeathAnimation === 'melt') {
 			game.animations.melt(this, opts);
 		} else {
@@ -3245,6 +3307,11 @@ class CreatureSprite {
 	private _bindCardboardWhenReady(): void {
 		const spriteKey = this._originalTextureKey;
 		if (isTextureReady(spriteKey)) {
+			// Texture already cached: re-place with correct dimensions.
+			if (this._isOnPlaceholderTexture()) {
+				this._sprite.setTexture(spriteKey);
+			}
+			this._place();
 			return;
 		}
 		ensureCardboard(spriteKey, () => {
@@ -3327,6 +3394,7 @@ class CreatureSprite {
 			return;
 		}
 		this._sprite.setTexture(this._originalTextureKey);
+		this._place();
 	}
 
 	/** Restores the original texture and frees all xray canvas resources. */
@@ -4105,6 +4173,18 @@ class CreatureSprite {
 			this._noActionHintGroup.destroy(true);
 		}
 		this._noActionHintGroup = null;
+	}
+
+	showBonfireSpringHint() {
+		let fireCount = 1;
+		this._hintGrp.each((hint: SpriteHandle) => {
+			const state = peekHintState(hint);
+			if (state?.hintType === 'msg_effects' && hint.text?.startsWith('🔥')) {
+				fireCount = (hint.text.match(/🔥/g) || []).length + 1;
+				hint.destroy();
+			}
+		}, this);
+		this.hint('🔥'.repeat(fireCount), 'msg_effects');
 	}
 
 	hint(text: string, hintType: CreatureHintType) {

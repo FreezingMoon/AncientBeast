@@ -1,5 +1,5 @@
 /**
- * @jest-environment <rootDir>/test/jsdom-environment.js
+ * @jest-environment <rootDir>/test/jsdom-environment.ts
  * @jest-environment-options {"resources": "usable"}
  */
 
@@ -49,11 +49,12 @@ import {
 	settle,
 	destroyHeadlessGame,
 	type HeadlessConfig,
-} from '../../../platforms/devvit/headlessGame';
+} from '../../engine/headlessGame';
 import { Creature } from '../../creature';
 import { Damage } from '../../damage';
 import { isQueueEvent } from '../../event_queue';
 import { unitData } from '../../data/units';
+import { GameSnapshotSerializer } from '../../engine/GameSnapshot';
 
 const CONFIG: Partial<HeadlessConfig> = { players: [0, 1], plasma_amount: 50 };
 
@@ -127,7 +128,7 @@ describe('Asher in combat', () => {
 		asher.abilities[0].activate();
 		const haze = enemy.effects.find((eff: any) => eff.name === 'Heat Haze');
 		expect(haze).toBeDefined();
-		expect(enemy.stats.offense).toBeLessThan(enemyData.stats.offense);
+		expect(enemy.stats.offense).toBeLessThan(enemyData.vitals.offense);
 
 		// --- Ability 2: Glowing Eye (15 burn, adjacent) ---
 		asher.abilities[1].activate(enemy);
@@ -445,6 +446,76 @@ describe('Asher in combat', () => {
 		// Directly trigger trap effect on enemy:
 		trap.activate(/onStepIn/, enemy);
 		expect(enemy.health).toBeLessThan(trapHpBefore);
+	});
+
+	test('pending upgraded Crashing Globe and its burn callback survive snapshot restoration', async () => {
+		const asherLoader = (await import('../../abilities/Asher')).default;
+		const source = await createHeadlessGame([asherLoader], { config: CONFIG });
+		liveGames.push(source);
+		await settle(source);
+
+		const asher = placeAsher(source, 7, 4, 0);
+		const asherAbility = asher.abilities[3];
+		asherAbility.setUpgraded();
+		asherAbility.timesUsed = source.abilityUpgrades;
+		const targetHex = source.grid.hexAt(asher.x + 2, asher.y);
+		expect(targetHex.creature).toBeUndefined();
+		asherAbility.activate(targetHex);
+
+		const queuedSnapshot = GameSnapshotSerializer.from(
+			GameSnapshotSerializer.stringify(source.serializeSnapshot()),
+		);
+		expect(queuedSnapshot.runtimeSafety.pendingQueueEvents).toBe(1);
+		expect(queuedSnapshot.queuedEvents[0]).toMatchObject({
+			snapshotBehaviorId: expect.stringContaining('asher.crashing-globe-event'),
+			data: { attackerId: asher.id, hexX: targetHex.x, hexY: targetHex.y, upgraded: true },
+		});
+
+		const restored = await createHeadlessGame([asherLoader], { config: CONFIG });
+		liveGames.push(restored);
+		await settle(restored);
+		restored.soundsys.setEffectsMuted = () => {};
+		placeAsher(restored, 7, 4, 0);
+		restored.reconstructFromSnapshot(queuedSnapshot);
+		const restoredEvent = restored.queue.pendingEvents[0];
+		expect(restoredEvent).toBeDefined();
+		expect(restored.creatures[asher.id]._crashingGlobePending).toBe(true);
+		restoredEvent.resolve(() => {});
+
+		const restoredTrap = restored.traps.find(
+			(trap: any) => trap.x === targetHex.x && trap.y === targetHex.y,
+		);
+		expect(restoredTrap?.name).toBe('Scorched ground');
+		const burnSnapshot = GameSnapshotSerializer.from(
+			GameSnapshotSerializer.stringify(restored.serializeSnapshot()),
+		);
+
+		const reloaded = await createHeadlessGame([asherLoader], { config: CONFIG });
+		liveGames.push(reloaded);
+		await settle(reloaded);
+		reloaded.soundsys.setEffectsMuted = () => {};
+		placeAsher(reloaded, 7, 4, 0);
+		reloaded.reconstructFromSnapshot(burnSnapshot);
+		const trap = reloaded.traps.find(
+			(candidate: any) => candidate.x === targetHex.x && candidate.y === targetHex.y,
+		);
+		expect(trap).toBeDefined();
+		const enemyData = reloaded.retrieveCreatureStats('L1');
+		const enemy = new Creature(
+			{
+				...enemyData,
+				x: targetHex.x,
+				y: targetHex.y,
+				team: 1,
+				temp: false,
+				materializationSickness: false,
+			},
+			reloaded,
+		);
+		reloaded.creatures[enemy.id] = enemy;
+		const healthBeforeBurn = enemy.health;
+		trap.activate(/onStepIn/, enemy);
+		expect(enemy.health).toBe(healthBeforeBurn - 10);
 	});
 
 	test('upgraded Crashing Globe does not leave a burn trap when it hits a unit', async () => {

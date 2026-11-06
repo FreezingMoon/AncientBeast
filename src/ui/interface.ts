@@ -62,6 +62,16 @@ const ABILITY_COST_FLASH_MS = 1000;
 /** Fade in/out duration of that cost preview. */
 const ABILITY_COST_FADE_MS = 250;
 
+export function areTurnActionButtonsDisabled(game: Game): boolean {
+	const activePlayer = game.activeCreature?.player;
+	return (
+		(!activePlayer ||
+			activePlayer.controller !== 'human' ||
+			Boolean(game.multiplayer && game.lobby && !game.lobby.isMyTurn())) &&
+		!game.isReplayInProgress
+	);
+}
+
 type ConfirmUnloadState = {
 	ignoreNextConfirmUnload: boolean;
 };
@@ -99,11 +109,9 @@ const isManualReloadShortcut = (event: KeyboardEvent) => {
 };
 
 // Intercept browser modals while dev reload prompt is visible to prevent them from appearing on top
-const savedModalFunctions = {
-	alert: window.alert,
-	confirm: window.confirm,
-	prompt: window.prompt,
-};
+const _nativeAlert = window.alert;
+const _nativeConfirm = window.confirm;
+const _nativePrompt = window.prompt;
 
 let isRefreshPromptVisible = false;
 
@@ -113,7 +121,7 @@ const suppressBrowserModalWhilePromptVisible = () => {
 			console.warn('[Refresh Prompt] Suppressed alert:', message);
 			return undefined;
 		}
-		return savedModalFunctions.alert(message);
+		return _nativeAlert(message);
 	};
 
 	window.confirm = (message?: string) => {
@@ -121,7 +129,7 @@ const suppressBrowserModalWhilePromptVisible = () => {
 			console.warn('[Refresh Prompt] Suppressed confirm:', message);
 			return false;
 		}
-		return savedModalFunctions.confirm(message);
+		return _nativeConfirm(message);
 	};
 
 	window.prompt = (message?: string, defaultValue?: string) => {
@@ -129,7 +137,7 @@ const suppressBrowserModalWhilePromptVisible = () => {
 			console.warn('[Refresh Prompt] Suppressed prompt:', message);
 			return null;
 		}
-		return savedModalFunctions.prompt(message, defaultValue);
+		return _nativePrompt(message, defaultValue);
 	};
 };
 
@@ -738,6 +746,12 @@ export class UI {
 				hasShortcut: true,
 				click: () => {
 					if (!this.dashopen) {
+						// During replay
+						if (game.isReplayInProgress) {
+							game.toggleReplayFastForward();
+							return;
+						}
+
 						if (game.turnThrottle || game.botController.isBotTurn()) {
 							if (game.botController.isBotTurn()) {
 								this.showCancelIconOnButton(this.btnSkipTurn.$button);
@@ -1166,6 +1180,18 @@ export class UI {
 			this.closeScoreboard();
 		});
 
+		// Rebuild the scoreboard table when the viewport flips between phone
+		// landscape and desktop so the transposed layout follows the screen.
+		const rebuildScoreboardOnResize = () => {
+			this.queue.resize();
+			if (this.$scoreboard.hasClass('hide')) {
+				return;
+			}
+			this.refreshScoreboard();
+		};
+		window.addEventListener('resize', rebuildScoreboardOnResize);
+		window.addEventListener('orientationchange', rebuildScoreboardOnResize);
+
 		// Hotkeys screen close button
 		$j('.togglehotkeys.close-button').on('click', () => {
 			this.closeHotkeysScreen();
@@ -1398,6 +1424,7 @@ export class UI {
 					dashOpen: this.dashopen,
 					interfaceViewOpen: isInterfaceViewOpen,
 					scoreboardOpen: isScoreboardOpen,
+					replayInProgress: game.isReplayInProgress,
 				});
 
 				if (game.freezedInput && !isUtilityHotkey) {
@@ -2185,7 +2212,7 @@ export class UI {
 
 				const isBrowsing = !this.selectedCreatureObj;
 
-				$j.each(stats.stats, (key, value) => {
+				$j.each(stats.vitals, (key, value) => {
 					const $stat = $j('#card .sideB .' + key + ' .value');
 
 					if (this.selectedCreatureObj) {
@@ -2402,7 +2429,7 @@ export class UI {
 				addCardCharacterInfo();
 
 				// Card B
-				$j.each(stats.stats, (key, value) => {
+				$j.each(stats.vitals, (key, value) => {
 					const $stat = $j('#card .sideB .' + key + ' .value');
 					$stat.removeClass('buff debuff');
 					$stat.text(value);
@@ -2739,6 +2766,46 @@ export class UI {
 	renderScoreboard(gameOver, disconnectReason?: string) {
 		const game = this.game;
 
+		// Landscape phone: reshape the table so stats become columns with
+		// emoji-only headers (text as tooltips) and players become rows.
+		const isLandscapePhone = window.matchMedia(
+			'(orientation: landscape) and (max-height: 540px)',
+		).matches;
+		this.$scoreboard.toggleClass('scoreboard-landscape-phone', isLandscapePhone);
+
+		// On touch devices, hover doesn't fire, so tap the round buttons to
+		// toggle their tooltips. Delegated so it works for any button added
+		// later (save/restart/exit/flee).
+		this.$scoreboard
+			.off('click.scoreboardTooltips')
+			.on(
+				'click.scoreboardTooltips',
+				'.scoreboardActions .button, .scoreboardActions #save, .scoreboardActions #restart, .scoreboardActions #exit',
+				function () {
+					const $desc = $j(this).next('.desc');
+					const isVisible = $desc.hasClass('tooltip-visible');
+					// Hide any other open tooltip first.
+					$j(this)
+						.closest('.scoreboardActions')
+						.find('.desc')
+						.not($desc)
+						.removeClass('tooltip-visible');
+					$desc.toggleClass('tooltip-visible', !isVisible);
+				},
+			);
+		this.$scoreboard
+			.off('click.scoreEmojiTooltips')
+			.on('click.scoreEmojiTooltips', '.score-emoji-tooltip-wrap', function () {
+				const $tooltip = $j(this);
+				const isVisible = $tooltip.hasClass('tooltip-visible');
+				$tooltip
+					.closest('tr')
+					.find('.score-emoji-tooltip-wrap')
+					.not($tooltip)
+					.removeClass('tooltip-visible');
+				$tooltip.toggleClass('tooltip-visible', !isVisible);
+			});
+
 		// Configure scoreboard data
 		if (disconnectReason) {
 			this.$scoreboard.find('#scoreboardTitle').text(disconnectReason);
@@ -2863,9 +2930,16 @@ export class UI {
 
 		// Clear table
 		const tableMeta = [
+			// Bars row first: the per-player overview bars (plasma/health/energy
+			// etc). On the phone landscape this row is hidden - the emoji header
+			// row already shows the stat emojis and there's no room for bars.
+			{
+				cls: 'player_bars',
+			},
 			{
 				cls: 'player_name',
-				title: '',
+				emoji: '&#x1F43A;',
+				title: 'Players',
 			},
 			{
 				cls: 'firstKill',
@@ -2914,10 +2988,6 @@ export class UI {
 				title: 'Survivors',
 			},
 			{
-				cls: 'darkpriestbonus',
-				title: 'Survivor Dark Priest',
-			},
-			{
 				cls: 'immortal',
 				emoji: emoji.get('bat'),
 				title: 'Immortal',
@@ -2934,19 +3004,78 @@ export class UI {
 			},
 		];
 
+		// When there is no time pool (infinite time), the time bonus is always
+		// zero, so drop that row/column from the table to avoid visual bloat.
+		if (!hasFiniteTimePool) {
+			tableMeta.splice(
+				tableMeta.findIndex((row) => row.cls === 'timebonus'),
+				1,
+			);
+		}
+
+		// Desktop vertical table: clear any leftover rows from a previous
+		// landscape layout before rebuilding, so both modes can't coexist
+		// after a resize.
+		if (!isLandscapePhone) {
+			$table.empty();
+		}
+
 		tableMeta.forEach((row) => {
-			let firstCellContent = `${row.title}`;
-			if (row.emoji) {
-				firstCellContent = `<span class="score-emoji-tooltip-wrap">${row.emoji}<span class="tooltiptext">${row.title}</span></span>`;
-			}
+			if (isLandscapePhone) {
+				// Transposed layout: header row = emojis, player rows = name + scores.
+				// The header row is the first row; player rows are appended below.
+				if (row.cls === 'player_name') {
+					// Wolf header: visible "Players" label with a tooltip for consistency.
+					const wolf = `<span class="score-emoji-tooltip-wrap"><span class="tooltiptext score-header-tooltip">Players</span>&#x1F43A;</span>`;
+					let headerRow = `<tr class="player_name"><td>${wolf}</td>`;
+					// Skip the bars row (index 0) and the player_name row itself
+					// (index 1) - only the stat rows get emoji cells.
+					tableMeta.slice(2).forEach((statRow) => {
+						const statEmoji = statRow.emoji
+							? `<span class="score-emoji-tooltip-wrap"><span class="tooltiptext score-header-tooltip">${statRow.title}</span>${statRow.emoji}</span>`
+							: '';
+						headerRow += `<td>${statEmoji}</td>`;
+					});
+					headerRow += '</tr>';
+					$table.empty().append(headerRow);
+				}
+				// Player rows are built in the fill loop below.
+			} else {
+				let $row = $table.find(`tr.${row.cls}`);
+				if ($row.length === 0) {
+					$row = $j('<tr class="' + row.cls + '"></tr>');
+					$table.append($row);
+				}
+				if (row.cls === 'player_bars') {
+					// Desktop only: the bars row holds the per-player overview
+					// bars (plasma/health/energy/etc). First cell empty.
+					$row.empty().html('<td class="score-title-cell"></td><td class="score-emoji-cell"></td>');
+					for (let i = 0; i < game.gameMode; i++) {
+						$row.append(
+							`<td><div class="score-player-bars">${playerHeaderMeta[i].barsHtml}</div></td>`,
+						);
+					}
+				} else {
+					// Desktop: first cell = title, second cell = emoji, rest = player data.
+					const titleCell = row.title
+						? `<td class="score-title-cell">${row.title}</td>`
+						: '<td class="score-title-cell"></td>';
+					const emojiCell = row.emoji
+						? `<td class="score-emoji-cell">${row.emoji}</td>`
+						: '<td class="score-emoji-cell"></td>';
+					$row.empty().html(`${titleCell}${emojiCell}`);
 
-			$table.find(`tr.${row.cls}`).empty().html(`<td>
-			${firstCellContent}
-			</td>`);
-
-			// Add cells for each player
-			for (let i = 0; i < game.gameMode; i++) {
-				$table.find(`tr.${row.cls}`).append('<td>--</td>');
+					// Add cells for each player
+					for (let i = 0; i < game.gameMode; i++) {
+						if (row.cls === 'player_name') {
+							$row.append(
+								`<td><div class="score-player-name" style="color:${playerHeaderMeta[i].color}">${playerHeaderMeta[i].playerLabel}</div></td>`,
+							);
+						} else {
+							$row.append('<td>--</td>');
+						}
+					}
+				}
 			}
 		});
 
@@ -2963,26 +3092,49 @@ export class UI {
 			}
 
 			//----------Display-----------//
-			const colId = game.gameMode > 2 ? i + 2 + ((i % 2) * 2 - 1) * Math.min(1, i % 3) : i + 2;
+			// Desktop rows now have 2 extra cells (title + emoji) before the
+			// player data, so the player column index shifts by 2 from the
+			// old `i + 2` base.
+			const colId = game.gameMode > 2 ? i + 3 + ((i % 2) * 2 - 1) * Math.min(1, i % 3) : i + 3;
 
-			$table
-				.children('tr.player_name')
-				.children('td:nth-child(' + colId + ')')
-				.html(
-					`<div class="score-player-header">` +
-						`<div class="score-player-bars">${playerHeaderMeta[i].barsHtml}</div>` +
-						`<div class="score-player-name" style="color:${playerHeaderMeta[i].color}">${playerHeaderMeta[i].playerLabel}</div>` +
-						`</div>`,
-				);
-
-			// Change score
-			$j.each(game.players[i].getScore(), function (index, val) {
-				const text = val === 0 && index !== 'total' ? '--' : val;
+			if (isLandscapePhone) {
+				// Build a player row: player name + one cell per stat.
+				const player = game.players[i];
+				const playerLabel = player.name || `Player${i + 1}`;
+				const playerColor = playerColors[i % playerColors.length];
+				let playerRow = `<tr class="player_row_${i}"><td style="color:${playerColor}">${playerLabel}</td>`;
+				// Skip the bars row (index 0) and the player_name row (index 1)
+				// - only the actual stat rows get score cells.
+				tableMeta.slice(2).forEach((statRow) => {
+					const val = player.getScore()[statRow.cls] ?? 0;
+					const text = val === 0 && statRow.cls !== 'total' ? '--' : val;
+					playerRow += `<td>${text}</td>`;
+				});
+				playerRow += '</tr>';
+				$table.append(playerRow);
+			} else {
 				$table
-					.children('tr.' + index)
-					.children('td:nth-child(' + colId + ')') // Weird expression swaps 2nd and 3rd player
-					.text(text);
-			});
+					.children('tr.player_name')
+					.children('td:nth-child(' + colId + ')')
+					.html(
+						`<div class="score-player-name" style="color:${playerHeaderMeta[i].color}">${playerHeaderMeta[i].playerLabel}</div>`,
+					);
+
+				// Put the per-player overview bars in their own row.
+				$table
+					.children('tr.player_bars')
+					.children('td:nth-child(' + colId + ')')
+					.html(`<div class="score-player-bars">${playerHeaderMeta[i].barsHtml}</div>`);
+
+				// Change score
+				$j.each(game.players[i].getScore(), function (index, val) {
+					const text = val === 0 && index !== 'total' ? '--' : val;
+					$table
+						.children('tr.' + index)
+						.children('td:nth-child(' + colId + ')') // Weird expression swaps 2nd and 3rd player
+						.text(text);
+				});
+			}
 		}
 
 		if (gameOver) {
@@ -3111,6 +3263,23 @@ export class UI {
 		const game = this.game;
 		const $table = $j('#scoreboard table tbody');
 
+		// Rebuild the table if the current rows don't match the desired layout
+		// (e.g. switching phone landscape <-> desktop). On the phone the header
+		// row is `<tr class="player_name">`, so checking for player_name rows
+		// alone would not distinguish the two layouts; the transposed phone
+		// layout uses `<tr class="player_row_N">` rows instead.
+		const isLandscapePhone = window.matchMedia(
+			'(orientation: landscape) and (max-height: 540px)',
+		).matches;
+		const hasPlayerRows = $table.children('tr[class^="player_row_"]').length > 0;
+		const needsRebuild = isLandscapePhone ? !hasPlayerRows : hasPlayerRows;
+		if (needsRebuild) {
+			this.$scoreboard.toggleClass('scoreboard-landscape-phone', isLandscapePhone);
+			this.renderScoreboard(this.scoreboardGameOver, game.disconnectReason);
+			return;
+		}
+		this.$scoreboard.toggleClass('scoreboard-landscape-phone', isLandscapePhone);
+
 		if ($table.children('tr.player_name').children('td').length <= 1) {
 			this.renderScoreboard(this.scoreboardGameOver, game.disconnectReason);
 			return;
@@ -3120,6 +3289,21 @@ export class UI {
 		const scores = game.players.map((pl) => pl.getScore().total);
 		const maxScore = Math.max(...scores, 1);
 		const hasFiniteTimePool = game.timePool > 0;
+		const mobileScoreRows: Array<keyof ReturnType<(typeof game.players)[number]['getScore']>> = [
+			'firstKill',
+			'kill',
+			'combo',
+			'humiliation',
+			'annihilation',
+			'deny',
+			'pickupDrop',
+			'creaturebonus',
+			'immortal',
+			'upgrade',
+			'total',
+		].filter((row) => row !== 'timebonus' || hasFiniteTimePool) as Array<
+			keyof ReturnType<(typeof game.players)[number]['getScore']>
+		>;
 
 		for (let i = 0; i < game.gameMode; i++) {
 			if (game.timePool > 0) {
@@ -3131,6 +3315,19 @@ export class UI {
 			}
 
 			const player = game.players[i];
+			if (isLandscapePhone) {
+				const score = player.getScore();
+				const $playerRow = $table.children('tr.player_row_' + i);
+				mobileScoreRows.forEach((row, index) => {
+					const value = score[row] ?? 0;
+					$playerRow
+						.children('td')
+						.eq(index + 1)
+						.text(value === 0 && row !== 'total' ? '--' : value);
+				});
+				continue;
+			}
+
 			const dp = player.creatures.find((c) => c.isDarkPriest && c.isDarkPriest());
 			const dpHealthRatio = dp ? Math.max(0, dp.health) / Math.max(1, dp.stats.health) : 0;
 			const dpEnergyRatio = dp ? Math.max(0, dp.energy) / Math.max(1, dp.stats.energy) : 0;
@@ -3164,9 +3361,9 @@ export class UI {
 				scoreRatio,
 			].filter((_ratio, idx) => hasFiniteTimePool || idx !== 3);
 
-			const colId = game.gameMode > 2 ? i + 2 + ((i % 2) * 2 - 1) * Math.min(1, i % 3) : i + 2;
+			const colId = game.gameMode > 2 ? i + 3 + ((i % 2) * 2 - 1) * Math.min(1, i % 3) : i + 3;
 			const $playerHeaderCell = $table
-				.children('tr.player_name')
+				.children('tr.player_bars')
 				.children('td:nth-child(' + colId + ')');
 			const $fills = $playerHeaderCell.find('.score-header-bar-fill');
 
@@ -3615,6 +3812,17 @@ export class UI {
 		const game = this.game,
 			creature = game.activeCreature,
 			$abilitiesButtons = $j('#abilities .ability');
+		const turnActionButtonsDisabled = areTurnActionButtonsDisabled(game);
+
+		// No active creature (e.g., during snapshot reconstruction before setup completes)
+		if (!creature) {
+			return;
+		}
+
+		if (turnActionButtonsDisabled) {
+			this.btnSkipTurn.changeState(ButtonStateEnum.disabled);
+			this.btnDelay.changeState(ButtonStateEnum.disabled);
+		}
 
 		const localPlayer = game.lobby?.getLocalPlayer();
 		this.active = !game.multiplayer || !game.lobby || !localPlayer || game.lobby.isMyTurn();
@@ -3645,6 +3853,10 @@ export class UI {
 		// Must be called with panel-stacked already active so all data/state changes
 		// happen while slot transitions are disabled — no visual flash before the unfold.
 		const applyDataAndUnfold = () => {
+			if (!creature || game.activeCreature !== creature) {
+				return;
+			}
+
 			$abilities.removeClass('p0 p1 p2 p3').addClass('p' + creature.player.id);
 
 			// A cost flash from the outgoing turn must not survive the swap.
@@ -3652,7 +3864,9 @@ export class UI {
 			this.energyBar.setSize(creature.oldEnergy / creature.stats.energy);
 			this.healthBar.setSize(creature.oldHealth / creature.stats.health);
 
-			this.btnSkipTurn.changeState(ButtonStateEnum.normal);
+			this.btnSkipTurn.changeState(
+				areTurnActionButtonsDisabled(game) ? ButtonStateEnum.disabled : ButtonStateEnum.normal,
+			);
 			this.btnFullscreen.changeState(ButtonStateEnum.normal);
 
 			// Snap all elements to the overlapping stacked position (disables slot transitions).
@@ -3674,11 +3888,20 @@ export class UI {
 
 			// After the slowest slot transition completes (250ms unfold), trigger side-panel button slide-ins
 			setTimeout(() => {
+				if (game.activeCreature !== creature) {
+					return;
+				}
+
 				this._abilityPanelAnimating = false;
-				this.btnSkipTurn.changeState(ButtonStateEnum.slideIn);
+				const turnActionButtonsDisabled = areTurnActionButtonsDisabled(game);
+				this.btnSkipTurn.changeState(
+					turnActionButtonsDisabled ? ButtonStateEnum.disabled : ButtonStateEnum.slideIn,
+				);
 				this.btnFullscreen.changeState(ButtonStateEnum.slideIn);
 				if (creature.canWait && game.queue.getCurrentQueueLength() > 1) {
-					this.btnDelay.changeState(ButtonStateEnum.slideIn);
+					this.btnDelay.changeState(
+						turnActionButtonsDisabled ? ButtonStateEnum.disabled : ButtonStateEnum.slideIn,
+					);
 				}
 				// Show skip/delay/abilities as not-allowed during bot turns
 				const isBotTurn = game.botController.isBotTurn();
@@ -3924,6 +4147,10 @@ export class UI {
 			// movement animation had completed (e.g. Molten Hurl moving Infernal into
 			// range of a target that Pulverizing Hit can now reach).
 			game.activeCreature.noActionPossible = false;
+		}
+
+		if (areTurnActionButtonsDisabled(game)) {
+			this.btnSkipTurn.changeState(ButtonStateEnum.disabled);
 		}
 	}
 
@@ -4203,16 +4430,89 @@ export class UI {
 		};
 
 		const hexFormatter = (hex) => {
+			const homeOwnerId = hex._swamplerHomeOwner;
+			const isSwamplerHome = typeof homeOwnerId === 'number';
+			const homeOwner = isSwamplerHome
+				? ui.game.creatures.find((creature) => creature.id === homeOwnerId)
+				: undefined;
+			const isHomeOwnerPresent = isSwamplerHome && hex.creature?.id === homeOwnerId;
+			const hasHomeRegrowthBonus =
+				isHomeOwnerPresent &&
+				homeOwner?.effects.some(
+					(effect) => effect.name === 'Natural Habitat' && effect.alterations.regrowth === 20,
+				);
+			const homeBonus = isHomeOwnerPresent
+				? `<p style="margin:2px">Poison +22${hasHomeRegrowthBonus ? '<br>Regrowth +20' : ''}</p>`
+				: '';
+			const cloud = (
+				(
+					ui.game as unknown as {
+						badBreathClouds?: Array<{
+							hex: { x: number; y: number };
+							damage: number;
+							createdTurn?: number;
+							turnLifetime?: number;
+							owner?: { id: number };
+							upgraded?: boolean;
+						}>;
+					}
+				).badBreathClouds || []
+			).find((c) => c.hex.x === hex.x && c.hex.y === hex.y);
 			const name = hex.creature
 				? getCreatureDisplayName(hex.creature)
+				: isSwamplerHome
+				? 'Swamp'
 				: capitalize(hex.drop ? hex.drop.name : hex.coord);
 			const trapOrLocation = capitalize(hex.trap ? hex.trap.name : ui.game.combatLocation);
 			const nameColorClasses =
-				hex.creature && hex.creature.player ? `p${hex.creature.player.id} player-text bright` : '';
+				hex.creature && (hex.creature as any).player
+					? `p${(hex.creature as any).player.id} player-text bright`
+					: '';
+
+			let cloudBlock = '';
+			if (cloud) {
+				const age = (ui.game.turn ?? 0) - (cloud.createdTurn ?? 0);
+				const remaining = Math.max(1, (cloud.turnLifetime ?? (cloud.upgraded ? 6 : 3)) - age);
+				const max = cloud.upgraded ? 6 : 3;
+				const rectHtml = Array.from(
+					{ length: max },
+					(_, i) =>
+						`<span style="width:10px;height:6px;border:1px solid #5f5;background:${
+							i < remaining ? '#5f5' : 'transparent'
+						};display:inline-block"></span>`,
+				).join('');
+				if (hex.creature) {
+					cloudBlock = `<p class="name p${
+						(cloud.owner as any).player?.id ?? 0
+					} player-text bright" style="padding-top:0;margin:2px">Toxic Cloud</p><div style="display:flex;gap:3px;justify-content:center;margin:2px">${rectHtml}</div><hr style="margin:2px" />`;
+				} else {
+					cloudBlock = `<p class="name p${
+						(cloud.owner as any).player?.id ?? 0
+					} player-text bright">Toxic Cloud</p><div style="display:flex;gap:3px;justify-content:center;margin:2px">${rectHtml}</div><hr style="margin:2px" />`;
+				}
+			}
+
+			let body = '';
+			if (isSwamplerHome) {
+				if (hex.creature) {
+					body = `<p class="name ${nameColorClasses}" style="padding-top:0;margin:2px">${name}</p><p style="margin:2px">Swamp</p>${homeBonus}<hr style="margin:2px" /><p style="margin:2px">${trapOrLocation}</p>`;
+				} else {
+					body = `<p class="name" style="padding-top:0;margin:2px">Swamp</p><p style="margin:2px">${trapOrLocation}</p>`;
+				}
+			} else if (cloud) {
+				if (hex.creature) {
+					body = `<p class="name ${nameColorClasses}" style="padding-top:0;margin:2px">${name}</p><p style="margin:2px">${trapOrLocation}</p>`;
+				} else {
+					body = `<p style="margin:2px">${trapOrLocation}</p>`;
+				}
+			} else {
+				body = `<p class="name ${nameColorClasses}">${name}</p><p>${trapOrLocation}</p>`;
+			}
+
 			return `<div class="vignette hex">
 			<div class="hexinfo frame">
-			<p class="name ${nameColorClasses}">${name}</p>
-			<p>${trapOrLocation}</p>
+			${cloudBlock}
+			${body}
 			</div>
 			</div>
 			`;
@@ -4298,7 +4598,17 @@ export class UI {
 		// `hex` carries both directions: `over` shows the hovered hex when it has
 		// something worth describing, `out` always falls back to the player card.
 		ui.game.channels.hex.on('over', ({ hex }) => {
-			if (hex.creature || hex.drop || hex.trap) {
+			const hasCloud = (
+				(ui.game as unknown as { badBreathClouds?: Array<{ hex: { x: number; y: number } }> })
+					.badBreathClouds || []
+			).some((c: any) => c.hex.x === hex.x && c.hex.y === hex.y);
+			if (
+				hex.creature ||
+				hex.drop ||
+				hex.trap ||
+				hasCloud ||
+				typeof hex._swamplerHomeOwner === 'number'
+			) {
 				showHex(hex);
 			} else {
 				showDefault();
@@ -4385,7 +4695,7 @@ export class UI {
 			// visuals (which can leave stale outlines on startup).
 			ui.game.grid.allhexes.forEach((hex) => {
 				hex.unsetReachable();
-				hex.cleanDisplayVisualState('dashed shrunken');
+				hex.cleanDisplayVisualState('dashed shrunken moveRange');
 			});
 
 			if (ui.game.grid.lastQueryOpt) {
