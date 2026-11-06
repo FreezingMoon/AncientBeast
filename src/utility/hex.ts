@@ -783,7 +783,8 @@ export class Hex {
 	 */
 	cleanDisplayVisualState(classes = '') {
 		classes =
-			classes || 'adj hover creature player0 player1 player2 player3 dashed shrunken deadzone';
+			classes ||
+			'adj hover creature player0 player1 player2 player3 dashed shrunken moveRange deadzone';
 		const a = classes.split(' ');
 
 		for (let i = 0, len = a.length; i < len; i++) {
@@ -932,7 +933,10 @@ export class Hex {
 		const hasSwamplerHome = typeof this._swamplerHomeOwner === 'number';
 		const isHoveringCrashingGlobeTarget = Boolean(this.overlayClasses.match(/\bhover\b/));
 		const isDeadzone = Boolean(this.displayClasses.match(/\bdeadzone\b/));
-		this.display.setTint(0xffffff);
+		this.display.setTint?.(0xffffff);
+		if (typeof (this.display as any).setTintMode === 'function') {
+			(this.display as any).setTintMode(0);
+		}
 		let targetAlpha =
 			this.reachable || Boolean(this.displayClasses.match(/creature/g)) || hasCrashingGlobeTarget;
 
@@ -966,14 +970,19 @@ export class Hex {
 		} else if (this.displayClasses.match(/\badj\b/)) {
 			loadTextureIfChanged(this.display, 'hex_path');
 			this.pinTopLeft(this.display, this.drawPoint.x, this.drawPoint.y);
+		} else if (this.displayClasses.match(/\bmoveRange\b/)) {
+			// Queue-avatar hover movement range: bright hex outline for contrast.
+			loadTextureIfChanged(this.display, 'hex');
+			this.display.alpha = 1;
+			this.display.setTint?.(0xffffff);
+			if (typeof (this.display as any).setTintMode === 'function') {
+				(this.display as any).setTintMode(1); // FILL
+			}
+			this.grid.displayHexesGroup.bringToTop(this.display);
 		} else if (this.displayClasses.match(/dashed/)) {
-			// Check if this is a dashed hex with a creature (blocked target)
 			if (this.creature instanceof Creature) {
-				// Use colored dashed texture for the creature's team
 				loadTextureIfChanged(this.display, `hex_dashed_p${this.creature.team}`);
-				// Ensure dashed hexagons are visible
 				this.display.alpha = 1;
-				// Bring dashed hexes with creatures to the top of the display group for better visibility
 				this.grid.displayHexesGroup.bringToTop(this.display);
 			} else {
 				loadTextureIfChanged(this.display, 'hex_dashed');
@@ -985,6 +994,7 @@ export class Hex {
 
 		const computedDisplayAlpha = targetAlpha ? 1 : 0;
 		const isHover = Boolean(this.overlayClasses.match(/\bhover\b/));
+		const isMoveRange = Boolean(this.displayClasses.match(/\bmoveRange\b/));
 		this.display.alpha = hasCrashingGlobeTarget
 			? 1
 			: hasSwamplerHome
@@ -995,6 +1005,8 @@ export class Hex {
 			? isHover
 				? 0.75
 				: 0.45
+			: isMoveRange && this.displayClasses.match(/dashed/)
+			? 1
 			: computedDisplayAlpha;
 		if (this.forcedHidden && !hasCrashingGlobeTarget && !hasSwamplerHome) {
 			this.display.alpha = 0;

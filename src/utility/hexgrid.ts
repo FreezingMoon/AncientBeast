@@ -2026,7 +2026,7 @@ export class HexGrid {
 			if (isActiveHex) {
 				// Preserve 'active creature playerN' to keep the glowInterval phase
 				// stable; only strip transient hover/query classes.
-				hex.cleanDisplayVisualState('adj hover dashed shrunken deadzone hidden');
+				hex.cleanDisplayVisualState('adj hover dashed shrunken moveRange deadzone hidden');
 				hex.cleanOverlayVisualState(
 					'hover selected reachable weakDmg moveto ownCreatureHexShade h_player0 h_player1 h_player2 h_player3',
 				);
@@ -2228,8 +2228,10 @@ export class HexGrid {
 		// Set reachable the given hexes
 		hexes.forEach((hex) => {
 			hex.setReachable();
-			// Show smaller outlined hexagons for movement range visualization
-			hex.displayVisualState('dashed shrunken');
+			// Show smaller outlined hexagons for movement range visualization.
+			// `moveRange` marks these as movement (not ability) outlines so the
+			// renderer can apply contrast effects on dark combat backgrounds.
+			hex.displayVisualState('dashed shrunken moveRange');
 		});
 	}
 

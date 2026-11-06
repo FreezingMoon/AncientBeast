@@ -4684,7 +4684,7 @@ export class UI {
 			// visuals (which can leave stale outlines on startup).
 			ui.game.grid.allhexes.forEach((hex) => {
 				hex.unsetReachable();
-				hex.cleanDisplayVisualState('dashed shrunken');
+				hex.cleanDisplayVisualState('dashed shrunken moveRange');
 			});
 
 			if (ui.game.grid.lastQueryOpt) {
