@@ -949,9 +949,9 @@ export class Hex {
 
 		if (hasSwamplerHome) {
 			updateHomeSprite();
-			loadTextureIfChanged(this.display, 'hex');
-			this.pinTopLeft(this.display, this.drawPoint.x, this.drawPoint.y);
-		} else if (hasCrashingGlobeTarget) {
+		}
+
+		if (hasCrashingGlobeTarget) {
 			loadTextureIfChanged(this.display, 'target');
 			this.display.setOrigin(0.5, 0.5);
 			this.display.setTint(0xffffff);
@@ -997,8 +997,6 @@ export class Hex {
 		const isMoveRange = Boolean(this.displayClasses.match(/\bmoveRange\b/));
 		this.display.alpha = hasCrashingGlobeTarget
 			? 1
-			: hasSwamplerHome
-			? 0
 			: typeof this.forcedDisplayAlpha === 'number'
 			? this.forcedDisplayAlpha
 			: isDeadzone
@@ -1008,13 +1006,11 @@ export class Hex {
 			: isMoveRange && this.displayClasses.match(/dashed/)
 			? 1
 			: computedDisplayAlpha;
-		if (this.forcedHidden && !hasCrashingGlobeTarget && !hasSwamplerHome) {
+		if (this.forcedHidden && !hasCrashingGlobeTarget) {
 			this.display.alpha = 0;
 		}
 
-		if (hasSwamplerHome) {
-			alignIn(this.overlay, this.hitBox, ALIGN_CENTER);
-		} else if (hasCrashingGlobeTarget) {
+		if (hasCrashingGlobeTarget) {
 			this.display.setScale(1, 1);
 			alignIn(this.display, this.hitBox, ALIGN_CENTER);
 			alignIn(this.overlay, this.hitBox, ALIGN_CENTER);
@@ -1097,7 +1093,6 @@ export class Hex {
 				}
 			} else if (
 				this.overlayClasses.match(/hover/) &&
-				!hasSwamplerHome &&
 				this.displayClasses.indexOf(`creature player${player}`) === -1
 			) {
 				loadTextureIfChanged(this.display, 'hex_path');
@@ -1105,9 +1100,7 @@ export class Hex {
 				loadTextureIfChanged(this.overlay, `hex_hover_p${player}`);
 				this.grid.overlayHexesGroup.bringToTop(this.overlay);
 			} else if (this.overlayClasses.match(/hover/)) {
-				if (!hasSwamplerHome) {
-					loadTextureIfChanged(this.display, 'hex_path');
-				}
+				loadTextureIfChanged(this.display, 'hex_path');
 				this.grid.overlayHexesGroup.bringToTop(this.overlay);
 			} else if (this.overlayClasses.match(/dashed/)) {
 				loadTextureIfChanged(this.overlay, `hex_dashed_p${player}`);
@@ -1146,7 +1139,7 @@ export class Hex {
 			}
 		}
 
-		if (isDeadzone && !hasCrashingGlobeTarget && !hasSwamplerHome) {
+		if (isDeadzone && !hasCrashingGlobeTarget) {
 			loadTextureIfChanged(this.display, 'hex_deadzone');
 			this.pinTopLeft(this.display, this.drawPoint.x, this.drawPoint.y);
 			this.overlay.visible = this.overlay.key === 'input';
