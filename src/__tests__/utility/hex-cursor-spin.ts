@@ -168,6 +168,21 @@ describe('Hover cursor over occupied overlays', () => {
 		expect(overlay.angle).toBe(0);
 	});
 
+	test('keeps the glowing player hex under the cursor when hovering a unit', () => {
+		const { hex, style, overlay, grid, addedSprites } = createHexStandIn();
+		grid.selectedHex = hex;
+		overlay.alpha = 0.42;
+
+		style(' active reachable hover player0 h_player0 ');
+
+		expect(overlay.key).toBe('hex_p0');
+		expect(overlay.alpha).toBe(0.42);
+		expect(addedSprites).toHaveLength(1);
+		expect(addedSprites[0].key).toBe('input');
+		expect(addedSprites[0].visible).toBe(true);
+		expect(grid.overlayHexesGroup.bringToTop).toHaveBeenLastCalledWith(addedSprites[0]);
+	});
+
 	test('does not add a cursor over the movement confirmation hexagon', () => {
 		const { hex, style, grid, addedSprites } = createHexStandIn();
 		grid.selectedHex = hex;

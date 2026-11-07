@@ -1082,7 +1082,13 @@ export class Hex {
 			this.overlay.visible = true;
 			const player = this.overlayClasses.match(/0|1|2|3/);
 
-			if (this.overlayClasses.match(/reachable/)) {
+			if (
+				this.overlayClasses.match(/\bhover\b/) &&
+				this.overlayClasses.match(/\bactive\b|\bselected\b/)
+			) {
+				loadTextureIfChanged(this.overlay, `hex_p${player}`);
+				this.grid.overlayHexesGroup.bringToTop(this.overlay);
+			} else if (this.overlayClasses.match(/reachable/)) {
 				targetAlpha = true;
 				loadTextureIfChanged(this.overlay, 'hex_path');
 				// No partially overlapped hexagons #2734
