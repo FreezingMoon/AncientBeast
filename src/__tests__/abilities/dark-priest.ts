@@ -164,6 +164,26 @@ describe('Dark Priest materialize query preview guards', () => {
 		queryArgs.fnOnSelect(otherHex, queryArgs.args);
 		expect(previewCreature).not.toHaveBeenCalled();
 	});
+
+	test('materialize shows occupied in-range hexes as dashed without making them spawnable', () => {
+		const occupiedHex = makeHex(6, 4);
+		occupiedHex.isWalkable = jest.fn(() => false);
+		(ability.creature.hexagons[0].adjacentHex as ReturnType<typeof jest.fn>).mockReturnValueOnce([
+			spawnHex,
+			occupiedHex,
+		]);
+
+		ability.materialize('A1');
+
+		expect(queryHexes).toHaveBeenCalledTimes(1);
+		const queryArgs = queryHexes.mock.calls[0][0] as {
+			hexes: MockHex[];
+			hexesDashed: MockHex[];
+		};
+
+		expect(queryArgs.hexes).toEqual([spawnHex]);
+		expect(queryArgs.hexesDashed).toEqual([occupiedHex]);
+	});
 });
 
 describe('Godlet Printer activation leading to the dash view', () => {
