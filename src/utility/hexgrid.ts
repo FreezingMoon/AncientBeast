@@ -300,6 +300,7 @@ export class HexGrid {
 	hexesGroup: any;
 	displayHexesGroup: any;
 	overlayHexesGroup: any;
+	queryDashedHexesGroup: any;
 	dropGroup: any;
 	creatureGroup: any;
 	/**
@@ -409,6 +410,7 @@ export class HexGrid {
 		this.hexesGroup = layers.hexesGroup;
 		this.displayHexesGroup = layers.displayHexesGroup;
 		this.overlayHexesGroup = layers.overlayHexesGroup;
+		this.queryDashedHexesGroup = layers.queryDashedHexesGroup;
 		this.dropGroup = layers.dropGroup;
 		this.creatureGroup = layers.creatureGroup;
 		// Behind the creatures so smoke never draws over a unit, but not a child of

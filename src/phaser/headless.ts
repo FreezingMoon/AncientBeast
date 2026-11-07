@@ -350,8 +350,13 @@ export class HeadlessMatch {
 			return;
 		}
 		this.destroyed = true;
-		this.env.restore();
-		this.game.destroy(false, false);
+		try {
+			this.game.destroy(false, false);
+			// The sleeping loop cannot deliver Phaser's deferred destruction frame.
+			this.game.headlessStep(0, 0);
+		} finally {
+			this.env.restore();
+		}
 	}
 }
 

@@ -163,5 +163,12 @@ describe('Authoritative server engine (replay)', () => {
 		stopTimers(rebuilt);
 
 		expect(serializeState(rebuilt)).toEqual(directState);
+
+		const phaser = rebuilt.Phaser;
+		const onDestroy = jest.fn();
+		phaser.events.once('destroy', onDestroy);
+		destroyHeadlessGame(rebuilt);
+		expect(onDestroy).toHaveBeenCalledTimes(1);
+		expect(phaser.pendingDestroy).toBe(false);
 	}, 120_000);
 });

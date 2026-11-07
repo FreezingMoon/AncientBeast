@@ -276,6 +276,7 @@ export class Hex {
 	display: SpriteHandle;
 	overlay: SpriteHandle;
 	homeSprite: SpriteHandle | undefined;
+	queryDashedOverlay: SpriteHandle | undefined;
 	/** Debug-only coordinate label, created on demand and destroyed when the grid overlay is hidden. */
 	coordText: SpriteHandle | undefined;
 
@@ -1143,6 +1144,36 @@ export class Hex {
 			loadTextureIfChanged(this.display, 'hex_deadzone');
 			this.pinTopLeft(this.display, this.drawPoint.x, this.drawPoint.y);
 			this.overlay.visible = this.overlay.key === 'input';
+		}
+
+		// Query outlines are independent of hover classes: hover-off and active
+		// creature cleanup must not erase occupied cells from the targeting range.
+		const showQueryOutline =
+			this.grid.lastQueryOpt?.hexesDashed?.includes(this) &&
+			this.creature instanceof Creature &&
+			!this.forcedHidden &&
+			!isDeadzone &&
+			!hasCrashingGlobeTarget;
+		if (showQueryOutline) {
+			const texture = `hex_dashed_p${this.creature.team}`;
+			if (!this.queryDashedOverlay) {
+				this.queryDashedOverlay = this.game.gameEngine.add.sprite(
+					this.drawPoint.x,
+					this.drawPoint.y,
+					texture,
+					undefined,
+					this.grid.queryDashedHexesGroup,
+				);
+			}
+			loadTextureIfChanged(this.queryDashedOverlay, texture);
+			this.queryDashedOverlay.setOrigin(0.5, 0.5);
+			const scale = this.displayClasses.match(/shrunken/) ? shrinkScale : 1;
+			this.queryDashedOverlay.setScale(scale, scale);
+			alignIn(this.queryDashedOverlay, this.hitBox, ALIGN_CENTER);
+			this.queryDashedOverlay.alpha = 1;
+			this.queryDashedOverlay.visible = true;
+		} else if (this.queryDashedOverlay) {
+			this.queryDashedOverlay.visible = false;
 		}
 
 		// The targeting cursor is the only hex overlay that turns, so it only

@@ -624,8 +624,15 @@ export async function createHeadlessGame(
  */
 export function destroyHeadlessGame(game: any): void {
 	if (!game) return;
-	game.destroyPhaser?.();
-	game.headlessDriver?.restore?.();
+	const phaser = game.Phaser;
+	try {
+		game.destroyPhaser?.();
+		// Phaser defers destruction to its next frame. The headless loop is asleep,
+		// so flush that frame before restoring the host clock and frame callbacks.
+		if (phaser?.pendingDestroy) phaser.headlessStep(0, 0);
+	} finally {
+		game.headlessDriver?.restore?.();
+	}
 }
 
 // ─── Step loop ───────────────────────────────────────────────────────────────

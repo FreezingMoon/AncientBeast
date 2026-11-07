@@ -245,9 +245,12 @@ describe('headless time is virtual, not wall-clock', () => {
 			const realBefore = Date.now();
 			const match = await boot();
 			expect(Date.now()).not.toBe(realBefore);
+			const onDestroy = jest.fn();
+			match.game.events.once('destroy', onDestroy);
 
 			match.destroy();
 			expect(match.isDestroyed).toBe(true);
+			expect(onDestroy).toHaveBeenCalledTimes(1);
 			// Close enough to the real clock to prove it was restored, without
 			// asserting on a value that legitimately changes between lines.
 			expect(Math.abs(Date.now() - realBefore)).toBeLessThan(5_000);
@@ -255,6 +258,7 @@ describe('headless time is virtual, not wall-clock', () => {
 			// `destroy` is idempotent, so a caller's teardown path does not have to
 			// know whether something else already released the match.
 			expect(() => match.destroy()).not.toThrow();
+			expect(onDestroy).toHaveBeenCalledTimes(1);
 		},
 		BOOT_TIMEOUT,
 	);
