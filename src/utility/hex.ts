@@ -91,6 +91,45 @@ const CURSOR_SPIN_SPEED = 2;
 const spinningCursors = new Set<Hex>();
 let cursorSpinFrame: number | null = null;
 
+/** One cursor over ability highlighting, which shares the hex's overlay sprite. */
+let hoverCursorSprite: SpriteHandle | null = null;
+let hoverCursorHex: Hex | null = null;
+
+/** Show or hide the shared hover cursor for `hex`. */
+function updateHoverCursor(hex: Hex, show: boolean): void {
+	if (!show) {
+		// Only the hex currently carrying the cursor may retire it; every other
+		// hex is restyled far more often than the cursor moves.
+		if (hoverCursorHex === hex) {
+			hoverCursorHex = null;
+			if (hoverCursorSprite && hoverCursorSprite.active !== false) {
+				hoverCursorSprite.visible = false;
+			}
+		}
+		return;
+	}
+	if (!hoverCursorSprite || hoverCursorSprite.active === false) {
+		// The board is destroyed and rebuilt between matches, taking the sprite
+		// with it, so a dead handle is re-created rather than reused.
+		hoverCursorSprite = hex.game.gameEngine.add.sprite(
+			0,
+			0,
+			'input',
+			undefined,
+			hex.grid.overlayHexesGroup,
+		);
+		hoverCursorSprite.setOrigin(0.5, 0.5);
+	}
+	hoverCursorHex = hex;
+	hoverCursorSprite.visible = true;
+	hoverCursorSprite.alpha = 1;
+	// Match the overlay's footprint, so shrunken ability hexes get a cursor
+	// shrunken to the same size.
+	hoverCursorSprite.setScale(hex.overlay.scaleX ?? 1, hex.overlay.scaleY ?? 1);
+	alignIn(hoverCursorSprite, hex.hitBox, ALIGN_CENTER);
+	hex.grid.overlayHexesGroup.bringToTop(hoverCursorSprite);
+}
+
 function spinCursors(): void {
 	for (const hex of spinningCursors) {
 		// A cursor whose sprite has been taken out of the world (a board torn down
@@ -113,8 +152,12 @@ function spinCursors(): void {
 		if (hasCrashingGlobeTarget && !hasSwamplerHome) {
 			hex.display.angle += CURSOR_SPIN_SPEED;
 		}
-		if (!hasCrashingGlobeTarget || (hex.overlay.key === 'input' && hex.overlay.alpha > 0)) {
+		// Area highlighting must not rotate with the separate cursor.
+		if (hex.overlay.key === 'input' && hex.overlay.alpha > 0) {
 			hex.overlay.angle += CURSOR_SPIN_SPEED;
+		}
+		if (hex === hoverCursorHex && hoverCursorSprite && hoverCursorSprite.active !== false) {
+			hoverCursorSprite.angle += CURSOR_SPIN_SPEED;
 		}
 	}
 	if (spinningCursors.size === 0) {
@@ -141,6 +184,13 @@ export function stopAllCursorSpinning(): void {
 		cancelAnimationFrame(cursorSpinFrame);
 		cursorSpinFrame = null;
 	}
+	// The shared hover cursor dies with the board, so drop the handle rather
+	// than leave updateHoverCursor() pointing at a removed sprite.
+	if (hoverCursorSprite && hoverCursorSprite.active !== false) {
+		hoverCursorSprite.visible = false;
+	}
+	hoverCursorSprite = null;
+	hoverCursorHex = null;
 }
 
 /**
@@ -733,7 +783,8 @@ export class Hex {
 	 */
 	cleanDisplayVisualState(classes = '') {
 		classes =
-			classes || 'adj hover creature player0 player1 player2 player3 dashed shrunken deadzone';
+			classes ||
+			'adj hover creature player0 player1 player2 player3 dashed shrunken moveRange deadzone';
 		const a = classes.split(' ');
 
 		for (let i = 0, len = a.length; i < len; i++) {
@@ -881,7 +932,11 @@ export class Hex {
 			this._markedByCrashingGlobe || Boolean(this.overlayClasses.match(/crashing-globe-target/));
 		const hasSwamplerHome = typeof this._swamplerHomeOwner === 'number';
 		const isHoveringCrashingGlobeTarget = Boolean(this.overlayClasses.match(/\bhover\b/));
-		this.display.setTint(0xffffff);
+		const isDeadzone = Boolean(this.displayClasses.match(/\bdeadzone\b/));
+		this.display.setTint?.(0xffffff);
+		if (typeof (this.display as any).setTintMode === 'function') {
+			(this.display as any).setTintMode(0);
+		}
 		let targetAlpha =
 			this.reachable || Boolean(this.displayClasses.match(/creature/g)) || hasCrashingGlobeTarget;
 
@@ -901,6 +956,9 @@ export class Hex {
 			this.display.setOrigin(0.5, 0.5);
 			this.display.setTint(0xffffff);
 			this.grid.displayHexesGroup.bringToTop(this.display);
+		} else if (isDeadzone) {
+			loadTextureIfChanged(this.display, 'hex_deadzone');
+			this.pinTopLeft(this.display, this.drawPoint.x, this.drawPoint.y);
 		} else if (this.displayClasses.match(/0|1|2|3/)) {
 			const player = this.displayClasses.match(/0|1|2|3/);
 			loadTextureIfChanged(this.display, `hex_p${player}`);
@@ -912,14 +970,19 @@ export class Hex {
 		} else if (this.displayClasses.match(/\badj\b/)) {
 			loadTextureIfChanged(this.display, 'hex_path');
 			this.pinTopLeft(this.display, this.drawPoint.x, this.drawPoint.y);
+		} else if (this.displayClasses.match(/\bmoveRange\b/)) {
+			// Queue-avatar hover movement range: bright hex outline for contrast.
+			loadTextureIfChanged(this.display, 'hex');
+			this.display.alpha = 1;
+			this.display.setTint?.(0xffffff);
+			if (typeof (this.display as any).setTintMode === 'function') {
+				(this.display as any).setTintMode(1); // FILL
+			}
+			this.grid.displayHexesGroup.bringToTop(this.display);
 		} else if (this.displayClasses.match(/dashed/)) {
-			// Check if this is a dashed hex with a creature (blocked target)
 			if (this.creature instanceof Creature) {
-				// Use colored dashed texture for the creature's team
 				loadTextureIfChanged(this.display, `hex_dashed_p${this.creature.team}`);
-				// Ensure dashed hexagons are visible
 				this.display.alpha = 1;
-				// Bring dashed hexes with creatures to the top of the display group for better visibility
 				this.grid.displayHexesGroup.bringToTop(this.display);
 			} else if (this.displayClasses.match(/showGrid/)) {
 				// Coordinate view: faint dashed grid over empty hexes so the
@@ -929,14 +992,13 @@ export class Hex {
 			} else {
 				loadTextureIfChanged(this.display, 'hex_dashed');
 			}
-		} else if (this.displayClasses.match(/deadzone/)) {
-			loadTextureIfChanged(this.display, 'hex_deadzone');
-			this.pinTopLeft(this.display, this.drawPoint.x, this.drawPoint.y);
 		} else {
 			loadTextureIfChanged(this.display, 'hex');
 			this.pinTopLeft(this.display, this.drawPoint.x, this.drawPoint.y);
 		}
 
+		const isHover = Boolean(this.overlayClasses.match(/\bhover\b/));
+		const isMoveRange = Boolean(this.displayClasses.match(/\bmoveRange\b/));
 		const computedDisplayAlpha =
 			this.displayClasses.match(/showGrid/) && !this.creature && !this.trap && !this.drop
 				? 0.25
@@ -949,6 +1011,12 @@ export class Hex {
 			? 0
 			: typeof this.forcedDisplayAlpha === 'number'
 			? this.forcedDisplayAlpha
+			: isDeadzone
+			? isHover
+				? 0.75
+				: 0.45
+			: isMoveRange && this.displayClasses.match(/dashed/)
+			? 1
 			: computedDisplayAlpha;
 		if (this.forcedHidden && !hasCrashingGlobeTarget && !hasSwamplerHome) {
 			this.display.alpha = 0;
@@ -1002,8 +1070,8 @@ export class Hex {
 				this.coordText.stroke = '#ffffff';
 				this.coordText.strokeThickness = 5;
 				this.coordText.setOrigin(0.5, 0.5);
-				this.coordText.x = this.originalDisplayPos.x - HEX_DISPLAY_X_HACK + 45;
-				this.coordText.y = this.originalDisplayPos.y + 63;
+				this.coordText.x = this.hitBox.x + this.hitBox.width / 2;
+				this.coordText.y = this.hitBox.y + this.hitBox.height / 2;
 			}
 		} else if (this.coordText && this.coordText.active) {
 			this.coordText.destroy();
@@ -1083,24 +1151,43 @@ export class Hex {
 			}
 		}
 
+		if (isDeadzone && !hasCrashingGlobeTarget && !hasSwamplerHome) {
+			loadTextureIfChanged(this.display, 'hex_deadzone');
+			this.pinTopLeft(this.display, this.drawPoint.x, this.drawPoint.y);
+			this.overlay.visible = this.overlay.key === 'input';
+		}
+
 		// The targeting cursor is the only hex overlay that turns, so it only
 		// turns while it is actually on screen. Deciding this from the overlay's
 		// resolved alpha — rather than from the absence of a player class, which
 		// is also true of every plain hex — keeps the shared spin loop down to
 		// the one or two cursors the player can see.
-		if (
+		const overlayShowsCursor =
 			!isGlowControlled &&
 			((this.overlay.key === 'input' && this.overlay.alpha > 0) ||
-				(hasCrashingGlobeTarget && this.display.alpha > 0))
-		) {
+				(hasCrashingGlobeTarget && this.display.alpha > 0));
+
+		const showsHoverCursor =
+			!overlayShowsCursor &&
+			!this.forcedHidden &&
+			this.grid?.selectedHex === this &&
+			!this.grid.materialize_overlay?._previewPos &&
+			!this.grid.secondary_overlay?._previewPos &&
+			Boolean(this.overlayClasses.match(/\bhover\b/));
+		updateHoverCursor(this, showsHoverCursor);
+
+		if (overlayShowsCursor || showsHoverCursor) {
 			this.startSpinning();
 		} else {
 			this.stopSpinning();
+		}
+		if (!overlayShowsCursor) {
 			// Unwind the cursor angle as it leaves the cursor role, rather than on
 			// every `updateStyle()`. The angle is only ever non-zero here if this
-			// hex was the targeting cursor a moment ago, and the `then` branch above
-			// means a hex that stays the cursor is never reset — so the sweep stays
-			// smooth while still spinning.
+			// hex was the targeting cursor a moment ago, and a hex whose overlay
+			// stays the cursor is never reset — so the sweep stays smooth while
+			// still spinning. (A hex spinning only for the shared hover cursor is
+			// unwound too: its overlay shows area/confirmation art, not the cursor.)
 			//
 			// Skipping this left the accumulated angle on the sprite permanently:
 			// the overlay texture is a single reused sprite, so the hex that later

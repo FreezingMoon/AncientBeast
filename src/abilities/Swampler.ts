@@ -1,6 +1,5 @@
 import { Damage } from '../damage';
 import { Team, isTeam } from '../utility/team';
-import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
 import { Creature } from '../creature';
 import { Hex } from '../utility/hex';
@@ -16,9 +15,144 @@ import {
 	spawnSwamplerBadBreath,
 } from '../vfx/bad-breath';
 import { spawnGooSneeze } from '../vfx/goo-sneeze';
-import { applyGooContagion } from './contagion';
+import { applyGooContagion, registerContagionSnapshotBehaviors } from './contagion';
+import { SnapshotCompatibilityError } from '../engine/GameSnapshot';
+import {
+	SWAMPLER_LEAVE_HABITAT_EFFECT,
+	SWAMPLER_NATURAL_HABITAT_EFFECT,
+} from '../engine/swamplerSnapshotBehaviors';
+
+type NaturalHabitatSnapshotData = {
+	creatureId: number;
+	homeX: number;
+	homeY: number;
+	homeAlterations: Record<string, number>;
+};
+
+type LeaveHabitatSnapshotData = {
+	creatureId: number;
+	homeX: number;
+	homeY: number;
+	homeEffectId: number;
+};
+
+const getNaturalHabitatData = (
+	G: Game,
+	data: Record<string, unknown> | undefined,
+): { creature: Creature; hex: Hex; snapshotData: NaturalHabitatSnapshotData } => {
+	const candidate = data as Partial<NaturalHabitatSnapshotData> | undefined;
+	const creature =
+		Number.isInteger(candidate?.creatureId) && G.creatures[candidate.creatureId as number];
+	const hex =
+		Number.isInteger(candidate?.homeX) &&
+		Number.isInteger(candidate?.homeY) &&
+		G.hexAt(candidate.homeX as number, candidate.homeY as number);
+	if (
+		!creature ||
+		!hex ||
+		typeof hex !== 'object' ||
+		!candidate?.homeAlterations ||
+		typeof candidate.homeAlterations !== 'object' ||
+		Array.isArray(candidate.homeAlterations) ||
+		Object.values(candidate.homeAlterations).some(
+			(value) => typeof value !== 'number' || !Number.isFinite(value),
+		)
+	) {
+		throw new SnapshotCompatibilityError(
+			'Cannot restore Swampler Natural Habitat: references are invalid.',
+		);
+	}
+	const snapshotData: NaturalHabitatSnapshotData = {
+		creatureId: creature.id,
+		homeX: hex.x,
+		homeY: hex.y,
+		homeAlterations: { ...candidate.homeAlterations },
+	};
+	hex._swamplerHomeOwner = creature.id;
+	hex.updateStyle();
+	return { creature, hex, snapshotData };
+};
+
+const bindNaturalHabitatEffect = (
+	G: Game,
+	effect: Effect,
+	data: Record<string, unknown> | undefined,
+) => {
+	const { creature, snapshotData } = getNaturalHabitatData(G, data);
+	effect.snapshotBehaviorId = SWAMPLER_NATURAL_HABITAT_EFFECT;
+	effect.snapshotBehaviorData = snapshotData;
+	effect.effectFn = (_effect, event) => {
+		const steppedHex = event as Hex | undefined;
+		if (steppedHex?._swamplerHomeOwner !== creature.id) return;
+		effect.alterations = { ...snapshotData.homeAlterations };
+		creature.updateAlteration();
+		creature.hint('Home', 'msg_effects');
+	};
+};
+
+const bindLeaveHabitatEffect = (
+	G: Game,
+	effect: Effect,
+	data: Record<string, unknown> | undefined,
+) => {
+	const candidate = data as Partial<LeaveHabitatSnapshotData> | undefined;
+	const creature =
+		Number.isInteger(candidate?.creatureId) && G.creatures[candidate.creatureId as number];
+	const hex =
+		Number.isInteger(candidate?.homeX) &&
+		Number.isInteger(candidate?.homeY) &&
+		G.hexAt(candidate.homeX as number, candidate.homeY as number);
+	if (!creature || !hex || typeof hex !== 'object' || !Number.isInteger(candidate?.homeEffectId)) {
+		throw new SnapshotCompatibilityError(
+			'Cannot restore Swampler leave-home effect: references are invalid.',
+		);
+	}
+	const snapshotData: LeaveHabitatSnapshotData = {
+		creatureId: creature.id,
+		homeX: hex.x,
+		homeY: hex.y,
+		homeEffectId: candidate.homeEffectId as number,
+	};
+	const homeEffect = G.effects.find(
+		(candidateEffect) => candidateEffect.id === snapshotData.homeEffectId,
+	);
+	if (
+		!homeEffect ||
+		homeEffect.owner !== creature ||
+		homeEffect.snapshotBehaviorId !== SWAMPLER_NATURAL_HABITAT_EFFECT
+	) {
+		throw new SnapshotCompatibilityError(
+			'Cannot restore Swampler Natural Habitat: linked effect is missing or incompatible.',
+		);
+	}
+	hex._swamplerHomeOwner = creature.id;
+	hex.updateStyle();
+	effect.snapshotBehaviorId = SWAMPLER_LEAVE_HABITAT_EFFECT;
+	effect.snapshotBehaviorData = snapshotData;
+	effect.effectFn = (_effect, event) => {
+		const steppedHex = event as Hex | undefined;
+		if (steppedHex?._swamplerHomeOwner !== creature.id) return;
+		const homeEffect = G.effects.find(
+			(candidateEffect) => candidateEffect.id === snapshotData.homeEffectId,
+		);
+		if (!homeEffect || homeEffect.owner !== creature) {
+			throw new SnapshotCompatibilityError(
+				'Cannot restore Swampler Natural Habitat: effect is missing.',
+			);
+		}
+		homeEffect.alterations = {};
+		creature.updateAlteration();
+	};
+};
 
 export default (G: Game) => {
+	registerContagionSnapshotBehaviors(G);
+	G.registerSnapshotEffectBehavior(SWAMPLER_NATURAL_HABITAT_EFFECT, (effect, data) =>
+		bindNaturalHabitatEffect(G, effect, data),
+	);
+	G.registerSnapshotEffectBehavior(SWAMPLER_LEAVE_HABITAT_EFFECT, (effect, data) =>
+		bindLeaveHabitatEffect(G, effect, data),
+	);
 	G.abilities[13] = [
 		// First Ability: Natural Habitat
 		{
@@ -66,13 +200,12 @@ export default (G: Game) => {
 					},
 					G,
 				);
-				homeEffect.effectFn = (_effect, event) => {
-					const steppedHex = event as Hex | undefined;
-					if (steppedHex?._swamplerHomeOwner !== crea.id) return;
-					homeEffect.alterations = { ...homeAlterations };
-					crea.updateAlteration();
-					crea.hint('Home', 'msg_effects');
-				};
+				bindNaturalHabitatEffect(G, homeEffect, {
+					creatureId: crea.id,
+					homeX: hex.x,
+					homeY: hex.y,
+					homeAlterations,
+				});
 				crea.addEffect(homeEffect);
 
 				const leaveHomeEffect = new Effect(
@@ -87,12 +220,12 @@ export default (G: Game) => {
 					},
 					G,
 				);
-				leaveHomeEffect.effectFn = (_effect, event) => {
-					const steppedHex = event as Hex | undefined;
-					if (steppedHex?._swamplerHomeOwner !== crea.id) return;
-					homeEffect.alterations = {};
-					crea.updateAlteration();
-				};
+				bindLeaveHabitatEffect(G, leaveHomeEffect, {
+					creatureId: crea.id,
+					homeX: hex.x,
+					homeY: hex.y,
+					homeEffectId: homeEffect.id,
+				});
 				crea.addEffect(leaveHomeEffect);
 			},
 		},

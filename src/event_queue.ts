@@ -9,6 +9,8 @@ export interface QueueEvent<TData = unknown> {
 	delayed?: boolean;
 	title: string;
 	data: TData;
+	snapshotBehaviorId?: string;
+	snapshotBehaviorData?: Record<string, unknown>;
 	resolve: (onComplete: () => void) => void;
 }
 
@@ -36,6 +38,10 @@ export class EventQueue {
 
 	removeEvent(event: QueueEvent) {
 		this.events = this.events.filter((queuedEvent) => queuedEvent !== event);
+	}
+
+	get pendingEvents(): readonly QueueEvent[] {
+		return [...this.events];
 	}
 
 	get queue() {

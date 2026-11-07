@@ -35,6 +35,7 @@ import type {
 	SpriteHandle,
 	TweenHandle,
 } from './engine/types';
+import { GOOEY_BODY_BRB_TRAP_BEHAVIOR } from './engine/snapshotBehaviors';
 import { getFrameSize, MISSING_TEXTURE_KEY } from './game-display/texture';
 import { onPointerDown } from './input/input';
 import { setHandCursor } from './game-display/cursor';
@@ -260,7 +261,7 @@ export class Creature {
 	hasWait: boolean;
 	travelDist: number;
 	effects: Array<Effect>;
-	dropCollection: Drop[];
+	dropCollection: Pick<Drop, 'name' | 'alterations'>[];
 	protectedFromFatigue: boolean;
 	turnsActive: number;
 	private _nextGameTurnActive: number;
@@ -400,24 +401,24 @@ export class Creature {
 
 		// Statistics
 		this.baseStats = {
-			health: obj.stats.health - 0,
-			endurance: obj.stats.endurance - 0,
-			regrowth: obj.stats.regrowth - 0,
-			energy: obj.stats.energy - 0,
-			meditation: obj.stats.meditation - 0,
-			initiative: obj.stats.initiative - 0,
-			offense: obj.stats.offense - 0,
-			defense: obj.stats.defense - 0,
-			movement: obj.stats.movement - 0,
-			pierce: obj.stats.pierce - 0,
-			slash: obj.stats.slash - 0,
-			crush: obj.stats.crush - 0,
-			shock: obj.stats.shock - 0,
-			burn: obj.stats.burn - 0,
-			frost: obj.stats.frost - 0,
-			poison: obj.stats.poison - 0,
-			sonic: obj.stats.sonic - 0,
-			mental: obj.stats.mental - 0,
+			health: obj.vitals.health - 0,
+			endurance: obj.vitals.endurance - 0,
+			regrowth: obj.vitals.regrowth - 0,
+			energy: obj.vitals.energy - 0,
+			meditation: obj.vitals.meditation - 0,
+			initiative: obj.vitals.initiative - 0,
+			offense: obj.vitals.offense - 0,
+			defense: obj.vitals.defense - 0,
+			movement: obj.vitals.movement - 0,
+			pierce: (obj.masteries?.pierce ?? (obj.vitals as any)?.pierce) - 0,
+			slash: (obj.masteries?.slash ?? (obj.vitals as any)?.slash) - 0,
+			crush: (obj.masteries?.crush ?? (obj.vitals as any)?.crush) - 0,
+			shock: (obj.masteries?.shock ?? (obj.vitals as any)?.shock) - 0,
+			burn: (obj.masteries?.burn ?? (obj.vitals as any)?.burn) - 0,
+			frost: (obj.masteries?.frost ?? (obj.vitals as any)?.frost) - 0,
+			poison: (obj.masteries?.poison ?? (obj.vitals as any)?.poison) - 0,
+			sonic: (obj.masteries?.sonic ?? (obj.vitals as any)?.sonic) - 0,
+			mental: (obj.masteries?.mental ?? (obj.vitals as any)?.mental) - 0,
 
 			/* TODO: Move boolean flags into this.status, because updateAlterations() resets
 			this.stats unless they've been applied via an effect. */
@@ -479,11 +480,11 @@ export class Creature {
 		};
 
 		// Current health. Maximum health is `this.stats.health`.
-		this.health = obj.stats.health;
+		this.health = obj.vitals.health;
 		// Current endurance. Maximum endurance is `this.stats.endurance`.
-		this.endurance = obj.stats.endurance;
+		this.endurance = obj.vitals.endurance;
 		// Current energy. Maximum energy is `this.stats.energy`.
-		this.energy = obj.stats.energy;
+		this.energy = obj.vitals.energy;
 		// Current movement. Maximum movement is `this.maxMovement`.
 		this.remainingMove = 0; //Default value recovered each turn
 		// Movement banked from previous turns. Only abilities granting a
@@ -652,15 +653,19 @@ export class Creature {
 	 * Activate the creature by showing movement range and binding controls to this creature
 	 */
 	activate() {
-		this.travelDist = 0;
-		this.oldEnergy = this.energy;
-		this.oldHealth = this.health;
-		this.noActionPossible = false;
+		const restoringFromSnapshot = this._restoringFromSnapshot;
+		this._restoringFromSnapshot = false;
+		if (!restoringFromSnapshot) {
+			this.travelDist = 0;
+			this.oldEnergy = this.energy;
+			this.oldHealth = this.health;
+			this.noActionPossible = false;
 
-		// Show the Plasma Field for an active Dark Priest with plasma so the player
-		// can see their shield during their own turn. Cleared in deactivate() once
-		// the creature performs an action.
-		this._plasmaFieldActiveTurn = this.isDarkPriest() && this.hasCreaturePlayerGotPlasma();
+			// Show the Plasma Field for an active Dark Priest with plasma so the player
+			// can see their shield during their own turn. Cleared in deactivate() once
+			// the creature performs an action.
+			this._plasmaFieldActiveTurn = this.isDarkPriest() && this.hasCreaturePlayerGotPlasma();
+		}
 
 		const game = this.game;
 		const stats = this.stats;
@@ -706,9 +711,7 @@ export class Creature {
 		varReset.bind(this);
 
 		// Frozen or dizzy effect
-		if (this._restoringFromSnapshot) {
-			this._restoringFromSnapshot = false;
-		} else if (this.isFrozen() || this.isDizzy()) {
+		if (!restoringFromSnapshot && (this.isFrozen() || this.isDizzy())) {
 			varReset();
 			game.poll(() => {
 				if (game.turnThrottle) return;
@@ -745,9 +748,7 @@ export class Creature {
 			}, 50);
 			return;
 		}
-		if (this._restoringFromSnapshot) {
-			this._restoringFromSnapshot = false;
-		} else if (!this.hasWait) {
+		if (!restoringFromSnapshot && !this.hasWait) {
 			varReset();
 
 			// Trigger
@@ -755,7 +756,9 @@ export class Creature {
 			game.onStartPhase(this);
 		}
 
-		this.materializationSickness = false;
+		if (!restoringFromSnapshot) {
+			this.materializationSickness = false;
+		}
 
 		// The opening movement query is deferred a second so the activation
 		// animation plays first, and by then the board may no longer be waiting for
@@ -2365,6 +2368,16 @@ export class Creature {
 	}
 
 	/**
+	 * Resolve destruction of the goo trap holding this Gumble in BRB.
+	 */
+	onBRBTrapDestroyed(destroyer?: Creature, remote = false): void {
+		if (!this._brbState) return;
+		const savedState = this._brbState;
+		this._brbState = null;
+		this.die(destroyer ?? savedState.killer, remote);
+	}
+
+	/**
 	 * Play kill animation. Remove creature from queue and from hexes.
 	 * @param{Creature | {player:Player}} killerCreature - Killer of this creature
 	 * @param{boolean} remote - True when this death is being applied because the
@@ -2393,12 +2406,10 @@ export class Creature {
 			// If the goo trap is destroyed while Gumble is in BRB state (e.g. another
 			// trap overwrites it), Gumble dies immediately with full score/queue update.
 			// The destroyer (the creature whose trap caused the overwrite) becomes the killer.
-			this._brbState.gooTrap.onDestroyFn = (destroyer?: Creature) => {
-				if (!this._brbState) return; // already resolved (revived or died)
-				const savedState = this._brbState;
-				this._brbState = null;
-				this.die(destroyer ?? savedState.killer, remote);
-			};
+			const brbTrap = this._brbState.gooTrap;
+			brbTrap.snapshotBehaviorId = GOOEY_BODY_BRB_TRAP_BEHAVIOR;
+			brbTrap.snapshotBehaviorData = { creatureId: this.id };
+			brbTrap.onDestroyFn = (destroyer?: Creature) => this.onBRBTrapDestroyed(destroyer, remote);
 
 			// Clear the hex first so the trap spot is immediately walkable
 			// and pathfinding/queue-display sees the correct state.
@@ -4162,6 +4173,18 @@ class CreatureSprite {
 			this._noActionHintGroup.destroy(true);
 		}
 		this._noActionHintGroup = null;
+	}
+
+	showBonfireSpringHint() {
+		let fireCount = 1;
+		this._hintGrp.each((hint: SpriteHandle) => {
+			const state = peekHintState(hint);
+			if (state?.hintType === 'msg_effects' && hint.text?.startsWith('🔥')) {
+				fireCount = (hint.text.match(/🔥/g) || []).length + 1;
+				hint.destroy();
+			}
+		}, this);
+		this.hint('🔥'.repeat(fireCount), 'msg_effects');
 	}
 
 	hint(text: string, hintType: CreatureHintType) {

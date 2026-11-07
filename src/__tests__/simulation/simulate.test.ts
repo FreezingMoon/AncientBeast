@@ -19,6 +19,8 @@
  * Default run (20 + 10×10 = 120 games) takes about 45–70 minutes.
  * For a quick smoke-test:  SIM_BASELINE=8 SIM_VARIANT=8 bun run simulate
  * For higher confidence:   SIM_BASELINE=100 SIM_VARIANT=50 bun run simulate
+ * To sweep only some variants (label substring match, comma-separated):
+ *   SIM_SWEEP_FILTER=maxDecisionCount SIM_VARIANT=30 bun run simulate
  *
  * This suite measures balance; it does not enforce it. Beyond the batch-size
  * assertion it now also fails on structural match violations (see
@@ -86,6 +88,11 @@ async function loadAbilities(): Promise<Array<(G: unknown) => void>> {
 
 // Write directly to /dev/tty so progress bypasses Jest's output buffering.
 // Falls back to process.stderr when running in CI or non-TTY environments.
+//
+// Also mirrors the bar to a sidecar file. /dev/tty only exists in an interactive
+// terminal; a background run or CI has no tty, so the bar was previously invisible
+// to anyone watching the process. The file is tailable (`tail -f`) and carries the
+// same \r-rewritten line, so it reads as a live bar either way.
 async function ttyWrite(text: string) {
 	try {
 		const fs2 = await import('fs');
@@ -94,6 +101,12 @@ async function ttyWrite(text: string) {
 		fs2.closeSync(fd);
 	} catch {
 		(process.stderr as any).write(text);
+	}
+	try {
+		const fs2 = await import('fs');
+		fs2.appendFileSync(PROGRESS_PATH, text.replace(/\r/g, '\n'));
+	} catch {
+		// Sidecar is best-effort; a missing dir must not break the run.
 	}
 }
 
@@ -246,6 +259,13 @@ const RESULTS_PATH = path.resolve(
 	process.cwd(),
 	process.env.SIM_RESULTS ??
 		path.join('src/__tests__/simulation/results', `simulation-results-${process.pid}.jsonl`),
+);
+// Same idea for the progress bar: pid-scoped so two runs don't clobber each
+// other's live bar. Override with SIM_PROGRESS.
+const PROGRESS_PATH = path.resolve(
+	process.cwd(),
+	process.env.SIM_PROGRESS ??
+		path.join('src/__tests__/simulation/results', `simulation-progress-${process.pid}.log`),
 );
 // Default counts are intentionally small (~10-30 s per game).
 // For tighter statistical confidence, increase via env vars:

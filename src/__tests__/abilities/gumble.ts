@@ -129,6 +129,8 @@ describe('Gumble abilities', () => {
 			abilities: [],
 			creatureData: [],
 			effects: [],
+			registerSnapshotEffectBehavior: jest.fn(),
+			registerSnapshotTrapBehavior: jest.fn(),
 			activeCreature: null,
 			log: jest.fn(),
 			grid: {

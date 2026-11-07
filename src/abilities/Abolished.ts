@@ -1,18 +1,91 @@
-import { Damage } from '../damage';
+import { Damage, DamageStats } from '../damage';
 import { Team } from '../utility/team';
 import { Creature } from '../creature';
 import { Effect } from '../effect';
+import { Hex } from '../utility/hex';
 import * as arrayUtils from '../utility/arrayUtils';
 import { getPointFacade } from '../utility/pointfacade';
 import Game from '../game';
 import { shakeBoard } from '../game-display/camera';
-import type { SpriteHandle } from '../engine/types';
+import { SnapshotCompatibilityError } from '../engine/GameSnapshot';
+import { ABOLISHED_BONFIRE_SPRING_EFFECT } from '../engine/snapshotBehaviors';
+
+type BonfireSpringSnapshotData = {
+	attackerId: number;
+	damages: DamageStats;
+};
+
+const bindBonfireSpringEffect = (
+	G: Game,
+	effect: Effect,
+	data: Record<string, unknown> | undefined,
+) => {
+	const candidate = data as Partial<BonfireSpringSnapshotData> | undefined;
+	const attackerId = candidate?.attackerId;
+	const attacker = Number.isInteger(attackerId) && G.creatures?.[attackerId as number];
+	const damages = candidate?.damages;
+	if (
+		!(attacker instanceof Creature) ||
+		attacker.name !== 'Abolished' ||
+		effect.owner !== attacker ||
+		!(effect.target instanceof Hex) ||
+		!damages ||
+		typeof damages !== 'object' ||
+		Array.isArray(damages) ||
+		Object.values(damages).some((amount) => typeof amount !== 'number' || !Number.isFinite(amount))
+	) {
+		throw new SnapshotCompatibilityError(
+			'Cannot restore Abolished Bonfire Spring: effect data is invalid.',
+		);
+	}
+
+	const behaviorData: BonfireSpringSnapshotData = {
+		attackerId: attacker.id,
+		damages: { ...damages },
+	};
+	effect.attacker = attacker;
+	effect.snapshotBehaviorId = ABOLISHED_BONFIRE_SPRING_EFFECT;
+	effect.snapshotBehaviorData = behaviorData;
+	effect.requireFn = function () {
+		if (!this.trap) {
+			throw new SnapshotCompatibilityError(
+				'Cannot activate Abolished Bonfire Spring without its trap.',
+			);
+		}
+		const creature = this.trap.hex.creature;
+		const type = (creature && creature.type) || null;
+		return type !== attacker.type;
+	};
+	effect.effectFn = (activeEffect, creatureOrHex: Creature | Hex) => {
+		const creature = creatureOrHex instanceof Creature ? creatureOrHex : creatureOrHex?.creature;
+		if (!(creature instanceof Creature)) {
+			throw new SnapshotCompatibilityError(
+				'Cannot activate Abolished Bonfire Spring without a creature target.',
+			);
+		}
+
+		creature.takeDamage(new Damage(attacker, behaviorData.damages, 1, [], G), {
+			isFromTrap: true,
+		});
+		creature.creatureSprite.showBonfireSpringHint();
+		if (!activeEffect.trap) {
+			throw new SnapshotCompatibilityError(
+				'Cannot activate Abolished Bonfire Spring without its trap.',
+			);
+		}
+		activeEffect.trap.destroy();
+		activeEffect.deleteEffect();
+	};
+};
 
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
  */
 export default (G: Game) => {
+	G.registerSnapshotEffectBehavior(ABOLISHED_BONFIRE_SPRING_EFFECT, (effect, data) =>
+		bindBonfireSpringEffect(G, effect, data),
+	);
 	G.abilities[7] = [
 		//	First Ability: Burning Spirit
 		{
@@ -293,30 +366,28 @@ export default (G: Game) => {
 				const createBonfireSpringTraps = (ownerCreature: Creature) => {
 					const createdTraps = [];
 					ownerCreature.hexagons.forEach(function (h) {
-						const trap = h.createTrap(
-							'bonfire-spring',
-							[
-								new Effect(
-									'Bonfire Spring',
-									ownerCreature,
-									h,
-									'onStepIn',
-									{
-										requireFn: requireFn,
-										effectFn: effectFn,
-										attacker: ownerCreature,
-									},
-									G,
-								),
-							],
-							ownerCreature.player,
+						const effect = new Effect(
+							'Bonfire Spring',
+							ownerCreature,
+							h,
+							'onStepIn',
 							{
-								turnLifetime: 1,
-								ownerCreature,
-								fullTurnLifetime: true,
-								destroyAnimation: 'shrinkDown',
+								attacker: ownerCreature,
+								snapshotBehaviorId: ABOLISHED_BONFIRE_SPRING_EFFECT,
+								snapshotBehaviorData: {
+									attackerId: ownerCreature.id,
+									damages: { ...ability.damages },
+								},
 							},
+							G,
 						);
+						bindBonfireSpringEffect(G, effect, effect.snapshotBehaviorData);
+						const trap = h.createTrap('bonfire-spring', [effect], ownerCreature.player, {
+							turnLifetime: 1,
+							ownerCreature,
+							fullTurnLifetime: true,
+							destroyAnimation: 'shrinkDown',
+						});
 						createdTraps.push(trap);
 					});
 
@@ -324,50 +395,6 @@ export default (G: Game) => {
 				};
 
 				// Leave a Firewall in current location
-				const effectFn = function (effect, creatureOrHex) {
-					let creature = creatureOrHex;
-					if (!(creatureOrHex instanceof Creature)) {
-						creature = creatureOrHex.creature;
-					}
-
-					creature.takeDamage(new Damage(effect.attacker, ability.damages, 1, [], G), {
-						isFromTrap: true,
-					});
-
-					// Stack fire emoji on same hint line: clear previous fire hint, show new count
-					let fireCount = 1;
-					creature.creatureSprite._hintGrp.each((hint: SpriteHandle) => {
-						const state =
-							hint && (hint as SpriteHandle & { __hintState?: { hintType: string } }).__hintState;
-						if (
-							state &&
-							state.hintType === 'msg_effects' &&
-							hint.text &&
-							hint.text.startsWith('🔥')
-						) {
-							fireCount = (hint.text.match(/🔥/g) || []).length + 1;
-							hint.destroy();
-						}
-					}, creature.creatureSprite);
-
-					creature.hint('🔥'.repeat(fireCount), 'msg_effects');
-
-					// @ts-expect-error 'this' defauls to type 'any'
-					this.trap.destroy();
-					effect.deleteEffect();
-				};
-
-				const requireFn = function () {
-					// @ts-expect-error 'this' defauls to type 'any'
-					const creature = this.trap.hex.creature,
-						type = (creature && creature.type) || null;
-
-					if (creature === 0) {
-						return false;
-					}
-					return type !== ability.creature.type;
-				};
-
 				const crea = this.creature;
 				createBonfireSpringTraps(crea);
 

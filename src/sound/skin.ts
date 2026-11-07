@@ -55,16 +55,22 @@ setInterval(() => {
 	if (audioPlayer) {
 		const progressBar = audioPlayer.querySelector('.progress-music') as HTMLElement;
 		if (progressBar) {
-			progressBar.style.width = (skin.currentTime / skin.duration) * 100 + '%';
+			const duration = Number.isFinite(skin.duration) ? skin.duration : 1;
+			progressBar.style.width = (skin.currentTime / duration) * 100 + '%';
 		}
 		const currentTime = audioPlayer.querySelector('.time .current');
 		if (currentTime) {
 			currentTime.textContent = getTimeCodeFromNum(skin.currentTime);
 		}
+		const length = audioPlayer.querySelector('.time .length');
+		if (length) {
+			length.textContent = getTimeCodeFromNum(skin.duration);
+		}
 	}
 }, 500);
 
 function getTimeCodeFromNum(num: number) {
+	if (!Number.isFinite(num)) return '0:00';
 	let seconds = Math.trunc(num);
 	let minutes = Math.trunc(seconds / 60);
 	seconds -= minutes * 60;

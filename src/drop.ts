@@ -44,6 +44,7 @@ export type DropDefinition = {
 	slash?: number;
 	crush?: number;
 	sonic?: number;
+	plasma?: number;
 };
 
 export type DropAlterations = Omit<DropDefinition, 'name'>;
@@ -123,6 +124,10 @@ export class Drop {
 
 		if (alterations.movement) {
 			creature.restoreMovement(alterations.movement, false);
+		}
+
+		if (alterations.plasma) {
+			creature.player.plasma += alterations.plasma;
 		}
 
 		// NOTE: Log all the gained alterations.

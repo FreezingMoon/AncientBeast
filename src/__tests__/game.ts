@@ -1010,10 +1010,14 @@ describe('Game.handleLobbyMessage — creature-died reconciliation', () => {
 			creatures: { 7: creature },
 		} as unknown as Game;
 
-(Game.prototype as unknown as { handleLobbyMessage: (m: unknown) => void }).handleLobbyMessage.call(
-			game,
-			{ type: 'creature-died', creatureId: 7, killerId: undefined, playerId: 'p1' },
-		);
+		(
+			Game.prototype as unknown as { handleLobbyMessage: (m: unknown) => void }
+		).handleLobbyMessage.call(game, {
+			type: 'creature-died',
+			creatureId: 7,
+			killerId: undefined,
+			playerId: 'p1',
+		});
 
 		expect(die).toHaveBeenCalledTimes(1);
 		// `remote=true` so the receiver does not re-broadcast and echo back.
@@ -1028,10 +1032,14 @@ describe('Game.handleLobbyMessage — creature-died reconciliation', () => {
 			creatures: { 7: creature },
 		} as unknown as Game;
 
-		(Game.prototype as unknown as { handleLobbyMessage: (m: unknown) => void }).handleLobbyMessage.call(
-			game,
-			{ type: 'creature-died', creatureId: 7, killerId: 3, playerId: 'p1' },
-		);
+		(
+			Game.prototype as unknown as { handleLobbyMessage: (m: unknown) => void }
+		).handleLobbyMessage.call(game, {
+			type: 'creature-died',
+			creatureId: 7,
+			killerId: 3,
+			playerId: 'p1',
+		});
 
 		expect(die).not.toHaveBeenCalled();
 	});
@@ -1044,10 +1052,14 @@ describe('Game.handleLobbyMessage — creature-died reconciliation', () => {
 			creatures: { 3: killer, 7: creature },
 		} as unknown as Game;
 
-		(Game.prototype as unknown as { handleLobbyMessage: (m: unknown) => void }).handleLobbyMessage.call(
-			game,
-			{ type: 'creature-died', creatureId: 7, killerId: 3, playerId: 'p1' },
-		);
+		(
+			Game.prototype as unknown as { handleLobbyMessage: (m: unknown) => void }
+		).handleLobbyMessage.call(game, {
+			type: 'creature-died',
+			creatureId: 7,
+			killerId: 3,
+			playerId: 'p1',
+		});
 
 		expect(die).toHaveBeenCalledWith(killer, true);
 	});
@@ -1055,10 +1067,14 @@ describe('Game.handleLobbyMessage — creature-died reconciliation', () => {
 	test('ignores the message when the creature is not present locally', () => {
 		const game = { creatures: {} } as unknown as Game;
 
-		(Game.prototype as unknown as { handleLobbyMessage: (m: unknown) => void }).handleLobbyMessage.call(
-			game,
-			{ type: 'creature-died', creatureId: 99, killerId: undefined, playerId: 'p1' },
-		);
+		(
+			Game.prototype as unknown as { handleLobbyMessage: (m: unknown) => void }
+		).handleLobbyMessage.call(game, {
+			type: 'creature-died',
+			creatureId: 99,
+			killerId: undefined,
+			playerId: 'p1',
+		});
 
 		// No throw, nothing to assert beyond not crashing.
 		expect(game.creatures['99']).toBeUndefined();

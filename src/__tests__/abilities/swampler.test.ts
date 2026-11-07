@@ -33,6 +33,7 @@ jest.mock('../../damage', () => ({
 
 jest.mock('../../effect', () => ({
 	Effect: class EffectMock {
+		id: number;
 		title: string;
 		name: string;
 		target: any;
@@ -45,14 +46,8 @@ jest.mock('../../effect', () => ({
 		stackable: boolean;
 		effectFn: (...args: any[]) => void = () => undefined;
 
-		constructor(
-			title: string,
-			owner: any,
-			target: any,
-			trigger: string,
-			options: any,
-			_game: unknown,
-		) {
+		constructor(title: string, owner: any, target: any, trigger: string, options: any, game: any) {
+			this.id = game.effectId++;
 			this.title = title;
 			this.name = title;
 			this.owner = owner;
@@ -63,6 +58,7 @@ jest.mock('../../effect', () => ({
 			this.alterations = options.alterations;
 			this.deleteOnOwnerDeath = options.deleteOnOwnerDeath;
 			this.stackable = options.stackable;
+			game.effects.push(this);
 		}
 
 		deleteEffect = jest.fn();
@@ -74,13 +70,20 @@ jest.mock('../../game-display/camera', () => ({ shakeBoard: jest.fn() }));
 describe('Swampler Goo Sneeze', () => {
 	test('Natural Habitat triggers only at the end of Swampler’s first active turn', () => {
 		const claimedHex = {
+			x: 1,
+			y: 0,
 			_swamplerHomeOwner: undefined as number | undefined,
 			updateStyle: jest.fn(),
 		};
 		const game = {
 			abilities: [] as any[],
+			creatures: [] as any[],
+			effects: [] as any[],
+			effectId: 0,
 			grid: { hexes: [[undefined, claimedHex]] },
+			hexAt: jest.fn(() => claimedHex),
 			log: jest.fn(),
+			registerSnapshotEffectBehavior: jest.fn(),
 		};
 		loadSwamplerAbilities(game as never);
 		const habitat = game.abilities[13][0];
@@ -95,6 +98,7 @@ describe('Swampler Goo Sneeze', () => {
 			updateAlteration: jest.fn(),
 			hint: jest.fn(),
 		};
+		game.creatures[creature.id] = creature;
 
 		const ability = {
 			...habitat,
@@ -185,6 +189,7 @@ describe('Swampler Goo Sneeze', () => {
 			effectId: 0,
 			activeCreature: undefined,
 			log: jest.fn(),
+			registerSnapshotEffectBehavior: jest.fn(),
 		};
 		loadSwamplerAbilities(game as never);
 

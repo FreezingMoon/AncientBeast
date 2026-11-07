@@ -160,6 +160,7 @@ describe('on-demand texture sources', () => {
 
 	test('drops are published so a lazy load can resolve them', () => {
 		expect(onDemandDirs).toContain('assets/drops');
+		expect(onDemandDirs.flatMap(walk)).toContain('assets/drops/tentacle.png');
 	});
 
 	test('every Dark Priest cardboard variant exists', () => {

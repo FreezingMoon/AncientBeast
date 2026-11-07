@@ -30,6 +30,10 @@
 			z-index: 666;
 			}
 		</style>
+		<% if (htmlWebpackPlugin.options.funjeTarget) { %>
+		<!-- funje SDK: present on funje.com, harmless elsewhere (see src/funje.ts) -->
+		<script src="/sdk/playafk-sdk.js"></script>
+		<% } %>
 	</head>
 	<body id="AncientBeast">
 		<div id="portrait-logo" style="display:none; position:fixed; top:0; left:0; right:0; height:35px; z-index:20; pointer-events:none; align-items:center; justify-content:center;">

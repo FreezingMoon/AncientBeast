@@ -300,7 +300,7 @@ const getHexesMock = () => {
 const getCreatureObjMock = () => ({
 	name: 'Abolished',
 	type: 'P7',
-	stats: { health: 234 },
+	vitals: { health: 234 },
 	display: { 'offset-x': OFFSET_X, 'offset-y': OFFSET_Y },
 	size: 3,
 	x: 4,

@@ -39,7 +39,36 @@ export class PeerLobbyProvider implements INetworkBackend {
 	}
 
 	async createLobby(config: GameConfig, code?: LobbyCode): Promise<LobbySession> {
-		const lobbyCode = code || generateLobbyCode();
+		const maxAttempts = 4;
+		let lastError: unknown;
+
+		for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+			const lobbyCode = code || generateLobbyCode();
+			try {
+				return await this.createLobbyWithCode(config, lobbyCode);
+			} catch (error) {
+				lastError = error;
+				// Only retry with a fresh code on the second attempt onwards;
+				// a caller-supplied code is never silently replaced.
+				if (code || attempt >= maxAttempts - 1) {
+					break;
+				}
+				console.warn(
+					`[PeerLobbyProvider] createLobby failed (attempt ${
+						attempt + 1
+					}/${maxAttempts}), retrying with new code:`,
+					error,
+				);
+			}
+		}
+
+		throw lastError instanceof Error ? lastError : new Error(String(lastError));
+	}
+
+	private async createLobbyWithCode(
+		config: GameConfig,
+		lobbyCode: LobbyCode,
+	): Promise<LobbySession> {
 		const playerId = this.identity.getId();
 		const hostPeerId = getPeerIdForLobby(lobbyCode);
 		const hostPlayer: LobbyPlayer = {
