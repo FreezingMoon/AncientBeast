@@ -2241,6 +2241,17 @@ export class UI {
 
 					applyBuffDebuffStyle($stat, this.selectedCreatureObj, key, value, isBrowsing);
 				});
+				$j.each(stats.masteries, (key, value) => {
+					const $stat = $j('#card .sideB .' + key + ' .value');
+
+					if (this.selectedCreatureObj) {
+						$stat.text(this.selectedCreatureObj.stats[key]);
+					} else {
+						$stat.text(value);
+					}
+
+					applyBuffDebuffStyle($stat, this.selectedCreatureObj, key, value, isBrowsing);
+				});
 				$j.each(game.abilities[stats.id], (key) => {
 					const $ability = $j('#card .sideB .abilities .ability:eq(' + key + ')');
 					const abilityIndex = Number(key);
@@ -2430,6 +2441,11 @@ export class UI {
 
 				// Card B
 				$j.each(stats.vitals, (key, value) => {
+					const $stat = $j('#card .sideB .' + key + ' .value');
+					$stat.removeClass('buff debuff');
+					$stat.text(value);
+				});
+				$j.each(stats.masteries, (key, value) => {
 					const $stat = $j('#card .sideB .' + key + ' .value');
 					$stat.removeClass('buff debuff');
 					$stat.text(value);
