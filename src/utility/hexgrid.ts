@@ -2200,9 +2200,11 @@ export class HexGrid {
 	}
 
 	showGrid(val) {
+		// The coordinate view is a debug overlay, not an occlusion cue: units stay
+		// fully opaque so their artwork (not a ghost) sits under the labels.
 		this.forEachHex((hex) => {
 			if (hex.creature) {
-				hex.creature.xray(val);
+				hex.creature.clearXrayImmediately();
 			}
 
 			if (hex.drop) {
@@ -2211,8 +2213,10 @@ export class HexGrid {
 
 			if (val) {
 				hex.displayVisualState('showGrid');
+				hex.displayVisualState('dashed');
 			} else {
 				hex.cleanDisplayVisualState('showGrid');
+				hex.cleanDisplayVisualState('dashed');
 			}
 		});
 	}

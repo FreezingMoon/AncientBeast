@@ -984,6 +984,11 @@ export class Hex {
 				loadTextureIfChanged(this.display, `hex_dashed_p${this.creature.team}`);
 				this.display.alpha = 1;
 				this.grid.displayHexesGroup.bringToTop(this.display);
+			} else if (this.displayClasses.match(/showGrid/)) {
+				// Coordinate view: faint dashed grid over empty hexes so the
+				// labels read without washing out the board.
+				loadTextureIfChanged(this.display, 'hex_dashed');
+				this.grid.displayHexesGroup.bringToTop(this.display);
 			} else {
 				loadTextureIfChanged(this.display, 'hex_dashed');
 			}
@@ -992,9 +997,14 @@ export class Hex {
 			this.pinTopLeft(this.display, this.drawPoint.x, this.drawPoint.y);
 		}
 
-		const computedDisplayAlpha = targetAlpha ? 1 : 0;
 		const isHover = Boolean(this.overlayClasses.match(/\bhover\b/));
 		const isMoveRange = Boolean(this.displayClasses.match(/\bmoveRange\b/));
+		const computedDisplayAlpha =
+			this.displayClasses.match(/showGrid/) && !this.creature && !this.trap && !this.drop
+				? 0.25
+				: targetAlpha
+				? 1
+				: 0;
 		this.display.alpha = hasCrashingGlobeTarget
 			? 1
 			: hasSwamplerHome
@@ -1052,12 +1062,13 @@ export class Hex {
 						color: '#000000',
 						align: 'center',
 					},
-					this.grid.overlayHexesGroup,
+					this.grid.healthIndicatorUiGroup ?? this.grid.overlayHexesGroup,
 				);
-				if (this.creature || this.trap || this.drop) {
-					this.coordText.stroke = '#ffffff';
-					this.coordText.strokeThickness = 5;
-				}
+				// Units sit between the overlay and health-indicator layers, so a
+				// label only stays readable over a unit when it always carries its
+				// white outline and the group draws it above the creatures.
+				this.coordText.stroke = '#ffffff';
+				this.coordText.strokeThickness = 5;
 				this.coordText.setOrigin(0.5, 0.5);
 				this.coordText.x = this.hitBox.x + this.hitBox.width / 2;
 				this.coordText.y = this.hitBox.y + this.hitBox.height / 2;
