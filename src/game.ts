@@ -3241,7 +3241,10 @@ export default class Game {
 						this._replayResume = null;
 						this.activeCreature?.queryMove();
 						this.action(actions.shift(), {
-							callback: nextAction,
+							callback: () => {
+								this.activeCreature?.queryMove();
+								nextAction();
+							},
 						});
 					},
 					this.replayMode === 'load' ? 1 : 100,
