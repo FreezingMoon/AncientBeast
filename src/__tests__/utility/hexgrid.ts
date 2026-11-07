@@ -22,6 +22,56 @@ import { Creature } from '../../creature';
 import { notifyTextureLoaded, resetOnDemandTextures, setOnDemandLoader } from '../../assets';
 import { createSpriteMock } from '../../../test/sprite-mock';
 
+describe('HexGrid updateDisplay after a swap', () => {
+	test('replaces the previous occupant color while preserving the active glow', () => {
+		const activeCreature = Object.assign(Object.create(Creature.prototype), { id: 7, team: 0 });
+		const makeHex = (overlayClasses: string, displayClasses: string) => {
+			const hex = {
+				creature: activeCreature,
+				overlayClasses,
+				displayClasses,
+				overlay: { alpha: 0.45 },
+				cleanDisplayVisualState: jest.fn((classes: string) => {
+					hex.displayClasses = hex.displayClasses
+						.split(/\s+/)
+						.filter((token) => !classes.split(' ').includes(token))
+						.join(' ');
+				}),
+				cleanOverlayVisualState: jest.fn((classes: string) => {
+					hex.overlayClasses = hex.overlayClasses
+						.split(/\s+/)
+						.filter((token) => !classes.split(' ').includes(token))
+						.join(' ');
+				}),
+				overlayVisualState: jest.fn((classes: string) => {
+					hex.overlayClasses += ` ${classes}`;
+				}),
+			};
+			return hex;
+		};
+		const front = makeHex('creature player1', 'creature player1');
+		const back = makeHex('active creature player0', 'creature player0');
+		const grid = {
+			game: { activeCreature },
+			allhexes: [front, back],
+			hexes: [[front, back]],
+		};
+
+		HexGrid.prototype.updateDisplay.call(grid as never);
+		HexGrid.prototype.updateDisplay.call(grid as never);
+
+		for (const hex of grid.allhexes) {
+			expect(hex.overlayClasses).toContain('active');
+			expect(hex.overlayClasses).toContain('player0');
+			expect(hex.overlayClasses).not.toContain('player1');
+			expect(hex.displayClasses).not.toContain('player1');
+			expect(hex.overlay.alpha).toBe(0.45);
+		}
+		expect(front.overlayVisualState).toHaveBeenCalledTimes(1);
+		expect(back.overlayVisualState).not.toHaveBeenCalled();
+	});
+});
+
 describe('HexGrid previewCreature query guards', () => {
 	beforeAll(() => {
 		(global as unknown as { Phaser?: unknown }).Phaser = {
