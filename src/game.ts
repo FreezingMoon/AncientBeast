@@ -1971,7 +1971,7 @@ export default class Game {
 					this.soundsys.playHeartBeat('sounds/heartbeat');
 				}
 
-				this.log('Active Creature : %CreatureName' + this.activeCreature.id + '%');
+				this.log('Active Creature: %CreatureName' + this.activeCreature.id + '%');
 				// Block ability icon state changes during the turn transition (fold + unfold).
 				// activate() resets abilities via setUsed() which would otherwise flash icons.
 				this.UI._abilityPanelAnimating = true;
@@ -3241,7 +3241,10 @@ export default class Game {
 						this._replayResume = null;
 						this.activeCreature?.queryMove();
 						this.action(actions.shift(), {
-							callback: nextAction,
+							callback: () => {
+								this.activeCreature?.queryMove();
+								nextAction();
+							},
 						});
 					},
 					this.replayMode === 'load' ? 1 : 100,

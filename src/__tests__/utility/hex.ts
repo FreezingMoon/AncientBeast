@@ -290,6 +290,7 @@ describe('Swampler Natural Habitat marker', () => {
 		grid.creatureGroup.__unwrapped.list.push(unitOnHomeHex);
 		const hex = new Hex(5, 4, grid as any, game as any);
 
+		hex.unsetReachable();
 		hex._swamplerHomeOwner = 5;
 		hex.updateStyle();
 
@@ -309,15 +310,59 @@ describe('Swampler Natural Habitat marker', () => {
 		expect(hex.display.key).toBe('hex');
 		expect(hex.display.alpha).toBe(0);
 		hex.displayVisualState('dashed player0');
-		expect(hex.display.key).toBe('hex');
-		expect(hex.display.alpha).toBe(0);
+		expect(hex.display.key).toBe('hex_p0');
+		expect(hex.display.alpha).toBe(1);
 
 		hex.overlayVisualState('creature player0');
 		hex.overlayVisualState('hover h_player0');
 
-		expect(hex.display.key).toBe('hex');
-		expect(hex.display.alpha).toBe(0);
+		expect(hex.display.key).toBe('hex_path');
+		expect(hex.display.alpha).toBe(1);
 		expect(hex.homeSprite?.key).toBe('Swampler - swamp');
 		expect(hex.homeSprite?.alpha).toBe(1);
+	});
+
+	test.each([0, 5])('shows hex.png on a reachable swamp owned by creature %s', (owner) => {
+		const hex = new Hex(5, 4, makeGrid() as any, makeGame());
+		hex._swamplerHomeOwner = owner;
+		hex.unsetReachable();
+		const swamp = hex.homeSprite;
+		const swampPosition = { x: swamp?.x, y: swamp?.y };
+
+		expect(hex.display.alpha).toBe(0);
+
+		// Movement destinations at the range edge have no dashed or player classes.
+		hex.setReachable();
+		expect(hex.displayClasses).toBe('');
+		expect(hex.display.key).toBe('hex');
+		expect(hex.display.alpha).toBe(1);
+		expect(hex.display.originX).toBe(0);
+		expect(hex.display.originY).toBe(0);
+		expect(hex.display.x).toBe(hex.hitBox.x);
+		expect(hex.display.y).toBe(hex.hitBox.y);
+
+		hex.overlayVisualState('hover h_player0');
+		expect(hex.display.key).toBe('hex_path');
+		expect(hex.display.alpha).toBe(1);
+
+		HexGrid.prototype.cleanHex.call({ game: { activeCreature: undefined } } as any, hex);
+		expect(hex.reachable).toBe(true);
+		expect(hex.display.key).toBe('hex');
+		expect(hex.display.alpha).toBe(1);
+
+		hex.setNotTarget();
+		expect(hex.display.alpha).toBe(0);
+		hex.unsetNotTarget();
+		expect(hex.display.alpha).toBe(1);
+		hex.unsetReachable();
+		expect(hex.display.alpha).toBe(0);
+		expect(hex.homeSprite).toBe(swamp);
+		expect(hex.homeSprite).toMatchObject({
+			...swampPosition,
+			key: 'Swampler - swamp',
+			alpha: 1,
+			scaleX: 1,
+			scaleY: 1,
+		});
 	});
 });

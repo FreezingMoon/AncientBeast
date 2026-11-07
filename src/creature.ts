@@ -1818,7 +1818,7 @@ export class Creature {
 			this.hint(nbrDisplayed + emoji, 'damage');
 
 			if (!damage.noLog) {
-				game.log('%CreatureName' + this.id + '% is hit : ' + nbrDisplayed + ' health');
+				game.log('%CreatureName' + this.id + '% is hit: ' + nbrDisplayed + ' health');
 			}
 
 			// If Health is empty
