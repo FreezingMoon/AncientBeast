@@ -867,9 +867,20 @@ export class Hex {
 		targetAlpha = Boolean(this.displayClasses.match(/deadzone/g)) || targetAlpha;
 		targetAlpha = Boolean(this.displayClasses.match(/\babilityRange\b/g)) || targetAlpha;
 
+		// A dashed outline marks targeting range; it must beat the player tint on
+		// occupied targets. The hover fill adds `creature playerN` on top of the
+		// query's `dashed playerN`, and checking the tint first would paint a
+		// solid tile exactly where the outline should be.
+		const hasDashedOutline = Boolean(this.displayClasses.match(/dashed/));
 		if (hasCrashingGlobeTarget) {
 			loadTextureIfChanged(this.display, 'target');
 			this.display.setOrigin(0.5, 0.5);
+			this.grid.displayHexesGroup.bringToTop(this.display);
+		} else if (hasDashedOutline && this.creature instanceof Creature) {
+			loadTextureIfChanged(this.display, `hex_dashed_p${this.creature.team}`);
+			// Ensure dashed hexagons are visible
+			this.display.alpha = 1;
+			// Bring dashed hexes with creatures to the top of the display group for better visibility
 			this.grid.displayHexesGroup.bringToTop(this.display);
 		} else if (this.displayClasses.match(/0|1|2|3/)) {
 			const player = this.displayClasses.match(/0|1|2|3/);
@@ -882,18 +893,8 @@ export class Hex {
 		} else if (this.displayClasses.match(/\badj\b/)) {
 			loadTextureIfChanged(this.display, 'hex_path');
 			this.pinTopLeft(this.display, this.drawPoint.x, this.drawPoint.y);
-		} else if (this.displayClasses.match(/dashed/)) {
-			// Check if this is a dashed hex with a creature (blocked target)
-			if (this.creature instanceof Creature) {
-				// Use colored dashed texture for the creature's team
-				loadTextureIfChanged(this.display, `hex_dashed_p${this.creature.team}`);
-				// Ensure dashed hexagons are visible
-				this.display.alpha = 1;
-				// Bring dashed hexes with creatures to the top of the display group for better visibility
-				this.grid.displayHexesGroup.bringToTop(this.display);
-			} else {
-				loadTextureIfChanged(this.display, 'hex_dashed');
-			}
+		} else if (hasDashedOutline) {
+			loadTextureIfChanged(this.display, 'hex_dashed');
 		} else if (this.displayClasses.match(/deadzone/)) {
 			loadTextureIfChanged(this.display, 'hex_deadzone');
 			this.pinTopLeft(this.display, this.drawPoint.x, this.drawPoint.y);
