@@ -1146,9 +1146,10 @@ export class Hex {
 			this.overlay.visible = this.overlay.key === 'input';
 		}
 
-		// Query outlines are independent of hover classes: hover-off and active
-		// creature cleanup must not erase occupied cells from the targeting range.
+		// Queries can preserve occupied outlines across hover and active-creature
+		// cleanup without changing the cleanup behavior of ordinary dashed queries.
 		const showQueryOutline =
+			this.grid.lastQueryOpt?.preserveOccupiedOutlines &&
 			this.grid.lastQueryOpt?.hexesDashed?.includes(this) &&
 			this.creature instanceof Creature &&
 			!this.forcedHidden &&

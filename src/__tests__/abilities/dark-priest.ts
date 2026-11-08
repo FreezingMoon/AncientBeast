@@ -204,6 +204,7 @@ describe('Dark Priest materialize query preview guards', () => {
 		expect(query.hexesDashed).toEqual(
 			options.upgraded ? [row[1], row[2], row[6]] : [row[1], row[2]],
 		);
+		expect(query.preserveOccupiedOutlines).toBe(true);
 		// At the left edge only a size-one creature fits at x=0. Empty cells
 		// beside blockers are not incorrectly dashed just because a unit cannot fit.
 		const expectedTargets = options.size === 1 ? [row[0]] : [];

@@ -1203,6 +1203,7 @@ export class HexGrid {
 			args: {},
 			hexes: [],
 			hexesDashed: [],
+			preserveOccupiedOutlines: false,
 			shrunkenHexes: [],
 			hexesDeadZone: [],
 			size: 0,

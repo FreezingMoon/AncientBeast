@@ -57,7 +57,7 @@ describe('occupied query outlines', () => {
 		Object.defineProperty(hex, 'creature', {
 			value: Object.assign(Object.create(Creature.prototype), { id: 2, team: 1 }),
 		});
-		grid.lastQueryOpt = { hexesDashed: [hex] };
+		grid.lastQueryOpt = { hexesDashed: [hex], preserveOccupiedOutlines: true };
 		hex.displayVisualState('creature player1 dashed');
 		hex.overlayVisualState('hover h_player1');
 		const outline = grid.queryDashedHexesGroup.__unwrapped.list[0];
@@ -90,7 +90,7 @@ describe('occupied query outlines', () => {
 		game.activeCreature = active ? creature : { id: 3, team: 0 };
 		Object.assign(grid, {
 			game,
-			lastQueryOpt: { hexesDashed: [hex] },
+			lastQueryOpt: { hexesDashed: [hex], preserveOccupiedOutlines: true },
 			cleanHex: HexGrid.prototype.cleanHex,
 			restoreReachableHexVisual: HexGrid.prototype.restoreReachableHexVisual,
 		});
@@ -110,6 +110,31 @@ describe('occupied query outlines', () => {
 		expect(grid.queryDashedHexesGroup.__unwrapped.list).toHaveLength(1);
 		stopAllCursorSpinning();
 	});
+
+	test.each([undefined, false])(
+		'clears ordinary dashed queries before query invalidation (persistence=%s)',
+		(preserveOccupiedOutlines) => {
+			const grid = makeGrid() as any;
+			const hex = new Hex(5, 4, grid, makeGame());
+			Object.defineProperty(hex, 'creature', {
+				value: Object.assign(Object.create(Creature.prototype), { id: 2, team: 1 }),
+			});
+			grid.lastQueryOpt = { hexesDashed: [hex], preserveOccupiedOutlines };
+			hex.displayVisualState('creature player1 dashed');
+			hex.overlayVisualState('hover h_player1');
+
+			// Power Aperture clears styles before invalidating its destination query.
+			hex.cleanOverlayVisualState();
+			hex.cleanDisplayVisualState();
+			grid.lastQueryOpt = null;
+			expect(
+				grid.queryDashedHexesGroup.__unwrapped.list.filter(
+					(sprite: { visible: boolean }) => sprite.visible,
+				),
+			).toHaveLength(0);
+			stopAllCursorSpinning();
+		},
+	);
 });
 
 describe('dead-space hex rendering', () => {

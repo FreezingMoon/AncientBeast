@@ -278,7 +278,6 @@ export default (G: Game) => {
 					}
 				});
 
-
 				if (this.creature.player.plasma < lowestCost) {
 					this.message = G.msg.abilities.noPlasma;
 					return false;
@@ -335,7 +334,8 @@ export default (G: Game) => {
 					G,
 				);
 
-				const willDisintegrate = damageAmount >= target.health && !(target.type === '--' && target.player.plasma > 0);
+				const willDisintegrate =
+					damageAmount >= target.health && !(target.type === '--' && target.player.plasma > 0);
 				spawnDisruptorBeam(G, ability.creature, target, willDisintegrate, () => {
 					shakeBoard({
 						amplitude: 0.04,
@@ -457,6 +457,7 @@ export default (G: Game) => {
 					flipped: dpriest.player.flipped,
 					hexes: spawnRange,
 					hexesDashed,
+					preserveOccupiedOutlines: true,
 				});
 			},
 
