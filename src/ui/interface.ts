@@ -2612,6 +2612,14 @@ export class UI {
 		}
 		this.selectedAbility = i;
 
+		const activeCreature = this.game.activeCreature;
+		if (i > 0 && activeCreature) {
+			// Non-passive abilities: showcase icon + frame above the unit (#2537).
+			activeCreature.showSelectedAbilityHint(i);
+		} else if (activeCreature) {
+			activeCreature.clearSelectedAbilityHint();
+		}
+
 		if (i > -1) {
 			this.showAbilityCosts(i);
 			this.abilitiesButtons[i].changeState(ButtonStateEnum.active);
