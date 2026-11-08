@@ -40,9 +40,12 @@ function createHexStandIn() {
 	const display = createSpriteMock({ key: 'hex' });
 	const overlay = createSpriteMock({ key: 'input' });
 	const addedSprites: ReturnType<typeof createSpriteMock>[] = [];
+	// The mirror needs the above-creatures layer; the stand-in creature is
+	// always undefined, so it stays hidden — only its parent must exist.
 	const grid = {
 		displayHexesGroup: { bringToTop: jest.fn(), sendToBack: jest.fn() },
 		overlayHexesGroup: { bringToTop: jest.fn(), sendToBack: jest.fn() },
+		trapOverGroup: { bringToTop: jest.fn() },
 		selectedHex: undefined as unknown,
 	};
 	// `drawPoint` and `pinTopLeft` are private; they are reached here because
@@ -50,6 +53,7 @@ function createHexStandIn() {
 	const proto = Hex.prototype as unknown as {
 		get drawPoint(): { x: number; y: number };
 		pinTopLeft(sprite: unknown, x: number, y: number): void;
+		syncDashedOverSprite(this: Hex): void;
 	};
 	const readDrawPoint = Object.getOwnPropertyDescriptor(proto, 'drawPoint')?.get;
 	if (!readDrawPoint) {
@@ -89,6 +93,7 @@ function createHexStandIn() {
 		},
 		startSpinning: Hex.prototype.startSpinning,
 		stopSpinning: Hex.prototype.stopSpinning,
+		syncDashedOverSprite: proto.syncDashedOverSprite,
 		pinTopLeft: (sprite: unknown, x: number, y: number) => proto.pinTopLeft.call(hex, sprite, x, y),
 	};
 	const style = (overlayClasses: string) => {
