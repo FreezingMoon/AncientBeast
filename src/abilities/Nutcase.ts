@@ -10,11 +10,75 @@ import { Direction } from '../utility/hex';
 import Game from '../game';
 import { QueryOptions } from '../utility/hexgrid';
 import { shakeBoard } from '../game-display/camera';
+import { SnapshotCompatibilityError } from '../engine/GameSnapshot';
+import { NUTCASE_HAMMERED_EFFECT, NUTCASE_TENTACLE_BUSH_EFFECT } from '../engine/snapshotBehaviors';
+
+type NutcaseEffectSnapshotData = {
+	nutcaseId: number;
+	targetId: number;
+};
+
+const getSnapshotCreature = (G: Game, id: unknown, behavior: string): Creature => {
+	if (!Number.isInteger(id) || !(G.creatures?.[id as number] instanceof Creature)) {
+		throw new SnapshotCompatibilityError(
+			`Cannot restore ${behavior}: creature reference is invalid.`,
+		);
+	}
+	return G.creatures[id as number];
+};
+
+const bindTentacleBushEffect = (
+	G: Game,
+	effect: Effect,
+	data: Record<string, unknown> | undefined,
+) => {
+	const candidate = data as Partial<NutcaseEffectSnapshotData> | undefined;
+	const nutcase = getSnapshotCreature(G, candidate?.nutcaseId, 'Nutcase Tentacle Bush');
+	const target = getSnapshotCreature(G, candidate?.targetId, 'Nutcase Tentacle Bush');
+	const ability = nutcase.abilities[0];
+	if (
+		nutcase.name !== 'Nutcase' ||
+		effect.owner !== nutcase ||
+		effect.target !== target ||
+		typeof ability?._activateOnAttacker !== 'function'
+	) {
+		throw new SnapshotCompatibilityError(
+			'Cannot restore Nutcase Tentacle Bush: effect references or ability are invalid.',
+		);
+	}
+	effect.snapshotBehaviorId = NUTCASE_TENTACLE_BUSH_EFFECT;
+	effect.snapshotBehaviorData = { nutcaseId: nutcase.id, targetId: target.id };
+	effect.effectFn = (...args) => ability._activateOnAttacker(...args);
+};
+
+const bindHammeredEffect = (G: Game, effect: Effect, data: Record<string, unknown> | undefined) => {
+	const candidate = data as Partial<NutcaseEffectSnapshotData> | undefined;
+	const attacker = getSnapshotCreature(G, candidate?.nutcaseId, 'Nutcase Hammered');
+	const target = getSnapshotCreature(G, candidate?.targetId, 'Nutcase Hammered');
+	if (attacker.name !== 'Nutcase' || effect.owner !== attacker || effect.target !== target) {
+		throw new SnapshotCompatibilityError(
+			'Cannot restore Nutcase Hammered: effect references are invalid.',
+		);
+	}
+	effect.snapshotBehaviorId = NUTCASE_HAMMERED_EFFECT;
+	effect.snapshotBehaviorData = { nutcaseId: attacker.id, targetId: target.id };
+	effect.effectFn = once((activeEffect) => {
+		target.takeDamage(new Damage(attacker, { slash: 10 }, 1, [], G));
+		activeEffect.deleteEffect();
+	});
+};
+
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
  */
 export default (G: Game) => {
+	G.registerSnapshotEffectBehavior(NUTCASE_TENTACLE_BUSH_EFFECT, (effect, data) =>
+		bindTentacleBushEffect(G, effect, data),
+	);
+	G.registerSnapshotEffectBehavior(NUTCASE_HAMMERED_EFFECT, (effect, data) =>
+		bindHammeredEffect(G, effect, data),
+	);
 	G.abilities[40] = [
 		/**
 		 * First Ability: Tentacle Bush
@@ -60,12 +124,17 @@ export default (G: Game) => {
 					this.creature,
 					'onUnderAttack',
 					{
-						effectFn: (...args) => this._activateOnAttacker(...args),
+						snapshotBehaviorId: NUTCASE_TENTACLE_BUSH_EFFECT,
+						snapshotBehaviorData: {
+							nutcaseId: this.creature.id,
+							targetId: this.creature.id,
+						},
 						deleteTrigger: 'onStartPhase',
 						turnLifetime: 1,
 					},
 					G,
 				);
+				bindTentacleBushEffect(G, damageShieldEffect, damageShieldEffect.snapshotBehaviorData);
 				this.creature.addEffect(immoveableEffect);
 				this.creature.addEffect(damageShieldEffect);
 			},
@@ -227,6 +296,11 @@ export default (G: Game) => {
 					'onStepOut', // Trigger
 					{
 						// Listener activates just once
+						snapshotBehaviorId: NUTCASE_HAMMERED_EFFECT,
+						snapshotBehaviorData: {
+							nutcaseId: this.creature.id,
+							targetId: target.id,
+						},
 						effectFn: once((eff) => {
 							if (!(eff.target instanceof Creature)) return;
 							eff.target.takeDamage(new Damage(eff.owner as Creature, { slash: 10 }, 1, [], G));
@@ -236,6 +310,7 @@ export default (G: Game) => {
 					},
 					G,
 				);
+				bindHammeredEffect(G, effect, effect.snapshotBehaviorData);
 
 				const damage = new Damage(
 					this.creature, // Attacker
@@ -605,7 +680,7 @@ export default (G: Game) => {
 			activate: function (target) {
 				const ability = this;
 				const crea = ability.creature;
-				ability.end();
+				ability.end(false, true);
 				shakeBoard({
 					amplitude: 0.02,
 					durationMs: 200,
@@ -624,15 +699,22 @@ export default (G: Game) => {
 				const trgIsInfront = crea.x < target.x;
 
 				const creaX = target.x + (trgIsInfront ? 0 : crea.size - target.size);
+				const targetX = crea.x + (trgIsInfront ? target.size - crea.size : 0);
+				let completedMoves = 0;
+				const onMoveComplete = () => {
+					// Rebuild highlights only after both footprints and the damage are settled.
+					if (++completedMoves === 2) {
+						G.activeCreature?.queryMove();
+					}
+				};
 				crea.moveTo(G.grid.hexes[target.y][creaX], {
 					ignorePath: true,
 					ignoreMovementPoint: true,
 					callback: function () {
 						crea.updateHex();
-						crea.queryMove();
+						onMoveComplete();
 					},
 				});
-				const targetX = crea.x + (trgIsInfront ? target.size - crea.size : 0);
 				target.moveTo(G.grid.hexes[crea.y][targetX], {
 					ignorePath: true,
 					ignoreMovementPoint: true,
@@ -640,6 +722,7 @@ export default (G: Game) => {
 					callback: function () {
 						target.updateHex();
 						target.takeDamage(damage);
+						onMoveComplete();
 					},
 				});
 			},

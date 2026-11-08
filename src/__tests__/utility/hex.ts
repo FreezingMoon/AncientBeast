@@ -33,6 +33,10 @@ function makeGrid() {
 	return {
 		displayHexesGroup: { bringToTop: () => {}, sendToBack: () => {} },
 		overlayHexesGroup: { bringToTop: () => {}, sendToBack: () => {} },
+		creatureGroup: { __unwrapped: { list: [] as { depth: number }[] } },
+		getDepthAtBand: jest.fn(
+			(y: number, band: string) => y * 100 + (band === 'EFFECT_UNDER_UNITS' ? 20 : 80),
+		),
 	};
 }
 
@@ -50,14 +54,45 @@ function makeGame() {
 	const game = {
 		engine: {
 			add: {
-				sprite: (x: number, y: number, key: string) =>
-					createSpriteMock({ x, y, key, width: 100, height: 100 }),
+				sprite: (x: number, y: number, key: string, _frame: unknown, parent: any) => {
+					const sprite = createSpriteMock({ x, y, key, width: 100, height: 100 });
+					parent?.__unwrapped?.list.push(sprite);
+					return sprite;
+				},
 			},
 		},
 	} as any;
 	(game as any).gameEngine = game.engine;
 	return game;
 }
+
+describe('dead-space hex rendering', () => {
+	test.each([0, 1, 2, 3])('keeps dead-space artwork over player %s highlighting', (team) => {
+		const hex = new Hex(5, 4, makeGrid() as any, makeGame());
+		(hex.hitBox as any).input = { enabled: true };
+		hex.displayVisualState(`deadzone dashed creature player${team}`);
+		hex.overlayVisualState(`reachable h_player${team}`);
+		expect(hex.display.key).toBe('hex_deadzone');
+		expect(hex.overlay.visible).toBe(false);
+
+		hex.overlayVisualState(`hover h_player${team}`);
+		expect(hex.display.key).toBe('hex_deadzone');
+		expect(hex.overlay.visible).toBe(false);
+		expect((hex.hitBox as any).input.enabled).toBe(true);
+
+		HexGrid.prototype.cleanHex.call(
+			{ game: {}, lastQueryOpt: { hexesDeadZone: [hex] } } as any,
+			hex,
+		);
+		expect(hex.display.key).toBe('hex_deadzone');
+
+		hex.cleanDisplayVisualState('deadzone');
+		hex.overlayVisualState(`reachable h_player${team}`);
+		expect(hex.display.key).not.toBe('hex_deadzone');
+		expect(hex.overlay.visible).toBe(true);
+		stopAllCursorSpinning();
+	});
+});
 
 describe('shrunken hex centering', () => {
 	test('a shrunken hex stays centered on hover-off', () => {
@@ -263,5 +298,90 @@ describe('crashing-globe-target overlay persistence', () => {
 		stopAllCursorSpinning();
 		requestFrame.mockRestore();
 		cancelFrame.mockRestore();
+	});
+});
+
+describe('Swampler Natural Habitat marker', () => {
+	test('renders the native-size swamp sprite at the claimed hex and keeps it visible on hover', () => {
+		const grid = makeGrid() as any;
+		const game = makeGame();
+		const unitOnHomeHex = { depth: 440 };
+		grid.creatureGroup.__unwrapped.list.push(unitOnHomeHex);
+		const hex = new Hex(5, 4, grid as any, game as any);
+
+		hex.unsetReachable();
+		hex._swamplerHomeOwner = 5;
+		hex.updateStyle();
+
+		expect(hex.homeSprite?.key).toBe('Swampler - swamp');
+		expect(hex.homeSprite?.alpha).toBe(1);
+		expect(hex.homeSprite?.originX).toBe(0.5);
+		expect(hex.homeSprite?.originY).toBe(1);
+		expect(hex.homeSprite?.x).toBe(hex.hitBox.x + hex.hitBox.width / 2);
+		expect(hex.homeSprite?.y).toBe((hex.hitBox.y + hex.hitBox.height - 20) * 0.75);
+		expect(hex.homeSprite?.scaleX).toBe(1);
+		expect(hex.homeSprite?.scaleY).toBe(1);
+		expect(hex.homeSprite?.depth).toBe(420);
+		expect(grid.getDepthAtBand).toHaveBeenCalledWith(4, 'EFFECT_UNDER_UNITS');
+		expect(grid.creatureGroup.__unwrapped.list.indexOf(hex.homeSprite)).toBeLessThan(
+			grid.creatureGroup.__unwrapped.list.indexOf(unitOnHomeHex),
+		);
+		expect(hex.display.key).toBe('hex');
+		expect(hex.display.alpha).toBe(0);
+		hex.displayVisualState('dashed player0');
+		expect(hex.display.key).toBe('hex_p0');
+		expect(hex.display.alpha).toBe(1);
+
+		hex.overlayVisualState('creature player0');
+		hex.overlayVisualState('hover h_player0');
+
+		expect(hex.display.key).toBe('hex_path');
+		expect(hex.display.alpha).toBe(1);
+		expect(hex.homeSprite?.key).toBe('Swampler - swamp');
+		expect(hex.homeSprite?.alpha).toBe(1);
+	});
+
+	test.each([0, 5])('shows hex.png on a reachable swamp owned by creature %s', (owner) => {
+		const hex = new Hex(5, 4, makeGrid() as any, makeGame());
+		hex._swamplerHomeOwner = owner;
+		hex.unsetReachable();
+		const swamp = hex.homeSprite;
+		const swampPosition = { x: swamp?.x, y: swamp?.y };
+
+		expect(hex.display.alpha).toBe(0);
+
+		// Movement destinations at the range edge have no dashed or player classes.
+		hex.setReachable();
+		expect(hex.displayClasses).toBe('');
+		expect(hex.display.key).toBe('hex');
+		expect(hex.display.alpha).toBe(1);
+		expect(hex.display.originX).toBe(0);
+		expect(hex.display.originY).toBe(0);
+		expect(hex.display.x).toBe(hex.hitBox.x);
+		expect(hex.display.y).toBe(hex.hitBox.y);
+
+		hex.overlayVisualState('hover h_player0');
+		expect(hex.display.key).toBe('hex_path');
+		expect(hex.display.alpha).toBe(1);
+
+		HexGrid.prototype.cleanHex.call({ game: { activeCreature: undefined } } as any, hex);
+		expect(hex.reachable).toBe(true);
+		expect(hex.display.key).toBe('hex');
+		expect(hex.display.alpha).toBe(1);
+
+		hex.setNotTarget();
+		expect(hex.display.alpha).toBe(0);
+		hex.unsetNotTarget();
+		expect(hex.display.alpha).toBe(1);
+		hex.unsetReachable();
+		expect(hex.display.alpha).toBe(0);
+		expect(hex.homeSprite).toBe(swamp);
+		expect(hex.homeSprite).toMatchObject({
+			...swampPosition,
+			key: 'Swampler - swamp',
+			alpha: 1,
+			scaleX: 1,
+			scaleY: 1,
+		});
 	});
 });

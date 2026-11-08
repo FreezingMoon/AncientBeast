@@ -1,6 +1,6 @@
 import $j from 'jquery';
 import { Animations } from './animations';
-import { EventQueue, isQueueEvent } from './event_queue';
+import { EventQueue, isQueueEvent, type QueueEvent } from './event_queue';
 import { GameLog, type LogPerformer, type ReplayMode } from './utility/gamelog';
 import { SoundSys, SoundSysAudioBufferSourceNode } from './sound/soundsys';
 import { Hex, stopAllCursorSpinning } from './utility/hex';
@@ -16,8 +16,19 @@ import {
 	getPlayerColor,
 } from './player';
 import { UI } from './ui/interface';
+import {
+	GameSnapshotSerializer,
+	SNAPSHOT_VERSION,
+	SnapshotCompatibilityError,
+	type QueueEventSnapshot,
+} from './engine/GameSnapshot';
 import { Creature, CreatureHintType } from './creature';
 import { refreshPlasmaRenderScales, precompilePlasmaShader } from './vfx/plasma/field';
+import {
+	disperseBadBreathCloudsAt,
+	expireBadBreathClouds,
+	ageBadBreathClouds,
+} from './vfx/bad-breath';
 import { unitData } from './data/units';
 import type { GameChannels, MetaPowersState } from './game-events/channels.types';
 import { createGameChannels } from './game-events/factory';
@@ -52,6 +63,7 @@ import BotController from './bot';
 import { locationPaths } from '../assets/index';
 import type { GameEngine, SpriteHandle } from './engine/types';
 import { GameStateMachine, type GameState } from './engine/GameStateMachine';
+import { funje } from '../platforms/funje/funje';
 import {
 	clearHoveredHex,
 	onPointerUp,
@@ -59,6 +71,10 @@ import {
 	resetPointerWithinBoard,
 	trackPointerWithinBoard,
 } from './input/input';
+
+type SnapshotEffectBehavior = (effect: Effect, data: Record<string, unknown> | undefined) => void;
+type SnapshotTrapBehavior = (trap: Trap, data: Record<string, unknown> | undefined) => void;
+type SnapshotEventBehavior = (snapshot: QueueEventSnapshot) => QueueEvent;
 
 /* eslint-disable prefer-rest-params */
 
@@ -169,6 +185,7 @@ export default class Game {
 	players: Player[];
 	creatures: Creature[];
 	traps: Trap[];
+	badBreathClouds: any[];
 	drops: Drop[];
 	effects: Effect[];
 	activeCreature: Creature | undefined;
@@ -238,6 +255,9 @@ export default class Game {
 	metaPowersState: MetaPowersState;
 	/** Counts abilities that called end(false,true) but haven't yet invoked queryMove(). */
 	_deferredQueryMovePending: number;
+	private readonly _snapshotEffectBehaviors = new Map<string, SnapshotEffectBehavior>();
+	private readonly _snapshotTrapBehaviors = new Map<string, SnapshotTrapBehavior>();
+	private readonly _snapshotEventBehaviors = new Map<string, SnapshotEventBehavior>();
 	Phaser: Phaser.Game | null;
 	/** The single Phaser 4 scene that replaces Phaser 2 CE's `game.state`. */
 	private phaserScene: import('./phaser/scenes/GameScene').GameScene | null = null;
@@ -640,6 +660,7 @@ export default class Game {
 		this.players = [];
 		this.creatures = [];
 		this.traps = [];
+		this.badBreathClouds = [];
 		this.drops = [];
 		this.effects = [];
 		this.activeCreature = undefined;
@@ -869,6 +890,9 @@ export default class Game {
 		// a second match-start delivery arriving during that fetch would still see
 		// 'initialized' and start a competing load.
 		this.gameState = 'loading';
+		if (process.env.VITE_FUNJE_TARGET === 'true') {
+			funje.loadingStart();
+		}
 
 		// The old match's drum roll would keep ringing over the loading screen and
 		// the new music, since loadGame() below swaps in a brand new SoundSys
@@ -945,6 +969,12 @@ export default class Game {
 		// of them. Re-running setup (or the replay scheduler) on those would
 		// re-create the world mid-match.
 		load.onceComplete(() => this.finishLoading());
+		if (process.env.VITE_FUNJE_TARGET === 'true') {
+			load.onceComplete(() => {
+				funje.loadingStop();
+				funje.gameplayStart();
+			});
+		}
 		load.onceComplete(onLoadCompleteFn);
 		this._pendingLoadCompleteFn = onLoadCompleteFn;
 
@@ -1115,7 +1145,7 @@ export default class Game {
 
 	// If no red flags, remove the loading bar and begin rendering the game.
 	maybeSetup() {
-		if (this.preventSetup) {
+		if (this.preventSetup || this.gameState !== 'loaded') {
 			return;
 		}
 
@@ -1208,6 +1238,7 @@ export default class Game {
 		// onCloseDash signal that bounces every creature on the board.
 		this.creatures = [];
 		this.traps = [];
+		this.badBreathClouds = [];
 		this.drops = [];
 		this.effects = [];
 		for (let i = 0; i < gameMode; i++) {
@@ -1311,7 +1342,9 @@ export default class Game {
 			creature.updateHealth();
 		}
 
-		this.nextCreature();
+		if (!this._pendingSnapshot) {
+			this.nextCreature();
+		}
 
 		this.resizeCombatFrame(); // Resize while the game is starting
 		this.UI.resizeDash();
@@ -1358,6 +1391,9 @@ export default class Game {
 			this.reconstructFromSnapshot(this._pendingSnapshot);
 			this._pendingSnapshot = null;
 		}
+		// Prevent a duplicate setup() (e.g. a late focus event) from wiping the
+		// restored state back to a fresh match.
+		this.preventSetup = true;
 	}
 
 	/**
@@ -1652,6 +1688,20 @@ export default class Game {
 			}
 			return;
 		}
+		if (message.type === 'creature-died') {
+			// Authoritative death confirmation broadcast by the client whose action
+			// caused it (see Creature.die()). The acting client already applied the
+			// death locally before sending, so the receiver only force-applies it
+			// when its own state still has the creature alive — this is what
+			// prevents "creature died for one player, still alive for the other".
+			// `remote=true` suppresses re-broadcasting to avoid an echo loop.
+			const creature = this.creatures[message.creatureId];
+			if (creature && !creature.dead) {
+				const killer = message.killerId != null ? this.creatures[message.killerId] : undefined;
+				creature.die(killer ?? { player: creature.player }, true);
+			}
+			return;
+		}
 		if (message.type === 'player-left') {
 			console.warn(
 				'[Game.handleLobbyMessage] Received player-left:',
@@ -1816,6 +1866,16 @@ export default class Game {
 	 */
 	nextRound(remote?: boolean) {
 		this.turn++;
+		try {
+			ageBadBreathClouds(this);
+		} catch {
+			// ignore
+		}
+		try {
+			expireBadBreathClouds(this);
+		} catch {
+			// ignore
+		}
 		this.log(`Round ${this.turn}`, 'roundmarker', true);
 		this.onStartOfRound();
 		this.botController.maybeForceOffensive();
@@ -1911,7 +1971,7 @@ export default class Game {
 					this.soundsys.playHeartBeat('sounds/heartbeat');
 				}
 
-				this.log('Active Creature : %CreatureName' + this.activeCreature.id + '%');
+				this.log('Active Creature: %CreatureName' + this.activeCreature.id + '%');
 				// Block ability icon state changes during the turn transition (fold + unfold).
 				// activate() resets abilities via setUsed() which would otherwise flash icons.
 				this.UI._abilityPanelAnimating = true;
@@ -2484,6 +2544,14 @@ export default class Game {
 		if (!opts || !opts.ignoreTraps) {
 			this.triggerTrap('onStepIn', arguments);
 		}
+		// Disperse persistent Bad Breath clouds when a non-Swampler unit steps in.
+		try {
+			if (creature instanceof Creature && creature.name !== 'Swampler') {
+				disperseBadBreathCloudsAt(this, hex.x, hex.y, creature);
+			}
+		} catch {
+			// ignore
+		}
 	}
 
 	/**
@@ -2710,8 +2778,6 @@ export default class Game {
 		}
 
 		for (let i = 0; i < totalEffects; i++) {
-			// @ts-expect-error 2339
-			// `this.effects` might be the wrong type or need to look at `EffectTarget` type definition
 			this.effects[i].triggeredThisChain = false;
 		}
 	}
@@ -2736,6 +2802,9 @@ export default class Game {
 		this.stopTimer();
 		this.activeCreature = undefined;
 		this.gameState = 'ended';
+		if (process.env.VITE_FUNJE_TARGET === 'true') {
+			funje.gameplayStop();
+		}
 		this.disconnectReason = reason;
 
 		// On disconnect, skip score calculation and go straight to UI
@@ -2988,6 +3057,7 @@ export default class Game {
 		this.traps.forEach((trap) => trap.destroy());
 		this.drops.forEach((drop) => drop.destroy());
 		this.traps = [];
+		this.badBreathClouds = [];
 		this.drops = [];
 
 		// Rebuild the channels so UI listeners registered for the previous match do
@@ -3171,7 +3241,10 @@ export default class Game {
 						this._replayResume = null;
 						this.activeCreature?.queryMove();
 						this.action(actions.shift(), {
-							callback: nextAction,
+							callback: () => {
+								this.activeCreature?.queryMove();
+								nextAction();
+							},
 						});
 					},
 					this.replayMode === 'load' ? 1 : 100,
@@ -3260,7 +3333,99 @@ export default class Game {
 	/**
 	 * Serialize the current game state to a snapshot object.
 	 */
+	registerSnapshotEffectBehavior(id: string, bind: SnapshotEffectBehavior): void {
+		this._snapshotEffectBehaviors.set(id, bind);
+	}
+
+	registerSnapshotTrapBehavior(id: string, bind: SnapshotTrapBehavior): void {
+		this._snapshotTrapBehaviors.set(id, bind);
+	}
+
+	registerSnapshotEventBehavior(id: string, restore: SnapshotEventBehavior): void {
+		this._snapshotEventBehaviors.set(id, restore);
+	}
+
+	private restoreSnapshotEffectBehavior(
+		effect: Effect,
+		id?: string,
+		data?: Record<string, unknown>,
+	) {
+		if (!id) return;
+		const bind = this._snapshotEffectBehaviors.get(id);
+		if (!bind) {
+			throw new SnapshotCompatibilityError(`Snapshot effect behavior "${id}" is not registered.`);
+		}
+		effect.snapshotBehaviorId = id;
+		effect.snapshotBehaviorData = data;
+		bind(effect, data);
+	}
+
+	private restoreSnapshotTrapBehavior(trap: Trap, id?: string, data?: Record<string, unknown>) {
+		if (!id) return;
+		const bind = this._snapshotTrapBehaviors.get(id);
+		if (!bind) {
+			throw new SnapshotCompatibilityError(`Snapshot trap behavior "${id}" is not registered.`);
+		}
+		trap.snapshotBehaviorId = id;
+		trap.snapshotBehaviorData = data;
+		bind(trap, data);
+	}
+
 	serializeSnapshot(): any {
+		const unsupportedState: string[] = [];
+		const callbackEffects = this.effects.filter(
+			(effect) =>
+				effect.hasCustomCallbacks &&
+				(!effect.snapshotBehaviorId ||
+					!this._snapshotEffectBehaviors.has(effect.snapshotBehaviorId)),
+		);
+		if (callbackEffects.length) {
+			unsupportedState.push(
+				`unregistered effect callback(s): ${callbackEffects
+					.map((effect) => effect.name)
+					.join(', ')}`,
+			);
+		}
+		const callbackTraps = this.traps.filter(
+			(trap) =>
+				typeof trap.onDestroyFn === 'function' &&
+				(!trap.snapshotBehaviorId || !this._snapshotTrapBehaviors.has(trap.snapshotBehaviorId)),
+		);
+		if (callbackTraps.length) {
+			unsupportedState.push(
+				`unregistered trap destruction callback(s): ${callbackTraps
+					.map((trap) => trap.name)
+					.join(', ')}`,
+			);
+		}
+		const unsupportedEvents = this.queue.pendingEvents.filter(
+			(event) =>
+				!event.snapshotBehaviorId ||
+				!this._snapshotEventBehaviors.has(event.snapshotBehaviorId) ||
+				!event.snapshotBehaviorData,
+		);
+		if (unsupportedEvents.length) {
+			unsupportedState.push(
+				`unregistered queued event(s): ${unsupportedEvents.map((event) => event.title).join(', ')}`,
+			);
+		}
+		if (this.animationQueue.length) {
+			unsupportedState.push(`${this.animationQueue.length} in-progress animation(s)`);
+		}
+		if (this._deferredQueryMovePending) {
+			unsupportedState.push(`${this._deferredQueryMovePending} deferred move query(s)`);
+		}
+		if (this.creatures.some((creature) => creature?._lastBurningSpiritDamage)) {
+			unsupportedState.push('transient Burning Spirit damage state');
+		}
+		if (unsupportedState.length) {
+			throw new SnapshotCompatibilityError(
+				`Cannot save a match-faithful snapshot while the game has ${unsupportedState.join(
+					', ',
+				)}. ` + 'Wait for the action to finish or resolve the pending effect/event first.',
+			);
+		}
+
 		const players = this.players.map((p: any) => ({
 			id: p.id,
 			controller: p.controller,
@@ -3273,7 +3438,14 @@ export default class Game {
 			totalTimePool: p.totalTimePool,
 			startTime: p.startTime.toISOString(),
 			summonCreaturesWithMaterializationSickness: p._summonCreaturesWithMaterializationSickness,
-			score: p.score,
+			score: p.score.map((score: any) => ({
+				type: score.type,
+				creatureId: score.creature?.id ?? null,
+				player: score.player,
+				kills: score.kills,
+				ability: score.ability,
+				points: score.points,
+			})),
 		}));
 
 		const creatures = (this.creatures || []).filter(Boolean).map((c: any) => ({
@@ -3295,16 +3467,30 @@ export default class Game {
 			materializationSickness: c.materializationSickness,
 			noActionPossible: c.noActionPossible,
 			health: c.health,
+			oldHealth: c.oldHealth,
+			plasmaFieldActiveTurn: (c as any)._plasmaFieldActiveTurn ?? false,
 			endurance: c.endurance,
 			energy: c.energy,
+			oldEnergy: c.oldEnergy,
 			remainingMove: c.remainingMove,
 			movementPool: c.movementPool,
 			accumulatedTeleportRange: c.accumulatedTeleportRange,
 			_brbActive: c._brbActive,
-			_brbState: c._brbState,
+			_brbState: c._brbState
+				? {
+						killer: c._brbState.killer
+							? c._brbState.killer instanceof Creature
+								? { type: 'creature', id: c._brbState.killer.id }
+								: { type: 'player', id: c._brbState.killer.player.id }
+							: null,
+						gooTrapId: c._brbState.gooTrap.id,
+				  }
+				: null,
 			_brbSpent: c._brbSpent,
 			_lastBurningSpiritDamage: c._lastBurningSpiritDamage,
 			_bonfireSpringCount: c._bonfireSpringCount,
+			_afterimages: c._afterimages,
+			killer: c.killer?.id ?? null,
 			status: { ...c.status },
 			baseStats: { ...c.baseStats },
 			stats: { ...c.stats },
@@ -3317,9 +3503,15 @@ export default class Game {
 				token: a.token,
 				upgraded: a.upgraded,
 				trigger: a.trigger,
+				triggeredThisChain: a.triggeredThisChain ?? false,
+				...(a._strikes ? { _strikes: { ...a._strikes } } : {}),
+				...(Number.isInteger(a._lastTargetId) ? { _lastTargetId: a._lastTargetId } : {}),
 			})),
 			effects: c.effects.map((e: any) => e.id),
-			dropCollection: c.dropCollection.map((d: any) => d.name),
+			dropCollection: c.dropCollection.map((drop: any) => ({
+				name: drop.name,
+				alterations: { ...drop.alterations },
+			})),
 		}));
 
 		const traps = this.traps.map((t: any) => ({
@@ -3335,7 +3527,11 @@ export default class Game {
 			destroyOnActivate: t.destroyOnActivate,
 			typeOver: t.typeOver,
 			destroyAnimation: t.destroyAnimation,
+			owner: t.owner.id,
 			effects: t.effects.map((e: any) => e.id),
+			onDestroyCallback: typeof t.onDestroyFn === 'function',
+			snapshotBehaviorId: t.snapshotBehaviorId,
+			snapshotBehaviorData: t.snapshotBehaviorData,
 		}));
 
 		const drops = this.drops.map((d: any) => ({
@@ -3350,6 +3546,7 @@ export default class Game {
 		const effects = this.effects.map((e: any) => ({
 			id: e.id,
 			name: e.name,
+			trigger: e.trigger,
 			creationTurn: e.creationTurn,
 			turnLifetime: e.turnLifetime,
 			deleteTrigger: e.deleteTrigger,
@@ -3357,20 +3554,50 @@ export default class Game {
 			deleteOnOwnerDeath: e.deleteOnOwnerDeath,
 			isDeleted: e.isDeleted,
 			attacker: e.attacker?.id ?? null,
+			triggeredThisChain: e.triggeredThisChain ?? false,
 			alterations: e.alterations,
 			specialHint: e.specialHint,
 			ownerType:
 				e.owner instanceof Creature ? 'creature' : e.owner instanceof Trap ? 'trap' : 'hex',
 			ownerId:
 				e.owner instanceof Creature ? e.owner.id : e.owner instanceof Trap ? e.owner.id : null,
+			ownerX: e.owner instanceof Hex ? e.owner.x : undefined,
+			ownerY: e.owner instanceof Hex ? e.owner.y : undefined,
 			targetType:
 				e.target instanceof Creature ? 'creature' : e.target instanceof Trap ? 'trap' : 'hex',
 			targetId:
 				e.target instanceof Creature ? e.target.id : e.target instanceof Trap ? e.target.id : null,
+			targetX: e.target instanceof Hex ? e.target.x : undefined,
+			targetY: e.target instanceof Hex ? e.target.y : undefined,
+			runtimeCallbacks: e.hasCustomCallbacks,
+			snapshotBehaviorId: e.snapshotBehaviorId,
+			snapshotBehaviorData: e.snapshotBehaviorData,
 		}));
+		const queuedEvents = this.queue.pendingEvents.map((event) => {
+			if (!event.snapshotBehaviorId || !event.snapshotBehaviorData) {
+				throw new SnapshotCompatibilityError(
+					`Queued event "${event.title}" has no registered snapshot behavior data.`,
+				);
+			}
+			return {
+				id: event.id,
+				snapshotBehaviorId: event.snapshotBehaviorId,
+				turn: event.turn,
+				initiative: event.initiative,
+				delayed: event.delayed,
+				title: event.title,
+				data: event.snapshotBehaviorData,
+			};
+		});
 
 		return {
-			version: version,
+			version: SNAPSHOT_VERSION,
+			runtimeSafety: {
+				version: 1,
+				pendingQueueEvents: queuedEvents.length,
+				activeAnimations: false,
+				deferredQueryMoves: 0,
+			},
 			date: new Date().toISOString(),
 			turn: this.turn,
 			round: this.round,
@@ -3387,12 +3614,15 @@ export default class Game {
 			configData: this.configData,
 			availableCreatures: this.availableCreatures,
 			lastSummonedType: this.lastSummonedType,
+			plasmaAmount: (this as any).plasma_amount ?? this.configData.plasma_amount,
 			players,
 			creatures,
 			traps,
 			drops,
 			effects,
-			queue: (this.queue?.queue.map((c: any) => c.id) ?? []) as number[],
+			queue: (this.queue?.queue.filter((entry) => !isQueueEvent(entry)).map((c) => c.id) ??
+				[]) as number[],
+			queuedEvents,
 		};
 	}
 
@@ -3400,12 +3630,17 @@ export default class Game {
 	 * Save a state snapshot to an .abs file.
 	 */
 	saveSnapshot(): void {
-		const snapshot = this.serializeSnapshot();
-		const str = JSON.stringify(snapshot);
-		const base64 = btoa(unescape(encodeURIComponent(str)));
-		const blob = new Blob([`Ancient Beast ${version} GameSnapshot ||${base64}`], {
-			type: 'text/plain',
-		});
+		let snapshot: any;
+		try {
+			snapshot = this.serializeSnapshot();
+		} catch (error) {
+			if (error instanceof SnapshotCompatibilityError) {
+				window.alert(error.message);
+				return;
+			}
+			throw error;
+		}
+		const blob = new Blob([GameSnapshotSerializer.stringify(snapshot)], { type: 'text/plain' });
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
 		a.href = url;
@@ -3425,11 +3660,47 @@ export default class Game {
 			window.alert('Can only load snapshot from configuration menu.');
 			return;
 		}
-		const parts = str.split('||');
-		const payload = parts.length > 1 ? parts[parts.length - 1] : parts[0];
-		const json = decodeURIComponent(escape(atob(payload)));
-		const snapshot = JSON.parse(json);
-		this.configData = snapshot.configData;
+		let snapshot: any;
+		try {
+			snapshot = GameSnapshotSerializer.from(str);
+			for (const effect of snapshot.effects) {
+				if (
+					effect.runtimeCallbacks &&
+					!this._snapshotEffectBehaviors.has(effect.snapshotBehaviorId)
+				) {
+					throw new SnapshotCompatibilityError(
+						`Snapshot effect behavior "${effect.snapshotBehaviorId}" is not available in this build.`,
+					);
+				}
+			}
+			for (const trap of snapshot.traps) {
+				if (trap.onDestroyCallback && !this._snapshotTrapBehaviors.has(trap.snapshotBehaviorId)) {
+					throw new SnapshotCompatibilityError(
+						`Snapshot trap behavior "${trap.snapshotBehaviorId}" is not available in this build.`,
+					);
+				}
+			}
+			for (const event of snapshot.queuedEvents) {
+				if (!this._snapshotEventBehaviors.has(event.snapshotBehaviorId)) {
+					throw new SnapshotCompatibilityError(
+						`Snapshot event behavior "${event.snapshotBehaviorId}" is not available in this build.`,
+					);
+				}
+			}
+		} catch (error) {
+			if (error instanceof Error) {
+				window.alert(`Unable to load snapshot: ${error.message}`);
+				return;
+			}
+			throw error;
+		}
+		const plasmaAmount =
+			snapshot.plasmaAmount ?? snapshot.configData?.plasma_amount ?? (this as any).plasma_amount;
+		const configData = {
+			...snapshot.configData,
+			...(plasmaAmount === undefined ? {} : { plasma_amount: plasmaAmount }),
+		};
+		this.configData = configData;
 		this.metaPowersState = snapshot.metaPowersState;
 		this.bloodCount = snapshot.bloodCount;
 		this.trapId = snapshot.trapId;
@@ -3437,6 +3708,7 @@ export default class Game {
 		this.dropId = snapshot.dropId;
 		this.availableCreatures = snapshot.availableCreatures;
 		this.lastSummonedType = snapshot.lastSummonedType;
+		(this as any).plasma_amount = plasmaAmount;
 		this.turn = snapshot.turn;
 		this.round = snapshot.round;
 		this.playersReady = snapshot.playersReady;
@@ -3444,7 +3716,7 @@ export default class Game {
 		this._pendingSnapshot = snapshot;
 		this.replayMode = 'load';
 
-		this.startGameLoad(snapshot.configData, undefined, undefined, () => {
+		this.startGameLoad(configData, undefined, undefined, () => {
 			// Reconstruction happens in setup() via _pendingSnapshot
 		});
 	}
@@ -3455,11 +3727,12 @@ export default class Game {
 	private reconstructFromSnapshot(snapshot: any): void {
 		const findMatchingCreature = (cSnap: any): Creature | null => {
 			const c = this.creatures[cSnap.id];
-			if (c) return c;
+			if (c && c.type === cSnap.type && c.team === cSnap.team) return c;
 			for (const candidate of this.creatures) {
 				if (
 					candidate &&
 					candidate.type === cSnap.type &&
+					candidate.team === cSnap.team &&
 					candidate.name === cSnap.name &&
 					candidate.x === cSnap.x &&
 					candidate.y === cSnap.y
@@ -3468,7 +3741,12 @@ export default class Game {
 				}
 			}
 			for (const candidate of this.creatures) {
-				if (candidate && candidate.type === cSnap.type && candidate.name === cSnap.name) {
+				if (
+					candidate &&
+					candidate.type === cSnap.type &&
+					candidate.team === cSnap.team &&
+					candidate.name === cSnap.name
+				) {
 					return candidate;
 				}
 			}
@@ -3490,20 +3768,24 @@ export default class Game {
 					const CreatureClass = this.creatures[0]?.constructor;
 					if (!CreatureClass) return;
 					c = new (CreatureClass as any)(creatureData, this);
-					this.creatures[c.id] = c;
+					const createdId = c.id;
+					if (createdId !== cSnap.id) {
+						if (this.creatures[createdId] === c) this.creatures[createdId] = undefined;
+						c.id = cSnap.id;
+						this.creatures[cSnap.id] = c;
+					}
 					player.creatures.push(c);
 					c.materializationSickness = false;
-					c.summon(true);
-					c._restoringFromSnapshot = true;
-					c.setPosition(cSnap.x, cSnap.y);
-					c.facePlayerDefault();
+					c._restoringFromSnapshot = false;
 				}
 			}
 			if (c) {
-				c._restoringFromSnapshot = true;
+				c.id = cSnap.id;
+				c.player = this.players[cSnap.team];
+				c.team = cSnap.team;
+				c._restoringFromSnapshot = false;
 				c.setPosition(cSnap.x, cSnap.y);
 				c.facePlayerDefault();
-				c.team = cSnap.team;
 				c.temp = cSnap.temp;
 				c.dead = cSnap.dead;
 				c.hasWait = cSnap.hasWait;
@@ -3517,6 +3799,11 @@ export default class Game {
 				c.abilities.forEach((a: any, i: number) => {
 					const aSnap = cSnap.abilities[i];
 					if (aSnap) {
+						if (a.id !== aSnap.id) {
+							throw new SnapshotCompatibilityError(
+								`Ability slot ${i} changed for ${c.name}; refusing an unsafe snapshot restore.`,
+							);
+						}
 						a.used = aSnap.used;
 						a.priority = aSnap.priority;
 						a.timesUsed = aSnap.timesUsed;
@@ -3524,16 +3811,26 @@ export default class Game {
 						a.token = aSnap.token;
 						a.upgraded = aSnap.upgraded;
 						a.trigger = aSnap.trigger;
+						a.triggeredThisChain = aSnap.triggeredThisChain ?? false;
+						if (aSnap._strikes !== undefined) a._strikes = { ...aSnap._strikes };
+						if (aSnap._lastTargetId !== undefined) a._lastTargetId = aSnap._lastTargetId;
 					}
 				});
 				c.effects = cSnap.effects
 					.map((id: number) => this.effects.find((e: any) => e.id === id))
 					.filter(Boolean);
-				c.dropCollection = cSnap.dropCollection || [];
+				c.dropCollection = (cSnap.dropCollection || []).map((drop: any) =>
+					typeof drop === 'string'
+						? { name: drop, alterations: {} }
+						: { name: drop.name, alterations: drop.alterations ?? {} },
+				);
 				c.status = cSnap.status;
 				c.health = cSnap.health;
+				c.oldHealth = cSnap.oldHealth ?? c.oldHealth;
 				c.endurance = cSnap.endurance;
 				c.energy = cSnap.energy;
+				c.oldEnergy = cSnap.oldEnergy ?? c.oldEnergy;
+				c.setPlasmaFieldActiveTurn(cSnap.plasmaFieldActiveTurn ?? false);
 				c.updateHealth();
 				c.remainingMove = cSnap.remainingMove;
 				c.movementPool = cSnap.movementPool;
@@ -3542,128 +3839,12 @@ export default class Game {
 				(c as any)._hinderedTurn = cSnap._hinderedTurn ?? -1;
 				(c as any)._nextGameTurnActive = cSnap._nextGameTurnActive ?? this.turn;
 				c._brbActive = cSnap._brbActive;
-				c._brbState = cSnap._brbState;
+				c._brbState = null;
 				c._brbSpent = cSnap._brbSpent;
 				c._lastBurningSpiritDamage = cSnap._lastBurningSpiritDamage;
 				c._bonfireSpringCount = cSnap._bonfireSpringCount;
-			}
-		});
-
-		// Reconstruct traps
-		snapshot.traps.forEach((tSnap: any) => {
-			const TrapClass = this.traps[0]?.constructor;
-			if (!TrapClass) return;
-			let t = this.traps.find((t: any) => t.id === tSnap.id);
-			if (!t) {
-				t = new (TrapClass as any)(
-					tSnap.x,
-					tSnap.y,
-					tSnap.type,
-					tSnap.effects
-						.map((id: number) => this.effects.find((e: any) => e.id === id))
-						.filter(Boolean),
-					this.players[this.creatures[tSnap.ownerCreature]?.player?.id ?? 0],
-					{
-						id: tSnap.id,
-						name: tSnap.name,
-						creationTurn: tSnap.creationTurn,
-						turnLifetime: tSnap.turnLifetime,
-						fullTurnLifetime: tSnap.fullTurnLifetime,
-						destroyOnActivate: tSnap.destroyOnActivate,
-						typeOver: tSnap.typeOver,
-						destroyAnimation: tSnap.destroyAnimation,
-						ownerCreature: this.creatures[tSnap.ownerCreature],
-					},
-					this,
-					tSnap.name,
-				);
-				this.traps.push(t);
-				t.id = tSnap.id;
-			} else {
-				t.x = tSnap.x;
-				t.y = tSnap.y;
-				t.creationTurn = tSnap.creationTurn;
-				t.turnLifetime = tSnap.turnLifetime;
-				t.fullTurnLifetime = tSnap.fullTurnLifetime;
-				t.destroyOnActivate = tSnap.destroyOnActivate;
-				t.typeOver = tSnap.typeOver;
-				t.destroyAnimation = tSnap.destroyAnimation;
-				t.ownerCreature = this.creatures[tSnap.ownerCreature];
-			}
-			t.effects = tSnap.effects
-				.map((id: number) => this.effects.find((e: any) => e.id === id))
-				.filter(Boolean);
-		});
-
-		// Reconstruct drops
-		snapshot.drops.forEach((dSnap: any) => {
-			const DropClass = this.drops[0]?.constructor;
-			if (!DropClass) return;
-			let d = this.drops.find((d: any) => d.id === dSnap.id);
-			if (!d) {
-				d = new (DropClass as any)(dSnap.name, dSnap.alterations, dSnap.x, dSnap.y, this);
-				this.drops.push(d);
-				d.id = dSnap.id;
-			} else {
-				d.pos = { x: dSnap.x, y: dSnap.y };
-				d.alterations = dSnap.alterations;
-				d.pickedUp = dSnap.pickedUp;
-			}
-		});
-
-		// Reconstruct effects
-		snapshot.effects.forEach((eSnap: any) => {
-			const EffectClass = this.effects[0]?.constructor;
-			if (!EffectClass) return;
-			let e = this.effects.find((e: any) => e.id === eSnap.id);
-			if (!e) {
-				e = new (EffectClass as any)(
-					eSnap.name,
-					(this.creatures[eSnap.ownerId] ||
-						this.grid?.hexes[eSnap.ownerId] ||
-						this.grid?.hexes[0]) as any,
-					(this.creatures[eSnap.targetId] ||
-						this.grid?.hexes[eSnap.targetId] ||
-						this.grid?.hexes[0]) as any,
-					eSnap.deleteTrigger || 'onStartOfRound',
-					{
-						id: eSnap.id,
-						creationTurn: eSnap.creationTurn,
-						turnLifetime: eSnap.turnLifetime,
-						stackable: eSnap.stackable,
-						deleteOnOwnerDeath: eSnap.deleteOnOwnerDeath,
-						isDeleted: eSnap.isDeleted,
-						attacker: this.creatures[eSnap.attacker],
-						alterations: eSnap.alterations,
-						specialHint: eSnap.specialHint,
-					},
-					this,
-				);
-				this.effects.push(e);
-				e.id = eSnap.id;
-			} else {
-				e.name = eSnap.name;
-				e.creationTurn = eSnap.creationTurn;
-				e.turnLifetime = eSnap.turnLifetime;
-				e.deleteTrigger = eSnap.deleteTrigger;
-				e.stackable = eSnap.stackable;
-				e.deleteOnOwnerDeath = eSnap.deleteOnOwnerDeath;
-				e.isDeleted = eSnap.isDeleted;
-				e.attacker = this.creatures[eSnap.attacker];
-				e.alterations = eSnap.alterations;
-				e.specialHint = eSnap.specialHint;
-			}
-			if (eSnap.ownerType && eSnap.ownerId !== null) {
-				if (eSnap.ownerType === 'creature') e.owner = this.creatures[eSnap.ownerId] as any;
-				else if (eSnap.ownerType === 'trap')
-					e.owner = this.traps.find((t) => t.id === eSnap.ownerId) as any;
-				else if (eSnap.ownerType === 'hex') e.owner = this.grid?.hexes[eSnap.ownerId] as any;
-			}
-			if (eSnap.targetType && eSnap.targetId !== null) {
-				if (eSnap.targetType === 'creature') e.target = this.creatures[eSnap.targetId] as any;
-				else if (eSnap.targetType === 'trap')
-					e.target = this.traps.find((t) => t.id === eSnap.targetId) as any;
-				else if (eSnap.targetType === 'hex') e.target = this.grid?.hexes[eSnap.targetId] as any;
+				(c as any)._afterimages = cSnap._afterimages ?? (c as any)._afterimages;
+				c.killer = cSnap.killer == null ? undefined : this.players[cSnap.killer];
 			}
 		});
 
@@ -3676,6 +3857,47 @@ export default class Game {
 		// Reconstruct effects
 		snapshot.effects.forEach((eSnap: any) => this.reconstructEffect(eSnap));
 
+		snapshot.creatures.forEach((cSnap: any) => {
+			const creature = this.creatures[cSnap.id];
+			if (creature) {
+				creature.effects = cSnap.effects
+					.map((id: number) => this.effects.find((effect: any) => effect.id === id))
+					.filter(Boolean);
+				creature.healthShow();
+			}
+		});
+
+		snapshot.traps.forEach((tSnap: any) => {
+			const trap = this.traps.find((candidate) => candidate.id === tSnap.id);
+			if (!trap) return;
+			trap.effects = tSnap.effects
+				.map((id: number) => this.effects.find((effect: any) => effect.id === id))
+				.filter(Boolean);
+			trap.effects.forEach((effect: any) => {
+				effect.trap = trap;
+			});
+		});
+
+		snapshot.creatures.forEach((cSnap: any) => {
+			const creature = this.creatures[cSnap.id];
+			const brbState = cSnap._brbState;
+			if (!creature || !brbState || typeof brbState !== 'object') return;
+			const killer =
+				brbState.killer?.type === 'creature'
+					? this.creatures[brbState.killer.id]
+					: brbState.killer?.type === 'player'
+					? { player: this.players[brbState.killer.id] }
+					: null;
+			const gooTrap = this.traps.find((trap) => trap.id === brbState.gooTrapId);
+			creature._brbState = gooTrap ? { killer, gooTrap } : null;
+		});
+
+		this.players.forEach((player) => {
+			player.creatures = snapshot.creatures
+				.map((creatureSnap: any) => this.creatures[creatureSnap.id])
+				.filter((creature: Creature | undefined) => creature?.team === player.id);
+		});
+
 		// Restore player data (plasma, time pools, score)
 		snapshot.players.forEach((pSnap: any) => {
 			const p = this.players[pSnap.id];
@@ -3687,9 +3909,20 @@ export default class Game {
 				p.bonusTimePool = pSnap.bonusTimePool;
 				p.totalTimePool = pSnap.totalTimePool;
 				p.startTime = new Date(pSnap.startTime);
+				if (pSnap.controller === 'human' || pSnap.controller === 'bot') {
+					p.controller = pSnap.controller;
+				}
+				p.color = pSnap.color ?? p.color;
+				p.avatar = getDarkPriestAvatarUrl(p);
 				p._summonCreaturesWithMaterializationSickness =
 					pSnap.summonCreaturesWithMaterializationSickness;
-				p.score = pSnap.score;
+				p.score = (pSnap.score ?? []).map((score: any) => {
+					const { creatureId, ...event } = score;
+					return {
+						...event,
+						...(creatureId == null ? {} : { creature: this.creatures[creatureId] }),
+					};
+				});
 			}
 		});
 
@@ -3703,27 +3936,33 @@ export default class Game {
 		this.playersReady = snapshot.playersReady;
 		this.turnThrottle = snapshot.turnThrottle;
 
-		// Set active creature - match by snapshot data
-		const activeSnap = snapshot.creatures.find((c: any) => c.id === snapshot.activeCreatureId);
-		let activeCreature: Creature | null = null;
-		if (activeSnap) {
-			for (const candidate of this.creatures) {
-				if (
-					candidate &&
-					candidate.type === activeSnap.type &&
-					candidate.name === activeSnap.name &&
-					candidate.x === activeSnap.x &&
-					candidate.y === activeSnap.y
-				) {
-					activeCreature = candidate;
-					break;
-				}
+		for (const eventSnapshot of snapshot.queuedEvents as QueueEventSnapshot[]) {
+			const restore = this._snapshotEventBehaviors.get(eventSnapshot.snapshotBehaviorId);
+			if (!restore) {
+				throw new SnapshotCompatibilityError(
+					`Snapshot event behavior "${eventSnapshot.snapshotBehaviorId}" is not registered.`,
+				);
 			}
+			this.queue.addEvent(restore(eventSnapshot));
 		}
-		this.activeCreature = activeCreature ?? null;
+
+		// Set active creature - match by snapshot data
+		this.activeCreature =
+			snapshot.activeCreatureId == null ? null : this.creatures[snapshot.activeCreatureId] ?? null;
+		if (this.activeCreature) {
+			this.activeCreature._restoringFromSnapshot = true;
+			this.activeCreature.activate();
+		}
 
 		// Update UI
 		this.UI?.updateActivebox?.();
+		this.UI?.refreshScoreboard?.();
+		this.UI?.renderScoreboard?.(false);
+		// Refresh per-player plasma readouts (player tabs + dash) for all players,
+		// not just the active one, so restored plasma shows correctly.
+		for (let i = 0; i < this.players.length; i++) {
+			$j('#dash .playertabs.p' + i + ' .plasma').text('Plasma ' + this.players[i].plasma);
+		}
 		this.updateQueueDisplay?.();
 		this.grid?.refreshHoverState?.();
 		// Clear replay mode so SFX unmutes
@@ -3768,7 +4007,8 @@ export default class Game {
 				tSnap.effects
 					.map((id: number) => this.effects.find((e: any) => e.id === id))
 					.filter(Boolean),
-				this.players[this.creatures[tSnap.ownerCreature]?.player?.id ?? 0],
+				this.players[tSnap.owner] ??
+					this.players[this.creatures[tSnap.ownerCreature]?.player?.id ?? 0],
 				{
 					id: tSnap.id,
 					name: tSnap.name,
@@ -3778,13 +4018,14 @@ export default class Game {
 					destroyOnActivate: tSnap.destroyOnActivate,
 					typeOver: tSnap.typeOver,
 					destroyAnimation: tSnap.destroyAnimation,
+					owner: this.players[tSnap.owner],
 					ownerCreature: this.creatures[tSnap.ownerCreature],
 				},
 				this,
 				tSnap.name,
 			);
-			this.traps.push(t);
 		} else {
+			t.owner = this.players[tSnap.owner] ?? t.owner;
 			t.x = tSnap.x;
 			t.y = tSnap.y;
 			t.creationTurn = tSnap.creationTurn;
@@ -3798,6 +4039,7 @@ export default class Game {
 		t.effects = tSnap.effects
 			.map((id: number) => this.effects.find((e: any) => e.id === id))
 			.filter(Boolean);
+		this.restoreSnapshotTrapBehavior(t, tSnap.snapshotBehaviorId, tSnap.snapshotBehaviorData);
 	}
 
 	/**
@@ -3807,12 +4049,35 @@ export default class Game {
 		let d = this.drops.find((d: any) => d.id === dSnap.id);
 		if (!d) {
 			d = new Drop(dSnap.name, dSnap.alterations, dSnap.x, dSnap.y, this);
-			this.drops.push(d);
+			d.id = dSnap.id;
+			d.pickedUp = dSnap.pickedUp;
 		} else {
+			d.id = dSnap.id;
 			d.pos = { x: dSnap.x, y: dSnap.y };
 			d.alterations = dSnap.alterations;
 			d.pickedUp = dSnap.pickedUp;
 		}
+	}
+
+	private resolveSnapshotEffectReference(
+		type: string,
+		id: number | null,
+		x: number | undefined,
+		y: number | undefined,
+	): Creature | Trap | Hex {
+		if (type === 'creature') {
+			const creature = this.creatures[id as number];
+			if (creature) return creature;
+		} else if (type === 'trap') {
+			const trap = this.traps.find((candidate) => candidate.id === id);
+			if (trap) return trap;
+		} else if (type === 'hex' && Number.isInteger(x) && Number.isInteger(y)) {
+			const hex = this.hexAt(x as number, y as number);
+			if (hex) return hex;
+		}
+		throw new SnapshotCompatibilityError(
+			`Snapshot effect ${type} reference could not be resolved (id: ${id}, hex: ${x},${y}).`,
+		);
 	}
 
 	/**
@@ -3823,17 +4088,24 @@ export default class Game {
 		if (!e) {
 			e = new Effect(
 				eSnap.name,
-				(this.creatures[eSnap.ownerId] ||
-					this.grid?.hexes[eSnap.ownerId] ||
-					this.grid?.hexes[0]) as any,
-				(this.creatures[eSnap.targetId] ||
-					this.grid?.hexes[eSnap.targetId] ||
-					this.grid?.hexes[0]) as any,
-				eSnap.deleteTrigger || 'onStartOfRound',
+				this.resolveSnapshotEffectReference(
+					eSnap.ownerType,
+					eSnap.ownerId,
+					eSnap.ownerX,
+					eSnap.ownerY,
+				) as any,
+				this.resolveSnapshotEffectReference(
+					eSnap.targetType,
+					eSnap.targetId,
+					eSnap.targetX,
+					eSnap.targetY,
+				) as any,
+				eSnap.trigger || 'onStartOfRound',
 				{
 					id: eSnap.id,
 					creationTurn: eSnap.creationTurn,
 					turnLifetime: eSnap.turnLifetime,
+					deleteTrigger: eSnap.deleteTrigger || 'onStartOfRound',
 					stackable: eSnap.stackable,
 					deleteOnOwnerDeath: eSnap.deleteOnOwnerDeath,
 					isDeleted: eSnap.isDeleted,
@@ -3843,12 +4115,12 @@ export default class Game {
 				},
 				this,
 			);
-			this.effects.push(e);
 		} else {
 			e.name = eSnap.name;
+			e.trigger = eSnap.trigger || e.trigger;
 			e.creationTurn = eSnap.creationTurn;
 			e.turnLifetime = eSnap.turnLifetime;
-			e.deleteTrigger = eSnap.deleteTrigger;
+			e.deleteTrigger = eSnap.deleteTrigger || e.deleteTrigger;
 			e.stackable = eSnap.stackable;
 			e.deleteOnOwnerDeath = eSnap.deleteOnOwnerDeath;
 			e.isDeleted = eSnap.isDeleted;
@@ -3856,17 +4128,19 @@ export default class Game {
 			e.alterations = eSnap.alterations;
 			e.specialHint = eSnap.specialHint;
 		}
-		if (eSnap.ownerType && eSnap.ownerId !== null) {
-			if (eSnap.ownerType === 'creature') e.owner = this.creatures[eSnap.ownerId] as any;
-			else if (eSnap.ownerType === 'trap')
-				e.owner = this.traps.find((t) => t.id === eSnap.ownerId) as any;
-			else if (eSnap.ownerType === 'hex') e.owner = this.grid?.hexes[eSnap.ownerId] as any;
-		}
-		if (eSnap.targetType && eSnap.targetId !== null) {
-			if (eSnap.targetType === 'creature') e.target = this.creatures[eSnap.targetId] as any;
-			else if (eSnap.targetType === 'trap')
-				e.target = this.traps.find((t) => t.id === eSnap.targetId) as any;
-			else if (eSnap.targetType === 'hex') e.target = this.grid?.hexes[eSnap.targetId] as any;
-		}
+		e.triggeredThisChain = eSnap.triggeredThisChain ?? false;
+		this.restoreSnapshotEffectBehavior(e, eSnap.snapshotBehaviorId, eSnap.snapshotBehaviorData);
+		e.owner = this.resolveSnapshotEffectReference(
+			eSnap.ownerType,
+			eSnap.ownerId,
+			eSnap.ownerX,
+			eSnap.ownerY,
+		) as any;
+		e.target = this.resolveSnapshotEffectReference(
+			eSnap.targetType,
+			eSnap.targetId,
+			eSnap.targetX,
+			eSnap.targetY,
+		) as any;
 	}
 }

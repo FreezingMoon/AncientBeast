@@ -8,6 +8,8 @@ import { Creature } from '../creature';
 import { Hex } from '../utility/hex';
 import Game from '../game';
 import { shakeBoard } from '../game-display/camera';
+import { SnapshotCompatibilityError } from '../engine/GameSnapshot';
+import { SCAVENGER_DEADLY_TOXIN_POISON_EFFECT } from '../engine/snapshotBehaviors';
 
 function getEscortUsableHexes(G: Game, crea: Creature, trg: Creature) {
 	const trgIsInfront =
@@ -32,11 +34,55 @@ function getEscortUsableHexes(G: Game, crea: Creature, trg: Creature) {
 	return { size, trgIsInfront, usableHexes };
 }
 
+type ScavengerDeadlyToxinPoisonSnapshotData = {
+	ownerId: number;
+	poisonAmount: number;
+};
+
+const getScavengerSnapshotCreature = (G: Game, id: unknown, behavior: string): Creature => {
+	if (!Number.isInteger(id) || !(G.creatures?.[id as number] instanceof Creature)) {
+		throw new SnapshotCompatibilityError(
+			`Cannot restore ${behavior}: creature reference is invalid.`,
+		);
+	}
+	return G.creatures[id as number];
+};
+
+const bindScavengerDeadlyToxinPoisonEffect = (
+	G: Game,
+	effect: Effect,
+	data: Record<string, unknown> | undefined,
+) => {
+	const candidate = data as Partial<ScavengerDeadlyToxinPoisonSnapshotData> | undefined;
+	const owner = getScavengerSnapshotCreature(
+		G,
+		candidate?.ownerId,
+		'Scavenger Deadly Toxin poison',
+	);
+	const poisonAmount = typeof candidate?.poisonAmount === 'number' ? candidate.poisonAmount : 0;
+	effect.snapshotBehaviorId = SCAVENGER_DEADLY_TOXIN_POISON_EFFECT;
+	effect.snapshotBehaviorData = { ownerId: owner.id, poisonAmount };
+	effect.effectFn = (_activeEffect, trgCreature) => {
+		const affectedCreature = trgCreature as Creature;
+		if (!(affectedCreature instanceof Creature)) {
+			return;
+		}
+		G.log('%CreatureName' + affectedCreature.id + '% is affected by ' + effect.name);
+		affectedCreature.takeDamage(new Damage(owner, { poison: poisonAmount }, 1, [], G), {
+			isFromTrap: true,
+		});
+	};
+};
+
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
  */
 export default (G: Game) => {
+	G.registerSnapshotEffectBehavior(SCAVENGER_DEADLY_TOXIN_POISON_EFFECT, (effect, data) =>
+		bindScavengerDeadlyToxinPoisonEffect(G, effect, data),
+	);
+
 	/*
 	 *
 	 *	Scavenger abilities
@@ -463,34 +509,23 @@ export default (G: Game) => {
 
 				if (result.damageObj && result.damageObj.status !== 'Shielded') {
 					// Add poison damage debuff
-					const effect = new Effect(
+					const poisonEffect = new Effect(
 						this.title,
 						this.creature,
 						target,
 						'onStartPhase',
 						{
 							stackable: false,
-
-							effectFn: function (eff, trgCreature: Creature) {
-								G.log('%CreatureName' + trgCreature.id + '% is affected by ' + ability.title);
-								trgCreature.takeDamage(
-									new Damage(
-										eff.owner as Creature,
-										{
-											poison: ability.damages.poison,
-										},
-										1,
-										[],
-										G,
-									),
-									{ isFromTrap: true },
-								);
+							snapshotBehaviorId: SCAVENGER_DEADLY_TOXIN_POISON_EFFECT,
+							snapshotBehaviorData: {
+								ownerId: this.creature.id,
+								poisonAmount: ability.damages.poison,
 							},
 						},
 						G,
 					);
-
-					target.replaceEffect(effect);
+					bindScavengerDeadlyToxinPoisonEffect(G, poisonEffect, poisonEffect.snapshotBehaviorData);
+					target.replaceEffect(poisonEffect);
 
 					G.log('%CreatureName' + target.id + '% is poisoned by ' + this.title);
 				}

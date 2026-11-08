@@ -1,6 +1,6 @@
 import $j from 'jquery';
 import * as str from '../utility/string';
-import { PRIMARY_STATS, MASTERY_STATS } from '../utility/const';
+import { VITALS, MASTERIES } from '../utility/const';
 import { Creature } from '../creature';
 import Game from '../game';
 
@@ -278,7 +278,7 @@ export class Chat {
 	}
 
 	_createStatsContent(creature: Creature) {
-		const stats = PRIMARY_STATS;
+		const stats = VITALS;
 		return stats
 			.map((stat) => {
 				const value =
@@ -303,7 +303,7 @@ export class Chat {
 	}
 
 	_createMasteriesContent(creature: Creature) {
-		const masteries = MASTERY_STATS;
+		const masteries = MASTERIES;
 		return masteries
 			.map((mastery) => {
 				const value = creature.stats[mastery];

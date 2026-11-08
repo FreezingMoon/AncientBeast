@@ -602,6 +602,9 @@
 }
 
 #playerbutton .hexinfo {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
 	text-align: center;
 }
 
@@ -623,7 +626,7 @@
 }
 
 .hexinfo .name {
-	padding-top: 18px;
+	padding-top: 0;
 	padding-bottom: 2px;
 	margin: inherit 4px 0px 12px;
 	border-bottom: 1px solid #555;
@@ -1040,56 +1043,10 @@ div.section.info {
 
 .opencollective_banner_slot--fullscreen {
 	position: relative;
-	left: auto;
-	bottom: auto;
-	transform: none;
-	width: 100%;
-	height: auto;
-	margin: 10px auto 0;
-	z-index: 2;
-}
-
-#opencollective_banner_scoreboard {
-	display: block;
-	clear: both;
-	width: 100%;
-	max-width: none;
-	margin: 16px auto 0;
-}
-
-#opencollective_banner_musicplayer {
-	width: 450px;
+	width: 860px;
 	max-width: calc(100% - 16px);
 	margin: 12px auto 0;
-}
-
-#opencollective_banner_scoreboard .opencollective_inner,
-#opencollective_banner_musicplayer .opencollective_inner {
-	flex-direction: column;
-	align-items: center;
-	justify-content: flex-start;
-	gap: 8px;
-	height: auto;
-}
-
-#opencollective_banner_scoreboard .opencollective_pill,
-#opencollective_banner_musicplayer .opencollective_pill {
-	width: 100%;
-	height: 85px;
-	flex: 0 0 auto;
-}
-
-#opencollective_banner_scoreboard .opencollective_cta_wrapper,
-#opencollective_banner_musicplayer .opencollective_cta_wrapper {
-	width: 245px;
-	height: 85px;
-	flex: 0 0 auto;
-	padding: 0;
-}
-
-#opencollective_banner_scoreboard[data-oc-view='cta-only'],
-#opencollective_banner_musicplayer[data-oc-view='cta-only'] {
-	height: 85px;
+	z-index: 2;
 }
 
 .opencollective_banner_slot .opencollective_inner {
@@ -1102,6 +1059,7 @@ div.section.info {
 
 .opencollective_banner_slot .opencollective_pill {
 	flex: 1 1 auto;
+	min-width: 0;
 	height: 100%;
 	box-sizing: border-box;
 	background-color: rgba(0, 0, 0, 0.68);
@@ -3554,12 +3512,22 @@ input {
 }
 
 /*------------------Interface-------------------*/
-@media screen and (min-height: 200px) and (max-height: 479px) and (orientation: landscape) {
+@media screen and (max-height: 512px) and (orientation: landscape) {
 	#queue {
 		left: 0;
 		bottom: 0;
 		transform: scale(0.55);
 		transform-origin: left bottom;
+	}
+	#queue .vignette.creature:not(.active),
+	#queue .vignette.roundmarker {
+		height: 56px;
+		width: 56px;
+		margin-top: 24px;
+	}
+	#queue .vignette.creature:not(.active) .stats,
+	#queue .vignette.roundmarker .stats {
+		top: 100%;
 	}
 	#leftpanel {
 		left: 0;
@@ -3573,7 +3541,9 @@ input {
 		transform: scale(0.55);
 		transform-origin: right bottom;
 	}
+}
 
+@media screen and (min-height: 200px) and (max-height: 479px) and (orientation: landscape) {
 	#scoreboardTitle {
 		font-size: medium;
 		margin: 0px !important;
@@ -3603,12 +3573,18 @@ input {
 	}
 }
 
-@media screen and (min-height: 320px) and (max-height: 479px) and (orientation: landscape) {
+@media screen and (min-height: 320px) and (max-height: 512px) and (orientation: landscape) {
 	#queue {
 		left: 0;
 		bottom: 0;
 		transform: scale(0.7);
 		transform-origin: left bottom;
+	}
+	#queue .vignette.creature:not(.active),
+	#queue .vignette.roundmarker {
+		height: 64px;
+		width: 64px;
+		margin-top: 16px;
 	}
 	#leftpanel {
 		left: 0;
@@ -3622,7 +3598,9 @@ input {
 		transform: scale(0.7);
 		transform-origin: right bottom;
 	}
+}
 
+@media screen and (min-height: 320px) and (max-height: 479px) and (orientation: landscape) {
 	#scoreboardTitle {
 		font-size: medium;
 		margin: 0px !important;
@@ -3781,31 +3759,8 @@ input {
 	margin-top: 8px !important;
 }
 
-#scoreboard #opencollective_banner_scoreboard {
-	width: 530px !important;
-	max-width: calc(100% - 24px) !important;
-	margin: 14px auto 0 !important;
-	position: static !important;
-	z-index: auto !important;
-}
-
-#scoreboard #opencollective_banner_scoreboard .opencollective_pill {
-	width: 100% !important;
-}
-
-@media screen and (min-height: 200px) and (max-height: 479px) and (orientation: landscape) {
-	#scoreboard #opencollective_banner_scoreboard {
-		width: calc(80% + 80px) !important;
-	}
-}
-
 /* Landscape phone scoreboard transposed layout */
 #scoreboard.scoreboard-landscape-phone {
-	/* No opencollective widget on phone landscape - not enough room. */
-	#opencollective_banner_scoreboard {
-		display: none !important;
-	}
-
 	/* Make modal the positioning context - match desktop but scaled.
 	   Zero the 15px top margin from the base rule so the close button sits
 	   flush at the top of the wrapper. */
@@ -4960,6 +4915,56 @@ body.devvit-mode .scrim {
 		max-width: 85vw !important;
 		max-height: 60vh !important;
 		object-fit: contain;
+	}
+}
+
+/* Small landscape viewports: compact audio player layout. Places controls
+   higher, removes the decorative frame around the playlist, and splits the
+   tracklist into two columns to reduce vertical overflow. */
+@media screen and (orientation: landscape) and (max-height: 700px) {
+	.framed-modal--fluid {
+		border-image: none !important;
+		border: none !important;
+		background: transparent !important;
+		/* Fill most of the window so the two playlist columns are wide
+		   enough that track names fit on one line instead of wrapping. */
+		max-width: none !important;
+		width: auto !important;
+		margin: 0 auto !important;
+		padding: 0 8px !important;
+		box-sizing: border-box !important;
+	}
+
+	.audio-player-controls {
+		margin-top: 6px !important;
+		margin-bottom: 6px !important;
+	}
+
+	#playlist {
+		column-count: 2 !important;
+		column-gap: 12px !important;
+		padding: 0 !important;
+		box-sizing: border-box !important;
+	}
+
+	#playlist li {
+		break-inside: avoid !important;
+		margin-bottom: 6px !important;
+	}
+
+	#playlist li a {
+		white-space: nowrap !important;
+		overflow: hidden !important;
+		text-overflow: ellipsis !important;
+		display: block !important;
+	}
+
+	.opencollective_banner_slot--fullscreen {
+		position: fixed;
+		bottom: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		margin: 0;
 	}
 }
 

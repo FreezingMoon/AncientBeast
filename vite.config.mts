@@ -27,7 +27,7 @@ const rootDir = import.meta.dirname;
  * - `./**` (TS modules) -> bundled with esbuild and evaluated in Node
  * - `assets/**`         -> the repo-relative URL, returned as a string
  */
-function ejsHtmlPlugin({ devvitTarget, enableServiceWorker }) {
+function ejsHtmlPlugin({ devvitTarget, funjeTarget, enableServiceWorker }) {
 	const srcDir = resolve(rootDir, 'src');
 	const templatePath = resolve(srcDir, 'index.ejs');
 
@@ -119,7 +119,7 @@ function ejsHtmlPlugin({ devvitTarget, enableServiceWorker }) {
 
 		return ejs.render(template, {
 			require: templateRequire,
-			htmlWebpackPlugin: { options: { devvitTarget, enableServiceWorker } },
+			htmlWebpackPlugin: { options: { devvitTarget, funjeTarget, enableServiceWorker } },
 		});
 	}
 
@@ -239,6 +239,7 @@ export default defineConfig(({ mode, command }) => {
 
 	const enableServiceWorker = env.ENABLE_SERVICE_WORKER === 'true';
 	const isDevvitTarget = env.VITE_DEVVIT_TARGET === 'true';
+	const isFunjeTarget = env.VITE_FUNJE_TARGET === 'true';
 
 	const phaserPath = resolve(rootDir, 'node_modules/phaser/dist/phaser.js');
 
@@ -256,7 +257,7 @@ export default defineConfig(({ mode, command }) => {
 		base: isProduction ? './' : '/',
 		publicDir: 'static',
 		build: {
-			outDir: isDevvitTarget ? 'dist/client' : 'deploy',
+			outDir: isDevvitTarget ? 'dist/client' : isFunjeTarget ? 'deploy/funje' : 'deploy',
 			emptyOutDir: true,
 			sourcemap: isProduction ? 'hidden' : 'inline',
 			minify: isProduction ? 'terser' : false,
@@ -329,6 +330,7 @@ export default defineConfig(({ mode, command }) => {
 			'process.env.NODE_ENV': JSON.stringify(mode),
 			'process.env.ENABLE_SERVICE_WORKER': JSON.stringify(enableServiceWorker),
 			'process.env.VITE_DEVVIT_TARGET': JSON.stringify(isDevvitTarget),
+			'process.env.VITE_FUNJE_TARGET': JSON.stringify(isFunjeTarget),
 			'process.env.DEBUG_MODE': JSON.stringify(debugEnv.DEBUG_MODE === 'true'),
 			'process.env.DEBUG_AUTO_START_GAME': JSON.stringify(
 				debugEnv.DEBUG_AUTO_START_GAME === 'true',
@@ -374,7 +376,11 @@ export default defineConfig(({ mode, command }) => {
 				],
 				output: 'assets/index.ts',
 			}),
-			ejsHtmlPlugin({ devvitTarget: isDevvitTarget, enableServiceWorker }),
+			ejsHtmlPlugin({
+				devvitTarget: isDevvitTarget,
+				funjeTarget: isFunjeTarget,
+				enableServiceWorker,
+			}),
 			// Build only. The plugin's dev middleware serves the copied trees with
 			// their raw MIME type, so it swallows `?import` requests for files under
 			// `assets/` and the browser rejects them as module scripts. In serve mode
@@ -391,15 +397,17 @@ export default defineConfig(({ mode, command }) => {
 									// are repo-relative paths produced by `assets/index.ts`, so the
 									// tree has to be published under the same paths. (`static` is
 									// already handled by `publicDir`.)
-									src: 'assets',
+									// Exclude root-level files funje rejects: README.md, index.ts, index.d.ts
+									src: ['assets/*/**', 'assets/favicon.png'],
 									dest: '.',
 								},
 							],
+							structured: true,
 						}),
 				  ]),
 			{
 				name: 'dotenv-config',
-				configResolved(config) {
+				configResolved(_config) {
 					require('dotenv-defaults').config({
 						default: resolve(rootDir, '.env.example'),
 						silent: true,

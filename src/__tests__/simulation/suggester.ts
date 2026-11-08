@@ -101,7 +101,20 @@ function makeVariant(sweep: Sweep): Variant {
 	};
 }
 
-export const variants: Variant[] = SWEEPS.map(makeVariant);
+const allVariants: Variant[] = SWEEPS.map(makeVariant);
+
+// Optional comma-separated label filter, e.g.:
+//   SIM_SWEEP_FILTER=maxDecisionCount — only the maxDecisionCount sweeps
+// Substring match against variant labels; empty/unset runs every sweep.
+const SWEEP_FILTER = (process.env.SIM_SWEEP_FILTER ?? '')
+	.split(',')
+	.map((s) => s.trim())
+	.filter(Boolean);
+
+export const variants: Variant[] =
+	SWEEP_FILTER.length === 0
+		? allVariants
+		: allVariants.filter((v) => SWEEP_FILTER.some((f) => v.label.includes(f)));
 
 // ─── Runner ──────────────────────────────────────────────────────────────────
 export interface VariantRunResult {

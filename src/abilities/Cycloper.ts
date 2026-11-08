@@ -9,7 +9,7 @@ import { Team, isTeam } from '../utility/team';
 import * as arrayUtils from '../utility/arrayUtils';
 import { extractTextureFrameInfo, createBitmapDataFromTexture } from '../utility/bitmapUtils';
 import { getFrameSize } from '../game-display/texture';
-import { HEX_WIDTH_PX } from '../utility/const';
+import { GHOST_PREVIEW_ALPHA, HEX_WIDTH_PX } from '../utility/const';
 import Game from '../game';
 import type { Ability } from '../ability';
 import type { UnitData } from '../data/types';
@@ -1063,7 +1063,7 @@ function getOpticBurstEffectiveDistance(
 		const relayBonus = isRiotShieldUpgraded(cycloper)
 			? countAlliedRelayWallsBeforeTarget(cycloper, target, args?.direction, G)
 			: 0;
-		const effectiveDistance = Math.max(0, directionalDistance - 1 - relayBonus);
+		const effectiveDistance = Math.max(0, directionalDistance - relayBonus);
 		return effectiveDistance;
 	}
 
@@ -1135,9 +1135,8 @@ function getTargetDistanceInDirection(
 	}
 	const line = G.grid.getHexLine(origin.x, origin.y, direction, cycloper.player.flipped);
 
-	let distance = 0;
-	for (const hex of line) {
-		distance++;
+	for (let distance = 0; distance < line.length; distance++) {
+		const hex = line[distance];
 		if (hex.creature === target || target.hexagons.includes(hex)) {
 			return distance;
 		}
@@ -1460,7 +1459,7 @@ function ensureAcrylicWallData(G: Game) {
 		type: ACRYLIC_WALL_TYPE,
 		size: 1 as const,
 		set: '' as const,
-		stats: {
+		vitals: {
 			health: 30,
 			regrowth: 0,
 			endurance: 0,
@@ -1470,6 +1469,8 @@ function ensureAcrylicWallData(G: Game) {
 			offense: 0,
 			defense: 0,
 			movement: 0,
+		},
+		masteries: {
 			pierce: 0,
 			slash: 0,
 			crush: 0,
@@ -2122,16 +2123,16 @@ export default (G: Game) => {
 						minDistance: 1,
 						includeCreature: true,
 						stopOnCreature: true,
-						ignoreCreatureTest: isRiotShieldUpgraded(cycloper)
-							? (candidate: Creature) => isCycloperRelayWall(candidate, cycloper)
-							: undefined,
+						ignoreCreatureTest: (candidate: Creature) =>
+							candidate.id === target.id ||
+							(isRiotShieldUpgraded(cycloper) && isCycloperRelayWall(candidate, cycloper)),
 					});
 
 					const destinations = directionalDestinations.choices
 						.flat()
 						.filter(
 							(hex) =>
-								!hex.creature &&
+								(!hex.creature || hex.creature.id === target.id) &&
 								G.grid.hexes[hex.y][hex.x].isWalkable(target.size, target.id, true),
 						);
 					const extendedDestinations = arrayUtils.extendToLeft(destinations, target.size, G.grid);
@@ -2146,29 +2147,39 @@ export default (G: Game) => {
 						return;
 					}
 
-					if (target.sprite) {
-						target.sprite.alpha = 0;
-					}
-					const showTargetSprite = () => {
-						if (target.sprite) {
-							target.sprite.alpha = 1;
-						}
-					};
-
-					const targetStats = G.retrieveCreatureStats(target.type);
-
-					const restoreState = () => {
+					const setTargetGhost = () => {
+						target.grp.alpha = 1;
+						target.grp.visible = true;
+						target.grp.renderable = true;
 						if (target.sprite) {
 							target.sprite.alpha = 1;
 							target.sprite.visible = true;
 							target.sprite.renderable = true;
 						}
+						if (typeof target.creatureSprite?.setAlpha === 'function') {
+							target.creatureSprite.setAlpha(GHOST_PREVIEW_ALPHA, 0);
+						}
+					};
+					const restoreTargetVisibility = () => {
 						target.grp.alpha = 1;
 						target.grp.visible = true;
 						target.grp.renderable = true;
-						if (typeof target.creatureSprite?.setAlpha === 'function') {
-							target.creatureSprite.setAlpha(1, 1);
+						if (target.sprite) {
+							target.sprite.alpha = 1;
+							target.sprite.visible = true;
+							target.sprite.renderable = true;
 						}
+						if (typeof target.creatureSprite?.setAlpha === 'function') {
+							target.creatureSprite.setAlpha(1, 0);
+						}
+					};
+					setTargetGhost();
+					const showTargetSprite = setTargetGhost;
+
+					const targetStats = G.retrieveCreatureStats(target.type);
+
+					const restoreState = () => {
+						restoreTargetVisibility();
 						if (G.grid.materialize_overlay) {
 							G.grid.materialize_overlay.alpha = 0;
 						}
@@ -2232,6 +2243,16 @@ export default (G: Game) => {
 							},
 							fnOnCancel: function () {
 								clearTargetPathPreview();
+								if (G.grid.materialize_overlay) {
+									G.grid.materialize_overlay.alpha = 0;
+									G.grid.materialize_overlay.destroy();
+									G.grid.materialize_overlay = null;
+								}
+								if (G.grid.secondary_overlay) {
+									G.grid.secondary_overlay.alpha = 0;
+									G.grid.secondary_overlay.destroy();
+									G.grid.secondary_overlay = null;
+								}
 								restoreState();
 								resetEnergyPreview();
 								ability.query();
@@ -2242,9 +2263,7 @@ export default (G: Game) => {
 									return;
 								}
 
-								if (target.sprite) {
-									target.sprite.alpha = 0;
-								}
+								setTargetGhost();
 								G.grid.previewCreature(hex.pos, targetStats, target.player);
 							},
 							hexes: extendedDestinations,
@@ -2253,16 +2272,6 @@ export default (G: Game) => {
 							id: [cycloper.id, target.id],
 							flipped: target.player.flipped,
 							hideNonTarget: true,
-							callbackAfterQueryHexes: function () {
-								if (targetStats) {
-									G.grid.previewCreature(
-										{ x: target.x, y: target.y },
-										targetStats,
-										target.player,
-										true,
-									);
-								}
-							},
 							ownCreatureHexShade: true,
 						});
 					};

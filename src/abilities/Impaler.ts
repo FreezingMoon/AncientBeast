@@ -5,6 +5,7 @@ import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import { Creature } from '../creature';
 import { Effect } from '../effect';
+import { Hex } from '../utility/hex';
 import { once } from 'underscore';
 import { getPointFacade, Point } from '../utility/pointfacade';
 import { offsetCoordsToPx } from '../utility/const';
@@ -13,6 +14,11 @@ import { shakeBoard } from '../game-display/camera';
 import { getDepthAtBand } from '../game-display/layer';
 import { getFrameSize } from '../game-display/texture';
 import { spawnChainLightning } from '../vfx/lightning/effect';
+import { SnapshotCompatibilityError } from '../engine/GameSnapshot';
+import {
+	IMPALER_POISON_VINE_CLEANUP_EFFECT,
+	IMPALER_POISON_VINE_EFFECT,
+} from '../engine/snapshotBehaviors';
 
 function clockHourFromTo(from: Point, to: Point): number {
 	const fromPx = offsetCoordsToPx(from);
@@ -21,11 +27,107 @@ function clockHourFromTo(from: Point, to: Point): number {
 	return (((degrees / 30) % 12) + 12) % 12;
 }
 
+type PoisonVineSnapshotData = {
+	attackerId: number;
+	targetId: number;
+	damages: DamageStats;
+};
+
+type PoisonVineCleanupSnapshotData = {
+	targetId: number;
+};
+
+const getSnapshotCreature = (G: Game, id: unknown, behavior: string): Creature => {
+	if (!Number.isInteger(id) || !(G.creatures?.[id as number] instanceof Creature)) {
+		throw new SnapshotCompatibilityError(
+			`Cannot restore ${behavior}: creature reference is invalid.`,
+		);
+	}
+	return G.creatures[id as number];
+};
+
+const readPoisonVineDamages = (value: unknown): DamageStats => {
+	if (
+		!value ||
+		typeof value !== 'object' ||
+		Array.isArray(value) ||
+		Object.values(value).some((amount) => typeof amount !== 'number' || !Number.isFinite(amount))
+	) {
+		throw new SnapshotCompatibilityError(
+			'Cannot restore Impaler Poisonous Vine: damage data is invalid.',
+		);
+	}
+	return { ...(value as DamageStats) };
+};
+
+const bindPoisonVineEffect = (
+	G: Game,
+	effect: Effect,
+	data: Record<string, unknown> | undefined,
+) => {
+	const candidate = data as Partial<PoisonVineSnapshotData> | undefined;
+	const attacker = getSnapshotCreature(G, candidate?.attackerId, 'Impaler Poisonous Vine');
+	const target = getSnapshotCreature(G, candidate?.targetId, 'Impaler Poisonous Vine');
+	if (effect.owner !== attacker || !(effect.target instanceof Hex)) {
+		throw new SnapshotCompatibilityError(
+			'Cannot restore Impaler Poisonous Vine: effect references are invalid.',
+		);
+	}
+	const behaviorData: PoisonVineSnapshotData = {
+		attackerId: attacker.id,
+		targetId: target.id,
+		damages: readPoisonVineDamages(candidate?.damages),
+	};
+	effect.snapshotBehaviorId = IMPALER_POISON_VINE_EFFECT;
+	effect.snapshotBehaviorData = behaviorData;
+	effect.effectFn = once((activeEffect) => {
+		G.log('%CreatureName' + target.id + '% is injured by ' + activeEffect.name);
+		target.takeDamage(new Damage(attacker, behaviorData.damages, 1, [], G), {
+			isFromTrap: true,
+		});
+		activeEffect.deleteEffect();
+		getPointFacade()
+			.getTrapsAt(target)
+			.forEach((trap) => trap.destroy());
+	});
+};
+
+const bindPoisonVineCleanupEffect = (
+	G: Game,
+	effect: Effect,
+	data: Record<string, unknown> | undefined,
+) => {
+	const candidate = data as Partial<PoisonVineCleanupSnapshotData> | undefined;
+	const target = getSnapshotCreature(G, candidate?.targetId, 'Impaler Poisonous Vine cleanup');
+	if (effect.owner !== target || effect.target !== target) {
+		throw new SnapshotCompatibilityError(
+			'Cannot restore Impaler Poisonous Vine cleanup: effect references are invalid.',
+		);
+	}
+	effect.snapshotBehaviorId = IMPALER_POISON_VINE_CLEANUP_EFFECT;
+	effect.snapshotBehaviorData = { targetId: target.id };
+	effect.effectFn = (_activeEffect, damage: Damage) => {
+		if (!damage?.damages) {
+			return;
+		}
+		const result = damage.applyDamage();
+		if (result.total >= target.health) {
+			target.hexagons.forEach((hex) => hex.destroyTrap());
+		}
+	};
+};
+
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
  */
 export default (G: Game) => {
+	G.registerSnapshotEffectBehavior(IMPALER_POISON_VINE_EFFECT, (effect, data) =>
+		bindPoisonVineEffect(G, effect, data),
+	);
+	G.registerSnapshotEffectBehavior(IMPALER_POISON_VINE_CLEANUP_EFFECT, (effect, data) =>
+		bindPoisonVineCleanupEffect(G, effect, data),
+	);
 	G.abilities[5] = [
 		// 	First Ability: Electrified Hair
 		{
@@ -191,33 +293,25 @@ export default (G: Game) => {
 
 			activate: function (target) {
 				this.end();
-				const damages = this.damages;
+				const damages = { ...this.damages };
 				// Last 1 turn, or indefinitely if upgraded
 				const lifetime = this.isUpgraded() ? -1 : 1;
 				const ability = this;
 
 				// Destroy trap if it wasn't triggered and target is dead
-				target.addEffect(
-					new Effect(
-						ability.title,
-						target,
-						target,
-						'onUnderAttack',
-						{
-							effectFn: (effect, damage: Damage) => {
-								if (damage.damages) {
-									const dmg = damage.applyDamage();
-									if (dmg.total >= target.health) {
-										target.hexagons.forEach(function (hex) {
-											hex.destroyTrap();
-										});
-									}
-								}
-							},
-						},
-						G,
-					),
+				const cleanupEffect = new Effect(
+					ability.title,
+					target,
+					target,
+					'onUnderAttack',
+					{
+						snapshotBehaviorId: IMPALER_POISON_VINE_CLEANUP_EFFECT,
+						snapshotBehaviorData: { targetId: target.id },
+					},
+					G,
 				);
+				bindPoisonVineCleanupEffect(G, cleanupEffect, cleanupEffect.snapshotBehaviorData);
+				target.addEffect(cleanupEffect);
 
 				const effect = new Effect(
 					ability.title,
@@ -225,6 +319,12 @@ export default (G: Game) => {
 					target.hexagons[0],
 					'onStepOut',
 					{
+						snapshotBehaviorId: IMPALER_POISON_VINE_EFFECT,
+						snapshotBehaviorData: {
+							attackerId: ability.creature.id,
+							targetId: target.id,
+							damages: { ...damages },
+						},
 						effectFn: once((effect) => {
 							G.log('%CreatureName' + target.id + '% is injured by ' + effect.name);
 							target.takeDamage(new Damage(ability.creature, damages, 1, [], G), {
@@ -242,6 +342,7 @@ export default (G: Game) => {
 					},
 					G,
 				);
+				bindPoisonVineEffect(G, effect, effect.snapshotBehaviorData);
 
 				// NOTE: Add a trap to every hex of the target
 				// Made it so only one hex has the effect & others are placeholders
@@ -334,7 +435,8 @@ export default (G: Game) => {
 				// current scale, so the VFX nose tip is always correct even
 				// if the creature was reset by end() or is being spammed via
 				// metapower before the animation flip lands.
-				const facefrom = { x: caster.x, y: caster.y };
+				const centerHex = caster.hexagons[Math.floor(caster.size / 2)] ?? caster.hexagons[0];
+				const facefrom = { x: centerHex.x, y: centerHex.y };
 				const faceto = { x: target.x, y: target.y };
 				if (facefrom.y % 2 === 0 && faceto.y % 2 === 1) {
 					faceto.x += 0.5;
