@@ -4,7 +4,7 @@ jest.mock('phaser', () =>
 	).createPhaserMock(),
 );
 
-import { describe, test, expect, jest } from '@jest/globals';
+import { describe, test, expect, jest, beforeEach } from '@jest/globals';
 import { Hex, stopAllCursorSpinning } from '../../utility/hex';
 import { HexGrid } from '../../utility/hexgrid';
 import { Creature } from '../../creature';
@@ -14,12 +14,30 @@ import { createSpriteMock } from '../../../test/sprite-mock';
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-/** Populate the shared PointFacade, which is how `hex.creature` is resolved. */
+// `hex.creature` resolves through the shared PointFacade, which is empty by
+// default. Each test declares its own occupant set so suites never leak
+// creatures into each other no matter the run order.
+beforeEach(() => {
+	configure({
+		getCreatures: () => [],
+		getCreaturePassablePoints: () => [],
+		getCreatureBlockedPoints: () => [],
+		getTraps: () => [],
+		getTrapPassablePoints: () => [],
+		getTrapBlockedPoints: () => [],
+		getDrops: () => [],
+		getDropPassablePoints: () => [],
+		getDropBlockedPoints: () => [],
+	});
+});
+
 function withOccupant(creature: any) {
 	configure({
 		getCreatures: () => (creature ? [creature] : []),
 		getCreaturePassablePoints: () => [],
-		getCreatureBlockedPoints: (c: any) => c.hexagons ?? [],
+		// Same points the live game registers: one per size step going left.
+		getCreatureBlockedPoints: (c: any) =>
+			Array.from({ length: c.size ?? 1 }, (_, i) => ({ x: c.x - i, y: c.y })),
 		getTraps: () => [],
 		getTrapPassablePoints: () => [],
 		getTrapBlockedPoints: () => [],
@@ -139,7 +157,6 @@ describe('dashed outline vs player tint', () => {
 	test('an empty hex in the dashed set keeps the plain dashed texture', () => {
 		const grid = makeGrid() as any;
 		const game = makeGame();
-		withOccupant(undefined);
 		const hex = new Hex(5, 4, grid as any, game as any);
 
 		hex.displayClasses = 'dashed';
@@ -157,16 +174,18 @@ describe('dashed outline vs player tint', () => {
 		occupant.size = 1;
 		occupant.dead = false;
 		occupant.temp = false;
-		occupant.hexagons = [{ x: 5, y: 4 }];
+		occupant._brbState = null;
+		occupant.x = 5;
+		occupant.y = 4;
+		occupant.hexagons = [];
 		withOccupant(occupant);
-
 		const hex = new Hex(5, 4, grid as any, game as any);
 		expect(hex.creature).toBe(occupant);
 
-		// This is the class pair `onCreatureHover()` produces for an occupied
-		// target: the query adds `dashed playerN`, then the hover fill adds
-		// `creature playerN`. The player tint must not win over the dashed
-		// outline, or the target reads as a solid tile instead of an outline.
+		// Underline the call chain instead of PointFacade plumbing: the query
+		// adds `dashed playerN`, then the hover fill adds `creature playerN`.
+		// The player tint must not win over the dashed outline, or the target
+		// reads as a solid tile instead of an outline.
 		hex.displayClasses = 'dashed player1 creature';
 		(hex as any).updateStyle();
 
@@ -178,14 +197,6 @@ describe('dashed outline vs player tint', () => {
 	test('the active creature tile still keeps its solid player tint', () => {
 		const grid = makeGrid() as any;
 		const game = makeGame();
-		const occupant = Object.create(Creature.prototype) as any;
-		occupant.team = 1;
-		occupant.size = 1;
-		occupant.dead = false;
-		occupant.temp = false;
-		occupant.hexagons = [{ x: 5, y: 4 }];
-		withOccupant(occupant);
-
 		const hex = new Hex(5, 4, grid as any, game as any);
 
 		// Without `dashed` the player tint must win as before — this is the
