@@ -18,6 +18,11 @@
 
 import { PlasmaField } from '../../vfx/plasma/field';
 import type { GameEngine, TweenHandle } from '../../engine/types';
+import {
+	drawDisruptorRipple,
+	disruptorScanStrip,
+	invertedDisruptorLuminance,
+} from '../../vfx/disruptor-look';
 
 /**
  * A tween double that can be driven by hand.
@@ -141,6 +146,7 @@ function makeEngine() {
 		destroy: () => undefined,
 	};
 	const group = { add: () => undefined, children: [], total: 0 };
+	let spritesCreated = 0;
 
 	const engine = {
 		world: group,
@@ -148,7 +154,7 @@ function makeEngine() {
 		// equivalent of the same fade and is asserted through the uniform pushes
 		// further down; the visibility timing is renderer-independent.
 		supportsShaders: false,
-		add: { sprite: () => sprite },
+		add: { sprite: () => (spritesCreated++ === 0 ? sprite : { ...sprite }) },
 		tween: (target: { fade: number }) => {
 			const tween = new FakeTween(target);
 			tweens.push(tween);
@@ -444,6 +450,222 @@ describe('PlasmaField show/hide fade', () => {
 		liveTween(tweens).finish();
 		expect(uniforms.uAlpha).toBeCloseTo(0, 5);
 		expect(shader.visible).toBe(false);
+	});
+});
+
+describe.each([
+	['CPU', makeEngine],
+	['shader', makeShaderEngine],
+] as const)('PlasmaField scan on the %s renderer', (_renderer, createEngine) => {
+	test('uses the ellipse radii and actual scale rather than transparent texture padding', () => {
+		const { engine } = createEngine();
+		const field = new PlasmaField(engine, 0, 0);
+		field.sprite.x = 12;
+		field.sprite.y = -100;
+
+		const top = field.getScanLine(0);
+		expect(top).toEqual({ left: 12, right: 12, y: -231.6 });
+
+		const middle = field.getScanLine(1 / (2 - 2 * 0.11));
+		expect(middle.left).toBeCloseTo(12 - 58 * 1.25);
+		expect(middle.right).toBeCloseTo(12 + 58 * 1.25);
+		expect(middle.y).toBeCloseTo(-100);
+
+		const bottom = field.getScanLine(1);
+		expect(bottom.left).toBeCloseTo(12);
+		expect(bottom.right).toBeCloseTo(12);
+		expect(bottom.y).toBeCloseTo(-100 + 94 * 1.4 * 0.78);
+		field.destroy();
+	});
+
+	test('keeps every scan edge inside the ellipse and its curved bottom fade', () => {
+		const { engine } = createEngine();
+		const field = new PlasmaField(engine, 0, 0, {
+			radiusX: 40,
+			radiusY: 60,
+			scaleX: 0.75,
+			scaleY: 1.2,
+			bottomFade: 0.2,
+		});
+
+		for (let step = 0; step <= 100; step++) {
+			const line = field.getScanLine(step / 100);
+			const nx = (line.right - field.sprite.x) / (40 * 0.75);
+			const ny = (line.y - field.sprite.y) / (60 * 1.2);
+			expect(nx * nx + ny * ny).toBeLessThanOrEqual(1 + 1e-10);
+			const rowWidth = Math.sqrt(Math.max(0.001, 1 - ny * ny));
+			const u = Math.min(0.999, nx / Math.max(0.08, rowWidth));
+			const sideDepth = Math.cos(Math.asin(u));
+			const bottomMetric = 1 - (ny + 1) * 0.5 - (1 - sideDepth) * 0.12;
+			expect(bottomMetric).toBeGreaterThanOrEqual(0.2 - 1e-10);
+		}
+		field.destroy();
+	});
+
+	test('restores a hovered-away field and holds it opaque until the scan releases it', () => {
+		const { engine, tweens } = createEngine();
+		const field = new PlasmaField(engine, 0, 0, { alpha: 0.8 });
+		field.setVisible(true);
+		liveTween(tweens).finish();
+		field.setVisible(false);
+		liveTween(tweens).finish();
+		expect(field.sprite.visible).toBe(false);
+
+		const release = field.retainVisibility();
+		expect(field.sprite.visible).toBe(true);
+		expect((field as unknown as Hack)._fadeState.fade).toBe(1);
+		field.setVisible(false);
+		field.setVisible(false);
+		expect((field as unknown as Hack)._fadeState.fade).toBe(1);
+		const hidden = jest.fn();
+		field.onHidden = hidden;
+
+		release();
+		expect(field.sprite.visible).toBe(true);
+		liveTween(tweens).finish();
+		expect(field.sprite.visible).toBe(false);
+		expect(hidden).toHaveBeenCalledTimes(1);
+		release();
+		expect(hidden).toHaveBeenCalledTimes(1);
+		field.destroy();
+	});
+
+	test('cancels an in-flight hide without allowing its stale completion to hide the scan', () => {
+		const { engine, tweens } = createEngine();
+		const field = new PlasmaField(engine, 0, 0);
+		field.setVisible(true);
+		liveTween(tweens).finish();
+		field.setVisible(false);
+		const hide = liveTween(tweens);
+		hide.advance(0.5);
+
+		const release = field.retainVisibility();
+		expect(hide.killed).toBe(true);
+		expect((field as unknown as Hack)._fadeState.fade).toBe(1);
+		field.setVisible(true);
+		release();
+		expect(field.sprite.visible).toBe(true);
+		expect((field as unknown as Hack)._fadeState.fade).toBe(1);
+		field.destroy();
+	});
+
+	test('finishes an in-flight fade-in before the scan starts', () => {
+		const { engine, tweens } = createEngine();
+		const field = new PlasmaField(engine, 0, 0);
+		field.setVisible(true);
+		const fadeIn = liveTween(tweens);
+		fadeIn.advance(0.5);
+
+		const release = field.retainVisibility();
+		expect(fadeIn.killed).toBe(true);
+		expect((field as unknown as Hack)._fadeState.fade).toBe(1);
+		release();
+		expect(field.sprite.visible).toBe(true);
+		field.destroy();
+	});
+
+	test('waits for all scan holds and does not resurrect a destroyed field', () => {
+		const { engine } = createEngine();
+		const field = new PlasmaField(engine, 0, 0, { fadeMs: 0 });
+		const firstRelease = field.retainVisibility();
+		const secondRelease = field.retainVisibility();
+		field.setVisible(false);
+		firstRelease();
+		expect(field.sprite.visible).toBe(true);
+		secondRelease();
+		expect(field.sprite.visible).toBe(false);
+
+		const release = field.retainVisibility();
+		field.destroy();
+		field.sprite.visible = false;
+		release();
+		expect(field.sprite.visible).toBe(false);
+	});
+});
+
+describe('PlasmaField inversion wave', () => {
+	test('uses the exact cardboard inversion pixels, strip bounds, and overlay opacity', () => {
+		const { engine } = makeEngine();
+		const field = new PlasmaField(engine, 0, 0, { staticMode: true });
+		const raster = field as unknown as {
+			bmd: { ctx: CanvasRenderingContext2D; canvas: HTMLCanvasElement };
+			_scanSurface: { ctx: CanvasRenderingContext2D };
+			_scanSprite: { blendMode: number; alpha: number };
+			_scanRippleSurface: { ctx: CanvasRenderingContext2D };
+			_scanRippleSprite: { alpha: number };
+		};
+		const original = raster.bmd.ctx.getImageData(0, 121, 192, 14);
+		const originalFrame = raster.bmd.ctx.getImageData(0, 0, 192, 256);
+		field.setScanProgress(1 / (2 - 2 * 0.11), 0.7);
+		const inverted = raster._scanSurface.ctx.getImageData(0, 121, 192, 14);
+		let mismatches = 0;
+		for (let pixel = 0; pixel < original.data.length; pixel += 4) {
+			if (inverted.data[pixel + 3] !== original.data[pixel + 3]) mismatches++;
+			if (original.data[pixel + 3] === 0) continue;
+			const expected = invertedDisruptorLuminance(
+				original.data[pixel],
+				original.data[pixel + 1],
+				original.data[pixel + 2],
+			);
+			// Canvas stores premultiplied pixels, allowing a small round-trip error at low alpha.
+			const tolerance = Math.ceil(255 / original.data[pixel + 3]);
+			for (let channel = 0; channel < 3; channel++) {
+				if (Math.abs(inverted.data[pixel + channel] - expected) > tolerance) mismatches++;
+			}
+		}
+		expect(mismatches).toBe(0);
+		expect(raster._scanSprite.blendMode).toBe(0);
+		expect(raster._scanSprite.alpha).toBeCloseTo(disruptorScanStrip(128, 256, 0.7).alpha);
+		expect(raster.bmd.ctx.getImageData(0, 0, 192, 256).data).toEqual(originalFrame.data);
+		const expectedRipple = document.createElement('canvas');
+		expectedRipple.width = 192;
+		expectedRipple.height = 256;
+		const expectedContext = expectedRipple.getContext('2d');
+		if (!expectedContext) throw new Error('The ripple comparison needs a 2D context');
+		drawDisruptorRipple(expectedContext, raster.bmd.canvas, 192, 256, 128, 0.7, null);
+		expect(raster._scanRippleSurface.ctx.getImageData(0, 0, 192, 256).data).toEqual(
+			expectedContext.getImageData(0, 0, 192, 256).data,
+		);
+		expect(raster._scanRippleSprite.alpha).toBe(0.9);
+		expect(raster._scanSurface.ctx.getImageData(0, 120, 192, 1).data.every((v) => v === 0)).toBe(
+			true,
+		);
+		expect(raster._scanSurface.ctx.getImageData(0, 135, 192, 1).data.every((v) => v === 0)).toBe(
+			true,
+		);
+		field.setScanProgress(null);
+		expect(raster._scanSurface).toBeNull();
+		field.destroy();
+	});
+
+	test('uses live CPU snapshots for identical shader scan layers and releases them afterwards', () => {
+		const { engine } = makeShaderEngine();
+		const createShader = jest.spyOn(engine.add, 'shader');
+		const field = new PlasmaField(engine, 0, 0);
+		field.tick();
+		field.setScanProgress(1 / (2 - 2 * 0.11), 0.7);
+		const scan = field as unknown as {
+			time: number;
+			_scanRaster: PlasmaField;
+			_scanRippleSprite: { alpha: number };
+			_scanSurface: { ctx: CanvasRenderingContext2D };
+			_scanSprite: { alpha: number; blendMode: number };
+		};
+		expect(createShader).toHaveBeenCalledTimes(1);
+		expect(scan._scanRaster.usesShader).toBe(false);
+		expect(scan._scanRaster.sprite.visible).toBe(false);
+		expect(scan._scanRippleSprite.alpha).toBe(0.9);
+		expect(scan._scanSprite.alpha).toBe(disruptorScanStrip(128, 256, 0.7).alpha);
+		expect(scan._scanSprite.blendMode).toBe(0);
+		const snapshot = scan._scanRaster as unknown as { time: number };
+		field.tick();
+		expect(snapshot.time).toBe(scan.time);
+		const destroySnapshot = jest.spyOn(scan._scanRaster, 'destroy');
+		field.setScanProgress(null);
+		expect(destroySnapshot).toHaveBeenCalledTimes(1);
+		expect(scan._scanRaster).toBeNull();
+		expect(scan._scanSurface).toBeNull();
+		field.destroy();
 	});
 });
 

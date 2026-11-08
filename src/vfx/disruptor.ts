@@ -6,6 +6,12 @@ import { Easing } from '../utility/easing';
 import { getFrameSize } from '../game-display/texture';
 import { HEX_HEIGHT_PX, HEX_WIDTH_PX } from '../utility/const';
 import { electroShockerLook } from './lightning/look';
+import {
+	drawDisruptorRipple,
+	disruptorFlicker,
+	disruptorScanStrip,
+	invertedDisruptorLuminance,
+} from './disruptor-look';
 
 const DISRUPTOR_SCAN_MS = 1400;
 const DAMAGE_HINT_DISPLAY_MS = 1100;
@@ -14,10 +20,6 @@ const COLOR_RESTORE_TOTAL_MS = DAMAGE_HINT_DISPLAY_MS + COLOR_RESTORE_MS;
 const DISINTEGRATION_TILE_WIDTH = 5;
 const DISINTEGRATION_TILE_HEIGHT = 6;
 const DISINTEGRATION_PARTICLE_SIZE = 8;
-const SCAN_RIPPLE_AHEAD_PX = 14;
-const SCAN_RIPPLE_WIDTH_PX = 24;
-const SCAN_RIPPLE_DISPLACEMENT_PX = 9;
-const DISRUPTOR_SCAN_LINE_HEIGHT = 14;
 
 const activeColorRecoveries = new WeakMap<Creature, () => void>();
 
@@ -157,9 +159,8 @@ function createDesaturatedCardboard(
 	const invertedSurface = createGameCanvasSurface(game, width, height);
 	const invertedImage = invertedSurface.ctx.createImageData(width, height);
 	for (let i = 0; i < image.data.length; i += 4) {
-		const luminance = Math.round(
-			image.data[i] * 0.2126 + image.data[i + 1] * 0.7152 + image.data[i + 2] * 0.0722,
-		);
+		const luminance =
+			255 - invertedDisruptorLuminance(image.data[i], image.data[i + 1], image.data[i + 2]);
 		invertedImage.data[i] = 255 - luminance;
 		invertedImage.data[i + 1] = 255 - luminance;
 		invertedImage.data[i + 2] = 255 - luminance;
@@ -187,13 +188,8 @@ function boostColorSaturation(value: number, amount = 1.25): [number, number, nu
 	return [boost(channels[0]), boost(channels[1]), boost(channels[2])];
 }
 
-function disruptorFlicker(timeSeconds: number): number {
-	const pulse = 0.5 + 0.5 * Math.sin(timeSeconds * 24);
-	return 0.35 + 0.65 * pulse * pulse;
-}
-
 /**
- * Sweep the Dark Priest's beam over a target cardboard, then run the impact.
+ * Sweep the Dark Priest's beam over a target cardboard or Plasma Field, then run the impact.
  * The tinted copy is cropped from top to bottom so the original art remains
  * visible until the scan reaches it.
  */
@@ -207,7 +203,11 @@ export function spawnDisruptorBeam(
 	cancelDisruptorColorRecovery(target);
 	const engine = game.gameEngine;
 	const sourceSprite = caster.sprite;
-	const targetSprite = target.sprite;
+	const shielded = target.isDarkPriest?.() && target.hasCreaturePlayerGotPlasma?.();
+	if (shielded) target.displayPlasmaShield();
+	const plasmaField = shielded ? target.plasmaField : null;
+	const scanningPlasmaField = plasmaField !== null;
+	const targetSprite = plasmaField?.sprite ?? target.sprite;
 	const targetGroup = target.grp;
 	const boardGroup = game.grid?.creatureGroup;
 
@@ -217,12 +217,13 @@ export function spawnDisruptorBeam(
 		!targetSprite ||
 		!targetGroup ||
 		!boardGroup ||
-		typeof targetSprite.setCrop !== 'function' ||
+		(!scanningPlasmaField && typeof targetSprite.setCrop !== 'function') ||
 		!engine.add.graphics
 	) {
 		onComplete();
 		return;
 	}
+	const releasePlasmaField = plasmaField?.retainVisibility();
 	const useShader = typeof engine.add.shader === 'function' && engine.supportsShaders === true;
 
 	const casterFrame = getFrameSize(sourceSprite);
@@ -246,7 +247,8 @@ export function spawnDisruptorBeam(
 	const displayWidth = width * Math.abs(targetScaleX);
 	const displayHeight = height * Math.abs(targetScaleY);
 	const targetLeft = targetGroup.x + targetSprite.x - displayWidth / 2;
-	const targetTop = targetGroup.y + targetSprite.y - displayHeight;
+	const targetTop =
+		targetGroup.y + targetSprite.y - displayHeight * (scanningPlasmaField ? 0.5 : 1);
 	const shaderBounds = {
 		left: Math.min(source.x, targetLeft),
 		top: Math.min(source.y, targetTop),
@@ -256,10 +258,13 @@ export function spawnDisruptorBeam(
 	const shaderWidth = Math.max(1, shaderBounds.right - shaderBounds.left);
 	const shaderHeight = Math.max(1, shaderBounds.bottom - shaderBounds.top);
 	const color = (beamColor: number) => boostColorSaturation(beamColor);
-	if (disintegrate && target.name === 'Infernal') {
+	const animateDisintegration = disintegrate && !scanningPlasmaField;
+	if (animateDisintegration && target.name === 'Infernal') {
 		game.animations?.disposeInfernalCardboardEffect(target);
 	}
-	const cardboardEffect = createDesaturatedCardboard(game, targetSprite, width, height);
+	const cardboardEffect = scanningPlasmaField
+		? null
+		: createDesaturatedCardboard(game, targetSprite, width, height);
 	const rippleSurface = cardboardEffect ? createGameCanvasSurface(game, width, height) : null;
 	const scanSurface = cardboardEffect ? createGameCanvasSurface(game, width, height) : null;
 	let particleSurface: CanvasSurface | null = null;
@@ -269,7 +274,7 @@ export function spawnDisruptorBeam(
 	let previousScanBounds: { top: number; bottom: number } | null = null;
 	let disintegratedToRow = 0;
 	const colorCardboard =
-		disintegrate && cardboardEffect
+		animateDisintegration && cardboardEffect
 			? engine.add.sprite(
 					targetSprite.x,
 					targetSprite.y,
@@ -281,20 +286,24 @@ export function spawnDisruptorBeam(
 	colorCardboard?.setOrigin(0.5, 1);
 	colorCardboard?.setScale(targetScaleX, targetScaleY);
 	if (colorCardboard) targetSprite.alpha = 0;
-	const overlay = engine.add.sprite(
-		targetSprite.x,
-		targetSprite.y,
-		cardboardEffect?.surface.key ?? targetSprite.key,
-		undefined,
-		targetGroup,
-	);
-	overlay.setOrigin(0.5, 1);
-	overlay.setScale(targetScaleX, targetScaleY);
-	if (!cardboardEffect) {
+	const overlay = scanningPlasmaField
+		? null
+		: engine.add.sprite(
+				targetSprite.x,
+				targetSprite.y,
+				cardboardEffect?.surface.key ?? targetSprite.key,
+				undefined,
+				targetGroup,
+		  );
+	overlay?.setOrigin(0.5, 1);
+	overlay?.setScale(targetScaleX, targetScaleY);
+	if (!cardboardEffect && overlay) {
 		overlay.setTint(0x929b9b);
 	}
-	overlay.alpha = disintegrate ? 1 : 0.88;
-	overlay.setCrop(0, 0, width, 1);
+	if (overlay) {
+		overlay.alpha = animateDisintegration ? 1 : 0.88;
+		overlay.setCrop(0, 0, width, 1);
+	}
 	const rippleSprite = rippleSurface
 		? engine.add.sprite(targetSprite.x, targetSprite.y, rippleSurface.key, undefined, targetGroup)
 		: null;
@@ -357,7 +366,9 @@ export function spawnDisruptorBeam(
 		removeBeam();
 		removeScanLine();
 		recoveryTween?.stop();
-		overlay.destroy();
+		overlay?.destroy();
+		plasmaField?.setScanProgress(null);
+		releasePlasmaField?.();
 		rippleSprite?.destroy();
 		scanSurfaceSprite?.destroy();
 		colorCardboard?.destroy();
@@ -495,7 +506,7 @@ export function spawnDisruptorBeam(
 	};
 
 	const finishScan = () => {
-		if (disintegrate) {
+		if (animateDisintegration) {
 			spawnDisintegrationTiles(height);
 			finish();
 			return;
@@ -505,6 +516,11 @@ export function spawnDisruptorBeam(
 		if (rippleSprite) rippleSprite.alpha = 0;
 		if (finished) return;
 		finished = true;
+		if (!overlay) {
+			cleanup();
+			onComplete();
+			return;
+		}
 		onComplete();
 		const fade = { value: 0 };
 		recoveryTween = engine.tween(fade).to({ value: 1 }, COLOR_RESTORE_TOTAL_MS, Easing.Linear.None);
@@ -534,54 +550,31 @@ export function spawnDisruptorBeam(
 		const sourceRight = bounds?.right ?? (cardboardEffect ? width / 2 : width - 1);
 		const leftPixel = targetScaleX < 0 ? width - 1 - sourceRight : sourceLeft;
 		const rightPixel = targetScaleX < 0 ? width - 1 - sourceLeft : sourceRight;
-		const scanY = targetTop + displayHeight * (row / Math.max(height, 1));
-		const leftX = targetLeft + leftPixel * Math.abs(targetScaleX);
-		const rightX = targetLeft + (rightPixel + 1) * Math.abs(targetScaleX);
-		overlay.setCrop(0, 0, width, Math.max(1, height * progress.value));
-		if (disintegrate) {
+		const fieldScan = plasmaField?.getScanLine(progress.value);
+		plasmaField?.setScanProgress(progress.value, engine.time.now / 1000);
+		const scanY = fieldScan
+			? targetGroup.y + fieldScan.y
+			: targetTop + displayHeight * (row / Math.max(height, 1));
+		const leftX = fieldScan
+			? targetGroup.x + fieldScan.left
+			: targetLeft + leftPixel * Math.abs(targetScaleX);
+		const rightX = fieldScan
+			? targetGroup.x + fieldScan.right
+			: targetLeft + (rightPixel + 1) * Math.abs(targetScaleX);
+		overlay?.setCrop(0, 0, width, Math.max(1, height * progress.value));
+		if (animateDisintegration) {
 			spawnDisintegrationTiles(Math.min(height, Math.floor(progress.value * height)));
 		}
 		if (cardboardEffect && rippleSurface) {
-			const scanRow = progress.value * height;
-			const time = engine.time.now / 1000;
-			const context = rippleSurface.ctx;
-			const firstRippleRow = Math.max(0, Math.floor(scanRow - 30));
-			const lastRippleRow = Math.min(height, Math.ceil(scanRow + 70));
-			const clearTop = previousRippleBounds
-				? Math.min(previousRippleBounds.top, firstRippleRow)
-				: firstRippleRow;
-			const clearBottom = previousRippleBounds
-				? Math.max(previousRippleBounds.bottom, lastRippleRow)
-				: lastRippleRow;
-			context.clearRect(0, clearTop, width, clearBottom - clearTop);
-			previousRippleBounds = { top: firstRippleRow, bottom: lastRippleRow };
-			for (let sourceRow = firstRippleRow; sourceRow < lastRippleRow; sourceRow += 2) {
-				const bandHeight = Math.min(2, lastRippleRow - sourceRow);
-				const rowCenter = sourceRow + bandHeight / 2;
-				const distanceFromFront = rowCenter - scanRow;
-				const influence =
-					distanceFromFront >= 0
-						? Math.exp(-(((distanceFromFront - SCAN_RIPPLE_AHEAD_PX) / SCAN_RIPPLE_WIDTH_PX) ** 2))
-						: 0.4 * Math.exp(distanceFromFront / 12);
-				const displacement =
-					influence *
-					(SCAN_RIPPLE_DISPLACEMENT_PX * Math.sin(rowCenter * 0.24 - time * 7) +
-						2 * Math.sin(rowCenter * 0.1 + time * 4));
-				const verticalDisplacement = influence * 2.5 * Math.sin(rowCenter * 0.32 - time * 5);
-				context.globalAlpha = 0.85 * influence;
-				context.drawImage(
-					cardboardEffect.colorSurface.canvas,
-					0,
-					sourceRow,
-					width,
-					bandHeight,
-					displacement,
-					sourceRow + verticalDisplacement,
-					width,
-					bandHeight,
-				);
-			}
-			context.globalAlpha = 1;
+			previousRippleBounds = drawDisruptorRipple(
+				rippleSurface.ctx,
+				cardboardEffect.colorSurface.canvas,
+				width,
+				height,
+				progress.value * height,
+				engine.time.now / 1000,
+				previousRippleBounds,
+			);
 			rippleSurface.commit();
 		}
 		const now = engine.time.now / 1000;
@@ -589,12 +582,10 @@ export function spawnDisruptorBeam(
 		if (cardboardEffect && scanSurface && scanSurfaceSprite) {
 			const context = scanSurface.ctx;
 			const scanRow = progress.value * height;
-			const sourceTop = Math.max(
-				0,
-				Math.min(height, Math.floor(scanRow - DISRUPTOR_SCAN_LINE_HEIGHT / 2)),
-			);
-			const sourceBottom = Math.min(height, sourceTop + DISRUPTOR_SCAN_LINE_HEIGHT);
-			const stripHeight = scanRow < height ? sourceBottom - sourceTop : 0;
+			const strip = disruptorScanStrip(scanRow, height, now);
+			const sourceTop = strip.top;
+			const sourceBottom = strip.bottom;
+			const stripHeight = sourceBottom - sourceTop;
 			const clearTop = previousScanBounds ? Math.min(previousScanBounds.top, sourceTop) : sourceTop;
 			const clearBottom = previousScanBounds
 				? Math.max(previousScanBounds.bottom, sourceBottom)
@@ -602,7 +593,7 @@ export function spawnDisruptorBeam(
 			context.clearRect(0, clearTop, width, clearBottom - clearTop);
 			previousScanBounds = stripHeight > 0 ? { top: sourceTop, bottom: sourceBottom } : null;
 			if (stripHeight > 0) {
-				context.globalAlpha = 0.75 + flicker * 0.25;
+				context.globalAlpha = strip.alpha;
 				context.drawImage(
 					cardboardEffect.invertedSurface.canvas,
 					0,
