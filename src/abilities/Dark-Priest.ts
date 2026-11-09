@@ -278,6 +278,7 @@ export default (G: Game) => {
 					}
 				});
 
+
 				if (this.creature.player.plasma < lowestCost) {
 					this.message = G.msg.abilities.noPlasma;
 					return false;
@@ -334,7 +335,7 @@ export default (G: Game) => {
 					G,
 				);
 
-				const willDisintegrate = damageAmount >= target.health;
+				const willDisintegrate = damageAmount >= target.health && !(target.type === '--' && target.player.plasma > 0);
 				spawnDisruptorBeam(G, ability.creature, target, willDisintegrate, () => {
 					shakeBoard({
 						amplitude: 0.04,
@@ -425,6 +426,14 @@ export default (G: Game) => {
 					item.setReachable();
 				});
 
+				// Hexes in range that can't host the new creature (occupied, blocked)
+				// stay visible as dashed so the targeting area reads as a whole.
+				// They are kept out of `hexes`/`spawnRange`, so clicks there still
+				// cancel the query instead of spawning.
+				const occupiedSpawnRange = spawnRange.filter(function (item) {
+					return !item.isWalkable(crea.size, -1, false);
+				});
+
 				spawnRange = spawnRange.filter(function (item) {
 					return item.isWalkable(crea.size, -1, false);
 				});
@@ -453,6 +462,7 @@ export default (G: Game) => {
 					size: crea.size,
 					flipped: dpriest.player.flipped,
 					hexes: spawnRange,
+					hexesDashed: occupiedSpawnRange,
 				});
 			},
 

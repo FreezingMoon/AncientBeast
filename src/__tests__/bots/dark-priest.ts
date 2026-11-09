@@ -47,6 +47,7 @@ const makeCreature = ({
 	size = 1,
 	flipped = false,
 	plasma = 10,
+	type = '--',
 	abilities = [] as any[],
 	adjacentHexes = (_: number) => [] as Hex[],
 }: Partial<{
@@ -61,6 +62,7 @@ const makeCreature = ({
 	size: number;
 	flipped: boolean;
 	plasma: number;
+	type: string;
 	abilities: any[];
 	adjacentHexes: (n: number) => Hex[];
 }> = {}) => {
@@ -70,6 +72,7 @@ const makeCreature = ({
 		team,
 		x,
 		y,
+		type,
 		health,
 		stats: { health: maxHealth, energy: maxEnergy },
 		baseStats: { health: maxHealth, energy: maxEnergy },
@@ -474,6 +477,14 @@ describe('DarkPriestStrategy.scoreAbilityHex – Disruptor Beam (index 2)', () =
 
 		const score = scoreAbilityHex(hex, 2, controller as any) as number;
 		expect(score).toBeGreaterThan(0);
+	});
+
+	test('returns NEGATIVE_INFINITY for an acrylic wall target', () => {
+		const priest = makeCreature({ team: 0, plasma: 10 });
+		const wall = makeCreature({ team: 1, id: 2, type: 'O0', size: 1, health: 15, maxHealth: 30 });
+		const hex = makeHex({ creature: wall });
+		const controller = makeController({ activeCreature: priest });
+		expect(scoreAbilityHex(hex, 2, controller as any)).toBe(Number.NEGATIVE_INFINITY);
 	});
 });
 

@@ -4,6 +4,7 @@ import {
 	findAlphaBoundsByRow,
 	spawnDisruptorBeam,
 } from '../../vfx/disruptor';
+import { PlasmaField } from '../../vfx/plasma/field';
 
 jest.mock('../../utility/easing', () => ({
 	Easing: {
@@ -212,6 +213,130 @@ describe('Dark Priest Disruptor Beam visual', () => {
 		expect(beam.destroy).toHaveBeenCalledTimes(2);
 		expect(complete).toHaveBeenCalledTimes(1);
 	});
+
+	test.each(['CPU', 'shader'])(
+		'keeps the %s Plasma Field visible and scans its curved surface, not its texture padding',
+		(renderer) => {
+			let animationState: { value: number } | undefined;
+			const sourceSprite = {
+				key: 'Dark-Priest',
+				x: 0,
+				y: 0,
+				scaleX: 1,
+				frame: { realWidth: 112, realHeight: 200 },
+			};
+			const fieldSprite = {
+				key: 'ABPlasmaField',
+				x: 0,
+				y: -110,
+				scaleX: 1.25,
+				scaleY: 1.4,
+				visible: true,
+				alpha: 1,
+				frame: { realWidth: 192, realHeight: 256 },
+				setCrop: jest.fn(),
+				setOrigin: jest.fn(),
+				setScale: jest.fn(),
+				setUniform: jest.fn(),
+				destroy: jest.fn(),
+			};
+			const cardboardSprite = {
+				key: 'Dark-Priest',
+				x: 0,
+				y: 0,
+				scaleX: 1,
+				scaleY: 1,
+				frame: { realWidth: 100, realHeight: 180 },
+				setCrop: jest.fn(),
+			};
+			const addSprite = jest.fn(() => ({ ...fieldSprite }));
+			const shaderBeam = {
+				setOrigin: jest.fn(),
+				setUniform: jest.fn(),
+				destroy: jest.fn(),
+			};
+			const game = {
+				gameEngine: {
+					supportsShaders: renderer === 'shader',
+					time: { now: 0 },
+					add: {
+						sprite: addSprite,
+						graphics: jest.fn(() => beam),
+						shader: jest.fn((config: { name: string }) =>
+							config.name.startsWith('ABPlasmaField') ? { ...fieldSprite } : shaderBeam,
+						),
+					},
+					tween: jest.fn((state: { value: number }) => {
+						animationState = state;
+						return tween;
+					}),
+				},
+				grid: { creatureGroup: {} },
+			};
+			const caster = {
+				player: { color: 'blue' },
+				sprite: sourceSprite,
+				grp: { x: 50, y: 60 },
+				x: 1,
+				y: 2,
+			};
+			const targetGroup = { x: 250, y: 300 };
+			const field = new PlasmaField(game.gameEngine as never, 0, -110, {
+				parent: targetGroup as never,
+				fadeMs: 0,
+			});
+			const setScanProgress = jest.spyOn(field, 'setScanProgress');
+			const target = {
+				sprite: cardboardSprite,
+				plasmaField: field,
+				displayPlasmaShield: jest.fn(() => field.setVisible(true)),
+				isDarkPriest: () => true,
+				hasCreaturePlayerGotPlasma: () => true,
+				grp: targetGroup,
+				x: 3,
+				y: 2,
+			};
+			field.setVisible(false);
+			expect(field.sprite.visible).toBe(false);
+			addSprite.mockClear();
+
+			spawnDisruptorBeam(game as never, caster as never, target as never, false, complete);
+			expect(target.displayPlasmaShield).toHaveBeenCalledTimes(1);
+			expect(field.sprite.visible).toBe(true);
+			field.setVisible(false);
+			expect(field.sprite.visible).toBe(true);
+			if (!animationState) throw new Error('The scan tween did not start');
+			animationState.value = 1 / (2 - 2 * 0.11);
+			onUpdate?.();
+			expect(setScanProgress).toHaveBeenLastCalledWith(animationState.value, 0);
+
+			expect(addSprite).toHaveBeenCalledTimes(renderer === 'CPU' ? 2 : 3);
+			expect(cardboardSprite.setCrop).not.toHaveBeenCalled();
+			expect(fieldSprite.setCrop).not.toHaveBeenCalled();
+			if (renderer === 'CPU') {
+				expect(beam.lineTo).toHaveBeenCalledWith(250, 58.400000000000006);
+				expect(beam.lineTo).toHaveBeenCalledWith(177.5, 190);
+			} else {
+				expect(fieldSprite.setUniform).toHaveBeenCalledWith('uAlpha', 0.94);
+				const left = shaderBeam.setUniform.mock.calls.filter(([name]) => name === 'uLeft');
+				const right = shaderBeam.setUniform.mock.calls.filter(([name]) => name === 'uRight');
+				expect(left[0][1]).toEqual(right[0][1]);
+				const shaderWidth = 370 - 100;
+				const shaderHeight = 369.2 - -34;
+				expect((left[1][1] as number[])[0]).toBeCloseTo((177.5 - 100) / shaderWidth);
+				expect((right[1][1] as number[])[0]).toBeCloseTo((322.5 - 100) / shaderWidth);
+				expect((left[1][1] as number[])[1]).toBeCloseTo((190 - -34) / shaderHeight);
+			}
+
+			onTweenComplete?.();
+
+			expect(complete).toHaveBeenCalledTimes(1);
+			expect(setScanProgress).toHaveBeenLastCalledWith(null);
+			expect(field.sprite.visible).toBe(false);
+			expect(game.gameEngine.tween).toHaveBeenCalledTimes(1);
+			field.destroy();
+		},
+	);
 
 	test('aims from the Godlet point and sizes the scan edge to that cardboard row', () => {
 		const pixels = new Uint8ClampedArray(100 * 180 * 4);

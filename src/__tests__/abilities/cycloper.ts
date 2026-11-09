@@ -720,6 +720,78 @@ describe('Cycloper abilities', () => {
 		expect((powerAperture as any)._noAffordableApertureTargetInRange).toBe(true);
 	});
 
+	test('Power Aperture can lock a target on the outermost in-range hex', () => {
+		const cycloper = new (Creature as any)({
+			id: 15,
+			team: 0,
+			type: 'W0',
+			x: 3,
+			y: 3,
+			hexagons: [{ x: 3, y: 3 }],
+			player: { id: 0, flipped: false, creatures: [] },
+			health: 60,
+			energy: 100,
+			stats: { health: 60, energy: 100 },
+		});
+		const target = new (Creature as any)({
+			id: 207,
+			team: 1,
+			type: 'A1',
+			x: 10,
+			y: 3,
+			hexagons: [],
+			player: { id: 1, flipped: true, creatures: [] },
+			health: 20,
+			stats: { health: 20, energy: 50 },
+		});
+		const line = Array.from({ length: 8 }, (_, distance) => ({
+			x: 3 + distance,
+			y: 3,
+			creature: null,
+		}));
+		const targetHex = line[7] as any;
+		targetHex.direction = 1;
+		targetHex.creature = target;
+		target.hexagons = [targetHex];
+		const destinationHex = {
+			x: 2,
+			y: 3,
+			pos: { x: 2, y: 3 },
+			creature: null,
+			isWalkable: () => true as const,
+		};
+		const row = Array.from({ length: 11 }, (_, x) => ({
+			x,
+			y: 3,
+			creature: null,
+			isWalkable: () => true,
+		}));
+		row[2] = destinationHex as (typeof row)[number];
+		game.grid.hexes = [[], [], [], row];
+		game.grid.getHexLine.mockReturnValue(line);
+		game.grid.getDirectionChoices
+			.mockReturnValueOnce({ choices: [[targetHex]], hexesDashed: [] })
+			.mockReturnValueOnce({ choices: [[destinationHex]], hexesDashed: [] });
+		game.grid.hexExists = jest.fn(() => true);
+		game.botController = { shouldAutoResolveQuery: jest.fn(() => true) };
+		game.activeCreature = cycloper;
+
+		const powerAperture = {
+			...game.abilities[15][3],
+			creature: cycloper,
+			isUpgraded: () => false,
+			testRequirements: () => true,
+			message: '',
+		};
+
+		expect(powerAperture.require()).toBe(true);
+
+		powerAperture.query();
+		game.grid.queryDirection.mock.calls[0][0].fnOnConfirm([targetHex], { direction: 1 });
+
+		expect(game.grid.queryHexes).toHaveBeenCalledTimes(1);
+	});
+
 	test('Power Aperture keeps the selected target visible when no destination hex is available', () => {
 		const cycloper = new (Creature as any)({
 			id: 15,
@@ -749,7 +821,7 @@ describe('Cycloper abilities', () => {
 
 		game.grid.getDirectionChoices
 			.mockReturnValueOnce({
-				choices: [[{ x: 5, y: 3, creature: target, direction: 1 }]],
+				choices: [[{ x: 5, y: 3, creature: { id: 999 }, direction: 1 }]],
 				hexesDashed: [],
 			})
 			.mockReturnValueOnce({ choices: [[]], hexesDashed: [] });
@@ -1042,7 +1114,7 @@ describe('Cycloper abilities', () => {
 	 * frozen query until its decision budget ran out and the ultimate was never
 	 * used. Bots must get the destination query inline.
 	 */
-	const setUpApertureTargetQuery = (botDriven: boolean) => {
+	const setUpApertureTargetQuery = (botDriven: boolean, destinationX = 2) => {
 		const cycloper = new (Creature as any)({
 			id: 15,
 			team: 0,
@@ -1070,11 +1142,11 @@ describe('Cycloper abilities', () => {
 		});
 
 		const destinationHex = {
-			x: 2,
+			x: destinationX,
 			y: 3,
-			pos: { x: 2, y: 3 },
-			creature: null,
-			isWalkable: () => true,
+			pos: { x: destinationX, y: 3 },
+			creature: destinationX === 5 ? target : null,
+			isWalkable: jest.fn(() => true),
 		};
 
 		// queryDirection() is stubbed, so the only getDirectionChoices call left is
@@ -1083,16 +1155,10 @@ describe('Cycloper abilities', () => {
 			choices: [[destinationHex]],
 			hexesDashed: [],
 		});
-		game.grid.hexes = [
-			[],
-			[],
-			[],
-			[
-				{ x: 0, y: 3 },
-				{ x: 1, y: 3 },
-				{ x: 2, y: 3, isWalkable: () => true },
-			],
-		];
+		const row = Array.from({ length: 8 }, (_, x) => ({ x, y: 3, creature: null }));
+		row[5].creature = target;
+		row[destinationHex.x] = destinationHex;
+		game.grid.hexes = [[], [], [], row];
 		game.grid.getHexLine.mockReturnValue([
 			{ x: 3, y: 3, creature: cycloper },
 			{ x: 4, y: 3, creature: null },
@@ -1123,11 +1189,11 @@ describe('Cycloper abilities', () => {
 			{ direction: 1 },
 		);
 
-		return powerAperture;
+		return { powerAperture, target };
 	};
 
 	test('Power Aperture opens the destination query inline when a bot is driving', () => {
-		const powerAperture = setUpApertureTargetQuery(true);
+		const { powerAperture } = setUpApertureTargetQuery(true);
 
 		expect(game.grid.queryHexes).toHaveBeenCalledTimes(1);
 		expect(game.grid.queryHexes.mock.calls[0][0].hexes).toEqual([
@@ -1136,8 +1202,52 @@ describe('Cycloper abilities', () => {
 		expect(powerAperture._awaitingApertureDestination).toBe(true);
 	});
 
+	test('Power Aperture allows the target to be dropped on its own occupied hex', () => {
+		setUpApertureTargetQuery(true, 5);
+
+		expect(game.grid.queryHexes).toHaveBeenCalledTimes(1);
+		expect(game.grid.queryHexes.mock.calls[0][0].hexes).toEqual([
+			expect.objectContaining({ x: 5, y: 3 }),
+		]);
+		expect(game.grid.hexes[3][5].isWalkable).toHaveBeenCalledWith(1, 204, true);
+	});
+
+	test('Power Aperture can target a landing hex inline beyond the dematerializing target', () => {
+		setUpApertureTargetQuery(true, 6);
+
+		expect(game.grid.queryHexes.mock.calls[0][0].hexes).toEqual([
+			expect.objectContaining({ x: 6, y: 3 }),
+		]);
+		const destinationOptions = game.grid.getDirectionChoices.mock.calls[0][0];
+		expect(destinationOptions.ignoreCreatureTest(new (Creature as any)({ id: 204 }))).toBe(true);
+		expect(destinationOptions.ignoreCreatureTest(new (Creature as any)({ id: 999 }))).toBe(false);
+	});
+
+	test('Power Aperture restores the target cardboard when destination selection is canceled', () => {
+		const { target } = setUpApertureTargetQuery(true);
+		const destinationQuery = game.grid.queryHexes.mock.calls[0][0];
+		expect(target.creatureSprite.setAlpha).toHaveBeenLastCalledWith(0.3, 0);
+		expect(target.sprite.alpha).toBe(1);
+
+		destinationQuery.fnOnSelect({ x: 2, y: 3, pos: { x: 2, y: 3 } });
+
+		expect(target.creatureSprite.setAlpha).toHaveBeenLastCalledWith(0.3, 0);
+		expect(target.sprite.alpha).toBe(1);
+
+		destinationQuery.fnOnCancel();
+
+		expect(target.sprite.alpha).toBe(1);
+		expect(target.sprite.visible).toBe(true);
+		expect(target.sprite.renderable).toBe(true);
+		expect(target.grp.alpha).toBe(1);
+		expect(target.grp.visible).toBe(true);
+		expect(target.grp.renderable).toBe(true);
+		expect(target.creatureSprite.setAlpha).toHaveBeenLastCalledWith(1, 0);
+		expect(game.grid.materialize_overlay).toBeNull();
+	});
+
 	test('Power Aperture keeps deferring the destination query for players', () => {
-		const powerAperture = setUpApertureTargetQuery(false);
+		const { powerAperture } = setUpApertureTargetQuery(false);
 
 		expect(game.grid.queryHexes).not.toHaveBeenCalled();
 		jest.runOnlyPendingTimers();
@@ -1260,7 +1370,7 @@ describe('Cycloper abilities', () => {
 	});
 
 	test('Power Aperture clears the destination flag when the target query is reopened', () => {
-		const powerAperture = setUpApertureTargetQuery(true);
+		const { powerAperture } = setUpApertureTargetQuery(true);
 		expect(powerAperture._awaitingApertureDestination).toBe(true);
 
 		game.grid.getDirectionChoices.mockReturnValue({

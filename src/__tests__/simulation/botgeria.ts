@@ -740,6 +740,7 @@ export async function runMatch(game: unknown): Promise<MatchResult> {
 	// Stagnation timeout: end game if no damage dealt in this many rounds.
 	// Prevents extremely long stalemates where both bots are stuck in a loop.
 	const STAGNATION_ROUNDS = 15;
+	const SCORE_STAGNATION_ROUNDS = 10;
 	// Wall-clock bail-out, so a match that never terminates cannot hang the run.
 	// This must read the real clock directly: the previous `globalThis.realPerf`
 	// was never assigned by anything, so the guard below evaluated `0 - 0 > MAX_WALL_MS`
@@ -749,6 +750,8 @@ export async function runMatch(game: unknown): Promise<MatchResult> {
 
 	let _dbgTick = 0;
 	const bc = (game as any).botController;
+	let lastScoreKey = '';
+	let lastScoreTurn = 0;
 	while ((game as any).gameState !== 'ended' && (game as any).turn < MAX_SIM_TURNS) {
 		// Stagnation check: bail out early if no damage in STAGNATION_ROUNDS rounds.
 		if (
@@ -757,6 +760,18 @@ export async function runMatch(game: unknown): Promise<MatchResult> {
 			(game as any).turn - (bc.lastDamageRound ?? 0) > STAGNATION_ROUNDS
 		) {
 			break;
+		}
+		// Score-progress check: bail if total score unchanged for N rounds.
+		const _scores = ((game as any).players as any[]).map((p: any) => p.getScore?.().total ?? 0);
+		const _key = _scores.join(',');
+		const _turn = Number((game as any).turn ?? 0);
+		if (_key === lastScoreKey && _turn - lastScoreTurn > SCORE_STAGNATION_ROUNDS) {
+			(process.stderr as any).write(`  [score-stagnation bail-out at turn ${_turn}]\n`);
+			break;
+		}
+		if (_key !== lastScoreKey) {
+			lastScoreKey = _key;
+			lastScoreTurn = _turn;
 		}
 		const _t0 = realPerf.now();
 		(game as any).headlessDriver?.stepFrames(FRAMES_PER_SLICE);

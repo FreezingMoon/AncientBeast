@@ -25,6 +25,7 @@ jest.mock('../../vfx/disruptor', () => ({
 	spawnDisruptorBeam: jest.fn(),
 }));
 
+import { Creature } from '../../creature';
 import loadDarkPriestAbilities from '../../abilities/Dark-Priest';
 import { spawnDisruptorBeam } from '../../vfx/disruptor';
 import type { CreatureDeathAnimationType } from '../../creature';
@@ -164,6 +165,26 @@ describe('Dark Priest materialize query preview guards', () => {
 		queryArgs.fnOnSelect(otherHex, queryArgs.args);
 		expect(previewCreature).not.toHaveBeenCalled();
 	});
+
+	test('materialize shows occupied in-range hexes as dashed without making them spawnable', () => {
+		const occupiedHex = makeHex(6, 4);
+		occupiedHex.isWalkable = jest.fn(() => false);
+		(ability.creature.hexagons[0].adjacentHex as ReturnType<typeof jest.fn>).mockReturnValueOnce([
+			spawnHex,
+			occupiedHex,
+		]);
+
+		ability.materialize('A1');
+
+		expect(queryHexes).toHaveBeenCalledTimes(1);
+		const queryArgs = queryHexes.mock.calls[0][0] as {
+			hexes: MockHex[];
+			hexesDashed: MockHex[];
+		};
+
+		expect(queryArgs.hexes).toEqual([spawnHex]);
+		expect(queryArgs.hexesDashed).toEqual([occupiedHex]);
+	});
 });
 
 describe('Godlet Printer activation leading to the dash view', () => {
@@ -279,6 +300,34 @@ describe('Dark Priest Plasma Field reactions', () => {
 });
 
 describe('Dark Priest Disruptor Beam activation', () => {
+	test('require allows 1 plasma against a 1-hex target', () => {
+		const caster = {
+			player: { plasma: 1 },
+			adjacentHexes: jest.fn(() => [{ id: 'h1' }]),
+		};
+		const target = Object.assign(new (Creature as unknown as new () => object)(), { size: 1 });
+		const game = {
+			abilities: {} as Record<number, unknown[]>,
+			msg: { abilities: { noPlasma: 'No plasma' } },
+		};
+		globalThis.G = game as never;
+		loadDarkPriestAbilities(game as never);
+
+		type AbilityHook = (this: unknown, ...args: unknown[]) => unknown;
+		const baseAbility = game.abilities[0][2] as { require: AbilityHook };
+		const ability = {
+			...baseAbility,
+			creature: caster,
+			message: '',
+			_targetTeam: 0,
+			isUpgraded: () => false,
+			testRequirements: () => true,
+			atLeastOneTarget: () => true,
+			getTargets: () => [{ target }],
+		};
+		expect(ability.require.call(ability)).toBe(true);
+	});
+
 	test('defers impact and turn input until the scan is complete', () => {
 		let finishScan: (() => void) | undefined;
 		jest

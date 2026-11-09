@@ -680,7 +680,7 @@ export default (G: Game) => {
 			activate: function (target) {
 				const ability = this;
 				const crea = ability.creature;
-				ability.end();
+				ability.end(false, true);
 				shakeBoard({
 					amplitude: 0.02,
 					durationMs: 200,
@@ -699,15 +699,22 @@ export default (G: Game) => {
 				const trgIsInfront = crea.x < target.x;
 
 				const creaX = target.x + (trgIsInfront ? 0 : crea.size - target.size);
+				const targetX = crea.x + (trgIsInfront ? target.size - crea.size : 0);
+				let completedMoves = 0;
+				const onMoveComplete = () => {
+					// Rebuild highlights only after both footprints and the damage are settled.
+					if (++completedMoves === 2) {
+						G.activeCreature?.queryMove();
+					}
+				};
 				crea.moveTo(G.grid.hexes[target.y][creaX], {
 					ignorePath: true,
 					ignoreMovementPoint: true,
 					callback: function () {
 						crea.updateHex();
-						crea.queryMove();
+						onMoveComplete();
 					},
 				});
-				const targetX = crea.x + (trgIsInfront ? target.size - crea.size : 0);
 				target.moveTo(G.grid.hexes[crea.y][targetX], {
 					ignorePath: true,
 					ignoreMovementPoint: true,
@@ -715,6 +722,7 @@ export default (G: Game) => {
 					callback: function () {
 						target.updateHex();
 						target.takeDamage(damage);
+						onMoveComplete();
 					},
 				});
 			},

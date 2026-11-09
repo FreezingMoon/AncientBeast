@@ -1,9 +1,11 @@
+import { Easing } from '../utility/easing';
 import { Damage } from '../damage';
 import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import Game from '../game';
 import { shakeBoard } from '../game-display/camera';
+import { getFrameSize } from '../game-display/texture';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -158,7 +160,9 @@ export default (G: Game) => {
 			activate: function (path, args) {
 				const ability = this;
 
-				ability.end();
+				// Defer turn handoff until the projectile lands so the damage and
+				// kill-chain are applied before any next decision is evaluated.
+				ability.end(false, true);
 
 				let target = arrayUtils.last(path).creature;
 
@@ -173,6 +177,7 @@ export default (G: Game) => {
 							.map((hex) => hex.creature)
 							.filter((c) => c && c != attackingCreature);
 						if (creatures.length === 0) {
+							G.activeCreature?.queryMove();
 							return;
 						} else {
 							target = creatures[0];
@@ -180,45 +185,120 @@ export default (G: Game) => {
 					}
 				}
 
-				const hexes = G.grid.getHexLine(target.x, target.y, args.direction, target.flipped);
-
-				let damage = new Damage(
-					ability.creature, // Attacker
-					ability.damages, // Damage Type
-					1, // Area
-					[], // Effects
-					G,
+				// Fire the Disturbing Sound missile: a spinning circle with the
+				// musical note layered inside it. Only the circle rotates; the
+				// note keeps its angle but faces the travel direction.
+				//
+				// The missile leaves from the lower (goat) head's mouth. The
+				// mouth sits at this texture pixel when the artwork faces
+				// right; reading it through the live sprite transform (like
+				// Knightmare's tongue anchor) keeps it on the mouth for both
+				// players and both facings instead of a hand-measured offset.
+				const mouthTexX = 285;
+				const mouthTexY = 160;
+				const cardboard = this.creature.creatureSprite.sprite;
+				const cardboardSize = getFrameSize(cardboard);
+				const mouthLocalX =
+					(mouthTexX - cardboard.originX * cardboardSize.width) * cardboard.scaleX;
+				const mouthLocalY =
+					(mouthTexY - cardboard.originY * cardboardSize.height) * cardboard.scaleY;
+				const projectileInstance = G.animations.projectile(
+					// @ts-expect-error `this.creature` exists once this file is extended into `ability.ts`
+					this,
+					target,
+					'Chimera - Disturbing Sound - circle',
+					path,
+					args,
+					cardboard.x + mouthLocalX,
+					cardboard.y + mouthLocalY,
+					true,
 				);
-				let result = target.takeDamage(damage);
+				const tween = projectileInstance[0];
+				const circle = projectileInstance[1];
 
-				let i = 0;
-				while (result.kill) {
-					i++;
-					if (i >= hexes.length) {
-						break;
-					}
-					const hex = hexes[i];
-					if (!hex.creature) {
-						continue;
-					}
-					target = hex.creature;
+				const note = G.gameEngine.add.sprite(
+					circle.x,
+					circle.y,
+					'Chimera - Disturbing Sound - note',
+					undefined,
+					G.grid.creatureGroup,
+				);
+				note.setOrigin(0.5, 0.5);
 
-					// extra sonic damage if upgraded
-					const sonic = ability.damages.sonic + (this.isUpgraded() ? 9 : 0);
-					if (sonic <= 0) {
-						break;
-					}
-					damage = new Damage(
+				// Match the circle's travel rotation so the swirl reads as
+				// clockwise when moving right, like other directional sprites.
+				// Directions 3-5 (DownLeft, Left, UpLeft) travel left, so the
+				// swirl mirrors: one full counter-clockwise turn instead.
+				const travellingLeft = args.direction >= 3;
+				const travelRotation = -Math.PI / 3 + (args.direction * Math.PI) / 3;
+				const spinTurns = travellingLeft ? -Math.PI * 2 : Math.PI * 2;
+				circle.rotation = travelRotation;
+
+				// Face the note along the travel direction without rotating it.
+				if (travellingLeft) {
+					note.setScale(-1, 1);
+				}
+
+				// Spin the circle one full turn over the flight.
+				const spinTween = G.gameEngine
+					.tween(circle)
+					.to({ rotation: travelRotation + spinTurns }, tween.duration, Easing.Linear.None, true);
+
+				// Keep the note glued to the circle's center without rotating.
+				tween.onUpdateCallback(() => {
+					note.x = circle.x;
+					note.y = circle.y;
+				});
+
+				tween.onComplete.add(function () {
+					// @ts-expect-error 'this' refers to the animation object, _not_ the ability
+					this.destroy();
+					spinTween.stop();
+					note.destroy();
+
+					const hexes = G.grid.getHexLine(target.x, target.y, args.direction, target.flipped);
+
+					let damage = new Damage(
 						ability.creature, // Attacker
-						{
-							sonic: sonic,
-						}, // Damage Type
+						ability.damages, // Damage Type
 						1, // Area
 						[], // Effects
 						G,
 					);
-					result = target.takeDamage(damage);
-				}
+					let result = target.takeDamage(damage);
+
+					let i = 0;
+					while (result.kill) {
+						i++;
+						if (i >= hexes.length) {
+							break;
+						}
+						const hex = hexes[i];
+						if (!hex.creature) {
+							continue;
+						}
+						target = hex.creature;
+
+						// extra sonic damage if upgraded
+						const sonic = ability.damages.sonic + (ability.isUpgraded() ? 9 : 0);
+						if (sonic <= 0) {
+							break;
+						}
+						damage = new Damage(
+							ability.creature, // Attacker
+							{
+								sonic: sonic,
+							}, // Damage Type
+							1, // Area
+							[], // Effects
+							G,
+						);
+						result = target.takeDamage(damage);
+					}
+
+					// Deferred end() requires explicit handoff when impact resolves.
+					G.activeCreature?.queryMove();
+				}, circle); // End tween.onComplete
 			},
 		},
 

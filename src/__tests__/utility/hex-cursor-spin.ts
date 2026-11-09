@@ -40,9 +40,12 @@ function createHexStandIn() {
 	const display = createSpriteMock({ key: 'hex' });
 	const overlay = createSpriteMock({ key: 'input' });
 	const addedSprites: ReturnType<typeof createSpriteMock>[] = [];
+	// The mirror needs the above-creatures layer; the stand-in creature is
+	// always undefined, so it stays hidden — only its parent must exist.
 	const grid = {
 		displayHexesGroup: { bringToTop: jest.fn(), sendToBack: jest.fn() },
 		overlayHexesGroup: { bringToTop: jest.fn(), sendToBack: jest.fn() },
+		trapOverGroup: { bringToTop: jest.fn() },
 		selectedHex: undefined as unknown,
 	};
 	// `drawPoint` and `pinTopLeft` are private; they are reached here because
@@ -50,6 +53,7 @@ function createHexStandIn() {
 	const proto = Hex.prototype as unknown as {
 		get drawPoint(): { x: number; y: number };
 		pinTopLeft(sprite: unknown, x: number, y: number): void;
+		syncDashedOverSprite(this: Hex): void;
 	};
 	const readDrawPoint = Object.getOwnPropertyDescriptor(proto, 'drawPoint')?.get;
 	if (!readDrawPoint) {
@@ -89,6 +93,7 @@ function createHexStandIn() {
 		},
 		startSpinning: Hex.prototype.startSpinning,
 		stopSpinning: Hex.prototype.stopSpinning,
+		syncDashedOverSprite: proto.syncDashedOverSprite,
 		pinTopLeft: (sprite: unknown, x: number, y: number) => proto.pinTopLeft.call(hex, sprite, x, y),
 	};
 	const style = (overlayClasses: string) => {
@@ -166,6 +171,21 @@ describe('Hover cursor over occupied overlays', () => {
 		expect(hex.isSpinning).toBe(true);
 		// The area outline itself must not accumulate the cursor's rotation.
 		expect(overlay.angle).toBe(0);
+	});
+
+	test('keeps the glowing player hex under the cursor when hovering a unit', () => {
+		const { hex, style, overlay, grid, addedSprites } = createHexStandIn();
+		grid.selectedHex = hex;
+		overlay.alpha = 0.42;
+
+		style(' active reachable hover player0 h_player0 ');
+
+		expect(overlay.key).toBe('hex_p0');
+		expect(overlay.alpha).toBe(0.42);
+		expect(addedSprites).toHaveLength(1);
+		expect(addedSprites[0].key).toBe('input');
+		expect(addedSprites[0].visible).toBe(true);
+		expect(grid.overlayHexesGroup.bringToTop).toHaveBeenLastCalledWith(addedSprites[0]);
 	});
 
 	test('does not add a cursor over the movement confirmation hexagon', () => {

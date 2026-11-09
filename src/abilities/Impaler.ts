@@ -435,7 +435,8 @@ export default (G: Game) => {
 				// current scale, so the VFX nose tip is always correct even
 				// if the creature was reset by end() or is being spammed via
 				// metapower before the animation flip lands.
-				const facefrom = { x: caster.x, y: caster.y };
+				const centerHex = caster.hexagons[Math.floor(caster.size / 2)] ?? caster.hexagons[0];
+				const facefrom = { x: centerHex.x, y: centerHex.y };
 				const faceto = { x: target.x, y: target.y };
 				if (facefrom.y % 2 === 0 && faceto.y % 2 === 1) {
 					faceto.x += 0.5;

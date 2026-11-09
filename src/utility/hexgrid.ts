@@ -1986,13 +1986,18 @@ export class HexGrid {
 			hex.displayVisualState('shrunken');
 		}
 
-		if (hex.creature instanceof Creature) {
-			return;
-		}
-
+		// A dashed hex is part of the query's own footprint, so it outlives the
+		// hover cursor whether or not a unit stands on it. This has to run
+		// before the creature early-return below: Godlet Printer marks occupied
+		// hexes as dashed, and those are exactly the ones carrying a creature,
+		// so checking afterwards dropped the outline as soon as the cursor left.
 		if (Array.isArray(queryOpt.hexesDashed) && queryOpt.hexesDashed.indexOf(hex) !== -1) {
 			hex.displayVisualState('dashed');
 			hex.grid.displayHexesGroup.bringToTop(hex.display);
+			return;
+		}
+
+		if (hex.creature instanceof Creature) {
 			return;
 		}
 
@@ -2024,12 +2029,18 @@ export class HexGrid {
 			const isActiveHex =
 				activeCreature && hex.creature instanceof Creature && hex.creature.id === activeCreature.id;
 			if (isActiveHex) {
-				// Preserve 'active creature playerN' to keep the glowInterval phase
-				// stable; only strip transient hover/query classes.
-				hex.cleanDisplayVisualState('adj hover dashed shrunken moveRange deadzone hidden');
+				// Preserve the glow phase, but discard colors from the previous occupant.
+				hex.cleanDisplayVisualState(
+					'adj hover dashed shrunken moveRange deadzone hidden player0 player1 player2 player3',
+				);
 				hex.cleanOverlayVisualState(
 					'hover selected reachable weakDmg moveto ownCreatureHexShade h_player0 h_player1 h_player2 h_player3',
 				);
+				const stalePlayerClasses = [0, 1, 2, 3]
+					.filter((team) => team !== activeCreature.team)
+					.map((team) => `player${team}`)
+					.join(' ');
+				hex.cleanOverlayVisualState(stalePlayerClasses);
 			} else if (hex._markedByCrashingGlobe) {
 				// Keep the target art, but remove any stale hover cursor after the
 				// targeting query closes.
@@ -2047,7 +2058,10 @@ export class HexGrid {
 					if (item.creature.id == activeCreature.id) {
 						// Only add if not already present to avoid stacking duplicates
 						// and to avoid resetting overlay.alpha via updateStyle().
-						if (!item.overlayClasses.includes('active')) {
+						if (
+							!item.overlayClasses.includes('active') ||
+							!item.overlayClasses.includes(`player${item.creature.team}`)
+						) {
 							item.overlayVisualState(`active creature player${item.creature.team}`);
 						}
 					}
@@ -2202,6 +2216,9 @@ export class HexGrid {
 	showGrid(val) {
 		// The coordinate view is a debug overlay, not an occlusion cue: units stay
 		// fully opaque so their artwork (not a ghost) sits under the labels.
+		// Only the `showGrid` state is used — never `dashed`: that state means
+		// "targeting outline" and would also trigger the above-creatures
+		// mirror on every occupied hex.
 		this.forEachHex((hex) => {
 			if (hex.creature) {
 				hex.creature.clearXrayImmediately();
@@ -2213,10 +2230,8 @@ export class HexGrid {
 
 			if (val) {
 				hex.displayVisualState('showGrid');
-				hex.displayVisualState('dashed');
 			} else {
 				hex.cleanDisplayVisualState('showGrid');
-				hex.cleanDisplayVisualState('dashed');
 			}
 		});
 	}
