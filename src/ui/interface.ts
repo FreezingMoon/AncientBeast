@@ -3455,7 +3455,6 @@ export class UI {
 		}
 		$j('#card .sideA, #card .sideB').removeClass('flipping flip-reset');
 		this.dashOpenCollectiveBanner.onViewClose();
-		syncFullscreenViewHud();
 
 		game.channels.ui.emit('onCloseDash');
 
@@ -3484,6 +3483,10 @@ export class UI {
 				'linear',
 				() => {
 					this.$dash.removeClass('active');
+					// Re-derive the HUD state only once the dash no longer
+					// counts as open: an earlier sync still sees `.active` and
+					// would leave the HUD stuck dim (issue #2092 follow-up).
+					syncFullscreenViewHud();
 					if (!this.dashopen) {
 						this.$dash.hide();
 					} else if (this.dashFadeToken !== fadeToken) {
@@ -3496,6 +3499,9 @@ export class UI {
 			);
 		} else {
 			this.$dash.removeClass('active');
+			// Sync after `.active` is gone (same reason as the arcade path
+			// above): a sync before this line sees the dash as still open.
+			syncFullscreenViewHud();
 			// Defer pointer-events: none until after the current event cycle (mouseup, contextmenu)
 			// so those events still hit the dash element and are stopped by its handlers,
 			// rather than passing through to the Phaser canvas underneath.

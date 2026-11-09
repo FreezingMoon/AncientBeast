@@ -63,4 +63,19 @@ describe('syncFullscreenViewHud', () => {
 
 		expect(syncFullscreenViewHud()).toBe(false);
 	});
+
+	test('restores the HUD when the dash close removes .active before syncing', () => {
+		// Regression test for the #3240 follow-up: closeDash() used to sync
+		// while #dash still carried .active, so the derived state still saw
+		// the dash as open and the HUD stayed transparent.
+		renderUi('<div id="dash" class="active"></div>');
+		const ui = document.getElementById('ui') as HTMLElement;
+		const dash = document.getElementById('dash') as HTMLElement;
+
+		expect(syncFullscreenViewHud()).toBe(true);
+
+		dash.classList.remove('active');
+		expect(syncFullscreenViewHud()).toBe(false);
+		expect(ui.classList.contains('interface-view-open')).toBe(false);
+	});
 });
