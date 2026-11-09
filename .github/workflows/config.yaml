@@ -15,7 +15,8 @@ jobs:
       uses: oven-sh/setup-bun@v2
       with:
         bun-version: ${{ env.BUN_VERSION }}
-    - name: Install canvas dependencies
+    - &install-canvas-dependencies
+      name: Install canvas dependencies
       run: sudo apt-get update && sudo apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
     - run: bun install --frozen-lockfile
     - name: build
@@ -41,8 +42,7 @@ jobs:
          with:
            bun-version: ${{ env.BUN_VERSION }}
 
-       - name: Install canvas dependencies
-         run: sudo apt-get update && sudo apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
+       - *install-canvas-dependencies
 
        - name: Install dependencies
          run: bun install --frozen-lockfile
