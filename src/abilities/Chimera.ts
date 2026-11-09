@@ -5,6 +5,7 @@ import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import Game from '../game';
 import { shakeBoard } from '../game-display/camera';
+import { getFrameSize } from '../game-display/texture';
 
 /** Creates the abilities
  * @param {Object} G the game object
@@ -185,8 +186,22 @@ export default (G: Game) => {
 				}
 
 				// Fire the Disturbing Sound missile: a spinning circle with the
-				// musical note layered inside it. Only the circle rotates
-				// (clockwise when travelling right); the note keeps its angle.
+				// musical note layered inside it. Only the circle rotates; the
+				// note keeps its angle but faces the travel direction.
+				//
+				// The missile leaves from the lower (goat) head's mouth. The
+				// mouth sits at this texture pixel when the artwork faces
+				// right; reading it through the live sprite transform (like
+				// Knightmare's tongue anchor) keeps it on the mouth for both
+				// players and both facings instead of a hand-measured offset.
+				const mouthTexX = 285;
+				const mouthTexY = 160;
+				const cardboard = this.creature.creatureSprite.sprite;
+				const cardboardSize = getFrameSize(cardboard);
+				const mouthLocalX =
+					(mouthTexX - cardboard.originX * cardboardSize.width) * cardboard.scaleX;
+				const mouthLocalY =
+					(mouthTexY - cardboard.originY * cardboardSize.height) * cardboard.scaleY;
 				const projectileInstance = G.animations.projectile(
 					// @ts-expect-error `this.creature` exists once this file is extended into `ability.ts`
 					this,
@@ -194,8 +209,8 @@ export default (G: Game) => {
 					'Chimera - Disturbing Sound - circle',
 					path,
 					args,
-					52,
-					-20,
+					cardboard.x + mouthLocalX,
+					cardboard.y + mouthLocalY,
 					true,
 				);
 				const tween = projectileInstance[0];
@@ -212,13 +227,22 @@ export default (G: Game) => {
 
 				// Match the circle's travel rotation so the swirl reads as
 				// clockwise when moving right, like other directional sprites.
+				// Directions 3-5 (DownLeft, Left, UpLeft) travel left, so the
+				// swirl mirrors: one full counter-clockwise turn instead.
+				const travellingLeft = args.direction >= 3;
 				const travelRotation = -Math.PI / 3 + (args.direction * Math.PI) / 3;
+				const spinTurns = travellingLeft ? -Math.PI * 2 : Math.PI * 2;
 				circle.rotation = travelRotation;
 
-				// Spin the circle one full clockwise turn over the flight.
+				// Face the note along the travel direction without rotating it.
+				if (travellingLeft) {
+					note.setScale(-1, 1);
+				}
+
+				// Spin the circle one full turn over the flight.
 				const spinTween = G.gameEngine
 					.tween(circle)
-					.to({ rotation: travelRotation + Math.PI * 2 }, tween.duration, Easing.Linear.None, true);
+					.to({ rotation: travelRotation + spinTurns }, tween.duration, Easing.Linear.None, true);
 
 				// Keep the note glued to the circle's center without rotating.
 				tween.onUpdateCallback(() => {

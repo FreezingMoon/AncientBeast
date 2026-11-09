@@ -57,20 +57,31 @@ function makeProjectileHarness() {
 		y: 0,
 		destroy: jest.fn(),
 		setOrigin: jest.fn(),
+		setScale: jest.fn(),
 	};
 
 	const projectile = jest.fn(
-		(_start: unknown, _end: unknown, _key: unknown) => [tween, circle] as const,
+		(
+			_start: unknown,
+			_end: unknown,
+			_key: unknown,
+			_path: unknown,
+			_args: unknown,
+			_offsetX: number,
+			_offsetY: number,
+		) => [tween, circle] as const,
 	);
 	const addSprite = jest.fn((_x: unknown, _y: unknown, _key: unknown) => note);
+	const spinTo = jest.fn(() => spinTween);
 	const makeTween = jest.fn(() => ({
-		to: jest.fn(() => spinTween),
+		to: spinTo,
 	}));
 
 	return {
 		projectile,
 		addSprite,
 		makeTween,
+		spinTo,
 		tween,
 		circle,
 		note,
@@ -92,6 +103,21 @@ function makeProjectileHarness() {
 function makeAbilityGame(projectileHarness: ReturnType<typeof makeProjectileHarness>) {
 	const queryMove = jest.fn();
 	const getHexLine = jest.fn(() => [] as any[]);
+
+	// The cardboard is what the ability reads its mouth anchor from: a
+	// bottom-centre origin sprite, 300x220 artwork, facing right.
+	const cardboard = {
+		x: 0,
+		y: 0,
+		originX: 0.5,
+		originY: 1,
+		scaleX: 1,
+		scaleY: 1,
+		width: 300,
+		height: 220,
+		texture: { width: 300, height: 220 },
+	};
+	const creatureSprite = { sprite: cardboard };
 
 	const game = {
 		abilities: [] as unknown[],
@@ -120,6 +146,8 @@ function makeAbilityGame(projectileHarness: ReturnType<typeof makeProjectileHarn
 		game,
 		queryMove,
 		getHexLine,
+		cardboard,
+		creatureSprite,
 	};
 }
 
@@ -139,7 +167,7 @@ beforeEach(() => {
 describe('Chimera Disturbing Sound', () => {
 	test('fires circle + note missile and defers damage until impact', () => {
 		const projectileHarness = makeProjectileHarness();
-		const { game, queryMove } = makeAbilityGame(projectileHarness);
+		const { game, queryMove, creatureSprite } = makeAbilityGame(projectileHarness);
 		(globalThis as any).G = game as any;
 		createChimeraAbilities(game as any);
 
@@ -153,7 +181,7 @@ describe('Chimera Disturbing Sound', () => {
 		const path = [{ x: 8, y: 3, creature: target }];
 
 		const context = {
-			creature: { id: 45 },
+			creature: { id: 45, creatureSprite },
 			damages: { sonic: 21 },
 			isUpgraded: () => false,
 			end: jest.fn(),
@@ -186,9 +214,60 @@ describe('Chimera Disturbing Sound', () => {
 		expect(queryMove).toHaveBeenCalledTimes(1);
 	});
 
+	test('launches from the lower head mouth instead of the group centre', () => {
+		const projectileHarness = makeProjectileHarness();
+		const { game, cardboard, creatureSprite } = makeAbilityGame(projectileHarness);
+		(globalThis as any).G = game as any;
+		createChimeraAbilities(game as any);
+
+		const ability = (game.abilities as any[])[45][2];
+		const target = { x: 8, y: 3, flipped: false, takeDamage: jest.fn(() => ({ kill: false })) };
+		const context = {
+			creature: { id: 45, creatureSprite },
+			damages: { sonic: 21 },
+			isUpgraded: () => false,
+			end: jest.fn(),
+		};
+
+		cardboard.x = 138; // _place() for a size-3 unit facing right
+		cardboard.y = 37;
+		ability.activate.call(context, [{ x: 8, y: 3, creature: target }], { direction: 1 });
+
+		// Mouth at texture (285, 160) on bottom-centre-origin 300x220 artwork.
+		const call = projectileHarness.projectile.mock.calls[0];
+		expect(call[5]).toBeCloseTo(138 + (285 - 150), 5);
+		expect(call[6]).toBeCloseTo(37 + (160 - 220), 5);
+	});
+
+	test('faces the note and reverses the spin when firing left', () => {
+		const projectileHarness = makeProjectileHarness();
+		const { game, creatureSprite } = makeAbilityGame(projectileHarness);
+		(globalThis as any).G = game as any;
+		createChimeraAbilities(game as any);
+
+		const ability = (game.abilities as any[])[45][2];
+		const target = { x: 2, y: 3, flipped: false, takeDamage: jest.fn(() => ({ kill: false })) };
+		const context = {
+			creature: { id: 45, creatureSprite },
+			damages: { sonic: 21 },
+			isUpgraded: () => false,
+			end: jest.fn(),
+		};
+
+		ability.activate.call(context, [{ x: 2, y: 3, creature: target }], { direction: 4 });
+
+		// Direction.Left: the note is mirrored to face left...
+		expect(projectileHarness.note.setScale).toHaveBeenCalledWith(-1, 1);
+		// ...and the circle swirls counter-clockwise instead of clockwise.
+		const spinToCalls = projectileHarness.spinTo.mock.calls as unknown as [{ rotation: number }];
+		const endRotation = spinToCalls[0][0].rotation;
+		const startRotation = -Math.PI / 3 + (4 * Math.PI) / 3;
+		expect(endRotation).toBeCloseTo(startRotation - Math.PI * 2, 5);
+	});
+
 	test('continues the kill-chain to the next creature in line', () => {
 		const projectileHarness = makeProjectileHarness();
-		const { game, queryMove } = makeAbilityGame(projectileHarness);
+		const { game, queryMove, creatureSprite } = makeAbilityGame(projectileHarness);
 		(globalThis as any).G = game as any;
 		createChimeraAbilities(game as any);
 
@@ -211,7 +290,7 @@ describe('Chimera Disturbing Sound', () => {
 		const path = [{ x: 8, y: 3, creature: first }];
 
 		const context = {
-			creature: { id: 45 },
+			creature: { id: 45, creatureSprite },
 			damages: { sonic: 21 },
 			isUpgraded: () => false,
 			end: jest.fn(),
