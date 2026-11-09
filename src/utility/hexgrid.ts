@@ -1986,13 +1986,18 @@ export class HexGrid {
 			hex.displayVisualState('shrunken');
 		}
 
-		if (hex.creature instanceof Creature) {
-			return;
-		}
-
+		// A dashed hex is part of the query's own footprint, so it outlives the
+		// hover cursor whether or not a unit stands on it. This has to run
+		// before the creature early-return below: Godlet Printer marks occupied
+		// hexes as dashed, and those are exactly the ones carrying a creature,
+		// so checking afterwards dropped the outline as soon as the cursor left.
 		if (Array.isArray(queryOpt.hexesDashed) && queryOpt.hexesDashed.indexOf(hex) !== -1) {
 			hex.displayVisualState('dashed');
 			hex.grid.displayHexesGroup.bringToTop(hex.display);
+			return;
+		}
+
+		if (hex.creature instanceof Creature) {
 			return;
 		}
 

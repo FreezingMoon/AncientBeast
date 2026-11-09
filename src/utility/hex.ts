@@ -276,6 +276,17 @@ export class Hex {
 	display: SpriteHandle;
 	overlay: SpriteHandle;
 	homeSprite: SpriteHandle | undefined;
+	/**
+	 * Dashed targeting outline for creature-occupied hexes, drawn above units.
+	 *
+	 * Containers render children in list order, and `displayHexesGroup` sits
+	 * below `creatureGroup`, so no reordering inside the hex layers can lift a
+	 * dashed outline over the creature standing on it. This sprite lives in
+	 * `trapOverGroup` instead — a sibling after the creatures with the same
+	 * board-space squash — and only ever shows the transparent dashed outline
+	 * art, never a solid tile, so the unit stays fully visible beneath it.
+	 */
+	dashedOverSprite: SpriteHandle | undefined;
 	/** Debug-only coordinate label, created on demand and destroyed when the grid overlay is hidden. */
 	coordText: SpriteHandle | undefined;
 
@@ -947,6 +958,14 @@ export class Hex {
 		targetAlpha = Boolean(this.displayClasses.match(/deadzone/g)) || targetAlpha;
 		targetAlpha = Boolean(this.displayClasses.match(/\babilityRange\b/g)) || targetAlpha;
 
+		// A dashed outline marks targeting range; it must beat the player tint on
+		// occupied targets. The hover fill adds `creature playerN` on top of the
+		// query's `dashed playerN`, and checking the tint first would paint a
+		// solid tile exactly where the outline should be. The deadzone and
+		// moveRange checks stay first: deadzone is terrain, not targeting, so it
+		// keeps its own art even when dashed, and the queue-avatar hover range
+		// needs its bright outline while that hover is active.
+		const hasDashedOutline = Boolean(this.displayClasses.match(/dashed/));
 		if (hasSwamplerHome) {
 			updateHomeSprite();
 		}
@@ -959,6 +978,21 @@ export class Hex {
 		} else if (isDeadzone) {
 			loadTextureIfChanged(this.display, 'hex_deadzone');
 			this.pinTopLeft(this.display, this.drawPoint.x, this.drawPoint.y);
+		} else if (this.displayClasses.match(/\bmoveRange\b/)) {
+			// Queue-avatar hover movement range: bright hex outline for contrast.
+			loadTextureIfChanged(this.display, 'hex');
+			this.display.alpha = 1;
+			this.display.setTint?.(0xffffff);
+			if (typeof (this.display as any).setTintMode === 'function') {
+				(this.display as any).setTintMode(1); // FILL
+			}
+			this.grid.displayHexesGroup.bringToTop(this.display);
+		} else if (hasDashedOutline && this.creature instanceof Creature) {
+			loadTextureIfChanged(this.display, `hex_dashed_p${this.creature.team}`);
+			// Ensure dashed hexagons are visible
+			this.display.alpha = 1;
+			// Bring dashed hexes with creatures to the top of the display group for better visibility
+			this.grid.displayHexesGroup.bringToTop(this.display);
 		} else if (this.displayClasses.match(/0|1|2|3/)) {
 			const player = this.displayClasses.match(/0|1|2|3/);
 			loadTextureIfChanged(this.display, `hex_p${player}`);
@@ -970,23 +1004,8 @@ export class Hex {
 		} else if (this.displayClasses.match(/\badj\b/)) {
 			loadTextureIfChanged(this.display, 'hex_path');
 			this.pinTopLeft(this.display, this.drawPoint.x, this.drawPoint.y);
-		} else if (this.displayClasses.match(/\bmoveRange\b/)) {
-			// Queue-avatar hover movement range: bright hex outline for contrast.
-			loadTextureIfChanged(this.display, 'hex');
-			this.display.alpha = 1;
-			this.display.setTint?.(0xffffff);
-			if (typeof (this.display as any).setTintMode === 'function') {
-				(this.display as any).setTintMode(1); // FILL
-			}
-			this.grid.displayHexesGroup.bringToTop(this.display);
-		} else if (this.displayClasses.match(/dashed/)) {
-			if (this.creature instanceof Creature) {
-				loadTextureIfChanged(this.display, `hex_dashed_p${this.creature.team}`);
-				this.display.alpha = 1;
-				this.grid.displayHexesGroup.bringToTop(this.display);
-			} else {
-				loadTextureIfChanged(this.display, 'hex_dashed');
-			}
+		} else if (hasDashedOutline) {
+			loadTextureIfChanged(this.display, 'hex_dashed');
 		} else {
 			loadTextureIfChanged(this.display, 'hex');
 			this.pinTopLeft(this.display, this.drawPoint.x, this.drawPoint.y);
@@ -1035,6 +1054,11 @@ export class Hex {
 			this.pinTopLeft(this.display, this.drawPoint.x, this.drawPoint.y);
 			alignIn(this.overlay, this.hitBox, ALIGN_CENTER);
 		}
+		// Mirror an occupied dashed tile above the creatures. Containers render
+		// children in list order, so the tile itself — a child of a group below
+		// `creatureGroup` — stays behind any unit standing on it; this keeps the
+		// outline readable on top without touching the unit art below.
+		this.syncDashedOverSprite();
 
 		// Display Coord
 		if (this.displayClasses.match(/showGrid/g)) {
@@ -1188,6 +1212,74 @@ export class Hex {
 				this.display.angle = 0;
 			}
 		}
+	}
+
+	/**
+	 * Keep a copy of an occupied hex's dashed outline rendered above the units.
+	 *
+	 * A dashed outline is drawn by the hex's own `display` sprite, which lives in
+	 * `displayHexesGroup`. That group is a child of `gridGroup`, and `gridGroup`
+	 * is added to `display` before `creatureGroup`; Phaser renders container
+	 * children in list order, so `bringToTop` inside the hex groups can never put
+	 * the outline in front of a creature — it only reorders the hex against the
+	 * other hexes. The outline on a hex that a unit occupies therefore rendered
+	 * behind that unit, leaving the dashes cut off.
+	 *
+	 * `trapOverGroup` is a sibling added after the creatures and carries the same
+	 * board-space squash as `gridGroup`, so a sprite placed there lands on the
+	 * same screen position but draws above every unit. It shows the transparent
+	 * dashed texture only, never a solid tile, so the creature stays visible
+	 * through it. The sprite follows the display's final transform, and is hidden
+	 * whenever the outline does not apply, so it costs nothing while unused.
+	 */
+	private syncDashedOverSprite() {
+		const show =
+			Boolean(this.displayClasses.match(/dashed/)) &&
+			this.creature instanceof Creature &&
+			!this.forcedHidden &&
+			!Boolean(this.displayClasses.match(/\bdeadzone\b/)) &&
+			!this._markedByCrashingGlobe;
+
+		if (!show) {
+			if (this.dashedOverSprite && this.dashedOverSprite.visible) {
+				this.dashedOverSprite.visible = false;
+			}
+			return;
+		}
+
+		const overGroup = this.grid.trapOverGroup;
+		if (!overGroup) {
+			return;
+		}
+
+		const texture = `hex_dashed_p${this.creature.team}`;
+		if (!this.dashedOverSprite || this.dashedOverSprite.active === false) {
+			this.dashedOverSprite = this.game.gameEngine.add.sprite(
+				this.display.x,
+				this.display.y,
+				texture,
+				undefined,
+				overGroup,
+			);
+		}
+		if (this.dashedOverSprite.key !== texture) {
+			this.dashedOverSprite.setTexture(texture);
+		}
+		// Copy the display's resolved placement rather than recomputing it: the
+		// display may be pinned top-left or centred-on-origin for shrunken and
+		// globe-target tiles, and the mirror has to match either.
+		this.dashedOverSprite.setOrigin(this.display.originX ?? 0, this.display.originY ?? 0);
+		this.dashedOverSprite.setScale(this.display.scaleX ?? 1, this.display.scaleY ?? 1);
+		this.dashedOverSprite.x = this.display.x;
+		this.dashedOverSprite.y = this.display.y;
+		this.dashedOverSprite.alpha = this.display.alpha;
+		this.dashedOverSprite.visible = this.display.visible !== false;
+		// `orderCreatureZ()` re-sorts this layer by depth; without a band depth
+		// the mirror would default to 0 and sink behind every trap drawn over
+		// the units. It shares the volumetric band and is topped last, so it
+		// stays in front of same-row over-creature art.
+		this.dashedOverSprite.setDepth(this.grid.getDepthAtBand(this.y, 'TRAP_VOLUMETRIC'));
+		overGroup.bringToTop(this.dashedOverSprite);
 	}
 
 	/**
