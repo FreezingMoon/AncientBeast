@@ -73,13 +73,11 @@ export function areTurnActionButtonsDisabled(game: Game): boolean {
 }
 
 /**
- * Cost line for one ability slot on the summon card (issue #1996).
+ * Cost line for one ability slot on the summon card.
  *
- * Units in progress (e.g. Kraken) ship `ability_info` entries without a
- * `costs` object at all, and entries that do have one may omit `energy`
- * (e.g. `{ plasma: 1, special: ... }`). The card used to read
- * `costs.energy` straight off the entry, so browsing those units threw or
- * printed "undefined energy pts". Anything without a numeric energy cost —
+ * Some entries ship without a `costs` object, or with costs that carry no
+ * numeric energy value. Reading `costs.energy` straight off those entries
+ * used to throw or print "undefined energy pts", so anything without one —
  * including slot 0, the move action — reads as the passive line instead.
  */
 export function getAbilityCostLine(
@@ -91,6 +89,18 @@ export function getAbilityCostLine(
 		return ' - costs ' + energy + ' energy pts.';
 	}
 	return ' - this ability is passive.';
+}
+
+export function renderAbilityCostLine(
+	$ability: JQuery,
+	abilityInfo: { costs?: { energy?: number } } | undefined,
+	slotKey: string | number,
+): void {
+	$ability
+		.children('.wrapper')
+		.children('.info')
+		.children('#cost')
+		.text(getAbilityCostLine(abilityInfo, slotKey));
 }
 
 type ConfirmUnloadState = {
@@ -2292,11 +2302,7 @@ export class UI {
 						.children('#upgrade')
 						.text('Upgrade: ' + stats.ability_info[key].upgrade);
 
-					$ability
-						.children('.wrapper')
-						.children('.info')
-						.children('#cost')
-						.text(getAbilityCostLine(stats.ability_info[key], key));
+					renderAbilityCostLine($ability, stats.ability_info[key], key);
 				});
 
 				const summonedOrDead = game.players[player].creatures.some(
@@ -2480,11 +2486,7 @@ export class UI {
 						$ability.children('.wrapper').children('.info').children('#upgrade').text(' ');
 					}
 
-					$ability
-						.children('.wrapper')
-						.children('.info')
-						.children('#cost')
-						.text(getAbilityCostLine(stats.ability_info[key], key));
+					renderAbilityCostLine($ability, stats.ability_info[key], key);
 				});
 
 				// Materialize button

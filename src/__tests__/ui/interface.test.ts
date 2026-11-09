@@ -36,7 +36,7 @@ describe('turn action button availability', () => {
 	});
 });
 
-describe('ability card cost line (#1996)', () => {
+describe('ability card cost line', () => {
 	test('shows the energy cost for a normal ability', () => {
 		expect(getAbilityCostLine({ costs: { energy: 15 } }, 1)).toBe(' - costs 15 energy pts.');
 	});
@@ -50,15 +50,11 @@ describe('ability card cost line (#1996)', () => {
 		expect(getAbilityCostLine({ costs: { energy: 15 } }, '0')).toBe(' - this ability is passive.');
 	});
 
-	test('Kraken-style entries without costs fall back to passive', () => {
-		// Kraken's High Voltage ships no `costs` object at all.
-		expect(getAbilityCostLine({ title: 'High Voltage' } as never, 1)).toBe(
-			' - this ability is passive.',
-		);
+	test('entries without costs fall back to passive', () => {
+		expect(getAbilityCostLine({ title: 'Zap' } as never, 1)).toBe(' - this ability is passive.');
 	});
 
-	test('plasma-only costs fall back to passive instead of printing undefined', () => {
-		// Dark Priest's Plasma Field pays plasma, not energy.
+	test('non-energy costs fall back to passive instead of printing undefined', () => {
 		expect(getAbilityCostLine({ costs: { plasma: 1 } } as never, 1)).toBe(
 			' - this ability is passive.',
 		);
