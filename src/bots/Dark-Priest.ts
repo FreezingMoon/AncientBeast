@@ -280,6 +280,22 @@ const DarkPriestStrategy: UnitBotStrategy = {
 			score += (6 - openCount) * 30;
 		}
 
+		// Don't stand in front of an allied Knightmare's line of fire: its Icicle
+		// Spear would pass through the priest first, getting blocked by Plasma
+		// Field and costing 1 plasma. Penalise hexes on the same axis that sit
+		// closer to the enemy than an allied Knightmare.
+		const flipped = activeCreature.player.flipped;
+		controller.game.creatures.forEach((ally) => {
+			if (!ally || ally.dead || ally.temp || ally === activeCreature) return;
+			if (!isTeam(activeCreature, ally, Team.Ally)) return;
+			if (ally.type !== 'S4') return; // Knightmare
+			if (!isOnSameAxis(hex.x, hex.y, ally.x, ally.y)) return;
+			const towardEnemy = flipped ? hex.x < ally.x : hex.x > ally.x;
+			if (towardEnemy) {
+				score -= 250;
+			}
+		});
+
 		// Alignment bonus: reward positions that let Disruptor Beam (range 2) or
 		// upgraded Electro Shocker (range 4) hit enemies along their travel axes.
 		const aggression = controller.getAggressionFactor(activeCreature);

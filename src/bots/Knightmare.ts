@@ -2,7 +2,7 @@ import type BotController from '../bot';
 import type { UnitBotStrategy } from '../bot';
 import { unitStrategies } from '../bot';
 import { Creature } from '../creature';
-import { Hex } from '../utility/hex';
+import { Direction, Hex } from '../utility/hex';
 import { Team, isTeam } from '../utility/team';
 
 // Axis-alignment helper (straight row or hex-grid diagonal) — same axes used by Icicle Spear
@@ -132,6 +132,96 @@ function scoreIcicleSpear(hex: Hex, activeCreature: Creature, controller: BotCon
 
 	if (target.delayed) {
 		score += 140;
+	}
+
+	// --- Path evaluation ---
+	// Icicle Spear travels in a straight line, damaging each creature it passes
+	// until it hits a shielded allied Dark Priest (blocks entirely, -1 plasma)
+	// or an unshielded ally (friendly fire). Enemies before a blocker still take
+	// damage, so a shot through a line of enemies ending at an allied priest can
+	// be worth it.
+	const grid = controller.game.grid;
+	const flipped = activeCreature.player.flipped;
+	const sourceX = flipped ? activeCreature.x - activeCreature.size + 1 : activeCreature.x;
+	const sourceY = activeCreature.y;
+
+	type BlockerType = 'none' | 'shieldedAlly' | 'unshieldedAlly';
+	let blockerType: BlockerType = 'none';
+	let blockerIndex = -1; // index along the line where the blocker sits
+	let enemiesBeforeBlocker = 0;
+	let targetReached = true;
+
+	for (let dir = 0; dir < 6; dir++) {
+		// Replicate the fx adjustment from getIcicleDirectionalOptions so the
+		// line matches the one the ability actually fires along.
+		let fx = 0;
+		if ((!flipped && dir > Direction.DownRight) || (flipped && dir < Direction.DownLeft)) {
+			fx = -1 * (activeCreature.size - 1);
+		}
+		const line = grid.getHexLine(sourceX + fx, sourceY, dir, flipped);
+		const targetIndex = line.findIndex((h) => h.pos.x === target.x && h.pos.y === target.y);
+		if (targetIndex < 0) continue;
+
+		for (let i = 0; i < targetIndex; i++) {
+			const blocker = line[i].creature;
+			if (!(blocker instanceof Creature) || blocker.id === activeCreature.id) continue;
+
+			if (isTeam(activeCreature, blocker, Team.Enemy)) {
+				enemiesBeforeBlocker++;
+				continue;
+			}
+
+			// Ally in the path
+			if (blocker.isDarkPriest() && blocker.hasCreaturePlayerGotPlasma()) {
+				blockerType = 'shieldedAlly';
+			} else {
+				blockerType = 'unshieldedAlly';
+			}
+			blockerIndex = i;
+			break;
+		}
+
+		if (blockerIndex >= 0 && blockerIndex < targetIndex) {
+			targetReached = false;
+		}
+		break;
+	}
+
+	if (blockerType === 'shieldedAlly') {
+		// Shot is blocked by a shielded allied Dark Priest: -1 plasma cost.
+		// Enemies before the priest still take damage, which offsets the cost.
+		const plasmaCostPenalty = 200;
+		const enemyHitBonus = enemiesBeforeBlocker * 250;
+		score += enemyHitBonus - plasmaCostPenalty;
+
+		// If nothing is hit before the blocker, the shot is a pure waste.
+		if (enemiesBeforeBlocker === 0) {
+			score -= 300;
+		}
+
+		// Target is behind the blocker — it won't be hit, so strip the target's
+		// kill/death-blow scoring from the base value.
+		if (!targetReached) {
+			score -= 660 - target.health + target.size * 16;
+			if (target.health <= ICICLE_SPEAR_ESTIMATED_DAMAGE) {
+				score -= 900;
+			}
+			if (target.delayed) {
+				score -= 140;
+			}
+		}
+	} else if (blockerType === 'unshieldedAlly') {
+		// Friendly fire: an unshielded ally takes damage and blocks the shot.
+		score -= 500;
+		if (!targetReached) {
+			score -= 660 - target.health + target.size * 16;
+			if (target.health <= ICICLE_SPEAR_ESTIMATED_DAMAGE) {
+				score -= 900;
+			}
+			if (target.delayed) {
+				score -= 140;
+			}
+		}
 	}
 
 	const targetStrategy = unitStrategies[target.type as string];
