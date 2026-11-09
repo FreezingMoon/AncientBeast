@@ -23,12 +23,15 @@ import { getDevvitAppVersion, getGameVersion } from './utility/clientVersion';
 import { prefetchPhaser } from './phaser/runtime';
 import type { ReplayMode } from './utility/gamelog';
 import { GameSnapshotSerializer } from './engine/GameSnapshot';
+import { funjeInit } from '../platforms/funje/funje';
 
 if (DEBUG && 'serviceWorker' in navigator) {
 	navigator.serviceWorker
 		.getRegistrations()
 		.then((registrations) => registrations.forEach((registration) => registration.unregister()));
 }
+
+void funjeInit();
 
 // Load the stylesheet
 import './style/main.less';
@@ -791,6 +794,16 @@ $j(() => {
 		e.preventDefault();
 		startGame();
 		// NOTE: Prevent submission
+		return false;
+	});
+	$j('#startButton').on('click', (event) => {
+		event.preventDefault();
+		startGame();
+		return false;
+	});
+	$j('#start').on('click', (event) => {
+		event.preventDefault();
+		startGame();
 		return false;
 	});
 

@@ -550,7 +550,9 @@ export class UI {
 	btnAudio: Button;
 	btnSkipTurn: Button;
 	dashopen: boolean;
-	animationUpgradeTimeOutID: ReturnType<typeof setTimeout>;
+	animationUpgradeTimeOutID: ReturnType<typeof setTimeout> | null;
+	/** All pending timeouts of the ability-upgrade icon animation. */
+	upgradeAnimationTimeouts: ReturnType<typeof setTimeout>[];
 	queryUnit: string;
 	btnDelay: Button;
 	btnFlee?: Button;
@@ -614,6 +616,8 @@ export class UI {
 		this.$hotkeys = $j('#hotkeys');
 		this.scoreboardConfirmAction = null;
 		this.scoreboardConfirmTimer = null;
+		this.animationUpgradeTimeOutID = null;
+		this.upgradeAnimationTimeouts = [];
 		// The logo is revealed while holding Ctrl; keep it horizontally centered
 		// on the viewport instead of hardcoding an off-center x.
 		this.brandlogo = game.gameEngine.add.image(this.getBrandLogoCenterX(), 200, 'AncientBeastLogo');
@@ -765,8 +769,10 @@ export class UI {
 							action: 'skip',
 						});
 
-						// Prevents upgrade animation from carrying on into opponent's turn and disabling their button
-						clearTimeout(this.animationUpgradeTimeOutID);
+						// Cancel a still-running upgrade animation so its deferred
+						// class removals never land mid-transition on the next
+						// creature's buttons (which would snap their icons in/out).
+						this.cancelUpgradeAnimation();
 
 						game.skipTurn();
 						this.lastViewedCreature = '';
@@ -817,6 +823,9 @@ export class UI {
 						game.gamelog.add({
 							action: 'delay',
 						});
+						// Same mid-animation turn change as skipping: cancel the
+						// deferred tweaks so the next unit's icons keep animating.
+						this.cancelUpgradeAnimation();
 						game.delayCreature();
 					}
 				},
@@ -1185,6 +1194,7 @@ export class UI {
 		// Rebuild the scoreboard table when the viewport flips between phone
 		// landscape and desktop so the transposed layout follows the screen.
 		const rebuildScoreboardOnResize = () => {
+			this.queue.resize();
 			if (this.$scoreboard.hasClass('hide')) {
 				return;
 			}
@@ -1852,6 +1862,26 @@ export class UI {
 	}
 
 	/**
+	 * Cancel a still-running ability-upgrade icon animation.
+	 *
+	 * The 300ms (sound), 1200ms (icon swap) and 1500ms (transition end) timeouts
+	 * all fire deferred DOM tweaks; if the turn changes mid-animation (skip or
+	 * delay), letting them land on the next creature's buttons snaps its icons
+	 * in and out instead of transitioning smoothly (#2016). Cancelling clears all
+	 * of them and strips the half-applied classes so the next turn starts clean.
+	 */
+	cancelUpgradeAnimation() {
+		for (const timeoutId of this.upgradeAnimationTimeouts) {
+			clearTimeout(timeoutId);
+		}
+		this.upgradeAnimationTimeouts = [];
+		this.animationUpgradeTimeOutID = null;
+		for (const btn of this.abilitiesButtons) {
+			btn?.$button?.removeClass('upgradeTransition upgradeIcon');
+		}
+	}
+
+	/**
 	 * Briefly show what an ability costs when its hotkey is pressed while the
 	 * creature cannot afford it.
 	 *
@@ -2214,7 +2244,7 @@ export class UI {
 
 				const isBrowsing = !this.selectedCreatureObj;
 
-				$j.each(stats.stats, (key, value) => {
+				$j.each(stats.vitals, (key, value) => {
 					const $stat = $j('#card .sideB .' + key + ' .value');
 
 					if (this.selectedCreatureObj) {
@@ -2237,6 +2267,17 @@ export class UI {
 						} else {
 							$stat.text(this.selectedCreatureObj.stats[key]);
 						}
+					} else {
+						$stat.text(value);
+					}
+
+					applyBuffDebuffStyle($stat, this.selectedCreatureObj, key, value, isBrowsing);
+				});
+				$j.each(stats.masteries, (key, value) => {
+					const $stat = $j('#card .sideB .' + key + ' .value');
+
+					if (this.selectedCreatureObj) {
+						$stat.text(this.selectedCreatureObj.stats[key]);
 					} else {
 						$stat.text(value);
 					}
@@ -2431,7 +2472,12 @@ export class UI {
 				addCardCharacterInfo();
 
 				// Card B
-				$j.each(stats.stats, (key, value) => {
+				$j.each(stats.vitals, (key, value) => {
+					const $stat = $j('#card .sideB .' + key + ' .value');
+					$stat.removeClass('buff debuff');
+					$stat.text(value);
+				});
+				$j.each(stats.masteries, (key, value) => {
 					const $stat = $j('#card .sideB .' + key + ' .value');
 					$stat.removeClass('buff debuff');
 					$stat.text(value);
@@ -2773,7 +2819,7 @@ export class UI {
 		// Landscape phone: reshape the table so stats become columns with
 		// emoji-only headers (text as tooltips) and players become rows.
 		const isLandscapePhone = window.matchMedia(
-			'(orientation: landscape) and (max-height: 479px)',
+			'(orientation: landscape) and (max-height: 540px)',
 		).matches;
 		this.$scoreboard.toggleClass('scoreboard-landscape-phone', isLandscapePhone);
 
@@ -3007,6 +3053,15 @@ export class UI {
 				title: 'Total',
 			},
 		];
+
+		// When there is no time pool (infinite time), the time bonus is always
+		// zero, so drop that row/column from the table to avoid visual bloat.
+		if (!hasFiniteTimePool) {
+			tableMeta.splice(
+				tableMeta.findIndex((row) => row.cls === 'timebonus'),
+				1,
+			);
+		}
 
 		// Desktop vertical table: clear any leftover rows from a previous
 		// landscape layout before rebuilding, so both modes can't coexist
@@ -3265,7 +3320,7 @@ export class UI {
 		// alone would not distinguish the two layouts; the transposed phone
 		// layout uses `<tr class="player_row_N">` rows instead.
 		const isLandscapePhone = window.matchMedia(
-			'(orientation: landscape) and (max-height: 479px)',
+			'(orientation: landscape) and (max-height: 540px)',
 		).matches;
 		const hasPlayerRows = $table.children('tr[class^="player_row_"]').length > 0;
 		const needsRebuild = isLandscapePhone ? !hasPlayerRows : hasPlayerRows;
@@ -3293,12 +3348,13 @@ export class UI {
 			'annihilation',
 			'deny',
 			'pickupDrop',
-			'timebonus',
 			'creaturebonus',
 			'immortal',
 			'upgrade',
 			'total',
-		];
+		].filter((row) => row !== 'timebonus' || hasFiniteTimePool) as Array<
+			keyof ReturnType<(typeof game.players)[number]['getScore']>
+		>;
 
 		for (let i = 0; i < game.gameMode; i++) {
 			if (game.timePool > 0) {
@@ -3866,6 +3922,11 @@ export class UI {
 
 			// A cost flash from the outgoing turn must not survive the swap.
 			this.clearAbilityCostFlash();
+			// The outgoing creature may have crossed an upgrade threshold on its
+			// last action; if its turn already gave way (skip/delay, bot, remote
+			// update), the animation's deferred class tweaks would otherwise land
+			// on this panel mid-transition and snap the icons (#2016).
+			this.cancelUpgradeAnimation();
 			this.energyBar.setSize(creature.oldEnergy / creature.stats.energy);
 			this.healthBar.setSize(creature.oldHealth / creature.stats.health);
 
@@ -4014,14 +4075,18 @@ export class UI {
 				btn.changeState(ButtonStateEnum.slideIn); // Keep the button in view
 
 				// After .3s play the upgrade sound
-				setTimeout(() => {
-					game.soundsys.playSFX('sounds/upgrade');
-				}, 300);
+				this.upgradeAnimationTimeouts.push(
+					setTimeout(() => {
+						game.soundsys.playSFX('sounds/upgrade');
+					}, 300),
+				);
 
 				// After 2s remove the background and update the button if it's not a passive
-				setTimeout(() => {
-					btn.$button.removeClass('upgradeIcon');
-				}, 1200);
+				this.upgradeAnimationTimeouts.push(
+					setTimeout(() => {
+						btn.$button.removeClass('upgradeIcon');
+					}, 1200),
+				);
 
 				// Then remove the animation
 				this.animationUpgradeTimeOutID = setTimeout(() => {
@@ -4030,6 +4095,7 @@ export class UI {
 						btn.changeState(ButtonStateEnum.disabled);
 					}
 				}, 1500);
+				this.upgradeAnimationTimeouts.push(this.animationUpgradeTimeOutID);
 
 				ab.setUpgraded(); // Set the ability to upgraded
 			}
@@ -4435,16 +4501,89 @@ export class UI {
 		};
 
 		const hexFormatter = (hex) => {
+			const homeOwnerId = hex._swamplerHomeOwner;
+			const isSwamplerHome = typeof homeOwnerId === 'number';
+			const homeOwner = isSwamplerHome
+				? ui.game.creatures.find((creature) => creature.id === homeOwnerId)
+				: undefined;
+			const isHomeOwnerPresent = isSwamplerHome && hex.creature?.id === homeOwnerId;
+			const hasHomeRegrowthBonus =
+				isHomeOwnerPresent &&
+				homeOwner?.effects.some(
+					(effect) => effect.name === 'Natural Habitat' && effect.alterations.regrowth === 20,
+				);
+			const homeBonus = isHomeOwnerPresent
+				? `<p style="margin:2px">Poison +22${hasHomeRegrowthBonus ? '<br>Regrowth +20' : ''}</p>`
+				: '';
+			const cloud = (
+				(
+					ui.game as unknown as {
+						badBreathClouds?: Array<{
+							hex: { x: number; y: number };
+							damage: number;
+							createdTurn?: number;
+							turnLifetime?: number;
+							owner?: { id: number };
+							upgraded?: boolean;
+						}>;
+					}
+				).badBreathClouds || []
+			).find((c) => c.hex.x === hex.x && c.hex.y === hex.y);
 			const name = hex.creature
 				? getCreatureDisplayName(hex.creature)
+				: isSwamplerHome
+				? 'Swamp'
 				: capitalize(hex.drop ? hex.drop.name : hex.coord);
 			const trapOrLocation = capitalize(hex.trap ? hex.trap.name : ui.game.combatLocation);
 			const nameColorClasses =
-				hex.creature && hex.creature.player ? `p${hex.creature.player.id} player-text bright` : '';
+				hex.creature && (hex.creature as any).player
+					? `p${(hex.creature as any).player.id} player-text bright`
+					: '';
+
+			let cloudBlock = '';
+			if (cloud) {
+				const age = (ui.game.turn ?? 0) - (cloud.createdTurn ?? 0);
+				const remaining = Math.max(1, (cloud.turnLifetime ?? (cloud.upgraded ? 6 : 3)) - age);
+				const max = cloud.upgraded ? 6 : 3;
+				const rectHtml = Array.from(
+					{ length: max },
+					(_, i) =>
+						`<span style="width:10px;height:6px;border:1px solid #5f5;background:${
+							i < remaining ? '#5f5' : 'transparent'
+						};display:inline-block"></span>`,
+				).join('');
+				if (hex.creature) {
+					cloudBlock = `<p class="name p${
+						(cloud.owner as any).player?.id ?? 0
+					} player-text bright" style="padding-top:0;margin:2px">Toxic Cloud</p><div style="display:flex;gap:3px;justify-content:center;margin:2px">${rectHtml}</div><hr style="margin:2px" />`;
+				} else {
+					cloudBlock = `<p class="name p${
+						(cloud.owner as any).player?.id ?? 0
+					} player-text bright">Toxic Cloud</p><div style="display:flex;gap:3px;justify-content:center;margin:2px">${rectHtml}</div><hr style="margin:2px" />`;
+				}
+			}
+
+			let body = '';
+			if (isSwamplerHome) {
+				if (hex.creature) {
+					body = `<p class="name ${nameColorClasses}" style="padding-top:0;margin:2px">${name}</p><p style="margin:2px">Swamp</p>${homeBonus}<hr style="margin:2px" /><p style="margin:2px">${trapOrLocation}</p>`;
+				} else {
+					body = `<p class="name" style="padding-top:0;margin:2px">Swamp</p><p style="margin:2px">${trapOrLocation}</p>`;
+				}
+			} else if (cloud) {
+				if (hex.creature) {
+					body = `<p class="name ${nameColorClasses}" style="padding-top:0;margin:2px">${name}</p><p style="margin:2px">${trapOrLocation}</p>`;
+				} else {
+					body = `<p style="margin:2px">${trapOrLocation}</p>`;
+				}
+			} else {
+				body = `<p class="name ${nameColorClasses}">${name}</p><p>${trapOrLocation}</p>`;
+			}
+
 			return `<div class="vignette hex">
 			<div class="hexinfo frame">
-			<p class="name ${nameColorClasses}">${name}</p>
-			<p>${trapOrLocation}</p>
+			${cloudBlock}
+			${body}
 			</div>
 			</div>
 			`;
@@ -4530,7 +4669,17 @@ export class UI {
 		// `hex` carries both directions: `over` shows the hovered hex when it has
 		// something worth describing, `out` always falls back to the player card.
 		ui.game.channels.hex.on('over', ({ hex }) => {
-			if (hex.creature || hex.drop || hex.trap) {
+			const hasCloud = (
+				(ui.game as unknown as { badBreathClouds?: Array<{ hex: { x: number; y: number } }> })
+					.badBreathClouds || []
+			).some((c: any) => c.hex.x === hex.x && c.hex.y === hex.y);
+			if (
+				hex.creature ||
+				hex.drop ||
+				hex.trap ||
+				hasCloud ||
+				typeof hex._swamplerHomeOwner === 'number'
+			) {
 				showHex(hex);
 			} else {
 				showDefault();
@@ -4617,7 +4766,7 @@ export class UI {
 			// visuals (which can leave stale outlines on startup).
 			ui.game.grid.allhexes.forEach((hex) => {
 				hex.unsetReachable();
-				hex.cleanDisplayVisualState('dashed shrunken');
+				hex.cleanDisplayVisualState('dashed shrunken moveRange');
 			});
 
 			if (ui.game.grid.lastQueryOpt) {

@@ -89,7 +89,8 @@
 		"platform": "echo '🌐 Opening platform tools for supported websites & apps' && bun tools/platform.ts",
 		"lint": "echo '✏️  Running ESLint and auto-fixing issues' && eslint --fix \"src/**/*.{js,ts}\"",
 		"test": "echo '🧪 Full test suite: typecheck, lint, build, then Jest' && tsc --noEmit --project tsconfig.typecheck.json && eslint --fix \"src/**/*.{js,ts}\" && vite build && jest",
-		"simulate": "echo '🤖 Running headless game simulation tests' && jest --config jest.simulation.config.js --runInBand"
+		"simulate": "echo '🤖 Running headless game simulation tests' && (jest --config jest.simulation.config.js --runInBand &>/dev/null &) && sleep 2 && tail -f src/__tests__/simulation/results/simulation-progress-*.log | grep --line-buffered -E '\\\\\\[[█░]+] [0-9]+/[0-9]+'",
+		"multiplayer": "echo '📡 Testing online multiplayer: two headless clients over PeerJS' && node tools/multiplayer-e2e.mjs"
 	},
 	"lint-staged": {
 		"*.{ts,js}": [

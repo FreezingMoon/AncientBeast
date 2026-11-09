@@ -12,6 +12,11 @@
  */
 
 import { PLASMA_LOOK, plasmaLookFor } from './look';
+import {
+	drawDisruptorRipple,
+	disruptorScanStrip,
+	invertedDisruptorLuminance,
+} from '../disruptor-look';
 import type { Creature } from '../../creature';
 import type {
 	GameEngine,
@@ -468,6 +473,19 @@ export class PlasmaField {
 	/** Where the fade is heading. Distinguishes "heading to 0" from "sitting at 0". */
 	private _fadeTarget: number;
 	private _fadeTween: TweenHandle | null;
+	private _requestedVisible = false;
+	private _visibilityHolds = 0;
+	private _destroyed = false;
+	private _scanY = -1;
+	private _scanStrip = { top: 0, bottom: 0, alpha: 0 };
+	private _scanSprite: SpriteHandle | null = null;
+	private _scanSurface: CanvasSurface | null = null;
+	private _scanRippleSprite: SpriteHandle | null = null;
+	private _scanRippleSurface: CanvasSurface | null = null;
+	private _scanRippleBounds: { top: number; bottom: number } | null = null;
+	private _scanTime = 0;
+	private _scanRaster: PlasmaField | null = null;
+	private _scanRasterFrame = -1;
 
 	/**
 	 * The GPU quad, when this field is running on the shader path.
@@ -540,6 +558,7 @@ export class PlasmaField {
 		this._fadeState = { fade: this._staticMode ? 1 : 0 };
 		this._fadeTarget = this._fadeState.fade;
 		this._fadeTween = null;
+		this._requestedVisible = this._staticMode;
 
 		this.settings = { ...DEFAULT_SETTINGS, ...opt };
 
@@ -706,7 +725,7 @@ export class PlasmaField {
 		// Already heading there. Hovering a priest's hex calls `setVisible` many
 		// times a second, and restarting the fade each time would hold the shield
 		// permanently part-dim instead of letting it settle.
-		if (this._fadeTarget === target && this._fadeTween !== null) {
+		if (duration > 0 && this._fadeTarget === target && this._fadeTween !== null) {
 			return;
 		}
 		// Already there, and nothing running that could still be heading elsewhere.
@@ -1110,6 +1129,7 @@ export class PlasmaField {
 		}
 
 		this.bmd.commit();
+		this.updateScanOverlay();
 	}
 
 	tick = (): void => {
@@ -1132,6 +1152,7 @@ export class PlasmaField {
 			// uniform write. No per-pixel work, no canvas, no upload — which is the
 			// entire point of the port.
 			this._pushShaderUniforms((name, value) => this._shader?.setUniform(name, value));
+			this.updateScanOverlay();
 			return;
 		}
 		this.draw();
@@ -1175,6 +1196,163 @@ export class PlasmaField {
 	positionTo(target: SpriteHandle, offsetX: number, offsetY: number): void {
 		this.sprite.x = target.x + offsetX;
 		this.sprite.y = target.y - offsetY;
+		this.updateScanOverlay();
+	}
+
+	private normalizedScanY(progress: number): number {
+		return -1 + Math.max(0, Math.min(1, progress)) * (2 - 2 * this.settings.bottomFade);
+	}
+
+	/** Use the cardboard scan's distortion and inversion layers, without a grayscale trail. */
+	setScanProgress(progress: number | null, timeSeconds = 0): void {
+		if (this._destroyed) return;
+		this._scanY = progress === null ? -1 : this.cy + this.ry * this.normalizedScanY(progress);
+		this._scanTime = timeSeconds;
+		this._scanStrip =
+			progress === null
+				? { top: 0, bottom: 0, alpha: 0 }
+				: disruptorScanStrip(this._scanY, this.h, timeSeconds);
+		if (progress === null) {
+			this._scanSprite?.destroy();
+			this._scanSurface?.destroy();
+			this._scanRippleSprite?.destroy();
+			this._scanRippleSurface?.destroy();
+			this._scanRaster?.destroy();
+			this._scanSprite = null;
+			this._scanSurface = null;
+			this._scanRippleSprite = null;
+			this._scanRippleSurface = null;
+			this._scanRippleBounds = null;
+			this._scanRaster = null;
+			this._scanRasterFrame = -1;
+			return;
+		}
+		if (!this._scanSprite) {
+			if (this._shader) {
+				// A short-lived CPU snapshot lets both renderers use the exact same
+				// Canvas strip displacement, rather than approximating it in GLSL.
+				this._scanRaster = new PlasmaField(this._engine, 0, 0, {
+					...this.settings,
+					width: this.w,
+					height: this.h,
+					radiusX: this.rx,
+					radiusY: this.ry,
+					parent: this.parent,
+					creature: this.creature ?? undefined,
+					surfaceSource: this._surfaceSource,
+					staticMode: true,
+				});
+				this._scanRaster.sprite.visible = false;
+			}
+			this._scanRippleSurface = createCanvasSurface(this._surfaceSource, this.w, this.h);
+			this._scanRippleSprite = this._engine.add.sprite(
+				this.sprite.x,
+				this.sprite.y,
+				this._scanRippleSurface.key,
+				undefined,
+				this.parent,
+			);
+			this._scanRippleSprite.setOrigin(0.5, 0.5);
+			this._scanRippleSprite.alpha = 0.9;
+			this._scanSurface = createCanvasSurface(this._surfaceSource, this.w, this.h);
+			this._scanSprite = this._engine.add.sprite(
+				this.sprite.x,
+				this.sprite.y,
+				this._scanSurface.key,
+				undefined,
+				this.parent,
+			);
+			this._scanSprite.setOrigin(0.5, 0.5);
+			this._scanSprite.blendMode = 0;
+		}
+		this.updateScanOverlay();
+	}
+
+	private updateScanOverlay(): void {
+		const overlay = this._scanSprite;
+		if (!overlay) return;
+		for (const layer of [overlay, this._scanRippleSprite]) {
+			if (!layer) continue;
+			layer.x = this.sprite.x;
+			layer.y = this.sprite.y;
+			layer.setScale(
+				this.sprite.scaleX ?? this.settings.scaleX,
+				this.sprite.scaleY ?? this.settings.scaleY,
+			);
+		}
+		if (!this._scanSurface || !this._scanRippleSurface) return;
+		const raster = this._scanRaster ?? this;
+		if (raster !== this && this._scanRasterFrame !== this.frame) {
+			raster.settings = { ...this.settings };
+			raster.time = this.time;
+			raster._plasmaFraction = this._plasmaFraction;
+			raster.burstPower = this.burstPower;
+			raster.outlinePower = this.outlinePower;
+			raster.draw();
+			this._scanRasterFrame = this.frame;
+		}
+		this._scanRippleBounds = drawDisruptorRipple(
+			this._scanRippleSurface.ctx,
+			raster.bmd.canvas,
+			this.w,
+			this.h,
+			this._scanY,
+			this._scanTime,
+			this._scanRippleBounds,
+		);
+		this._scanRippleSurface.commit();
+		overlay.alpha = this._scanStrip.alpha;
+		const ctx = this._scanSurface.ctx;
+		ctx.clearRect(0, 0, this.w, this.h);
+		const height = this._scanStrip.bottom - this._scanStrip.top;
+		if (height > 0 && !raster._noCanvas) {
+			const image = raster.bmd.ctx.getImageData(0, this._scanStrip.top, this.w, height);
+			for (let i = 0; i < image.data.length; i += 4) {
+				const inverted = invertedDisruptorLuminance(
+					image.data[i],
+					image.data[i + 1],
+					image.data[i + 2],
+				);
+				image.data[i] = inverted;
+				image.data[i + 1] = inverted;
+				image.data[i + 2] = inverted;
+			}
+			ctx.putImageData(image, 0, this._scanStrip.top);
+		}
+		this._scanSurface.commit();
+	}
+
+	/** Scan the rendered ellipse, including the bottom-only fade, in parent coordinates. */
+	getScanLine(progress: number): { left: number; right: number; y: number } {
+		const { bottomFade, bottomFadeCurve } = this.settings;
+		const ny = this.normalizedScanY(progress);
+		const v = (ny + 1) * 0.5;
+		let rowWidth = Math.sqrt(Math.max(0, 1 - ny * ny));
+		if (bottomFadeCurve > 0) {
+			const minimumDepth = Math.max(0, 1 - (1 - v - bottomFade) / (bottomFadeCurve * 0.12));
+			rowWidth *= Math.sqrt(Math.max(0, 1 - minimumDepth * minimumDepth));
+		}
+		const halfWidth = this.rx * Math.abs(this.sprite.scaleX ?? this.settings.scaleX) * rowWidth;
+		return {
+			left: this.sprite.x - halfWidth,
+			right: this.sprite.x + halfWidth,
+			y: this.sprite.y + ny * this.ry * (this.sprite.scaleY ?? this.settings.scaleY),
+		};
+	}
+
+	/** Keep a scan target visible despite hover changes; release before applying its impact. */
+	retainVisibility(): () => void {
+		this._visibilityHolds++;
+		this._updateVisibility(true, 0);
+		let released = false;
+		return () => {
+			if (released) return;
+			released = true;
+			this._visibilityHolds--;
+			if (!this._destroyed && this._visibilityHolds === 0) {
+				this._updateVisibility(this._requestedVisible);
+			}
+		};
 	}
 
 	/**
@@ -1187,6 +1365,12 @@ export class PlasmaField {
 	 * registered, visible fields.
 	 */
 	setVisible(visible: boolean): void {
+		this._requestedVisible = visible;
+		if (this._visibilityHolds > 0 && !visible) return;
+		this._updateVisibility(visible);
+	}
+
+	private _updateVisibility(visible: boolean, fadeMs = this.fadeMs): void {
 		if (this._staticMode) {
 			// A baked frame has no animation to fade, so this stays a plain toggle.
 			this.sprite.visible = visible;
@@ -1202,7 +1386,7 @@ export class PlasmaField {
 			// against it. Otherwise a shield the player hovered back onto would be
 			// destroyed by the `onHidden` of a removal they had already undone.
 			this.onHidden = null;
-			this._fadeTo(1, this.fadeMs);
+			this._fadeTo(1, fadeMs);
 			return;
 		}
 
@@ -1212,7 +1396,7 @@ export class PlasmaField {
 			this._hideNow();
 			return;
 		}
-		this._fadeTo(0, this.fadeMs, () => {
+		this._fadeTo(0, fadeMs, () => {
 			// The field was shown again while it was dissolving. That wins: hiding
 			// it now would cut the fade-in short and leave it stuck at low alpha.
 			if (this._fadeTarget > 0) return;
@@ -1240,6 +1424,8 @@ export class PlasmaField {
 	}
 
 	destroy(): void {
+		this.setScanProgress(null);
+		this._destroyed = true;
 		_unregisterField(this);
 		// A fade still in flight would keep writing to the sprite after it is gone,
 		// and its completion callback would then hide an already-dead field.

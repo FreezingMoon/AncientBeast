@@ -6,12 +6,44 @@ import { Effect } from '../effect';
 import Game from '../game';
 import { Hex } from '../utility/hex';
 import { shakeBoard } from '../game-display/camera';
+import { SnapshotCompatibilityError } from '../engine/GameSnapshot';
+import { GOLDEN_WYRM_MOMENTUM_EFFECT } from '../engine/snapshotBehaviors';
+
+type GoldenWyrmMomentumSnapshotData = {
+	creatureId: number;
+};
+
+const getGoldenWyrmSnapshotCreature = (G: Game, id: unknown, behavior: string): Creature => {
+	if (!Number.isInteger(id) || !(G.creatures?.[id as number] instanceof Creature)) {
+		throw new SnapshotCompatibilityError(
+			`Cannot restore ${behavior}: creature reference is invalid.`,
+		);
+	}
+	return G.creatures[id as number];
+};
+
+const bindGoldenWyrmMomentumEffect = (
+	G: Game,
+	effect: Effect,
+	data: Record<string, unknown> | undefined,
+) => {
+	const candidate = data as Partial<GoldenWyrmMomentumSnapshotData> | undefined;
+	const creature = getGoldenWyrmSnapshotCreature(G, candidate?.creatureId, 'Golden Wyrm Momentum');
+	effect.snapshotBehaviorId = GOLDEN_WYRM_MOMENTUM_EFFECT;
+	effect.snapshotBehaviorData = { creatureId: creature.id };
+	effect.effectFn = (eff) => {
+		eff.deleteEffect();
+	};
+};
 
 /** Creates the abilities
  * @param {Object} G the game object
  * @return {void}
  */
 export default (G: Game) => {
+	G.registerSnapshotEffectBehavior(GOLDEN_WYRM_MOMENTUM_EFFECT, (effect, data) =>
+		bindGoldenWyrmMomentumEffect(G, effect, data),
+	);
 	G.abilities[33] = [
 		// 	First Ability: Battle Cry
 		{
@@ -295,9 +327,8 @@ export default (G: Game) => {
 					ability.creature,
 					'',
 					{
-						effectFn: function (effect) {
-							effect.deleteEffect();
-						},
+						snapshotBehaviorId: GOLDEN_WYRM_MOMENTUM_EFFECT,
+						snapshotBehaviorData: { creatureId: ability.creature.id },
 						alterations: {
 							/* This can technically only apply to Executioner's Axe because
 							the Golden Wyrm only has a single direct attack ability. */
@@ -310,6 +341,11 @@ export default (G: Game) => {
 						turnLifetime: 1,
 					},
 					this.game,
+				);
+				bindGoldenWyrmMomentumEffect(
+					this.game,
+					offenseBuffEffect,
+					offenseBuffEffect.snapshotBehaviorData,
 				);
 				ability.creature.addEffect(offenseBuffEffect);
 

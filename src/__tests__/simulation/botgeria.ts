@@ -559,6 +559,12 @@ export async function createGame(abilities: Array<(G: any) => void>): Promise<an
 		if (this.gameState === 'ended') return;
 		this.stopTimer?.();
 		setTimeout(() => {
+			// Mirror game.ts:nextCreature's `tornDown` guard: this raw timer is not
+			// tracked by `_cancelDeferredTimers`, so without it the callback can fire
+			// after `disposeGame()` tore the board down (or after the match ended) and
+			// activate a creature whose hexagons were already cleaned — crashing any
+			// onStartPhase ability (e.g. Infernal's Scorched Ground `hex.createTrap`).
+			if (this.tornDown || this.gameState === 'ended') return;
 			if (this.queue.isCurrentEmpty() || this.turn === 0) {
 				this.nextRound();
 				return;
@@ -734,6 +740,7 @@ export async function runMatch(game: unknown): Promise<MatchResult> {
 	// Stagnation timeout: end game if no damage dealt in this many rounds.
 	// Prevents extremely long stalemates where both bots are stuck in a loop.
 	const STAGNATION_ROUNDS = 15;
+	const SCORE_STAGNATION_ROUNDS = 10;
 	// Wall-clock bail-out, so a match that never terminates cannot hang the run.
 	// This must read the real clock directly: the previous `globalThis.realPerf`
 	// was never assigned by anything, so the guard below evaluated `0 - 0 > MAX_WALL_MS`
@@ -743,6 +750,8 @@ export async function runMatch(game: unknown): Promise<MatchResult> {
 
 	let _dbgTick = 0;
 	const bc = (game as any).botController;
+	let lastScoreKey = '';
+	let lastScoreTurn = 0;
 	while ((game as any).gameState !== 'ended' && (game as any).turn < MAX_SIM_TURNS) {
 		// Stagnation check: bail out early if no damage in STAGNATION_ROUNDS rounds.
 		if (
@@ -752,13 +761,25 @@ export async function runMatch(game: unknown): Promise<MatchResult> {
 		) {
 			break;
 		}
+		// Score-progress check: bail if total score unchanged for N rounds.
+		const _scores = ((game as any).players as any[]).map((p: any) => p.getScore?.().total ?? 0);
+		const _key = _scores.join(',');
+		const _turn = Number((game as any).turn ?? 0);
+		if (_key === lastScoreKey && _turn - lastScoreTurn > SCORE_STAGNATION_ROUNDS) {
+			(process.stderr as any).write(`  [score-stagnation bail-out at turn ${_turn}]\n`);
+			break;
+		}
+		if (_key !== lastScoreKey) {
+			lastScoreKey = _key;
+			lastScoreTurn = _turn;
+		}
 		const _t0 = realPerf.now();
 		(game as any).headlessDriver?.stepFrames(FRAMES_PER_SLICE);
 		// A real macrotask, not a microtask: AB paces turns through `setTimeout`,
 		// and draining microtasks alone never lets those fire.
 		await new Promise((resolve) => setTimeout(resolve, 0));
 		const _dtSlice = realPerf.now() - _t0;
-		if (_dbgTick < 20)
+		if (_dbgTick < 0)
 			(process.stderr as any).write(
 				`  [slice${_dbgTick} t=${(game as any).turn} ${_dtSlice.toFixed(0)}ms]\n`,
 			);

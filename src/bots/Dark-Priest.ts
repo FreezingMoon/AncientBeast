@@ -12,6 +12,8 @@ const ABILITY = {
 	GODLET_PRINTER: 3, // handled by trySummon() in bot.ts
 } as const;
 
+const ACRYLIC_WALL_TYPE = 'O0';
+
 /**
  * Minimum plasma kept in reserve to absorb incoming attacks via Plasma Field.
  * Disruptor Beam spending is blocked when it would take plasma at or below this.
@@ -123,6 +125,12 @@ function scoreDisruptorBeam(
 		!isTeam(activeCreature, target, Team.Enemy) ||
 		!target.baseStats
 	) {
+		return Number.NEGATIVE_INFINITY;
+	}
+
+	// Acrylic walls are poor Disruptor Beam targets: the bot should not spend
+	// plasma on them over real enemies.
+	if (target.type === ACRYLIC_WALL_TYPE) {
 		return Number.NEGATIVE_INFINITY;
 	}
 

@@ -15,6 +15,8 @@ function buildGrid() {
 				reachable: true,
 				displayClasses: '',
 				overlayClasses: '',
+				display: {},
+				grid: undefined,
 				displayVisualState() {},
 				cleanDisplayVisualState() {},
 				overlayVisualState() {},
@@ -26,6 +28,8 @@ function buildGrid() {
 	}
 	const grid = Object.create(HexGrid.prototype);
 	(grid as any).hexes = hexes;
+	(grid as any).displayHexesGroup = { bringToTop() {} };
+	hexes.forEach((row) => row.forEach((hex) => (hex.grid = grid)));
 	(grid as any).game = {
 		creatures: [],
 		channels: { hex: { emit() {}, on() {} } },
@@ -203,6 +207,60 @@ describe('shrunken restore on hover-off', () => {
 		(grid as any).clearTransientHexHoverVisual(targetHex);
 
 		expect(shrunkenReadded).toBe(true);
+
+		farHex.creature = null;
+		for (let i = 0; i < 3; i++) {
+			grid.hexes[srcY][srcX + i].creature = null;
+		}
+	});
+});
+
+describe('dashed restore on hover-off', () => {
+	test('a creature-occupied dashed hex keeps the dashed class after hover-off', () => {
+		const grid = buildGrid();
+		const srcX = 8,
+			srcY = 4;
+		const flipped = false;
+		const source = makeSource(3, flipped);
+		for (let i = 0; i < 3; i++) {
+			grid.hexes[srcY][srcX + i].creature = source;
+		}
+		source.hexagons = [
+			grid.hexes[srcY][srcX],
+			grid.hexes[srcY][srcX + 1],
+			grid.hexes[srcY][srcX + 2],
+		];
+
+		// Place a target at the far end of the Right direction.
+		const farHex = placeTargetAtFarEnd(grid, source, flipped, 1 /* Right */);
+
+		const opts: any = baseOpts(flipped, source);
+		opts.directions[1] = 1;
+		const result = (grid as any).getDirectionChoices(opts);
+
+		// The target hex is creature-occupied; Godlet Printer marks exactly
+		// such occupied in-range hexes as dashed via `hexesDashed`.
+		const targetHex = result.choices[0].find((h: any) => h.creature && h.creature.id === 9);
+		expect(targetHex).toBeDefined();
+
+		// Track whether `dashed` is re-applied on hover-off.
+		let dashedReadded = false;
+		const origDisplayVisualState = targetHex.displayVisualState.bind(targetHex);
+		targetHex.displayVisualState = (cls: string) => {
+			if (cls === 'dashed') {
+				dashedReadded = true;
+			}
+			return origDisplayVisualState(cls);
+		};
+
+		// Simulate the hover-off path for a non-active creature hex.
+		// The query options gain the occupied target as a dashed hex, mirroring
+		// how `materialize()` passes occupied spawn range to `queryHexes()`.
+		result.hexesDashed = [targetHex];
+		(grid as any).lastQueryOpt = result;
+		(grid as any).clearTransientHexHoverVisual(targetHex);
+
+		expect(dashedReadded).toBe(true);
 
 		farHex.creature = null;
 		for (let i = 0; i < 3; i++) {
