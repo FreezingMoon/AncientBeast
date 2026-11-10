@@ -649,6 +649,17 @@ $j(() => {
 
 	updateLobbyUi();
 
+	// Ctrl+V focuses the lobby code field so one paste puts the join code into it.
+	$j(document).on('keydown', (event) => {
+		if (event.ctrlKey && event.key.toLowerCase() === 'v') {
+			const $input = $j('#lobbyCode');
+			if (!$input.is(':focus')) {
+				event.preventDefault();
+				$input.trigger('focus');
+			}
+		}
+	});
+
 	window.addEventListener('focus', async () => {
 		if (G.gameState !== 'initialized') {
 			return;
