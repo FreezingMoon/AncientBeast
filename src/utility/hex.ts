@@ -1006,12 +1006,24 @@ export class Hex {
 			this.pinTopLeft(this.display, this.drawPoint.x, this.drawPoint.y);
 		} else if (hasDashedOutline) {
 			loadTextureIfChanged(this.display, 'hex_dashed');
+		} else if (this.displayClasses.match(/showGrid/)) {
+			// Coordinate view: faint dashed grid so the labels read without
+			// washing out the board. Kept separate from `dashed` (the
+			// targeting outline): sharing that state would also trigger the
+			// above-creatures mirror on every occupied hex.
+			loadTextureIfChanged(this.display, 'hex_dashed');
+			this.grid.displayHexesGroup.bringToTop(this.display);
 		} else {
 			loadTextureIfChanged(this.display, 'hex');
 			this.pinTopLeft(this.display, this.drawPoint.x, this.drawPoint.y);
 		}
 
-		const computedDisplayAlpha = targetAlpha ? 1 : 0;
+		const computedDisplayAlpha =
+			this.displayClasses.match(/showGrid/) && !this.creature && !this.trap && !this.drop
+				? 0.25
+				: targetAlpha
+				? 1
+				: 0;
 		const isHover = Boolean(this.overlayClasses.match(/\bhover\b/));
 		const isMoveRange = Boolean(this.displayClasses.match(/\bmoveRange\b/));
 		this.display.alpha = hasCrashingGlobeTarget

@@ -401,6 +401,97 @@ describe('crashing-globe-target overlay persistence', () => {
 	});
 });
 
+describe('hexagon coordinate view (#2250)', () => {
+	function makeGridWithText() {
+		const displayBringToTop = jest.fn();
+		const grid = {
+			displayHexesGroup: { bringToTop: displayBringToTop, sendToBack: () => {} },
+			overlayHexesGroup: { bringToTop: () => {}, sendToBack: () => {} },
+			healthIndicatorUiGroup: { bringToTop: () => {}, sendToBack: () => {} },
+			trapOverGroup: {
+				bringToTop: () => {},
+				__unwrapped: { list: [] as { x?: number; y?: number; key?: string }[] },
+			},
+			creatureGroup: { __unwrapped: { list: [] as { depth: number }[] } },
+			getDepthAtBand: jest.fn(
+				(y: number, band: string) => y * 100 + (band === 'EFFECT_UNDER_UNITS' ? 20 : 80),
+			),
+		};
+		const game = makeGame() as any;
+		const createdTexts: any[] = [];
+		game.engine.add.text = (
+			x: number,
+			y: number,
+			content: string,
+			_style: unknown,
+			_parent: unknown,
+		) => {
+			const txt = createSpriteMock({ x, y, width: 100, height: 30 }) as any;
+			txt.textContent = content;
+			txt.stroke = '';
+			txt.strokeThickness = 0;
+			txt.setOrigin = jest.fn(() => txt);
+			createdTexts.push(txt);
+			return txt;
+		};
+		return { grid, game, createdTexts, displayBringToTop };
+	}
+
+	test('empty hexes render a faint dashed grid from showGrid alone', () => {
+		const { grid, game, displayBringToTop } = makeGridWithText();
+		const hex = new Hex(5, 4, grid as any, game as any);
+
+		hex.displayVisualState('showGrid');
+		(hex as any).updateStyle();
+
+		expect(hex.display.key).toBe('hex_dashed');
+		expect(hex.display.alpha).toBe(0.25);
+		expect(displayBringToTop).toHaveBeenCalledWith(hex.display);
+	});
+
+	test('showGrid never triggers the above-creatures dashed mirror', () => {
+		const { grid, game } = makeGridWithText();
+		const occupant = Object.create(Creature.prototype) as any;
+		occupant.team = 1;
+		occupant.size = 1;
+		occupant.dead = false;
+		occupant.temp = false;
+		occupant._brbState = null;
+		occupant.x = 5;
+		occupant.y = 4;
+		occupant.hexagons = [];
+		withOccupant(occupant);
+		const hex = new Hex(5, 4, grid as any, game as any);
+
+		hex.displayVisualState('showGrid');
+		(hex as any).updateStyle();
+
+		expect(hex.dashedOverSprite?.visible ?? false).toBe(false);
+		expect(hex.display.key).not.toBe('hex_dashed_p1');
+	});
+
+	test('unit hexes keep their label with a white outline above the creatures', () => {
+		const { grid, game, createdTexts } = makeGridWithText();
+		const occupant = Object.create(Creature.prototype) as any;
+		occupant.team = 1;
+		occupant.size = 1;
+		occupant.dead = false;
+		occupant.temp = false;
+		occupant._brbState = null;
+		occupant.x = 5;
+		occupant.y = 4;
+		occupant.hexagons = [];
+		withOccupant(occupant);
+		const hex = new Hex(5, 4, grid as any, game as any);
+
+		hex.displayVisualState('showGrid');
+		(hex as any).updateStyle();
+
+		expect(createdTexts).toHaveLength(1);
+		expect(createdTexts[0].stroke).toBe('#ffffff');
+	});
+});
+
 describe('Swampler Natural Habitat marker', () => {
 	test('renders the native-size swamp sprite at the claimed hex and keeps it visible on hover', () => {
 		const grid = makeGrid() as any;

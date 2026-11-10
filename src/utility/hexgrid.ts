@@ -2214,9 +2214,14 @@ export class HexGrid {
 	}
 
 	showGrid(val) {
+		// The coordinate view is a debug overlay, not an occlusion cue: units stay
+		// fully opaque so their artwork (not a ghost) sits under the labels.
+		// Only the `showGrid` state is used — never `dashed`: that state means
+		// "targeting outline" and would also trigger the above-creatures
+		// mirror on every occupied hex.
 		this.forEachHex((hex) => {
 			if (hex.creature) {
-				hex.creature.xray(val);
+				hex.creature.clearXrayImmediately();
 			}
 
 			if (hex.drop) {

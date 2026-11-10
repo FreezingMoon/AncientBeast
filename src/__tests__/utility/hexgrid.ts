@@ -1275,3 +1275,43 @@ describe('HexGrid display group layering', () => {
 		expect(childNames.indexOf('dropGrp')).toBeLessThan(childNames.indexOf('creaturesGrp'));
 	});
 });
+
+describe('HexGrid coordinate view (#2250)', () => {
+	const makeHex = (withCreature: boolean) => ({
+		creature: withCreature ? { clearXrayImmediately: jest.fn() } : null,
+		drop: null,
+		displayVisualState: jest.fn(),
+		cleanDisplayVisualState: jest.fn(),
+	});
+
+	test('showGrid leaves units opaque and flags every hex for coords only', () => {
+		const unitHex = makeHex(true);
+		const emptyHex = makeHex(false);
+		const gridMock = {
+			forEachHex: (fn: (hex: unknown) => void) => [unitHex, emptyHex].forEach(fn),
+		};
+
+		HexGrid.prototype.showGrid.call(gridMock, true);
+
+		expect(unitHex.creature.clearXrayImmediately).toHaveBeenCalledTimes(1);
+		for (const hex of [unitHex, emptyHex]) {
+			expect(hex.displayVisualState).toHaveBeenCalledWith('showGrid');
+			expect(hex.displayVisualState).not.toHaveBeenCalledWith('dashed');
+		}
+	});
+
+	test('hiding the grid clears the coords flag', () => {
+		const unitHex = makeHex(true);
+		const emptyHex = makeHex(false);
+		const gridMock = {
+			forEachHex: (fn: (hex: unknown) => void) => [unitHex, emptyHex].forEach(fn),
+		};
+
+		HexGrid.prototype.showGrid.call(gridMock, false);
+
+		for (const hex of [unitHex, emptyHex]) {
+			expect(hex.cleanDisplayVisualState).toHaveBeenCalledWith('showGrid');
+			expect(hex.cleanDisplayVisualState).not.toHaveBeenCalledWith('dashed');
+		}
+	});
+});
