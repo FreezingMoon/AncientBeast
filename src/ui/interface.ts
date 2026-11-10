@@ -964,12 +964,22 @@ export class UI {
 
 						this.clickedAbility = i;
 
-						// Animate ability range circles when clicking a no-target ability
-						if (i !== 0) {
+						// Animate ability range circles when clicking any blocked ability
+						// (already used, not enough energy, or no targets). require() may
+						// bail early in testRequirements() before testDirections computes
+						// _abilityRangeHexes, so compute range on demand when missing.
+						// Skips when canceling an already-selected ability — canceling
+						// should hide indicators, not show them.
+						if (i !== 0 && this.selectedAbility !== i) {
 							const creature = game.activeCreature;
 							if (creature) {
 								const ab = creature.abilities[i];
-								if (ab.message === game.msg.abilities.noTarget && ab._abilityRangeHexes?.length) {
+								if (!ab._abilityRangeHexes?.length) {
+									const savedMsg = ab.message;
+									ab.require();
+									ab.message = savedMsg;
+								}
+								if (ab._abilityRangeHexes?.length) {
 									const cx = creature.x;
 									const cy = creature.y;
 									const sorted = ab._abilityRangeHexes.slice().sort((a, b) => {
@@ -1092,24 +1102,29 @@ export class UI {
 						}
 
 						// Show hex_path markers over the ability's target range when hovering
-						// a non-passive ability that currently has no targets in sight
+						// any non-passive ability, even if blocked (already used, not enough
+						// energy, etc.). require() may bail early in testRequirements() before
+						// testDirections computes _abilityRangeHexes, so compute range on demand
+						// when it is missing. The tooltip message is preserved.
+						const ab = this.game.activeCreature?.abilities[i];
 						if (
 							i !== 0 &&
 							this.selectedAbility === -1 &&
 							!this.game.botController.isBotTurn() &&
-							!this.game.freezedInput
+							!this.game.freezedInput &&
+							ab
 						) {
-							const game = this.game;
-							const creature = game.activeCreature;
-							if (creature) {
-								const ab = creature.abilities[i];
-								if (ab.message === game.msg.abilities.noTarget && ab._abilityRangeHexes?.length) {
-									ab._abilityRangeHexes.forEach((hex) => {
-										hex.displayVisualState('abilityRange');
-										hex.display.setScale(0.5, 0.5);
-										hex.display.setOrigin(0.5, 0.5);
-									});
-								}
+							if (!ab._abilityRangeHexes?.length) {
+								const savedMsg = ab.message;
+								ab.require();
+								ab.message = savedMsg;
+							}
+							if (ab._abilityRangeHexes?.length) {
+								ab._abilityRangeHexes.forEach((hex) => {
+									hex.displayVisualState('abilityRange');
+									hex.display.setScale(0.5, 0.5);
+									hex.display.setOrigin(0.5, 0.5);
+								});
 							}
 						}
 
@@ -3722,8 +3737,20 @@ export class UI {
 	animateNoTargetAbilityRanges() {
 		const creature = this.game.activeCreature;
 		if (!creature) return;
-		creature.abilities.forEach((ab) => {
-			if (ab.message === this.game.msg.abilities.noTarget && ab._abilityRangeHexes?.length) {
+		creature.abilities.forEach((ab, i) => {
+			// Only animate blocked abilities — usable ones shouldn't pulse their
+			// ranges just because a different blocked hotkey was pressed.
+			if (!this.isAbilityBlocked(i)) return;
+			// Animate target-range circles for any blocked ability (already used,
+			// not enough energy, or no targets). require() may bail early in
+			// testRequirements() before testDirections computes _abilityRangeHexes,
+			// so compute range on demand when missing.
+			if (!ab._abilityRangeHexes?.length) {
+				const savedMsg = ab.message;
+				ab.require();
+				ab.message = savedMsg;
+			}
+			if (ab._abilityRangeHexes?.length) {
 				const cx = creature.x;
 				const cy = creature.y;
 				const sorted = ab._abilityRangeHexes.slice().sort((a, b) => {
@@ -3817,12 +3844,28 @@ export class UI {
 			return;
 		}
 
-		$btn.removeClass('iconInvertFlash');
+		const ab = this.game.activeCreature?.abilities[i];
+		const isNoTarget = ab?.message === this.game.msg.abilities.noTarget;
+
+		// On touch screens hover rarely fires, so the energy-bar preview
+		// (showAbilityCosts on mouseover) never shows how much extra energy is
+		// needed. Reuse the same cost flash the hotkey path uses so a tap on an
+		// unaffordable ability still draws the yellow "not enough" overlay.
+		this.flashAbilityCosts(i);
+
+		$btn.removeClass('iconInvertFlash iconInvertFlashBg');
 		void $btn[0].offsetWidth;
 		$btn.addClass('iconInvertFlash');
-		$btn[0].addEventListener('animationend', () => $btn.removeClass('iconInvertFlash'), {
-			once: true,
-		});
+		if (isNoTarget) {
+			$btn.addClass('iconInvertFlashBg');
+		}
+		$btn[0].addEventListener(
+			'animationend',
+			() => {
+				$btn.removeClass('iconInvertFlash iconInvertFlashBg');
+			},
+			{ once: true },
+		);
 	}
 
 	/**

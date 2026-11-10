@@ -33,6 +33,7 @@ const createUi = (abilities: FakeAbility[]) => ({
 	},
 	abilitiesButtons: [0, 1, 2, 3].map(() => ({ $button: $j('<div class="ability"></div>') })),
 	isAbilityBlocked: UI.prototype.isAbilityBlocked,
+	flashAbilityCosts: () => {},
 });
 
 const isAbilityBlocked = (ui: ReturnType<typeof createUi>, i: number) =>

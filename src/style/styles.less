@@ -1485,6 +1485,9 @@ div.section.info {
 
 // Refusal feedback (unmet requirement, already used, no target):
 // ::after isolates the icon so filter:invert skips bg-color and frame.
+// The disabled button already carries filter:invert(1) + opacity:0.5, so
+// ::after's filter must compensate: normal (dim) at 0%/100%, inverted
+// (visible against the dark disabled bg) at 50% — only the icon flashes.
 #abilities .button.iconInvertFlash,
 .button.iconInvertFlash {
 	background-image: none !important;
@@ -1502,8 +1505,38 @@ div.section.info {
 	}
 }
 @keyframes iconInvertFlash {
+	0% {
+		filter: invert(1);
+	}
+	50% {
+		filter: none;
+	}
+	100% {
+		filter: invert(1);
+	}
+}
+
+// No-target refusal: invert the whole button (bg + icon + frame together).
+// No-target buttons are `.noclick` (no permanent filter), so the flash inverts
+// the entire button appearance instead of isolating the icon on ::after.
+#abilities .button.iconInvertFlash.iconInvertFlashBg {
+	background-image: var(--icon-url) !important;
+	animation: iconInvertFlashBg 400ms ease-in-out;
+	&::after {
+		background-image: none !important;
+		animation: none !important;
+		filter: none !important;
+	}
+}
+@keyframes iconInvertFlashBg {
+	0% {
+		filter: none;
+	}
 	50% {
 		filter: invert(1);
+	}
+	100% {
+		filter: none;
 	}
 }
 
