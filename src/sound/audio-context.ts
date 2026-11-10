@@ -8,12 +8,6 @@
  * silent for the whole session on those browsers. The `<audio>`-based music
  * player has the same problem one level up: a `play()` rejected with
  * `NotAllowedError` never gets retried.
- *
- * Limitation: all audio assets in the repo are Ogg Vorbis (83 `.ogg` files,
- * zero mp3/m4a/aac/wav), which WebKit cannot decode. This module fixes the
- * code side (context resume, constructor fallback, music retry); the music
- * tracks additionally need a non-Ogg encoding before they will actually
- * sound on iOS. That is an asset change, intentionally out of scope here.
  */
 
 type AudioContextCtor = typeof AudioContext;
