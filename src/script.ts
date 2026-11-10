@@ -660,43 +660,6 @@ $j(() => {
 		}
 	});
 
-	window.addEventListener('focus', async () => {
-		if (G.gameState !== 'initialized') {
-			return;
-		}
-		if (G.lobby) {
-			return;
-		}
-		if (!$j('#pre-match').is(':visible')) {
-			return;
-		}
-		// Skip when the peer-to-peer lobby row is hidden (e.g. Devvit mode, which uses its
-		// own queue UI instead) — reading the clipboard here just triggers an unnecessary
-		// browser "Paste" permission prompt for a field the player can't even see.
-		if (!$j('#createdLobby').is(':visible')) {
-			return;
-		}
-
-		try {
-			const clipboardText = await navigator.clipboard.readText();
-			const parsedCode = parseLobbyCodeInput(clipboardText);
-			if (!parsedCode) {
-				return;
-			}
-
-			const $input = $j('#lobbyCode');
-			const currentCode = parseLobbyCodeInput(($input.val() as string) || '');
-			if (parsedCode === currentCode) {
-				return;
-			}
-
-			$input.val(parsedCode);
-			updateLobbyUi();
-		} catch (_e) {
-			// Clipboard access unavailable
-		}
-	});
-
 	let previousPlayerCount = 0;
 
 	G.onLobbyUpdate = (lobby) => {
@@ -723,18 +686,6 @@ $j(() => {
 	$j('#gameTitle').on('click', () => {
 		beastAudio.playBeast();
 	});
-
-	const focusGameWindow = () => {
-		const body = document.body as HTMLElement;
-		if (body && typeof body.focus === 'function') {
-			body.setAttribute('tabindex', '-1');
-			body.focus();
-		}
-	};
-
-	// Focus the form to enable "press enter to start the game" functionality
-	$j('#startButton').trigger('focus');
-	focusGameWindow();
 
 	const startGame = () => {
 		G.multiplayer = false;
