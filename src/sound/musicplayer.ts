@@ -1,6 +1,7 @@
 import skin from './skin';
 import beastAudioFile from 'assets/sounds/AncientBeast.ogg';
 import { playAudioOnNextGesture } from './audio-context';
+import { getCurrentAudioSettings, saveAudioSettings } from './soundsys';
 
 interface JQueryEventObject {
 	preventDefault(): void;
@@ -37,14 +38,15 @@ export class MusicPlayer {
 	private _cancelGestureRetry: (() => void) | null = null;
 	currentlyPlaying?: JQuery<HTMLElement>;
 
-	constructor() {
+	constructor(initialVolume = 0.25) {
 		this.audio = skin as unknown as HTMLAudioElement;
 		this.playlist = $j('#playlist');
 		this.tracks = this.playlist.find('li.epic');
 
 		this.repeat = true;
 
-		this.audio.volume = 0.25;
+		this.audio.volume = initialVolume;
+		(this.audio as any)._preferredVolume = initialVolume;
 		this.audio.pause();
 
 		this.beastAudio = new Audio(beastAudioFile);
@@ -116,20 +118,29 @@ export class MusicPlayer {
 			});
 
 		// Volume sliders requested
+		const volSlider = $j('#vol') as any;
+		if (volSlider && volSlider.length) {
+			volSlider.val(String(this.audio.volume));
+		}
 		$j('#vol')
-			.off('change')
-			.on('change', (e: JQuery.ChangeEvent) => {
-				this.audio.volume = Number((e.target as HTMLInputElement).value);
+			.off('change input')
+			.on('change input', (e: JQuery.ChangeEvent) => {
+				const vol = Number((e.target as HTMLInputElement).value);
+				(this.audio as any)._preferredVolume = vol;
+				this.audio.volume = vol;
+				const game = (window as unknown as { G?: any }).G;
+				if (game?.soundsys) {
+					saveAudioSettings(getCurrentAudioSettings(game.soundsys));
+				}
 			});
 
 		$j('#sfx')
-			.off('change')
-			.on('change', (e: JQuery.ChangeEvent) => {
-				const game = (
-					window as unknown as { game?: { soundsys?: { allEffectsMultiplier: number } } }
-				).game;
+			.off('change input')
+			.on('change input', (e: JQuery.ChangeEvent) => {
+				const game = (window as unknown as { G?: any }).G;
 				if (game && game.soundsys) {
 					game.soundsys.allEffectsMultiplier = Number((e.target as HTMLInputElement).value);
+					saveAudioSettings(getCurrentAudioSettings(game.soundsys));
 				}
 			});
 	}

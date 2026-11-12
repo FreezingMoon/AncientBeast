@@ -58,7 +58,7 @@ import { GameConfig } from './script';
 import { Trap } from './utility/trap';
 import { Drop } from './drop';
 import { CreatureType, Realm, UnitData } from './data/types';
-import { setAudioMode, getAudioMode, DEFAULT_AUDIO_MODE } from './sound/soundsys';
+import { setAudioMode, getAudioMode, loadAudioSettings } from './sound/soundsys';
 import BotController from './bot';
 import { locationPaths } from '../assets/index';
 import type { GameEngine, SpriteHandle } from './engine/types';
@@ -933,7 +933,12 @@ export default class Game {
 		// console.log(this);
 		this.startLoading();
 
-		this.soundsys = new SoundSys({ paths: soundPaths });
+		const audioSettings = loadAudioSettings();
+		this.soundsys = new SoundSys({
+			paths: soundPaths,
+			musicVolume: audioSettings.musicVolume,
+			effectsVolume: audioSettings.sfxLevel,
+		});
 		this.musicPlayer = this.soundsys.musicPlayer;
 
 		this.whenPhaserBooted(this.Phaser, (phaser) => {
@@ -1327,7 +1332,9 @@ export default class Game {
 			this._pendingReplayFastForward = false;
 		}
 
-		setAudioMode(DEFAULT_AUDIO_MODE, this.soundsys, this.UI);
+		const audioSettings = loadAudioSettings();
+		this.soundsys.allEffectsMultiplier = audioSettings.sfxLevel;
+		setAudioMode(audioSettings.mode, this.soundsys, this.UI);
 		// DO NOT CALL LOG BEFORE UI CREATION
 		this.gameState = 'playing';
 

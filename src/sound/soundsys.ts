@@ -6,10 +6,63 @@ import { resolveAudioContextCtor, unlockAudioContextOnGesture } from './audio-co
 
 export type AudioMode = 'full' | 'sfx' | 'muted';
 
+const AUDIO_SETTINGS_STORAGE_KEY = 'ab:audio-settings';
+
 // NOTE: Start with SFX only while developing so that
 // music does not interfere with audio the developer is working on.
 export const DEFAULT_AUDIO_MODE: AudioMode =
 	process.env.NODE_ENV === 'development' ? 'sfx' : 'full';
+
+export type AudioSettings = {
+	mode: AudioMode;
+	musicVolume: number;
+	sfxLevel: number;
+};
+
+const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
+	mode: DEFAULT_AUDIO_MODE,
+	musicVolume: 0.25,
+	sfxLevel: 1,
+};
+
+export function loadAudioSettings(): AudioSettings {
+	if (typeof localStorage === 'undefined') {
+		return { ...DEFAULT_AUDIO_SETTINGS };
+	}
+	try {
+		const raw = localStorage.getItem(AUDIO_SETTINGS_STORAGE_KEY);
+		if (!raw) {
+			return { ...DEFAULT_AUDIO_SETTINGS };
+		}
+		const parsed = JSON.parse(raw) as Partial<AudioSettings>;
+		const mode =
+			parsed.mode === 'full' || parsed.mode === 'sfx' || parsed.mode === 'muted'
+				? parsed.mode
+				: DEFAULT_AUDIO_SETTINGS.mode;
+		const musicVolume =
+			typeof parsed.musicVolume === 'number' && isFinite(parsed.musicVolume)
+				? clamp(parsed.musicVolume, 0, 1)
+				: DEFAULT_AUDIO_SETTINGS.musicVolume;
+		const sfxLevel =
+			typeof parsed.sfxLevel === 'number' && isFinite(parsed.sfxLevel)
+				? clamp(parsed.sfxLevel, 0, 1)
+				: DEFAULT_AUDIO_SETTINGS.sfxLevel;
+		return { mode, musicVolume, sfxLevel };
+	} catch {
+		return { ...DEFAULT_AUDIO_SETTINGS };
+	}
+}
+
+export function saveAudioSettings(settings: AudioSettings): void {
+	if (typeof localStorage === 'undefined') {
+		return;
+	}
+	try {
+		localStorage.setItem(AUDIO_SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+	} catch {
+		// Storage may be unavailable or full.
+	}
+}
 
 /**
  * The turn-skip heartbeat is an ambient cue that fires on every turn handoff,
@@ -18,10 +71,32 @@ export const DEFAULT_AUDIO_MODE: AudioMode =
  */
 const HEARTBEAT_VOLUME_SCALE = 0.25;
 
-let currentAudioMode: AudioMode = DEFAULT_AUDIO_MODE;
+let currentAudioMode: AudioMode = DEFAULT_AUDIO_SETTINGS.mode;
 
 export function getAudioMode(): AudioMode {
 	return currentAudioMode;
+}
+
+export function getCurrentAudioSettings(soundSysInstance?: {
+	sfxLevel?: number;
+	musicPlayer?: { audio?: { volume: number } };
+}): AudioSettings {
+	const musicVol =
+		soundSysInstance?.musicPlayer?.audio &&
+		typeof (soundSysInstance.musicPlayer.audio as any)._preferredVolume === 'number'
+			? clamp((soundSysInstance.musicPlayer.audio as any)._preferredVolume, 0, 1)
+			: soundSysInstance?.musicPlayer?.audio &&
+			  typeof soundSysInstance.musicPlayer.audio.volume === 'number'
+			? clamp(soundSysInstance.musicPlayer.audio.volume, 0, 1)
+			: DEFAULT_AUDIO_SETTINGS.musicVolume;
+	return {
+		mode: currentAudioMode,
+		musicVolume: musicVol,
+		sfxLevel:
+			soundSysInstance && typeof soundSysInstance.sfxLevel === 'number'
+				? clamp(soundSysInstance.sfxLevel, 0, 1)
+				: DEFAULT_AUDIO_SETTINGS.sfxLevel,
+	};
 }
 
 type SoundSysConfig = {
@@ -52,6 +127,9 @@ export class SoundSys {
 	/** Sounds currently being fetched, so repeated warm-ups do not re-decode. */
 	private _pendingSoundPaths = new Set<string>();
 
+	/** User-configured SFX/effects level (0..1), persisted across matches. */
+	sfxLevel = 1;
+
 	/**
 	 * True while a fast replay (`replayMode === 'load'`) is running.
 	 *
@@ -66,7 +144,14 @@ export class SoundSys {
 	private _effectsMuted = false;
 
 	constructor(config: SoundSysConfig) {
-		this.musicPlayer = new MusicPlayer();
+		this.musicPlayer = new MusicPlayer(
+			typeof config.musicVolume === 'number' ? config.musicVolume : 0.25,
+		);
+
+		const initialSfxLevel =
+			typeof config.effectsVolume === 'number' ? clamp(config.effectsVolume, 0, 1) : 1;
+		this._allEffectsCoeff = initialSfxLevel;
+		this.sfxLevel = initialSfxLevel;
 
 		const AudioContextCtor = resolveAudioContextCtor();
 
@@ -84,21 +169,23 @@ export class SoundSys {
 
 			this.effectsGainNode = this.context.createGain();
 			this.effectsGainNode.connect(this.context.destination);
-			if ('effectsVolume' in config) {
-				this.effectsVolume = config.effectsVolume;
-			}
+			this.effectsVolume = 1;
 
 			this.heartbeatGainNode = this.context.createGain();
 			this.heartbeatGainNode.gain.value = HEARTBEAT_VOLUME_SCALE;
 			this.heartbeatGainNode.connect(this.context.destination);
 			if ('heartbeatVolume' in config) {
 				this.heartbeatVolume = config.heartbeatVolume;
+			} else {
+				this.heartbeatVolume = 1;
 			}
 
 			this.announcerGainNode = this.context.createGain();
 			this.announcerGainNode.connect(this.context.destination);
 			if ('announcerVolume' in config) {
 				this.announcerVolume = config.announcerVolume;
+			} else {
+				this.announcerVolume = 1;
 			}
 
 			if ('paths' in config) {
@@ -155,8 +242,10 @@ export class SoundSys {
 	}
 
 	set allEffectsMultiplier(level: number) {
+		const v = clamp(level, 0, 1);
+		this._allEffectsCoeff = v;
+		this.sfxLevel = v;
 		if (this.envHasSound) {
-			this._allEffectsCoeff = clamp(level, 0, 1);
 			// NOTE: Trigger all effects volume setters so that
 			// volumes are updated with new _allEffectsCoeff value.
 			this.effectsVolume = this._effectsVol;
@@ -327,28 +416,81 @@ export function isNullAudioBufferSourcNode(o: any) {
 
 export type SoundSysAudioBufferSourceNode = AudioBufferSourceNode | NullAudioBufferSourceNode;
 
-export function setAudioMode(mode, soundSysInstance, uiInstance) {
+function getSfxLevel(
+	soundSysInstance: { sfxLevel?: number; _allEffectsCoeff?: number } | null,
+): number {
+	if (!soundSysInstance) {
+		return 1;
+	}
+	if (typeof soundSysInstance.sfxLevel === 'number') {
+		return clamp(soundSysInstance.sfxLevel, 0, 1);
+	}
+	if (typeof soundSysInstance._allEffectsCoeff === 'number') {
+		return clamp(soundSysInstance._allEffectsCoeff, 0, 1);
+	}
+	return 1;
+}
+
+function syncMusicPlayerVolume(soundSysInstance: any, volume: number, effective: boolean): void {
+	const audio = soundSysInstance?.musicPlayer?.audio;
+	if (audio) {
+		const v = clamp(volume, 0, 1);
+		if (effective) {
+			audio.volume = v;
+		} else {
+			// Preserve user's preferred volume while output is muted by mode.
+			(audio as any)._preferredVolume = v;
+			audio.volume = 0;
+		}
+	}
+}
+
+export function setAudioMode(mode: AudioMode, soundSysInstance: any, uiInstance?: any) {
 	currentAudioMode = mode;
+
+	const sfxLevel = getSfxLevel(soundSysInstance);
+	const audioEl = soundSysInstance?.musicPlayer?.audio;
+	const preferredMusic =
+		audioEl && typeof (audioEl as any)._preferredVolume === 'number'
+			? clamp((audioEl as any)._preferredVolume, 0, 1)
+			: audioEl && typeof audioEl.volume === 'number'
+			? clamp(audioEl.volume, 0, 1)
+			: DEFAULT_AUDIO_SETTINGS.musicVolume;
+
+	// Keep the user-configured SFX level as the base for mode application.
+	if (soundSysInstance && typeof soundSysInstance.allEffectsMultiplier !== 'undefined') {
+		soundSysInstance.allEffectsMultiplier = sfxLevel;
+	}
 
 	if (mode === 'muted') {
 		soundSysInstance.musicVolume = 0;
 		soundSysInstance.effectsVolume = 0;
 		soundSysInstance.heartbeatVolume = 0;
 		soundSysInstance.announcerVolume = 0;
+		syncMusicPlayerVolume(soundSysInstance, preferredMusic, false);
 		soundSysInstance.stopMusic();
 	} else if (mode === 'sfx') {
 		soundSysInstance.musicVolume = 0;
+		// Restore base channel volumes; audible level is controlled by allEffectsMultiplier (sfxLevel).
 		soundSysInstance.effectsVolume = 1;
 		soundSysInstance.heartbeatVolume = 1;
 		soundSysInstance.announcerVolume = 1;
+		syncMusicPlayerVolume(soundSysInstance, preferredMusic, false);
 		soundSysInstance.stopMusic();
 	} else if (mode === 'full') {
-		soundSysInstance.musicVolume = 1;
+		if (audioEl) {
+			(audioEl as any)._preferredVolume = preferredMusic;
+		}
+		soundSysInstance.musicVolume = preferredMusic;
 		soundSysInstance.effectsVolume = 1;
 		soundSysInstance.heartbeatVolume = 1;
 		soundSysInstance.announcerVolume = 1;
+		syncMusicPlayerVolume(soundSysInstance, preferredMusic, true);
 		soundSysInstance.playMusic();
 	}
+
+	saveAudioSettings({ mode, musicVolume: preferredMusic, sfxLevel });
+
 	if (uiInstance) {
 		uiInstance.updateAudioIcon(mode);
 	}

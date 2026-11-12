@@ -25,6 +25,158 @@ import type { ReplayMode } from './utility/gamelog';
 import { GameSnapshotSerializer } from './engine/GameSnapshot';
 import { funjeInit } from '../platforms/funje/funje';
 
+const PRE_MATCH_SETTINGS_STORAGE_KEY = 'ab:pre-match-settings';
+
+type PreMatchSettings = {
+	gameMode: number;
+	players: number[];
+	plasmaPoints: number;
+	unitDrops: number;
+	activeUnits: number;
+	abilityUpgrades: number;
+	turnTime: number;
+	timePool: number;
+};
+
+const PRE_MATCH_SETTING_NAMES = [
+	'gameMode',
+	'players',
+	'plasmaPoints',
+	'unitDrops',
+	'activeUnits',
+	'abilityUpgrades',
+	'turnTime',
+	'timePool',
+] as const;
+
+function clampPreMatchInt(value: unknown, allowed: number[], fallback: number): number {
+	const n = typeof value === 'number' ? value : parseInt(String(value), 10);
+	return allowed.includes(n) ? n : fallback;
+}
+
+function loadPreMatchSettings(): Partial<PreMatchSettings> | null {
+	try {
+		const raw = localStorage.getItem(PRE_MATCH_SETTINGS_STORAGE_KEY);
+		if (!raw) return null;
+		const parsed = JSON.parse(raw) as Partial<PreMatchSettings>;
+		return parsed && typeof parsed === 'object' ? parsed : null;
+	} catch {
+		return null;
+	}
+}
+
+function savePreMatchSettings(): void {
+	try {
+		const settings = getPreMatchSettingsFromForm();
+		localStorage.setItem(PRE_MATCH_SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+	} catch {
+		// Storage may be unavailable.
+	}
+}
+
+function setCheckedRadio(name: string, value: number): void {
+	const input = $j(`input[name="${name}"][value="${value}"]`);
+	if (input.length) {
+		input.prop('checked', true);
+	}
+}
+
+function getPreMatchSettingsFromForm(): PreMatchSettings {
+	const gameMode = clampPreMatchInt($j('input[name="gameMode"]:checked').val(), [2, 4], 2);
+	let players = $j('input[name="players"]:checked')
+		.map((_, element) => parseInt($j(element).val() as string, 10))
+		.get()
+		.filter((p: number) => [0, 1, 2, 3].includes(p));
+	if (!players.length) {
+		players = [0];
+	}
+	return {
+		gameMode,
+		players,
+		plasmaPoints: clampPreMatchInt(
+			$j('input[name="plasmaPoints"]:checked').val(),
+			[20, 30, 40, 50, 60, 70, 80, 90, 100],
+			30,
+		),
+		unitDrops: clampPreMatchInt($j('input[name="unitDrops"]:checked').val(), [0, 1], 1),
+		activeUnits: clampPreMatchInt(
+			$j('input[name="activeUnits"]:checked').val(),
+			[1, 2, 3, 4, 5, 6, 7],
+			3,
+		),
+		abilityUpgrades: clampPreMatchInt(
+			$j('input[name="abilityUpgrades"]:checked').val(),
+			[-1, 5, 4, 3, 2, 1, 0],
+			3,
+		),
+		turnTime: clampPreMatchInt(
+			$j('input[name="turnTime"]:checked').val(),
+			[20, 40, 60, 80, 99, -1],
+			-1,
+		),
+		timePool: clampPreMatchInt(
+			$j('input[name="timePool"]:checked').val(),
+			[15, 20, 25, 30, -1],
+			-1,
+		),
+		fullscreenMode: $j('#fullscreen').hasClass('fullscreenMode'),
+	};
+}
+
+function applyPreMatchSettings(settings: Partial<PreMatchSettings> | null): void {
+	if (!settings) return;
+
+	if (settings.gameMode !== undefined) {
+		setCheckedRadio('gameMode', clampPreMatchInt(settings.gameMode, [2, 4], 2));
+	}
+
+	if (Array.isArray(settings.players)) {
+		const valid = settings.players.filter((p): p is number => [0, 1, 2, 3].includes(p as number));
+		$j('input[name="players"]').each((_, element) => {
+			const val = parseInt($j(element).val() as string, 10);
+			$j(element).prop('checked', valid.includes(val));
+		});
+		// Ensure at least P1 remains checked if nothing valid restored.
+		if (!$j('input[name="players"]:checked').length) {
+			$j('#player1').prop('checked', true);
+		}
+	}
+
+	if (settings.plasmaPoints !== undefined) {
+		setCheckedRadio(
+			'plasmaPoints',
+			clampPreMatchInt(settings.plasmaPoints, [20, 30, 40, 50, 60, 70, 80, 90, 100], 30),
+		);
+	}
+	if (settings.unitDrops !== undefined) {
+		setCheckedRadio('unitDrops', clampPreMatchInt(settings.unitDrops, [0, 1], 1));
+	}
+	if (settings.activeUnits !== undefined) {
+		setCheckedRadio(
+			'activeUnits',
+			clampPreMatchInt(settings.activeUnits, [1, 2, 3, 4, 5, 6, 7], 3),
+		);
+	}
+	if (settings.abilityUpgrades !== undefined) {
+		setCheckedRadio(
+			'abilityUpgrades',
+			clampPreMatchInt(settings.abilityUpgrades, [-1, 5, 4, 3, 2, 1, 0], 3),
+		);
+	}
+	if (settings.turnTime !== undefined) {
+		setCheckedRadio('turnTime', clampPreMatchInt(settings.turnTime, [20, 40, 60, 80, 99, -1], -1));
+	}
+	if (settings.timePool !== undefined) {
+		setCheckedRadio('timePool', clampPreMatchInt(settings.timePool, [15, 20, 25, 30, -1], -1));
+	}
+}
+
+function bindPreMatchSettingsPersistence(): void {
+	PRE_MATCH_SETTING_NAMES.forEach((name) => {
+		$j(`input[name="${name}"]`).on('change input click', savePreMatchSettings);
+	});
+}
+
 if (DEBUG && 'serviceWorker' in navigator) {
 	navigator.serviceWorker
 		.getRegistrations()
@@ -341,6 +493,19 @@ $j(() => {
 	// control that looks clickable but does nothing.
 	if (!document.fullscreenEnabled) {
 		$j('#fullscreen').hide();
+	} else if (Fullscreen.isIosBrowserTab()) {
+		// iOS doesn't support the Fullscreen API for non-video elements, so the
+		// button can't actually toggle fullscreen here. Disable it (like the Delay
+		// button when the unit is last in the turn) and let `toggle()` show a toast
+		// nudging the user to add to the home screen instead.
+		$j('#fullscreen').addClass('disabled');
+	} else if (Fullscreen.isIosStandalone()) {
+		// Already launched from the home screen — the app is chromeless and
+		// maximized, so the button has nothing to toggle. Disable it rather than
+		// hiding it: players still reach the app switcher / home indicator by
+		// sliding from the bottom, so a visible-but-disabled control is clearer
+		// than a missing one.
+		$j('#fullscreen').addClass('disabled');
 	}
 
 	const isTyping = (event) => {
@@ -589,7 +754,10 @@ $j(() => {
 
 	$j('input[name="gameMode"]').on('change input click', updateStartPrompt);
 	$j('input[name="players"]').on('change input click', updateStartPrompt);
+
+	applyPreMatchSettings(loadPreMatchSettings());
 	updateStartPrompt();
+	bindPreMatchSettingsPersistence();
 
 	if (!joinCodeFromUrl) {
 		$j('#lobbyCode').val('');
@@ -1332,6 +1500,7 @@ export function getGameConfig() {
 		combatLocation,
 		fullscreenMode: $j('#fullscreen').hasClass('fullscreenMode'),
 	};
+	savePreMatchSettings();
 	return defaultConfig;
 }
 

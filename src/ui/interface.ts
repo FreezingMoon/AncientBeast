@@ -1244,38 +1244,13 @@ export class UI {
 
 		// Sound Effects slider
 		const slider = document.getElementById('sfx') as HTMLInputElement;
-		slider.addEventListener(
-			'input',
-			() => (game.soundsys.allEffectsMultiplier = parseFloat(slider.value)),
-		);
-
-		// Prevents default touch behaviour on slider when first touched (prevents scrolling the screen).
-		slider.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
-
-		slider.addEventListener('touchmove', (e) => {
-			// Get slider relative to the view port.
-			const sliderRect = slider.getBoundingClientRect();
-			// The original touch point Y coordinate relative to the view port.
-			const touchPoint = e.touches[0].clientY;
-			/// The y coord of the touch event relative to the slider.
-			const touchRelToSlider = touchPoint - sliderRect.top;
-			const distFromBottom = sliderRect.height - touchRelToSlider;
-			// Normalize the distance from the bottom of the slider to a value between 0 and 1.
-			const normDist = distFromBottom / sliderRect.height;
-			// Scale normDist to range of the slider.
-			const scaledDist = normDist * (parseInt(slider.max) - parseInt(slider.min));
-			// New value of the slider.
-			const slidersNewVal = scaledDist + parseFloat(slider.min);
-			// Sets the slider value to the new value between the min/max bounds of the slider.
-			// eslint-disable-next-line prettier/prettier
-			slider.value = Math.min(
-				Math.max(slidersNewVal, parseInt(slider.min)),
-				parseInt(slider.max),
-			).toString();
-
-			// Manually dispatches the input event to update the sound system with new slider value.
-			slider.dispatchEvent(new Event('input'));
-		});
+		if (slider) {
+			slider.value = String(game.soundsys.sfxLevel ?? 1);
+			slider.addEventListener(
+				'input',
+				() => (game.soundsys.allEffectsMultiplier = parseFloat(slider.value)),
+			);
+		}
 
 		this.hotkeys = new Hotkeys(this);
 		const ingameHotkeys = getHotKeys(this.hotkeys);
