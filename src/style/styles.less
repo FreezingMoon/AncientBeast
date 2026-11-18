@@ -4332,8 +4332,10 @@ input {
    doesn't grant the Fullscreen permission), so the fullscreen button can't
    actually do anything there. Disable it and style it like other disabled
    buttons (e.g. #delay.disabled) so it reads as unavailable — see the matching
-   no-op guard in ui/fullscreen.ts. */
-body.devvit-mode .button#fullscreen {
+   no-op guard in ui/fullscreen.ts. The same applies on iPhone, where browsers only
+   allow fullscreen for <video> (script.ts adds .fullscreen-unsupported). */
+body.devvit-mode .button#fullscreen,
+body.fullscreen-unsupported .button#fullscreen {
 	opacity: 0.35;
 	cursor: not-allowed !important;
 

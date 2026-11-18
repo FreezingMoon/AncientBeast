@@ -341,6 +341,12 @@ $j(() => {
 	// control that looks clickable but does nothing.
 	if (!document.fullscreenEnabled) {
 		$j('#fullscreen').hide();
+		// iPhone browsers (Safari, and Chrome, which uses WebKit there) only support
+		// fullscreen for <video>, so the in-game button can never work. Show it disabled,
+		// like used abilities, rather than as a control that silently does nothing. If the
+		// standard API ever ships there, `fullscreenEnabled` turns true and it works again.
+		$j('body').addClass('fullscreen-unsupported');
+		$j('.fullscreen-control .desc p').text('Fullscreen is not supported by this browser.');
 	}
 
 	const isTyping = (event) => {
