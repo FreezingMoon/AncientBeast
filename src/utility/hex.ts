@@ -779,7 +779,7 @@ export class Hex {
 	cleanOverlayVisualState(classes = '') {
 		classes =
 			classes ||
-			'creature reachable weakDmg active moveto selected hover h_player0 h_player1 h_player2 h_player3 player0 player1 player2 player3';
+			'creature reachable targetCursor weakDmg active moveto selected hover h_player0 h_player1 h_player2 h_player3 player0 player1 player2 player3';
 		const a = classes.split(' ');
 
 		for (let i = 0, len = a.length; i < len; i++) {
@@ -1099,7 +1099,7 @@ export class Hex {
 		}
 
 		// Overlay Hex
-		targetAlpha = Boolean(this.overlayClasses.match(/hover|creature/g));
+		targetAlpha = Boolean(this.overlayClasses.match(/hover|creature|targetCursor/g));
 
 		if (hasCrashingGlobeTarget) {
 			if (isHoveringCrashingGlobeTarget) {
@@ -1119,6 +1119,11 @@ export class Hex {
 				this.overlayClasses.match(/\bactive\b|\bselected\b/)
 			) {
 				loadTextureIfChanged(this.overlay, `hex_p${player}`);
+				this.grid.overlayHexesGroup.bringToTop(this.overlay);
+			} else if (this.overlayClasses.match(/\btargetCursor\b/)) {
+				targetAlpha = true;
+				loadTextureIfChanged(this.overlay, 'input');
+				this.overlay.setOrigin(0.5, 0.5);
 				this.grid.overlayHexesGroup.bringToTop(this.overlay);
 			} else if (this.overlayClasses.match(/reachable/)) {
 				targetAlpha = true;
@@ -1186,13 +1191,16 @@ export class Hex {
 		// resolved alpha — rather than from the absence of a player class, which
 		// is also true of every plain hex — keeps the shared spin loop down to
 		// the one or two cursors the player can see.
+		const isStaticTargetCursor = Boolean(this.overlayClasses.match(/\btargetCursor\b/));
 		const overlayShowsCursor =
 			!isGlowControlled &&
+			!isStaticTargetCursor &&
 			((this.overlay.key === 'input' && this.overlay.alpha > 0) ||
 				(hasCrashingGlobeTarget && this.display.alpha > 0));
 
 		const showsHoverCursor =
 			!overlayShowsCursor &&
+			!isStaticTargetCursor &&
 			!this.forcedHidden &&
 			this.grid?.selectedHex === this &&
 			!this.grid.materialize_overlay?._previewPos &&

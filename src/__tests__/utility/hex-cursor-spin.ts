@@ -395,4 +395,71 @@ describe('Hover cursor over occupied overlays', () => {
 		expect(addedSprites).toHaveLength(0);
 		expect(hex.isSpinning).toBe(true);
 	});
+
+	test('renders a non-spinning cursor over a filled outline for targeted unit hexes', () => {
+		const { hex, style, display, overlay, grid, addedSprites } = createHexStandIn();
+		grid.selectedHex = hex;
+		hex.displayClasses = 'creature player1';
+		overlay.angle = 72;
+
+		style(' reachable targetCursor h_player1 hover ');
+
+		expect(display.key).toBe('hex_p1');
+		expect(overlay.key).toBe('input');
+		expect(overlay.alpha).toBe(1);
+		expect(overlay.angle).toBe(0);
+		expect(hex.isSpinning).toBe(false);
+		expect(addedSprites).toHaveLength(0);
+	});
+
+	test('extends partial multi-hex unit choices so all base hexes select the path while distinguishing affected hexes', () => {
+		const { grid, hexes, first, second } = createQueryGrid();
+		(grid.game.UI.chat as unknown as { showExpanded: jest.Mock }).showExpanded = jest.fn();
+		const { Creature } = jest.requireActual('../../creature') as typeof import('../../creature');
+		const targetUnit = Object.create(Creature.prototype);
+		Object.assign(targetUnit, {
+			id: 2,
+			team: 1,
+			hexagons: [hexes[0], hexes[1]],
+			isDarkPriest: () => false,
+			startBounce: jest.fn(),
+			resetBounce: jest.fn(),
+			ghostOverlap: jest.fn(),
+			xray: jest.fn(),
+		});
+		hexes[0].creature = targetUnit;
+		hexes[1].creature = targetUnit;
+		(hexes[0] as unknown as { direction: number }).direction = 1;
+
+		const onSelect = jest.fn();
+		const onConfirm = jest.fn();
+
+		grid.queryChoice({
+			choices: [[hexes[0]]],
+			requireCreature: false,
+			fnOnSelect: onSelect,
+			fnOnConfirm: onConfirm,
+		});
+
+		// Affected hex gets filled outline + non-spinning cursor overlay
+		expect(first.display.key).toBe('hex_p1');
+		expect(first.overlay.key).toBe('input');
+		expect(first.hex.isSpinning).toBe(false);
+
+		// Unaffected base hex gets filled outline without cursor overlay, and is reachable
+		expect(second.display.key).toBe('hex_p1');
+		expect(second.hex.reachable).toBe(true);
+		expect(second.hex.overlayClasses).not.toMatch(/\btargetCursor\b/);
+
+		// Hovering and clicking the unaffected base hex selects and confirms the same choice
+		hexes[1].onSelectFn(hexes[1]);
+		expect(onSelect).toHaveBeenCalledWith(
+			[hexes[0]],
+			expect.objectContaining({ choiceIndex: 0, hex: hexes[0] }),
+			expect.anything(),
+		);
+
+		hexes[1].onConfirmFn(hexes[1]);
+		expect(onConfirm).toHaveBeenCalledWith([hexes[0]], expect.anything(), expect.anything());
+	});
 });

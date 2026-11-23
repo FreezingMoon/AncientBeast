@@ -870,6 +870,10 @@ export class HexGrid {
 		o = { ...defaultOpt, ...o };
 
 		let hexes = [];
+		const directChoiceHexes = new Set<Hex>();
+		const choiceByExtendedHex = new Map<Hex, { choiceIndex: number; anchorHex: Hex }>();
+		const targetUnitOverflowHexes = new Set<Hex>();
+
 		for (let i = 0, len = o.choices.length; i < len; i++) {
 			let validChoice = true;
 
@@ -890,6 +894,7 @@ export class HexGrid {
 
 			if (validChoice) {
 				hexes = hexes.concat(o.choices[i]);
+				o.choices[i].forEach((hex) => directChoiceHexes.add(hex));
 				if (!(o as any).preserveDashedHexesInChoices) {
 					o.choices[i].forEach((hex) => {
 						arrayUtils.removePos(o.hexesDashed, hex);
@@ -901,6 +906,35 @@ export class HexGrid {
 						arrayUtils.removePos(o.hexesDashed, hex);
 					}
 				});
+			}
+		}
+
+		// Extend clickable area across the remaining base hexes of any multi-hex
+		// target unit partially covered by a valid choice, so clicking anywhere on
+		// the unit selects its corresponding path while keeping visual distinction
+		// between affected hexes (cursor + outline) and unaffected hexes (outline).
+		for (let i = 0, len = o.choices.length; i < len; i++) {
+			for (let j = 0; j < o.choices[i].length; j++) {
+				const anchorHex = o.choices[i][j];
+				if (!directChoiceHexes.has(anchorHex)) {
+					continue;
+				}
+				const targetCreature = anchorHex.creature;
+				if (
+					!(targetCreature instanceof Creature) ||
+					targetCreature.id === o.id ||
+					targetCreature.id === game.activeCreature?.id
+				) {
+					continue;
+				}
+				const unitHexes: Hex[] = targetCreature.hexagons || [];
+				for (const unitHex of unitHexes) {
+					if (!directChoiceHexes.has(unitHex) && !choiceByExtendedHex.has(unitHex)) {
+						choiceByExtendedHex.set(unitHex, { choiceIndex: i, anchorHex });
+						targetUnitOverflowHexes.add(unitHex);
+						hexes.push(unitHex);
+					}
+				}
 			}
 		}
 
@@ -920,6 +954,13 @@ export class HexGrid {
 						}
 					}
 				}
+				const extended = choiceByExtendedHex.get(hex);
+				if (extended) {
+					args.opt.args.direction = extended.anchorHex.direction;
+					args.opt.fnOnConfirm(args.opt.choices[extended.choiceIndex], args.opt.args, {
+						queryOptions: o,
+					});
+				}
 			},
 			fnOnSelect: (hex, args) => {
 				// Determine which set of hexes (choice) the hex is part of
@@ -934,6 +975,15 @@ export class HexGrid {
 						}
 					}
 				}
+				const extended = choiceByExtendedHex.get(hex);
+				if (extended) {
+					args.opt.args.direction = extended.anchorHex.direction;
+					args.opt.args.hex = extended.anchorHex;
+					args.opt.args.choiceIndex = extended.choiceIndex;
+					args.opt.fnOnSelect(args.opt.choices[extended.choiceIndex], args.opt.args, {
+						queryOptions: o,
+					});
+				}
 			},
 			fnOnCancel: o.fnOnCancel,
 			fnOnHoverOutside: o.fnOnHoverOutside,
@@ -944,6 +994,7 @@ export class HexGrid {
 			hexesDashed: o.hexesDashed,
 			shrunkenHexes: o.shrunkenHexes,
 			hexesDeadZone: o.hexesDeadZone,
+			targetUnitOverflowHexes,
 			flipped: o.flipped,
 			hideNonTarget: o.hideNonTarget,
 			id: o.id,
@@ -1043,11 +1094,20 @@ export class HexGrid {
 			o.hexesDashed = emptyHexes;
 		}
 
-		let extended = [];
+		const directlyTargetedHexes = new Set<Hex>(o.hexes);
+		const targetUnitOverflowHexes = new Set<Hex>();
+		const extended = [];
 		/* Add creature hexes that extend out of the range of the source hexes, so the
-		entire creature can be highlighted. */
+		entire creature can be highlighted and clicked. */
 		o.hexes.forEach((hex) => {
-			extended = extended.concat(hex.creature.hexagons);
+			hex.creature.hexagons.forEach((unitHex) => {
+				if (!extended.includes(unitHex)) {
+					extended.push(unitHex);
+				}
+				if (!directlyTargetedHexes.has(unitHex)) {
+					targetUnitOverflowHexes.add(unitHex);
+				}
+			});
 		});
 
 		o.hexes = extended;
@@ -1089,6 +1149,7 @@ export class HexGrid {
 			hexes: o.hexes,
 			hexesDashed: o.hexesDashed,
 			hexesDeadZone: o.hexesDeadZone,
+			targetUnitOverflowHexes,
 			flipped: o.flipped,
 			hideNonTarget: true,
 			id: o.id,
@@ -1203,6 +1264,7 @@ export class HexGrid {
 			hexesDashed: [],
 			shrunkenHexes: [],
 			hexesDeadZone: [],
+			targetUnitOverflowHexes: new Set<Hex>(),
 			size: 0,
 			id: 0,
 			flipped: false,
@@ -1350,11 +1412,18 @@ export class HexGrid {
 			if (o.targeting) {
 				if (hex.creature instanceof Creature) {
 					if (hex.creature.id != this.game.activeCreature?.id) {
-						hex.overlayVisualState('reachable h_player' + hex.creature.team);
-						// Add dashed hexagons under targets for ranged abilities with team color
-						hex.displayVisualState('dashed player' + hex.creature.team);
-						// Ensure dashed hexagons are on top for better visibility
-						hex.grid.displayHexesGroup.bringToTop(hex.display);
+						if (o.targetUnitOverflowHexes?.has(hex)) {
+							// Unaffected base hex of a partially targeted multi-hex unit:
+							// show player color-coded filled outline without the cursor overlay.
+							hex.displayVisualState('creature player' + hex.creature.team);
+							hex.grid.displayHexesGroup.bringToTop(hex.display);
+						} else {
+							// Affected target unit hex: filled outline with an overlapped
+							// non-spinning cursor hexagon on top.
+							hex.overlayVisualState('reachable targetCursor h_player' + hex.creature.team);
+							hex.displayVisualState('creature player' + hex.creature.team);
+							hex.grid.displayHexesGroup.bringToTop(hex.display);
+						}
 					}
 				} else {
 					if (o.fillOnlyHoveredCreature && !emptyHexBeforeCreature(hex)) {
@@ -1384,8 +1453,12 @@ export class HexGrid {
 			creature.hexagons.forEach((h) => {
 				// Flashing outline
 				h.overlayVisualState('hover h_player' + creature.team);
-				// Keep the dashed hexagons visible under targets with team color
-				if (h.displayClasses.indexOf('dashed') === -1) {
+				// Keep the dashed hexagons visible under targets with team color,
+				// without overriding filled outlines on targeted unit hexes.
+				if (
+					h.displayClasses.indexOf('dashed') === -1 &&
+					h.displayClasses.indexOf('creature') === -1
+				) {
 					h.displayVisualState('dashed player' + creature.team);
 				}
 				// Make sure the display hexagon is brought to the top for better visibility
