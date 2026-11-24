@@ -64,6 +64,7 @@ import { locationPaths } from '../assets/index';
 import type { GameEngine, SpriteHandle } from './engine/types';
 import { GameStateMachine, type GameState } from './engine/GameStateMachine';
 import { funje } from '../platforms/funje/funje';
+import { crazyGames } from '../platforms/crazygames/crazygames';
 import {
 	clearHoveredHex,
 	onPointerUp,
@@ -893,6 +894,7 @@ export default class Game {
 		if (process.env.VITE_FUNJE_TARGET === 'true') {
 			funje.loadingStart();
 		}
+		crazyGames.loadingStart();
 
 		// The old match's drum roll would keep ringing over the loading screen and
 		// the new music, since loadGame() below swaps in a brand new SoundSys
@@ -980,6 +982,10 @@ export default class Game {
 				funje.gameplayStart();
 			});
 		}
+		load.onceComplete(() => {
+			crazyGames.loadingStop();
+			crazyGames.gameplayStart();
+		});
 		load.onceComplete(onLoadCompleteFn);
 		this._pendingLoadCompleteFn = onLoadCompleteFn;
 
@@ -1249,6 +1255,12 @@ export default class Game {
 		for (let i = 0; i < gameMode; i++) {
 			const player = new Player(i as PlayerID, this);
 			this.players.push(player);
+			// Prefer the platform-provided display name (e.g. CrazyGames username)
+			// for the seat, so the scoreboard/vignette show real names.
+			const lobbySeat = this.lobbyState?.players.find((seat) => seat.playerIndex === i);
+			if (lobbySeat?.displayName) {
+				player.displayName = lobbySeat.displayName;
+			}
 			if (this.multiplayer) {
 				player.controller = 'human';
 			} else {
@@ -1541,6 +1553,8 @@ export default class Game {
 		const lobbyState = this.lobby.getLobbyState();
 		const config = (configOverride ?? lobbyState.config) as GameConfig;
 		this.lobby.markMatchStarted();
+		// The room is full once the match starts; stop advertising it as joinable.
+		this.lobby.markRoomStarted();
 		this.lobby.sendAction({
 			type: 'match-start',
 			config,
@@ -2058,7 +2072,7 @@ export default class Game {
 			if (creature) {
 				stringConsole = stringConsole.replace(
 					'%CreatureName' + i + '%',
-					creature.player.name + "'s " + creature.name,
+					(creature.player.displayName || creature.player.name) + "'s " + creature.name,
 				);
 				stringLog = stringLog.replace(
 					'%CreatureName' + i + '%',
@@ -2811,6 +2825,11 @@ export default class Game {
 		this.gameState = 'ended';
 		if (process.env.VITE_FUNJE_TARGET === 'true') {
 			funje.gameplayStop();
+		}
+		crazyGames.gameplayStop();
+		// A completed match (not a disconnect) is worth a celebration.
+		if (!reason) {
+			crazyGames.happytime();
 		}
 		this.disconnectReason = reason;
 

@@ -34,6 +34,10 @@
 		<!-- funje SDK: present on funje.com, harmless elsewhere (see src/funje.ts) -->
 		<script src="/sdk/playafk-sdk.js"></script>
 		<% } %>
+		<% if (htmlWebpackPlugin.options.crazygamesTarget) { %>
+		<!-- CrazyGames SDK v3: present on CrazyGames, harmless elsewhere (see platforms/crazygames/crazygames.ts) -->
+		<script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
+		<% } %>
 	</head>
 	<body id="AncientBeast">
 		<div id="portrait-logo" style="display:none; position:fixed; top:0; left:0; right:0; height:35px; z-index:20; pointer-events:none; align-items:center; justify-content:center;">

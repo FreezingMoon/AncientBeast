@@ -76,7 +76,11 @@ export class Fullscreen {
 			return;
 		}
 
-		if (document.body.classList.contains('devvit-mode') || !document.fullscreenEnabled) {
+		if (
+			document.body.classList.contains('devvit-mode') ||
+			document.body.classList.contains('crazygames-mode') ||
+			!document.fullscreenEnabled
+		) {
 			return;
 		}
 		if (document.fullscreenElement) {

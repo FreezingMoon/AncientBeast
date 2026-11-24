@@ -73,8 +73,41 @@ const HEARTBEAT_VOLUME_SCALE = 0.25;
 
 let currentAudioMode: AudioMode = DEFAULT_AUDIO_SETTINGS.mode;
 
+/**
+ * Platform-level mute (e.g. the CrazyGames player bar). When true the effective
+ * output is always muted regardless of the in-game toggle, and the in-game
+ * toggle cannot unmute until the platform clears it.
+ */
+let platformMuted = false;
+
 export function getAudioMode(): AudioMode {
-	return currentAudioMode;
+	return platformMuted ? 'muted' : currentAudioMode;
+}
+
+export function setPlatformMuted(muted: boolean): void {
+	platformMuted = muted;
+}
+
+export function isPlatformMuted(): boolean {
+	return platformMuted;
+}
+
+/**
+ * Apply a platform mute change and re-run the current in-game preference through
+ * the effective mode (so music/SFX start or stop immediately). `soundSysInstance`
+ * may be undefined before a match exists; the flag is still stored and applied by
+ * the next `setAudioMode` call (game.ts setup).
+ */
+export function applyPlatformMute(
+	muted: boolean,
+	soundSysInstance?: any,
+	uiInstance?: { updateAudioIcon: (mode: AudioMode) => void },
+): void {
+	platformMuted = muted;
+	if (!soundSysInstance) {
+		return;
+	}
+	setAudioMode(currentAudioMode, soundSysInstance, uiInstance);
 }
 
 export function getCurrentAudioSettings(soundSysInstance?: {
@@ -447,6 +480,9 @@ function syncMusicPlayerVolume(soundSysInstance: any, volume: number, effective:
 
 export function setAudioMode(mode: AudioMode, soundSysInstance: any, uiInstance?: any) {
 	currentAudioMode = mode;
+	// Platform mute (e.g. CrazyGames) takes priority: the effective output is
+	// always muted while it is active, whatever the player picks in-game.
+	const effectiveMode: AudioMode = platformMuted ? 'muted' : mode;
 
 	const sfxLevel = getSfxLevel(soundSysInstance);
 	const audioEl = soundSysInstance?.musicPlayer?.audio;
@@ -462,14 +498,14 @@ export function setAudioMode(mode: AudioMode, soundSysInstance: any, uiInstance?
 		soundSysInstance.allEffectsMultiplier = sfxLevel;
 	}
 
-	if (mode === 'muted') {
+	if (effectiveMode === 'muted') {
 		soundSysInstance.musicVolume = 0;
 		soundSysInstance.effectsVolume = 0;
 		soundSysInstance.heartbeatVolume = 0;
 		soundSysInstance.announcerVolume = 0;
 		syncMusicPlayerVolume(soundSysInstance, preferredMusic, false);
 		soundSysInstance.stopMusic();
-	} else if (mode === 'sfx') {
+	} else if (effectiveMode === 'sfx') {
 		soundSysInstance.musicVolume = 0;
 		// Restore base channel volumes; audible level is controlled by allEffectsMultiplier (sfxLevel).
 		soundSysInstance.effectsVolume = 1;
@@ -477,7 +513,7 @@ export function setAudioMode(mode: AudioMode, soundSysInstance: any, uiInstance?
 		soundSysInstance.announcerVolume = 1;
 		syncMusicPlayerVolume(soundSysInstance, preferredMusic, false);
 		soundSysInstance.stopMusic();
-	} else if (mode === 'full') {
+	} else if (effectiveMode === 'full') {
 		if (audioEl) {
 			(audioEl as any)._preferredVolume = preferredMusic;
 		}
@@ -492,13 +528,22 @@ export function setAudioMode(mode: AudioMode, soundSysInstance: any, uiInstance?
 	saveAudioSettings({ mode, musicVolume: preferredMusic, sfxLevel });
 
 	if (uiInstance) {
-		uiInstance.updateAudioIcon(mode);
+		uiInstance.updateAudioIcon(effectiveMode);
 	}
 }
 export function cycleAudioMode(
 	soundSysInstance: SoundSys,
 	uiInstance?: { updateAudioIcon: (mode: AudioMode) => void },
 ): AudioMode {
+	// Platform mute has priority: keep output muted and don't advance the
+	// preference (the player can change it again after the platform unmutes).
+	if (platformMuted) {
+		if (uiInstance) {
+			uiInstance.updateAudioIcon('muted');
+		}
+		return currentAudioMode;
+	}
+
 	let newMode: AudioMode;
 
 	if (currentAudioMode === 'full') {

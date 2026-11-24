@@ -24,6 +24,10 @@ import { prefetchPhaser } from './phaser/runtime';
 import type { ReplayMode } from './utility/gamelog';
 import { GameSnapshotSerializer } from './engine/GameSnapshot';
 import { funjeInit } from '../platforms/funje/funje';
+import { bootstrapCrazyGames } from '../platforms/crazygames/crazygames';
+import { startInstantMultiplayerLobby } from '../platforms/crazygames/instant-multiplayer';
+import { applyPlatformMute } from './sound/soundsys';
+import { setPlayerDisplayName } from './multiplayer/identity';
 
 const PRE_MATCH_SETTINGS_STORAGE_KEY = 'ab:pre-match-settings';
 
@@ -198,6 +202,7 @@ const AB = {} as any;
 // Create the game
 const G = new Game();
 (window as any).G = G; // eslint-disable-line @typescript-eslint/no-explicit-any
+
 const LAST_MATCH_LOG_STORAGE_KEY = 'ab:last-match-log';
 // Helper properties and methods for retrieving and playing back game logs.
 // TODO: Expose these in a less hacky way too.
@@ -427,34 +432,59 @@ $j(() => {
 			setupDevvitQueueUi(devvitPlayerId);
 		}
 	} else if (joinCodeFromUrl) {
-		const parsedJoinCode = parseLobbyCodeInput(joinCodeFromUrl);
-		if (parsedJoinCode) {
-			G.multiplayer = true;
-			forceTwoPlayerMode();
-			renderGameModeType(G.multiplayer);
-			G.lobbyCode = parsedJoinCode;
-			$j('#lobbyCode').val(G.lobbyCode);
-			isJoiningLobby = true;
-			G.joinLobbyByCode(G.lobbyCode)
-				.then(() => {
-					isJoiningLobby = false;
-					updateLobbyUi();
-				})
-				.catch((error) => {
-					isJoiningLobby = false;
-					console.error(error);
-					G.lobby?.leaveMatch();
-					G.lobby = null;
-					G.lobbyState = null;
-					G.lobbyCode = '';
-					G.multiplayer = false;
-					$j('#p4').prop('disabled', false);
-					renderGameModeType(G.multiplayer);
-					$j('#lobbyCode').val('');
-					updateLobbyUi();
-				});
-		}
+		joinLobbyFromCode(joinCodeFromUrl);
 	}
+
+	/**
+	 * Join a lobby from a code or share URL (used by `?join=`, CrazyGames invite
+	 * links and in-session invites). Shared by the URL bootstrap and the
+	 * CrazyGames SDK launch handlers.
+	 */
+	function joinLobbyFromCode(rawCode: string): void {
+		const parsedJoinCode = parseLobbyCodeInput(rawCode);
+		if (!parsedJoinCode) {
+			return;
+		}
+		G.multiplayer = true;
+		forceTwoPlayerMode();
+		renderGameModeType(G.multiplayer);
+		G.lobbyCode = parsedJoinCode;
+		$j('#lobbyCode').val(G.lobbyCode);
+		isJoiningLobby = true;
+		G.joinLobbyByCode(G.lobbyCode)
+			.then(() => {
+				isJoiningLobby = false;
+				updateLobbyUi();
+			})
+			.catch((error) => {
+				isJoiningLobby = false;
+				console.error(error);
+				G.lobby?.leaveMatch();
+				G.lobby = null;
+				G.lobbyState = null;
+				G.lobbyCode = '';
+				G.multiplayer = false;
+				$j('#p4').prop('disabled', false);
+				renderGameModeType(G.multiplayer);
+				$j('#lobbyCode').val('');
+				updateLobbyUi();
+			});
+	}
+
+	// CrazyGames SDK v3: all SDK/glue logic lives in platforms/crazygames.
+	bootstrapCrazyGames({
+		joinLobby: joinLobbyFromCode,
+		startInstantLobby: () =>
+			startInstantMultiplayerLobby({
+				game: G,
+				forceTwoPlayerMode,
+				renderGameModeType,
+				getGameConfig,
+				updateLobbyUi,
+			}),
+		applyMute: (muted) => applyPlatformMute(muted, G.soundsys, G.UI),
+		setDisplayName: setPlayerDisplayName,
+	});
 
 	window.addEventListener('blur', G.onBlur.bind(G), false);
 	window.addEventListener('focus', G.onFocus.bind(G), false);

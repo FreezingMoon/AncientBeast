@@ -104,6 +104,8 @@ export class Player {
 	game: Game;
 	creatures: Creature[];
 	name: PlayerName;
+	/** Platform-provided display name (e.g. CrazyGames username), if any. */
+	displayName?: string;
 	color: PlayerColor;
 	avatar: string;
 	score: ScoreEvent[];

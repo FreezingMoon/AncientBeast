@@ -8,7 +8,7 @@ export default {
 	description: 'Standalone website build.',
 	// Explicitly pinned false: a stray VITE_DEVVIT_TARGET=true in a local .env
 	// must never silently turn `vite build` into a Reddit-targeted build.
-	env: { VITE_DEVVIT_TARGET: 'false' },
+	env: { VITE_DEVVIT_TARGET: 'false', VITE_CRAZYGAMES_TARGET: 'false' },
 	outputDir: 'deploy',
 	transports: [
 		{ id: 'peerjs', label: 'PeerJS (P2P)', status: 'active' },

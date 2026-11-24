@@ -2937,7 +2937,7 @@ export class UI {
 				.join('');
 
 			return {
-				playerLabel: `Player${player.id + 1}`,
+				playerLabel: player.displayName || `Player${player.id + 1}`,
 				color: playerColors[player.id] || '#fff',
 				barsHtml,
 			};
@@ -3135,7 +3135,7 @@ export class UI {
 			if (isLandscapePhone) {
 				// Build a player row: player name + one cell per stat.
 				const player = game.players[i];
-				const playerLabel = player.name || `Player${i + 1}`;
+				const playerLabel = player.displayName || player.name || `Player${i + 1}`;
 				const playerColor = playerColors[i % playerColors.length];
 				let playerRow = `<tr class="player_row_${i}"><td style="color:${playerColor}">${playerLabel}</td>`;
 				// Skip the bars row (index 0) and the player_name row (index 1)
@@ -4494,7 +4494,7 @@ export class UI {
 
 			return `<div class="vignette active p${player.id}">
 				<div class="playerinfo frame p${player.id}">
-				<p class="name">${player.name}</p>
+				<p class="name">${player.displayName || player.name}</p>
 				<p class="points"><span>${player.getScore().total}</span> Points</p>
 				<p class="plasma"><span>${player.plasma}</span> Plasma</p>
 				<p class="units"><span>${player.getNbrOfCreatures() + ' / ' + ui.game.creaLimitNbr}</span> Units</p>

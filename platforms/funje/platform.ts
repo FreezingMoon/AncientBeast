@@ -6,7 +6,7 @@ export default {
 	emoji: '🎮',
 	label: 'Funje.com',
 	description: 'Funje arcade website build (iframe embed via Funje SDK).',
-	env: { VITE_FUNJE_TARGET: 'true' },
+	env: { VITE_FUNJE_TARGET: 'true', VITE_CRAZYGAMES_TARGET: 'false' },
 	outputDir: 'deploy/funje',
 	transports: [
 		{ id: 'peerjs', label: 'PeerJS (P2P)', status: 'active' },
@@ -16,6 +16,9 @@ export default {
 	commands: {
 		dev: { label: 'Start Vite dev server', run: 'vite' },
 		build: { label: 'Production build', run: 'vite build' },
-		deploy: { label: 'Production build + upload to Vercel (funje.ancientbeast.com)', run: 'sh platforms/funje/deploy.sh' },
+		deploy: {
+			label: 'Production build + upload to Vercel (funje.ancientbeast.com)',
+			run: 'sh platforms/funje/deploy.sh',
+		},
 	},
 } satisfies PlatformDescriptor;

@@ -114,6 +114,8 @@ export interface LobbyPlayer {
 	playerId: PlayerId;
 	peerId: PeerId;
 	name: string;
+	/** Platform-provided display name (e.g. CrazyGames username), if any. */
+	displayName?: string;
 	playerIndex: number;
 	isBot?: boolean;
 }

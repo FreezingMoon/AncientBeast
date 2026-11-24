@@ -1,4 +1,5 @@
 import $j from 'jquery';
+import { crazyGames, isCrazyGamesTarget } from '../../platforms/crazygames/crazygames';
 
 type OpenCollectiveMember = {
 	name?: string;
@@ -21,6 +22,14 @@ type OpenCollectiveBannerConfig = {
 	 * rather than shown. See isThirdPartyContentBlocked().
 	 */
 	hidden?: boolean;
+	/**
+	 * CrazyGames build: render a CrazyGames banner in this slot instead of the
+	 * OpenCollective widget (CrazyGames forbids third-party in-game ads but
+	 * provides its own banner module).
+	 */
+	crazyGamesBanner?: boolean;
+	/** DOM id of the slot element the CrazyGames banner is requested into. */
+	bannerContainerId?: string;
 };
 
 const OPEN_COLLECTIVE_WIDGET_ENABLED = true;
@@ -39,6 +48,11 @@ const OPEN_COLLECTIVE_WIDGET_ENABLED = true;
  *    embedders — just append it to the game's embed/iframe URL)
  */
 export function isThirdPartyContentBlocked(): boolean {
+	// CrazyGames forbids third-party in-game advertising, so the OpenCollective
+	// widget is never loaded there (a CrazyGames banner is shown in its place).
+	if (isCrazyGamesTarget()) {
+		return true;
+	}
 	if (typeof window === 'undefined') {
 		return false;
 	}
@@ -72,6 +86,8 @@ export class OpenCollectiveBanner {
 	isViewOpen: () => boolean;
 	enabled: boolean;
 	hidden: boolean;
+	crazyGamesBanner: boolean;
+	bannerContainerId: string | null;
 	initialized: boolean;
 	isFetching: boolean;
 	allMembers: OpenCollectiveMember[];
@@ -87,6 +103,10 @@ export class OpenCollectiveBanner {
 		this.isViewOpen = config.isViewOpen;
 		this.enabled = config.enabled ?? OPEN_COLLECTIVE_WIDGET_ENABLED;
 		this.hidden = config.hidden ?? false;
+		// On CrazyGames the OpenCollective widget is replaced by a CrazyGames
+		// banner in the same slot (third-party in-game ads are not allowed there).
+		this.crazyGamesBanner = config.crazyGamesBanner ?? isCrazyGamesTarget();
+		this.bannerContainerId = config.bannerContainerId ?? this.$banner.attr('id') ?? null;
 		this.initialized = false;
 		this.isFetching = false;
 		this.allMembers = [];
@@ -106,6 +126,14 @@ export class OpenCollectiveBanner {
 		}
 
 		this.initialized = true;
+
+		// CrazyGames build: the slot hosts a CrazyGames banner instead of the
+		// OpenCollective widget. Keep the container visible; the banner itself is
+		// requested when the view opens (see onViewOpen).
+		if (this.crazyGamesBanner) {
+			this.$banner.show();
+			return;
+		}
 
 		if (!this.enabled || !this.$banner.length) {
 			this.$banner.hide();
@@ -131,6 +159,15 @@ export class OpenCollectiveBanner {
 	}
 
 	onViewOpen() {
+		// CrazyGames build: (re)request the banner for this slot. The SDK
+		// enforces a 20s cooldown per container; failures are swallowed.
+		if (this.crazyGamesBanner) {
+			if (this.bannerContainerId) {
+				crazyGames.requestBanner(this.bannerContainerId);
+			}
+			return;
+		}
+
 		if (!this.enabled || !this.initialized) {
 			return;
 		}
@@ -155,6 +192,15 @@ export class OpenCollectiveBanner {
 	}
 
 	onViewClose() {
+		// CrazyGames build: clear the banner so it doesn't linger over the next
+		// view (the SDK recommends clearing after hiding).
+		if (this.crazyGamesBanner) {
+			if (this.bannerContainerId) {
+				crazyGames.clearBanner(this.bannerContainerId);
+			}
+			return;
+		}
+
 		this.hideContributorTooltip();
 		this.stopMarquee();
 	}

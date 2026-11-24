@@ -4423,6 +4423,13 @@ body.devvit-mode .button#fullscreen {
 	}
 }
 
+/* CrazyGames provides its own fullscreen control in the player bar, so the
+   in-game button is a dead control there — hide it (see script.ts and the
+   no-op guard in ui/fullscreen.ts). */
+body.crazygames-mode .button#fullscreen {
+	display: none !important;
+}
+
 /* Build-version badge (see renderBuildBadge in script.ts). Tells testers which
    deployed build they're on; collapsed into a corner and kept unobtrusive so
    it never covers gameplay. During the pre-match screen the badge is always

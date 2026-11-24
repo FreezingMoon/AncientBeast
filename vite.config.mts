@@ -27,7 +27,7 @@ const rootDir = import.meta.dirname;
  * - `./**` (TS modules) -> bundled with esbuild and evaluated in Node
  * - `assets/**`         -> the repo-relative URL, returned as a string
  */
-function ejsHtmlPlugin({ devvitTarget, funjeTarget, enableServiceWorker }) {
+function ejsHtmlPlugin({ devvitTarget, funjeTarget, crazygamesTarget, enableServiceWorker }) {
 	const srcDir = resolve(rootDir, 'src');
 	const templatePath = resolve(srcDir, 'index.ejs');
 
@@ -119,7 +119,9 @@ function ejsHtmlPlugin({ devvitTarget, funjeTarget, enableServiceWorker }) {
 
 		return ejs.render(template, {
 			require: templateRequire,
-			htmlWebpackPlugin: { options: { devvitTarget, funjeTarget, enableServiceWorker } },
+			htmlWebpackPlugin: {
+				options: { devvitTarget, funjeTarget, crazygamesTarget, enableServiceWorker },
+			},
 		});
 	}
 
@@ -240,6 +242,7 @@ export default defineConfig(({ mode, command }) => {
 	const enableServiceWorker = env.ENABLE_SERVICE_WORKER === 'true';
 	const isDevvitTarget = env.VITE_DEVVIT_TARGET === 'true';
 	const isFunjeTarget = env.VITE_FUNJE_TARGET === 'true';
+	const isCrazyGamesTarget = env.VITE_CRAZYGAMES_TARGET === 'true';
 
 	const phaserPath = resolve(rootDir, 'node_modules/phaser/dist/phaser.js');
 
@@ -257,7 +260,13 @@ export default defineConfig(({ mode, command }) => {
 		base: isProduction ? './' : '/',
 		publicDir: 'static',
 		build: {
-			outDir: isDevvitTarget ? 'dist/client' : isFunjeTarget ? 'deploy/funje' : 'deploy',
+			outDir: isDevvitTarget
+				? 'dist/client'
+				: isFunjeTarget
+				? 'deploy/funje'
+				: isCrazyGamesTarget
+				? 'deploy/crazygames'
+				: 'deploy',
 			emptyOutDir: true,
 			sourcemap: isProduction ? 'hidden' : 'inline',
 			minify: isProduction ? 'terser' : false,
@@ -331,6 +340,7 @@ export default defineConfig(({ mode, command }) => {
 			'process.env.ENABLE_SERVICE_WORKER': JSON.stringify(enableServiceWorker),
 			'process.env.VITE_DEVVIT_TARGET': JSON.stringify(isDevvitTarget),
 			'process.env.VITE_FUNJE_TARGET': JSON.stringify(isFunjeTarget),
+			'process.env.VITE_CRAZYGAMES_TARGET': JSON.stringify(isCrazyGamesTarget),
 			'process.env.DEBUG_MODE': JSON.stringify(debugEnv.DEBUG_MODE === 'true'),
 			'process.env.DEBUG_AUTO_START_GAME': JSON.stringify(
 				debugEnv.DEBUG_AUTO_START_GAME === 'true',
@@ -379,6 +389,7 @@ export default defineConfig(({ mode, command }) => {
 			ejsHtmlPlugin({
 				devvitTarget: isDevvitTarget,
 				funjeTarget: isFunjeTarget,
+				crazygamesTarget: isCrazyGamesTarget,
 				enableServiceWorker,
 			}),
 			// Build only. The plugin's dev middleware serves the copied trees with

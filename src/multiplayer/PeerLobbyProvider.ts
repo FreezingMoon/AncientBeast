@@ -1,4 +1,4 @@
-import { PlayerIdentity } from './identity';
+import { PlayerIdentity, onPlayerDisplayNameChange } from './identity';
 import { PeerTransport } from './transport/PeerTransport';
 import { ITransport } from './transport/ITransport';
 import {
@@ -36,6 +36,18 @@ export class PeerLobbyProvider implements INetworkBackend {
 	constructor(transport: ITransport = new PeerTransport()) {
 		this.transport = transport;
 		this.wireTransport();
+
+		// Keep the local seat's display name in sync if the platform resolves the
+		// username after the lobby was created (e.g. the CrazyGames SDK answering
+		// late). The stable id is unaffected.
+		onPlayerDisplayNameChange((name) => {
+			const myPeerId = this.transport.getMyId();
+			const local = this.state.players.find((player) => player.peerId === myPeerId);
+			if (local) {
+				local.displayName = name ?? undefined;
+				this.emitLobbyUpdate();
+			}
+		});
 	}
 
 	async createLobby(config: GameConfig, code?: LobbyCode): Promise<LobbySession> {
@@ -75,6 +87,7 @@ export class PeerLobbyProvider implements INetworkBackend {
 			playerId,
 			peerId: hostPeerId,
 			name: playerId,
+			displayName: this.identity.getName(),
 			playerIndex: 0,
 		};
 
@@ -116,6 +129,7 @@ export class PeerLobbyProvider implements INetworkBackend {
 			playerId,
 			peerId: this.transport.getMyId(),
 			name: playerId,
+			displayName: this.identity.getName(),
 			playerIndex: -1,
 		};
 		let joined = false;
@@ -253,6 +267,7 @@ export class PeerLobbyProvider implements INetworkBackend {
 				playerId: message.player.playerId || this.identity.getId(),
 				peerId: this.transport.getMyId(),
 				name: this.identity.getId(),
+				displayName: this.identity.getName(),
 			};
 
 			const players = this.state.players.filter(
@@ -369,6 +384,7 @@ export class PeerLobbyProvider implements INetworkBackend {
 			if (player.playerId) {
 				existingPlayer.playerId = player.playerId;
 				existingPlayer.name = player.name;
+				existingPlayer.displayName = player.displayName;
 			}
 			this.emitLobbyUpdate();
 			this.transport.sendTo(peerId, {

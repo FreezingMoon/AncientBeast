@@ -1,5 +1,6 @@
 import type Game from '../game';
 import { PeerLobbyProvider } from './PeerLobbyProvider';
+import { crazyGames } from '../../platforms/crazygames/crazygames';
 import type { AuthoritativeState, Intent } from './authoritative';
 import {
 	GameConfig,
@@ -36,6 +37,7 @@ export class LobbyClient {
 		this.game.lobbyCode = session.code;
 		this.game.matchid = session.code;
 		this.game.lobbyState = this.getLobbyState();
+		this.syncCrazyGamesRoom(true);
 		return session;
 	}
 
@@ -44,11 +46,34 @@ export class LobbyClient {
 		this.game.lobbyCode = code;
 		this.game.matchid = code;
 		this.game.lobbyState = this.getLobbyState();
+		this.syncCrazyGamesRoom(false);
 		return session;
 	}
 
 	leaveMatch(): void {
 		this.provider.leaveLobby();
+		crazyGames.leftRoom();
+	}
+
+	/**
+	 * Mark the current room as no longer joinable (the match is starting). The
+	 * host calls this so CrazyGames stops advertising the room to new players.
+	 */
+	markRoomStarted(): void {
+		this.syncCrazyGamesRoom(false);
+	}
+
+	/**
+	 * Share the current room with CrazyGames so friends can join/invite. The room
+	 * stays joinable until the match starts; the invite params carry the lobby
+	 * code so an invite link can auto-join.
+	 */
+	private syncCrazyGamesRoom(isJoinable: boolean): void {
+		const code = this.game.lobbyCode;
+		if (!code) {
+			return;
+		}
+		crazyGames.shareRoom(code, isJoinable);
 	}
 
 	async sendAction(message: GameMessage): Promise<void> {
@@ -132,6 +157,14 @@ export class LobbyClient {
 	getShareUrl(): string {
 		if (!this.game.lobbyCode) {
 			return window.location.href.split('?')[0];
+		}
+
+		// On CrazyGames, build a platform invite link so the URL carries the
+		// invite context through the CrazyGames player. Falls back to the plain
+		// `?join=` URL elsewhere (and when the SDK is unavailable).
+		const inviteLink = crazyGames.makeInviteLink({ join: this.game.lobbyCode });
+		if (inviteLink) {
+			return inviteLink;
 		}
 
 		const url = new URL(window.location.href);
