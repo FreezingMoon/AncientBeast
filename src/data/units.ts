@@ -1608,7 +1608,7 @@ export const unitData: UnitDataStructure = [
 		ability_info: [
 			{
 				title: 'Ragnarok Day',
-				desc: 'Before dying, bombards the whole battlefield after one complete round.',
+				desc: 'Before dying, will bombard the whole battlefield after one complete round.',
 				info: '5 crush + 15 burn damage to all units.',
 				upgrade: 'Does double damage now.',
 			},
@@ -1616,16 +1616,16 @@ export const unitData: UnitDataStructure = [
 				title: 'Frying Stare',
 				desc: "Stares and splashes a nearby foe unit. Reduces the target's burn stat by two.",
 				info: '20 burn damage & -2 burn stat debuff.',
-				upgrade: '-10 burn stat to inline enemy.',
+				upgrade: '-2 burn stat to inline enemy.',
 				costs: {
 					energy: 15,
 				},
 			},
 			{
 				title: 'Volcanic Artillery',
-				desc: 'Fires 3 rocks will hit target spots with 100 delay, damaging units or ground.',
+				desc: 'Fires 3 rocks that will hit target spots with delay, damaging units or ground.',
 				info: '10 crush + 5 burn damage or fissures.',
-				upgrade: 'Total damage is now doubled.',
+				upgrade: 'Ignores 1/3 target defense.',
 				costs: {
 					energy: 20,
 				},
@@ -2078,7 +2078,7 @@ export const unitData: UnitDataStructure = [
 				title: 'Crashing Globe',
 				desc: 'Catapults a delayed plasma ball to fall at any targeted combat field location.',
 				info: '20 crush damage + 10 shock per strike.',
-				upgrade: 'Leaves a fire trap if misses.',
+				upgrade: 'Leaves a fire trap if it misses.',
 				damages: {
 					crush: 20,
 					shock: 10,
