@@ -16,6 +16,6 @@ export default {
 	commands: {
 		dev: { label: 'Start Vite dev server', run: 'vite' },
 		build: { label: 'Production build', run: 'vite build' },
-		deploy: { label: 'Production build (upload runs in CI)', run: 'vite build' },
+		deploy: { label: 'Production build + upload to Vercel (funje.ancientbeast.com)', run: 'sh platforms/funje/deploy.sh' },
 	},
 } satisfies PlatformDescriptor;

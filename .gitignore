@@ -140,3 +140,4 @@ $RECYCLE.BIN/
 # `SIM_WRITE_BASELINE=1`. `simulation-latest.json` is the throwaway current run.
 src/__tests__/simulation/results/
 !src/__tests__/simulation/results/simulation-baseline.json
+.vercel

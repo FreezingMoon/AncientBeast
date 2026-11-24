@@ -1,0 +1,10 @@
+{
+	"version": 2,
+	"routes": [
+		{
+			"src": "/(.*\\.(?:js|css|png|jpe?g|gif|svg|ico|webp|avif|webmanifest|json|map|wasm|txt|xml))$",
+			"headers": { "cache-control": "public, max-age=31536000, immutable" }
+		},
+		{ "src": "/(.*)", "dest": "/index.html" }
+	]
+}
