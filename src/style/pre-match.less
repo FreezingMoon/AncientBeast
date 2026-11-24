@@ -691,6 +691,10 @@ a {
 		display: none;
 	}
 
+	.lobby {
+		margin-bottom: 2px;
+	}
+
 	#contribute {
 		display: block;
 		position: fixed;
@@ -741,6 +745,39 @@ a {
 		background-image: url('assets/interface/frame.png'), url('assets/icons/version.svg');
 		background-size: cover;
 		background-repeat: no-repeat;
+	}
+
+	.lobby-error {
+		position: fixed;
+		left: 6px;
+		top: 50%;
+		transform: translateY(-50%);
+		margin: 0;
+		z-index: 101;
+		width: 100px;
+		max-width: 100px;
+		box-sizing: border-box;
+		padding: 8px 10px;
+		background: rgba(18, 18, 18, 0.94);
+		border: 2px solid #d6625e;
+		border-radius: 12px;
+		color: #ff9d9d;
+		font-size: 0.78rem;
+		line-height: 1.25;
+		text-align: left;
+		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+
+		&::after {
+			content: '';
+			position: absolute;
+			right: 6px;
+			bottom: -34px;
+			width: 0;
+			height: 0;
+			border-style: solid;
+			border-width: 34px 10px 0 4px;
+			border-color: #d6625e transparent transparent transparent;
+		}
 	}
 }
 
