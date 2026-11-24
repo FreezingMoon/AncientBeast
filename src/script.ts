@@ -799,7 +799,25 @@ $j(() => {
 	// Create new Object to play audio in pre-match screen
 	const beastAudio = new PreMatchAudioPlayer();
 
-	const updateLobbyUi = (lobby = G.lobbyState) => {
+	let previousLobbyPlayers = new Map<string, import('./multiplayer').LobbyPlayer>();
+	let lobbyNoticeTimer: number | undefined;
+
+	const showLobbyNotice = (message: string, duration = 5000): void => {
+		const $lobbyError = $j('#lobbyError');
+		if (lobbyNoticeTimer !== undefined) {
+			window.clearTimeout(lobbyNoticeTimer);
+		}
+		$lobbyError.text(message).removeClass('hide');
+		lobbyNoticeTimer = window.setTimeout(() => {
+			$lobbyError.addClass('hide').text('');
+			lobbyNoticeTimer = undefined;
+		}, duration);
+	};
+
+	const getLobbyPlayerLabel = (player: import('./multiplayer').LobbyPlayer): string =>
+		player.displayName || `Player ${player.playerNumber ?? player.playerIndex + 1}`;
+
+	const updateLobbyUi = (lobby = G.lobbyState, rememberPlayerIds = true) => {
 		const isHost = Boolean(G.lobby?.isHost());
 		const hasLobby = Boolean(G.lobby);
 		const code = hasLobby ? G.lobbyCode || lobby?.code || '' : '';
@@ -847,9 +865,7 @@ $j(() => {
 		if (!hasLobby) {
 			$createButton.val('Create Lobby');
 		} else if (isHost) {
-			$createButton.val(
-				`Waiting Players (${lobby?.players.length ?? 1}/${lobby?.config.gameMode ?? 4})`,
-			);
+			$createButton.val('Waiting Players');
 			$createButton.prop('disabled', true);
 			$createButton.toggleClass('disabled', true);
 		} else {
@@ -892,6 +908,12 @@ $j(() => {
 		].forEach((name) => {
 			$j(`input[name="${name}"]`).prop('disabled', hasLobby && !isHost);
 		});
+
+		if (rememberPlayerIds) {
+			previousLobbyPlayers = new Map(
+				(lobby?.players ?? []).map((player) => [player.playerId, player]),
+			);
+		}
 	};
 
 	updateLobbyUi();
@@ -907,18 +929,17 @@ $j(() => {
 		}
 	});
 
-	let previousLobbyPlayerCount = 0;
 	let devvitMatchStartScheduled = false;
 
 	G.onLobbyUpdate = (lobby) => {
-		if (lobby.status === 'ended' && !G.lobby?.isHost()) {
+		const wasRemoved = lobby.status === 'ended' && !G.lobby?.isHost();
+		if (wasRemoved) {
 			G.lobby?.leaveMatch();
 			G.lobby = null;
 			G.lobbyState = null;
 			G.lobbyCode = '';
 			G.multiplayer = false;
-			$j('#lobbyError').text('You were removed from the lobby.').removeClass('hide');
-			window.setTimeout(() => $j('#lobbyError').addClass('hide').text(''), 5000);
+			showLobbyNotice('You were removed from the lobby.');
 		}
 
 		if (!G.lobby?.isHost()) {
@@ -933,14 +954,44 @@ $j(() => {
 			});
 		}
 
-		updateLobbyUi(lobby);
+		updateLobbyUi(lobby, false);
+
+		const currentPlayers = new Map(lobby.players.map((player) => [player.playerId, player]));
+		const joinedPlayers = [...lobby.players].filter(
+			(player) => !previousLobbyPlayers.has(player.playerId),
+		);
+		const leftPlayers = [...previousLobbyPlayers.values()].filter(
+			(player) => !currentPlayers.has(player.playerId),
+		);
+
+		if (
+			!wasRemoved &&
+			previousLobbyPlayers.size > 0 &&
+			(joinedPlayers.length > 0 || leftPlayers.length > 0)
+		) {
+			const notices: string[] = [];
+			if (joinedPlayers.length > 0) {
+				const names = joinedPlayers.map(getLobbyPlayerLabel).join(', ');
+				notices.push(`${names} joined the lobby.`);
+			}
+			if (leftPlayers.length > 0) {
+				const names = leftPlayers.map(getLobbyPlayerLabel).join(', ');
+				notices.push(`${names} left the lobby.`);
+			}
+			showLobbyNotice(notices.join(' '));
+		}
+		previousLobbyPlayers = currentPlayers;
+
+		if (wasRemoved) {
+			return;
+		}
 
 		// Devvit matchmaking remains an automatic 1v1 queue. Peer/CrazyGames
 		// private lobbies require the host to press Start.
 		if (
 			effectiveNetMode === 'devvit' &&
 			G.lobby?.isHost() &&
-			lobby.players.length > previousLobbyPlayerCount &&
+			joinedPlayers.length > 0 &&
 			lobby.players.length === 2 &&
 			lobby.status === 'waiting' &&
 			!devvitMatchStartScheduled
@@ -950,7 +1001,6 @@ $j(() => {
 				G.startMultiplayerMatch(getGameConfig() as unknown as import('./multiplayer').GameConfig);
 			}, 800);
 		}
-		previousLobbyPlayerCount = lobby.players.length;
 	};
 
 	$j(
