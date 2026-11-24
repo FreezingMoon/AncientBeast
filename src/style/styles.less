@@ -2097,6 +2097,7 @@ div.section.info {
 	padding: 5px 7px 7px;
 	font-size: 14px;
 	color: #ddd;
+	text-wrap: pretty;
 }
 
 .button + .desc .message {
@@ -3622,6 +3623,10 @@ input {
 		transform: scale(0.55);
 		transform-origin: right bottom;
 	}
+	#rightpanel .button + .desc {
+		transform: scale(1.818182);
+		transform-origin: right center;
+	}
 }
 
 @media screen and (min-height: 200px) and (max-height: 479px) and (orientation: landscape) {
@@ -3678,6 +3683,10 @@ input {
 		bottom: 0;
 		transform: scale(0.7);
 		transform-origin: right bottom;
+	}
+	#rightpanel .button + .desc {
+		transform: scale(1.428571);
+		transform-origin: right center;
 	}
 }
 
