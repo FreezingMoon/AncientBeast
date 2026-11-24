@@ -332,12 +332,12 @@ body {
 @media (min-width: 1024px) and (min-height: 556px) {
 	.lobby-error {
 		position: fixed;
-		left: clamp(260px, 20vw, 360px);
-		top: clamp(45px, calc(23vh - 90px), 160px);
+		left: 16px;
+		bottom: 100px;
 		z-index: 101;
 		box-sizing: border-box;
 		width: 280px;
-		max-width: calc(100vw - 380px);
+		max-width: calc(50vw - 40px);
 		min-height: 0;
 		margin: 0;
 		padding: 13px 16px;
@@ -353,12 +353,13 @@ body {
 		&::after {
 			content: '';
 			position: absolute;
-			bottom: -48px;
-			left: -4px;
-			width: 36px;
-			height: 48px;
-			background: #d6625e;
-			clip-path: polygon(45% 0, 100% 0, 0 100%);
+			bottom: -34px;
+			left: 40px;
+			width: 0;
+			height: 0;
+			border-style: solid;
+			border-width: 34px 10px 0 4px;
+			border-color: #d6625e transparent transparent transparent;
 		}
 
 		&.hide {
@@ -602,6 +603,43 @@ body {
 	left: calc(50% + 110px);
 }
 
+@media (min-width: 556px) and (min-height: 556px) {
+	#gameTitle {
+		margin: 0 auto;
+
+		div {
+			margin-top: 4px;
+		}
+	}
+
+	#gameSetupContainer #pre-match {
+		justify-content: flex-start;
+	}
+
+	.lobby {
+		margin-bottom: 5px;
+	}
+
+	.setupFrame {
+		margin-bottom: 0;
+	}
+
+	#start-btn {
+		min-height: 74px;
+		margin: 0;
+	}
+}
+
+@media (min-height: 665px) {
+	#gameTitle {
+		padding-top: 18px;
+	}
+
+	#gameSetupContainer #pre-match {
+		justify-content: center;
+	}
+}
+
 #singleplayer,
 #multiplayer {
 	display: none;
@@ -631,19 +669,18 @@ body {
 	}
 }
 
-#discord {
+#contribute {
 	display: block;
-	width: 100px;
 	position: fixed;
-	left: 0;
 	bottom: 0;
+	left: 0;
 	z-index: 100;
 
 	div {
-		height: 100px;
-		background-color: rgba(0, 0, 0, 0.55);
-		background-image: url('assets/interface/frame.png'), url('assets/icons/discord.svg');
-		background-size: cover;
+		background: url('assets/interface/Swampler.gif') no-repeat;
+		width: 120px;
+		height: 130px;
+		background-size: contain;
 	}
 }
 
@@ -661,9 +698,19 @@ body {
 
 	div {
 		height: 100px;
-		background: url('assets/interface/AB.png') no-repeat;
+		background-color: rgba(0, 0, 0, 0.55);
+		background-image: url('assets/interface/frame.png'), url('assets/icons/version.svg');
+		background-repeat: no-repeat;
 		background-size: cover;
 	}
+}
+
+#fullscreen,
+#websiteButton,
+#contribute,
+#start,
+#version {
+	transition: filter 0.15s ease-in-out;
 
 	&:hover {
 		filter: brightness(120%);
@@ -690,13 +737,14 @@ a {
 	}
 }
 
-@media (max-height: 555px) {
-	#discord {
-		display: none;
+@media (max-height: 664px) {
+	#matchMaking {
+		min-height: 100vh;
+		overflow-y: hidden;
 	}
 
-	#matchMaking {
-		background: black url('assets/interface/skulls.jpg') repeat;
+	#gameSetupContainer #pre-match {
+		justify-content: center;
 	}
 
 	#gameTitle {
@@ -718,72 +766,17 @@ a {
 			height: 100px;
 		}
 
-		&:hover {
-			filter: brightness(120%);
-		}
-
 		span {
 			text-shadow: 0.1em 0.1em 0.1em #000, 0 0 0.7em red;
 		}
 	}
-	#start-btn {
-		display: none;
-	}
-
 	.lobby {
-		margin-bottom: 2px;
+		margin-bottom: 1px;
 	}
 
-	#contribute {
-		display: block;
-		position: fixed;
-		bottom: 0;
-		z-index: 100;
-
-		div {
-			background: url('assets/interface/Swampler.gif');
-			background-repeat: no-repeat;
-			width: 120px;
-			height: 130px;
-			background-size: contain;
-		}
-
-		&:hover {
-			filter: brightness(120%);
-		}
-	}
-
-	#start {
-		display: block;
-		width: 100px;
-		position: fixed;
-		right: 0;
-		top: 50%;
-		transform: translateY(-50%);
-		z-index: 100;
-
-		button {
-			display: block;
-			width: 100px;
-			height: 100px;
-			border: none;
-			cursor: pointer;
-			background-color: rgba(0, 0, 0, 0.55);
-			background-image: url('assets/interface/frame.png'), url('assets/icons/start.svg');
-			background-repeat: no-repeat;
-			background-size: cover;
-		}
-
-		span {
-			animation: fading 2.5s infinite;
-		}
-	}
-
-	#version div {
-		background-color: rgba(0, 0, 0, 0.55);
-		background-image: url('assets/interface/frame.png'), url('assets/icons/version.svg');
-		background-size: cover;
-		background-repeat: no-repeat;
+	.setupFrame,
+	.game-options {
+		margin-bottom: 0;
 	}
 
 	.lobby-error {
@@ -817,6 +810,66 @@ a {
 			border-width: 34px 10px 0 4px;
 			border-color: #d6625e transparent transparent transparent;
 		}
+	}
+
+	@media (min-width: 1024px) {
+		.lobby-error {
+			top: auto;
+			right: auto;
+			bottom: 100px;
+			left: 16px;
+			transform: none;
+			width: 280px;
+			max-width: calc(50vw - 40px);
+			padding: 13px 16px;
+			font-size: 0.9rem;
+			line-height: 1.35;
+			text-align: center;
+
+			&::after {
+				right: auto;
+				bottom: -34px;
+				left: 40px;
+			}
+		}
+	}
+}
+
+@media (max-height: 555px) {
+	#start-btn {
+		display: none;
+	}
+
+	#start {
+		display: block;
+		width: 100px;
+		position: fixed;
+		right: 0;
+		top: 50%;
+		transform: translateY(-50%);
+		z-index: 100;
+
+		button {
+			display: block;
+			width: 100px;
+			height: 100px;
+			border: none;
+			cursor: pointer;
+			background-color: rgba(0, 0, 0, 0.55);
+			background-image: url('assets/interface/frame.png'), url('assets/icons/start.svg');
+			background-repeat: no-repeat;
+			background-size: cover;
+		}
+
+		span {
+			animation: fading 2.5s infinite;
+		}
+	}
+}
+
+@media (max-height: 555px) and (max-width: 1023px) {
+	#matchMaking {
+		background: black url('assets/interface/skulls.jpg') repeat;
 	}
 }
 
@@ -865,8 +918,7 @@ body.devvit-mode {
 	#gameSetupContainer > #gameTitle,
 	#gameSetupContainer > #websiteButton,
 	#gameSetupContainer > #contribute,
-	#gameSetupContainer > #version,
-	#gameSetupContainer > #discord {
+	#gameSetupContainer > #version {
 		display: none !important;
 	}
 
