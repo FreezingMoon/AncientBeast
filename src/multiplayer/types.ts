@@ -27,6 +27,7 @@ export type GameMessage = {
 } & (
 	| { type: 'player-joined'; player: LobbyPlayer }
 	| { type: 'lobby-joined'; player: LobbyPlayer }
+	| { type: 'lobby-state'; state: LobbyState }
 	| { type: 'player-left'; playerId: PlayerId; player: LobbyPlayer }
 	| {
 			type: 'match-start';
@@ -117,6 +118,8 @@ export interface LobbyPlayer {
 	/** Platform-provided display name (e.g. CrazyGames username), if any. */
 	displayName?: string;
 	playerIndex: number;
+	/** One-based lobby seat shown to players. */
+	playerNumber?: number;
 	isBot?: boolean;
 }
 
@@ -148,6 +151,8 @@ export interface INetworkBackend {
 	isHost(): boolean;
 	getLobbyState(): LobbyState;
 	getLocalPlayer(): LobbyPlayer | undefined;
+	updateLobbyConfig(config: GameConfig): void;
+	kickPlayer(playerId: PlayerId): void;
 	markMatchStarted(): void;
 	sendGameMessage(message: GameMessage): Promise<void>;
 	/** Send a player input to the authoritative server (transport-agnostic). */

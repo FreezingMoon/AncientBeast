@@ -446,7 +446,6 @@ $j(() => {
 			return;
 		}
 		G.multiplayer = true;
-		forceTwoPlayerMode();
 		renderGameModeType(G.multiplayer);
 		G.lobbyCode = parsedJoinCode;
 		$j('#lobbyCode').val(G.lobbyCode);
@@ -477,7 +476,6 @@ $j(() => {
 		startInstantLobby: () =>
 			startInstantMultiplayerLobby({
 				game: G,
-				forceTwoPlayerMode,
 				renderGameModeType,
 				getGameConfig,
 				updateLobbyUi,
@@ -756,11 +754,6 @@ $j(() => {
 		window.addEventListener('keydown', handleStartScreenKeydown);
 	}
 
-	if (G.multiplayer) {
-		// TODO Remove after implementation 2 vs 2 in multiplayer mode
-		forceTwoPlayerMode();
-	}
-
 	function updateStartPrompt() {
 		const gameMode = parseInt($j('input[name="gameMode"]:checked').val() as string, 10) || 2;
 		const player1Checked = $j('#player1').is(':checked');
@@ -776,9 +769,17 @@ $j(() => {
 				  !player3Checked &&
 				  !player4Checked;
 
-		$j('#start-btn span.blink:first').text(demoMode ? 'VIEW' : 'PRESS');
-		$j('#start-btn span.blink:last').text(demoMode ? 'MODE' : 'BUTTON');
-		$j('#startButton').val(demoMode ? 'DEMO' : 'START');
+		setStartPrompt(
+			demoMode ? 'VIEW' : 'PRESS',
+			demoMode ? 'DEMO' : 'START',
+			demoMode ? 'MODE' : 'BUTTON',
+		);
+	}
+
+	function setStartPrompt(prefix: string, button: string, suffix: string): void {
+		$j('#start-btn span.blink:first').text(prefix);
+		$j('#start-btn span.blink:last').text(suffix);
+		$j('#startButton').val(button);
 	}
 
 	$j('input[name="gameMode"]').on('change input click', updateStartPrompt);
@@ -803,6 +804,18 @@ $j(() => {
 		const hasLobby = Boolean(G.lobby);
 		const code = hasLobby ? G.lobbyCode || lobby?.code || '' : '';
 		const inputCode = parseLobbyCodeInput(($j('#lobbyCode').val() as string) || '');
+
+		if (hasLobby && !isHost && lobby) {
+			applyPreMatchSettings({
+				gameMode: lobby.config.gameMode,
+				plasmaPoints: lobby.config.plasma_amount,
+				unitDrops: lobby.config.unitDrops,
+				activeUnits: lobby.config.creaLimitNbr,
+				abilityUpgrades: lobby.config.abilityUpgrades,
+				turnTime: lobby.config.turnTimePool,
+				timePool: lobby.config.timePool === -1 ? -1 : Math.round(lobby.config.timePool / 60),
+			});
+		}
 
 		if (isHost && code) {
 			$j('#lobbyCode').val(code);
@@ -834,7 +847,9 @@ $j(() => {
 		if (!hasLobby) {
 			$createButton.val('Create Lobby');
 		} else if (isHost) {
-			$createButton.val('Waiting Player');
+			$createButton.val(
+				`Waiting Players (${lobby?.players.length ?? 1}/${lobby?.config.gameMode ?? 4})`,
+			);
 			$createButton.prop('disabled', true);
 			$createButton.toggleClass('disabled', true);
 		} else {
@@ -842,6 +857,41 @@ $j(() => {
 			$createButton.prop('disabled', true);
 			$createButton.toggleClass('disabled', true);
 		}
+
+		const playerCount = lobby?.players.length ?? 0;
+		const $startButton = $j('#startButton');
+		if (!hasLobby) {
+			$startButton.prop('disabled', false).toggleClass('disabled', false);
+			updateStartPrompt();
+		} else if (isHost && playerCount === 1) {
+			$startButton.prop('disabled', true).toggleClass('disabled', true);
+			setStartPrompt('PRESS', 'START', 'BUTTON');
+		} else if (isHost && playerCount === 2) {
+			$startButton.prop('disabled', false).toggleClass('disabled', false);
+			setStartPrompt('1vs1', 'START', 'MATCH');
+		} else if (isHost && playerCount === 3) {
+			$startButton.prop('disabled', false).toggleClass('disabled', false);
+			setStartPrompt('FORCE', 'START', '1vs1 MATCH');
+		} else if (isHost && playerCount === 4) {
+			$startButton.prop('disabled', false).toggleClass('disabled', false);
+			setStartPrompt('2vs2', 'START', 'MATCH');
+		} else {
+			$startButton.prop('disabled', true).toggleClass('disabled', true);
+			setStartPrompt('PRESS', 'START', 'BUTTON');
+		}
+
+		$j('input[name="players"]').prop('disabled', hasLobby);
+		[
+			'gameMode',
+			'plasmaPoints',
+			'unitDrops',
+			'activeUnits',
+			'abilityUpgrades',
+			'turnTime',
+			'timePool',
+		].forEach((name) => {
+			$j(`input[name="${name}"]`).prop('disabled', hasLobby && !isHost);
+		});
 	};
 
 	updateLobbyUi();
@@ -857,34 +907,107 @@ $j(() => {
 		}
 	});
 
-	let previousPlayerCount = 0;
+	let previousLobbyPlayerCount = 0;
+	let devvitMatchStartScheduled = false;
 
 	G.onLobbyUpdate = (lobby) => {
-		const isHost = Boolean(G.lobby?.isHost());
-		const playerCount = lobby?.players.length ?? 0;
-
-		if (isHost && playerCount > previousPlayerCount && playerCount >= 2) {
-			previousPlayerCount = playerCount;
-			updateLobbyUi(lobby);
-			const $createButton = $j('#createLobbyButton');
-			$createButton.val('Starting match');
-			window.setTimeout(
-				() =>
-					G.startMultiplayerMatch(getGameConfig() as unknown as import('./multiplayer').GameConfig),
-				800,
-			);
-			return;
+		if (lobby.status === 'ended' && !G.lobby?.isHost()) {
+			G.lobby?.leaveMatch();
+			G.lobby = null;
+			G.lobbyState = null;
+			G.lobbyCode = '';
+			G.multiplayer = false;
+			$j('#lobbyError').text('You were removed from the lobby.').removeClass('hide');
+			window.setTimeout(() => $j('#lobbyError').addClass('hide').text(''), 5000);
 		}
-		previousPlayerCount = playerCount;
+
+		if (!G.lobby?.isHost()) {
+			applyPreMatchSettings({
+				gameMode: lobby.config.gameMode,
+				plasmaPoints: lobby.config.plasma_amount,
+				unitDrops: lobby.config.unitDrops,
+				activeUnits: lobby.config.creaLimitNbr,
+				abilityUpgrades: lobby.config.abilityUpgrades,
+				turnTime: lobby.config.turnTimePool,
+				timePool: lobby.config.timePool === -1 ? -1 : Math.round(lobby.config.timePool / 60),
+			});
+		}
 
 		updateLobbyUi(lobby);
+
+		// Devvit matchmaking remains an automatic 1v1 queue. Peer/CrazyGames
+		// private lobbies require the host to press Start.
+		if (
+			effectiveNetMode === 'devvit' &&
+			G.lobby?.isHost() &&
+			lobby.players.length > previousLobbyPlayerCount &&
+			lobby.players.length === 2 &&
+			lobby.status === 'waiting' &&
+			!devvitMatchStartScheduled
+		) {
+			devvitMatchStartScheduled = true;
+			window.setTimeout(() => {
+				G.startMultiplayerMatch(getGameConfig() as unknown as import('./multiplayer').GameConfig);
+			}, 800);
+		}
+		previousLobbyPlayerCount = lobby.players.length;
 	};
+
+	$j(
+		'input[name="gameMode"], input[name="plasmaPoints"], input[name="unitDrops"], ' +
+			'input[name="activeUnits"], input[name="abilityUpgrades"], input[name="turnTime"], ' +
+			'input[name="timePool"]',
+	).on('change', () => {
+		if (!G.lobby?.isHost() || !G.lobbyState || G.lobbyState.status !== 'waiting') {
+			return;
+		}
+
+		const playerCount = G.lobbyState.players.length;
+		const requestedMode = clampPreMatchInt(
+			$j('input[name="gameMode"]:checked').val(),
+			[2, 4],
+			G.lobbyState.config.gameMode,
+		);
+		if (requestedMode < playerCount) {
+			setCheckedRadio('gameMode', G.lobbyState.config.gameMode);
+			return;
+		}
+
+		const config = getLobbyConfigFromForm(G.lobbyState.config);
+		G.lobby.updateLobbyConfig(config);
+	});
 
 	$j('#gameTitle').on('click', () => {
 		beastAudio.playBeast();
 	});
 
 	const startGame = () => {
+		if (G.lobby) {
+			if (!G.lobby.isHost()) {
+				return;
+			}
+
+			const playerCount = G.lobbyState?.players.length ?? 0;
+			if (playerCount === 3) {
+				const removedPlayer = [...(G.lobbyState?.players ?? [])]
+					.filter((player) => player.playerIndex > 0)
+					.sort((a, b) => b.playerIndex - a.playerIndex)[0];
+				if (removedPlayer) {
+					G.lobby.kickPlayer(removedPlayer.playerId);
+				}
+			} else if (playerCount !== 2 && playerCount !== 4) {
+				return;
+			}
+
+			const startPlayerCount = G.lobbyState?.players.length ?? 0;
+			const config = {
+				...getLobbyConfigFromForm(G.lobbyState?.config),
+				gameMode: startPlayerCount === 2 ? 2 : 4,
+			};
+			G.startMultiplayerMatch(config);
+			return;
+		}
+
 		G.multiplayer = false;
 		// Starting a fresh live match (left-click Start) clears any replay state
 		// so a failed right-click replay doesn't prevent the new match's log
@@ -970,7 +1093,6 @@ $j(() => {
 		if (!G.lobby) {
 			try {
 				G.multiplayer = true;
-				forceTwoPlayerMode();
 				renderGameModeType(G.multiplayer);
 				const config = getGameConfig() as unknown as import('./multiplayer').GameConfig;
 				await G.createLobby(config);
@@ -1065,7 +1187,6 @@ $j(() => {
 		}
 
 		G.multiplayer = true;
-		forceTwoPlayerMode();
 		renderGameModeType(G.multiplayer);
 		G.lobbyCode = code;
 		$input.val(code);
@@ -1433,10 +1554,7 @@ function parseLobbyCodeInput(value: string) {
 	return normalized;
 }
 
-/**
- * force 1 vs 1 game mode
- * should be removed after implementation 2 vs 2 in multiplayer mode
- */
+/** Devvit matchmaking currently creates 1v1 matches only. */
 function forceTwoPlayerMode() {
 	$j('#p2').trigger('click');
 	$j('#p4').prop('disabled', true);
@@ -1531,6 +1649,17 @@ export function getGameConfig() {
 	};
 	savePreMatchSettings();
 	return defaultConfig;
+}
+
+function getLobbyConfigFromForm(
+	previous?: import('./multiplayer').GameConfig,
+): import('./multiplayer').GameConfig {
+	const formConfig = getGameConfig();
+	return {
+		...formConfig,
+		gameMode: formConfig.gameMode,
+		background_image: previous?.background_image ?? formConfig.background_image,
+	};
 }
 
 /**

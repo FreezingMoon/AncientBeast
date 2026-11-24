@@ -147,6 +147,20 @@ export class DevvitLobbyProvider implements INetworkBackend {
 		);
 	}
 
+	updateLobbyConfig(config: GameConfig): void {
+		if (!this.isHostFlag || this.state.status !== 'waiting') {
+			return;
+		}
+
+		this.state = { ...this.state, config: { ...config } };
+		this.emitLobbyUpdate();
+		void this.transport.send({ type: 'lobby-state', state: this.state });
+	}
+
+	kickPlayer(_playerId: string): void {
+		// Devvit uses server-side matchmaking and does not expose host kicking.
+	}
+
 	markMatchStarted(): void {
 		const code = this.state.code;
 
@@ -236,6 +250,14 @@ export class DevvitLobbyProvider implements INetworkBackend {
 
 		if (message.type === 'lobby-joined') {
 			this.handleLobbyJoined(message.player, peerId);
+			return;
+		}
+
+		if (message.type === 'lobby-state') {
+			if (!this.isHostFlag) {
+				this.state = message.state;
+				this.emitLobbyUpdate();
+			}
 			return;
 		}
 

@@ -1552,6 +1552,17 @@ export default class Game {
 		}
 		const lobbyState = this.lobby.getLobbyState();
 		const config = (configOverride ?? lobbyState.config) as GameConfig;
+		if (
+			(config.gameMode !== 2 && config.gameMode !== 4) ||
+			lobbyState.players.length !== config.gameMode
+		) {
+			console.warn(
+				'[Game] Cannot start multiplayer match without the configured number of players',
+				lobbyState.players.length,
+				config.gameMode,
+			);
+			return;
+		}
 		this.lobby.markMatchStarted();
 		// The room is full once the match starts; stop advertising it as joinable.
 		this.lobby.markRoomStarted();

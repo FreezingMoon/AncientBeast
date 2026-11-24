@@ -26,6 +26,9 @@ export class LobbyClient {
 		this.provider.onLobbyUpdate((lobby) => {
 			this.game.lobbyState = lobby;
 			this.game.onLobbyUpdate?.(lobby);
+			if (this.isHost() && lobby.status === 'waiting') {
+				this.syncCrazyGamesRoom(lobby.players.length < lobby.config.gameMode);
+			}
 		});
 
 		this.provider.onGameMessage((message) => this.game.handleLobbyMessage(message));
@@ -46,7 +49,6 @@ export class LobbyClient {
 		this.game.lobbyCode = code;
 		this.game.matchid = code;
 		this.game.lobbyState = this.getLobbyState();
-		this.syncCrazyGamesRoom(false);
 		return session;
 	}
 
@@ -61,6 +63,14 @@ export class LobbyClient {
 	 */
 	markRoomStarted(): void {
 		this.syncCrazyGamesRoom(false);
+	}
+
+	updateLobbyConfig(config: GameConfig): void {
+		this.provider.updateLobbyConfig(config);
+	}
+
+	kickPlayer(playerId: string): void {
+		this.provider.kickPlayer(playerId);
 	}
 
 	/**

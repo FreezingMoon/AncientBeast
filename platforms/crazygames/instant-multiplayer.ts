@@ -9,7 +9,6 @@ import type Game from '../../src/game';
 
 export type InstantMultiplayerContext = {
 	game: Game;
-	forceTwoPlayerMode: () => void;
 	renderGameModeType: (multiplayer: boolean) => void;
 	getGameConfig: () => unknown;
 	updateLobbyUi: () => void;
@@ -17,13 +16,15 @@ export type InstantMultiplayerContext = {
 
 /** Drop the first player into a new, joinable private room. */
 export function startInstantMultiplayerLobby(ctx: InstantMultiplayerContext): void {
-	const { game, forceTwoPlayerMode, renderGameModeType, getGameConfig, updateLobbyUi } = ctx;
+	const { game, renderGameModeType, getGameConfig, updateLobbyUi } = ctx;
 
 	game.multiplayer = true;
-	forceTwoPlayerMode();
 	renderGameModeType(game.multiplayer);
 
-	const config = getGameConfig() as Parameters<Game['createLobby']>[0];
+	const config = {
+		...(getGameConfig() as Parameters<Game['createLobby']>[0]),
+		gameMode: 4,
+	};
 	void game
 		.createLobby(config)
 		.then(() => {

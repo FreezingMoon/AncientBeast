@@ -13,6 +13,7 @@ import {
 	LobbySession,
 	LobbyState,
 	PeerId,
+	PlayerId,
 	generateLobbyCode,
 	getPeerIdForLobby,
 } from './types';
@@ -29,7 +30,8 @@ export class PeerLobbyProvider implements INetworkBackend {
 
 	private heartbeatInterval: number | null = null;
 	private heartbeatTimeout: number | null = null;
-	private lastHeartbeatReceived = 0;
+	private heartbeatTimeoutPeer: PeerId | null = null;
+	private heartbeatReceivedAt = new Map<PeerId, number>();
 	private heartbeatIntervalMs = 3000;
 	private heartbeatTimeoutMs = 10000;
 
@@ -46,6 +48,11 @@ export class PeerLobbyProvider implements INetworkBackend {
 			if (local) {
 				local.displayName = name ?? undefined;
 				this.emitLobbyUpdate();
+				if (this.isHost()) {
+					this.broadcastLobbyState();
+				} else {
+					void this.transport.send({ type: 'player-joined', player: local });
+				}
 			}
 		});
 	}
@@ -89,6 +96,7 @@ export class PeerLobbyProvider implements INetworkBackend {
 			name: playerId,
 			displayName: this.identity.getName(),
 			playerIndex: 0,
+			playerNumber: 1,
 		};
 
 		this.state = {
@@ -188,11 +196,45 @@ export class PeerLobbyProvider implements INetworkBackend {
 		return this.state.players.find((player) => player.peerId === myPeerId);
 	}
 
+	updateLobbyConfig(config: GameConfig): void {
+		if (!this.isHost() || this.state.status !== 'waiting') {
+			return;
+		}
+
+		this.state = { ...this.state, config: { ...config } };
+		this.emitLobbyUpdate();
+		this.broadcastLobbyState();
+	}
+
+	kickPlayer(playerId: PlayerId): void {
+		if (!this.isHost() || this.state.status !== 'waiting') {
+			return;
+		}
+
+		const player = this.state.players.find((item) => item.playerId === playerId);
+		if (!player || player.playerIndex === 0) {
+			return;
+		}
+
+		this.state = {
+			...this.state,
+			players: this.state.players.filter((item) => item.playerId !== playerId),
+		};
+		this.transport.sendTo(player.peerId, {
+			type: 'player-left',
+			playerId,
+			player,
+		});
+		this.emitLobbyUpdate();
+		this.broadcastLobbyState();
+	}
+
 	markMatchStarted(): void {
 		this.matchStartGraceUntil = Date.now() + 10000;
 		if (this.state.status !== 'playing') {
 			this.state = { ...this.state, status: 'playing' };
 			this.emitLobbyUpdate();
+			this.broadcastLobbyState();
 			this.startHeartbeat();
 		}
 	}
@@ -289,6 +331,15 @@ export class PeerLobbyProvider implements INetworkBackend {
 			return;
 		}
 
+		if (message.type === 'lobby-state' && !this.isHost()) {
+			this.state = {
+				...message.state,
+				players: [...message.state.players].sort((a, b) => a.playerIndex - b.playerIndex),
+			};
+			this.emitLobbyUpdate();
+			return;
+		}
+
 		if (this.isHost() && message.type === 'match-loaded') {
 			const player = this.state.players.find((item) => item.peerId === peerId);
 			const forwardedMessage: GameMessage = {
@@ -300,7 +351,13 @@ export class PeerLobbyProvider implements INetworkBackend {
 			return;
 		}
 
-		if (this.isHost() && isActionMessage(message)) {
+		if (
+			this.isHost() &&
+			(message.type === 'match-loaded' ||
+				message.type === 'turn-update' ||
+				message.type === 'creature-died' ||
+				isActionMessage(message))
+		) {
 			this.transport.sendExcept(peerId, message);
 			this.gameMessageHandlers.forEach((handler) => handler(message));
 			return;
@@ -347,16 +404,33 @@ export class PeerLobbyProvider implements INetworkBackend {
 				return;
 			}
 
-			this.state = { ...this.state, status: 'ended' };
+			const wasPlaying = this.state.status === 'playing';
+			const localPlayer = this.getLocalPlayer();
+			const removedLocalPlayer = localPlayer?.playerId === message.player.playerId;
+			if (removedLocalPlayer && !wasPlaying) {
+				this.pendingJoinResolve = undefined;
+				this.pendingJoinReject = undefined;
+				this.transport.disconnect();
+			}
+			this.state = {
+				...this.state,
+				players: this.state.players.filter((player) => player.playerId !== message.player.playerId),
+				status: wasPlaying || removedLocalPlayer ? 'ended' : 'waiting',
+			};
 			this.emitLobbyUpdate();
-			this.gameMessageHandlers.forEach((handler) =>
-				handler({ type: 'player-left', playerId: message.playerId, player: message.player }),
-			);
+			if (wasPlaying) {
+				this.gameMessageHandlers.forEach((handler) =>
+					handler({ type: 'player-left', playerId: message.playerId, player: message.player }),
+				);
+			}
 			return;
 		}
 
 		if (message.type === 'heartbeat') {
-			this.onHeartbeatReceived();
+			this.onHeartbeatReceived(message.playerId, peerId);
+			if (this.isHost()) {
+				this.transport.sendExcept(peerId, message);
+			}
 			return;
 		}
 
@@ -365,7 +439,7 @@ export class PeerLobbyProvider implements INetworkBackend {
 
 	private handlePlayerJoined(player: LobbyPlayer, peerId: PeerId): void {
 		if (this.state.status !== 'waiting') {
-			this.transport.send({
+			this.transport.sendTo(peerId, {
 				type: 'player-left',
 				playerId: player.playerId,
 				player: { ...player, playerIndex: -1 },
@@ -391,6 +465,7 @@ export class PeerLobbyProvider implements INetworkBackend {
 				type: 'lobby-joined',
 				player: existingPlayer,
 			});
+			this.broadcastLobbyState();
 			return;
 		}
 
@@ -416,6 +491,7 @@ export class PeerLobbyProvider implements INetworkBackend {
 			...player,
 			peerId,
 			playerIndex: nextIndex,
+			playerNumber: nextIndex + 1,
 		};
 
 		this.state.players.push(nextPlayer);
@@ -428,6 +504,7 @@ export class PeerLobbyProvider implements INetworkBackend {
 			type: 'lobby-joined',
 			player: nextPlayer,
 		});
+		this.broadcastLobbyState();
 	}
 
 	private handlePeerLeave(peerId: PeerId): void {
@@ -444,13 +521,15 @@ export class PeerLobbyProvider implements INetworkBackend {
 		this.state.players = this.state.players.filter((player) => player.peerId !== peerId);
 
 		if (this.isHost()) {
-			this.state = { ...this.state, status: this.state.players.length > 0 ? 'waiting' : 'ended' };
+			const status = this.state.status === 'playing' ? 'ended' : 'waiting';
+			this.state = { ...this.state, status };
 			this.transport.send({
 				type: 'player-left',
 				playerId: leavingPlayer.playerId,
 				player: leavingPlayer,
 			});
 			this.emitLobbyUpdate();
+			this.broadcastLobbyState();
 			this.gameMessageHandlers.forEach((handler) =>
 				handler({ type: 'player-left', playerId: leavingPlayer.playerId, player: leavingPlayer }),
 			);
@@ -474,15 +553,18 @@ export class PeerLobbyProvider implements INetworkBackend {
 		this.gameMessageHandlers.forEach((handler) => handler(playerLeftMsg));
 	}
 
-	private onHeartbeatReceived(): void {
-		this.lastHeartbeatReceived = Date.now();
-		if (this.heartbeatTimeout !== null) {
+	private onHeartbeatReceived(playerId: string, fallbackPeerId: PeerId): void {
+		const heartbeatPeerId =
+			this.state.players.find((player) => player.playerId === playerId)?.peerId ?? fallbackPeerId;
+		this.heartbeatReceivedAt.set(heartbeatPeerId, Date.now());
+		if (this.heartbeatTimeout !== null && this.heartbeatTimeoutPeer === heartbeatPeerId) {
 			window.clearTimeout(this.heartbeatTimeout);
 			this.heartbeatTimeout = null;
+			this.heartbeatTimeoutPeer = null;
 		}
 	}
 
-	private handlePeerLeaveByTimeout(): void {
+	private handlePeerLeaveByTimeout(peerId: PeerId): void {
 		if (this.state.status !== 'playing') {
 			console.warn(
 				'[Heartbeat handlePeerLeaveByTimeout] status is',
@@ -491,8 +573,7 @@ export class PeerLobbyProvider implements INetworkBackend {
 			);
 			return;
 		}
-		const myPeerId = this.transport.getMyId();
-		const remotePlayer = this.state.players.find((player) => player.peerId !== myPeerId);
+		const remotePlayer = this.state.players.find((player) => player.peerId === peerId);
 		if (!remotePlayer) {
 			console.warn('[Heartbeat handlePeerLeaveByTimeout] no remote player found');
 			return;
@@ -510,7 +591,13 @@ export class PeerLobbyProvider implements INetworkBackend {
 			return;
 		}
 		this.stopHeartbeat();
-		this.lastHeartbeatReceived = Date.now();
+		const now = Date.now();
+		const myPeerId = this.transport.getMyId();
+		this.state.players.forEach((player) => {
+			if (player.peerId !== myPeerId) {
+				this.heartbeatReceivedAt.set(player.peerId, now);
+			}
+		});
 
 		this.heartbeatInterval = window.setInterval(() => {
 			const localPlayer = this.getLocalPlayer();
@@ -523,14 +610,30 @@ export class PeerLobbyProvider implements INetworkBackend {
 				playerId: localPlayer.playerId,
 			});
 
-			const elapsed = Date.now() - this.lastHeartbeatReceived;
-			if (elapsed > this.heartbeatTimeoutMs && this.heartbeatTimeout === null) {
-				console.warn('[Heartbeat] No response received in', elapsed, 'ms, starting timeout');
+			const timedOutPlayer = this.state.players.find((player) => {
+				const lastHeartbeat = this.heartbeatReceivedAt.get(player.peerId);
+				return (
+					player.peerId !== myPeerId &&
+					lastHeartbeat != null &&
+					Date.now() - lastHeartbeat > this.heartbeatTimeoutMs
+				);
+			});
+			if (timedOutPlayer && this.heartbeatTimeout === null) {
+				const elapsed = Date.now() - (this.heartbeatReceivedAt.get(timedOutPlayer.peerId) ?? now);
+				console.warn(
+					'[Heartbeat] No response received from',
+					timedOutPlayer.peerId,
+					'in',
+					elapsed,
+					'ms',
+				);
+				const timedOutPeerId = timedOutPlayer.peerId;
+				this.heartbeatTimeoutPeer = timedOutPeerId;
 				this.heartbeatTimeout = window.setTimeout(() => {
 					console.warn('[Heartbeat] Connection timed out');
 					this.stopHeartbeat();
-					this.handlePeerLeaveByTimeout();
-				}, this.heartbeatTimeoutMs - elapsed);
+					this.handlePeerLeaveByTimeout(timedOutPeerId);
+				}, Math.max(0, this.heartbeatTimeoutMs - elapsed));
 			}
 		}, this.heartbeatIntervalMs);
 	}
@@ -544,7 +647,8 @@ export class PeerLobbyProvider implements INetworkBackend {
 			window.clearTimeout(this.heartbeatTimeout);
 			this.heartbeatTimeout = null;
 		}
-		this.lastHeartbeatReceived = 0;
+		this.heartbeatReceivedAt.clear();
+		this.heartbeatTimeoutPeer = null;
 	}
 
 	private createJoinPromise(): Promise<LobbySession> {
@@ -605,6 +709,19 @@ export class PeerLobbyProvider implements INetworkBackend {
 
 	private emitLobbyUpdate(): void {
 		this.lobbyUpdateHandlers.forEach((handler) => handler(this.state));
+	}
+
+	private broadcastLobbyState(): void {
+		if (this.isHost()) {
+			void this.transport.send({
+				type: 'lobby-state',
+				state: {
+					...this.state,
+					players: [...this.state.players],
+					config: { ...this.state.config },
+				},
+			});
+		}
 	}
 
 	private createEmptyState(): LobbyState {
