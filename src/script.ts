@@ -119,7 +119,6 @@ function getPreMatchSettingsFromForm(): PreMatchSettings {
 			[15, 20, 25, 30, -1],
 			-1,
 		),
-		fullscreenMode: $j('#fullscreen').hasClass('fullscreenMode'),
 	};
 }
 
