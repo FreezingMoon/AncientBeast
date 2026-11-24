@@ -328,6 +328,45 @@ body {
 			pointer-events: none;
 		}
 	}
+
+@media (min-width: 1024px) and (min-height: 556px) {
+	.lobby-error {
+		position: fixed;
+		left: clamp(260px, 20vw, 360px);
+		top: clamp(45px, calc(23vh - 90px), 160px);
+		z-index: 101;
+		box-sizing: border-box;
+		width: 280px;
+		max-width: calc(100vw - 380px);
+		min-height: 0;
+		margin: 0;
+		padding: 13px 16px;
+		background: rgba(18, 18, 18, 0.94);
+		border: 2px solid #d6625e;
+		border-radius: 12px;
+		color: #ff9d9d;
+		line-height: 1.35;
+		text-shadow: none;
+		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+		transition: opacity 0.2s ease, visibility 0.2s ease;
+
+		&::after {
+			content: '';
+			position: absolute;
+			bottom: -48px;
+			left: -4px;
+			width: 36px;
+			height: 48px;
+			background: #d6625e;
+			clip-path: polygon(45% 0, 100% 0, 0 100%);
+		}
+
+		&.hide {
+			visibility: hidden;
+		}
+	}
+}
+
 .avatar {
 	background-image: url('assets/units/avatars/Dark Priest player red.jpg');
 	height: 75px;
