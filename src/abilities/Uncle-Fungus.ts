@@ -188,6 +188,7 @@ export default (G: Game) => {
 						} else {
 							// Already at full health: the whole bite overflows into regrowth (#1207)
 							this.creature.hint('Burp!', 'healing');
+							G.soundsys.playSFX('sounds/burp');
 						}
 					}
 
