@@ -150,8 +150,11 @@ export class OpenCollectiveBanner {
 			return;
 		}
 
-		this.allMembers = this.getCachedMembers();
-		this.renderContributors();
+		// Show the CTA placeholder only — all host views (dash, scoreboard,
+		// music player) start hidden, so eagerly rendering contributor <img>
+		// elements here wastes bandwidth competing with game-asset downloads.
+		// Full contributor rendering is deferred to onViewOpen().
+		this.renderCtaOnly();
 
 		if (this.shouldRefreshMembers()) {
 			this.fetchMembers();
@@ -412,7 +415,12 @@ export class OpenCollectiveBanner {
 				this.allMembers = normalizedMembers;
 				localStorage.setItem(OPEN_COLLECTIVE_CACHE_KEY, JSON.stringify(normalizedMembers));
 				localStorage.setItem(OPEN_COLLECTIVE_CACHE_TIME_KEY, Date.now().toString());
-				this.renderContributors();
+
+				// Re-render only when the host view is visible — otherwise the
+				// next onViewOpen() will pick up the fresh cache automatically.
+				if (this.isViewOpen()) {
+					this.renderContributors();
+				}
 			})
 			.catch(() => {
 				// Fetch/normalization failed (network, CSP, etc.). Fail silently;
@@ -536,22 +544,40 @@ export class OpenCollectiveBanner {
 					this.hideContributorTooltip();
 				});
 
-			if (member.image) {
-				$link.append(
-					$j('<img>')
-						.attr({
-							src: member.image,
-							alt: `${member.name || 'Supporter'} avatar`,
-							loading: 'eager',
-						})
-						.on('load error', () => {
-							if (this.isViewOpen()) {
-								this.refreshMarqueeMetrics();
-								this.startMarquee();
-							}
-						}),
-				);
+			if (!member.image) {
+				return;
 			}
+
+			$link.append(
+				$j('<img>')
+					.attr({
+						src: member.image,
+						alt: `${member.name || 'Supporter'} avatar`,
+						loading: 'lazy',
+						decoding: 'async',
+					})
+					.on('load', () => {
+						if (this.isViewOpen()) {
+							this.refreshMarqueeMetrics();
+							this.startMarquee();
+						}
+					})
+					.on('error', (e) => {
+						// Remove broken avatars so they don't leave empty holes
+						// in the marquee track.
+						$j(e.currentTarget).closest('.opencollective_member').remove();
+						if (this.$track) {
+							this.$members = this.$track.children('.opencollective_member');
+						}
+						if (!this.$members || !this.$members.length) {
+							this.renderCtaOnly();
+							return;
+						}
+						if (this.isViewOpen()) {
+							this.refreshMarqueeMetrics();
+						}
+					}),
+			);
 
 			$track.append($link);
 		});
