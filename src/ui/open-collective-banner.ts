@@ -571,4 +571,4 @@ export class OpenCollectiveBanner {
 			this.startMarquee();
 		}
 	}
-	}
+}
