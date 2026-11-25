@@ -9,7 +9,7 @@ const COOKIE_KEY = 'ab-meta-powers';
 
 /**
  * "God-mode" UI for debugging game state
- * Available in hot-seat games when the app is in development mode
+ * Available in hot-seat games during local development and on Vercel preview deployments
  *
  * Directly accessing instances of this class as they may not be present in some game modes
  *

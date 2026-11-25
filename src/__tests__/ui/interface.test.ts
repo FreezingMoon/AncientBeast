@@ -1,6 +1,6 @@
 import { describe, expect, jest, test } from '@jest/globals';
 import type Game from '../../game';
-import { areTurnActionButtonsDisabled } from '../../ui/interface';
+import { areMetaPowersEnabledForBuild, areTurnActionButtonsDisabled } from '../../ui/interface';
 
 const gameWithTurn = ({
 	controller = 'human',
@@ -33,5 +33,19 @@ describe('turn action button availability', () => {
 		expect(areTurnActionButtonsDisabled(gameWithTurn({ multiplayer: true, isMyTurn: true }))).toBe(
 			false,
 		);
+	});
+});
+
+describe('meta powers build availability', () => {
+	test('enables meta powers for local development builds', () => {
+		expect(areMetaPowersEnabledForBuild('development', '')).toBe(true);
+	});
+
+	test('enables meta powers for Vercel preview builds', () => {
+		expect(areMetaPowersEnabledForBuild('production', 'preview')).toBe(true);
+	});
+
+	test('keeps meta powers disabled for Vercel production builds', () => {
+		expect(areMetaPowersEnabledForBuild('production', 'production')).toBe(false);
 	});
 });

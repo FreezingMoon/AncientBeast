@@ -72,6 +72,13 @@ export function areTurnActionButtonsDisabled(game: Game): boolean {
 	);
 }
 
+export function areMetaPowersEnabledForBuild(
+	nodeEnv: string | undefined,
+	vercelEnv: string | undefined,
+): boolean {
+	return nodeEnv === 'development' || vercelEnv === 'preview';
+}
+
 type ConfirmUnloadState = {
 	ignoreNextConfirmUnload: boolean;
 };
@@ -677,8 +684,11 @@ export class UI {
 		// Chat
 		this.chat = new Chat(game);
 
-		// Meta Powers - only available for hot-seat games running in development mode.
-		if (process.env.NODE_ENV === 'development' && !this.game.multiplayer) {
+		// Meta Powers are available for local development and Vercel preview deployments.
+		if (
+			areMetaPowersEnabledForBuild(process.env.NODE_ENV, process.env.VERCEL_ENV) &&
+			!this.game.multiplayer
+		) {
 			this.metaPowers = new MetaPowers(this.game);
 		}
 
@@ -1768,7 +1778,11 @@ export class UI {
 	 * @param {object} payload Event payload.
 	 */
 	canToggleMetaPowers() {
-		return process.env.NODE_ENV === 'development' && !this.game.multiplayer && !!this.metaPowers;
+		return (
+			areMetaPowersEnabledForBuild(process.env.NODE_ENV, process.env.VERCEL_ENV) &&
+			!this.game.multiplayer &&
+			!!this.metaPowers
+		);
 	}
 
 	/**

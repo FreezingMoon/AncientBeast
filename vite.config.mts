@@ -1,4 +1,4 @@
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig, loadEnv, type Plugin } from 'vite';
 import { createRequire } from 'module';
 import { relative, resolve } from 'path';
 import { readFileSync } from 'fs';
@@ -27,12 +27,24 @@ const rootDir = import.meta.dirname;
  * - `./**` (TS modules) -> bundled with esbuild and evaluated in Node
  * - `assets/**`         -> the repo-relative URL, returned as a string
  */
-function ejsHtmlPlugin({ devvitTarget, funjeTarget, crazygamesTarget, enableServiceWorker }) {
+type EjsHtmlPluginOptions = {
+	devvitTarget: boolean;
+	funjeTarget: boolean;
+	crazygamesTarget: boolean;
+	enableServiceWorker: boolean;
+};
+
+function ejsHtmlPlugin({
+	devvitTarget,
+	funjeTarget,
+	crazygamesTarget,
+	enableServiceWorker,
+}: EjsHtmlPluginOptions): Plugin[] {
 	const srcDir = resolve(rootDir, 'src');
 	const templatePath = resolve(srcDir, 'index.ejs');
 
 	/** Resolves the request forms used by index.ejs to an absolute file path. */
-	function toAbsolutePath(request) {
+	function toAbsolutePath(request: string) {
 		if (request.startsWith('.')) return resolve(srcDir, request);
 		if (request.startsWith('assets/')) return resolve(rootDir, request);
 		return null;
@@ -44,7 +56,7 @@ function ejsHtmlPlugin({ devvitTarget, funjeTarget, crazygamesTarget, enableServ
 	 * to the app bundle).
 	 */
 	function debugEnv() {
-		const values = {};
+		const values: Record<string, string> = {};
 		for (const file of ['.env', '.env.example']) {
 			let contents;
 			try {
@@ -63,7 +75,7 @@ function ejsHtmlPlugin({ devvitTarget, funjeTarget, crazygamesTarget, enableServ
 	}
 
 	/** Bundles a TS module and evaluates it in Node so the template can require it. */
-	async function loadTypeScriptModule(absolutePath) {
+	async function loadTypeScriptModule(absolutePath: string) {
 		const esbuild = await import('esbuild');
 		// `src/debug.ts` reads `process.env.DEBUG_*`; feeding it the same values
 		// keeps the rendered version string in sync with the app bundle.
@@ -87,8 +99,10 @@ function ejsHtmlPlugin({ devvitTarget, funjeTarget, crazygamesTarget, enableServ
 	 * @param {(absolutePath: string) => string} resolveAssetUrl
 	 *        Maps an asset path to the URL the document should reference.
 	 */
-	async function render(resolveAssetUrl) {
-		const ejs = (await import('ejs')).default;
+	async function render(resolveAssetUrl: (absolutePath: string) => string) {
+		const ejs = require('ejs') as {
+			render: (template: string, data: Record<string, unknown>) => string;
+		};
 		// The template was written for `html-webpack-plugin`, whose `<%= %>` does
 		// not escape. EJS escapes with `<%= %>` and only skips escaping with
 		// `<%- %>`, so every interpolation is rewritten to the raw form —
@@ -108,7 +122,7 @@ function ejsHtmlPlugin({ devvitTarget, funjeTarget, crazygamesTarget, enableServ
 			moduleCache.set(request, await loadTypeScriptModule(absolutePath));
 		}
 
-		const templateRequire = (request) => {
+		const templateRequire = (request: string) => {
 			if (moduleCache.has(request)) return moduleCache.get(request);
 
 			const absolutePath = toAbsolutePath(request);
@@ -126,7 +140,7 @@ function ejsHtmlPlugin({ devvitTarget, funjeTarget, crazygamesTarget, enableServ
 	}
 
 	/** Dev: serve the rendered document for `/` and `/index.html`. */
-	function devServer() {
+	function devServer(): Plugin {
 		return {
 			name: 'ab-ejs-html:serve',
 			apply: 'serve',
@@ -159,7 +173,7 @@ function ejsHtmlPlugin({ devvitTarget, funjeTarget, crazygamesTarget, enableServ
 	}
 
 	/** Build: emit `index.html` referencing the hashed app entry chunk and CSS. */
-	function build() {
+	function build(): Plugin {
 		return {
 			name: 'ab-ejs-html:build',
 			apply: 'build',
@@ -212,6 +226,7 @@ export default defineConfig(({ mode, command }) => {
 	const isDev = command === 'serve';
 	const isProduction = mode === 'production';
 	const env = loadEnv(mode, process.cwd(), '');
+	const vercelEnv = process.env.VERCEL_ENV || env.VERCEL_ENV || '';
 
 	// `loadEnv` reads `.env*` files but NOT `.env.example` (which ships in the
 	// repo as the template for `.env`). The `debugEnv()` helper inside
@@ -246,7 +261,7 @@ export default defineConfig(({ mode, command }) => {
 
 	const phaserPath = resolve(rootDir, 'node_modules/phaser/dist/phaser.js');
 
-	const entries = {
+	const entries: Record<string, string> = {
 		app: resolve(rootDir, 'src/script.ts'),
 	};
 
@@ -337,6 +352,7 @@ export default defineConfig(({ mode, command }) => {
 		},
 		define: {
 			'process.env.NODE_ENV': JSON.stringify(mode),
+			'process.env.VERCEL_ENV': JSON.stringify(vercelEnv),
 			'process.env.ENABLE_SERVICE_WORKER': JSON.stringify(enableServiceWorker),
 			'process.env.VITE_DEVVIT_TARGET': JSON.stringify(isDevvitTarget),
 			'process.env.VITE_FUNJE_TARGET': JSON.stringify(isFunjeTarget),
