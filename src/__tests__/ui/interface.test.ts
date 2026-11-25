@@ -1,6 +1,6 @@
 import { describe, expect, jest, test } from '@jest/globals';
 import type Game from '../../game';
-import { areTurnActionButtonsDisabled } from '../../ui/interface';
+import { areTurnActionButtonsDisabled, getAbilityCostLine } from '../../ui/interface';
 
 const gameWithTurn = ({
 	controller = 'human',
@@ -32,6 +32,31 @@ describe('turn action button availability', () => {
 		expect(areTurnActionButtonsDisabled(gameWithTurn())).toBe(false);
 		expect(areTurnActionButtonsDisabled(gameWithTurn({ multiplayer: true, isMyTurn: true }))).toBe(
 			false,
+		);
+	});
+});
+
+describe('ability card cost line', () => {
+	test('shows the energy cost for a normal ability', () => {
+		expect(getAbilityCostLine({ costs: { energy: 15 } }, 1)).toBe(' - costs 15 energy pts.');
+	});
+
+	test('zero energy still counts as a cost', () => {
+		expect(getAbilityCostLine({ costs: { energy: 0 } }, 2)).toBe(' - costs 0 energy pts.');
+	});
+
+	test('slot 0 is always the passive line even with a cost', () => {
+		expect(getAbilityCostLine({ costs: { energy: 15 } }, 0)).toBe(' - this ability is passive.');
+		expect(getAbilityCostLine({ costs: { energy: 15 } }, '0')).toBe(' - this ability is passive.');
+	});
+
+	test('entries without costs fall back to passive', () => {
+		expect(getAbilityCostLine({ title: 'Zap' } as never, 1)).toBe(' - this ability is passive.');
+	});
+
+	test('non-energy costs fall back to passive instead of printing undefined', () => {
+		expect(getAbilityCostLine({ costs: { plasma: 1 } } as never, 1)).toBe(
+			' - this ability is passive.',
 		);
 	});
 });
