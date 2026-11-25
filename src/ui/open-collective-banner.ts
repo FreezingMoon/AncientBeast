@@ -70,6 +70,7 @@ export function isThirdPartyContentBlocked(): boolean {
 const OPEN_COLLECTIVE_CACHE_KEY = 'ab-opencollective-members-v1';
 const OPEN_COLLECTIVE_CACHE_TIME_KEY = 'ab-opencollective-members-ts-v1';
 const OPEN_COLLECTIVE_REFRESH_TTL_MS = 12 * 60 * 60 * 1000;
+const OPEN_COLLECTIVE_MIN_TOTAL_AMOUNT_TO_DISPLAY = 15;
 const OPEN_COLLECTIVE_FEED_URL = 'https://opencollective.com/ancientbeast/members/all.json';
 
 export class OpenCollectiveBanner {
@@ -435,7 +436,9 @@ export class OpenCollectiveBanner {
 		return members
 			.filter((member) => member.isActive !== false)
 			.filter((member) => Boolean(member.profile) && Boolean(member.name))
-			.filter((member) => (member.totalAmountDonated || 0) > 0)
+			.filter(
+				(member) => (member.totalAmountDonated || 0) >= OPEN_COLLECTIVE_MIN_TOTAL_AMOUNT_TO_DISPLAY,
+			)
 			.filter(
 				(member, index, arr) =>
 					arr.findIndex((entry) => entry.profile === member.profile) === index,
