@@ -1,8 +1,8 @@
 import type { Creature } from '../creature';
 import type Game from '../game';
 import type { GameEngine, GroupHandle, SpriteHandle } from '../engine/types';
-import { createGameCanvasSurface } from '../game-display/canvas-surface';
-import { getFrameSize } from '../game-display/texture';
+import { createGameCanvasSurface } from '../display/canvas-surface';
+import { getFrameSize } from '../display/texture';
 import { offsetCoordsToPx } from '../utility/const';
 import { Easing } from '../utility/easing';
 

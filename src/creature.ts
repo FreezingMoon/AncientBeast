@@ -36,10 +36,10 @@ import type {
 	TweenHandle,
 } from './engine/types';
 import { GOOEY_BODY_BRB_TRAP_BEHAVIOR } from './engine/snapshotBehaviors';
-import { getFrameSize, MISSING_TEXTURE_KEY } from './game-display/texture';
+import { getFrameSize, MISSING_TEXTURE_KEY } from './display/texture';
 import { onPointerDown } from './input/input';
-import { setHandCursor } from './game-display/cursor';
-import { createGameCanvasSurface, type CanvasSurface } from './game-display/canvas-surface';
+import { setHandCursor } from './display/cursor';
+import { createGameCanvasSurface, type CanvasSurface } from './display/canvas-surface';
 
 /** Vertical distance (in pixels) between the Dark Priest's feet and the Plasma Field center. */
 const PLASMA_FIELD_OFFSET_Y = 90;

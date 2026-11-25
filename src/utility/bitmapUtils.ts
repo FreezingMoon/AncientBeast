@@ -1,5 +1,5 @@
 import Game from '../game';
-import { createGameCanvasSurface, type CanvasSurface } from '../game-display/canvas-surface';
+import { createGameCanvasSurface, type CanvasSurface } from '../display/canvas-surface';
 
 /**
  * Structural view of a Phaser 4 render/dynamic texture: Phaser 4 dropped the

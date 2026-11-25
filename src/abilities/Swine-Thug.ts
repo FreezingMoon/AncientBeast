@@ -9,7 +9,7 @@ import Game from '../game';
 import { Hex } from '../utility/hex';
 import { getPointFacade } from '../utility/pointfacade';
 import { Trap } from '../utility/trap';
-import { shakeBoard } from '../game-display/camera';
+import { shakeBoard } from '../display/camera';
 import { SnapshotCompatibilityError } from '../engine/GameSnapshot';
 import { SWINE_THUG_MUD_BATH_EFFECT } from '../engine/snapshotBehaviors';
 

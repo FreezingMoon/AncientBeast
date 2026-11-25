@@ -6,7 +6,7 @@ import * as arrayUtils from '../utility/arrayUtils';
 import { Effect } from '../effect';
 import { getPointFacade } from '../utility/pointfacade';
 import { Hex } from '../utility/hex';
-import { shakeBoard } from '../game-display/camera';
+import { shakeBoard } from '../display/camera';
 import { SnapshotCompatibilityError } from '../engine/GameSnapshot';
 import { INFERNAL_SCORCHED_GROUND_EFFECT } from '../engine/infernalSnapshotBehaviors';
 

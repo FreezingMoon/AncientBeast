@@ -15,7 +15,7 @@ jest.mock('../creature', () => ({
 }));
 
 import BotController, { unitStrategies } from '../bot';
-import { createGameChannels } from '../game-events/factory';
+import { createGameChannels } from '../events/factory';
 import { Creature } from '../creature';
 import type Game from '../game';
 import { Hex } from '../utility/hex';

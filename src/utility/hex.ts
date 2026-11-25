@@ -6,7 +6,7 @@ import { HexGrid } from './hexgrid';
 import Game from '../game';
 import { tryGetPhaser } from '../phaser/runtime';
 import type { TweenHandle, SpriteHandle } from '../engine/types';
-import { alignIn, ALIGN_CENTER } from '../game-display/anchor';
+import { alignIn, ALIGN_CENTER } from '../display/anchor';
 import { DEBUG } from '../debug';
 import { getPointFacade } from './pointfacade';
 import * as Const from './const';
@@ -19,8 +19,8 @@ import {
 	onPointerUp,
 	rejectIfTurnFrozen,
 } from '../input/input';
-import { setHandCursor } from '../game-display/cursor';
-import { BOARD_DEPTH_SCALE_Y, sortLayerByDepth } from '../game-display/layer';
+import { setHandCursor } from '../display/cursor';
+import { BOARD_DEPTH_SCALE_Y, sortLayerByDepth } from '../display/layer';
 
 export enum Direction {
 	None = -1,

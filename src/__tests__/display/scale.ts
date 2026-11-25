@@ -21,7 +21,7 @@ import {
 	applyPortraitScale,
 	refreshScale,
 	viewportTakesFullWindow,
-} from '../../game-display/scale';
+} from '../../display/scale';
 
 const { Scale } = getPhaser();
 

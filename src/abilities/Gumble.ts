@@ -9,7 +9,7 @@ import { Ability } from '../ability';
 import Game from '../game';
 import { Hex } from '../utility/hex';
 import { Trap } from '../utility/trap';
-import { shakeBoard } from '../game-display/camera';
+import { shakeBoard } from '../display/camera';
 import {
 	GOOEY_BODY_BRB_TRAP_BEHAVIOR,
 	GOOEY_BODY_EFFECT_BEHAVIOR,

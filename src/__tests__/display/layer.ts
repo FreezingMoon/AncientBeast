@@ -7,7 +7,7 @@ import {
 	getDepthAtBand,
 	rowDepthBase,
 	sortLayerByDepth,
-} from '../../game-display/layer';
+} from '../../display/layer';
 
 type MockLayer = {
 	name: string;

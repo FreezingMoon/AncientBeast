@@ -65,7 +65,7 @@ jest.mock('../../effect', () => ({
 	},
 }));
 
-jest.mock('../../game-display/camera', () => ({ shakeBoard: jest.fn() }));
+jest.mock('../../display/camera', () => ({ shakeBoard: jest.fn() }));
 
 describe('Swampler Goo Sneeze', () => {
 	test('Natural Habitat triggers only at the end of Swampler’s first active turn', () => {

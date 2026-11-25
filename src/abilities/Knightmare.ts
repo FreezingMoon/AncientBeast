@@ -8,8 +8,8 @@ import type { Ability } from '../ability';
 import { Direction, Hex } from '../utility/hex';
 import { isTeam } from '../utility/team';
 import Game from '../game';
-import { shakeBoard } from '../game-display/camera';
-import { getFrameSize } from '../game-display/texture';
+import { shakeBoard } from '../display/camera';
+import { getFrameSize } from '../display/texture';
 
 const isPlasmaFieldBlocker = (source: Creature, target: Creature) => {
 	return target.isDarkPriest() && target.hasCreaturePlayerGotPlasma();

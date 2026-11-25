@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 import type { Creature } from '../../creature';
 import type Game from '../../game';
-import { createGameCanvasSurface } from '../../game-display/canvas-surface';
+import { createGameCanvasSurface } from '../../display/canvas-surface';
 import { spawnGooSneeze } from '../../vfx/goo-sneeze';
 
-jest.mock('../../game-display/canvas-surface', () => ({
+jest.mock('../../display/canvas-surface', () => ({
 	createGameCanvasSurface: jest.fn(),
 }));
 

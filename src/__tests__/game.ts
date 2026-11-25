@@ -33,7 +33,7 @@ jest.mock('phaser', () => ({
 }));
 
 import Game from '../game';
-import { createGameChannels } from '../game-events/factory';
+import { createGameChannels } from '../events/factory';
 import { UI } from '../ui/interface';
 import { setAudioMode } from '../sound/soundsys';
 

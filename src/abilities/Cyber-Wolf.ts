@@ -6,7 +6,7 @@ import * as arrayUtils from '../utility/arrayUtils';
 import { Creature } from '../creature';
 import Game from '../game';
 import { Hex } from '../utility/hex';
-import { shakeBoard } from '../game-display/camera';
+import { shakeBoard } from '../display/camera';
 
 /** Creates the abilities
  * @param {Object} G the game object

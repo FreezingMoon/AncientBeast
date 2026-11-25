@@ -3,7 +3,7 @@ import Cookies from 'js-cookie';
 import { capitalize } from '../utility/string';
 import { Button, ButtonStateEnum } from './button';
 import Game, { MetaPowersState } from '../game';
-import { metaPowerMessage } from '../game-events/factory';
+import { metaPowerMessage } from '../events/factory';
 
 const COOKIE_KEY = 'ab-meta-powers';
 

@@ -28,7 +28,7 @@ import { getRandomSummonCandidates, getSummonCandidates } from '../utility/summo
 import { OpenCollectiveBanner, isThirdPartyContentBlocked } from './open-collective-banner';
 import { onPointerUp } from '../input/input';
 import { isScoreboardHotkey, isUtilityHotkey as isUtilityHotkeyEvent } from '../input/hotkey-gate';
-import { setHandCursor } from '../game-display/cursor';
+import { setHandCursor } from '../display/cursor';
 import type { SpriteHandle } from '../engine/types';
 
 const SECRET_VIEW_ID = 'ab-secret-view';

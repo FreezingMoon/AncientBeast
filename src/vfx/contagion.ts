@@ -1,8 +1,8 @@
 import type { Creature } from '../creature';
 import type Game from '../game';
 import type { SpriteHandle } from '../engine/types';
-import { createGameCanvasSurface } from '../game-display/canvas-surface';
-import { getFrameSize } from '../game-display/texture';
+import { createGameCanvasSurface } from '../display/canvas-surface';
+import { getFrameSize } from '../display/texture';
 
 const OUTLINE_STYLE = { color: 'rgba(80, 255, 25, 0.9)', blur: 3, alpha: 0.9 };
 const AURA_STYLE = { color: 'rgba(80, 255, 25, 0.9)', blur: 20, alpha: 0.78 };

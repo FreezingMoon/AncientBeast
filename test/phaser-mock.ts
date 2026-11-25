@@ -179,7 +179,7 @@ const easingMock = {
  * one. Phaser's own implementation is a hand-rolled listener map; this mirrors
  * the same four calls (`on`, `once`, `off`, `emit`) rather than wrapping Node's
  * `EventEmitter`, because Phaser's `emit` iterates a copy and allows a handler to
- * unsubscribe itself, and the fallback bus in `src/game-events/factory.ts`
+ * unsubscribe itself, and the fallback bus in `src/events/factory.ts`
  * promises the same guarantee.
  */
 class EventEmitterMock {

@@ -15,14 +15,14 @@ import { AugmentedMatrix } from './matrices';
 import { PierceThroughBehavior } from '../ability';
 import { getDarkPriestCardboardKey, getDarkPriestDisplayOffsetX } from '../player';
 import { ensureCardboard, isTextureReady } from '../assets';
-import { getFrameSize } from '../game-display/texture';
+import { getFrameSize } from '../display/texture';
 import { getHoveredHex, isPointerWithinBoard, setHoveredHex } from '../input/input';
 import {
 	createBoardLayersWithFactory,
 	getDepthAtBand,
 	sortLayerByDepth,
 	type DepthBand,
-} from '../game-display/layer';
+} from '../display/layer';
 
 export type { DepthBand };
 
@@ -2365,7 +2365,7 @@ export class HexGrid {
 	 * Depth for one renderable: a per-row base plus a band offset and an optional
 	 * within-band slot.
 	 *
-	 * The bands themselves live in `src/game-display/layer.ts` so the board layout
+	 * The bands themselves live in `src/display/layer.ts` so the board layout
 	 * has one definition shared with the native container tree, rather than one
 	 * here and a copy in the layer module.
 	 */

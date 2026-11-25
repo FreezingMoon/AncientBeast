@@ -4,8 +4,8 @@ import { Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import * as arrayUtils from '../utility/arrayUtils';
 import Game from '../game';
-import { shakeBoard } from '../game-display/camera';
-import { getFrameSize } from '../game-display/texture';
+import { shakeBoard } from '../display/camera';
+import { getFrameSize } from '../display/texture';
 
 /** Creates the abilities
  * @param {Object} G the game object

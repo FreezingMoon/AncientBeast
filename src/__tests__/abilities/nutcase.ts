@@ -5,7 +5,7 @@ jest.mock('phaser', () =>
 		jest.requireActual('../../../test/phaser-mock') as typeof import('../../../test/phaser-mock')
 	).createPhaserMock(),
 );
-jest.mock('../../game-display/camera', () => ({ shakeBoard: jest.fn() }));
+jest.mock('../../display/camera', () => ({ shakeBoard: jest.fn() }));
 
 import loadNutcaseAbilities from '../../abilities/Nutcase';
 import { Creature } from '../../creature';
