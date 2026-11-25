@@ -894,6 +894,52 @@ describe('Creature', () => {
 			jest.useRealTimers();
 		});
 	});
+
+	describe('creature.fatigueText', () => {
+		/**
+		 * Reuses a single creature: this suite already builds ~40 of them and a
+		 * few more push a CI worker past its heap limit. `stats.endurance` is
+		 * what the getter divides against, so it is set per case.
+		 */
+		let game: ReturnType<typeof getGameMock>;
+		let creature: Creature;
+
+		beforeAll(() => {
+			game = getGameMock();
+			const obj = getCreatureObjMock();
+			obj.materializationSickness = false;
+			(obj.stats as { health: number; movement: number; endurance?: number }).endurance = 5;
+			// @ts-ignore
+			creature = new Creature(obj, game);
+		});
+
+		beforeEach(() => {
+			(game.log as jest.Mock).mockClear();
+		});
+
+		test('shows remaining endurance pool normally', () => {
+			creature.endurance = 3;
+			expect(creature.fatigueText).toBe('3/5');
+		});
+
+		test('shows Fragile when endurance pool is minimal but not depleted', () => {
+			(creature.stats as { endurance?: number }).endurance = 1;
+			creature.endurance = 1;
+			expect(creature.fatigueText).toBe('Fragile');
+			expect(game.log).toHaveBeenCalledWith('%CreatureName' + creature.id + '% has become fragile');
+		});
+
+		test('shows Fatigued over Fragile when endurance pool is minimal and depleted', () => {
+			(creature.stats as { endurance?: number }).endurance = 1;
+			creature.endurance = 0;
+			expect(creature.fatigueText).toBe('Fatigued');
+			// Depleting the last endurance point must not log a misleading
+			// "has become fragile" message. @see https://github.com/FreezingMoon/AncientBeast/issues/1986
+			expect(game.log).not.toHaveBeenCalledWith(
+				'%CreatureName' + creature.id + '% has become fragile',
+			);
+		});
+	});
 });
 
 jest.mock('../ability');
