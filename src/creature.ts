@@ -1867,7 +1867,7 @@ export class Creature {
 			// Health display Update
 			// Note: update health after adding effects as some effects may affect
 			this.updateHealth();
-						// Sonic hit effect (#1497): the cardboard vibrates with a quick echo.
+			// Sonic hit effect (#1497): the cardboard vibrates with a quick echo.
 			if ((dmg.sonic ?? 0) > 0) {
 				this.creatureSprite.sonicPulse();
 			}
@@ -4179,7 +4179,7 @@ class CreatureSprite {
 		this._noActionHintGroup = null;
 	}
 
-		/**
+	/**
 	 * Sonic hit effect (#1497): a copy of the cardboard is drawn right on top of
 	 * the original, then scaled outwards while it fades away quickly, giving the
 	 * feeling of a high intensity vibration hitting the unit.
@@ -4208,7 +4208,7 @@ class CreatureSprite {
 			.to({ alpha: 0 }, durationMS, Easing.Quadratic.Out, true)
 			.onComplete.addOnce(() => ghost.destroy());
 	}
-showBonfireSpringHint() {
+	showBonfireSpringHint() {
 		let fireCount = 1;
 		this._hintGrp.each((hint: SpriteHandle) => {
 			const state = peekHintState(hint);
