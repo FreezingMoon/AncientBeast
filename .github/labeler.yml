@@ -1,0 +1,91 @@
+# Labels applied automatically to pull requests based on the changed paths.
+# Used by .github/workflows/labeler.yml (actions/labeler).
+# Docs: https://github.com/actions/labeler
+
+coding:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/**'
+          - 'platforms/**'
+          - 'scripts/**'
+          - 'tools/**'
+          - 'types/**'
+          - 'test/**'
+
+visuals:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/ui/**'
+          - 'src/vfx/**'
+          - 'src/style/**'
+          - 'src/game-display/**'
+          - 'src/phaser/**'
+          - 'src/templates/**'
+          - 'assets/interface/**'
+          - 'assets/icons/**'
+          - 'assets/cards/**'
+          - 'assets/stats/**'
+          - 'assets/fonts/**'
+
+audio:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/sound/**'
+          - 'assets/music/**'
+          - 'assets/sounds/**'
+          - 'assets/units/sfx/**'
+          - 'assets/units/shouts/**'
+
+artwork:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'assets/units/artwork/**'
+          - 'assets/units/avatars/**'
+          - 'assets/units/cardboards/**'
+          - 'assets/units/sprites/**'
+          - 'assets/locations/**'
+          - 'assets/drops/**'
+
+abilities:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/abilities/**'
+          - 'assets/units/abilities/**'
+
+input:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/input/**'
+
+multiplayer:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/multiplayer/**'
+
+pipeline:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.github/**'
+          - '.husky/**'
+          - 'Dockerfile'
+          - '.dockerignore'
+          - 'vite.config.mts'
+          - 'jest*.config.js'
+          - 'tsconfig*.json'
+          - '.eslintrc.json'
+          - '.eslintignore'
+          - '.prettierrc'
+          - '.prettierignore'
+          - '.babelrc.js'
+          - 'assets-manifest.mts'
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'package.json'
+          - 'bun.lock'
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/*.md'
