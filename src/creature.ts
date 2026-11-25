@@ -7,7 +7,7 @@ import { disperseBadBreathCloudsAt } from './vfx/bad-breath';
 import Game from './game';
 import * as arrayUtils from './utility/arrayUtils';
 import { Drop, DropDefinition } from './drop';
-import { ensureCardboard, ensureDropTexture, isTextureReady } from './assets';
+import { ensureCardboard, ensureDropTexture, isTextureReady, loadTexture } from './assets';
 import { Point, getPointFacade } from './utility/pointfacade';
 import { Effect } from './effect';
 import {
@@ -2303,6 +2303,15 @@ export class Creature {
 		this.creatureSprite.clearHints(hintTypes);
 	}
 
+	/** Show the selected ability icon + frame above this creature (issue #2537). */
+	showSelectedAbilityHint(abilityId: number) {
+		this.creatureSprite.showSelectedAbilityHint(abilityId);
+	}
+
+	clearSelectedAbilityHint() {
+		this.creatureSprite.clearSelectedAbilityHint();
+	}
+
 	stopNoActionHintBounce() {
 		this.creatureSprite.stopNoActionHintBounce();
 	}
@@ -2930,6 +2939,9 @@ class CreatureSprite {
 	private _noActionHintElements: SpriteHandle[] = [];
 	private _noActionHintGroup: SpriteHandle | null = null;
 	private _noActionHintTween: TweenHandle | null = null;
+	/** Frame + icon shown above the active unit while an ability is selected (#2537). */
+	private _abilityHintElements: SpriteHandle[] = [];
+	private _abilityHintAbilityId = -1;
 	private _healthBounceOffset = 0; // y-offset driven by the bounce tween
 	private _healthUiGroup: GroupHandle; // elevated layer for active/hovered indicators
 	private _healthInUiGroup = false; // whether the indicator is currently elevated
@@ -4175,6 +4187,151 @@ class CreatureSprite {
 		this._noActionHintGroup = null;
 	}
 
+	/**
+	 * Showcase the selected ability icon above the creature (with frame), matching
+	 * the skip-turn hover style from #2536. Used while targeting (#2537).
+	 */
+	showSelectedAbilityHint(abilityId: number) {
+		if (abilityId < 0) {
+			this.clearSelectedAbilityHint();
+			return;
+		}
+
+		if (this._abilityHintAbilityId === abilityId && this._abilityHintElements.some((h) => h.active)) {
+			return;
+		}
+
+		this.clearSelectedAbilityHint();
+		this._abilityHintAbilityId = abilityId;
+
+		const creature = this._creature;
+		const ability = creature.abilities?.[abilityId];
+		const label = ability?.title || `Ability ${abilityId}`;
+		const textureKey = `ability_hint_${creature.name}_${abilityId}`;
+		const manifestKey = `units/abilities/${creature.name} ${abilityId}`;
+
+		const buildHint = () => {
+			if (this._destroyed || this._abilityHintAbilityId !== abilityId) {
+				return;
+			}
+
+			const tooltipSpeed = 250;
+			const tooltipTransition = Easing.Linear.None;
+
+			const frame = this._gameEngine.add.sprite(0, 50, 'frame', undefined, this._hintGrp);
+			const frameBackground = createGameCanvasSurface(
+				this._creature.game,
+				frame.width,
+				frame.height,
+			);
+			frameBackground.ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+			frameBackground.ctx.fillRect(0, 0, frameBackground.width, frameBackground.height);
+			frameBackground.commit();
+			frameBackground.drawTexture('frame', 0, 0);
+			frame.destroy();
+
+			const abilityFrame = this._gameEngine.add.sprite(
+				0,
+				50,
+				frameBackground.key,
+				undefined,
+				this._hintGrp,
+			);
+			abilityFrame.setOrigin(0.5, 0.175);
+			abilityFrame.setScale(0.75);
+			abilityFrame.alpha = 0;
+			abilityFrame.visible = true;
+			hintState(abilityFrame).hintType = 'ability_selected_bg';
+			this._gameEngine
+				.tween(abilityFrame)
+				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
+				.start();
+
+			const iconKey = isTextureReady(textureKey) ? textureKey : 'skip';
+			const abilityIcon = this._gameEngine.add.sprite(0, 29, iconKey, undefined, this._hintGrp);
+			abilityIcon.setOrigin(0.5, 0.745);
+			abilityIcon.setScale(0.15);
+			abilityIcon.alpha = 0;
+			abilityIcon.visible = true;
+			hintState(abilityIcon).hintType = 'ability_selected_icon';
+			this._gameEngine
+				.tween(abilityIcon)
+				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
+				.start();
+
+			const abilityText = this._gameEngine.add.text(
+				0,
+				50,
+				label,
+				{
+					font: 'bold 16pt Play',
+					color: '#ffffff',
+					align: 'center',
+					stroke: '#000000',
+					strokeThickness: 2,
+				},
+				this._hintGrp,
+			);
+			abilityText.setOrigin(0.5, 0.5);
+			abilityText.alpha = 0;
+			hintState(abilityText).hintType = 'ability_selected';
+			this._gameEngine
+				.tween(abilityText)
+				.to({ alpha: 1 }, tooltipSpeed, tooltipTransition)
+				.start();
+
+			this._abilityHintElements = [abilityFrame, abilityIcon, abilityText];
+
+			const bounceHeight = 10;
+			const bounceSpeed = 350;
+			this._abilityHintElements.forEach((hintElement, index) => {
+				hintElement.x = 0;
+				hintElement.y = -50 * index;
+				hintState(hintElement).baseY = hintElement.y;
+				const bounceSrc = { offset: 0 };
+				const bounceTgt = { offset: -bounceHeight };
+				hintState(hintElement).tweenBounce = this._gameEngine
+					.tween(bounceSrc)
+					.to(bounceTgt, bounceSpeed, Easing.Quadratic.InOut, true)
+					.yoyo(true)
+					.repeat(-1);
+				hintState(hintElement).tweenBounce.onUpdateCallback(() => {
+					hintElement.y = hintState(hintElement).baseY + bounceSrc.offset;
+				});
+			});
+		};
+
+		loadTexture(textureKey, manifestKey, buildHint);
+	}
+
+	clearSelectedAbilityHint() {
+		this._abilityHintAbilityId = -1;
+		const tooltipTransition = Easing.Linear.None;
+		const elements = this._abilityHintElements.filter((hint) => hint.active);
+		this._abilityHintElements = [];
+
+		elements.forEach((hint) => {
+			const state = peekHintState(hint);
+			if (state?.tweenBounce) {
+				state.tweenBounce.stop();
+				state.tweenBounce = null;
+			}
+			if (state) {
+				state.hintType = 'confirm_deleted';
+			}
+			const fade = this._gameEngine.tween(hint).to({ alpha: 0 }, 100, tooltipTransition).start();
+			fade.onComplete.add(() => hint.destroy());
+		});
+	}
+
+	private isAbilitySelectedHintType(hintType: string): boolean {
+		return (
+			hintType === 'ability_selected' ||
+			hintType === 'ability_selected_icon' ||
+			hintType === 'ability_selected_bg'
+		);
+	}
+
 	showBonfireSpringHint() {
 		let fireCount = 1;
 		this._hintGrp.each((hint: SpriteHandle) => {
@@ -4251,6 +4408,18 @@ class CreatureSprite {
 				stroke: '#000000',
 			},
 			no_action_bg: {
+				color: '#ffffff',
+				stroke: '#000000',
+			},
+			ability_selected: {
+				color: '#ffffff',
+				stroke: '#000000',
+			},
+			ability_selected_icon: {
+				color: '#ffffff',
+				stroke: '#000000',
+			},
+			ability_selected_bg: {
 				color: '#ffffff',
 				stroke: '#000000',
 			},
@@ -4709,6 +4878,9 @@ class CreatureSprite {
 			this._noActionHintElements = [];
 			this.destroyNoActionHintGroup();
 		}
+		if (hintTypes.includes('ability_selected')) {
+			this.clearSelectedAbilityHint();
+		}
 
 		this._hintGrp.each((hint: SpriteHandle) => {
 			// An element with no recorded type was never one of ours (the group
@@ -4726,7 +4898,12 @@ class CreatureSprite {
 			}
 
 			const isNoAction = this.isNoActionHintType(state.hintType);
-			if (!hintTypes.includes(state.hintType) && !(isNoAction && hintTypes.includes('no_action'))) {
+			const isAbilitySelected = this.isAbilitySelectedHintType(state.hintType);
+			if (
+				!hintTypes.includes(state.hintType) &&
+				!(isNoAction && hintTypes.includes('no_action')) &&
+				!(isAbilitySelected && hintTypes.includes('ability_selected'))
+			) {
 				return;
 			}
 
@@ -4796,11 +4973,12 @@ class CreatureSprite {
 		// not linger at the death spot with no unit behind them: fade
 		// them out in place. Transient hints (damage, effect names)
 		// already fade and destroy themselves on their own tweens.
-		this.clearHints(['confirm', 'no_action']);
+		this.clearHints(['confirm', 'no_action', 'ability_selected']);
 	}
 
 	destroy() {
 		if (this._destroyed) return;
+		this.clearSelectedAbilityHint();
 		this._destroyed = true;
 		this._freeXrayState();
 		this._creature.game.animations.disposeInfernalCardboardEffect(this._creature);
@@ -4843,6 +5021,10 @@ export type CreatureHintType =
 	 * three alike.
 	 */
 	| 'no_action_icon'
-	| 'no_action_bg';
+	| 'no_action_bg'
+	/** Selected ability showcase while targeting (#2537), with frame + icon satellites. */
+	| 'ability_selected'
+	| 'ability_selected_icon'
+	| 'ability_selected_bg';
 
 type HealthBubbleType = 'plasma' | 'frozen' | 'health';
