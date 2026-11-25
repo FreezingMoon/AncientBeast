@@ -1,4 +1,4 @@
-import { getFrameSize } from '../game-display/texture';
+import { getFrameSize } from '../display/texture';
 import { Damage } from '../damage';
 import { Effect } from '../effect';
 import Game from '../game';
@@ -8,7 +8,7 @@ import * as matrices from '../utility/matrices';
 import { getDirectionFromDelta } from '../utility/position';
 import { isTeam, Team } from '../utility/team';
 import { HEX_WIDTH_PX } from '../utility/const';
-import { shakeBoard } from '../game-display/camera';
+import { shakeBoard } from '../display/camera';
 import { SnapshotCompatibilityError } from '../engine/GameSnapshot';
 import {
 	HORN_HEAD_LIFE_SUPPORT_EFFECT,

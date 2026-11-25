@@ -20,8 +20,8 @@
 import { Creature } from '../../creature';
 import { after, type Timer } from '../../timing/clock';
 import type { GameEngine, GroupHandle } from '../../engine/types';
-import type { SurfaceSource } from '../../game-display/canvas-surface';
-import { getFrameSize } from '../../game-display/texture';
+import type { SurfaceSource } from '../../display/canvas-surface';
+import { getFrameSize } from '../../display/texture';
 import { chainLightningLook, type ChainLightningLook, type LightningPoint } from './look';
 import { ChainLightningBolt } from './bolt';
 

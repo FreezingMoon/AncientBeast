@@ -1,5 +1,5 @@
 import { runTimedAnimation } from '../timing/clock';
-import { createGameCanvasSurface, type CanvasSurface } from '../game-display/canvas-surface';
+import { createGameCanvasSurface, type CanvasSurface } from '../display/canvas-surface';
 import type { TimedAnimation } from '../timing/clock';
 import { Easing } from '../utility/easing';
 import { Damage } from '../damage';
@@ -8,7 +8,7 @@ import { Hex } from '../utility/hex';
 import { Team, isTeam } from '../utility/team';
 import * as arrayUtils from '../utility/arrayUtils';
 import { extractTextureFrameInfo, createBitmapDataFromTexture } from '../utility/bitmapUtils';
-import { getFrameSize } from '../game-display/texture';
+import { getFrameSize } from '../display/texture';
 import { GHOST_PREVIEW_ALPHA, HEX_WIDTH_PX } from '../utility/const';
 import Game from '../game';
 import type { Ability } from '../ability';

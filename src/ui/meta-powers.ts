@@ -3,13 +3,13 @@ import Cookies from 'js-cookie';
 import { capitalize } from '../utility/string';
 import { Button, ButtonStateEnum } from './button';
 import Game, { MetaPowersState } from '../game';
-import { metaPowerMessage } from '../game-events/factory';
+import { metaPowerMessage } from '../events/factory';
 
 const COOKIE_KEY = 'ab-meta-powers';
 
 /**
  * "God-mode" UI for debugging game state
- * Available in hot-seat games when the app is in development mode
+ * Available in hot-seat games during local development and on Vercel preview deployments
  *
  * Directly accessing instances of this class as they may not be present in some game modes
  *

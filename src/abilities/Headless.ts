@@ -3,7 +3,7 @@ import { isTeam, Team } from '../utility/team';
 import * as matrices from '../utility/matrices';
 import { Effect } from '../effect';
 import Game from '../game';
-import { shakeBoard } from '../game-display/camera';
+import { shakeBoard } from '../display/camera';
 import { Hex } from '../utility/hex';
 import { animateBoomerang } from '../phaser/boomerang';
 

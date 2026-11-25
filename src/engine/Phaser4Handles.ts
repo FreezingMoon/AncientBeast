@@ -163,7 +163,7 @@ export function wrapGameObject(gameObject: Phaser.GameObjects.GameObject): Sprit
 		 * mean.
 		 *
 		 * Gameplay positioning now asks `getFrameSize()` in
-		 * `src/game-display/texture.ts` instead, which prefers the *untrimmed*
+		 * `src/display/texture.ts` instead, which prefers the *untrimmed*
 		 * frame size. What remains is source-region drawing
 		 * (`utility/bitmapUtils`, the shatter effect), where the packed frame box is
 		 * the right answer.

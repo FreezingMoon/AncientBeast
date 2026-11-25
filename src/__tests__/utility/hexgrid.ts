@@ -16,7 +16,7 @@ jest.mock('../../creature', () => ({
 }));
 
 import { HexGrid } from '../../utility/hexgrid';
-import { createGameChannels } from '../../game-events/factory';
+import { createGameChannels } from '../../events/factory';
 import { GHOST_PREVIEW_ALPHA } from '../../utility/const';
 import { Creature } from '../../creature';
 import { notifyTextureLoaded, resetOnDemandTextures, setOnDemandLoader } from '../../assets';

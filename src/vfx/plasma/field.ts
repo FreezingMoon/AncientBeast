@@ -33,7 +33,7 @@ import {
 	createCanvasSurface,
 	type CanvasSurface,
 	type SurfaceSource,
-} from '../../game-display/canvas-surface';
+} from '../../display/canvas-surface';
 import type { Timer } from '../../timing/clock';
 
 export interface PlasmaFieldSettings {

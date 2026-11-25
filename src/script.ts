@@ -9,7 +9,7 @@ import { PreMatchAudioPlayer } from './sound/pre-match-audio';
 import { Fullscreen } from './ui/fullscreen';
 import { buttonSlide } from './ui/button';
 import { normalizeLobbyCode } from './multiplayer/types';
-import { applyPortraitScale, refreshScale } from './game-display/scale';
+import { applyPortraitScale, refreshScale } from './display/scale';
 
 import { installAvatarStyles } from './style/avatar-styles';
 import {

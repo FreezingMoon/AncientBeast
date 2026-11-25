@@ -3,7 +3,7 @@ import { Team, isTeam } from '../utility/team';
 import { Effect } from '../effect';
 import Game from '../game';
 import { Creature } from '../creature';
-import { shakeBoard } from '../game-display/camera';
+import { shakeBoard } from '../display/camera';
 
 /*
  *TODO

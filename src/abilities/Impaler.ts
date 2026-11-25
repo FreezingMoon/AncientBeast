@@ -10,9 +10,9 @@ import { once } from 'underscore';
 import { getPointFacade, Point } from '../utility/pointfacade';
 import { offsetCoordsToPx } from '../utility/const';
 import Game from '../game';
-import { shakeBoard } from '../game-display/camera';
-import { getDepthAtBand } from '../game-display/layer';
-import { getFrameSize } from '../game-display/texture';
+import { shakeBoard } from '../display/camera';
+import { getDepthAtBand } from '../display/layer';
+import { getFrameSize } from '../display/texture';
 import { spawnChainLightning } from '../vfx/lightning/effect';
 import { SnapshotCompatibilityError } from '../engine/GameSnapshot';
 import {

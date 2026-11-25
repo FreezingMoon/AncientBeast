@@ -5,7 +5,7 @@ import { Creature } from '../creature';
 import { Effect } from '../effect';
 import Game from '../game';
 import { Hex } from '../utility/hex';
-import { shakeBoard } from '../game-display/camera';
+import { shakeBoard } from '../display/camera';
 import { SnapshotCompatibilityError } from '../engine/GameSnapshot';
 import { GOLDEN_WYRM_MOMENTUM_EFFECT } from '../engine/snapshotBehaviors';
 

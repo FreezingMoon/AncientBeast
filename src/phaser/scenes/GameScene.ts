@@ -1,6 +1,6 @@
 import { getPhaser } from '../runtime';
 import { AssetLoader } from '../loader';
-import { setBoardCamera, resetBoardCamera } from '../../game-display/camera';
+import { setBoardCamera, resetBoardCamera } from '../../display/camera';
 import { advanceFrame } from '../../timing/clock';
 import type Phaser from 'phaser';
 

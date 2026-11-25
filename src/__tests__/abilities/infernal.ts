@@ -159,7 +159,7 @@ import {
 	setAbClockTime,
 	uninstallAbClock,
 } from '../../../test/abClock';
-import { setBoardCamera, resetBoardCamera } from '../../game-display/camera';
+import { setBoardCamera, resetBoardCamera } from '../../display/camera';
 
 type MockHex = {
 	x: number;

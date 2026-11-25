@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { getDisplaySize, getFrameSize, getSourceSize } from '../../game-display/texture';
+import { getDisplaySize, getFrameSize, getSourceSize } from '../../display/texture';
 
 describe('sprite size sources', () => {
 	const sprite = {

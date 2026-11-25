@@ -9,7 +9,7 @@ import { once } from 'underscore';
 import { Direction } from '../utility/hex';
 import Game from '../game';
 import { QueryOptions } from '../utility/hexgrid';
-import { shakeBoard } from '../game-display/camera';
+import { shakeBoard } from '../display/camera';
 import { SnapshotCompatibilityError } from '../engine/GameSnapshot';
 import { NUTCASE_HAMMERED_EFFECT, NUTCASE_TENTACLE_BUSH_EFFECT } from '../engine/snapshotBehaviors';
 

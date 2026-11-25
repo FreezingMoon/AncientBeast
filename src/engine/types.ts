@@ -263,7 +263,7 @@ export interface GroupHandle {
 /**
  * The registered-key side of a CPU-drawn surface.
  *
- * `src/game-display/canvas-surface.ts` owns the full `CanvasSurface`; a texture
+ * `src/display/canvas-surface.ts` owns the full `CanvasSurface`; a texture
  * key only needs the string the surface registered under, so the engine layer
  * states that minimum itself and keeps its own file free of Phaser types.
  */
@@ -277,7 +277,7 @@ export interface SurfaceTextureKey {
  * Phaser 2 CE's texture-key parameters were loosely typed enough to take a
  * `BitmapData`, and AB's per-pixel effects leaned on that. Under native Phaser
  * 4 the CPU-drawn surfaces are `CanvasTexture`s registered in the
- * `TextureManager` (see `src/game-display/canvas-surface.ts`), so a surface is
+ * `TextureManager` (see `src/display/canvas-surface.ts`), so a surface is
  * now passed as its key like any other texture — either the surface itself or
  * the string it registered under.
  *

@@ -4,7 +4,7 @@ import { Creature } from '../creature';
 import { Effect } from '../effect';
 import { Hex } from '../utility/hex';
 import Game from '../game';
-import { shakeBoard } from '../game-display/camera';
+import { shakeBoard } from '../display/camera';
 import { SnapshotCompatibilityError } from '../engine/GameSnapshot';
 import {
 	MISS_CREEPER_ATTRACTION_EFFECT,

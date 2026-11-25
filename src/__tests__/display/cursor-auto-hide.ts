@@ -5,7 +5,7 @@ import {
 	CURSOR_HIDDEN_CLASS,
 	startCursorAutoHide,
 	stopCursorAutoHide,
-} from '../../game-display/cursor-auto-hide';
+} from '../../display/cursor-auto-hide';
 
 describe('bot-only-match cursor auto-hide', () => {
 	let teardown: (() => void) | null = null;

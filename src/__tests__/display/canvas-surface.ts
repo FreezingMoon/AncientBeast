@@ -19,7 +19,7 @@ jest.mock('phaser', () =>
 import { BlendModes } from 'phaser';
 import type { GameEngine } from '../../engine/types';
 import { PlasmaField } from '../../vfx/plasma/field';
-import { createCanvasSurface } from '../../game-display/canvas-surface';
+import { createCanvasSurface } from '../../display/canvas-surface';
 
 /**
  * Mirrors Phaser 4's `TextureManager.get()` lookup, including its

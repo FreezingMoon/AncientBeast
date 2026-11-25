@@ -16,7 +16,7 @@ jest.mock('phaser', () =>
 );
 
 import { getPhaser, setPhaserNamespace } from '../../phaser/runtime';
-import { resetBoardCamera, setBoardCamera, shakeBoard } from '../../game-display/camera';
+import { resetBoardCamera, setBoardCamera, shakeBoard } from '../../display/camera';
 
 const { Vector2 } = getPhaser().Math;
 

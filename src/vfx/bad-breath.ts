@@ -3,12 +3,12 @@ import type Game from '../game';
 import { Damage } from '../damage';
 import { Easing } from '../utility/easing';
 import { offsetCoordsToPx } from '../utility/const';
-import { createGameCanvasSurface } from '../game-display/canvas-surface';
-import { getFrameSize } from '../game-display/texture';
+import { createGameCanvasSurface } from '../display/canvas-surface';
+import { getFrameSize } from '../display/texture';
 import { Hex } from '../utility/hex';
 
 import type { SpriteHandle } from '../engine/types';
-import type { CanvasSurface } from '../game-display/canvas-surface';
+import type { CanvasSurface } from '../display/canvas-surface';
 
 // Use engine types; local SpriteHandle was wrong for current API
 

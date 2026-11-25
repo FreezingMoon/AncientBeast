@@ -4,7 +4,7 @@ import { Effect } from '../effect';
 import { Creature } from '../creature';
 import { Hex } from '../utility/hex';
 import Game from '../game';
-import { shakeBoard } from '../game-display/camera';
+import { shakeBoard } from '../display/camera';
 import {
 	spawnBadBreathCloud,
 	spawnBadBreath,

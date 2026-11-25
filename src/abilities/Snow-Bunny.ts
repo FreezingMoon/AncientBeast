@@ -7,7 +7,7 @@ import Game from '../game';
 import { Hex } from '../utility/hex';
 import { disperseBadBreathCloudsAlongPath, getBadBreathCloudAlongPath } from '../vfx/bad-breath';
 import { Point, getPointFacade } from '../utility/pointfacade';
-import { shakeBoard } from '../game-display/camera';
+import { shakeBoard } from '../display/camera';
 
 /* TODO:
  * Refactor to remove the `arguments` keyword

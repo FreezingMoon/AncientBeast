@@ -6,7 +6,7 @@ import { Hex } from '../utility/hex';
 import * as arrayUtils from '../utility/arrayUtils';
 import { getPointFacade } from '../utility/pointfacade';
 import Game from '../game';
-import { shakeBoard } from '../game-display/camera';
+import { shakeBoard } from '../display/camera';
 import { SnapshotCompatibilityError } from '../engine/GameSnapshot';
 import { ABOLISHED_BONFIRE_SPRING_EFFECT } from '../engine/snapshotBehaviors';
 

@@ -7,7 +7,7 @@ import { Effect } from '../effect';
 import { Creature } from '../creature';
 import { Hex } from '../utility/hex';
 import Game from '../game';
-import { shakeBoard } from '../game-display/camera';
+import { shakeBoard } from '../display/camera';
 import { SnapshotCompatibilityError } from '../engine/GameSnapshot';
 import { SCAVENGER_DEADLY_TOXIN_POISON_EFFECT } from '../engine/snapshotBehaviors';
 

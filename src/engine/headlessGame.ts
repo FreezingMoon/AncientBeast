@@ -3,7 +3,7 @@
 /* global NodeListOf */
 import * as fs from 'fs';
 import * as nodePath from 'path';
-import { setBoardCamera } from '../../src/game-display/camera';
+import { setBoardCamera } from '../../src/display/camera';
 import { setClockScene } from '../../src/timing/clock';
 // ─────────────────────────────────────────────────────────────────────────────
 // Headless game harness for the authoritative server.
@@ -642,7 +642,7 @@ function isIdle(game: any): boolean {
 /**
  * Point AB's engine singletons at this match before driving it.
  *
- * `src/timing/clock.ts` and `src/game-display/camera.ts` keep module-level
+ * `src/timing/clock.ts` and `src/display/camera.ts` keep module-level
  * state, because gameplay reaches them without a handle to the match they
  * belong to. `createPhaser()` registers into those on behalf of whichever game
  * booted last, so a process running two engines — which the convergence test

@@ -2,7 +2,7 @@ import type Game from '../game';
 import type { Hex } from '../utility/hex';
 import { HEX_HEIGHT_PX, HEX_WIDTH_PX } from '../utility/const';
 import { Easing } from '../utility/easing';
-import { getDepthAtBand } from '../game-display/layer';
+import { getDepthAtBand } from '../display/layer';
 import { spawnProjectileVertigoTrail } from '../vertigo';
 
 export function animateBoomerang(

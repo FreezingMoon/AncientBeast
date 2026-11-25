@@ -1,5 +1,5 @@
 import { BLEND_MODE_ADD } from './phaser/runtime';
-import { createGameCanvasSurface, type CanvasSurface } from './game-display/canvas-surface';
+import { createGameCanvasSurface, type CanvasSurface } from './display/canvas-surface';
 import type { SpriteHandle, GroupHandle, TweenHandle } from './engine/types';
 import { Easing } from './utility/easing';
 import * as arrayUtils from './utility/arrayUtils';
@@ -20,8 +20,8 @@ import {
 	spawnProjectileVertigoTrail,
 } from './vertigo';
 import { loadTexture, isTextureReady } from './assets';
-import { getFrameSize } from './game-display/texture';
-import { getDepthAtBand } from './game-display/layer';
+import { getFrameSize } from './display/texture';
+import { getDepthAtBand } from './display/layer';
 
 // to fix @ts-expect-error 2554: properly type the arguments for the trigger functions in `game.ts`
 

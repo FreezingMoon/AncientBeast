@@ -36,10 +36,10 @@ import type {
 	TweenHandle,
 } from './engine/types';
 import { GOOEY_BODY_BRB_TRAP_BEHAVIOR } from './engine/snapshotBehaviors';
-import { getFrameSize, MISSING_TEXTURE_KEY } from './game-display/texture';
+import { getFrameSize, MISSING_TEXTURE_KEY } from './display/texture';
 import { onPointerDown } from './input/input';
-import { setHandCursor } from './game-display/cursor';
-import { createGameCanvasSurface, type CanvasSurface } from './game-display/canvas-surface';
+import { setHandCursor } from './display/cursor';
+import { createGameCanvasSurface, type CanvasSurface } from './display/canvas-surface';
 
 /** Vertical distance (in pixels) between the Dark Priest's feet and the Plasma Field center. */
 const PLASMA_FIELD_OFFSET_Y = 90;
@@ -1867,6 +1867,10 @@ export class Creature {
 			// Health display Update
 			// Note: update health after adding effects as some effects may affect
 			this.updateHealth();
+			// Sonic hit effect (#1497): the cardboard vibrates with a quick echo.
+			if ((dmg.sonic ?? 0) > 0) {
+				this.creatureSprite.sonicPulse();
+			}
 			// A cardboard tilt back from the blow, matching the lightning demo's
 			// hit reaction — a lean away from the attacker, not a back-and-forth
 			// slide. The tilt is on the creature group's angle so the silhouette
@@ -4175,6 +4179,35 @@ class CreatureSprite {
 		this._noActionHintGroup = null;
 	}
 
+	/**
+	 * Sonic hit effect (#1497): a copy of the cardboard is drawn right on top of
+	 * the original, then scaled outwards while it fades away quickly, giving the
+	 * feeling of a high intensity vibration hitting the unit.
+	 */
+	sonicPulse(durationMS = 300): void {
+		const src = this._sprite;
+		if (this._destroyed || !src || this._isOnPlaceholderTexture()) return;
+
+		const ghost = this._gameEngine.add.sprite(0, 0, src.key);
+		// Insert it right above the cardboard, below the hints and health bar.
+		this._group.addAt(ghost, this._group.getIndex(src) + 1);
+		// Centered origin so the echo grows outwards in every direction.
+		const { height } = getFrameSize(src);
+		ghost.setOrigin(0.5, 0.5);
+		ghost.x = src.x;
+		ghost.y = src.y - height / 2;
+		ghost.setScale(this._dir, 1);
+		ghost.alpha = 0.6;
+
+		const grow = 1.15;
+		this._gameEngine
+			.tween(ghost.scale)
+			.to({ x: this._dir * grow, y: grow }, durationMS, Easing.Quadratic.Out, true);
+		this._gameEngine
+			.tween(ghost)
+			.to({ alpha: 0 }, durationMS, Easing.Quadratic.Out, true)
+			.onComplete.addOnce(() => ghost.destroy());
+	}
 	showBonfireSpringHint() {
 		let fireCount = 1;
 		this._hintGrp.each((hint: SpriteHandle) => {

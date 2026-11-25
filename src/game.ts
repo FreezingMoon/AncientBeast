@@ -30,13 +30,13 @@ import {
 	ageBadBreathClouds,
 } from './vfx/bad-breath';
 import { unitData } from './data/units';
-import type { GameChannels, MetaPowersState } from './game-events/channels.types';
-import { createGameChannels } from './game-events/factory';
+import type { GameChannels, MetaPowersState } from './events/channels.types';
+import { createGameChannels } from './events/factory';
 import { resetClock, setClockScene } from './timing/clock';
 import type Phaser from 'phaser';
 import { loadPhaser, getPhaser } from './phaser/runtime';
-import { applyBoardScale, refreshScale } from './game-display/scale';
-import { startCursorAutoHide } from './game-display/cursor-auto-hide';
+import { applyBoardScale, refreshScale } from './display/scale';
+import { startCursorAutoHide } from './display/cursor-auto-hide';
 import { createGameConfig } from './phaser/boot';
 import { LobbyClient } from './multiplayer';
 import { createLobbyProvider } from './multiplayer/provider';
@@ -131,7 +131,7 @@ function shouldUseCanvasRenderer() {
 }
 
 /** Re-exported for the existing `import Game, { MetaPowersState }` call sites. */
-export type { MetaPowersState } from './game-events/channels.types';
+export type { MetaPowersState } from './events/channels.types';
 
 /**
  * Overrides for {@link Game.createPhaser}.
@@ -515,7 +515,7 @@ export default class Game {
 	 * The live `GameScene`, for callers that need to point AB's engine
 	 * registries at this game before driving it.
 	 *
-	 * `src/timing/clock.ts` and `src/game-display/camera.ts` hold module-level
+	 * `src/timing/clock.ts` and `src/display/camera.ts` hold module-level
 	 * singletons, because gameplay reaches them without a handle to the match.
 	 * That is fine while one game runs at a time — the browser, the server's one
 	 * game per lobby, the simulation — but a process driving two engines has to

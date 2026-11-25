@@ -6,7 +6,7 @@ import { Effect } from '../effect';
 import { Creature } from '../creature';
 import { getDirectionFromDelta } from '../utility/position';
 import Game from '../game';
-import { shakeBoard } from '../game-display/camera';
+import { shakeBoard } from '../display/camera';
 import { SnapshotCompatibilityError } from '../engine/GameSnapshot';
 import { UNCLE_FUNGUS_OFFENSE_BONUS_EFFECT } from '../engine/snapshotBehaviors';
 

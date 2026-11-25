@@ -1,4 +1,4 @@
-import { getFrameSize } from '../game-display/texture';
+import { getFrameSize } from '../display/texture';
 import { Easing } from '../utility/easing';
 import { Damage } from '../damage';
 import { Team } from '../utility/team';
@@ -10,7 +10,7 @@ import { Effect } from '../effect';
 import { getPointFacade } from '../utility/pointfacade';
 import { HEX_WIDTH_PX } from '../utility/const';
 import Game from '../game';
-import { shakeBoard } from '../game-display/camera';
+import { shakeBoard } from '../display/camera';
 
 /** Creates the abilities
  * @param {Game} G the game object

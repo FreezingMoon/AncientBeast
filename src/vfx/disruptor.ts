@@ -1,9 +1,9 @@
 import type { Creature } from '../creature';
 import type { TweenHandle } from '../engine/types';
 import type Game from '../game';
-import { createGameCanvasSurface, type CanvasSurface } from '../game-display/canvas-surface';
+import { createGameCanvasSurface, type CanvasSurface } from '../display/canvas-surface';
 import { Easing } from '../utility/easing';
-import { getFrameSize } from '../game-display/texture';
+import { getFrameSize } from '../display/texture';
 import { HEX_HEIGHT_PX, HEX_WIDTH_PX } from '../utility/const';
 import { electroShockerLook } from './lightning/look';
 import {
