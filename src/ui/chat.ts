@@ -3,6 +3,10 @@ import * as str from '../utility/string';
 import { VITALS, MASTERIES } from '../utility/const';
 import { Creature } from '../creature';
 import Game from '../game';
+import type { Drop } from '../drop';
+import type { Trap } from '../utility/trap';
+import { getUrl } from '../assets';
+import { getPlayerColor } from '../player';
 
 type Message = {
 	message: string;
@@ -18,6 +22,27 @@ type MessageToSupress = {
 };
 
 type HoverableCreature = Creature & { hideUnitStatsOnHover?: boolean };
+
+/**
+ * Which ability lays each trap type, as unit name + ability slot. Traps don't
+ * keep a reference to the ability that made them, so the hover panel (#2206)
+ * looks it up here. A trap type shared by several units is resolved through
+ * the trap's `ownerCreature`.
+ */
+const TRAP_SOURCES: Record<string, { unit: string; ability: number }[]> = {
+	'bonfire-spring': [{ unit: 'Abolished', ability: 2 }],
+	'gooey-body': [{ unit: 'Gumble', ability: 0 }],
+	'mud-bath': [{ unit: 'Swine Thug', ability: 3 }],
+	'poisonous-vine': [{ unit: 'Impaler', ability: 2 }],
+	'scorched-ground': [
+		{ unit: 'Infernal', ability: 0 },
+		{ unit: 'Asher', ability: 3 },
+	],
+};
+
+function escapeHtml(text: string): string {
+	return text.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+}
 
 /**
  * Slack allowed when deciding whether the log rests at its newest message.
@@ -275,6 +300,96 @@ export class Chat {
 				this.$expandedContent.empty();
 			});
 		}, 20);
+	}
+
+	/**
+	 * Hover panel for a hexagon holding a drop and/or traps (#2206). A drop shows
+	 * the stats it changes as icons with signed, green or red values. A trap shows
+	 * the icon of the ability that laid it, framed in its owner's color, next to
+	 * that ability's description and info, as on the unit card.
+	 */
+	showHexDetails(drop: Drop | undefined, traps: Trap[]) {
+		const widgets = [
+			drop ? this._createDropContent(drop) : '',
+			...traps.map((trap) => this._createTrapContent(trap)),
+		].filter(Boolean);
+
+		if (widgets.length === 0) {
+			return;
+		}
+
+		this.currentExpandedCreature = null;
+		this.isOverCreature = true;
+		this.isExpanded = true;
+
+		const expandedHTML = `
+				<div class="hover-panel-rows">
+					${widgets.map((widget) => `<div class="hover-panel-row">${widget}</div>`).join('')}
+				</div>
+			`;
+
+		this.$expandedContent
+			.stop()
+			.html(expandedHTML)
+			.css({ opacity: 0 })
+			.animate({ opacity: 1 }, 200);
+	}
+
+	_createDropContent(drop: Drop) {
+		return Object.entries(drop.alterations)
+			.filter(([, value]) => typeof value === 'number' && value !== 0)
+			.map(([stat, value]: [string, number]) => {
+				const sign = value > 0 ? '+' : '-';
+				const change = value > 0 ? 'gain' : 'loss';
+				return `
+					<div class="stat-item">
+						<div class="icon ${stat}"></div>
+						<div class="stat-value ${change}">${sign}${Math.abs(value)}</div>
+					</div>
+				`;
+			})
+			.join('');
+	}
+
+	_createTrapContent(trap: Trap) {
+		const sources = TRAP_SOURCES[trap.type] ?? [];
+		const source =
+			sources.find(({ unit }) => unit === trap.ownerCreature?.name) ??
+			(sources.length === 1 ? sources[0] : undefined);
+		if (!source) {
+			return '';
+		}
+
+		const unitData = (this.game.creatureData as { name: string; ability_info?: unknown }[]).find(
+			({ name }) => name === source.unit,
+		);
+		const abilityInfo = (
+			unitData?.ability_info as Record<number, { desc?: string; info?: string }> | undefined
+		)?.[source.ability];
+		if (!abilityInfo) {
+			return '';
+		}
+
+		let iconUrl: string;
+		let frameUrl: string;
+		try {
+			iconUrl = getUrl(`units/abilities/${source.unit} ${source.ability}`);
+			frameUrl = getUrl(`interface/frame_${getPlayerColor(trap.owner.id)}`);
+		} catch {
+			return '';
+		}
+
+		const lines = [abilityInfo.desc, abilityInfo.info]
+			.filter(Boolean)
+			.map((line) => `<div>${escapeHtml(line)}</div>`)
+			.join('');
+
+		return `
+			<div class="trap-item">
+				<div class="trap-icon" style="background-image: url('${frameUrl}'), url('${iconUrl}')"></div>
+				<div class="trap-desc">${lines}</div>
+			</div>
+		`;
 	}
 
 	_createStatsContent(creature: Creature) {

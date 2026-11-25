@@ -1593,6 +1593,13 @@ export class HexGrid {
 					hex.creature.hint('Skip turn', 'no_action');
 				}
 				game.UI.chat.isOverCreature = true;
+			} else if (!game.botController?.isBotTurn()) {
+				// Drops and traps get a hover panel of their own (#2206)
+				const drop = game.drops?.find(({ pos }) => pos.x === hex.x && pos.y === hex.y);
+				const traps = game.traps?.filter((trap) => trap.x === hex.x && trap.y === hex.y) ?? [];
+				if (drop || traps.length > 0) {
+					game.UI.chat.showHexDetails(drop, traps);
+				}
 			}
 
 			if (hex.reachable) {
