@@ -1,0 +1,18 @@
+name: Pull Request Labeler
+
+# pull_request_target lets the action label PRs opened from forks.
+# It is safe here because the PR code is never checked out or executed;
+# the action only reads the list of changed files.
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  labeler:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/labeler@v7
