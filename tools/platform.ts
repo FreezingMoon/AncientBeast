@@ -120,6 +120,29 @@ function prompt(question: string): Promise<string> {
 	});
 }
 
+function pickIndex<T>(
+	answer: string,
+	options: T[],
+	labelOf: (o: T) => string,
+	idOf?: (o: T) => string,
+): number | null {
+	const n = Number(answer);
+	if (!Number.isNaN(n) && n >= 1 && n <= options.length) return n - 1;
+	const key = answer.toLowerCase().trim();
+	if (!key) return null;
+	let match: number | null = null;
+	let matches = 0;
+	for (let i = 0; i < options.length; i++) {
+		const label = labelOf(options[i]).toLowerCase();
+		const id = idOf ? idOf(options[i]).toLowerCase() : '';
+		if (label === key || id === key) {
+			match = i;
+			matches++;
+		}
+	}
+	return matches === 1 ? match : null;
+}
+
 async function actionMenu(platform: PlatformDescriptor): Promise<void> {
 	for (;;) {
 		console.log(`\n${c.bold}${platform.emoji} ${platform.label}${c.reset} — choose an action:`);
@@ -129,12 +152,12 @@ async function actionMenu(platform: PlatformDescriptor): Promise<void> {
 		console.log(`  ${c.cyan}0${c.reset}) ↩️ Back`);
 		const answer = (await prompt('\n> ')).trim();
 		if (answer === '' || answer === '0') return;
-		const action = actions[Number(answer) - 1];
-		if (!action) {
+		const index = pickIndex(answer, actions, (a) => platform.commands[a].label, (a) => a);
+		if (index === null) {
 			console.log(`${c.yellow}Unknown choice: ${answer}${c.reset}`);
 			continue;
 		}
-		runAction(platform, action);
+		runAction(platform, actions[index]);
 	}
 }
 
@@ -148,12 +171,12 @@ async function interactiveMenu(platforms: PlatformDescriptor[]): Promise<void> {
 		console.log(`  ${c.cyan}0${c.reset}) ❌ Exit`);
 		const answer = (await prompt('\n> ')).trim();
 		if (answer === '' || answer === '0') return;
-		const platform = platforms[Number(answer) - 1];
-		if (!platform) {
+		const index = pickIndex(answer, platforms, (p) => p.label, (p) => p.id);
+		if (index === null) {
 			console.log(`${c.yellow}Unknown choice: ${answer}${c.reset}`);
 			continue;
 		}
-		await actionMenu(platform);
+		await actionMenu(platforms[index]);
 	}
 }
 
