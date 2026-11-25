@@ -185,6 +185,9 @@ export default (G: Game) => {
 							const healAmount = Math.min(amount, healthLost);
 							amount -= healAmount;
 							this.creature.heal(healAmount, false);
+						} else {
+							// Already at full health: the whole bite overflows into regrowth (#1207)
+							this.creature.hint('Burp!', 'healing');
 						}
 					}
 
