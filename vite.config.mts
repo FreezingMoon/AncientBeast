@@ -356,7 +356,7 @@ export default defineConfig(({ mode, command }) => {
 			'process.env.ENABLE_SERVICE_WORKER': JSON.stringify(enableServiceWorker),
 			'process.env.VITE_DEVVIT_TARGET': JSON.stringify(isDevvitTarget),
 			'process.env.VITE_FUNJE_TARGET': JSON.stringify(isFunjeTarget),
-			'process.env.VITE_CRAZYGAMES_TARGET': JSON.stringify(isCrazyGamesTarget),
+			'process.env.VITE_CRAZYGAMES_TARGET': JSON.stringify(String(isCrazyGamesTarget)),
 			'process.env.DEBUG_MODE': JSON.stringify(debugEnv.DEBUG_MODE === 'true'),
 			'process.env.DEBUG_AUTO_START_GAME': JSON.stringify(
 				debugEnv.DEBUG_AUTO_START_GAME === 'true',
