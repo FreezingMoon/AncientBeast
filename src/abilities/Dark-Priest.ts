@@ -6,6 +6,7 @@ import { Hex } from '../utility/hex';
 import { Creature } from '../creature';
 import { CreatureType } from '../data/types';
 import Game from '../game';
+import { getSummonCandidates } from '../utility/summon-candidates';
 import { shakeBoard } from '../display/camera';
 import { getDepthAtBand } from '../display/layer';
 import { getFrameSize } from '../display/texture';
@@ -388,10 +389,54 @@ export default (G: Game) => {
 				G.UI.toggleDash(true);
 			},
 
+			// Unit currently waiting for a placement hex, if any (#1128)
+			_placingCreature: null as CreatureType | null,
+
+			/**
+			 * While a unit waits for its placement hex, swap it for the next (step 1)
+			 * or previous (step -1) unit the player can still materialize and afford,
+			 * so the mouse wheel can browse units without reopening the dash (#1128).
+			 * Returns false when there is nothing to swap, so the caller can fall
+			 * back to its own wheel handling.
+			 */
+			cycleMaterialize: function (step: 1 | -1) {
+				const current: CreatureType | null = this._placingCreature;
+				const player = this.creature.player;
+				// Another ability or a new turn may have replaced the placement query
+				if (
+					!current ||
+					this.used ||
+					G.activeCreature !== this.creature ||
+					G.UI.selectedAbility !== 3
+				) {
+					return false;
+				}
+
+				const candidates = getSummonCandidates(G, player.availableCreatures, {
+					excludeTypes: new Set(player.creatures.map((creature) => creature.type)),
+					requireAffordable: true,
+					plasma: player.plasma,
+				});
+				if (candidates.length < 2) {
+					return candidates.includes(current);
+				}
+
+				const index = candidates.indexOf(current);
+				const next =
+					candidates[(Math.max(index, 0) + step + candidates.length) % candidates.length];
+
+				// Drop the previous unit's placeholder before previewing the next one
+				G.creatures.filter((creature) => creature?.temp).forEach((creature) => creature.destroy());
+				G.UI.lastViewedCreature = next;
+				this.materialize(next);
+				return true;
+			},
+
 			// Callback function to queryCreature
 			materialize: function (creature: CreatureType) {
 				const ability = this;
 				const dpriest = this.creature;
+				this._placingCreature = creature;
 
 				const creatureHasMaterializationSickness =
 					dpriest.player.summonCreaturesWithMaterializationSickness;
@@ -449,9 +494,11 @@ export default (G: Game) => {
 						G.grid.previewCreature(hex.pos, crea, ability.creature.player);
 					},
 					fnOnCancel: function () {
+						ability._placingCreature = null;
 						G.activeCreature?.queryMove();
 					},
 					fnOnConfirm: function (...args) {
+						ability._placingCreature = null;
 						ability.animation(...args);
 					},
 					args: {

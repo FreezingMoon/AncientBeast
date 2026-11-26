@@ -121,6 +121,8 @@ export class Ability {
 	 */
 	isMovementAbility?: boolean | 'safe';
 	materialize?: (creature: string | CreatureType) => void; // This functon only exists in `Dark Priest.ts`
+	cycleMaterialize?: (step: 1 | -1) => boolean; // Also only in `Dark Priest.ts`, see #1128
+	_placingCreature?: CreatureType | null; // Unit awaiting its placement hex, `Dark Priest.ts` only
 	interceptDeath?: (killer: Creature | { player: Player }) => boolean;
 	triggeredThisChain?: boolean;
 	range?: { minimum?: number; regular: number; upgraded?: number };
