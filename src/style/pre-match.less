@@ -581,6 +581,44 @@ body {
 	min-height: 100px;
 }
 
+/* Demo mode fuse (#2976): lights up after a few idle seconds on the menu and
+   burns down from both ends; when it is gone, a self playing demo starts. */
+#demo-fuse {
+	width: 60%;
+	height: 3px;
+	margin: 8px auto -11px;
+	border-radius: 2px;
+	background: linear-gradient(90deg, transparent, #f5c542 15%, #ff6a00 50%, #f5c542 85%, transparent);
+	box-shadow: 0 0 8px rgba(255, 140, 0, 0.8);
+	opacity: 0;
+	transform: scaleX(1);
+	pointer-events: none;
+
+	&.burning {
+		animation:
+			demo-fuse-glow 1.2s ease-in-out infinite alternate,
+			demo-fuse-burn var(--demo-fuse-ms, 25s) linear forwards;
+	}
+}
+
+@keyframes demo-fuse-glow {
+	from {
+		opacity: 0.25;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes demo-fuse-burn {
+	from {
+		transform: scaleX(1);
+	}
+	to {
+		transform: scaleX(0);
+	}
+}
+
 #start-btn input {
 	position: absolute;
 	top: 50%;

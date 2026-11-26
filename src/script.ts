@@ -8,6 +8,7 @@ import Game from './game';
 import { PreMatchAudioPlayer } from './sound/pre-match-audio';
 import { Fullscreen } from './ui/fullscreen';
 import { buttonSlide } from './ui/button';
+import { installDemoMode } from './ui/demo-mode';
 import { normalizeLobbyCode } from './multiplayer/types';
 import { applyPortraitScale, refreshScale } from './display/scale';
 
@@ -1127,6 +1128,17 @@ $j(() => {
 		startGame();
 		// NOTE: Prevent submission
 		return false;
+	});
+
+	// Self playing demo when the menu sits idle (#2976): every seat is a bot.
+	installDemoMode(G, {
+		startDemo: () => {
+			G.multiplayer = false;
+			G.gamelog.loadedFromLog = false;
+			void G.loadGame({ ...getGameConfig(), players: [] }).catch((error) => {
+				console.error('[Game] Could not start the demo match', error);
+			});
+		},
 	});
 	$j('#startButton').on('click', (event) => {
 		event.preventDefault();
