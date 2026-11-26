@@ -8,7 +8,7 @@ import Game from './game';
 import { PreMatchAudioPlayer } from './sound/pre-match-audio';
 import { Fullscreen } from './ui/fullscreen';
 import { buttonSlide } from './ui/button';
-import { installDemoMode } from './ui/demo-mode';
+import { getRandomDemoSettings, installDemoMode } from './ui/demo-mode';
 import { normalizeLobbyCode } from './multiplayer/types';
 import { applyPortraitScale, refreshScale } from './display/scale';
 
@@ -1135,7 +1135,7 @@ $j(() => {
 		startDemo: () => {
 			G.multiplayer = false;
 			G.gamelog.loadedFromLog = false;
-			void G.loadGame({ ...getGameConfig(), players: [] }).catch((error) => {
+			void G.loadGame({ ...getGameConfig(), ...getRandomDemoSettings() }).catch((error) => {
 				console.error('[Game] Could not start the demo match', error);
 			});
 		},

@@ -13,6 +13,24 @@ const ACTIVITY_EVENTS = ['pointerdown', 'pointermove', 'keydown', 'wheel', 'touc
 /** Interactions that cancel a running demo (a stray mouse move does not). */
 const CANCEL_EVENTS = ['pointerdown', 'keydown', 'wheel', 'touchstart'];
 
+const pick = <T>(items: readonly T[]): T => items[Math.floor(Math.random() * items.length)];
+
+/**
+ * Match settings for a demo, so consecutive demos show different kinds of
+ * battles: 1 vs 1 or 2 vs 2, and different plasma, unit limits and upgrades.
+ * Values are among the ones offered on the main menu. Every seat is a bot.
+ */
+export function getRandomDemoSettings() {
+	return {
+		players: [] as number[],
+		gameMode: pick([2, 2, 4]),
+		plasma_amount: pick([30, 40, 50, 60]),
+		creaLimitNbr: pick([3, 4, 5]),
+		abilityUpgrades: pick([3, 4, 5]),
+		unitDrops: 1,
+	};
+}
+
 type DemoModeOptions = {
 	/** Starts the self playing match shown as the demo. */
 	startDemo: () => void;
@@ -24,8 +42,9 @@ type DemoModeOptions = {
  * Demo mode (#2976): after a few seconds without input on the main menu, a fuse
  * line lights up between the match settings and the start button and burns down
  * from both ends. If nobody interrupts it, a match where every seat is a bot
- * starts by itself. Any interaction cancels the demo and goes straight back to
- * the main menu, and so does the end of the demo match.
+ * starts by itself, with random settings, showing the game's first round
+ * tutorial in the log. Any interaction cancels the demo and goes straight back
+ * to the main menu, and so does the end of the demo match.
  */
 export function installDemoMode(game: Game, options: DemoModeOptions) {
 	const idleMs = options.idleMs ?? DEMO_IDLE_MS;
@@ -76,6 +95,7 @@ export function installDemoMode(game: Game, options: DemoModeOptions) {
 		cancelRequested = false;
 		clearInterval(watchTimer);
 		$j('body').removeClass('demo-mode');
+		game.UI?.chat?.hide();
 		game.resetGame();
 		armIdleTimer();
 	};
@@ -88,7 +108,19 @@ export function installDemoMode(game: Game, options: DemoModeOptions) {
 		options.startDemo();
 
 		let endedAt = 0;
+		let tutorialShown = false;
 		watchTimer = setInterval(() => {
+			// "How to play": keep the log open through the first round, where the
+			// game prints its mini tutorial for each player, then let the battle show.
+			if (game.gameState === 'playing' && !cancelRequested) {
+				if (game.turn === 1 && !tutorialShown) {
+					tutorialShown = true;
+					game.UI?.chat?.show();
+				} else if (game.turn > 1 && tutorialShown) {
+					tutorialShown = false;
+					game.UI?.chat?.hide();
+				}
+			}
 			// A cancel during loading waits for the match to be up, as tearing it
 			// down half built is not something resetGame() is meant for.
 			if (cancelRequested && (game.gameState === 'playing' || game.gameState === 'ended')) {
