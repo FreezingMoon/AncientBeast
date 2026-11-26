@@ -1550,6 +1550,18 @@ export class UI {
 				}
 				// Abilities
 			} else {
+				// Browsing units while placing one being materialized (#1128)
+				const printer = game.activeCreature?.isDarkPriest()
+					? game.activeCreature.abilities[3]
+					: undefined;
+				if (
+					originalWheelEvent.deltaY !== 0 &&
+					printer?.cycleMaterialize?.(originalWheelEvent.deltaY < 0 ? -1 : 1)
+				) {
+					e.preventDefault();
+					return;
+				}
+
 				if (originalWheelEvent.deltaY < 0) {
 					// Wheel up
 					this.selectPreviousAbility();

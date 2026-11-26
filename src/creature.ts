@@ -665,6 +665,9 @@ export class Creature {
 			// can see their shield during their own turn. Cleared in deactivate() once
 			// the creature performs an action.
 			this._plasmaFieldActiveTurn = this.isDarkPriest() && this.hasCreaturePlayerGotPlasma();
+
+			// Draw the eye to the unit whose turn just started (#1689)
+			this.game.grid?.showActiveUnitRings?.(this);
 		}
 
 		const game = this.game;
