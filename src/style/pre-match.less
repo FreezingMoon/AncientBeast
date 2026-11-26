@@ -584,9 +584,12 @@ body {
 /* Demo mode fuse (#2976): lights up after a few idle seconds on the menu and
    burns down from both ends; when it is gone, a self playing demo starts. */
 #demo-fuse {
+	/* Sits on the seam between the settings box and the start button, above both */
+	position: relative;
+	z-index: 2;
 	width: 60%;
 	height: 3px;
-	margin: 8px auto -11px;
+	margin: 0 auto -3px;
 	border-radius: 2px;
 	background: linear-gradient(90deg, transparent, #f5c542 15%, #ff6a00 50%, #f5c542 85%, transparent);
 	box-shadow: 0 0 8px rgba(255, 140, 0, 0.8);
