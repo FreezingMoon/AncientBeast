@@ -3,6 +3,10 @@ import * as str from '../utility/string';
 import { VITALS, MASTERIES } from '../utility/const';
 import { Creature } from '../creature';
 import Game from '../game';
+import type { Drop } from '../drop';
+import type { Ability } from '../ability';
+import { getUrl } from '../assets';
+import { getPlayerColor } from '../player';
 
 type Message = {
 	message: string;
@@ -17,7 +21,22 @@ type MessageToSupress = {
 	times: number;
 };
 
-type HoverableCreature = Creature & { hideUnitStatsOnHover?: boolean };
+type HoverableCreature = Creature & {
+	hideUnitStatsOnHover?: boolean;
+	/** Ability that created this unit (e.g. an Acrylic Wall from Riot Shield). */
+	sourceAbility?: Partial<Ability>;
+};
+
+/** A Bad Breath cloud, as recorded in `game.badBreathClouds` (vfx/bad-breath.ts). */
+type HoverableCloud = {
+	hex: { x: number; y: number };
+	owner: Creature;
+	sourceAbility?: Partial<Ability>;
+};
+
+function escapeHtml(text: string): string {
+	return text.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+}
 
 /**
  * Slack allowed when deciding whether the log rests at its newest message.
@@ -229,26 +248,37 @@ export class Chat {
 	}
 
 	showExpanded(creature: Creature) {
-		if ((creature as HoverableCreature)?.hideUnitStatsOnHover) {
-			return;
-		}
-
 		if (!creature || creature === this.currentExpandedCreature) {
 			return;
 		}
+
+		// Traps and clouds under the unit get their own row below its stats (#2206)
+		const extras = this._createHexExtras(creature.hexagons ?? []);
+		const hoverable = creature as HoverableCreature;
+		let rows: string[][];
+		if (hoverable.hideUnitStatsOnHover) {
+			// Units without stats on hover (e.g. Acrylic Walls) show the ability
+			// that made them instead, when known.
+			const widgets = [
+				this._createAbilityContent(hoverable.sourceAbility, creature.player?.id),
+				...extras,
+			].filter(Boolean);
+			if (widgets.length === 0) {
+				return;
+			}
+			rows = [widgets];
+		} else {
+			rows = [[this._createStatsContent(creature), this._createMasteriesContent(creature)]];
+			if (extras.length > 0) {
+				rows.push(extras);
+			}
+		}
+
 		this.isOverCreature = true;
 		this.currentExpandedCreature = creature;
 		this.isExpanded = true;
 
-		const statsContent = this._createStatsContent(creature);
-		const masteriesContent = this._createMasteriesContent(creature);
-
-		const expandedHTML = `
-				<div class="hover-panel-rows">
-					<div class="hover-panel-row">${statsContent}</div>
-					<div class="hover-panel-row">${masteriesContent}</div>
-				</div>
-			`;
+		const expandedHTML = this._createPanelHTML(rows);
 
 		if (this.$expandedContent.children().length > 0) {
 			const statValues = this.$expandedContent.find('.stat-value');
@@ -275,6 +305,115 @@ export class Chat {
 				this.$expandedContent.empty();
 			});
 		}, 20);
+	}
+
+	/**
+	 * Hover panel for an empty hexagon holding a drop, traps or Bad Breath clouds
+	 * (#2206). A drop shows the stats it changes as icons with signed, green or
+	 * red values; traps and clouds show the ability that made them.
+	 */
+	showHexDetails(hex: { x: number; y: number }) {
+		const drop = this.game.drops?.find(({ pos }) => pos.x === hex.x && pos.y === hex.y);
+		const widgets = [
+			drop ? this._createDropContent(drop) : '',
+			...this._createHexExtras([hex]),
+		].filter(Boolean);
+
+		if (widgets.length === 0) {
+			return;
+		}
+
+		this.currentExpandedCreature = null;
+		this.isOverCreature = true;
+		this.isExpanded = true;
+
+		this.$expandedContent
+			.stop()
+			.html(this._createPanelHTML([widgets]))
+			.css({ opacity: 0 })
+			.animate({ opacity: 1 }, 200);
+	}
+
+	/** One `.hover-panel-rows` line per row of widgets. */
+	_createPanelHTML(rows: string[][]) {
+		this.$expandedContent.toggleClass('multi-row', rows.length > 1);
+		return rows
+			.map(
+				(row) => `
+				<div class="hover-panel-rows">
+					${row.map((widget) => `<div class="hover-panel-row">${widget}</div>`).join('')}
+				</div>
+			`,
+			)
+			.join('');
+	}
+
+	/**
+	 * Widgets for the traps and Bad Breath clouds on the given hexagons, one per
+	 * ability (a multi-hex trap or a unit standing on several of them is shown once).
+	 */
+	_createHexExtras(points: { x: number; y: number }[]): string[] {
+		const isAt = ({ x, y }: { x: number; y: number }) =>
+			points.some((point) => point.x === x && point.y === y);
+		const clouds =
+			(this.game as unknown as { badBreathClouds?: HoverableCloud[] }).badBreathClouds ?? [];
+
+		const widgets = [
+			...(this.game.traps ?? [])
+				.filter((trap) => isAt(trap))
+				.map((trap) => this._createAbilityContent(trap.sourceAbility, trap.owner?.id)),
+			...clouds
+				.filter((cloud) => isAt(cloud.hex))
+				.map((cloud) => this._createAbilityContent(cloud.sourceAbility, cloud.owner?.player?.id)),
+		];
+		return [...new Set(widgets.filter(Boolean))];
+	}
+
+	_createDropContent(drop: Drop) {
+		return Object.entries(drop.alterations)
+			.filter(([, value]) => typeof value === 'number' && value !== 0)
+			.map(([stat, value]: [string, number]) => {
+				const sign = value > 0 ? '+' : '-';
+				const change = value > 0 ? 'gain' : 'loss';
+				return `
+					<div class="stat-item">
+						<div class="icon ${stat}"></div>
+						<div class="stat-value ${change}">${sign}${Math.abs(value)}</div>
+					</div>
+				`;
+			})
+			.join('');
+	}
+
+	/**
+	 * The icon of `ability`, framed in the player's color, next to its description
+	 * and info as worded on card B. Empty when the ability or its art is unknown.
+	 */
+	_createAbilityContent(ability: Partial<Ability> | undefined, playerId: number | undefined) {
+		if (!ability?.creature || playerId === undefined) {
+			return '';
+		}
+
+		let iconUrl: string;
+		let frameUrl: string;
+		try {
+			iconUrl = getUrl(`units/abilities/${ability.creature.name} ${ability.id}`);
+			frameUrl = getUrl(`interface/frame_${getPlayerColor(playerId as 0 | 1 | 2 | 3)}`);
+		} catch {
+			return '';
+		}
+
+		const lines = [ability.desc, ability.info]
+			.filter(Boolean)
+			.map((line) => `<div>${escapeHtml(line)}</div>`)
+			.join('');
+
+		return `
+			<div class="trap-item">
+				<div class="trap-icon" style="background-image: url('${frameUrl}'), url('${iconUrl}')"></div>
+				<div class="trap-desc">${lines}</div>
+			</div>
+		`;
 	}
 
 	_createStatsContent(creature: Creature) {

@@ -125,6 +125,7 @@ export default (G) => {
 				hex.createTrap('scorched-ground', [effect], this.creature.player, {
 					turnLifetime: lifetime,
 					ownerCreature: this.creature,
+					sourceAbility: this,
 					fullTurnLifetime: true,
 				});
 			},

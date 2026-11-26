@@ -414,7 +414,7 @@ export default (G: Game) => {
 				// reset performed by queryMove().
 				const pseudoTargets = targetHexes.map((h) => ({ hex: h, hexagons: [h], x: h.x, y: h.y }));
 				if (spawnCloud) {
-					spawnCloud(G, crea, pseudoTargets, upgraded, resumeQueryMove);
+					spawnCloud(G, crea, pseudoTargets, upgraded, resumeQueryMove, ability);
 				} else {
 					resumeQueryMove();
 				}

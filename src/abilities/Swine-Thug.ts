@@ -506,7 +506,15 @@ export default (G: Game) => {
 				);
 				bindMudBathEffect(effect);
 				const effects = [effect];
-				new Trap(hex.x, hex.y, 'mud-bath', effects, ability.creature.player, {}, G);
+				new Trap(
+					hex.x,
+					hex.y,
+					'mud-bath',
+					effects,
+					ability.creature.player,
+					{ sourceAbility: ability },
+					G,
+				);
 				G.soundsys.playSFX('units/sfx/Swine Thug 3');
 				// Trigger trap immediately if on self
 				if (isSelf) {

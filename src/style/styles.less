@@ -1809,6 +1809,60 @@ div.section.info {
 	display: contents;
 }
 
+/* A second line (traps or clouds under a hovered unit) needs a rounder box */
+#unit-hover-panel.multi-row {
+	border-radius: 24px;
+
+	.hover-panel-rows + .hover-panel-rows {
+		margin-top: 6px;
+	}
+}
+
+/* Drop and trap widgets in the hover panel (#2206) */
+.stat-value.gain {
+	color: #6f6;
+}
+
+.stat-value.loss {
+	color: #f66;
+}
+
+.trap-item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.trap-icon {
+	flex: none;
+	width: 56px;
+	height: 56px;
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+/* Same text box as the ability rows on card B (bold 16px with the card's
+   spacing, 400px row minus the 103px icon gutter), so the carefully sized
+   lines wrap exactly as they do there. Spacing mirrors `.card` in cards.less. */
+.trap-desc {
+	width: 297px;
+	font-size: 16px;
+	font-weight: bold;
+	line-height: normal;
+	letter-spacing: -0.063em;
+	word-spacing: 0.081em;
+	color: #fff;
+	text-shadow: black 0.1em 0.1em 0.2em;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+	.trap-desc {
+		letter-spacing: 0.01em;
+		word-spacing: -0.1em;
+	}
+}
+
 /*---------------Text Box--------------*/
 #chat {
 	width: 450px;

@@ -196,6 +196,7 @@ export default (G: Game) => {
 						ability.creature.player,
 						{
 							ownerCreature: ability.creature,
+							sourceAbility: ability,
 							fullTurnLifetime: true,
 							// Trap persists until overlapped by another trap
 							turnLifetime: -1,

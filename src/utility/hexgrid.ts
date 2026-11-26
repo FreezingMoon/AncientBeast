@@ -1648,6 +1648,9 @@ export class HexGrid {
 					hex.creature.hint('Skip turn', 'no_action');
 				}
 				game.UI.chat.isOverCreature = true;
+			} else if (!game.botController?.isBotTurn()) {
+				// Drops, traps and clouds get a hover panel of their own (#2206)
+				game.UI.chat.showHexDetails?.(hex);
 			}
 
 			if (hex.reachable) {

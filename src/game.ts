@@ -3569,6 +3569,9 @@ export default class Game {
 			onDestroyCallback: typeof t.onDestroyFn === 'function',
 			snapshotBehaviorId: t.snapshotBehaviorId,
 			snapshotBehaviorData: t.snapshotBehaviorData,
+			sourceAbility: t.sourceAbility
+				? { creature: t.sourceAbility.creature.id, ability: t.sourceAbility.id }
+				: undefined,
 		}));
 
 		const drops = this.drops.map((d: any) => ({
@@ -4057,6 +4060,9 @@ export default class Game {
 					destroyAnimation: tSnap.destroyAnimation,
 					owner: this.players[tSnap.owner],
 					ownerCreature: this.creatures[tSnap.ownerCreature],
+					sourceAbility: tSnap.sourceAbility
+						? this.creatures[tSnap.sourceAbility.creature]?.abilities?.[tSnap.sourceAbility.ability]
+						: undefined,
 				},
 				this,
 				tSnap.name,
