@@ -1111,6 +1111,57 @@ export class HexGrid {
 	 * Call this whenever freezedInput transitions to false so the cursor and
 	 * visual highlights update without requiring mouse movement.
 	 */
+	/**
+	 * Turn start cue (#1689): hexagons in the unit's player color sweep in, ring
+	 * by ring, from the far edge of the board towards the newly active unit. It is
+	 * drawn with throwaway sprites over the board, so it never touches the hex
+	 * states used for movement, targeting or hover, and it ignores input.
+	 */
+	showActiveUnitRings(creature: Creature, totalMS = 1200) {
+		const gameEngine = this.game?.gameEngine;
+		const group = this.overlayHexesGroup;
+		if (!gameEngine || !group || !creature?.hexagons?.length) {
+			return;
+		}
+
+		// Ring index of every hex: its step distance from the unit's footprint.
+		const rings: Hex[][] = [creature.hexagons.slice()];
+		const seen = new Set<Hex>(creature.hexagons);
+		while (rings[rings.length - 1].length > 0) {
+			const next: Hex[] = [];
+			for (const hex of rings[rings.length - 1]) {
+				for (const neighbor of hex.adjacentHex(1)) {
+					if (!seen.has(neighbor)) {
+						seen.add(neighbor);
+						next.push(neighbor);
+					}
+				}
+			}
+			rings.push(next);
+		}
+		rings.pop();
+
+		const texture = `hex_p${creature.team}`;
+		const stepMS = totalMS / rings.length;
+		const fadeMS = Math.max(stepMS * 1.5, 120);
+
+		rings.forEach((ring, distance) => {
+			// The outermost ring goes first, the unit's own hexes last.
+			const delay = (rings.length - 1 - distance) * stepMS;
+			ring.forEach((hex) => {
+				const sprite = gameEngine.add.sprite(0, 0, texture, undefined, group);
+				sprite.setOrigin(0, 0);
+				sprite.x = hex.overlay.x;
+				sprite.y = hex.overlay.y;
+				sprite.alpha = 0;
+				gameEngine
+					.tween(sprite)
+					.to({ alpha: 0.5 }, fadeMS, Easing.Quadratic.InOut, true, delay, 0, true)
+					.onComplete.addOnce(() => sprite.destroy());
+			});
+		});
+	}
+
 	refreshHoverState() {
 		if (this.suppressNextHoverRefresh) {
 			this.suppressNextHoverRefresh = false;
