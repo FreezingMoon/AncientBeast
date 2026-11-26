@@ -353,6 +353,7 @@ export default (G: Game) => {
 							turnLifetime: lifetime,
 							fullTurnLifetime: true,
 							ownerCreature: ability.creature,
+							sourceAbility: ability,
 							destroyOnActivate: true,
 							destroyAnimation: 'shrinkDown',
 						});
@@ -362,6 +363,7 @@ export default (G: Game) => {
 							turnLifetime: lifetime,
 							fullTurnLifetime: true,
 							ownerCreature: ability.creature,
+							sourceAbility: ability,
 							destroyOnActivate: true,
 							destroyAnimation: 'shrinkDown',
 						});

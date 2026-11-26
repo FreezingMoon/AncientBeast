@@ -235,6 +235,7 @@ const restoreCrashingGlobeEvent = (G, snapshot: QueueEventSnapshot): QueueEvent 
 					{
 						turnLifetime: -1,
 						ownerCreature: attacker,
+						sourceAbility: attacker.abilities[3],
 						fullTurnLifetime: true,
 					},
 				);
@@ -656,6 +657,7 @@ export default function (G) {
 								{
 									turnLifetime: -1,
 									ownerCreature: proj.attacker,
+									sourceAbility: ability,
 									fullTurnLifetime: true,
 								},
 							);

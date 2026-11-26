@@ -1,3 +1,4 @@
+import type { Ability } from '../ability';
 import type { Creature } from '../creature';
 import type Game from '../game';
 import { Damage } from '../damage';
@@ -21,6 +22,8 @@ type CloudRecord = {
 	turnLifetime: number;
 	initialCount: number;
 	damage: number;
+	/** Ability that made the cloud, shown when its hexagon is hovered (#2206). */
+	sourceAbility?: Partial<Ability>;
 };
 
 function getEngine(game: Game): {
@@ -324,6 +327,7 @@ export function spawnBadBreathCloud(
 	targets: any[],
 	upgraded = false,
 	onAnimationComplete?: () => void,
+	sourceAbility?: Partial<Ability>,
 ): void {
 	const engine = getEngine(game);
 	const mouth = getMouthPoint(creature);
@@ -525,6 +529,7 @@ export function spawnBadBreathCloud(
 				turnLifetime: lifetime,
 				initialCount: cloudSprites.length,
 				damage: 10,
+				sourceAbility,
 			});
 		}
 	}

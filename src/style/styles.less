@@ -1809,6 +1809,15 @@ div.section.info {
 	display: contents;
 }
 
+/* A second line (traps or clouds under a hovered unit) needs a rounder box */
+#unit-hover-panel.multi-row {
+	border-radius: 24px;
+
+	.hover-panel-rows + .hover-panel-rows {
+		margin-top: 6px;
+	}
+}
+
 /* Drop and trap widgets in the hover panel (#2206) */
 .stat-value.gain {
 	color: #6f6;

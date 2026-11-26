@@ -385,6 +385,7 @@ export default (G: Game) => {
 						const trap = h.createTrap('bonfire-spring', [effect], ownerCreature.player, {
 							turnLifetime: 1,
 							ownerCreature,
+							sourceAbility: ability,
 							fullTurnLifetime: true,
 							destroyAnimation: 'shrinkDown',
 						});

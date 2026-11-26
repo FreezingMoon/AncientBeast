@@ -34,6 +34,8 @@ type AcrylicWallRuntimeFlags = {
 	deathAnimationType?: string;
 	hideFromCreatureCount?: boolean;
 	_nextGameTurnActive?: number;
+	/** Riot Shield, shown when the wall is hovered (#2206). */
+	sourceAbility?: unknown;
 };
 type ShatterTexture = {
 	crop?: { x: number; y: number; width: number; height: number };
@@ -1928,6 +1930,7 @@ export default (G: Game) => {
 				wallFlags.hideUnitStatsOnHover = true;
 				wallFlags.deathAnimationType = 'shatterDown';
 				wallFlags.hideFromCreatureCount = true;
+				wallFlags.sourceAbility = this;
 
 				const gridAny = G.grid as unknown as {
 					materialize_overlay?: { alpha: number } | null;

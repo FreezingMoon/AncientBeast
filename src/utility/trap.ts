@@ -1,3 +1,4 @@
+import type { Ability } from '../ability';
 import { Easing } from './easing';
 import Game from '../game';
 import { Effect } from '../effect';
@@ -34,6 +35,8 @@ export class Trap {
 	destroyOnActivate = false;
 	typeOver = false;
 	destroyAnimation: DestroyAnimationType = 'none';
+	/** Ability that laid this trap, shown when its hexagon is hovered (#2206). */
+	sourceAbility: Partial<Ability> | undefined = undefined;
 
 	/** Optional callback invoked when this trap is destroyed.
 	 *  Receives the creature whose trap placement caused the destruction, if known.

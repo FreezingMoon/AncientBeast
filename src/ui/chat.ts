@@ -4,7 +4,7 @@ import { VITALS, MASTERIES } from '../utility/const';
 import { Creature } from '../creature';
 import Game from '../game';
 import type { Drop } from '../drop';
-import type { Trap } from '../utility/trap';
+import type { Ability } from '../ability';
 import { getUrl } from '../assets';
 import { getPlayerColor } from '../player';
 
@@ -21,23 +21,17 @@ type MessageToSupress = {
 	times: number;
 };
 
-type HoverableCreature = Creature & { hideUnitStatsOnHover?: boolean };
+type HoverableCreature = Creature & {
+	hideUnitStatsOnHover?: boolean;
+	/** Ability that created this unit (e.g. an Acrylic Wall from Riot Shield). */
+	sourceAbility?: Partial<Ability>;
+};
 
-/**
- * Which ability lays each trap type, as unit name + ability slot. Traps don't
- * keep a reference to the ability that made them, so the hover panel (#2206)
- * looks it up here. A trap type shared by several units is resolved through
- * the trap's `ownerCreature`.
- */
-const TRAP_SOURCES: Record<string, { unit: string; ability: number }[]> = {
-	'bonfire-spring': [{ unit: 'Abolished', ability: 2 }],
-	'gooey-body': [{ unit: 'Gumble', ability: 0 }],
-	'mud-bath': [{ unit: 'Swine Thug', ability: 3 }],
-	'poisonous-vine': [{ unit: 'Impaler', ability: 2 }],
-	'scorched-ground': [
-		{ unit: 'Infernal', ability: 0 },
-		{ unit: 'Asher', ability: 3 },
-	],
+/** A Bad Breath cloud, as recorded in `game.badBreathClouds` (vfx/bad-breath.ts). */
+type HoverableCloud = {
+	hex: { x: number; y: number };
+	owner: Creature;
+	sourceAbility?: Partial<Ability>;
 };
 
 function escapeHtml(text: string): string {
@@ -254,26 +248,37 @@ export class Chat {
 	}
 
 	showExpanded(creature: Creature) {
-		if ((creature as HoverableCreature)?.hideUnitStatsOnHover) {
-			return;
-		}
-
 		if (!creature || creature === this.currentExpandedCreature) {
 			return;
 		}
+
+		// Traps and clouds under the unit get their own row below its stats (#2206)
+		const extras = this._createHexExtras(creature.hexagons ?? []);
+		const hoverable = creature as HoverableCreature;
+		let rows: string[][];
+		if (hoverable.hideUnitStatsOnHover) {
+			// Units without stats on hover (e.g. Acrylic Walls) show the ability
+			// that made them instead, when known.
+			const widgets = [
+				this._createAbilityContent(hoverable.sourceAbility, creature.player?.id),
+				...extras,
+			].filter(Boolean);
+			if (widgets.length === 0) {
+				return;
+			}
+			rows = [widgets];
+		} else {
+			rows = [[this._createStatsContent(creature), this._createMasteriesContent(creature)]];
+			if (extras.length > 0) {
+				rows.push(extras);
+			}
+		}
+
 		this.isOverCreature = true;
 		this.currentExpandedCreature = creature;
 		this.isExpanded = true;
 
-		const statsContent = this._createStatsContent(creature);
-		const masteriesContent = this._createMasteriesContent(creature);
-
-		const expandedHTML = `
-				<div class="hover-panel-rows">
-					<div class="hover-panel-row">${statsContent}</div>
-					<div class="hover-panel-row">${masteriesContent}</div>
-				</div>
-			`;
+		const expandedHTML = this._createPanelHTML(rows);
 
 		if (this.$expandedContent.children().length > 0) {
 			const statValues = this.$expandedContent.find('.stat-value');
@@ -303,15 +308,15 @@ export class Chat {
 	}
 
 	/**
-	 * Hover panel for a hexagon holding a drop and/or traps (#2206). A drop shows
-	 * the stats it changes as icons with signed, green or red values. A trap shows
-	 * the icon of the ability that laid it, framed in its owner's color, next to
-	 * that ability's description and info, as on the unit card.
+	 * Hover panel for an empty hexagon holding a drop, traps or Bad Breath clouds
+	 * (#2206). A drop shows the stats it changes as icons with signed, green or
+	 * red values; traps and clouds show the ability that made them.
 	 */
-	showHexDetails(drop: Drop | undefined, traps: Trap[]) {
+	showHexDetails(hex: { x: number; y: number }) {
+		const drop = this.game.drops?.find(({ pos }) => pos.x === hex.x && pos.y === hex.y);
 		const widgets = [
 			drop ? this._createDropContent(drop) : '',
-			...traps.map((trap) => this._createTrapContent(trap)),
+			...this._createHexExtras([hex]),
 		].filter(Boolean);
 
 		if (widgets.length === 0) {
@@ -322,17 +327,46 @@ export class Chat {
 		this.isOverCreature = true;
 		this.isExpanded = true;
 
-		const expandedHTML = `
-				<div class="hover-panel-rows">
-					${widgets.map((widget) => `<div class="hover-panel-row">${widget}</div>`).join('')}
-				</div>
-			`;
-
 		this.$expandedContent
 			.stop()
-			.html(expandedHTML)
+			.html(this._createPanelHTML([widgets]))
 			.css({ opacity: 0 })
 			.animate({ opacity: 1 }, 200);
+	}
+
+	/** One `.hover-panel-rows` line per row of widgets. */
+	_createPanelHTML(rows: string[][]) {
+		this.$expandedContent.toggleClass('multi-row', rows.length > 1);
+		return rows
+			.map(
+				(row) => `
+				<div class="hover-panel-rows">
+					${row.map((widget) => `<div class="hover-panel-row">${widget}</div>`).join('')}
+				</div>
+			`,
+			)
+			.join('');
+	}
+
+	/**
+	 * Widgets for the traps and Bad Breath clouds on the given hexagons, one per
+	 * ability (a multi-hex trap or a unit standing on several of them is shown once).
+	 */
+	_createHexExtras(points: { x: number; y: number }[]): string[] {
+		const isAt = ({ x, y }: { x: number; y: number }) =>
+			points.some((point) => point.x === x && point.y === y);
+		const clouds =
+			(this.game as unknown as { badBreathClouds?: HoverableCloud[] }).badBreathClouds ?? [];
+
+		const widgets = [
+			...(this.game.traps ?? [])
+				.filter((trap) => isAt(trap))
+				.map((trap) => this._createAbilityContent(trap.sourceAbility, trap.owner?.id)),
+			...clouds
+				.filter((cloud) => isAt(cloud.hex))
+				.map((cloud) => this._createAbilityContent(cloud.sourceAbility, cloud.owner?.player?.id)),
+		];
+		return [...new Set(widgets.filter(Boolean))];
 	}
 
 	_createDropContent(drop: Drop) {
@@ -351,35 +385,25 @@ export class Chat {
 			.join('');
 	}
 
-	_createTrapContent(trap: Trap) {
-		const sources = TRAP_SOURCES[trap.type] ?? [];
-		const source =
-			sources.find(({ unit }) => unit === trap.ownerCreature?.name) ??
-			(sources.length === 1 ? sources[0] : undefined);
-		if (!source) {
-			return '';
-		}
-
-		const unitData = (this.game.creatureData as { name: string; ability_info?: unknown }[]).find(
-			({ name }) => name === source.unit,
-		);
-		const abilityInfo = (
-			unitData?.ability_info as Record<number, { desc?: string; info?: string }> | undefined
-		)?.[source.ability];
-		if (!abilityInfo) {
+	/**
+	 * The icon of `ability`, framed in the player's color, next to its description
+	 * and info as worded on card B. Empty when the ability or its art is unknown.
+	 */
+	_createAbilityContent(ability: Partial<Ability> | undefined, playerId: number | undefined) {
+		if (!ability?.creature || playerId === undefined) {
 			return '';
 		}
 
 		let iconUrl: string;
 		let frameUrl: string;
 		try {
-			iconUrl = getUrl(`units/abilities/${source.unit} ${source.ability}`);
-			frameUrl = getUrl(`interface/frame_${getPlayerColor(trap.owner.id)}`);
+			iconUrl = getUrl(`units/abilities/${ability.creature.name} ${ability.id}`);
+			frameUrl = getUrl(`interface/frame_${getPlayerColor(playerId as 0 | 1 | 2 | 3)}`);
 		} catch {
 			return '';
 		}
 
-		const lines = [abilityInfo.desc, abilityInfo.info]
+		const lines = [ability.desc, ability.info]
 			.filter(Boolean)
 			.map((line) => `<div>${escapeHtml(line)}</div>`)
 			.join('');
