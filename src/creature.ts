@@ -4013,7 +4013,44 @@ class CreatureSprite {
 		return true;
 	}
 
+	/** Value shown in the health bubble right now, and the timer counting it (#539). */
+	private _shownHealth: { value: number; type: HealthBubbleType } | undefined;
+	private _healthCountTimer: ReturnType<typeof setInterval> | undefined;
+
+	/**
+	 * Animated value transitions (#539): a numeric change of the same bubble
+	 * counts towards the new value one point at a time, in well under a second,
+	 * instead of jumping to it.
+	 */
 	setHealth(number: number | string, type: HealthBubbleType) {
+		if (this._destroyed) return;
+		clearInterval(this._healthCountTimer);
+		this._healthCountTimer = undefined;
+
+		const target = typeof number === 'number' ? number : Number(number);
+		const shown = this._shownHealth;
+		this._shownHealth = Number.isFinite(target) ? { value: target, type } : undefined;
+
+		const steps = shown ? Math.abs(target - shown.value) : 0;
+		if (!shown || shown.type !== type || !Number.isFinite(target) || steps === 0 || steps > 500) {
+			this._writeHealth(number, type);
+			return;
+		}
+
+		const direction = Math.sign(target - shown.value);
+		const stepMs = Math.max(8, Math.min(40, 600 / steps));
+		let value = shown.value;
+		this._healthCountTimer = setInterval(() => {
+			value += direction;
+			this._writeHealth(value, type);
+			if (value === target || this._destroyed) {
+				clearInterval(this._healthCountTimer);
+				this._healthCountTimer = undefined;
+			}
+		}, stepMs);
+	}
+
+	private _writeHealth(number: number | string, type: HealthBubbleType) {
 		if (this._destroyed) return;
 		// Support both Phaser Text API and test doubles without setText()
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -4838,6 +4875,7 @@ class CreatureSprite {
 	destroy() {
 		if (this._destroyed) return;
 		this._destroyed = true;
+		clearInterval(this._healthCountTimer);
 		this._freeXrayState();
 		this._creature.game.animations.disposeInfernalCardboardEffect(this._creature);
 		this._healthIndicatorTween?.stop();
