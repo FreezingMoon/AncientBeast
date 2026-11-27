@@ -10,6 +10,7 @@ import { Fullscreen } from './ui/fullscreen';
 import { buttonSlide } from './ui/button';
 import { normalizeLobbyCode } from './multiplayer/types';
 import { applyPortraitScale, refreshScale } from './display/scale';
+import { installTouchSlideHover } from './input/touch-slide-hover';
 
 import { installAvatarStyles } from './style/avatar-styles';
 import {
@@ -192,6 +193,7 @@ void funjeInit();
 import './style/main.less';
 
 installAvatarStyles();
+installTouchSlideHover();
 
 export type GameConfig = ReturnType<typeof getGameConfig>;
 
