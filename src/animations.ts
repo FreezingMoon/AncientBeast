@@ -2518,12 +2518,6 @@ export class Animations {
 	}
 
 	/**
-	 * Backward tilt for a unit taking damage — the opposite lean of
-	 * {@link tiltForward}, as if the blow shoved the body back. The lean
-	 * scales with the damage dealt (capped at {@link TILT_MAX_DAMAGE}),
-	 * so a hard hit rocks the cardboard further than a tickle.
-	 */
-	/**
 	 * Burn damage impact (#1125): a quick fiery explosion bursts over the unit,
 	 * a few glowing puffs flying out from the middle of its body and fading.
 	 */
@@ -2594,6 +2588,12 @@ export class Animations {
 		}
 	}
 
+	/**
+	 * Backward tilt for a unit taking damage — the opposite lean of
+	 * {@link tiltForward}, as if the blow shoved the body back. The lean
+	 * scales with the damage dealt (capped at {@link TILT_MAX_DAMAGE}),
+	 * so a hard hit rocks the cardboard further than a tickle.
+	 */
 	tiltBackward(creature: Creature, opts: AnimationOptions) {
 		const sprite = creature.creatureSprite;
 		if (!sprite || sprite.destroyed) {
