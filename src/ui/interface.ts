@@ -165,6 +165,12 @@ const confirmUnload = (event: BeforeUnloadEvent) => {
 		return;
 	}
 
+	// Nobody started a self playing demo match (#2976), so leaving must not ask
+	if (document.body.classList.contains('demo-mode')) {
+		clearBeforeUnloadReturnValue(event);
+		return;
+	}
+
 	const activeConfirmUnloadState = getActiveConfirmUnloadState();
 	if (!activeConfirmUnloadState) {
 		return;
