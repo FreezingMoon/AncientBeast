@@ -657,6 +657,8 @@ export class HexGrid {
 				}
 			});
 
+			const inRangeHexes = new Set<Hex>(dir);
+
 			arrayUtils.filterCreature(
 				dir,
 				options.includeCreature,
@@ -684,9 +686,14 @@ export class HexGrid {
 				(direction === Direction.Right || direction === Direction.Left)
 			) {
 				if (arrayUtils.last(dir).creature instanceof Creature) {
-					// Add all creature hexes.
+					// Add only the creature's hexes that fall within the ability's
+					// distance range; any hexes extending beyond range are added by
+					// queryChoice() as clickable overflow outlines without a cursor.
 					const creature = arrayUtils.last(dir).creature;
-					dir.pop();
+					const hitHex = dir.pop();
+					const inRangeCreatureHexes = creature.hexagons.filter(
+						(h) => h === hitHex || inRangeHexes.has(h),
+					);
 					// Sort along the direction the line actually travels on screen.
 					// `dir` was built with `options.flipped` applied to `getHexLine`, so
 					// the mirrored direction (5 - direction) must be used when the player
@@ -694,7 +701,7 @@ export class HexGrid {
 					// end of the line, putting the full-damage hexes at the far end and
 					// the reduced-effect (shrunken) hexes near the caster.
 					const sortDirection = options.flipped ? 5 - direction : direction;
-					dir = arrayUtils.sortByDirection(dir.concat(creature.hexagons), sortDirection);
+					dir = arrayUtils.sortByDirection(dir.concat(inRangeCreatureHexes), sortDirection);
 				}
 			}
 
@@ -819,10 +826,22 @@ export class HexGrid {
 				}
 				// Normal behavior
 				else {
-					// Reset all choices to base state so only the hovered one is emphasised.
+					// Reset all choices to base state so only the hovered one is emphasised,
+					// while preserving filled outlines on targeted unit hexes.
 					o.choices.forEach((otherChoice) => {
 						otherChoice.forEach((item) => {
-							item.cleanDisplayVisualState('adj creature player0 player1 player2 player3');
+							if (
+								o.targeting !== false &&
+								item.creature instanceof Creature &&
+								item.creature.id !== game.activeCreature?.id
+							) {
+								item.cleanDisplayVisualState('adj selected');
+								item.displayVisualState('creature player' + item.creature.team);
+							} else {
+								item.cleanDisplayVisualState(
+									'adj creature selected player0 player1 player2 player3',
+								);
+							}
 						});
 					});
 					(o.hexesDeadZone || []).forEach((hex) => {
@@ -841,10 +860,20 @@ export class HexGrid {
 				game.activeCreature?.queryMove();
 			},
 			fnOnHoverOutside: (() => {
-				// Restore all choices to base/light state when pointer leaves the valid area.
+				// Restore all choices to base/light state when pointer leaves the valid area,
+				// preserving filled outlines on targeted unit hexes.
 				o.choices.forEach((choice) => {
 					choice.forEach((item) => {
-						item.cleanDisplayVisualState('adj creature player0 player1 player2 player3');
+						if (
+							o.targeting !== false &&
+							item.creature instanceof Creature &&
+							item.creature.id !== game.activeCreature?.id
+						) {
+							item.cleanDisplayVisualState('adj selected');
+							item.displayVisualState('creature player' + item.creature.team);
+						} else {
+							item.cleanDisplayVisualState('adj creature selected player0 player1 player2 player3');
+						}
 					});
 				});
 				(o.hexesDeadZone || []).forEach((hex) => {
@@ -870,8 +899,12 @@ export class HexGrid {
 		o = { ...defaultOpt, ...o };
 
 		let hexes = [];
+		const validChoiceIndices: number[] = [];
 		const directChoiceHexes = new Set<Hex>();
-		const choiceByExtendedHex = new Map<Hex, { choiceIndex: number; anchorHex: Hex }>();
+		const choiceByExtendedHex = new Map<
+			Hex,
+			{ choiceIndex: number; anchorHex: Hex; distance: number }
+		>();
 		const targetUnitOverflowHexes = new Set<Hex>();
 
 		for (let i = 0, len = o.choices.length; i < len; i++) {
@@ -893,6 +926,7 @@ export class HexGrid {
 			}
 
 			if (validChoice) {
+				validChoiceIndices.push(i);
 				hexes = hexes.concat(o.choices[i]);
 				o.choices[i].forEach((hex) => directChoiceHexes.add(hex));
 				if (!(o as any).preserveDashedHexesInChoices) {
@@ -913,12 +947,10 @@ export class HexGrid {
 		// target unit partially covered by a valid choice, so clicking anywhere on
 		// the unit selects its corresponding path while keeping visual distinction
 		// between affected hexes (cursor + outline) and unaffected hexes (outline).
-		for (let i = 0, len = o.choices.length; i < len; i++) {
+		const creaSource = game.creatures?.[o.id];
+		for (const i of validChoiceIndices) {
 			for (let j = 0; j < o.choices[i].length; j++) {
 				const anchorHex = o.choices[i][j];
-				if (!directChoiceHexes.has(anchorHex)) {
-					continue;
-				}
 				const targetCreature = anchorHex.creature;
 				if (
 					!(targetCreature instanceof Creature) ||
@@ -927,12 +959,22 @@ export class HexGrid {
 				) {
 					continue;
 				}
+				if (creaSource && o.team !== undefined && !isTeam(creaSource, targetCreature, o.team)) {
+					continue;
+				}
 				const unitHexes: Hex[] = targetCreature.hexagons || [];
 				for (const unitHex of unitHexes) {
-					if (!directChoiceHexes.has(unitHex) && !choiceByExtendedHex.has(unitHex)) {
-						choiceByExtendedHex.set(unitHex, { choiceIndex: i, anchorHex });
+					if (directChoiceHexes.has(unitHex)) {
+						continue;
+					}
+					const dist = Math.abs(unitHex.x - anchorHex.x) + Math.abs(unitHex.y - anchorHex.y);
+					const existing = choiceByExtendedHex.get(unitHex);
+					if (!existing) {
+						choiceByExtendedHex.set(unitHex, { choiceIndex: i, anchorHex, distance: dist });
 						targetUnitOverflowHexes.add(unitHex);
 						hexes.push(unitHex);
+					} else if (dist < existing.distance) {
+						choiceByExtendedHex.set(unitHex, { choiceIndex: i, anchorHex, distance: dist });
 					}
 				}
 			}
@@ -945,10 +987,12 @@ export class HexGrid {
 		this.queryHexes({
 			fnOnConfirm: (hex, args) => {
 				// Determine which set of hexes (choice) the hex is part of
-				for (let i = 0, len = args.opt.choices.length; i < len; i++) {
+				for (const i of validChoiceIndices) {
 					for (let j = 0, lenj = args.opt.choices[i].length; j < lenj; j++) {
 						if (hex.pos == args.opt.choices[i][j].pos) {
 							args.opt.args.direction = hex.direction;
+							args.opt.args.hex = hex;
+							args.opt.args.choiceIndex = i;
 							args.opt.fnOnConfirm(args.opt.choices[i], args.opt.args, { queryOptions: o });
 							return;
 						}
@@ -957,6 +1001,8 @@ export class HexGrid {
 				const extended = choiceByExtendedHex.get(hex);
 				if (extended) {
 					args.opt.args.direction = extended.anchorHex.direction;
+					args.opt.args.hex = extended.anchorHex;
+					args.opt.args.choiceIndex = extended.choiceIndex;
 					args.opt.fnOnConfirm(args.opt.choices[extended.choiceIndex], args.opt.args, {
 						queryOptions: o,
 					});
@@ -964,7 +1010,7 @@ export class HexGrid {
 			},
 			fnOnSelect: (hex, args) => {
 				// Determine which set of hexes (choice) the hex is part of
-				for (let i = 0, len = args.opt.choices.length; i < len; i++) {
+				for (const i of validChoiceIndices) {
 					for (let j = 0, lenj = args.opt.choices[i].length; j < lenj; j++) {
 						if (hex.pos == args.opt.choices[i][j].pos) {
 							args.opt.args.direction = hex.direction;
@@ -1022,8 +1068,9 @@ export class HexGrid {
 				game.activeCreature?.queryMove();
 			},
 			fnOnSelect: (creature) => {
-				creature.tracePosition({
-					overlayClass: 'creature selected player' + creature.team,
+				creature.hexagons.forEach((unitHex) => {
+					unitHex.displayVisualState('creature selected player' + creature.team);
+					unitHex.grid.displayHexesGroup.bringToTop(unitHex.display);
 				});
 			},
 			fnOnCancel: () => {
@@ -1152,6 +1199,7 @@ export class HexGrid {
 			targetUnitOverflowHexes,
 			flipped: o.flipped,
 			hideNonTarget: true,
+			fillHexOnHover: false,
 			id: o.id,
 		});
 	}
@@ -1249,7 +1297,15 @@ export class HexGrid {
 			},
 			fnOnSelect: (hex: Hex) => {
 				game.activeCreature.faceHex(hex);
-				hex.overlayVisualState('creature selected player' + game.activeCreature.team);
+				if (
+					!(
+						o.targeting &&
+						hex.creature instanceof Creature &&
+						hex.creature.id !== game.activeCreature?.id
+					)
+				) {
+					hex.overlayVisualState('creature selected player' + game.activeCreature.team);
+				}
 			},
 			fnOnCancel: () => {
 				game.activeCreature?.queryMove();
@@ -1410,28 +1466,7 @@ export class HexGrid {
 				hex.unsetNotTarget();
 			}
 			if (o.targeting) {
-				if (hex.creature instanceof Creature) {
-					if (hex.creature.id != this.game.activeCreature?.id) {
-						if (o.targetUnitOverflowHexes?.has(hex)) {
-							// Unaffected base hex of a partially targeted multi-hex unit:
-							// show player color-coded filled outline without the cursor overlay.
-							hex.displayVisualState('creature player' + hex.creature.team);
-							hex.grid.displayHexesGroup.bringToTop(hex.display);
-						} else {
-							// Affected target unit hex: filled outline with an overlapped
-							// non-spinning cursor hexagon on top.
-							hex.overlayVisualState('reachable targetCursor h_player' + hex.creature.team);
-							hex.displayVisualState('creature player' + hex.creature.team);
-							hex.grid.displayHexesGroup.bringToTop(hex.display);
-						}
-					}
-				} else {
-					if (o.fillOnlyHoveredCreature && !emptyHexBeforeCreature(hex)) {
-						hex.displayVisualState('dashed');
-					} else if (this.game.activeCreature) {
-						hex.overlayVisualState('reachable h_player' + this.game.activeCreature.team);
-					}
-				}
+				this.applyTargetingHexVisual(hex, o, emptyHexBeforeCreature);
 			}
 		});
 
@@ -1689,7 +1724,14 @@ export class HexGrid {
 					}
 				}
 
-				if (o.fillHexOnHover) {
+				if (
+					o.fillHexOnHover &&
+					!(
+						o.targeting &&
+						hex.creature instanceof Creature &&
+						hex.creature.id !== this.game.activeCreature?.id
+					)
+				) {
 					this.cleanHex(hex);
 					hex.displayVisualState('creature player' + this.game.activeCreature.team);
 				}
@@ -1974,7 +2016,7 @@ export class HexGrid {
 			// hover preview or path cleanup cannot restart the glow state.
 			hex.cleanDisplayVisualState('adj hover dashed shrunken deadzone hidden');
 			hex.cleanOverlayVisualState(
-				'reachable weakDmg moveto selected hover ownCreatureHexShade h_player0 h_player1 h_player2 h_player3 p0 p1 p2 p3',
+				'reachable targetCursor targetOverflow weakDmg moveto selected hover ownCreatureHexShade h_player0 h_player1 h_player2 h_player3 p0 p1 p2 p3',
 			);
 			if (preserveDeadzone) {
 				hex.displayVisualState('deadzone');
@@ -2000,13 +2042,47 @@ export class HexGrid {
 		}
 	}
 
+	private applyTargetingHexVisual(
+		hex: Hex,
+		queryOpt: any,
+		emptyHexBeforeCreature?: (h: Hex) => boolean | undefined,
+	) {
+		if (hex.creature instanceof Creature) {
+			if (hex.creature.id != this.game.activeCreature?.id) {
+				if (queryOpt?.targetUnitOverflowHexes?.has(hex)) {
+					// Unaffected base hex of a partially targeted multi-hex unit:
+					// show player color-coded filled outline without the cursor overlay.
+					hex.overlayVisualState('targetOverflow h_player' + hex.creature.team);
+					hex.displayVisualState('creature player' + hex.creature.team);
+					hex.grid.displayHexesGroup.bringToTop(hex.display);
+				} else {
+					// Affected target unit hex: filled outline with an overlapped
+					// non-spinning cursor hexagon on top.
+					hex.overlayVisualState('reachable targetCursor h_player' + hex.creature.team);
+					hex.displayVisualState('creature player' + hex.creature.team);
+					hex.grid.displayHexesGroup.bringToTop(hex.display);
+				}
+			}
+		} else {
+			if (
+				queryOpt?.fillOnlyHoveredCreature &&
+				emptyHexBeforeCreature &&
+				!emptyHexBeforeCreature(hex)
+			) {
+				hex.displayVisualState('dashed');
+			} else if (this.game.activeCreature) {
+				hex.overlayVisualState('reachable h_player' + this.game.activeCreature.team);
+			}
+		}
+	}
+
 	restoreReachableHexVisual(hex: Hex) {
 		if (!hex.reachable || !this.game.activeCreature) {
 			return;
 		}
 
 		if (this.lastQueryOpt?.targeting) {
-			hex.overlayVisualState('reachable h_player' + this.game.activeCreature.team);
+			this.applyTargetingHexVisual(hex, this.lastQueryOpt);
 		}
 	}
 
@@ -2107,7 +2183,7 @@ export class HexGrid {
 					'adj hover dashed shrunken moveRange deadzone hidden player0 player1 player2 player3',
 				);
 				hex.cleanOverlayVisualState(
-					'hover selected reachable weakDmg moveto ownCreatureHexShade h_player0 h_player1 h_player2 h_player3',
+					'hover selected reachable targetCursor targetOverflow weakDmg moveto ownCreatureHexShade h_player0 h_player1 h_player2 h_player3',
 				);
 				const stalePlayerClasses = [0, 1, 2, 3]
 					.filter((team) => team !== activeCreature.team)

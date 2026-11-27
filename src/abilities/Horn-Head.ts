@@ -979,8 +979,9 @@ export default (G: Game) => {
 					},
 					fnOnSelect: function (target: Creature) {
 						clearPreview();
-						target.tracePosition({
-							overlayClass: 'creature selected player' + target.team,
+						target.hexagons.forEach((unitHex) => {
+							unitHex.displayVisualState('creature selected player' + target.team);
+							unitHex.grid.displayHexesGroup.bringToTop(unitHex.display);
 						});
 
 						if (!ability.isUpgraded()) {
