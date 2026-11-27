@@ -1874,6 +1874,12 @@ export class Creature {
 			if ((dmg.sonic ?? 0) > 0) {
 				this.creatureSprite.sonicPulse();
 			}
+			// Shock hit effect (#1068): sparks when shock is the main kind of damage
+			if ((dmg.shock ?? 0) > 0 && (dmg.shock ?? 0) * 2 >= dmgAmount) {
+				(
+					game as unknown as { animations: { shockSparks?: (c: Creature) => void } }
+				).animations.shockSparks?.(this);
+			}
 			// A cardboard tilt back from the blow, matching the lightning demo's
 			// hit reaction — a lean away from the attacker, not a back-and-forth
 			// slide. The tilt is on the creature group's angle so the silhouette
