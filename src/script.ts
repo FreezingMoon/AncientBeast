@@ -12,6 +12,7 @@ import { normalizeLobbyCode } from './multiplayer/types';
 import { applyPortraitScale, refreshScale } from './display/scale';
 
 import { installAvatarStyles } from './style/avatar-styles';
+import { printSourceHello } from './utility/source-hello';
 import {
 	DEBUG,
 	DEBUG_AUTO_START_GAME,
@@ -187,6 +188,7 @@ if (DEBUG && 'serviceWorker' in navigator) {
 }
 
 void funjeInit();
+printSourceHello();
 
 // Load the stylesheet
 import './style/main.less';
