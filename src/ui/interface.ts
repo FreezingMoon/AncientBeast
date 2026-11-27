@@ -3490,6 +3490,9 @@ export class UI {
 		this.toggleMusicPlayer(false);
 
 		game.channels.ui.emit('onOpenDash');
+		// Time panic (#700): with a finite time pool, the close icon glows as a
+		// reminder that the clock keeps running while browsing the dash
+		this.$dash.toggleClass('time-panic', game.timePool > 0);
 		if (randomize && !this.lastViewedCreature) {
 			this.showRandomCreature();
 		} else if (!randomize) {
