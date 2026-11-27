@@ -159,6 +159,36 @@ describe('Fiery Touch direction ordering with target', () => {
 			}
 		}
 	});
+
+	test('straight-line direction query excludes target hexes beyond ability distance so they stay overflow outlines', () => {
+		const grid = buildGrid();
+		const srcX = 5,
+			srcY = 4;
+		const source = makeSource(1, false);
+		grid.hexes[srcY][srcX].creature = source;
+		source.hexagons = [grid.hexes[srcY][srcX]];
+
+		// 3-hex target starting at distance 3 (x=8,9,10) while ability distance is 3:
+		// only x=8 is within range; x=9 and x=10 are beyond distance 3.
+		const target = makeTarget(12);
+		target.size = 3;
+		target.hexagons = [grid.hexes[srcY][8], grid.hexes[srcY][9], grid.hexes[srcY][10]];
+		target.hexagons.forEach((h: any) => (h.creature = target));
+
+		const opts: any = baseOpts(false, source);
+		opts.x = srcX;
+		opts.y = srcY;
+		opts.distance = 3;
+		opts.distanceFalloff = 0;
+		opts.directions[1] = 1; // Right
+
+		const result = (grid as any).getDirectionChoices(opts);
+		expect(result.choices).toHaveLength(1);
+		const choiceCoords = result.choices[0].map((h: any) => h.x);
+		expect(choiceCoords).toContain(8);
+		expect(choiceCoords).not.toContain(9);
+		expect(choiceCoords).not.toContain(10);
+	});
 });
 
 describe('shrunken restore on hover-off', () => {
