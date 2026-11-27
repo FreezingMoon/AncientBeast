@@ -2520,12 +2520,6 @@ export class Animations {
 	}
 
 	/**
-	 * Backward tilt for a unit taking damage — the opposite lean of
-	 * {@link tiltForward}, as if the blow shoved the body back. The lean
-	 * scales with the damage dealt (capped at {@link TILT_MAX_DAMAGE}),
-	 * so a hard hit rocks the cardboard further than a tickle.
-	 */
-	/**
 	 * Shock damage hit effect (#1068): a few short lightning sparks crackle over
 	 * the unit's cardboard for a moment, one after the other.
 	 */
@@ -2561,6 +2555,12 @@ export class Animations {
 		}
 	}
 
+	/**
+	 * Backward tilt for a unit taking damage — the opposite lean of
+	 * {@link tiltForward}, as if the blow shoved the body back. The lean
+	 * scales with the damage dealt (capped at {@link TILT_MAX_DAMAGE}),
+	 * so a hard hit rocks the cardboard further than a tickle.
+	 */
 	tiltBackward(creature: Creature, opts: AnimationOptions) {
 		const sprite = creature.creatureSprite;
 		if (!sprite || sprite.destroyed) {
