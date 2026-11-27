@@ -24,6 +24,7 @@ import Game from '../game';
 import { CreatureType } from '../data/types';
 import { getAvatarSet } from '../style/avatar-styles';
 import { applyBuffDebuffStyle } from './buffs-debuffs';
+import { installCardParallax } from './card-parallax';
 import { getRandomSummonCandidates, getSummonCandidates } from '../utility/summon-candidates';
 import { OpenCollectiveBanner, isThirdPartyContentBlocked } from './open-collective-banner';
 import { onPointerUp } from '../input/input';
@@ -615,6 +616,7 @@ export class UI {
 		);
 		this.$display = $j('#ui');
 		this.$dash = $j('#dash');
+		installCardParallax(this.$dash.find('#card')[0]);
 		this.$grid = $j(this.makeCreatureGrid(document.getElementById('creaturerasterwrapper')));
 		this.$activebox = $j('#activebox');
 		this.$scoreboard = $j('#scoreboard');
