@@ -1432,6 +1432,19 @@ div.section.info {
 	width: 100px;
 }
 
+/* Ability icons morph on hover (#1594) */
+#abilities .ability {
+	transition: background-image 0.3s ease-in-out;
+
+	&.morph-interdiction {
+		background-image: url('assets/icons/cancel.svg') !important;
+	}
+
+	&.morph-cycle {
+		background-image: url('assets/icons/cycle.svg') !important;
+	}
+}
+
 .vignette.xray .overlay_frame {
 	opacity: 0.18;
 }
