@@ -472,7 +472,11 @@ describe('Game unload confirmation integration', () => {
 	test('confirmWindowUnload uses custom modal for manual refresh shortcuts', async () => {
 		jest.resetModules();
 		const originalNodeEnv = process.env.NODE_ENV;
+		const originalInnerWidth = window.innerWidth;
+		const originalInnerHeight = window.innerHeight;
 		process.env.NODE_ENV = 'test';
+		Object.defineProperty(window, 'innerWidth', { configurable: true, value: 500 });
+		Object.defineProperty(window, 'innerHeight', { configurable: true, value: 300 });
 		let TestUI: typeof UI | undefined;
 		await jest.isolateModulesAsync(async () => {
 			const mod = await import('../ui/interface');
@@ -517,6 +521,20 @@ describe('Game unload confirmation integration', () => {
 		expect(refreshShortcutEvent.stopImmediatePropagation).toHaveBeenCalledTimes(1);
 		expect(document.getElementById('ab-dev-reload-prompt')).toBeDefined();
 
+		const reloadActions = document.querySelector(
+			'#ab-dev-reload-prompt .dev-reload-actions',
+		) as HTMLDivElement | null;
+		expect(reloadActions?.style.getPropertyValue('--reload-actions-scale')).toBe('0.8239');
+		expect(reloadActions?.style.width).toBe('468px');
+		expect(reloadActions?.style.getPropertyValue('--reload-actions-font-size')).toBe('14px');
+
+		Object.defineProperty(window, 'innerWidth', { configurable: true, value: 900 });
+		window.dispatchEvent(new Event('resize'));
+		expect(reloadActions?.style.getPropertyValue('--reload-actions-font-size')).toBe('14px');
+		expect(reloadActions?.style.getPropertyValue('--reload-actions-height')).toBe('68.00px');
+		Object.defineProperty(window, 'innerWidth', { configurable: true, value: 500 });
+		window.dispatchEvent(new Event('resize'));
+
 		const beforeUnloadListener = window.onbeforeunload as
 			| ((event: BeforeUnloadEvent) => string | void)
 			| undefined;
@@ -547,6 +565,11 @@ describe('Game unload confirmation integration', () => {
 		expect(bypassResult).toBeUndefined();
 
 		addEventListenerSpy.mockRestore();
+		Object.defineProperty(window, 'innerWidth', { configurable: true, value: originalInnerWidth });
+		Object.defineProperty(window, 'innerHeight', {
+			configurable: true,
+			value: originalInnerHeight,
+		});
 		window.onbeforeunload = originalOnBeforeUnload;
 		process.env.NODE_ENV = originalNodeEnv;
 	});

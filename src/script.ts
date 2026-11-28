@@ -782,12 +782,57 @@ $j(() => {
 		$j('#startButton').val(button);
 	}
 
+	function applyCompactPreMatchLayout(): void {
+		const isCompact = window.innerWidth <= 555 && window.innerHeight <= 400;
+		const $cards = $j('.gameOption');
+
+		$cards.prop('hidden', false);
+		$j('body').removeClass('prematch-prompt-only');
+
+		if (!isCompact) {
+			return;
+		}
+
+		const $options = $j('.game-options');
+		const $prompt = $j('#start-btn');
+		const bottomToTopRows = [
+			['#turnTime', '#timePool'],
+			['#activeUnits', '#abilityUpgrades'],
+			['#plasmaPoints', '#unitDrops'],
+			['#gameMode', '#playerList'],
+		];
+
+		const getContentHeight = () => {
+			const optionsHeight = $options.length ? $options[0].getBoundingClientRect().height : 0;
+			const promptHeight = $prompt.length ? $prompt[0].getBoundingClientRect().height : 32;
+			return optionsHeight + promptHeight + 8;
+		};
+
+		for (const rowSelectors of bottomToTopRows) {
+			if (getContentHeight() <= window.innerHeight) {
+				break;
+			}
+
+			for (const selector of rowSelectors) {
+				const $card = $j(selector).closest('.gameOption');
+				if ($card.length) {
+					$card.prop('hidden', true);
+				}
+			}
+		}
+
+		const remainingCards = $cards.filter(':visible').length;
+		$j('body').toggleClass('prematch-prompt-only', remainingCards === 0);
+	}
+
 	$j('input[name="gameMode"]').on('change input click', updateStartPrompt);
 	$j('input[name="players"]').on('change input click', updateStartPrompt);
 
 	applyPreMatchSettings(loadPreMatchSettings());
 	updateStartPrompt();
 	bindPreMatchSettingsPersistence();
+	applyCompactPreMatchLayout();
+	window.addEventListener('resize', applyCompactPreMatchLayout);
 
 	if (!joinCodeFromUrl) {
 		$j('#lobbyCode').val('');

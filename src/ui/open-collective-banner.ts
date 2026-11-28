@@ -22,6 +22,15 @@ type OpenCollectiveBannerConfig = {
 	 * rather than shown. See isThirdPartyContentBlocked().
 	 */
 	hidden?: boolean;
+	/**
+	 * Render the "Become a Sponsor" call-to-action alongside the contributor
+	 * marquee. Defaults to true. Pass false to show only the contributors (the
+	 * pill then spans the full widget width), or a predicate evaluated at render
+	 * time (and re-evaluated on window resize while a view is open) for a
+	 * responsive choice — e.g. `() => window.innerWidth >= 600` to drop the CTA
+	 * on narrow screens where it is redundant with the rest of the page.
+	 */
+	showCta?: boolean | (() => boolean);
 };
 
 const OPEN_COLLECTIVE_WIDGET_ENABLED = true;
@@ -78,6 +87,8 @@ export class OpenCollectiveBanner {
 	isViewOpen: () => boolean;
 	enabled: boolean;
 	hidden: boolean;
+	showCta: boolean | (() => boolean);
+	lastShowCta: boolean;
 	crazyGamesBanner: boolean;
 	initialized: boolean;
 	isFetching: boolean;
@@ -94,6 +105,7 @@ export class OpenCollectiveBanner {
 		this.isViewOpen = config.isViewOpen;
 		this.enabled = config.enabled ?? OPEN_COLLECTIVE_WIDGET_ENABLED;
 		this.hidden = config.hidden ?? false;
+		this.showCta = config.showCta ?? true;
 		this.crazyGamesBanner = isCrazyGamesTarget();
 		this.initialized = false;
 		this.isFetching = false;
@@ -106,7 +118,25 @@ export class OpenCollectiveBanner {
 		this.lastMarqueeTickTs = null;
 		this.loopWidthPx = 0;
 		this.memberPitchPx = OpenCollectiveBanner.MEMBER_SIZE_PX + OpenCollectiveBanner.MEMBER_GAP_PX;
+		this.lastShowCta = this.resolveShowCta();
 	}
+
+	/** Evaluate the showCta config (boolean or predicate) to a concrete value. */
+	private resolveShowCta(): boolean {
+		return typeof this.showCta === 'function' ? this.showCta() : this.showCta;
+	}
+
+	/** Re-render contributors if the responsive showCta value flipped while open. */
+	private handleCtaResize = () => {
+		const show = this.resolveShowCta();
+		if (show === this.lastShowCta) {
+			return;
+		}
+		this.lastShowCta = show;
+		if (this.initialized && this.isViewOpen()) {
+			this.renderContributors();
+		}
+	};
 
 	init() {
 		if (this.initialized) {
@@ -134,6 +164,11 @@ export class OpenCollectiveBanner {
 		}
 
 		this.bindInteractions();
+
+		// A predicate showCta (responsive CTA) needs to re-render on resize.
+		if (typeof this.showCta === 'function') {
+			$j(window).on('resize.opencollective', this.handleCtaResize);
+		}
 
 		// Show the CTA placeholder only — all host views (dash, scoreboard,
 		// music player) start hidden, so eagerly rendering contributor <img>
@@ -457,6 +492,14 @@ export class OpenCollectiveBanner {
 		this.$members = null;
 		this.$track = null;
 		this.loopWidthPx = 0;
+
+		// With the CTA disabled and no contributors to show, there is nothing
+		// to render — hide the widget rather than leaving an empty pill.
+		if (!this.resolveShowCta()) {
+			this.$banner.empty().attr('data-oc-view', 'none').hide();
+			return;
+		}
+
 		const $inner = $j('<div>').addClass('opencollective_inner');
 		const $ctaWrapper = $j('<div>').addClass('opencollective_cta_wrapper');
 		const $cta = $j('<a>')
@@ -590,9 +633,12 @@ export class OpenCollectiveBanner {
 			.text('Become a Sponsor');
 
 		$pill.append($track);
-		$ctaWrapper.append($cta);
-		$inner.append($pill, $ctaWrapper);
-		this.$banner.empty().append($inner).attr('data-oc-view', 'contributors');
+		$inner.append($pill);
+		if (this.resolveShowCta()) {
+			$ctaWrapper.append($cta);
+			$inner.append($ctaWrapper);
+		}
+		this.$banner.empty().append($inner).attr('data-oc-view', 'contributors').show();
 		this.$track = $track;
 		this.$members = $track.children('.opencollective_member');
 		this.applyMarqueeOffset();

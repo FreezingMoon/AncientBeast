@@ -30,6 +30,14 @@ import { onPointerUp } from '../input/input';
 import { isScoreboardHotkey, isUtilityHotkey as isUtilityHotkeyEvent } from '../input/hotkey-gate';
 import { setHandCursor } from '../display/cursor';
 import type { SpriteHandle } from '../engine/types';
+import {
+	getCompactDashLayout,
+	getNextRealmUnit,
+	getToggledCardSide,
+	getLowestRealmUnit,
+	getMediumCardLayout,
+	isTablessLandscapeDash,
+} from '../utility/compact-dash-layout';
 
 const SECRET_VIEW_ID = 'ab-secret-view';
 
@@ -89,6 +97,7 @@ let hasManualRefreshConfirmListener = false;
 const MANUAL_REFRESH_LISTENER_KEY = '__abManualRefreshListener';
 let reloadPromptOverlay: HTMLDivElement | null = null;
 let removeReloadPromptEscListener: (() => void) | null = null;
+let removeReloadPromptResizeListener: (() => void) | null = null;
 let allowNextReloadWithoutPrompt = false;
 
 /**
@@ -204,6 +213,10 @@ const closeRefreshPrompt = () => {
 	if (removeReloadPromptEscListener) {
 		removeReloadPromptEscListener();
 		removeReloadPromptEscListener = null;
+	}
+	if (removeReloadPromptResizeListener) {
+		removeReloadPromptResizeListener();
+		removeReloadPromptResizeListener = null;
 	}
 };
 
@@ -321,6 +334,36 @@ const showRefreshPrompt = () => {
 	const actions = document.createElement('div');
 	actions.className = 'dev-reload-actions';
 
+	const fitReloadActions = () => {
+		const modalStyle = window.getComputedStyle(modal);
+		const horizontalPadding =
+			(Number.parseFloat(modalStyle.paddingLeft) || 0) +
+			(Number.parseFloat(modalStyle.paddingRight) || 0);
+		const measuredModalWidth =
+			modal.clientWidth > 0 ? modal.clientWidth - horizontalPadding : window.innerWidth - 32;
+		const viewportWidth = Math.max(0, window.innerWidth - 32);
+		const isShortLandscape =
+			typeof window.matchMedia === 'function' &&
+			window.matchMedia('(orientation: landscape) and (max-height: 700px)').matches;
+		const availableWidth = isShortLandscape
+			? viewportWidth
+			: Math.max(0, Math.min(measuredModalWidth, viewportWidth));
+		const availableHeight = Math.max(0, window.innerHeight - 160);
+		const reloadBaseHeight = 68;
+		const reloadFontSize = 14;
+		const scale = Math.min(1, availableWidth / 568, availableHeight / reloadBaseHeight);
+		const rowWidth = 568 * scale;
+		actions.style.setProperty('--reload-actions-scale', scale.toFixed(4));
+		actions.style.setProperty(
+			'--reload-actions-height',
+			`${(reloadBaseHeight * scale).toFixed(2)}px`,
+		);
+		actions.style.setProperty('--reload-actions-gap', `${(10 * scale).toFixed(2)}px`);
+		actions.style.setProperty('--reload-actions-padding', `${(10 * scale).toFixed(2)}px`);
+		actions.style.setProperty('--reload-actions-font-size', `${reloadFontSize}px`);
+		actions.style.width = `${rowWidth.toFixed(2)}px`;
+	};
+
 	actions.appendChild(
 		createRefreshButton(
 			'Save',
@@ -387,6 +430,11 @@ const showRefreshPrompt = () => {
 		closeRefreshPrompt();
 	});
 	document.body.appendChild(overlay);
+	fitReloadActions();
+	window.addEventListener('resize', fitReloadActions);
+	removeReloadPromptResizeListener = () => {
+		window.removeEventListener('resize', fitReloadActions);
+	};
 	window.addEventListener('keydown', handlePromptKeydown, true);
 	removeReloadPromptEscListener = () => {
 		window.removeEventListener('keydown', handlePromptKeydown, true);
@@ -578,6 +626,9 @@ export class UI {
 	dashAnimSpeed: number;
 	cardAssetCache: Map<string, HTMLImageElement>;
 	cardFlipTimeoutId: ReturnType<typeof setTimeout> | null;
+	cardFlipResetTimeoutId: ReturnType<typeof setTimeout> | null;
+	cardFlipEndTimeoutId: ReturnType<typeof setTimeout> | null;
+	pendingCardFlipAction: (() => void) | null;
 	abilityCostFlashTimeout: ReturnType<typeof setTimeout> | null;
 	materializeToggled: boolean;
 	glowInterval: ReturnType<typeof setInterval>;
@@ -598,10 +649,13 @@ export class UI {
 	/** Destructive scoreboard action awaiting its second activation, if any. */
 	scoreboardConfirmAction: ScoreboardConfirmAction | null;
 	scoreboardConfirmTimer: ReturnType<typeof setTimeout> | null;
+	private compactCardSide: 'A' | 'B' = 'A';
+	private pendingCardSide: 'A' | 'B' | null = null;
 	// Guards the deferred pointer-events disable in closeDash(): a re-open
 	// before the fade callback runs must not have pointer-events yanked by
 	// the stale close's timeout.
 	private dashFadeToken: symbol | null = null;
+	private dashCardSyncScheduled = false;
 	/**
 	 * Create attributes and default buttons
 	 * @constructor
@@ -616,6 +670,26 @@ export class UI {
 		this.$display = $j('#ui');
 		this.$dash = $j('#dash');
 		this.$grid = $j(this.makeCreatureGrid(document.getElementById('creaturerasterwrapper')));
+		this.bindCreatureGridSelection();
+		let dashResizeFrame: number | null = null;
+		window.addEventListener('resize', () => {
+			if (dashResizeFrame !== null) {
+				window.cancelAnimationFrame(dashResizeFrame);
+			}
+			dashResizeFrame = window.requestAnimationFrame(() => {
+				dashResizeFrame = null;
+				if (this.dashopen) {
+					this.resizeDash();
+				}
+			});
+		});
+		window.addEventListener('orientationchange', () => {
+			window.requestAnimationFrame(() => {
+				if (this.dashopen) {
+					this.resizeDash();
+				}
+			});
+		});
 		this.$activebox = $j('#activebox');
 		this.$scoreboard = $j('#scoreboard');
 		this.$hotkeys = $j('#hotkeys');
@@ -662,6 +736,10 @@ export class UI {
 			},
 			isViewOpen: () => !this.$scoreboard.hasClass('hide'),
 			hidden: isThirdPartyContentBlocked(),
+			// Wide (desktop) score screens have room for the redundant
+			// "Become a Sponsor" CTA; narrow (<600px) ones drop it so only the
+			// contributor marquee shows. Re-evaluated on resize while open.
+			showCta: () => window.innerWidth >= 600,
 		});
 		this.musicPlayerOpenCollectiveBanner = new OpenCollectiveBanner({
 			bannerSelector: '#opencollective_banner_musicplayer',
@@ -708,6 +786,34 @@ export class UI {
 			},
 			{ isAcceptingInput: this.configuration.isAcceptingInput },
 		);
+
+		const compactCloseButton = document.querySelector<HTMLElement>('#dash #return .close-button');
+		compactCloseButton?.addEventListener(
+			'click',
+			(event) => {
+				if (!this.dashopen) {
+					return;
+				}
+				event.preventDefault();
+				event.stopImmediatePropagation();
+				this.closeDash();
+			},
+			true,
+		);
+
+		// The compact close control is a restyled dash button, not the small
+		// round icon. Bind it directly so it always closes without relying on
+		// the generic button's animated transition state.
+		$j('#dash #return')
+			.off('click.compact-dash-close')
+			.on('click.compact-dash-close', (event) => {
+				if (!this.dashopen) {
+					return;
+				}
+				event.preventDefault();
+				event.stopPropagation();
+				this.closeDash();
+			});
 		this.buttons.push(this.btnToggleDash);
 
 		// Score Button
@@ -1616,6 +1722,9 @@ export class UI {
 		this.dashAnimSpeed = 250; // ms
 		this.cardAssetCache = new Map();
 		this.cardFlipTimeoutId = null;
+		this.cardFlipResetTimeoutId = null;
+		this.cardFlipEndTimeoutId = null;
+		this.pendingCardFlipAction = null;
 		this.abilityCostFlashTimeout = null;
 
 		this.materializeToggled = false;
@@ -2000,12 +2109,1207 @@ export class UI {
 		this.selectAbility(-1);
 		return -1;
 	}
-	resizeDash() {
-		const isArcade = window.innerWidth <= 600 && window.innerHeight <= 700;
 
-		if (isArcade) {
-			$j('#cardwrapper_inner').css('scale', '');
+	private renderCompactRealmDial() {
+		const dial = document.querySelector<HTMLElement>('#compact-realm-dial');
+		const orbs = dial?.querySelector<HTMLElement>('.compact-realm-orbs');
+		const unitRow = dial?.querySelector<HTMLElement>('.compact-unit-row');
+		if (!dial || !orbs || !unitRow) {
+			return;
+		}
+
+		const realms = ['A', 'E', 'G', 'L', 'P', 'S', 'W'];
+		const player = this.game.players[this.selectedPlayer];
+		const availableCreatures = player?.availableCreatures ?? [];
+		const usedCreatures = player?.creatures?.map((creature) => creature.type) ?? [];
+		const candidates = new Set<CreatureType>(
+			getSummonCandidates(this.game, availableCreatures, {
+				excludeTypes: usedCreatures,
+			}),
+		);
+
+		let activeRealm = 'A';
+		if (dial.dataset.realm && realms.includes(dial.dataset.realm)) {
+			activeRealm = dial.dataset.realm;
+		} else {
+			const selectedRealm = String(this.selectedCreature ?? '').charAt(0);
+			if (realms.includes(selectedRealm)) {
+				activeRealm = selectedRealm;
+			}
+		}
+		dial.dataset.realm = activeRealm;
+
+		const existingOrbs = [...orbs.querySelectorAll<HTMLButtonElement>('.compact-realm-orb')];
+		if (existingOrbs.length !== realms.length) {
+			orbs.replaceChildren();
+			for (const realm of realms) {
+				const orb = document.createElement('button');
+				orb.type = 'button';
+				orb.className = `compact-realm-orb sin${realm}${realm === activeRealm ? ' active' : ''}`;
+				orb.dataset.realm = realm;
+				orb.setAttribute('aria-label', `${realm} realm`);
+				orb.setAttribute('aria-pressed', realm === activeRealm ? 'true' : 'false');
+				orb.onclick = (event) => {
+					event.preventDefault();
+					event.stopPropagation();
+					const nextRealm = orb.dataset.realm;
+					if (nextRealm) {
+						this.selectCompactRealm(nextRealm);
+					}
+				};
+				orbs.appendChild(orb);
+			}
+		} else {
+			for (const orb of existingOrbs) {
+				const realm = orb.dataset.realm;
+				const active = realm === activeRealm;
+				orb.classList.toggle('active', active);
+				orb.setAttribute('aria-pressed', active ? 'true' : 'false');
+				orb.onclick = (event) => {
+					event.preventDefault();
+					event.stopPropagation();
+					const nextRealm = orb.dataset.realm;
+					if (nextRealm) {
+						this.selectCompactRealm(nextRealm);
+					}
+				};
+			}
+		}
+
+		this.renderCompactRealmUnitRow(activeRealm, candidates);
+	}
+
+	private renderCompactRealmUnitRow(realm: string, candidates: ReadonlySet<CreatureType>) {
+		const unitRow = document.querySelector<HTMLElement>('#compact-realm-dial .compact-unit-row');
+		if (!unitRow) {
+			return;
+		}
+
+		const existingButtons = [...unitRow.querySelectorAll<HTMLButtonElement>('.compact-unit')];
+		const reusableButtons = existingButtons.length === 7 ? existingButtons : null;
+		if (!reusableButtons) {
+			unitRow.replaceChildren();
+		}
+		unitRow.dataset.realm = realm;
+		for (let level = 1; level <= 7; level++) {
+			const type = `${realm}${level}` as CreatureType;
+			const stats = this.game.retrieveCreatureStats(type);
+			if (!stats) {
+				continue;
+			}
+
+			const available = candidates.has(type);
+			const selected = this.selectedCreature === type;
+			const button = reusableButtons?.[level - 1] ?? document.createElement('button');
+			button.type = 'button';
+			button.className = `compact-unit type${type} sin${realm}${available ? '' : ' unavailable'}${
+				selected ? ' active' : ''
+			}`;
+			button.dataset.set = getAvatarSet(type);
+			button.dataset.type = type;
+			button.setAttribute('aria-label', stats.name);
+			button.setAttribute('aria-pressed', selected ? 'true' : 'false');
+			button.title = stats.name;
+			button.disabled = false;
+
+			button.onclick = (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				const nextType = button.dataset.type as CreatureType | undefined;
+				if (nextType) {
+					this.selectCompactUnit(nextType);
+				}
+			};
+
+			try {
+				button.style.backgroundImage = `url("${getUrl(`units/avatars/${stats.name}`)}")`;
+			} catch {
+				button.style.backgroundImage = '';
+			}
+			if (!reusableButtons) {
+				unitRow.appendChild(button);
+			}
+		}
+	}
+
+	private updateCompactRealmSelection(creatureType: CreatureType) {
+		const stats = this.game.retrieveCreatureStats(creatureType);
+		const realm = stats?.realm;
+		if (realm && 'AEGLPSW'.includes(realm)) {
+			const dial = document.querySelector<HTMLElement>('#compact-realm-dial');
+			if (dial) {
+				dial.dataset.realm = realm;
+			}
+		}
+
+		if (window.innerWidth >= 401 && window.innerWidth <= 768 && window.innerHeight >= 450) {
+			this.renderCompactRealmDial();
+		}
+	}
+
+	private selectCompactRealm(realm: string) {
+		const dial = document.querySelector<HTMLElement>('#compact-realm-dial');
+		if (dial) {
+			dial.dataset.realm = realm;
+		}
+
+		const selectedRealm = String(this.selectedCreature ?? '').charAt(0);
+		const isSameRealm = selectedRealm === realm && this.selectedCreature !== '--';
+		const player = this.game.players[this.selectedPlayer];
+		const usedTypes = new Set(player?.creatures?.map((creature) => creature.type) ?? []);
+		let candidates = getSummonCandidates(this.game, player?.availableCreatures ?? [], {
+			excludeTypes: usedTypes,
+		}).filter((type) => type.startsWith(realm));
+
+		if (candidates.length === 0) {
+			for (let level = 1; level <= 7; level++) {
+				const type = `${realm}${level}` as CreatureType;
+				if (usedTypes.has(type)) {
+					continue;
+				}
+				const stats = this.game.retrieveCreatureStats(type);
+				if (stats?.playable === true) {
+					candidates = [...candidates, type];
+				}
+			}
+		} else {
+			for (let level = 1; level <= 7; level++) {
+				const type = `${realm}${level}` as CreatureType;
+				if (candidates.includes(type) || usedTypes.has(type)) {
+					continue;
+				}
+				const stats = this.game.retrieveCreatureStats(type);
+				if (stats?.playable === true) {
+					candidates = [...candidates, type];
+				}
+			}
+		}
+
+		const nextCreature = isSameRealm
+			? getNextRealmUnit(realm, this.selectedCreature, candidates)
+			: getLowestRealmUnit(realm, candidates);
+		if (nextCreature) {
+			this.lastViewedCreature = nextCreature;
+			this.showCreature(nextCreature, this.selectedPlayer, 'grid');
+		} else {
+			this.renderCompactRealmDial();
+		}
+	}
+
+	private selectCompactUnit(creatureType: CreatureType) {
+		if (this.selectedCreature === creatureType) {
+			this.toggleCompactCardSide();
+			return;
+		}
+		this.lastViewedCreature = creatureType;
+		this.showCreature(creatureType, this.selectedPlayer, 'grid');
+	}
+
+	private bindCreatureGridSelection() {
+		this.$grid.off('click.compact-grid').on('click.compact-grid', '.vignette', (event) => {
+			event.preventDefault();
+			event.stopPropagation();
+			if (this.game.freezedInput) {
+				return;
+			}
+
+			const currentTarget = $j(event.currentTarget);
+			if (currentTarget.hasClass('locked')) {
+				this.$dash.children('#tooltip').text('Creature locked.');
+			}
+
+			const creatureType = currentTarget.attr('creature') as CreatureType | undefined;
+			if (!creatureType) {
+				return;
+			}
+			if (this.selectedCreature === creatureType) {
+				this.toggleCompactCardSide();
+				return;
+			}
+			this.lastViewedCreature = creatureType;
+			this.showCreature(creatureType, this.selectedPlayer, 'grid');
+		});
+	}
+
+	private toggleCompactCardSide() {
+		if (this.showsBothDashCards()) {
+			return;
+		}
+		this.$dash.addClass('medium-single-card');
+		if (window.innerWidth >= 401 && window.innerWidth <= 768 && window.innerHeight >= 700) {
+			$j('#opencollective_banner').hide();
+		}
+		const nextSide = getToggledCardSide(this.compactCardSide);
+		this.pendingCardSide = nextSide;
+		this.flipCard([], () => {
+			this.pendingCardSide = null;
+			if (this.showsBothDashCards()) {
+				this.compactCardSide = 'A';
+				this.$dash.removeClass('compact-card-back medium-single-card');
+				this.applyDashCardGeometry(true);
+			} else {
+				this.setCompactCardFace(nextSide);
+			}
+		});
+	}
+
+	private setCompactCardFace(side: 'A' | 'B') {
+		this.pendingCardSide = null;
+		const isPortraitOneCard =
+			window.innerWidth >= 401 && window.innerWidth <= 768 && window.innerHeight >= 700;
+		if (isPortraitOneCard) {
+			$j('#opencollective_banner').hide();
+		}
+		this.compactCardSide = side;
+		this.$dash.toggleClass('compact-card-back', side === 'B');
+		const cardCenter = document.querySelector<HTMLElement>('#card .center');
+		const sideA = document.querySelector<HTMLElement>('#card .sideA');
+		const sideB = document.querySelector<HTMLElement>('#card .sideB');
+		if (cardCenter) {
+			cardCenter.style.setProperty('display', side === 'A' ? 'inline-block' : 'none', 'important');
+		}
+		for (const [face, visible] of [
+			[sideA, side === 'A'],
+			[sideB, side === 'B'],
+		] as const) {
+			if (!face) {
+				continue;
+			}
+			face.style.setProperty('display', visible ? 'inline-block' : 'none', 'important');
+			face.style.setProperty('visibility', visible ? 'visible' : 'hidden', 'important');
+		}
+		if (sideB) {
+			sideB.style.setProperty('position', 'absolute', 'important');
+			sideB.style.setProperty('top', '0', 'important');
+			sideB.style.setProperty('left', '0', 'important');
+		}
+	}
+
+	private finishPendingCardFlip() {
+		if (this.cardFlipTimeoutId !== null) {
+			clearTimeout(this.cardFlipTimeoutId);
+			this.cardFlipTimeoutId = null;
+		}
+		if (this.cardFlipEndTimeoutId !== null) {
+			clearTimeout(this.cardFlipEndTimeoutId);
+			this.cardFlipEndTimeoutId = null;
+		}
+		if (this.cardFlipResetTimeoutId !== null) {
+			clearTimeout(this.cardFlipResetTimeoutId);
+			this.cardFlipResetTimeoutId = null;
+		}
+		const pendingAction = this.pendingCardFlipAction;
+		this.pendingCardFlipAction = null;
+		pendingAction?.();
+		this.settleCardFlip();
+	}
+
+	private settleCardFlip() {
+		for (const card of document.querySelectorAll<HTMLElement>('#card .sideA, #card .sideB')) {
+			card.classList.remove('flipping', 'flip-reset');
+			const transformIsResting = getComputedStyle(card).transform === 'none';
+			const inlineTransformNeedsUpdate =
+				card.style.getPropertyValue('transform') !== 'none' ||
+				card.style.getPropertyPriority('transform') !== 'important';
+			if (!transformIsResting || inlineTransformNeedsUpdate) {
+				card.style.setProperty('transition', 'none', 'important');
+				card.style.setProperty('transform', 'none', 'important');
+				void card.offsetWidth;
+				card.style.removeProperty('transition');
+			}
+		}
+	}
+
+	private showsBothDashCards() {
+		const isPortraitOneCard =
+			window.innerWidth >= 401 && window.innerWidth <= 768 && window.innerHeight >= 700;
+		return (
+			window.innerWidth >= 1001 ||
+			(!isPortraitOneCard &&
+				window.innerWidth >= 649 &&
+				window.innerWidth <= 1000 &&
+				getMediumCardLayout(window.innerWidth, window.innerHeight) === 'two-cards')
+		);
+	}
+
+	private applyDashCardGeometry(showBothCards: boolean) {
+		const card = document.querySelector<HTMLElement>('#card');
+		const cardCenter = document.querySelector<HTMLElement>('#card .center');
+		const sideA = document.querySelector<HTMLElement>('#card .sideA');
+		const sideB = document.querySelector<HTMLElement>('#card .sideB');
+		const cardWidth = showBothCards ? 870 : 430;
+
+		if (card) {
+			card.style.setProperty('width', `${cardWidth}px`, 'important');
+			card.style.setProperty('height', showBothCards ? 'auto' : '550px', 'important');
+			card.style.setProperty('margin', '0 auto', 'important');
+			card.style.setProperty('padding', showBothCards ? '0 0 10px' : '0', 'important');
+			card.style.setProperty('position', 'relative', 'important');
+			card.style.setProperty('box-sizing', 'content-box', 'important');
+		}
+		if (cardCenter) {
+			cardCenter.style.setProperty('display', 'inline-block', 'important');
+			cardCenter.style.setProperty('position', 'static', 'important');
+			cardCenter.style.setProperty('width', 'auto', 'important');
+			cardCenter.style.setProperty('height', '550px', 'important');
+			cardCenter.style.setProperty('margin', '0', 'important');
+			cardCenter.style.setProperty('padding', '0', 'important');
+			cardCenter.style.setProperty('vertical-align', 'top', 'important');
+		}
+
+		const visibleSide = this.compactCardSide;
+		for (const [face, isFirst] of [
+			[sideA, true],
+			[sideB, false],
+		] as const) {
+			if (!face) {
+				continue;
+			}
+			const visible = showBothCards || (visibleSide === 'A' ? isFirst : !isFirst);
+			face.style.setProperty('position', 'static', 'important');
+			face.style.setProperty('top', 'auto', 'important');
+			face.style.setProperty('left', 'auto', 'important');
+			face.style.setProperty('width', '400px', 'important');
+			face.style.setProperty('height', '520px', 'important');
+			face.style.setProperty('margin', '0', 'important');
+			face.style.setProperty('margin-right', showBothCards && isFirst ? '-18px' : '0', 'important');
+			face.style.setProperty('padding', '15px', 'important');
+			face.style.setProperty('box-sizing', 'content-box', 'important');
+			face.style.setProperty('display', visible ? 'inline-block' : 'none', 'important');
+			face.style.setProperty('visibility', visible ? 'visible' : 'hidden', 'important');
+			face.style.setProperty('vertical-align', 'top', 'important');
+			face.style.setProperty('border-radius', '0', 'important');
+			face.style.setProperty('overflow', 'visible', 'important');
+			face.style.setProperty('clip-path', 'none', 'important');
+			face.style.setProperty('background-repeat', 'no-repeat', 'important');
+			face.style.setProperty('background-position', 'center, center', 'important');
+			face.style.setProperty('background-size', 'auto, auto', 'important');
+			face.style.setProperty('background-origin', 'padding-box, padding-box', 'important');
+			face.style.setProperty('background-clip', 'border-box, border-box', 'important');
+		}
+		if (!showBothCards) {
+			if (cardCenter) {
+				cardCenter.style.setProperty(
+					'display',
+					visibleSide === 'A' ? 'inline-block' : 'none',
+					'important',
+				);
+			}
+			if (sideB) {
+				sideB.style.setProperty('position', 'absolute', 'important');
+				sideB.style.setProperty('top', '0', 'important');
+				sideB.style.setProperty('left', '0', 'important');
+			}
+		}
+
+		const cardInfo = document.querySelector<HTMLElement>('#card .sideA .section.info');
+		if (cardInfo) {
+			cardInfo.style.setProperty('position', 'relative', 'important');
+			cardInfo.style.setProperty('top', 'auto', 'important');
+			cardInfo.style.setProperty('right', 'auto', 'important');
+			cardInfo.style.setProperty('bottom', 'auto', 'important');
+			cardInfo.style.setProperty('left', 'auto', 'important');
+			cardInfo.style.setProperty('display', 'block', 'important');
+			cardInfo.style.setProperty('width', '392px', 'important');
+			cardInfo.style.setProperty('height', 'auto', 'important');
+			cardInfo.style.setProperty('max-width', 'none', 'important');
+			cardInfo.style.setProperty('margin', '-35px 0 0', 'important');
+			cardInfo.style.setProperty('padding', '0', 'important');
+			cardInfo.style.setProperty('box-sizing', 'content-box', 'important');
+			cardInfo.style.setProperty('line-height', 'normal', 'important');
+			cardInfo.style.setProperty('white-space', 'normal', 'important');
+			cardInfo.style.setProperty('overflow', 'visible', 'important');
+		}
+		const cardName = document.querySelector<HTMLElement>('#card .sideA .section.info .name');
+		if (cardName) {
+			cardName.style.setProperty('position', 'static', 'important');
+			cardName.style.setProperty('display', 'inline', 'important');
+			cardName.style.setProperty('top', 'auto', 'important');
+			cardName.style.setProperty('right', 'auto', 'important');
+			cardName.style.setProperty('left', 'auto', 'important');
+			cardName.style.setProperty('width', 'auto', 'important');
+			cardName.style.setProperty('height', 'auto', 'important');
+			cardName.style.setProperty('margin', '0', 'important');
+			cardName.style.setProperty('line-height', 'normal', 'important');
+			cardName.style.setProperty('transform', 'none', 'important');
+			cardName.style.setProperty('white-space', 'normal', 'important');
+			cardName.style.setProperty('overflow', 'visible', 'important');
+			cardName.style.setProperty('text-overflow', 'clip', 'important');
+		}
+		for (const [element, isSet] of [
+			[document.querySelector<HTMLElement>('#card .sideA .set-type-parent'), true],
+			[document.querySelector<HTMLElement>('#card .sideA .hexes'), false],
+		] as const) {
+			if (!element) {
+				continue;
+			}
+			element.style.setProperty('position', 'static', 'important');
+			element.style.setProperty('top', 'auto', 'important');
+			element.style.setProperty('right', 'auto', 'important');
+			element.style.setProperty('left', 'auto', 'important');
+			element.style.setProperty('width', 'auto', 'important');
+			element.style.setProperty('height', 'auto', 'important');
+			element.style.setProperty('line-height', 'normal', 'important');
+			element.style.setProperty('float', isSet ? 'left' : 'right', 'important');
+			element.style.setProperty('margin-left', isSet ? '5%' : '0', 'important');
+			element.style.setProperty('margin-right', isSet ? '0' : '5%', 'important');
+		}
+	}
+
+	private resetDashRescaleSurfaces() {
+		this.$dash.removeClass('medium-single-card');
+		const closeReturn = document.querySelector<HTMLElement>('#dash #return');
+		const closeButton = document.querySelector<HTMLElement>('#dash #return .close-button');
+		if (closeReturn) {
+			closeReturn.removeAttribute('style');
+		}
+		if (closeButton) {
+			closeButton.removeAttribute('style');
+		}
+		const dial = document.querySelector<HTMLElement>('#compact-realm-dial');
+		if (dial) {
+			dial.removeAttribute('style');
+		}
+		for (const element of document.querySelectorAll<HTMLElement>(
+			'#playertabswrapper, #tabwrapper, #opencollective_banner',
+		)) {
+			element.removeAttribute('style');
+		}
+		for (const element of document.querySelectorAll<HTMLElement>(
+			'#playertabswrapper .playertabs',
+		)) {
+			element.removeAttribute('style');
+		}
+		for (const element of document.querySelectorAll<HTMLElement>(
+			'#compact-realm-dial .compact-realm-orb, #compact-realm-dial .compact-unit',
+		)) {
+			element.removeAttribute('style');
+		}
+		for (const element of document.querySelectorAll<HTMLElement>(
+			'#compact-realm-dial .compact-realm-orbs, #compact-realm-dial .compact-unit-row',
+		)) {
+			element.removeAttribute('style');
+		}
+
+		const cardInner = document.querySelector<HTMLElement>('#cardwrapper_inner');
+		if (cardInner) {
+			cardInner.style.removeProperty('top');
+			cardInner.style.removeProperty('left');
+			cardInner.style.removeProperty('right');
+			cardInner.style.removeProperty('bottom');
+			cardInner.style.removeProperty('zoom');
+			cardInner.style.removeProperty('scale');
+			cardInner.style.removeProperty('transform');
+			cardInner.style.removeProperty('position');
+			cardInner.style.removeProperty('margin');
+		}
+
+		$j('#creaturerasterwrapper')
+			.css('display', '')
+			.css('visibility', '')
+			.css('position', '')
+			.css('top', '')
+			.css('right', '')
+			.css('bottom', '')
+			.css('left', '')
+			.css('width', '')
+			.css('height', '');
+		$j('#cardwrapper')
+			.css('display', '')
+			.css('visibility', '')
+			.css('position', '')
+			.css('top', '')
+			.css('right', '')
+			.css('bottom', '')
+			.css('left', '')
+			.css('width', '')
+			.css('height', '');
+		$j('#card .sideA, #card .sideB').css('display', '').css('visibility', '');
+		for (const element of document.querySelectorAll<HTMLElement>(
+			'#card, #card .center, #card .sideA, #card .sideB',
+		)) {
+			for (const property of [
+				'top',
+				'right',
+				'bottom',
+				'left',
+				'width',
+				'height',
+				'margin',
+				'margin-left',
+				'margin-right',
+				'margin-top',
+				'margin-bottom',
+				'padding',
+				'position',
+				'border-radius',
+				'overflow',
+				'clip-path',
+				'background-size',
+				'background-position',
+				'background-repeat',
+				'background-clip',
+				'box-sizing',
+				'display',
+				'visibility',
+			]) {
+				element.style.removeProperty(property);
+			}
+		}
+	}
+
+	resizeDash() {
+		this.resetDashRescaleSurfaces();
+		this.bindCreatureGridSelection();
+		const isArcade = window.innerWidth <= 600 && window.innerHeight <= 700;
+		const isCompactClose =
+			window.innerWidth <= 768 || (window.innerWidth <= 1000 && window.innerHeight <= 700);
+		const isLandscape = window.matchMedia('(orientation: landscape)').matches;
+		const isNarrowLandscape = isTablessLandscapeDash(window.innerWidth, isLandscape);
+		const isCompactNarrow = window.innerWidth <= 400;
+		const compactLayout = getCompactDashLayout(window.innerWidth, window.innerHeight, isLandscape);
+		const isSideRailLayout = compactLayout === 'side-rails';
+		const isBottomDialLayout = compactLayout === 'bottom-dial';
+		const isCardOnlyLayout = compactLayout === 'card-only';
+		const isFullGridCompact = compactLayout === 'full-grid';
+		const isPortraitFullGrid =
+			isFullGridCompact &&
+			window.innerWidth >= 401 &&
+			window.innerWidth <= 768 &&
+			window.innerHeight >= 700;
+		const isMediumFullGrid =
+			!isNarrowLandscape &&
+			isFullGridCompact &&
+			window.innerWidth >= 649 &&
+			window.innerWidth <= 1000 &&
+			isLandscape;
+		const showsBothCards = this.showsBothDashCards();
+		this.applyDashCardGeometry(showsBothCards);
+
+		if (isCompactClose) {
+			const compactCloseButton = document.querySelector<HTMLElement>('#dash #return .close-button');
+			const compactCloseReturn = document.querySelector<HTMLElement>('#dash #return');
+			if (compactCloseReturn) {
+				compactCloseReturn.style.setProperty('position', 'fixed', 'important');
+				compactCloseReturn.style.setProperty('top', '0px', 'important');
+				compactCloseReturn.style.setProperty('right', '0px', 'important');
+				compactCloseReturn.style.setProperty('bottom', 'auto', 'important');
+				compactCloseReturn.style.setProperty('left', 'auto', 'important');
+				compactCloseReturn.style.setProperty('width', '64px', 'important');
+				compactCloseReturn.style.setProperty('height', '64px', 'important');
+				compactCloseReturn.style.setProperty('margin', '0', 'important');
+				compactCloseReturn.style.setProperty('padding', '0', 'important');
+				compactCloseReturn.style.setProperty('z-index', '100000', 'important');
+			}
+			if (compactCloseButton) {
+				compactCloseButton.style.setProperty('position', 'fixed', 'important');
+				compactCloseButton.style.setProperty('top', '0px', 'important');
+				compactCloseButton.style.setProperty('right', '0px', 'important');
+				compactCloseButton.style.setProperty('bottom', 'auto', 'important');
+				compactCloseButton.style.setProperty('left', 'auto', 'important');
+				compactCloseButton.style.setProperty('width', '64px', 'important');
+				compactCloseButton.style.setProperty('height', '64px', 'important');
+				compactCloseButton.style.setProperty('margin', '0', 'important');
+				compactCloseButton.style.setProperty('padding', '0', 'important');
+				compactCloseButton.style.setProperty('border', '0', 'important');
+				compactCloseButton.style.setProperty('border-radius', '50%', 'important');
+				compactCloseButton.style.setProperty(
+					'background',
+					'url("assets/icons/close.svg") no-repeat center center',
+					'important',
+				);
+				compactCloseButton.style.setProperty('background-size', '100% 100%', 'important');
+				compactCloseButton.style.setProperty('transform', 'none', 'important');
+				compactCloseButton.style.setProperty('transition', 'none', 'important');
+			}
+		}
+		if (isNarrowLandscape) {
+			const playerTabs = document.querySelector<HTMLElement>('#playertabswrapper');
+			const tabWrapper = document.querySelector<HTMLElement>('#tabwrapper');
+			if (playerTabs) {
+				playerTabs.style.setProperty('display', 'none', 'important');
+				playerTabs.style.setProperty('visibility', 'hidden', 'important');
+				playerTabs.style.setProperty('height', '0', 'important');
+			}
+			if (tabWrapper) {
+				tabWrapper.style.setProperty('top', '0', 'important');
+				tabWrapper.style.setProperty('height', '100%', 'important');
+			}
+		}
+
+		if (isSideRailLayout) {
+			this.renderCompactRealmDial();
+			$j('#creaturerasterwrapper').hide();
+			const cardWrapper = $j('#cardwrapper');
+			const railSize = cardWrapper.innerHeight() <= 512 ? 56 : 64;
+			const railHeight = railSize * 7;
+			const cardZoom = Math.min(
+				(cardWrapper.innerWidth() - railSize * 2) / 430,
+				cardWrapper.innerHeight() / 550,
+				1,
+			);
+			const renderedCardWidth = 430 * cardZoom;
+			const renderedCardHeight = 550 * cardZoom;
+			const cardTop = Math.max(0, (cardWrapper.innerHeight() - renderedCardHeight) / 2);
+			const cardLeft = Math.max(0, (cardWrapper.innerWidth() - renderedCardWidth) / 2);
+			const cardInner = document.querySelector<HTMLElement>('#cardwrapper_inner');
+			if (cardInner) {
+				cardInner.style.setProperty('position', 'absolute', 'important');
+				cardInner.style.setProperty('top', `${cardTop / cardZoom}px`, 'important');
+				cardInner.style.setProperty('left', `${cardLeft / cardZoom}px`, 'important');
+				cardInner.style.setProperty('margin', '0', 'important');
+				cardInner.style.setProperty('zoom', cardZoom.toFixed(4), 'important');
+				cardInner.style.setProperty('scale', 'none', 'important');
+				cardInner.style.setProperty('transform', 'none', 'important');
+			}
+
+			const dial = document.querySelector<HTMLElement>('#compact-realm-dial');
+			const orbs = dial?.querySelector<HTMLElement>('.compact-realm-orbs');
+			const unitRow = dial?.querySelector<HTMLElement>('.compact-unit-row');
+			if (dial) {
+				dial.style.setProperty('position', 'absolute', 'important');
+				dial.style.setProperty('top', '0', 'important');
+				dial.style.setProperty('left', '0', 'important');
+				dial.style.setProperty('width', `${cardWrapper.innerWidth()}px`, 'important');
+				dial.style.setProperty('height', `${cardWrapper.innerHeight()}px`, 'important');
+				dial.style.setProperty('zoom', '1', 'important');
+				dial.style.setProperty('transform', 'none', 'important');
+				dial.style.setProperty('margin', '0', 'important');
+				dial.style.removeProperty('display');
+			}
+			const railTop = Math.max(64, (cardWrapper.innerHeight() - railHeight) / 2);
+			if (orbs) {
+				orbs.style.setProperty('position', 'absolute', 'important');
+				orbs.style.setProperty('top', `${railTop}px`, 'important');
+				orbs.style.setProperty('left', `${Math.max(0, cardLeft - railSize)}px`, 'important');
+				orbs.style.setProperty('width', `${railSize}px`, 'important');
+				orbs.style.setProperty('height', `${railHeight}px`, 'important');
+				orbs.style.setProperty('flex-direction', 'column', 'important');
+				orbs.style.setProperty('justify-content', 'space-between', 'important');
+				for (const orb of orbs.querySelectorAll<HTMLElement>('.compact-realm-orb')) {
+					orb.style.setProperty('width', `${railSize}px`, 'important');
+					orb.style.setProperty('height', `${railSize}px`, 'important');
+					orb.style.setProperty('flex', `0 0 ${railSize}px`, 'important');
+				}
+			}
+			if (unitRow) {
+				unitRow.style.setProperty('position', 'absolute', 'important');
+				unitRow.style.setProperty('top', `${railTop}px`, 'important');
+				unitRow.style.setProperty('left', `${cardLeft + renderedCardWidth}px`, 'important');
+				unitRow.style.setProperty('width', `${railSize}px`, 'important');
+				unitRow.style.setProperty('height', `${railHeight}px`, 'important');
+				unitRow.style.setProperty('flex-direction', 'column-reverse', 'important');
+				unitRow.style.setProperty('justify-content', 'space-between', 'important');
+				for (const unit of unitRow.querySelectorAll<HTMLElement>('.compact-unit')) {
+					unit.style.setProperty('width', `${railSize}px`, 'important');
+					unit.style.setProperty('height', `${railSize}px`, 'important');
+					unit.style.setProperty('flex', `0 0 ${railSize}px`, 'important');
+				}
+			}
+
+			$j('#materialize_button').css({
+				scale: 'none',
+				transform: 'none',
+				zoom: '',
+				display: 'none',
+				visibility: 'hidden',
+			});
+		} else if (isBottomDialLayout) {
+			this.renderCompactRealmDial();
+			$j('#creaturerasterwrapper').hide();
+			const cardWrapper = $j('#cardwrapper');
+			const dialHeight = 128;
+			const dialWidth = 448;
+			const cardZoom = Math.min(
+				cardWrapper.innerWidth() / 430,
+				(cardWrapper.innerHeight() - dialHeight) / 550,
+				1,
+			);
+			const renderedCardWidth = 430 * cardZoom;
+			const renderedCardHeight = 550 * cardZoom;
+			const cardTop = Math.max(
+				0,
+				(cardWrapper.innerHeight() - renderedCardHeight - dialHeight) / 2,
+			);
+			const cardLeft = Math.max(0, (cardWrapper.innerWidth() - renderedCardWidth) / 2);
+			const cardInner = document.querySelector<HTMLElement>('#cardwrapper_inner');
+			if (cardInner) {
+				cardInner.style.setProperty('position', 'absolute', 'important');
+				cardInner.style.setProperty('top', `${cardTop / cardZoom}px`, 'important');
+				cardInner.style.setProperty('left', `${cardLeft / cardZoom}px`, 'important');
+				cardInner.style.setProperty('margin', '0', 'important');
+				cardInner.style.setProperty('zoom', cardZoom.toFixed(4), 'important');
+				cardInner.style.setProperty('scale', 'none', 'important');
+				cardInner.style.setProperty('transform', 'none', 'important');
+			}
+
+			const dial = document.querySelector<HTMLElement>('#compact-realm-dial');
+			const orbs = dial?.querySelector<HTMLElement>('.compact-realm-orbs');
+			const unitRow = dial?.querySelector<HTMLElement>('.compact-unit-row');
+			if (dial) {
+				dial.style.setProperty('position', 'absolute', 'important');
+				dial.style.setProperty('top', `${cardTop + renderedCardHeight}px`, 'important');
+				dial.style.setProperty(
+					'left',
+					`${Math.max(0, (cardWrapper.innerWidth() - dialWidth) / 2)}px`,
+					'important',
+				);
+				dial.style.setProperty('width', `${dialWidth}px`, 'important');
+				dial.style.setProperty('height', `${dialHeight}px`, 'important');
+				dial.style.setProperty('zoom', '1', 'important');
+				dial.style.setProperty('transform', 'none', 'important');
+				dial.style.setProperty('margin', '0', 'important');
+				dial.style.removeProperty('display');
+			}
+			if (orbs) {
+				orbs.style.setProperty('position', 'relative', 'important');
+				orbs.style.setProperty('top', '0', 'important');
+				orbs.style.setProperty('left', '0', 'important');
+				orbs.style.setProperty('width', `${dialWidth}px`, 'important');
+				orbs.style.setProperty('height', '64px', 'important');
+				orbs.style.setProperty('flex-direction', 'row', 'important');
+				orbs.style.setProperty('justify-content', 'space-between', 'important');
+				for (const orb of orbs.querySelectorAll<HTMLElement>('.compact-realm-orb')) {
+					orb.style.setProperty('width', '64px', 'important');
+					orb.style.setProperty('height', '64px', 'important');
+					orb.style.setProperty('flex', '0 0 64px', 'important');
+				}
+			}
+			if (unitRow) {
+				unitRow.style.setProperty('position', 'relative', 'important');
+				unitRow.style.setProperty('top', '0', 'important');
+				unitRow.style.setProperty('left', '0', 'important');
+				unitRow.style.setProperty('width', `${dialWidth}px`, 'important');
+				unitRow.style.setProperty('height', '64px', 'important');
+				unitRow.style.setProperty('flex-direction', 'row', 'important');
+				unitRow.style.setProperty('justify-content', 'space-between', 'important');
+				for (const unit of unitRow.querySelectorAll<HTMLElement>('.compact-unit')) {
+					unit.style.setProperty('width', '64px', 'important');
+					unit.style.setProperty('height', '64px', 'important');
+					unit.style.setProperty('flex', '0 0 64px', 'important');
+				}
+			}
+
+			$j('#materialize_button').css({
+				scale: 'none',
+				transform: 'none',
+				zoom: '',
+				display: 'none',
+				visibility: 'hidden',
+			});
+		} else if (isPortraitFullGrid) {
+			this.renderCompactRealmDial();
+			$j('#creaturerasterwrapper').show();
+			const dial = document.querySelector<HTMLElement>('#compact-realm-dial');
+			if (dial) {
+				dial.style.setProperty('display', 'none', 'important');
+			}
+
+			const cardWrapper = $j('#cardwrapper');
+			const gridWrapper = $j('#creaturerasterwrapper');
+			cardWrapper.css({
+				position: 'absolute',
+				top: '0',
+				right: '0',
+				bottom: 'auto',
+				left: '0',
+				width: '100%',
+				height: '52%',
+				display: 'flex',
+				alignItems: 'center',
+				justifyContent: 'center',
+				overflow: 'visible',
+			});
+			gridWrapper.css({
+				position: 'absolute',
+				top: '52%',
+				right: '0',
+				bottom: '0',
+				left: '0',
+				width: '100%',
+				height: '48%',
+				display: 'flex',
+				alignItems: 'center',
+				justifyContent: 'center',
+				overflow: 'hidden',
+			});
+
+			const cardZoom = Math.min(cardWrapper.innerWidth() / 430, cardWrapper.innerHeight() / 550, 1);
+			const renderedCardWidth = 430 * cardZoom;
+			const renderedCardHeight = 550 * cardZoom;
+			const cardTop = Math.max(0, (cardWrapper.innerHeight() - renderedCardHeight) / 2);
+			const cardLeft = Math.max(0, (cardWrapper.innerWidth() - renderedCardWidth) / 2);
+			const cardInner = document.querySelector<HTMLElement>('#cardwrapper_inner');
+			if (cardInner) {
+				cardInner.style.setProperty('position', 'absolute', 'important');
+				cardInner.style.setProperty('top', `${cardTop / cardZoom}px`, 'important');
+				cardInner.style.setProperty('left', `${cardLeft / cardZoom}px`, 'important');
+				cardInner.style.setProperty('margin', '0', 'important');
+				cardInner.style.setProperty('zoom', cardZoom.toFixed(4), 'important');
+				cardInner.style.setProperty('scale', 'none', 'important');
+				cardInner.style.setProperty('transform', 'none', 'important');
+			}
+			$j('#opencollective_banner').hide();
+			$j('#opencollective_banner').css({
+				display: 'none',
+				visibility: 'hidden',
+				width: 0,
+				height: 0,
+				margin: 0,
+				overflow: 'hidden',
+			});
+
+			const card = document.querySelector<HTMLElement>('#card');
+			const cardCenter = document.querySelector<HTMLElement>('#card .center');
+			const sideA = document.querySelector<HTMLElement>('#card .sideA');
+			const sideB = document.querySelector<HTMLElement>('#card .sideB');
+			for (const [face, width, height] of [
+				[card, '430', '550'],
+				[cardCenter, '430', '550'],
+				[sideA, '430', '550'],
+			] as const) {
+				if (!face) {
+					continue;
+				}
+				face.style.setProperty('width', `${width}px`, 'important');
+				face.style.setProperty('height', `${height}px`, 'important');
+				face.style.setProperty('margin', '0', 'important');
+				face.style.setProperty('box-sizing', 'border-box', 'important');
+			}
+			if (sideA) {
+				sideA.style.setProperty('position', 'absolute', 'important');
+				sideA.style.setProperty('top', '0', 'important');
+				sideA.style.setProperty('left', '0', 'important');
+				sideA.style.setProperty('padding', '15px', 'important');
+				sideA.style.setProperty('border-radius', '15px', 'important');
+				sideA.style.setProperty('overflow', 'hidden', 'important');
+				sideA.style.setProperty('clip-path', 'inset(0 round 15px)', 'important');
+				sideA.style.setProperty('background-repeat', 'no-repeat', 'important');
+				sideA.style.setProperty('background-position', 'center, center', 'important');
+				sideA.style.setProperty('background-size', '430px 550px, 400px 520px', 'important');
+				sideA.style.setProperty('background-clip', 'border-box', 'important');
+				sideA.style.setProperty('background-origin', 'border-box, padding-box', 'important');
+				sideA.style.setProperty('display', 'block', 'important');
+				sideA.style.setProperty('visibility', 'visible', 'important');
+			}
+			if (sideB) {
+				sideB.style.setProperty('display', 'none', 'important');
+				sideB.style.setProperty('visibility', 'hidden', 'important');
+				sideB.style.removeProperty('left');
+				sideB.style.removeProperty('top');
+			}
+			const cardName = document.querySelector<HTMLElement>('#card .sideA .section.info');
+			if (cardName) {
+				cardName.style.setProperty('position', 'absolute', 'important');
+				cardName.style.setProperty('left', '15px', 'important');
+				cardName.style.setProperty('right', '15px', 'important');
+				cardName.style.setProperty('bottom', '15px', 'important');
+				cardName.style.setProperty('width', 'auto', 'important');
+				cardName.style.setProperty('max-width', 'none', 'important');
+				cardName.style.setProperty('height', '36px', 'important');
+				cardName.style.setProperty('line-height', '28px', 'important');
+				cardName.style.setProperty('padding', '4px 8px', 'important');
+				cardName.style.setProperty('margin', '0', 'important');
+				cardName.style.setProperty('margin-top', '0', 'important');
+				cardName.style.setProperty('box-sizing', 'border-box', 'important');
+				cardName.style.setProperty('white-space', 'nowrap', 'important');
+				cardName.style.setProperty('overflow', 'hidden', 'important');
+			}
+			$j('#materialize_button').css({
+				display: 'none',
+				visibility: 'hidden',
+			});
+		} else if (isMediumFullGrid) {
+			this.renderCompactRealmDial();
+			const dial = document.querySelector<HTMLElement>('#compact-realm-dial');
+			if (dial) {
+				dial.style.setProperty('display', 'none', 'important');
+			}
+			$j('#creaturerasterwrapper').show();
+
+			const gridWrapper = $j('#creaturerasterwrapper');
+			const cardWrapper = $j('#cardwrapper');
+			const mediumCardLayout = getMediumCardLayout(window.innerWidth, window.innerHeight);
+			const topOffset = window.innerHeight <= 500 ? 64 : 100;
+			const playertabs = document.querySelector<HTMLElement>('#playertabswrapper');
+			if (playertabs) {
+				playertabs.style.setProperty('position', 'absolute', 'important');
+				playertabs.style.setProperty('top', '0', 'important');
+				playertabs.style.setProperty('right', '0', 'important');
+				playertabs.style.setProperty('left', '0', 'important');
+				playertabs.style.setProperty('width', '100%', 'important');
+				playertabs.style.setProperty('height', `${topOffset}px`, 'important');
+				playertabs.style.setProperty('display', 'flex', 'important');
+				playertabs.style.setProperty('visibility', 'visible', 'important');
+				playertabs.style.setProperty('z-index', '1', 'important');
+				for (const tab of playertabs.querySelectorAll<HTMLElement>('.playertabs')) {
+					tab.style.setProperty('height', `${topOffset}px`, 'important');
+					tab.style.setProperty('min-height', `${topOffset}px`, 'important');
+				}
+			}
+			const tabwrapper = document.querySelector<HTMLElement>('#tabwrapper');
+			if (tabwrapper) {
+				tabwrapper.style.setProperty('position', 'absolute', 'important');
+				tabwrapper.style.setProperty('top', `${topOffset}px`, 'important');
+				tabwrapper.style.setProperty('right', '0', 'important');
+				tabwrapper.style.setProperty('bottom', '0', 'important');
+				tabwrapper.style.setProperty('left', '0', 'important');
+			}
+			gridWrapper.css({
+				position: 'absolute',
+				top: '0',
+				right: 'auto',
+				bottom: '0',
+				left: '0',
+				width: '50%',
+				height: '100%',
+				display: 'block',
+				overflow: 'hidden',
+			});
+			cardWrapper.css({
+				position: 'absolute',
+				top: '0',
+				right: '0',
+				bottom: '0',
+				left: 'auto',
+				width: '50%',
+				height: '100%',
+				display: 'flex',
+				alignItems: 'center',
+				justifyContent: 'center',
+				overflow: 'visible',
+			});
+			$j('#opencollective_banner').hide();
+
+			const cardWidth = mediumCardLayout === 'two-cards' ? 870 : 430;
+			const cardHeight = mediumCardLayout === 'two-cards' ? 560 : 550;
+			const cardZoom = Math.min(
+				cardWrapper.innerWidth() / cardWidth,
+				cardWrapper.innerHeight() / cardHeight,
+				1,
+			);
+			const renderedCardWidth = cardWidth * cardZoom;
+			const renderedCardHeight = cardHeight * cardZoom;
+			const cardTop = Math.max(0, (cardWrapper.innerHeight() - renderedCardHeight) / 2);
+			const cardLeft = Math.max(0, (cardWrapper.innerWidth() - renderedCardWidth) / 2);
+			const cardInner = document.querySelector<HTMLElement>('#cardwrapper_inner');
+			if (cardInner) {
+				cardInner.style.setProperty('position', 'absolute', 'important');
+				cardInner.style.setProperty('top', `${cardTop / cardZoom}px`, 'important');
+				cardInner.style.setProperty('left', `${cardLeft / cardZoom}px`, 'important');
+				cardInner.style.setProperty('margin', '0', 'important');
+				cardInner.style.setProperty('zoom', cardZoom.toFixed(4), 'important');
+				cardInner.style.setProperty('scale', 'none', 'important');
+				cardInner.style.setProperty('transform', 'none', 'important');
+			}
+			const card = document.querySelector<HTMLElement>('#card');
+			if (card) {
+				card.style.setProperty('width', `${cardWidth}px`, 'important');
+				card.style.setProperty('height', '550px', 'important');
+				card.style.setProperty('margin', '0', 'important');
+				card.style.setProperty('padding', '0', 'important');
+				card.style.setProperty('position', 'relative', 'important');
+			}
+			const cardCenter = document.querySelector<HTMLElement>('#card .center');
+			if (cardCenter) {
+				cardCenter.style.setProperty('width', `${cardWidth}px`, 'important');
+				cardCenter.style.setProperty('height', '550px', 'important');
+				cardCenter.style.setProperty('margin', '0', 'important');
+				cardCenter.style.setProperty('padding', '0', 'important');
+				cardCenter.style.setProperty('display', 'block', 'important');
+				cardCenter.style.setProperty('position', 'absolute', 'important');
+				cardCenter.style.setProperty('top', '0', 'important');
+				cardCenter.style.setProperty('left', '0', 'important');
+			}
+			const sideA = document.querySelector<HTMLElement>('#card .sideA');
+			const sideB = document.querySelector<HTMLElement>('#card .sideB');
+			if (mediumCardLayout === 'one-card') {
+				this.$dash.addClass('medium-single-card');
+				if (sideA) {
+					sideA.style.setProperty('position', 'absolute', 'important');
+					sideA.style.setProperty('top', '0', 'important');
+					sideA.style.setProperty('left', '0', 'important');
+					sideA.style.setProperty('width', '430px', 'important');
+					sideA.style.setProperty('height', '550px', 'important');
+					sideA.style.setProperty('margin', '0', 'important');
+					sideA.style.setProperty('padding', '15px', 'important');
+					sideA.style.setProperty('box-sizing', 'border-box', 'important');
+					sideA.style.setProperty('border-radius', '15px', 'important');
+					sideA.style.setProperty('overflow', 'hidden', 'important');
+					sideA.style.setProperty('clip-path', 'inset(0 round 15px)', 'important');
+					sideA.style.setProperty('background-repeat', 'no-repeat', 'important');
+					sideA.style.setProperty('background-position', 'center, center', 'important');
+					sideA.style.setProperty('background-size', '430px 550px, 400px 520px', 'important');
+					sideA.style.setProperty('background-clip', 'border-box', 'important');
+					sideA.style.setProperty('background-origin', 'border-box, padding-box', 'important');
+				}
+				if (sideB) {
+					sideB.style.removeProperty('left');
+					sideB.style.removeProperty('width');
+					sideB.style.removeProperty('height');
+					sideB.style.removeProperty('position');
+				}
+			} else {
+				for (const [face, left] of [
+					[sideA, '0'],
+					[sideB, '470'],
+				] as const) {
+					if (!face) {
+						continue;
+					}
+					face.style.setProperty('position', 'absolute', 'important');
+					face.style.setProperty('top', '0', 'important');
+					face.style.setProperty('left', `${left}px`, 'important');
+					face.style.setProperty('width', '430px', 'important');
+					face.style.setProperty('height', '550px', 'important');
+					face.style.setProperty('margin', '0', 'important');
+					face.style.setProperty('padding', '15px', 'important');
+					face.style.setProperty('box-sizing', 'border-box', 'important');
+					face.style.setProperty('display', 'block', 'important');
+					face.style.setProperty('visibility', 'visible', 'important');
+					face.style.setProperty('border-radius', '15px', 'important');
+					face.style.setProperty('overflow', 'hidden', 'important');
+					face.style.setProperty('clip-path', 'inset(0 round 15px)', 'important');
+					face.style.setProperty('background-repeat', 'no-repeat', 'important');
+					face.style.setProperty('background-position', 'center, center', 'important');
+					face.style.setProperty('background-size', '430px 550px, 400px 520px', 'important');
+					face.style.setProperty('background-clip', 'border-box', 'important');
+					face.style.setProperty('background-origin', 'border-box, padding-box', 'important');
+				}
+			}
+			$j('#materialize_button').css({
+				display: 'none',
+				visibility: 'hidden',
+			});
+		} else if (isCardOnlyLayout) {
+			const cardWrapper = $j('#cardwrapper');
+			const cardZoom = Math.min(cardWrapper.innerWidth() / 430, cardWrapper.innerHeight() / 550, 1);
+			const renderedCardWidth = 430 * cardZoom;
+			const renderedCardHeight = 550 * cardZoom;
+			const cardTop = Math.max(0, (cardWrapper.innerHeight() - renderedCardHeight) / 2);
+			const cardLeft = Math.max(0, (cardWrapper.innerWidth() - renderedCardWidth) / 2);
+			const cardInner = document.querySelector<HTMLElement>('#cardwrapper_inner');
+			if (cardInner) {
+				cardInner.style.setProperty('position', 'absolute', 'important');
+				cardInner.style.setProperty('top', `${cardTop / cardZoom}px`, 'important');
+				cardInner.style.setProperty('left', `${cardLeft / cardZoom}px`, 'important');
+				cardInner.style.setProperty('margin', '0', 'important');
+				cardInner.style.setProperty('zoom', cardZoom.toFixed(4), 'important');
+				cardInner.style.setProperty('scale', 'none', 'important');
+				cardInner.style.setProperty('transform', 'none', 'important');
+			}
+			const dial = document.querySelector<HTMLElement>('#compact-realm-dial');
+			if (dial) {
+				dial.style.setProperty('display', 'none', 'important');
+			}
+			$j('#creaturerasterwrapper').hide();
+			$j('#materialize_button').css({
+				scale: 'none',
+				transform: 'none',
+				zoom: '',
+				display: 'none',
+				visibility: 'hidden',
+			});
+		} else if (isFullGridCompact || isNarrowLandscape || isCompactNarrow) {
+			if (isFullGridCompact) {
+				$j('#creaturerasterwrapper').show();
+			}
+			if (!isFullGridCompact) {
+				$j('#cardwrapper').append($j('#materialize_button'));
+			}
+			const cardZoom = Math.min(
+				$j('#cardwrapper').innerWidth() / 430,
+				$j('#cardwrapper').innerHeight() / 550,
+				1,
+			);
+			const renderedCardHeight = $j('#card').outerHeight() * cardZoom;
+			const cardTop = Math.max(0, ($j('#cardwrapper').innerHeight() - renderedCardHeight) / 2);
+			const cardLeft = Math.max(0, ($j('#cardwrapper').innerWidth() - 430 * cardZoom) / 2);
 			$j('#cardwrapper_inner').css({
+				scale: 'none',
+				transform: 'none',
+				top: '',
+				zoom: cardZoom,
+				left: 'auto',
+				position: 'relative',
+				margin: '0 auto',
+			});
+			$j('#cardwrapper').css({
+				display: 'flex',
+				alignItems: 'center',
+				justifyContent: 'center',
+			});
+			if (isFullGridCompact) {
+				const cardInner = document.querySelector<HTMLElement>('#cardwrapper_inner');
+				if (cardInner) {
+					cardInner.style.setProperty('position', 'absolute', 'important');
+					cardInner.style.setProperty('top', `${cardTop / cardZoom}px`, 'important');
+					cardInner.style.setProperty('left', `${cardLeft / cardZoom}px`, 'important');
+					cardInner.style.setProperty('margin', '0', 'important');
+					cardInner.style.setProperty('zoom', cardZoom.toFixed(4), 'important');
+					cardInner.style.setProperty('transform', 'none', 'important');
+				}
+			}
+			const compactReturn = document.querySelector<HTMLElement>('#dash #return');
+			if (compactReturn) {
+				compactReturn.style.setProperty('top', '0px', 'important');
+				compactReturn.style.setProperty('right', '0px', 'important');
+				compactReturn.style.setProperty('left', 'auto', 'important');
+				compactReturn.style.setProperty('width', '64px', 'important');
+				compactReturn.style.setProperty('height', '64px', 'important');
+				compactReturn.style.setProperty('z-index', '100000', 'important');
+			}
+
+			if (isFullGridCompact) {
+				const dial = document.querySelector<HTMLElement>('#compact-realm-dial');
+				if (dial) {
+					dial.style.setProperty('display', 'none', 'important');
+				}
+				$j('#materialize_button').css({
+					display: 'none',
+					visibility: 'hidden',
+				});
+			} else if (window.innerWidth <= 400) {
+				$j('#materialize_button').css({
+					display: 'block',
+					visibility: 'visible',
+					position: 'fixed',
+					left:
+						($j('#cardwrapper').offset()?.left ?? 0) +
+						($j('#cardwrapper').innerWidth() - 180) / 2 +
+						'px',
+					bottom: '0',
+					transform: 'none',
+					width: '180px',
+					height: '32px',
+					margin: '0',
+					zoom: 1,
+					zIndex: 20,
+				});
+			} else {
+				$j('#materialize_button').css({
+					display: 'block',
+					visibility: 'visible',
+					position: 'fixed',
+					left:
+						($j('#cardwrapper').offset()?.left ?? 0) +
+						($j('#cardwrapper').innerWidth() - 270) / 2 +
+						'px',
+					bottom: '0',
+					transform: 'none',
+					width: '270px',
+					height: '32px',
+					margin: '0',
+					zoom: 1,
+					zIndex: 20,
+				});
+			}
+		} else if (isArcade) {
+			$j('#creaturerasterwrapper').show();
+			$j('#cardwrapper_inner').append($j('#materialize_button'));
+			$j('#cardwrapper_inner').css({
+				scale: 'none',
+				transform: 'none',
 				zoom: Math.min(
 					$j('#cardwrapper').innerWidth() / $j('#card').outerWidth(),
 					$j('#cardwrapper').innerHeight() / $j('#card').outerHeight(),
@@ -2028,41 +3332,141 @@ export class UI {
 				margin: '0 auto',
 			});
 		} else {
-			$j('#cardwrapper_inner').css('zoom', '');
-			const zoom = Math.min(
-				$j('#cardwrapper').innerWidth() / $j('#card').outerWidth(),
-				$j('#cardwrapper').innerHeight() /
-					($j('#card').outerHeight() + $j('#materialize_button').outerHeight()),
-				1,
-			);
-
-			$j('#cardwrapper_inner').css({
-				scale: zoom,
-				left: ($j('#cardwrapper').innerWidth() - $j('#card').innerWidth() * zoom) / 2,
-				position: 'absolute',
-				margin: 0,
-			});
-
+			if (window.innerWidth >= 1001) {
+				const desktopTabs = document.querySelector<HTMLElement>('#playertabswrapper');
+				if (desktopTabs) {
+					desktopTabs.style.setProperty('position', 'absolute', 'important');
+					desktopTabs.style.setProperty('top', '0', 'important');
+					desktopTabs.style.setProperty('right', '0', 'important');
+					desktopTabs.style.setProperty('left', '0', 'important');
+					desktopTabs.style.setProperty('width', '100%', 'important');
+					desktopTabs.style.setProperty('height', '100px', 'important');
+					desktopTabs.style.setProperty('display', 'flex', 'important');
+					desktopTabs.style.setProperty('visibility', 'visible', 'important');
+					for (const tab of desktopTabs.querySelectorAll<HTMLElement>('.playertabs')) {
+						tab.style.setProperty('height', '100px', 'important');
+						tab.style.setProperty('min-height', '100px', 'important');
+					}
+				}
+				const desktopTabWrapper = document.querySelector<HTMLElement>('#tabwrapper');
+				if (desktopTabWrapper) {
+					desktopTabWrapper.style.setProperty('top', '100px', 'important');
+				}
+			}
+			$j('#creaturerasterwrapper').show();
+			$j('#cardwrapper_inner').append($j('#materialize_button'));
 			$j('#materialize_button').css('zoom', '');
 			$j('#materialize_button').css({
 				scale: '',
+				display: 'inline-block',
+				visibility: 'visible',
+				position: 'relative',
 				left: '',
-				position: '',
 				margin: '',
+				width: '860px',
+				height: '85px',
+				bottom: '',
+				transform: '',
+				zoom: '',
 			});
+			const cardWrapper = document.querySelector<HTMLElement>('#cardwrapper');
+			const cardInner = document.querySelector<HTMLElement>('#cardwrapper_inner');
+			const card = document.querySelector<HTMLElement>('#card');
+			const materializeButton = document.querySelector<HTMLElement>('#materialize_button');
+			if (cardWrapper && cardInner && card && materializeButton) {
+				const zoom = Math.max(
+					0.1,
+					Math.min(
+						cardWrapper.clientWidth / card.offsetWidth,
+						cardWrapper.clientHeight / (card.offsetHeight + materializeButton.offsetHeight),
+						1,
+					),
+				);
+				cardInner.style.setProperty('zoom', '', 'important');
+				cardInner.style.setProperty('scale', zoom.toString(), 'important');
+				cardInner.style.setProperty('transform', 'none', 'important');
+				cardInner.style.setProperty('top', 'auto', 'important');
+				cardInner.style.setProperty(
+					'left',
+					`${Math.max(0, (cardWrapper.clientWidth - card.offsetWidth * zoom) / 2)}px`,
+					'important',
+				);
+				cardInner.style.setProperty('position', 'absolute', 'important');
+				cardInner.style.setProperty('margin', '0', 'important');
+			}
+		}
+
+		this.applyDashCardGeometry(showsBothCards);
+		if (window.innerWidth <= 1000) {
+			if (showsBothCards) {
+				this.compactCardSide = 'A';
+				this.$dash.removeClass('compact-card-back medium-single-card');
+				for (const face of document.querySelectorAll<HTMLElement>('#card .sideA, #card .sideB')) {
+					face.style.setProperty('display', 'inline-block', 'important');
+					face.style.setProperty('visibility', 'visible', 'important');
+				}
+			} else {
+				this.$dash.addClass('medium-single-card');
+				if (this.pendingCardSide === null) {
+					this.setCompactCardFace(this.compactCardSide);
+				}
+			}
 		}
 
 		const zoom1 = $j('#creaturerasterwrapper').innerWidth() / $j('#creatureraster').innerWidth();
 		const zoom2 = $j('#creaturerasterwrapper').innerHeight() / $j('#creatureraster').innerHeight();
 		const zoom = Math.min(zoom1, zoom2, 1);
+		const renderedRasterHeight = $j('#creatureraster').innerHeight() * zoom;
+		const rasterTop = Math.max(
+			0,
+			($j('#creaturerasterwrapper').innerHeight() - renderedRasterHeight) / 2,
+		);
 
 		$j('#creatureraster').css({
 			scale: zoom,
+			top: rasterTop,
 			left:
 				($j('#creaturerasterwrapper').innerWidth() - $j('#creatureraster').innerWidth() * zoom) / 2,
 			position: 'absolute',
 			margin: 0,
 		});
+		if (
+			this.cardFlipTimeoutId === null &&
+			this.cardFlipResetTimeoutId === null &&
+			this.cardFlipEndTimeoutId === null &&
+			this.pendingCardFlipAction === null
+		) {
+			this.settleCardFlip();
+		}
+
+		const cardName = $j('#card .sideA .name').text().trim();
+		if (
+			this.dashopen &&
+			(!cardName || this.selectedCreature === '') &&
+			!this.dashCardSyncScheduled &&
+			this.cardFlipTimeoutId === null &&
+			this.pendingCardSide === null
+		) {
+			this.dashCardSyncScheduled = true;
+			window.setTimeout(() => {
+				if (!this.dashopen) {
+					this.dashCardSyncScheduled = false;
+					return;
+				}
+				if (this.cardFlipTimeoutId !== null || this.pendingCardSide !== null) {
+					this.dashCardSyncScheduled = false;
+					return;
+				}
+				const activeCreature = this.game.activeCreature;
+				const fallbackType =
+					this.selectedCreature && this.selectedCreature !== ''
+						? (this.selectedCreature as CreatureType)
+						: (activeCreature?.type as CreatureType | undefined) ?? '--';
+				const player = activeCreature?.team ?? this.selectedPlayer;
+				this.showCreature(fallbackType, player, '');
+				this.dashCardSyncScheduled = false;
+			}, 60);
+		}
 	}
 
 	/**
@@ -2095,6 +3499,22 @@ export class UI {
 
 		const wasDashClosed = !this.dashopen;
 		const oldCreatureType = this.selectedCreature;
+		if (wasDashClosed || oldCreatureType !== creatureType) {
+			this.compactCardSide = 'A';
+			this.pendingCardSide = null;
+			this.finishPendingCardFlip();
+			this.$dash.removeClass('compact-card-back');
+			const isPortraitOneCard =
+				window.innerWidth >= 401 && window.innerWidth <= 768 && window.innerHeight >= 700;
+			const isMediumPair =
+				!isPortraitOneCard &&
+				window.innerWidth >= 649 &&
+				window.innerWidth <= 1000 &&
+				getMediumCardLayout(window.innerWidth, window.innerHeight) === 'two-cards';
+			if (window.innerWidth <= 1000 && !isMediumPair) {
+				this.setCompactCardFace('A');
+			}
+		}
 
 		if (wasDashClosed) {
 			// Invalidate any in-flight close's deferred pointer-events changes
@@ -2175,6 +3595,7 @@ export class UI {
 		this.$grid.find(".vignette[creature='" + creatureType + "']").addClass('active');
 		const stats = game.retrieveCreatureStats(creatureType);
 		if (stats === undefined) return;
+		this.updateCompactRealmSelection(creatureType);
 
 		//function to add the name, realm, size etc of the current card in the menu
 		function addCardCharacterInfo() {
@@ -2576,21 +3997,30 @@ export class UI {
 			}
 		});
 
-		if (this.cardFlipTimeoutId !== null) {
-			clearTimeout(this.cardFlipTimeoutId);
-		}
+		this.finishPendingCardFlip();
 
 		this.game.soundsys.playSFX('sounds/flip');
-		$cards.removeClass('flipping flip-reset').addClass('flipping');
+		$cards.removeClass('flipping flip-reset').each((_, card) => {
+			(card as HTMLElement).style.removeProperty('transform');
+		});
+		$cards.each((_, card) => void (card as HTMLElement).offsetWidth);
+		$cards.addClass('flipping');
+		this.pendingCardFlipAction = onMidpoint;
 
-		// At 90 degrees, swap content and reset to -90 degrees without a transition.
 		this.cardFlipTimeoutId = setTimeout(() => {
-			onMidpoint();
+			const pendingAction = this.pendingCardFlipAction;
+			this.pendingCardFlipAction = null;
+			pendingAction?.();
 			$cards.removeClass('flipping').addClass('flip-reset');
 			$cards.each((_, card) => void (card as HTMLElement).offsetWidth);
-			window.requestAnimationFrame(() => {
+			this.cardFlipResetTimeoutId = setTimeout(() => {
 				$cards.removeClass('flip-reset');
-			});
+				this.cardFlipResetTimeoutId = null;
+			}, 32);
+			this.cardFlipEndTimeoutId = setTimeout(() => {
+				this.settleCardFlip();
+				this.cardFlipEndTimeoutId = null;
+			}, 189);
 			this.cardFlipTimeoutId = null;
 		}, this.dashAnimSpeed / 2);
 	}
@@ -2718,25 +4148,6 @@ export class UI {
 				$crea.addClass('queued');
 			}
 		});
-
-		// Bind creature vignette click
-		this.$grid
-			.find('.vignette')
-			.off('click')
-			.on('click', (e) => {
-				e.preventDefault();
-				if (game.freezedInput) {
-					return;
-				}
-
-				if ($j(e.currentTarget).hasClass('locked')) {
-					this.$dash.children('#tooltip').text('Creature locked.');
-				}
-
-				const creatureType = $j(e.currentTarget).attr('creature'); // CreatureType
-				this.lastViewedCreature = creatureType;
-				this.showCreature(creatureType, this.selectedPlayer, 'grid');
-			});
 	}
 
 	toggleMusicPlayer(force?: boolean) {
@@ -2886,7 +4297,7 @@ export class UI {
 		const hasFiniteTimePool = game.timePool > 0;
 
 		const playerHeaderMeta = players.map((player) => {
-			const dp = player.creatures.find((c) => c.isDarkPriest && c.isDarkPriest());
+			const dp = player.creatures?.find((c) => c.isDarkPriest && c.isDarkPriest());
 			const dpHealthRatio = dp ? Math.max(0, dp.health) / Math.max(1, dp.stats.health) : 0;
 			const dpEnergyRatio = dp ? Math.max(0, dp.energy) / Math.max(1, dp.stats.energy) : 0;
 
@@ -3322,6 +4733,9 @@ export class UI {
 		}
 
 		const game = this.game;
+		if (!game || !Array.isArray(game.players)) {
+			return;
+		}
 		const $table = $j('#scoreboard table tbody');
 
 		// Rebuild the table if the current rows don't match the desired layout
@@ -3367,15 +4781,17 @@ export class UI {
 		>;
 
 		for (let i = 0; i < game.gameMode; i++) {
+			const player = game.players[i];
+			if (!player) {
+				continue;
+			}
 			if (game.timePool > 0) {
 				const remainingMs =
-					game.players[i].id == game.activeCreature.player.id
-						? game.players[i].totalTimePool - (date - game.players[i].startTime.valueOf())
-						: game.players[i].totalTimePool;
-				game.players[i].bonusTimePool = Math.round(Math.max(remainingMs, 0) / 1000);
+					player.id == game.activeCreature?.player?.id
+						? player.totalTimePool - (date - player.startTime.valueOf())
+						: player.totalTimePool;
+				player.bonusTimePool = Math.round(Math.max(remainingMs, 0) / 1000);
 			}
-
-			const player = game.players[i];
 			if (isLandscapePhone) {
 				const score = player.getScore();
 				const $playerRow = $table.children('tr.player_row_' + i);
@@ -3389,7 +4805,7 @@ export class UI {
 				continue;
 			}
 
-			const dp = player.creatures.find((c) => c.isDarkPriest && c.isDarkPriest());
+			const dp = player.creatures?.find((c) => c.isDarkPriest && c.isDarkPriest());
 			const dpHealthRatio = dp ? Math.max(0, dp.health) / Math.max(1, dp.stats.health) : 0;
 			const dpEnergyRatio = dp ? Math.max(0, dp.energy) / Math.max(1, dp.stats.energy) : 0;
 
@@ -3512,11 +4928,10 @@ export class UI {
 
 	closeDash() {
 		const game = this.game;
-		if (this.cardFlipTimeoutId !== null) {
-			clearTimeout(this.cardFlipTimeoutId);
-			this.cardFlipTimeoutId = null;
-		}
-		$j('#card .sideA, #card .sideB').removeClass('flipping flip-reset');
+		this.compactCardSide = 'A';
+		this.pendingCardSide = null;
+		this.$dash.removeClass('compact-card-back');
+		this.finishPendingCardFlip();
 		this.dashOpenCollectiveBanner.onViewClose();
 
 		game.channels.ui.emit('onCloseDash');
@@ -3526,8 +4941,14 @@ export class UI {
 		// before they fire must cancel them, or the dash opens unclickable.
 		const fadeToken = Symbol('dashFade');
 		this.dashFadeToken = fadeToken;
+		const isCompactClose =
+			window.innerWidth <= 700 || (window.innerWidth <= 1000 && window.innerHeight <= 700);
 
-		if (isArcade) {
+		if (isCompactClose) {
+			this.$dash.removeClass('active').hide();
+			this.$dash.css('pointer-events', '');
+			this.dashFadeToken = fadeToken;
+		} else if (isArcade) {
 			// Keep the dash visible (display:flex) during the fade-out so the
 			// transition actually animates; remove .active / hide only after.
 			// While the dash is fading out it still intercepts pointer events
