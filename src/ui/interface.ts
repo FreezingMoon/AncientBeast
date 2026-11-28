@@ -5368,6 +5368,10 @@ export class UI {
 			}
 
 			$abilities.removeClass('p0 p1 p2 p3').addClass('p' + creature.player.id);
+			// Skip/delay cancel icons follow the active player's color too (#994)
+			$j('#rightpanel')
+				.removeClass('p0 p1 p2 p3')
+				.addClass('p' + creature.player.id);
 
 			// A cost flash from the outgoing turn must not survive the swap.
 			this.clearAbilityCostFlash();

@@ -1730,6 +1730,35 @@ div.section.info {
 	background-image: url('assets/interface/frame_green.png');
 }
 
+// Cancel icons in the active player's color (#994), same colors as the
+// player tinted lightning: on ability buttons and on skip/delay.
+.cancel-icon-color(@color) {
+	.ability.cancelIcon,
+	.button.cancelIcon {
+		background-image: url('assets/icons/cancel_@{color}.svg') !important;
+	}
+}
+
+#abilities.p0,
+#rightpanel.p0 {
+	.cancel-icon-color(red);
+}
+
+#abilities.p1,
+#rightpanel.p1 {
+	.cancel-icon-color(blue);
+}
+
+#abilities.p2,
+#rightpanel.p2 {
+	.cancel-icon-color(orange);
+}
+
+#abilities.p3,
+#rightpanel.p3 {
+	.cancel-icon-color(green);
+}
+
 // Upgraded frame tint: keep selected upgraded buttons free of dark backing/filter
 // so the colored PNG frames render at authored brightness in-game.
 #abilities .ability.upgraded.active {
