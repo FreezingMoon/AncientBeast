@@ -95,7 +95,9 @@ export default (G: Game) => {
 					turnLifetime: -1,
 				};
 
-				this.end();
+				// No "Uncle Fungus uses Toxic Spores" line: the contamination below
+				// already reports the hit, like Nutcase's Tentacle Bush (#2171, #1947)
+				this.end(true);
 
 				// Spore Contamination
 				const effect = new Effect(
