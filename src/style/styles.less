@@ -305,6 +305,7 @@
 	z-index: 3;
 	display: grid;
 	grid-template-columns: 100px 20px;
+	grid-template-rows: 80px 80px 80px 80px 100px;
 	grid-template-areas:
 		'audio bar'
 		'skip bar'
@@ -460,17 +461,21 @@
 	}
 }
 
-.button#fullscreen {
-	position: inherit;
+#ui .button#fullscreen {
+	position: relative;
 	width: 80px;
 	height: 80px;
 	opacity: 0.8;
 	background-color: transparent;
 	z-index: inherit;
 
+	&::before {
+		display: none;
+	}
+
 	div {
-		width: 100%;
-		height: 100%;
+		width: 80px;
+		height: 80px;
 	}
 }
 .button#skip {
@@ -814,6 +819,7 @@ div.section.info {
 	position: absolute;
 	height: 100px;
 	width: 100px;
+	z-index: 3;
 }
 
 .close-button {
@@ -841,8 +847,12 @@ div.section.info {
 	position: absolute;
 	top: 0;
 	left: 0;
-	right: 100px;
+	right: 0;
+	width: 100%;
+	max-width: none;
+	box-sizing: border-box;
 	display: none;
+	z-index: 2;
 }
 
 #playertabswrapper.active {
@@ -861,7 +871,14 @@ div.section.info {
 	font-size: 12px;
 	text-align: left;
 	cursor: pointer;
+	flex: 1 1 0;
 	flex-grow: 1;
+	flex-shrink: 1;
+	flex-basis: 0;
+	width: auto;
+	min-width: 0;
+	max-width: none;
+	box-sizing: border-box;
 }
 
 #playertabswrapper .vignette {
@@ -878,6 +895,23 @@ div.section.info {
 
 #playertabswrapper .playertabs p {
 	margin: 5px;
+}
+
+@media screen and (min-width: 701px) {
+	#playertabswrapper {
+		left: 0 !important;
+		right: 0 !important;
+		width: 100% !important;
+		max-width: none !important;
+	}
+
+	#playertabswrapper .playertabs {
+		flex: 1 1 0 !important;
+		width: auto !important;
+		min-width: 0 !important;
+		max-width: none !important;
+		box-sizing: border-box;
+	}
 }
 
 .selected0 #cardwrapper,
@@ -1034,7 +1068,7 @@ div.section.info {
 }
 
 #card {
-	width: 870px;
+	width: 900px;
 	margin: auto;
 	padding-bottom: 10px;
 }
@@ -1215,9 +1249,9 @@ div.section.info {
 #ab-dev-reload-prompt .dev-reload-button {
 	flex: 1 1 0;
 	min-width: 0;
-	height: 68px;
-	padding: 0 10px;
-	font-size: 14px;
+	height: var(--reload-actions-height, 68px);
+	padding: 0 var(--reload-actions-padding, 10px);
+	font-size: var(--reload-actions-font-size, 14px);
 	line-height: 1;
 	white-space: nowrap;
 	cursor: pointer;
@@ -1237,9 +1271,24 @@ div.section.info {
 #ab-dev-reload-prompt .dev-reload-actions {
 	display: flex;
 	flex-wrap: nowrap;
-	gap: 10px;
+	gap: var(--reload-actions-gap, 10px);
 	justify-content: center;
-	width: 100%;
+	max-width: 568px;
+	width: 568px;
+	box-sizing: border-box;
+}
+
+@media screen and (orientation: landscape) and (max-width: 740px) {
+	#ab-dev-reload-prompt .dev-reload-actions {
+		max-width: none;
+	}
+
+	#ab-dev-reload-prompt .dev-reload-button {
+		flex: 1 1 0;
+		width: auto;
+		background-size: 100% 100%;
+		box-sizing: border-box;
+	}
 }
 
 #ab-dev-reload-prompt .dev-reload-button:hover {
@@ -4504,7 +4553,48 @@ body.devvit-mode .button#fullscreen {
    in-game button is a dead control there — hide it (see script.ts and the
    no-op guard in ui/fullscreen.ts). */
 body.crazygames-mode .button#fullscreen {
+	visibility: hidden !important;
+}
+
+body.crazygames-mode #matchMaking #fullscreen,
+body.crazygames-mode #ui #fullscreen {
 	display: none !important;
+}
+
+body.in-game #ui #fullscreen {
+	display: block !important;
+	visibility: visible !important;
+	position: relative !important;
+	top: auto !important;
+	right: auto !important;
+	bottom: auto !important;
+	left: auto !important;
+	width: 80px !important;
+	height: 80px !important;
+	min-height: 0 !important;
+	transform: none !important;
+	opacity: 1 !important;
+	overflow: hidden !important;
+	z-index: inherit !important;
+}
+
+body.in-game #ui #fullscreen div {
+	width: 80px !important;
+	height: 80px !important;
+}
+
+body.crazygames-mode.in-game #ui #fullscreen,
+body.crazygames-mode.in-game #matchMaking #fullscreen {
+	display: none !important;
+}
+
+body.crazygames-mode #rightpanel {
+	grid-template-rows: 80px 80px 80px 100px;
+	grid-template-areas:
+		'audio bar'
+		'skip bar'
+		'delay bar'
+		'score score';
 }
 
 /* Build-version badge (see renderBuildBadge in script.ts). Tells testers which
@@ -4591,6 +4681,210 @@ body.in-game .build-badge {
 }
 
 /*------------------Phone / Portrait Mode-------------------*/
+@media screen and (orientation: landscape) and (max-width: 700px) {
+	#dash.active #playertabswrapper {
+		display: none !important;
+	}
+
+	#dash.active #tabwrapper {
+		top: 0 !important;
+		right: 0 !important;
+		bottom: 0 !important;
+		left: 0 !important;
+	}
+
+	#dash.active #creaturerasterwrapper {
+		position: absolute !important;
+		top: 0 !important;
+		right: auto !important;
+		bottom: 0 !important;
+		left: 0 !important;
+		width: 50% !important;
+		height: auto !important;
+		background-color: transparent !important;
+	}
+
+	#dash.active #cardwrapper {
+		position: absolute !important;
+		top: 0 !important;
+		right: 0 !important;
+		bottom: 0 !important;
+		left: auto !important;
+		width: 50% !important;
+		height: auto !important;
+		flex: none !important;
+		display: flex !important;
+		align-items: center !important;
+		justify-content: center !important;
+		overflow: visible !important;
+	}
+
+	#dash.active.selected0 #creaturerasterwrapper,
+	#dash.active.selected1 #creaturerasterwrapper,
+	#dash.active.selected2 #creaturerasterwrapper,
+	#dash.active.selected3 #creaturerasterwrapper,
+	#dash.active.selected0 #cardwrapper,
+	#dash.active.selected1 #cardwrapper,
+	#dash.active.selected2 #cardwrapper,
+	#dash.active.selected3 #cardwrapper {
+		background-color: transparent !important;
+	}
+
+	#dash.active #return {
+		position: fixed !important;
+		top: 0 !important;
+		right: 0 !important;
+		bottom: auto !important;
+		left: auto !important;
+		width: 64px !important;
+		height: 64px !important;
+		margin: 0 !important;
+		transform: none !important;
+		z-index: 100000 !important;
+	}
+
+	#dash.active .close-button {
+		background: url('assets/icons/close.svg') no-repeat center center !important;
+		background-size: 100% 100% !important;
+		filter: none !important;
+		border: none !important;
+		width: 100% !important;
+		height: 100% !important;
+		border-radius: 50% !important;
+		box-shadow: none !important;
+		transform: none !important;
+		transition: none !important;
+	}
+
+	#dash.active .close-button::before {
+		display: none !important;
+	}
+
+	#dash.active .close-button::after {
+		display: none !important;
+	}
+
+	#dash.active .close-button:hover {
+		transform: none !important;
+	}
+
+	#dash.active #cardwrapper_inner {
+		transform-origin: top center !important;
+		overflow: visible !important;
+	}
+
+	#dash.active #creatureraster {
+		padding: 0 !important;
+		background-image: none !important;
+		background-color: transparent !important;
+	}
+
+	#dash.active #opencollective_banner,
+	#dash.active .opencollective_banner_slot--dash {
+		display: none !important;
+		visibility: hidden !important;
+		width: 0 !important;
+		height: 0 !important;
+		margin: 0 !important;
+		overflow: hidden !important;
+	}
+
+	#dash.active #card .card.sideB {
+		display: none !important;
+	}
+
+	#dash.active #card .card.sideA {
+		display: block !important;
+	}
+
+	#dash.active #materialize_button {
+		position: fixed !important;
+		left: 50% !important;
+		bottom: 0 !important;
+		transform: translateX(-50%) !important;
+		width: 100% !important;
+		height: 32px !important;
+		margin: 0 auto !important;
+		font-size: 12px !important;
+		line-height: 32px !important;
+		background-size: 100% 100% !important;
+		zoom: 1 !important;
+		z-index: 5 !important;
+	}
+
+	#dash.active #materialize_button p {
+		font-size: 12px !important;
+		line-height: 32px !important;
+		margin: 0 !important;
+	}
+
+	#dash.active #card {
+		width: 420px !important;
+		height: 520px !important;
+		margin: 0 auto !important;
+		padding: 0 !important;
+		display: block !important;
+		position: relative !important;
+		box-sizing: border-box !important;
+	}
+
+	#dash.active #card .center {
+		width: 420px !important;
+		height: 520px !important;
+		position: absolute !important;
+		top: 0 !important;
+		left: 0 !important;
+	}
+
+	#dash.active #card .card.sideA,
+	#dash.active #card .card.sideB {
+		width: 420px !important;
+		height: 520px !important;
+		margin: 0 !important;
+		padding: 15px !important;
+		box-sizing: border-box !important;
+		background-size: 100% 100% !important;
+		background-position: center !important;
+		overflow: visible !important;
+	}
+
+	#dash.active #card .card.sideA {
+		border-radius: 15px !important;
+		overflow: hidden !important;
+	}
+
+	#dash.active #card .card.sideA .section.info {
+		position: absolute !important;
+		left: 15px !important;
+		right: 15px !important;
+		bottom: 8px !important;
+		width: auto !important;
+		max-width: none !important;
+		box-sizing: border-box !important;
+		margin: 0 !important;
+	}
+
+	#dash.active #card .card.sideA {
+		border-radius: 15px !important;
+		margin-right: 0 !important;
+		overflow: hidden !important;
+		clip-path: inset(0 round 15px) !important;
+		background-clip: border-box !important;
+	}
+
+	#dash.active #card .card.sideA .section.info {
+		position: absolute !important;
+		left: 15px !important;
+		right: 15px !important;
+		bottom: 8px !important;
+		width: auto !important;
+		max-width: none !important;
+		height: auto !important;
+		margin: 0 !important;
+		box-sizing: border-box !important;
+	}
+}
+
 body.portrait-mode .scrim,
 body.devvit-mode .scrim {
 	display: none !important;
@@ -4619,18 +4913,17 @@ body.devvit-mode .scrim {
 		max-height: 40px !important;
 	}
 
-	#materialize_button {
-		display: none !important;
-	}
-
 	#combatwrapper {
 		position: fixed !important;
 		top: 40px !important;
 		left: 0 !important;
 		right: 0 !important;
-		bottom: 245px !important;
+		bottom: auto !important;
 		height: auto !important;
 		width: 100vw !important;
+		/* Match the board's authored 1920x1080 (16:9) so a full-width canvas
+		   keeps its ratio and the page never grows past the viewport. */
+		aspect-ratio: 16 / 9 !important;
 		pointer-events: auto;
 		display: block !important;
 		overflow: hidden !important;
@@ -4640,13 +4933,26 @@ body.devvit-mode .scrim {
 		pointer-events: auto;
 		max-height: 100% !important;
 		max-width: 100% !important;
+		/* Phaser's FIT + CENTER_BOTH leaves an inline margin-top on the canvas
+		   when coming from the landscape layout. It measures the wrapper before
+		   the portrait rules shrink it, so the stale margin survives the resize
+		   and pushes the board out of its box (clipping ~half the canvas). The
+		   portrait wrapper already matches the canvas ratio, so no margin is
+		   needed here. */
+		margin: 0 !important;
 	}
 
 	#bottompanel {
 		position: fixed !important;
-		inset: auto 0 0 0 !important;
+		/* Sit directly under the 16:9 board (logo 40px + width*9/16) and fill
+		   whatever height is left, so the chrome shrinks instead of pushing the
+		   canvas past the viewport. */
+		top: calc(40px + 100vw * 9 / 16) !important;
+		right: 0 !important;
+		bottom: 0 !important;
+		left: 0 !important;
 		width: 100vw !important;
-		height: 245px !important;
+		height: auto !important;
 		pointer-events: none !important;
 		z-index: 3 !important;
 	}
@@ -4786,68 +5092,6 @@ body.devvit-mode .scrim {
 		flex-shrink: 0 !important;
 	}
 
-	.framed-modal__return,
-	#dash #return {
-		top: auto !important;
-		bottom: 0px !important;
-		right: auto !important;
-		left: 50% !important;
-		transform: translateX(-50%) !important;
-		height: 64px !important;
-		width: 160px !important;
-		position: fixed !important;
-		z-index: 60 !important;
-		pointer-events: auto !important;
-	}
-
-	.close-button {
-		background: url('assets/interface/small_button.png') no-repeat center center !important;
-		background-size: 100% 100% !important;
-		border: none !important;
-		height: 100% !important;
-		width: 100% !important;
-		border-radius: 0 !important;
-		box-shadow: none !important;
-		font-size: 0 !important;
-		position: relative !important;
-		text-align: center !important;
-		line-height: 64px !important;
-		pointer-events: auto !important;
-		cursor: pointer !important;
-		transform: none !important;
-		transition: filter 0.15s ease-in-out !important;
-	}
-
-	.close-button::before {
-		display: none !important;
-	}
-
-	.close-button::after {
-		content: 'Close View';
-		position: absolute;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-		color: #fff;
-		font-size: 18px;
-		font-weight: bold;
-		text-shadow: 2px 2px black;
-		pointer-events: none;
-		white-space: nowrap;
-		line-height: 1;
-	}
-
-	.close-button:hover,
-	.close-button.hover {
-		transform: none !important;
-		filter: brightness(135%) !important;
-	}
-
-	.close-button:hover::after,
-	.close-button.hover::after {
-		transform: translate(-50%, -50%) !important;
-	}
-
 	#dash {
 		display: none !important;
 	}
@@ -4968,7 +5212,7 @@ body.devvit-mode .scrim {
 	}
 
 	#dash.active #card {
-		width: 400px !important;
+		width: 420px !important;
 		height: 520px !important;
 		margin: 0 auto !important;
 		display: block !important;
@@ -5003,6 +5247,12 @@ body.devvit-mode .scrim {
 		backface-visibility: hidden !important;
 	}
 
+	#dash.active #card .card.sideA {
+		border-radius: 15px !important;
+		margin-right: 0 !important;
+		overflow: hidden !important;
+	}
+
 	#dash.active .opencollective_banner_slot--dash {
 		display: none !important;
 	}
@@ -5024,6 +5274,21 @@ body.devvit-mode .scrim {
 		background: rgba(0, 0, 0, 0.95) !important;
 		z-index: 50 !important;
 		pointer-events: auto !important;
+	}
+
+	/* Score screen: the modal would otherwise fill the flex column and starve
+	   the OpenCollective banner (flex-shrink:1 collapses it from 85px to ~21px,
+	   squishing the CTA). Let the modal shrink and scroll internally, and keep
+	   the banner at its full height pinned below it. The close button is anchored
+	   to #scoreboard, so it stays put while the modal scrolls. */
+	#scoreboard .framed-modal--scoreboard {
+		flex: 1 1 auto !important;
+		min-height: 0 !important;
+		overflow-y: auto !important;
+	}
+
+	#scoreboard > .opencollective_banner_slot--fullscreen {
+		flex: 0 0 auto !important;
 	}
 
 	#ab-secret-view {
@@ -5132,7 +5397,410 @@ body.devvit-mode .scrim {
 	}
 }
 
+@media screen and (orientation: portrait) and (min-width: 401px) and (max-width: 600px) {
+	#dash.active #materialize_button {
+		display: block !important;
+		position: relative !important;
+		left: auto !important;
+		bottom: auto !important;
+		transform: none !important;
+		width: 270px !important;
+		height: 32px !important;
+		margin: 8px auto 0 !important;
+		font-size: 12px !important;
+		line-height: 32px !important;
+		background-size: 100% 100% !important;
+		zoom: 1 !important;
+	}
+
+	#dash.active #materialize_button p {
+		font-size: 12px !important;
+		line-height: 32px !important;
+		margin: 0 !important;
+	}
+}
+
+@media screen and (orientation: landscape) and (min-width: 401px) and (max-width: 700px) and (max-height: 499px) {
+	#dash.active #creaturerasterwrapper {
+		width: 50% !important;
+	}
+
+	#dash.active #cardwrapper {
+		width: 50% !important;
+	}
+}
+
+@media screen and (min-width: 401px) and (max-width: 600px) and (min-height: 500px) {
+	#dash.active #playertabswrapper {
+		display: none !important;
+	}
+
+	#dash.active #tabwrapper {
+		top: 0 !important;
+		right: 0 !important;
+		bottom: 0 !important;
+		left: 0 !important;
+	}
+
+	#dash.active #creaturerasterwrapper {
+		display: none !important;
+	}
+
+	#dash.active #cardwrapper {
+		position: absolute !important;
+		top: 0 !important;
+		right: 0 !important;
+		bottom: 0 !important;
+		left: 0 !important;
+		width: 100% !important;
+		height: 100% !important;
+		flex: none !important;
+		justify-content: flex-start !important;
+		gap: 0 !important;
+		overflow: visible !important;
+	}
+
+	#dash.active #opencollective_banner,
+	#dash.active .opencollective_banner_slot--dash {
+		display: none !important;
+		visibility: hidden !important;
+		height: 0 !important;
+		margin: 0 !important;
+		overflow: hidden !important;
+	}
+
+	#dash.active #cardwrapper_inner {
+		transform: none !important;
+		transform-origin: top center !important;
+		position: relative !important;
+		top: 80px !important;
+		left: auto !important;
+		margin: 0 auto !important;
+		overflow: visible !important;
+	}
+
+	#dash.active #card {
+		width: 430px !important;
+		height: 550px !important;
+		margin: 0 auto !important;
+		padding: 0 !important;
+		position: relative !important;
+	}
+
+	#dash.active #card .center,
+	#dash.active #card .card.sideA,
+	#dash.active #card .card.sideB {
+		width: 430px !important;
+		height: 550px !important;
+		margin: 0 !important;
+		box-sizing: border-box !important;
+	}
+
+	#dash.active #card .card.sideA {
+		display: block !important;
+		position: absolute !important;
+		top: 0 !important;
+		left: 0 !important;
+		padding: 15px !important;
+		border-radius: 15px !important;
+		overflow: hidden !important;
+		clip-path: inset(0 round 15px) !important;
+		background-repeat: no-repeat !important;
+		background-position: center, center !important;
+		background-size: 430px 550px, 400px 520px !important;
+	}
+
+	#dash.active #card .card.sideB {
+		display: none !important;
+	}
+
+	#dash.active #materialize_button,
+	#dash.active #cardwrapper #materialize_button {
+		display: none !important;
+		visibility: hidden !important;
+	}
+
+	#dash.active #materialize_button p {
+		display: none !important;
+	}
+
+	#dash.active #return {
+		position: fixed !important;
+		top: 0 !important;
+		right: 0 !important;
+		bottom: auto !important;
+		left: auto !important;
+		width: 64px !important;
+		height: 64px !important;
+		margin: 0 !important;
+		transform: none !important;
+		z-index: 100000 !important;
+	}
+
+	#dash.active .close-button {
+		background: url('assets/icons/close.svg') no-repeat center center !important;
+		background-size: 100% 100% !important;
+		filter: none !important;
+		width: 100% !important;
+		height: 100% !important;
+		border: none !important;
+		border-radius: 50% !important;
+		box-shadow: none !important;
+		transform: none !important;
+		transition: none !important;
+	}
+
+	#dash.active .close-button::before,
+	#dash.active .close-button::after {
+		display: none !important;
+		content: none !important;
+	}
+}
+
+@media screen and (orientation: landscape) and (min-width: 649px) and (max-width: 1000px) and (max-height: 700px) {
+	#dash.active #opencollective_banner,
+	#dash.active .opencollective_banner_slot--dash {
+		display: none !important;
+		visibility: hidden !important;
+		height: 0 !important;
+		margin: 0 !important;
+		overflow: hidden !important;
+	}
+
+	#dash.active #cardwrapper_inner {
+		top: 0 !important;
+	}
+}
+
 /* Unit-card switching is shared by the desktop and portrait dash layouts. */
+@media screen and (orientation: landscape) and (min-width: 401px) and (max-width: 700px) {
+	#dash.active #opencollective_banner,
+	#dash.active .opencollective_banner_slot--dash {
+		display: none !important;
+		visibility: hidden !important;
+		width: 0 !important;
+		height: 0 !important;
+		margin: 0 !important;
+		overflow: hidden !important;
+	}
+
+	#dash.active #materialize_button {
+		display: block !important;
+		position: fixed !important;
+		left: 50% !important;
+		bottom: 0 !important;
+		transform: translateX(-50%) !important;
+		width: 270px !important;
+		height: 32px !important;
+		margin: 0 auto !important;
+		font-size: 12px !important;
+		line-height: 32px !important;
+		background-size: 100% 100% !important;
+		zoom: 1 !important;
+		z-index: 5 !important;
+	}
+
+	#dash.active #materialize_button p {
+		font-size: 12px !important;
+		line-height: 32px !important;
+		margin: 0 !important;
+	}
+}
+
+@media screen and (max-width: 400px) {
+	#dash.active #opencollective_banner,
+	#dash.active .opencollective_banner_slot--dash {
+		position: fixed !important;
+		top: 4px !important;
+		left: 4px !important;
+		right: auto !important;
+		bottom: auto !important;
+		width: calc(100% - 142px) !important;
+		height: 51px !important;
+		max-width: none !important;
+		margin: 0 !important;
+		z-index: 61 !important;
+		display: block !important;
+	}
+
+	#dash.active #opencollective_banner .opencollective_inner,
+	#dash.active #opencollective_banner .opencollective_cta_wrapper {
+		height: 51px !important;
+	}
+
+	#dash.active #opencollective_banner .opencollective_pill {
+		display: none !important;
+	}
+
+	#dash.active #opencollective_banner .opencollective_cta_wrapper {
+		flex-basis: 100% !important;
+		width: 100% !important;
+	}
+
+	#dash.active #opencollective_banner .opencollective_cta {
+		height: 51px !important;
+		font-size: 12px !important;
+	}
+
+	#dash.active #materialize_button {
+		display: block !important;
+		visibility: visible !important;
+		position: fixed !important;
+		left: 50% !important;
+		bottom: 0 !important;
+		transform: translateX(-50%) !important;
+		width: 180px !important;
+		height: 32px !important;
+		margin: 0 !important;
+		font-size: 12px !important;
+		line-height: 32px !important;
+		background-size: 100% 100% !important;
+		zoom: 1 !important;
+		z-index: 20 !important;
+	}
+
+}
+
+@media screen and (max-width: 400px) {
+	#dash.active #playertabswrapper {
+		display: none !important;
+	}
+
+	#dash.active #opencollective_banner,
+	#dash.active .opencollective_banner_slot--dash {
+		position: fixed !important;
+		top: 4px !important;
+		left: 4px !important;
+		right: auto !important;
+		bottom: auto !important;
+		width: calc(100% - 142px) !important;
+		height: 51px !important;
+		max-width: none !important;
+		margin: 0 !important;
+		z-index: 61 !important;
+		display: block !important;
+	}
+
+	#dash.active #opencollective_banner .opencollective_inner,
+	#dash.active #opencollective_banner .opencollective_cta_wrapper {
+		height: 51px !important;
+	}
+
+	#dash.active #opencollective_banner .opencollective_pill {
+		display: none !important;
+	}
+
+	#dash.active #opencollective_banner .opencollective_cta_wrapper {
+		flex-basis: 100% !important;
+		width: 100% !important;
+	}
+
+	#dash.active #opencollective_banner .opencollective_cta {
+		height: 51px !important;
+		font-size: 12px !important;
+	}
+
+	#dash.active #tabwrapper {
+		top: 52px !important;
+		right: 0 !important;
+		bottom: 0 !important;
+		left: 0 !important;
+	}
+
+	#dash.active #creaturerasterwrapper {
+		position: absolute !important;
+		top: 0 !important;
+		right: auto !important;
+		bottom: 0 !important;
+		left: 0 !important;
+		width: 40% !important;
+		height: auto !important;
+	}
+
+	#dash.active #cardwrapper {
+		position: absolute !important;
+		top: 0 !important;
+		right: 0 !important;
+		bottom: 0 !important;
+		left: auto !important;
+		width: 60% !important;
+		height: auto !important;
+		min-height: 0 !important;
+		overflow: visible !important;
+	}
+
+	#dash.active #cardwrapper_inner {
+		position: relative !important;
+		top: 0 !important;
+		left: auto !important;
+		margin: 0 auto !important;
+		transform-origin: top center !important;
+	}
+
+	#dash.active #card {
+		width: 420px !important;
+		height: 520px !important;
+		margin: 0 auto !important;
+		padding: 0 !important;
+		position: relative !important;
+	}
+
+	#dash.active #card .center,
+	#dash.active #card .card.sideA,
+	#dash.active #card .card.sideB {
+		width: 420px !important;
+		height: 520px !important;
+		margin: 0 !important;
+		box-sizing: border-box !important;
+	}
+
+	#dash.active #card .card.sideA {
+		display: block !important;
+		position: absolute !important;
+		top: 0 !important;
+		left: 0 !important;
+		border-radius: 15px !important;
+		margin-right: 0 !important;
+		overflow: hidden !important;
+		clip-path: inset(0 round 15px) !important;
+		background-clip: border-box !important;
+	}
+
+	#dash.active #card .card.sideA .section.info {
+		position: absolute !important;
+		left: 15px !important;
+		right: 15px !important;
+		bottom: 8px !important;
+		width: auto !important;
+		max-width: none !important;
+		height: auto !important;
+		margin: 0 !important;
+		box-sizing: border-box !important;
+	}
+
+	#dash.active #card .card.sideB {
+		display: none !important;
+	}
+
+	#dash.active #materialize_button {
+		display: block !important;
+		visibility: visible !important;
+		position: fixed !important;
+		left: 50% !important;
+		bottom: 0 !important;
+		transform: translateX(-50%) !important;
+		width: 180px !important;
+		height: 32px !important;
+		margin: 0 !important;
+		font-size: 12px !important;
+		line-height: 32px !important;
+		background-size: 100% 100% !important;
+		zoom: 1 !important;
+		z-index: 20 !important;
+	}
+
+}
+
 #dash.active #cardwrapper_inner {
 	perspective: 1000px !important;
 	transform-style: preserve-3d !important;
@@ -5154,7 +5822,7 @@ body.devvit-mode .scrim {
 
 #dash.active #card .card.sideA,
 #dash.active #card .card.sideB {
-	transform: none !important;
+	transform: none;
 	transform-style: preserve-3d !important;
 	transition: transform 125ms ease-in-out !important;
 	transform-origin: center center !important;
@@ -5171,6 +5839,1198 @@ body.devvit-mode .scrim {
 #dash.active #card .card.sideB.flip-reset {
 	transform: rotateY(-90deg) !important;
 	transition: none !important;
+}
+
+@media screen and (orientation: landscape) and (min-width: 401px) and (max-width: 700px) {
+	#dash.active #cardwrapper #materialize_button {
+		display: block !important;
+		visibility: visible !important;
+		position: absolute !important;
+		left: 50% !important;
+		bottom: 0 !important;
+		transform: translateX(-50%) !important;
+		width: 270px !important;
+		height: 32px !important;
+		min-height: 32px !important;
+		margin: 0 auto !important;
+		padding: 0 !important;
+		font-size: 12px !important;
+		line-height: 32px !important;
+		background-size: 100% 100% !important;
+		zoom: 1 !important;
+		z-index: 20 !important;
+	}
+
+	#dash.active #cardwrapper #materialize_button p {
+		display: block !important;
+		font-size: 12px !important;
+		line-height: 32px !important;
+		margin: 0 !important;
+	}
+}
+
+@media screen and (max-width: 400px) {
+	#dash.active #cardwrapper #materialize_button {
+		display: block !important;
+		visibility: visible !important;
+	}
+}
+
+/* Card-A-only dash layouts must never show materialization. This final
+   override wins over earlier compact and portrait media rules. */
+@media screen and (orientation: landscape) and (max-width: 700px), screen and (max-width: 400px) {
+	#dash.active #materialize_button,
+	#dash.active #cardwrapper #materialize_button {
+		display: none !important;
+		visibility: hidden !important;
+		position: absolute !important;
+		width: 0 !important;
+		height: 0 !important;
+		min-height: 0 !important;
+		left: auto !important;
+		right: auto !important;
+		bottom: auto !important;
+		transform: none !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		overflow: hidden !important;
+		z-index: -1 !important;
+	}
+
+	#dash.active #materialize_button p {
+		display: none !important;
+	}
+}
+
+/* Compact dash: preserve the native 430x550 Card-A/margin frame geometry
+   whenever the card is scaled, and keep the round close flush at the
+   viewport's top-right corner. */
+@media screen and (max-width: 700px),
+	screen and (orientation: landscape) and (max-width: 1000px) and (max-height: 700px) {
+	#dash.active #return {
+		top: 0 !important;
+		right: 0 !important;
+		bottom: auto !important;
+		left: auto !important;
+		width: 64px !important;
+		height: 64px !important;
+		margin: 0 !important;
+		transform: none !important;
+		z-index: 100000 !important;
+	}
+
+	#dash.active #return .close-button {
+		background: url('assets/icons/close.svg') no-repeat center center !important;
+		background-size: 100% 100% !important;
+		filter: none !important;
+		border: none !important;
+		width: 100% !important;
+		height: 100% !important;
+		border-radius: 50% !important;
+		box-shadow: none !important;
+		transform: none !important;
+		transition: none !important;
+	}
+
+	#dash.active #return .close-button::before,
+	#dash.active #return .close-button::after {
+		display: none !important;
+	}
+
+	#dash.active #return .close-button:hover {
+		transform: none !important;
+	}
+
+}
+
+@media screen and (max-width: 1000px) {
+	#dash.active.compact-card-back #card .card.sideB {
+		visibility: visible !important;
+	}
+}
+
+@media screen and (min-width: 1001px) {
+	#dash.active #playertabswrapper,
+	#playertabswrapper {
+		position: absolute !important;
+		top: 0 !important;
+		right: 0 !important;
+		left: 0 !important;
+		width: 100% !important;
+		max-width: none !important;
+		display: flex !important;
+		box-sizing: border-box !important;
+	}
+
+	#dash.active #playertabswrapper .playertabs {
+		flex: 1 1 0 !important;
+		width: auto !important;
+		min-width: 0 !important;
+		max-width: none !important;
+	}
+
+	#dash.active #tabwrapper {
+		top: 100px !important;
+		right: 0 !important;
+		bottom: 0 !important;
+		left: 0 !important;
+	}
+
+	#dash.active #creaturerasterwrapper {
+		width: 46% !important;
+	}
+
+	#dash.active #cardwrapper {
+		width: 54% !important;
+	}
+
+	#dash.active #return {
+		position: absolute !important;
+		top: 0 !important;
+		right: 0 !important;
+		bottom: auto !important;
+		left: auto !important;
+		width: 100px !important;
+		height: 100px !important;
+		margin: 0 !important;
+		transform: none !important;
+		z-index: 100000 !important;
+	}
+
+	#dash.active #return .close-button {
+		position: relative !important;
+		inset: auto !important;
+		width: 100% !important;
+		height: 100% !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		border-radius: 0 !important;
+	}
+
+}
+
+/* Shared compact close control for every fullscreen view. */
+@media screen and (max-width: 700px),
+	screen and (orientation: landscape) and (max-width: 1000px) and (max-height: 700px) {
+	#dash #return,
+	#musicplayerwrapper .framed-modal__return,
+	#scoreboard .framed-modal__return,
+	#hotkeys .framed-modal__return,
+	#ab-secret-view .framed-modal__return,
+	#meta-powers .framed-modal__return {
+		position: fixed !important;
+		top: 0 !important;
+		right: 0 !important;
+		bottom: auto !important;
+		left: auto !important;
+		width: 64px !important;
+		height: 64px !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		border: 0 !important;
+		transform: none !important;
+		z-index: 100000 !important;
+	}
+
+	#dash #return .close-button,
+	#musicplayerwrapper .close-button,
+	#scoreboard .close-button,
+	#hotkeys .close-button,
+	#ab-secret-view .close-button,
+	#meta-powers .close-button,
+	#meta-powers-close-button.meta-powers-close-inline {
+		background: url('assets/icons/close.svg') no-repeat center center !important;
+		background-size: 100% 100% !important;
+		filter: none !important;
+		border: none !important;
+		position: fixed !important;
+		top: 0 !important;
+		right: 0 !important;
+		bottom: auto !important;
+		left: auto !important;
+		padding: 0 !important;
+		margin: 0 !important;
+		width: 64px !important;
+		height: 64px !important;
+		flex: none !important;
+		border-radius: 50% !important;
+		box-shadow: none !important;
+		transform: none !important;
+		text-indent: -9999px !important;
+		line-height: 0 !important;
+		transition: none !important;
+	}
+
+	#dash #return .close-button::before,
+	#dash #return .close-button::after,
+	#musicplayerwrapper .close-button::before,
+	#musicplayerwrapper .close-button::after,
+	#scoreboard .close-button::before,
+	#scoreboard .close-button::after,
+	#hotkeys .close-button::before,
+	#hotkeys .close-button::after,
+	#ab-secret-view .close-button::before,
+	#ab-secret-view .close-button::after,
+	#meta-powers-close-button.meta-powers-close-inline::before,
+	#meta-powers-close-button.meta-powers-close-inline::after {
+		display: none !important;
+		content: none !important;
+	}
+
+	#dash #return .close-button:hover,
+	#musicplayerwrapper .close-button:hover,
+	#scoreboard .close-button:hover,
+	#hotkeys .close-button:hover,
+	#ab-secret-view .close-button:hover,
+	#meta-powers-close-button.meta-powers-close-inline:hover {
+		transform: none !important;
+	}
+
+	#meta-powers-close-button.meta-powers-close-inline {
+		position: fixed !important;
+		top: 0 !important;
+		right: 0 !important;
+		bottom: auto !important;
+		left: auto !important;
+		width: 64px !important;
+		height: 64px !important;
+		margin: 0 !important;
+		z-index: 100000 !important;
+	}
+}
+
+/* Mobile never opens the stats/masteries hover widget as a top overlay. */
+@media screen and (max-width: 700px) {
+	#unit-hover-panel {
+		display: none !important;
+		visibility: hidden !important;
+		opacity: 0 !important;
+		pointer-events: none !important;
+	}
+}
+
+/* At very short mobile heights, queue text and the combat log consume too much
+   of the board and interfere with hexagon input. */
+@media screen and (max-height: 319px) {
+	#queue .vignette .stats,
+	#queue .vignette.roundmarker .stats,
+	#chat {
+		display: none !important;
+		visibility: hidden !important;
+	}
+
+	#queue .vignette.creature,
+	#queue .vignette.roundmarker {
+		margin-top: 0 !important;
+		transform: none !important;
+	}
+}
+
+#compact-realm-dial {
+	display: none;
+}
+
+@media screen and (min-width: 401px) and (max-width: 648px) and (min-height: 450px) and (max-height: 499px) {
+	#dash.active #playertabswrapper,
+	#dash.active #creaturerasterwrapper,
+	#dash.active #materialize_button,
+	#dash.active #cardwrapper #materialize_button {
+		display: none !important;
+		visibility: hidden !important;
+	}
+
+	#dash.active #tabwrapper {
+		top: 0 !important;
+		right: 0 !important;
+		bottom: 0 !important;
+		left: 0 !important;
+	}
+
+	#dash.active #cardwrapper {
+		position: absolute !important;
+		top: 0 !important;
+		right: 0 !important;
+		bottom: 0 !important;
+		left: 0 !important;
+		width: 100% !important;
+		height: 100% !important;
+		display: flex !important;
+		align-items: center !important;
+		justify-content: center !important;
+		overflow: visible !important;
+	}
+
+	#dash.active #cardwrapper_inner {
+		position: relative !important;
+		width: 430px !important;
+		height: 550px !important;
+		transform: none !important;
+		transform-origin: top left !important;
+		margin: 0 !important;
+		overflow: visible !important;
+	}
+
+	#dash.active #card,
+	#dash.active #card .center,
+	#dash.active #card .card.sideA,
+	#dash.active #card .card.sideB {
+		width: 430px !important;
+		height: 550px !important;
+		margin: 0 !important;
+		box-sizing: border-box !important;
+	}
+
+	#dash.active #card .card.sideA {
+		padding: 15px !important;
+		border-radius: 15px !important;
+		overflow: hidden !important;
+		clip-path: inset(0 round 15px) !important;
+		background-repeat: no-repeat !important;
+		background-position: center, center !important;
+		background-size: 430px 550px, 400px 520px !important;
+		background-clip: border-box !important;
+	}
+
+	#dash.active #card .card.sideA .section.info {
+		position: absolute !important;
+		left: 15px !important;
+		right: 15px !important;
+		bottom: 8px !important;
+		width: auto !important;
+		height: auto !important;
+		max-width: none !important;
+		margin: 0 !important;
+		box-sizing: border-box !important;
+	}
+
+	#dash.active #card .card.sideB {
+		display: none !important;
+	}
+}
+
+@media screen and (min-width: 401px) and (max-width: 648px) and (min-height: 500px) {
+	#dash.active #playertabswrapper,
+	#dash.active #creaturerasterwrapper,
+	#dash.active #materialize_button,
+	#dash.active #cardwrapper #materialize_button {
+		display: none !important;
+		visibility: hidden !important;
+	}
+
+	#dash.active #tabwrapper {
+		top: 0 !important;
+		right: 0 !important;
+		bottom: 0 !important;
+		left: 0 !important;
+	}
+
+	#dash.active #cardwrapper {
+		position: absolute !important;
+		top: 0 !important;
+		right: 0 !important;
+		bottom: 0 !important;
+		left: 0 !important;
+		width: 100% !important;
+		height: 100% !important;
+		display: flex !important;
+		flex-direction: column !important;
+		align-items: center !important;
+		justify-content: center !important;
+		overflow: visible !important;
+	}
+
+	#dash.active #cardwrapper_inner {
+		position: relative !important;
+		width: 430px !important;
+		height: 550px !important;
+		transform: none !important;
+		transform-origin: top left !important;
+		margin: 0 !important;
+		overflow: visible !important;
+	}
+
+	#dash.active #card {
+		width: 430px !important;
+		height: 550px !important;
+		margin: 0 !important;
+		padding: 0 !important;
+	}
+
+	#dash.active #card .center,
+	#dash.active #card .card.sideA,
+	#dash.active #card .card.sideB {
+		width: 430px !important;
+		height: 550px !important;
+		margin: 0 !important;
+		box-sizing: border-box !important;
+	}
+
+	#dash.active #card .card.sideA {
+		display: block !important;
+		position: relative !important;
+		padding: 15px !important;
+		border-radius: 15px !important;
+		overflow: hidden !important;
+		clip-path: inset(0 round 15px) !important;
+		background-repeat: no-repeat !important;
+		background-position: center, center !important;
+		background-size: 430px 550px, 400px 520px !important;
+		background-clip: border-box !important;
+	}
+
+	#dash.active #card .card.sideA .section.info {
+		position: absolute !important;
+		left: 15px !important;
+		right: 15px !important;
+		bottom: 8px !important;
+		width: auto !important;
+		height: auto !important;
+		max-width: none !important;
+		margin: 0 !important;
+		box-sizing: border-box !important;
+	}
+
+	#dash.active #card .card.sideB {
+		display: none !important;
+	}
+}
+
+@media screen and (orientation: landscape) and (min-width: 649px) and (max-width: 700px) and (min-height: 450px) {
+	#compact-realm-dial,
+	#dash.active #materialize_button,
+	#dash.active #cardwrapper #materialize_button {
+		display: none !important;
+		visibility: hidden !important;
+	}
+
+	#dash.active #creaturerasterwrapper {
+		display: block !important;
+		width: 50% !important;
+	}
+
+	#dash.active #cardwrapper {
+		width: 50% !important;
+	}
+
+	#dash.active #card {
+		width: 430px !important;
+		height: 550px !important;
+	}
+
+	#dash.active #card .center,
+	#dash.active #card .card.sideA,
+	#dash.active #card .card.sideB {
+		width: 430px !important;
+		height: 550px !important;
+	}
+
+	#dash.active #card .card.sideA {
+		padding: 15px !important;
+		border-radius: 15px !important;
+		overflow: hidden !important;
+		clip-path: inset(0 round 15px) !important;
+		background-repeat: no-repeat !important;
+		background-position: center, center !important;
+		background-size: 430px 550px, 400px 520px !important;
+	}
+}
+
+/* Compact realm/unit selector layouts: side rails for the card-scaling range,
+   bottom rows once the card and dial can fit, and the avatar grid only when
+   the viewport has enough room on both axes. */
+#compact-realm-dial {
+	display: none;
+	z-index: 20;
+	pointer-events: none;
+}
+
+#compact-realm-dial .compact-realm-orbs,
+#compact-realm-dial .compact-unit-row {
+	display: flex;
+	box-sizing: border-box;
+	margin: 0;
+	pointer-events: auto;
+}
+
+#compact-realm-dial .compact-realm-orb,
+#compact-realm-dial .compact-unit {
+	width: 64px;
+	height: 64px;
+	aspect-ratio: 1 / 1;
+	box-sizing: border-box;
+	flex: 0 0 64px;
+	pointer-events: auto;
+}
+
+#compact-realm-dial .compact-realm-orb {
+	padding: 0;
+	border: 0;
+	outline: 0;
+	border-radius: 50%;
+	cursor: pointer;
+	box-shadow: none;
+}
+
+#compact-realm-dial .compact-realm-orb.sinA {
+	background: radial-gradient(circle at 35% 28%, rgba(255, 255, 255, 0.72) 0 7%, transparent 18%),
+		repeating-conic-gradient(
+			from 20deg,
+			rgba(255, 255, 255, 0.12) 0 8deg,
+			rgba(80, 55, 0, 0.08) 8deg 16deg
+		),
+		radial-gradient(circle at 50% 55%, #ffe36b 0 38%, gold 58%, #806000 82%, #3a2b00 100%);
+	color: gold;
+}
+
+#compact-realm-dial .compact-realm-orb.sinE {
+	background: radial-gradient(circle at 35% 28%, rgba(255, 255, 255, 0.72) 0 7%, transparent 18%),
+		repeating-conic-gradient(
+			from 20deg,
+			rgba(255, 255, 255, 0.12) 0 8deg,
+			rgba(90, 45, 0, 0.08) 8deg 16deg
+		),
+		radial-gradient(circle at 50% 55%, #ffc76b 0 38%, orange 58%, #9a4e00 82%, #3d1d00 100%);
+	color: orange;
+}
+
+#compact-realm-dial .compact-realm-orb.sinG {
+	background: radial-gradient(circle at 35% 28%, rgba(255, 255, 255, 0.72) 0 7%, transparent 18%),
+		repeating-conic-gradient(
+			from 20deg,
+			rgba(255, 255, 255, 0.12) 0 8deg,
+			rgba(0, 70, 20, 0.08) 8deg 16deg
+		),
+		radial-gradient(circle at 50% 55%, #75d579 0 38%, green 58%, #1f641f 82%, #0b290b 100%);
+	color: green;
+}
+
+#compact-realm-dial .compact-realm-orb.sinL {
+	background: radial-gradient(circle at 35% 28%, rgba(255, 255, 255, 0.72) 0 7%, transparent 18%),
+		repeating-conic-gradient(
+			from 20deg,
+			rgba(255, 255, 255, 0.12) 0 8deg,
+			rgba(90, 0, 0, 0.08) 8deg 16deg
+		),
+		radial-gradient(circle at 50% 55%, #ff7777 0 38%, red 58%, #8d1818 82%, #350707 100%);
+	color: red;
+}
+
+#compact-realm-dial .compact-realm-orb.sinP {
+	background: radial-gradient(circle at 35% 28%, rgba(255, 255, 255, 0.72) 0 7%, transparent 18%),
+		repeating-conic-gradient(
+			from 20deg,
+			rgba(255, 255, 255, 0.12) 0 8deg,
+			rgba(70, 0, 90, 0.08) 8deg 16deg
+		),
+		radial-gradient(circle at 50% 55%, #dda0ff 0 38%, violet 58%, #7a3a99 82%, #2d1038 100%);
+	color: violet;
+}
+
+#compact-realm-dial .compact-realm-orb.sinS {
+	background: radial-gradient(circle at 35% 28%, rgba(255, 255, 255, 0.72) 0 7%, transparent 18%),
+		repeating-conic-gradient(
+			from 20deg,
+			rgba(255, 255, 255, 0.12) 0 8deg,
+			rgba(0, 20, 90, 0.08) 8deg 16deg
+		),
+		radial-gradient(circle at 50% 55%, #77aaff 0 38%, blue 58%, #1b4e9a 82%, #091a3c 100%);
+	color: blue;
+}
+
+#compact-realm-dial .compact-realm-orb.sinW {
+	background: radial-gradient(circle at 35% 28%, rgba(255, 255, 255, 0.72) 0 7%, transparent 18%),
+		repeating-conic-gradient(
+			from 20deg,
+			rgba(255, 255, 255, 0.12) 0 8deg,
+			rgba(20, 0, 70, 0.08) 8deg 16deg
+		),
+		radial-gradient(circle at 50% 55%, #9d91ff 0 38%, indigo 58%, #39318a 82%, #141235 100%);
+	color: indigo;
+}
+
+#compact-realm-dial .compact-realm-orb.active {
+	animation: compact-realm-orb-spin 8s linear infinite;
+	transform-origin: center center;
+	z-index: 3;
+	filter: brightness(1.12);
+	outline: 0;
+	box-shadow: inset 6px 8px 10px rgba(255, 255, 255, 0.34),
+		inset -8px -10px 12px rgba(0, 0, 0, 0.58), 0 7px 10px rgba(0, 0, 0, 0.72);
+}
+
+@keyframes compact-realm-orb-spin {
+	from { transform: rotate(0deg); }
+	to { transform: rotate(360deg); }
+}
+
+#compact-realm-dial .compact-unit {
+	padding: 0;
+	border: 0;
+	outline: 0;
+	border-radius: 50%;
+	background-repeat: no-repeat;
+	background-position: center center;
+	background-size: 100% 100%;
+	cursor: pointer;
+	overflow: hidden;
+}
+
+#compact-realm-dial .compact-unit.unavailable:not(.active) {
+	filter: grayscale(1) brightness(0.55);
+	opacity: 0.65;
+	cursor: pointer;
+}
+
+#compact-realm-dial .compact-unit.active {
+	z-index: 3;
+	filter: brightness(1.12);
+	outline: 3px solid currentColor;
+	outline-offset: 0;
+	box-shadow: none;
+}
+
+#compact-realm-dial .compact-unit.sinA {
+	color: gold;
+}
+#compact-realm-dial .compact-unit.sinE {
+	color: orange;
+}
+#compact-realm-dial .compact-unit.sinG {
+	color: green;
+}
+#compact-realm-dial .compact-unit.sinL {
+	color: red;
+}
+#compact-realm-dial .compact-unit.sinP {
+	color: violet;
+}
+#compact-realm-dial .compact-unit.sinS {
+	color: blue;
+}
+#compact-realm-dial .compact-unit.sinW {
+	color: indigo;
+}
+
+#compact-realm-dial .compact-unit.active.sinA {
+	box-shadow: none;
+}
+#compact-realm-dial .compact-unit.active.sinE {
+	box-shadow: none;
+}
+#compact-realm-dial .compact-unit.active.sinG {
+	box-shadow: none;
+}
+#compact-realm-dial .compact-unit.active.sinL {
+	box-shadow: none;
+}
+#compact-realm-dial .compact-unit.active.sinP {
+	box-shadow: none;
+}
+#compact-realm-dial .compact-unit.active.sinS {
+	box-shadow: none;
+}
+#compact-realm-dial .compact-unit.active.sinW {
+	box-shadow: none;
+}
+
+#dash.active.compact-card-back #card .card.sideA {
+	display: none !important;
+	visibility: hidden !important;
+}
+
+#dash.active.compact-card-back #card .card.sideB {
+	display: block !important;
+	visibility: visible !important;
+	z-index: 2 !important;
+}
+
+#dash.active.medium-single-card #card .card.sideB {
+	display: none !important;
+	visibility: hidden !important;
+}
+
+#dash.active.medium-single-card.compact-card-back #card .card.sideA {
+	display: none !important;
+	visibility: hidden !important;
+}
+
+#dash.active.medium-single-card.compact-card-back #card .card.sideB {
+	display: block !important;
+	visibility: visible !important;
+}
+
+@media screen and (max-width: 700px), screen and (orientation: landscape) and (max-height: 700px) {
+	#dash.active.compact-card-back #card .card.sideB {
+		position: absolute !important;
+		top: 0 !important;
+		left: 0 !important;
+		width: 430px !important;
+		height: 550px !important;
+		margin: 0 !important;
+		padding: 15px !important;
+		box-sizing: border-box !important;
+		border-radius: 15px !important;
+		overflow: hidden !important;
+		clip-path: inset(0 round 15px) !important;
+	}
+}
+
+@media screen and (orientation: landscape) and (min-width: 701px) and (max-width: 1000px) and (max-height: 700px) {
+	#dash.active #playertabswrapper {
+		display: flex !important;
+	}
+
+	#dash.active #tabwrapper {
+		top: 100px !important;
+		right: 0 !important;
+		bottom: 0 !important;
+		left: 0 !important;
+	}
+
+	#dash.active #creaturerasterwrapper {
+		position: absolute !important;
+		top: 0 !important;
+		right: auto !important;
+		bottom: 0 !important;
+		left: 0 !important;
+		width: 50% !important;
+		height: 100% !important;
+		display: block !important;
+		overflow: hidden !important;
+	}
+
+	#dash.active #cardwrapper {
+		position: absolute !important;
+		top: 0 !important;
+		right: 0 !important;
+		bottom: 0 !important;
+		left: auto !important;
+		width: 50% !important;
+		height: 100% !important;
+		display: flex !important;
+		align-items: center !important;
+		justify-content: center !important;
+		overflow: visible !important;
+	}
+
+	#dash.active #opencollective_banner,
+	#dash.active .opencollective_banner_slot--dash,
+	#compact-realm-dial {
+		display: none !important;
+		visibility: hidden !important;
+	}
+
+	#dash.active #card {
+		width: 900px !important;
+		height: 550px !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		position: relative !important;
+	}
+
+	#dash.active #card .center {
+		width: 900px !important;
+		height: 550px !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		box-sizing: border-box !important;
+	}
+
+	#dash.active #card .card.sideA,
+	#dash.active #card .card.sideB {
+		position: absolute !important;
+		top: 0 !important;
+		width: 430px !important;
+		height: 550px !important;
+		margin: 0 !important;
+		padding: 15px !important;
+		box-sizing: border-box !important;
+		display: block !important;
+		visibility: visible !important;
+		border-radius: 15px !important;
+		overflow: hidden !important;
+		clip-path: inset(0 round 15px) !important;
+		background-repeat: no-repeat !important;
+		background-position: center, center !important;
+		background-size: 430px 550px, 400px 520px !important;
+		background-clip: border-box !important;
+		background-origin: border-box, padding-box !important;
+	}
+
+	#dash.active #card .card.sideA {
+		left: 0 !important;
+	}
+
+	#dash.active #card .card.sideB {
+		left: 470px !important;
+	}
+}
+
+@media screen and (orientation: landscape) and (min-width: 701px) and (max-width: 971px) and (max-height: 700px) {
+	#dash.active.medium-single-card #card {
+		width: 430px !important;
+		height: 550px !important;
+	}
+
+	#dash.active.medium-single-card #card .center,
+	#dash.active.medium-single-card #card .card.sideA {
+		width: 430px !important;
+		height: 550px !important;
+		margin: 0 !important;
+		box-sizing: border-box !important;
+	}
+
+	#dash.active.medium-single-card #card .card.sideA {
+		position: absolute !important;
+		top: 0 !important;
+		left: 0 !important;
+		padding: 15px !important;
+		border-radius: 15px !important;
+		overflow: hidden !important;
+		clip-path: inset(0 round 15px) !important;
+		background-repeat: no-repeat !important;
+		background-position: center, center !important;
+		background-size: 430px 550px, 400px 520px !important;
+		background-clip: border-box !important;
+	}
+
+	#dash.active.medium-single-card #card .card.sideB {
+		display: none !important;
+		visibility: hidden !important;
+	}
+
+	#dash.active.medium-single-card.compact-card-back #card .card.sideA {
+		display: none !important;
+		visibility: hidden !important;
+	}
+
+	#dash.active.medium-single-card.compact-card-back #card .card.sideB {
+		position: absolute !important;
+		top: 0 !important;
+		left: 0 !important;
+		width: 430px !important;
+		height: 550px !important;
+		margin: 0 !important;
+		padding: 15px !important;
+		box-sizing: border-box !important;
+		border-radius: 15px !important;
+		overflow: hidden !important;
+		clip-path: inset(0 round 15px) !important;
+		display: block !important;
+		visibility: visible !important;
+	}
+}
+
+@media screen and (orientation: landscape) and (min-width: 701px) and (max-width: 1000px) and (max-height: 500px) {
+	#dash.active #card {
+		width: 430px !important;
+		height: 550px !important;
+	}
+
+	#dash.active #card .center,
+	#dash.active #card .card.sideA {
+		width: 430px !important;
+		height: 550px !important;
+	}
+
+	#dash.active #card .card.sideA {
+		left: 0 !important;
+		margin: 0 !important;
+		padding: 15px !important;
+		box-sizing: border-box !important;
+		display: block !important;
+		visibility: visible !important;
+		border-radius: 15px !important;
+		overflow: hidden !important;
+		clip-path: inset(0 round 15px) !important;
+		background-repeat: no-repeat !important;
+		background-position: center, center !important;
+		background-size: 430px 550px, 400px 520px !important;
+		background-clip: border-box !important;
+	}
+
+	#dash.active.medium-single-card #card .card.sideB {
+		display: none !important;
+		visibility: hidden !important;
+	}
+
+	#dash.active.medium-single-card.compact-card-back #card .card.sideA {
+		display: none !important;
+		visibility: hidden !important;
+	}
+
+	#dash.active.medium-single-card.compact-card-back #card .card.sideB {
+		position: absolute !important;
+		left: 0 !important;
+		width: 430px !important;
+		height: 550px !important;
+		margin: 0 !important;
+		padding: 15px !important;
+		box-sizing: border-box !important;
+		display: block !important;
+		visibility: visible !important;
+		border-radius: 15px !important;
+		overflow: hidden !important;
+		clip-path: inset(0 round 15px) !important;
+		z-index: 2 !important;
+	}
+}
+
+@media screen and (orientation: landscape) and (min-width: 701px) and (max-width: 1000px) and (max-height: 500px) {
+	#dash.active #playertabswrapper {
+		height: 64px !important;
+	}
+
+	#dash.active #playertabswrapper .playertabs {
+		height: 64px !important;
+		min-height: 64px !important;
+	}
+
+	#dash.active #creaturerasterwrapper,
+	#dash.active #cardwrapper {
+		top: 0 !important;
+		height: 100% !important;
+	}
+
+	#dash.active #tabwrapper {
+		top: 64px !important;
+	}
+}
+
+@media screen and (min-width: 401px) and (max-width: 648px) and (min-height: 450px) and (max-height: 630px) {
+	#dash.active #playertabswrapper,
+	#dash.active #creaturerasterwrapper,
+	#dash.active #materialize_button,
+	#dash.active #cardwrapper #materialize_button {
+		display: none !important;
+		visibility: hidden !important;
+	}
+
+	#dash.active #tabwrapper,
+	#dash.active #cardwrapper {
+		top: 0 !important;
+		right: 0 !important;
+		bottom: 0 !important;
+		left: 0 !important;
+		width: 100% !important;
+		height: 100% !important;
+	}
+
+	#dash.active #cardwrapper {
+		position: absolute !important;
+		display: block !important;
+		overflow: visible !important;
+	}
+
+	#compact-realm-dial {
+		display: block !important;
+		overflow: visible !important;
+		pointer-events: auto;
+	}
+
+	#compact-realm-dial .compact-realm-orbs,
+	#compact-realm-dial .compact-unit-row {
+		align-items: center;
+		overflow: visible;
+	}
+}
+
+@media screen and (min-width: 401px) and (max-width: 648px) and (min-height: 631px) {
+	#dash.active #playertabswrapper,
+	#dash.active #creaturerasterwrapper,
+	#dash.active #materialize_button,
+	#dash.active #cardwrapper #materialize_button {
+		display: none !important;
+		visibility: hidden !important;
+	}
+
+	#dash.active #tabwrapper,
+	#dash.active #cardwrapper {
+		top: 0 !important;
+		right: 0 !important;
+		bottom: 0 !important;
+		left: 0 !important;
+		width: 100% !important;
+		height: 100% !important;
+	}
+
+	#dash.active #cardwrapper {
+		position: absolute !important;
+		display: block !important;
+		overflow: visible !important;
+	}
+
+	#compact-realm-dial {
+		display: flex !important;
+		flex-direction: column;
+		align-items: center;
+		justify-content: space-between;
+		overflow: visible;
+	}
+
+	#compact-realm-dial .compact-realm-orbs,
+	#compact-realm-dial .compact-unit-row {
+		align-items: center;
+		overflow: visible;
+	}
+}
+
+@media screen and (min-width: 401px) and (max-width: 768px) and (min-height: 700px) {
+	#dash.active #playertabswrapper {
+		display: none !important;
+	}
+
+	#dash.active #tabwrapper {
+		top: 0 !important;
+		right: 0 !important;
+		bottom: 0 !important;
+		left: 0 !important;
+	}
+
+	#dash.active #creaturerasterwrapper {
+		position: absolute !important;
+		top: 52% !important;
+		right: 0 !important;
+		left: 0 !important;
+		bottom: 0 !important;
+		width: 100% !important;
+		height: 48% !important;
+		display: flex !important;
+		visibility: visible !important;
+		align-items: center !important;
+		justify-content: center !important;
+		overflow: hidden !important;
+	}
+
+	#dash.active #creatureraster {
+		visibility: visible !important;
+	}
+
+	#dash.active #creatureraster .vignette {
+		visibility: visible !important;
+	}
+
+	#dash.active #cardwrapper {
+		position: absolute !important;
+		top: 0 !important;
+		right: 0 !important;
+		left: 0 !important;
+		bottom: auto !important;
+		width: 100% !important;
+		height: 52% !important;
+		display: flex !important;
+		align-items: center !important;
+		justify-content: center !important;
+		overflow: visible !important;
+	}
+
+	#dash.active #opencollective_banner,
+	#dash.active .opencollective_banner_slot--dash {
+		display: none !important;
+		visibility: hidden !important;
+		width: 0 !important;
+		height: 0 !important;
+		margin: 0 !important;
+		overflow: hidden !important;
+	}
+
+	#dash.active #card,
+	#dash.active #card .center,
+	#dash.active #card .card.sideA {
+		width: 430px !important;
+		height: 550px !important;
+		margin: 0 !important;
+		box-sizing: border-box !important;
+	}
+
+	#dash.active #card .card.sideA {
+		position: absolute !important;
+		top: 0 !important;
+		left: 0 !important;
+		padding: 15px !important;
+		border-radius: 15px !important;
+		overflow: hidden !important;
+		clip-path: inset(0 round 15px) !important;
+		background-repeat: no-repeat !important;
+		background-position: center, center !important;
+		background-size: 430px 550px, 400px 520px !important;
+		background-clip: border-box !important;
+		display: block !important;
+		visibility: visible !important;
+	}
+
+	#dash.active #card .card.sideB {
+		display: none !important;
+		visibility: hidden !important;
+	}
+
+	#dash.active #card .sideA .section.info {
+		position: absolute !important;
+		left: 15px !important;
+		right: 15px !important;
+		bottom: 8px !important;
+		width: auto !important;
+		max-width: none !important;
+		height: auto !important;
+		margin: 0 !important;
+		box-sizing: border-box !important;
+		white-space: nowrap !important;
+	}
+
+	#compact-realm-dial {
+		display: none !important;
+		visibility: hidden !important;
+	}
+}
+
+@media screen and (min-width: 401px) and (max-width: 648px) and (max-height: 449px) {
+	#compact-realm-dial {
+		display: none !important;
+		visibility: hidden !important;
+	}
+}
+
+@media screen and (min-width: 401px) and (max-width: 648px) {
+	#dash.active #card {
+		width: 430px !important;
+		height: 550px !important;
+	}
+
+	#dash.active #card .center,
+	#dash.active #card .card.sideA,
+	#dash.active #card .card.sideB {
+		width: 430px !important;
+		height: 550px !important;
+		margin: 0 !important;
+		box-sizing: border-box !important;
+	}
+
+	#dash.active #card .card.sideA {
+		padding: 15px !important;
+		border-radius: 15px !important;
+		overflow: hidden !important;
+		clip-path: inset(0 round 15px) !important;
+		background-repeat: no-repeat !important;
+		background-position: center, center !important;
+		background-size: 430px 550px, 400px 520px !important;
+		background-clip: border-box !important;
+	}
+
+	#dash.active #card .card.sideA .section.info {
+		position: absolute !important;
+		left: 15px !important;
+		right: 15px !important;
+		bottom: 8px !important;
+		width: auto !important;
+		height: auto !important;
+		max-width: none !important;
+		margin: 0 !important;
+		box-sizing: border-box !important;
+	}
+
+	#dash.active #card .card.sideB {
+		display: none !important;
+	}
 }
 
 @keyframes rainbowGlow {
@@ -5284,5 +7144,192 @@ body.devvit-mode .scrim {
 	.hotkeys-inner {
 		max-height: none;
 		overflow-y: visible;
+	}
+}
+
+/* Final compact close invariant. Keep this after every fullscreen view rule so
+   no wrapper or button can expand to fill the viewport. */
+@media screen and (max-width: 700px),
+	screen and (orientation: landscape) and (max-width: 1000px) and (max-height: 700px) {
+	#dash #return,
+	#musicplayerwrapper .framed-modal__return,
+	#scoreboard .framed-modal__return,
+	#hotkeys .framed-modal__return,
+	#ab-secret-view .framed-modal__return,
+	#meta-powers .framed-modal__return {
+		position: fixed !important;
+		inset: 0 0 auto auto !important;
+		width: 64px !important;
+		height: 64px !important;
+		padding: 0 !important;
+		margin: 0 !important;
+		border: 0 !important;
+		transform: none !important;
+		z-index: 100000 !important;
+	}
+
+	#dash #return .close-button,
+	#musicplayerwrapper .close-button,
+	#scoreboard .close-button,
+	#hotkeys .close-button,
+	#ab-secret-view .close-button,
+	#meta-powers .close-button,
+	#meta-powers-close-button.meta-powers-close-inline {
+		position: fixed !important;
+		inset: 0 0 auto auto !important;
+		width: 64px !important;
+		height: 64px !important;
+		padding: 0 !important;
+		margin: 0 !important;
+		border: 0 !important;
+		border-radius: 50% !important;
+		box-shadow: none !important;
+		transform: none !important;
+		transition: none !important;
+	}
+}
+
+@media screen and (max-width: 1000px) {
+	#dash.active.compact-card-back:not(.medium-single-card) #card .card.sideB,
+	#dash.active.medium-single-card.compact-card-back #card .card.sideB {
+		display: block !important;
+		visibility: visible !important;
+	}
+}
+
+@media screen and (max-width: 768px) {
+	#dash #return {
+		position: fixed !important;
+		inset: 0 0 auto auto !important;
+		width: 64px !important;
+		height: 64px !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		border: 0 !important;
+		transform: none !important;
+		z-index: 100000 !important;
+	}
+
+	#dash #return .close-button {
+		position: fixed !important;
+		inset: 0 0 auto auto !important;
+		width: 64px !important;
+		height: 64px !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		border: 0 !important;
+		border-radius: 50% !important;
+		background: url('assets/icons/close.svg') no-repeat center center !important;
+		background-size: 100% 100% !important;
+		box-shadow: none !important;
+		transform: none !important;
+		transition: none !important;
+	}
+
+	#dash #return .close-button::before,
+	#dash #return .close-button::after {
+		content: none !important;
+		display: none !important;
+	}
+}
+
+@media screen and (max-width: 700px),
+	screen and (orientation: landscape) and (max-width: 1000px) and (max-height: 700px) {
+	#ab-dev-reload-prompt .framed-modal__return {
+		position: fixed !important;
+		inset: 0 0 auto auto !important;
+		width: 64px !important;
+		height: 64px !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		border: 0 !important;
+		transform: none !important;
+		z-index: 100000 !important;
+	}
+
+	#ab-dev-reload-prompt .close-button {
+		position: fixed !important;
+		inset: 0 0 auto auto !important;
+		width: 64px !important;
+		height: 64px !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		border: 0 !important;
+		border-radius: 50% !important;
+		background: url('assets/icons/close.svg') no-repeat center center !important;
+		background-size: 100% 100% !important;
+		box-shadow: none !important;
+		transform: none !important;
+		transition: none !important;
+		line-height: 0 !important;
+		text-indent: -9999px !important;
+	}
+
+	#ab-dev-reload-prompt .close-button::before,
+	#ab-dev-reload-prompt .close-button::after {
+		content: none !important;
+		display: none !important;
+	}
+}
+
+/* Short portrait phones (≈500–709px tall): compact the score screen so the
+   modal content fits without an internal scrollbar. The 72px bottom padding
+   (reserved for the in-game control panel, hidden behind this opaque overlay),
+   the 46px gap under the table and the generous title/action spacing are all
+   reclaimed here. The OpenCollective banner keeps its 85px at the bottom. */
+@media screen and (orientation: portrait) and (max-width: 600px) and (max-height: 709px) {
+	#scoreboard {
+		padding-bottom: 8px !important;
+	}
+
+	#scoreboard .framed-modal--scoreboard {
+		overflow-y: hidden !important;
+	}
+
+	#scoreboard #scoreboardTitle {
+		margin-top: 0 !important;
+		margin-bottom: 2px !important;
+		font-size: 20px !important;
+		line-height: 1.15 !important;
+	}
+
+	#scoreboard #winnerMessage,
+	#scoreboard #scoreboard-overview {
+		margin-top: 0 !important;
+		margin-bottom: 0 !important;
+	}
+
+	#scoreboard .scoreboard-content {
+		row-gap: 8px !important;
+	}
+
+	#scoreboard .scoreboard-inner--scores #score {
+		margin: 0 !important;
+	}
+
+	#scoreboard .scoreboard-inner--scores #score td {
+		line-height: 1.15 !important;
+	}
+
+	#scoreboard .scoreboardActions {
+		margin-top: 2px !important;
+		padding-bottom: 4px !important;
+		gap: 12px !important;
+	}
+
+	#scoreboard .scoreboardActions #fleeWrapper,
+	#scoreboard .scoreboardActions #saveWrapper,
+	#scoreboard .scoreboardActions #restartWrapper,
+	#scoreboard .scoreboardActions #exitWrapper {
+		width: 52px !important;
+		height: 52px !important;
+	}
+
+	#scoreboard .scoreboardActions .button {
+		/* Keep the 80x80 square (don't let the 52px flex wrapper squash it to
+		   52x80, which scaled into an oval) so the round frame stays round. */
+		flex: 0 0 auto !important;
+		transform: scale(0.65) !important;
+		transform-origin: center center !important;
 	}
 }

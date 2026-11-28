@@ -388,12 +388,12 @@
 	font-size: 13px;
 }
 
-.animateStats(@statList) {
-	each(@statList, {
-		.@{value} {
-			background-image: url('assets/stats/@{value}.gif');
-		}
-	});
+.animateStats(@list, @index: 1) when (@index <= length(@list)) {
+	@value: extract(@list, @index);
+	.@{value} {
+		background-image: url('assets/stats/@{value}.gif');
+	}
+	.animateStats(@list, @index + 1);
 }
 @listOfStats: health, regrowth, energy, endurance, meditation, initiative, offense, defense,
 	movement, pierce, slash, crush, shock, burn, frost, poison, sonic, mental;

@@ -18,6 +18,7 @@ export type CrazyGamesUser = {
 
 export type CrazyGamesSettings = {
 	muteAudio?: boolean;
+	mute?: boolean;
 	disableChat?: boolean;
 };
 
@@ -263,9 +264,14 @@ export function bootstrapCrazyGames(handlers: CrazyGamesBootstrapHandlers): void
 
 		// Platform mute (the CrazyGames player bar) has priority over the in-game
 		// toggle; re-apply whenever the player changes it.
-		handlers.applyMute(crazyGames.getSettings()?.muteAudio === true);
+		const settings = crazyGames.getSettings();
+		const initialMute = settings?.muteAudio === true || settings?.mute === true;
+		console.log('[crazygames] initial settings:', settings, 'mute:', initialMute);
+		handlers.applyMute(initialMute);
 		crazyGames.addSettingsChangeListener((settings) => {
-			handlers.applyMute(settings?.muteAudio === true);
+			console.log('[crazygames] settings changed:', settings);
+			const muted = settings?.muteAudio === true || settings?.mute === true;
+			handlers.applyMute(muted);
 		});
 
 		// Show CrazyGames usernames in-game (falls back to "Player N" for guests).

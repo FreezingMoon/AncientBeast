@@ -19,13 +19,16 @@ type AudioContextWindow = {
 
 type ResumableContext = Pick<AudioContext, 'state' | 'resume'>;
 
-type GestureTarget = {
-	addEventListener(type: string, listener: () => void): void;
-	removeEventListener(type: string, listener: () => void): void;
-};
+interface GestureTarget {
+	addEventListener(type: string, listener: () => void, options?: boolean | object): void;
+	removeEventListener(type: string, listener: () => void, options?: boolean | object): void;
+}
 
 /** The interactions WebKit accepts as a user gesture for unlocking audio. */
 export const GESTURE_EVENTS = ['pointerdown', 'touchend', 'keydown'];
+
+/** Additional events that work inside iframes (focus, visibility change). */
+export const IFRAME_GESTURE_EVENTS = ['focus', 'visibilitychange'];
 
 /**
  * Resolve the AudioContext constructor from a window-like object.
@@ -53,20 +56,60 @@ export function resolveAudioContextCtor(win?: AudioContextWindow): AudioContextC
  * Resume a suspended AudioContext on the first user gesture, then stop
  * listening. If the resume is still refused, the listeners stay armed for
  * the next gesture. Returns a function that cancels the pending unlock.
+ *
+ * In iframe contexts (e.g., CrazyGames), also listens for focus/visibility
+ * events on the window and attempts to attach to the parent window when
+ * same-origin accessible.
  */
 export function unlockAudioContextOnGesture(
 	context: ResumableContext,
 	target?: GestureTarget,
 ): () => void {
-	const listenTarget =
-		target ?? (typeof document === 'undefined' ? undefined : (document as GestureTarget));
+	const doc = typeof document === 'undefined' ? undefined : (document as GestureTarget);
+	const win = typeof window === 'undefined' ? undefined : (window as GestureTarget);
 
-	if (!listenTarget || context.state === 'running') {
+	const listenTargets: GestureTarget[] = [];
+
+	// Primary target: explicit target or document
+	if (target) {
+		listenTargets.push(target);
+	} else if (doc) {
+		listenTargets.push(doc);
+	}
+
+	// Also listen on window for focus events (works in iframes)
+	if (win) {
+		listenTargets.push(win);
+	}
+
+	// Try to also listen on parent window if same-origin (for cross-origin iframes this will throw)
+	// We test by adding a temporary listener to verify we have access.
+	try {
+		if (win && win !== window.parent) {
+			const parentWin = window.parent as GestureTarget;
+			if (parentWin) {
+				// Test if we can actually add event listeners (cross-origin will throw here)
+				const testListener = () => {
+					// empty
+				};
+				parentWin.addEventListener('pointerdown', testListener);
+				parentWin.removeEventListener('pointerdown', testListener);
+				listenTargets.push(parentWin);
+			}
+		}
+	} catch {
+		// Cross-origin, ignore
+	}
+
+	if (listenTargets.length === 0 || context.state === 'running') {
 		return () => undefined;
 	}
 
 	function stop() {
-		GESTURE_EVENTS.forEach((event) => listenTarget.removeEventListener(event, unlock));
+		listenTargets.forEach((t) => {
+			GESTURE_EVENTS.forEach((event) => t.removeEventListener(event, unlock));
+			IFRAME_GESTURE_EVENTS.forEach((event) => t.removeEventListener(event, unlock));
+		});
 	}
 
 	function unlock() {
@@ -75,7 +118,10 @@ export function unlockAudioContextOnGesture(
 		});
 	}
 
-	GESTURE_EVENTS.forEach((event) => listenTarget.addEventListener(event, unlock));
+	listenTargets.forEach((t) => {
+		GESTURE_EVENTS.forEach((event) => t.addEventListener(event, unlock));
+		IFRAME_GESTURE_EVENTS.forEach((event) => t.addEventListener(event, unlock));
+	});
 
 	return stop;
 }
@@ -85,20 +131,60 @@ export function unlockAudioContextOnGesture(
  * policy. Arms listeners for the next user gesture; resolves true when the
  * play attempt eventually succeeds. The caller owns cancelling via the
  * returned function (used when the track changes or music stops).
+ *
+ * In iframe contexts (e.g., CrazyGames), also listens for focus/visibility
+ * events on the window and attempts to attach to the parent window when
+ * same-origin accessible.
  */
 export function playAudioOnNextGesture(
 	play: () => Promise<void>,
 	target?: GestureTarget,
 ): () => void {
-	const listenTarget =
-		target ?? (typeof document === 'undefined' ? undefined : (document as GestureTarget));
+	const doc = typeof document === 'undefined' ? undefined : (document as GestureTarget);
+	const win = typeof window === 'undefined' ? undefined : (window as GestureTarget);
 
-	if (!listenTarget) {
+	const listenTargets: GestureTarget[] = [];
+
+	// Primary target: explicit target or document
+	if (target) {
+		listenTargets.push(target);
+	} else if (doc) {
+		listenTargets.push(doc);
+	}
+
+	// Also listen on window for focus events (works in iframes)
+	if (win) {
+		listenTargets.push(win);
+	}
+
+	// Try to also listen on parent window if same-origin
+	// We test by adding a temporary listener to verify we have access.
+	try {
+		if (win && win !== window.parent) {
+			const parentWin = window.parent as GestureTarget;
+			if (parentWin) {
+				// Test if we can actually add event listeners (cross-origin will throw here)
+				const testListener = () => {
+					// empty
+				};
+				parentWin.addEventListener('pointerdown', testListener);
+				parentWin.removeEventListener('pointerdown', testListener);
+				listenTargets.push(parentWin);
+			}
+		}
+	} catch {
+		// Cross-origin, ignore
+	}
+
+	if (listenTargets.length === 0) {
 		return () => undefined;
 	}
 
 	function stop() {
-		GESTURE_EVENTS.forEach((event) => listenTarget.removeEventListener(event, retry));
+		listenTargets.forEach((t) => {
+			GESTURE_EVENTS.forEach((event) => t.removeEventListener(event, retry));
+			IFRAME_GESTURE_EVENTS.forEach((event) => t.removeEventListener(event, retry));
+		});
 	}
 
 	function retry() {
@@ -107,7 +193,10 @@ export function playAudioOnNextGesture(
 		});
 	}
 
-	GESTURE_EVENTS.forEach((event) => listenTarget.addEventListener(event, retry));
+	listenTargets.forEach((t) => {
+		GESTURE_EVENTS.forEach((event) => t.addEventListener(event, retry));
+		IFRAME_GESTURE_EVENTS.forEach((event) => t.addEventListener(event, retry));
+	});
 
 	return stop;
 }

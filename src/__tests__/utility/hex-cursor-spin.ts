@@ -395,4 +395,239 @@ describe('Hover cursor over occupied overlays', () => {
 		expect(addedSprites).toHaveLength(0);
 		expect(hex.isSpinning).toBe(true);
 	});
+
+	test('renders a non-spinning centered cursor over a filled outline for targeted unit hexes', () => {
+		const { hex, style, display, overlay, grid, addedSprites } = createHexStandIn();
+		grid.selectedHex = hex;
+		hex.displayClasses = 'creature player1';
+		overlay.originX = 0;
+		overlay.originY = 0;
+		overlay.angle = 72;
+
+		style(' reachable targetCursor selected h_player1 hover ');
+
+		expect(display.key).toBe('hex_p1');
+		expect(overlay.key).toBe('input');
+		expect(overlay.alpha).toBe(1);
+		expect(overlay.originX).toBe(0.5);
+		expect(overlay.originY).toBe(0.5);
+		expect(overlay.x).toBe(hex.hitBox.x + hex.hitBox.width / 2);
+		expect(overlay.y).toBe(hex.hitBox.y + hex.hitBox.height / 2);
+		expect(overlay.angle).toBe(0);
+		expect(hex.isSpinning).toBe(false);
+		expect(addedSprites).toHaveLength(0);
+	});
+
+	test('keeps player filled outline on unaffected overflow hexes both idle and hovered', () => {
+		const { hex, style, display, overlay } = createHexStandIn();
+		hex.displayClasses = 'creature player2';
+
+		// Idle: filled outline only, no cursor overlay
+		style(' targetOverflow h_player2 ');
+		expect(display.key).toBe('hex_p2');
+		expect(display.alpha).toBe(1);
+		expect(overlay.alpha).toBe(0);
+		expect(hex.isSpinning).toBe(false);
+
+		// Hovered: display stays filled outline (never replaced by hex_path), overlay gets hover outline
+		style(' targetOverflow h_player2 hover ');
+		expect(display.key).toBe('hex_p2');
+		expect(overlay.key).toBe('hex_hover_p2');
+		expect(overlay.alpha).toBe(1);
+	});
+
+	test('extends partial multi-hex unit choices, preserves outlines on hover/hover-off, and confirms via base hexes', () => {
+		const { grid, hexes, first, second } = createQueryGrid();
+		const third = createHexStandIn();
+		Object.setPrototypeOf(third.hex, Hex.prototype);
+		Object.assign(third.hex, { x: 2, y: 0, pos: { x: 2, y: 0 }, grid });
+		hexes.push(third.hex as unknown as Hex);
+		(grid.hexes[0] as unknown as Hex[]).push(third.hex as unknown as Hex);
+		(grid.game.UI.chat as unknown as { showExpanded: jest.Mock }).showExpanded = jest.fn();
+		const { Creature } = jest.requireActual('../../creature') as typeof import('../../creature');
+
+		const multiUnit = Object.create(Creature.prototype);
+		Object.assign(multiUnit, {
+			id: 2,
+			team: 1,
+			hexagons: [hexes[0], hexes[1]],
+			isDarkPriest: () => false,
+			startBounce: jest.fn(),
+			resetBounce: jest.fn(),
+			ghostOverlap: jest.fn(),
+			xray: jest.fn(),
+		});
+		const otherUnit = Object.create(Creature.prototype);
+		Object.assign(otherUnit, {
+			id: 3,
+			team: 1,
+			hexagons: [hexes[2]],
+			isDarkPriest: () => false,
+			startBounce: jest.fn(),
+			resetBounce: jest.fn(),
+			ghostOverlap: jest.fn(),
+			xray: jest.fn(),
+		});
+		hexes[0].creature = multiUnit;
+		hexes[1].creature = multiUnit;
+		hexes[2].creature = otherUnit;
+		(hexes[0] as unknown as { direction: number }).direction = 1;
+		(hexes[2] as unknown as { direction: number }).direction = 2;
+
+		const onConfirm = jest.fn();
+
+		grid.queryChoice({
+			choices: [[hexes[0]], [hexes[2]]],
+			requireCreature: false,
+			fnOnConfirm: onConfirm,
+		});
+
+		// Affected hex gets filled outline + non-spinning cursor overlay
+		expect(first.display.key).toBe('hex_p1');
+		expect(first.overlay.key).toBe('input');
+		expect(first.hex.isSpinning).toBe(false);
+
+		// Unaffected base hex gets filled outline without cursor overlay, and is reachable
+		expect(second.display.key).toBe('hex_p1');
+		expect(second.overlay.alpha).toBe(0);
+		expect(second.hex.reachable).toBe(true);
+		expect(second.hex.overlayClasses).not.toMatch(/\btargetCursor\b/);
+
+		// Hovering the unaffected base hex highlights choice 0 while keeping otherUnit's outline intact
+		grid.selectedHex = hexes[1];
+		hexes[1].onSelectFn(hexes[1]);
+		expect(first.display.key).toBe('hex_p1');
+		expect(first.overlay.key).toBe('input');
+		expect(first.hex.isSpinning).toBe(false);
+		expect(second.display.key).toBe('hex_p1');
+		expect(third.display.key).toBe('hex_p1');
+		expect(third.overlay.key).toBe('input');
+
+		// Hovering off restores both affected (cursor + outline) and overflow (outline only)
+		grid.clearTransientCreatureHoverVisual(multiUnit);
+		expect(first.display.key).toBe('hex_p1');
+		expect(first.overlay.key).toBe('input');
+		expect(first.hex.isSpinning).toBe(false);
+		expect(second.display.key).toBe('hex_p1');
+		expect(second.overlay.alpha).toBe(0);
+		expect(second.hex.overlayClasses).not.toMatch(/\btargetCursor\b/);
+
+		// Direct click on the unaffected base hex confirms choice 0 with anchor hex metadata
+		hexes[1].onConfirmFn(hexes[1]);
+		expect(onConfirm).toHaveBeenCalledWith(
+			[hexes[0]],
+			expect.objectContaining({ choiceIndex: 0, direction: 1, hex: hexes[0] }),
+			expect.anything(),
+		);
+	});
+
+	test('queryCreature preserves targetCursor and overflow outline through hover and hover-off', () => {
+		const { grid, hexes, first, second } = createQueryGrid();
+		(grid.game.UI.chat as unknown as { showExpanded: jest.Mock }).showExpanded = jest.fn();
+		const { Creature } = jest.requireActual('../../creature') as typeof import('../../creature');
+
+		const attacker = Object.create(Creature.prototype);
+		Object.assign(attacker, { id: 1, team: 0, hexagons: [], faceHex: jest.fn(), xray: jest.fn() });
+		const targetUnit = Object.create(Creature.prototype);
+		Object.assign(targetUnit, {
+			id: 2,
+			team: 1,
+			hexagons: [hexes[0], hexes[1]],
+			isDarkPriest: () => false,
+			startBounce: jest.fn(),
+			resetBounce: jest.fn(),
+			xray: jest.fn(),
+		});
+		(grid.game as unknown as { creatures: Record<number, unknown> }).creatures = {
+			1: attacker,
+			2: targetUnit,
+		};
+		grid.game.activeCreature = attacker;
+		hexes[0].creature = targetUnit;
+		hexes[1].creature = targetUnit;
+		(hexes[0] as unknown as { ghostOverlap: jest.Mock }).ghostOverlap = jest.fn();
+		(hexes[1] as unknown as { ghostOverlap: jest.Mock }).ghostOverlap = jest.fn();
+
+		const onConfirm = jest.fn();
+		grid.queryCreature({
+			id: 1,
+			hexes: [hexes[0]],
+			fnOnConfirm: onConfirm,
+		});
+
+		// Initial state: affected hex has cursor + outline; overflow hex has outline only
+		expect(first.display.key).toBe('hex_p1');
+		expect(first.overlay.key).toBe('input');
+		expect(first.hex.isSpinning).toBe(false);
+		expect(second.display.key).toBe('hex_p1');
+		expect(second.overlay.alpha).toBe(0);
+
+		// Hover affected hex: cursor stays non-spinning and is never clobbered by fillHexOnHover/tracePosition
+		grid.selectedHex = hexes[0];
+		hexes[0].onSelectFn(hexes[0]);
+		expect(first.display.key).toBe('hex_p1');
+		expect(first.overlay.key).toBe('input');
+		expect(first.hex.isSpinning).toBe(false);
+		expect(second.display.key).toBe('hex_p1');
+
+		// Hover off: restores affected cursor and overflow outline cleanly
+		grid.clearTransientCreatureHoverVisual(targetUnit);
+		expect(first.display.key).toBe('hex_p1');
+		expect(first.overlay.key).toBe('input');
+		expect(first.hex.isSpinning).toBe(false);
+		expect(second.display.key).toBe('hex_p1');
+		expect(second.overlay.alpha).toBe(0);
+
+		// Clicking overflow hex still confirms the target creature
+		hexes[1].onConfirmFn(hexes[1]);
+		expect(onConfirm).toHaveBeenCalledWith(targetUnit, expect.anything(), expect.anything());
+	});
+
+	test('multi-choice overlap maps uncovered base hex to the nearest valid anchor and ignores invalid choices', () => {
+		const { grid, hexes } = createQueryGrid();
+		const third = createHexStandIn();
+		Object.setPrototypeOf(third.hex, Hex.prototype);
+		Object.assign(third.hex, { x: 2, y: 0, pos: { x: 2, y: 0 }, grid });
+		hexes.push(third.hex as unknown as Hex);
+		(grid.hexes[0] as unknown as Hex[]).push(third.hex as unknown as Hex);
+		(grid.game.UI.chat as unknown as { showExpanded: jest.Mock }).showExpanded = jest.fn();
+		const { Creature } = jest.requireActual('../../creature') as typeof import('../../creature');
+
+		const attacker = Object.create(Creature.prototype);
+		Object.assign(attacker, { id: 1, team: 0, hexagons: [], faceHex: jest.fn() });
+		const bigTarget = Object.create(Creature.prototype);
+		Object.assign(bigTarget, {
+			id: 2,
+			team: 1,
+			hexagons: [hexes[0], hexes[1], hexes[2]],
+			isDarkPriest: () => false,
+			startBounce: jest.fn(),
+			resetBounce: jest.fn(),
+		});
+		(grid.game as unknown as { creatures: Record<number, unknown> }).creatures = {
+			1: attacker,
+			2: bigTarget,
+		};
+		grid.game.activeCreature = attacker;
+		hexes[0].creature = bigTarget;
+		hexes[1].creature = bigTarget;
+		hexes[2].creature = bigTarget;
+
+		const onConfirm = jest.fn();
+		// Choice 0 hits hex 0 (distance 2 from hex 2); Choice 1 hits hex 1 (distance 1 from hex 2).
+		grid.queryChoice({
+			id: 1,
+			choices: [[hexes[0]], [hexes[1]]],
+			requireCreature: true,
+			fnOnConfirm: onConfirm,
+		});
+
+		// Clicking uncovered hex 2 selects Choice 1 (nearest anchor hex 1)
+		hexes[2].onConfirmFn(hexes[2]);
+		expect(onConfirm).toHaveBeenCalledWith(
+			[hexes[1]],
+			expect.objectContaining({ choiceIndex: 1, hex: hexes[1] }),
+			expect.anything(),
+		);
+	});
 });

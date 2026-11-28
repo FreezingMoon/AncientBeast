@@ -109,6 +109,13 @@ body {
 	font-family: 'Play', sans-serif;
 }
 
+/* Desktop: ensure websiteButton stays hidden (only gameTitle shows) */
+@media (min-width: 1024px) {
+	#websiteButton {
+		display: none !important;
+	}
+}
+
 * {
 	user-select: none;
 }
@@ -649,19 +656,35 @@ body {
 	cursor: pointer;
 	position: fixed;
 	width: 100px;
+	height: auto !important;
+	overflow: visible !important;
 	text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 	top: 0;
 	right: 0;
 	z-index: 100;
 
+	&::before {
+		display: none;
+	}
+
 	div {
 		display: block;
+		width: 100px;
 		height: 100px;
 		background-color: rgba(0, 0, 0, 0.55);
 		background-image: url('assets/interface/frame.png'), url('assets/icons/fullscreen.svg');
 		background-repeat: no-repeat;
 		background-size: cover;
 		margin-bottom: 3px;
+	}
+
+	span {
+		display: block;
+		font-size: 0.85rem;
+		line-height: 1.1;
+		text-align: center;
+		color: #fff;
+		text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 	}
 
 	&.fullscreenMode div {
@@ -675,12 +698,27 @@ body {
 	bottom: 0;
 	left: 0;
 	z-index: 100;
+	transform: none !important; /* cancel styles.less landscape scale/translate so Swampler stays fully visible at bottom-left */
 
 	div {
 		background: url('assets/interface/Swampler.gif') no-repeat;
 		width: 120px;
-		height: 130px;
+		height: 162px;  /* 120 * 195/144 = 162.5 */
 		background-size: contain;
+	}
+}
+
+@media (max-width: 555px) {
+	#contribute div {
+		width: 90px;
+		height: 122px;  /* 90 * 195/144 = 121.875 */
+	}
+}
+
+@media (max-height: 445px) {
+	#contribute div {
+		width: 70px;
+		height: 95px;  /* 70 * 195/144 = 94.79 */
 	}
 }
 
@@ -696,12 +734,25 @@ body {
 	right: 0;
 	z-index: 100;
 
-	div {
-		height: 100px;
-		background-color: rgba(0, 0, 0, 0.55);
-		background-image: url('assets/interface/frame.png'), url('assets/icons/version.svg');
-		background-repeat: no-repeat;
-		background-size: cover;
+	a {
+		width: 100px;
+		height: auto;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: flex-end;
+		gap: 4px;
+		padding-bottom: 8px;
+
+		div {
+			width: 100px;
+			height: 100px;
+			background-color: rgba(0, 0, 0, 0.55);
+			background-image: url('assets/interface/frame.png'), url('assets/icons/version.svg');
+			background-repeat: no-repeat;
+			background-size: cover;
+			flex-shrink: 0;
+		}
 	}
 }
 
@@ -735,9 +786,73 @@ a {
 	#gameSetup {
 		padding-bottom: 120px;
 	}
+
+	.lobby {
+		width: 100%;
+		max-width: 495px;
+		padding: 0 10px;
+		box-sizing: border-box;
+	}
+
+	.lobby-row {
+		gap: 4px !important;
+	}
+
+	.lobby-row .button-wrapper {
+		margin: 0 !important;
+	}
+
+	.lobby-row .crimson-button {
+		width: 140px !important;
+		height: 54px !important;
+		font-size: 0.75em !important;
+		background-size: 140px !important;
+	}
+
+	.lobby-code-input {
+		flex: 0 1 120px !important;
+		height: 54px !important;
+		font-size: 13px !important;
+		padding: 6px 4px !important;
+	}
+
+	/* Devvit lobby buttons */
+	#devvitLobby .crimson-button {
+		width: 140px !important;
+		height: 54px !important;
+		font-size: 0.75em !important;
+		background-size: 140px !important;
+	}
+
+	/* Game options - make radio labels smaller */
+	.gameOption {
+		padding: 3px !important;
+		margin: 1px !important;
+	}
+
+	.gameOption h2 {
+		font-size: 0.85em !important;
+		margin: 3px !important;
+	}
+
+	.typeRadio label {
+		font-size: 0.75em !important;
+		line-height: 22px !important;
+		padding: 0 4px !important;
+	}
+
+	/* Reduce border-frame border width on mobile */
+	.border-frame {
+		border-width: 20px !important;
+		border-image-slice: 20 !important;
+		width: 100% !important;
+		max-width: 495px;
+		box-sizing: border-box;
+		border: none !important;
+	}
 }
 
-@media (max-height: 664px) {
+@media (max-height: 479px) and (max-width: 555px) {
 	#matchMaking {
 		min-height: 100vh;
 		overflow-y: hidden;
@@ -835,6 +950,285 @@ a {
 	}
 }
 
+/* Tiny viewport (e.g., 500x300): Hide fixed controls and show the desktop-style
+   START prompt. Setting cards are hidden from the bottom by script.ts only when
+   the prompt and the remaining rows do not fit the viewport. */
+@media (max-width: 555px) and (max-height: 400px) {
+	/* Hide fixed UI elements on right side */
+	#fullscreen,
+	#start,
+	#version,
+	#contribute {
+		display: none !important;
+	}
+
+	/* Hide upper-left buttons */
+	#websiteButton,
+	#gameTitle {
+		display: none !important;
+	}
+
+	/* Hide multiplayer lobby */
+	.lobby,
+	#createdLobby,
+	#devvitLobby {
+		display: none !important;
+	}
+
+	#start-btn {
+		display: flex !important;
+		position: relative !important;
+		align-items: center !important;
+		justify-content: center !important;
+		flex: 1 1 100% !important;
+		order: 99 !important;
+		left: auto !important;
+		top: auto !important;
+		bottom: auto !important;
+		transform: none !important;
+		width: 100% !important;
+		min-height: 0 !important;
+		height: 32px !important;
+		margin: 1px 2px !important;
+		padding: 0 !important;
+		background: none !important;
+		border-radius: 0 !important;
+		z-index: 2 !important;
+	}
+
+	#startButton {
+		display: inline-block !important;
+		position: relative !important;
+		top: auto !important;
+		left: auto !important;
+		transform: none !important;
+		width: 130px !important;
+		height: 51px !important;
+		margin: 0 4px !important;
+		background-size: 130px 51px !important;
+		font-size: 0.65rem !important;
+	}
+
+	#startMatchButton {
+		display: none !important;
+	}
+
+	/* Keep the desktop blink text together in a compact line. */
+	#start-btn span.blink {
+		position: relative !important;
+		top: auto !important;
+		left: auto !important;
+		right: auto !important;
+		display: inline-block !important;
+		transform: none !important;
+		font-size: 0.7rem !important;
+		line-height: 1 !important;
+		text-shadow: 1px 1px 2px #000 !important;
+	}
+
+	#gameSetupContainer #pre-match {
+		justify-content: center !important;
+	}
+
+	/* Reduce margins/padding for tight space */
+	.setupFrame,
+	.game-options {
+		margin-bottom: 5px !important;
+	}
+
+	/* Hide lobby error */
+	.lobby-error {
+		display: none !important;
+	}
+
+	/* Reset any transforms */
+	#fullscreen,
+	#version,
+	#websiteButton,
+	#start,
+	#contribute,
+	.setupFrame,
+	.lobby-error {
+		transform: none !important;
+	}
+}
+
+/* Wider landscape viewport (e.g., 600x435): Show websiteButton (AB text) at upper-left */
+@media (min-width: 556px) and (max-height: 479px) and (orientation: landscape) {
+	/* Reset styles.less landscape transforms */
+	#fullscreen,
+	#version,
+	#websiteButton,
+	#start,
+	#contribute,
+	.setupFrame,
+	.lobby-error {
+		transform: none !important;
+	}
+
+	/* Website button (AB text) at upper-left */
+	#websiteButton {
+		display: block !important;
+		width: 100px !important;
+		height: auto !important;
+		min-height: 100px !important;
+		position: fixed !important;
+		top: 0 !important;
+		left: 0 !important;
+		z-index: 100 !important;
+		margin: 0 !important;
+		padding: 0 !important;
+
+		a {
+			display: flex !important;
+			flex-direction: column !important;
+			align-items: center !important;
+			gap: 2px !important;
+			width: 100% !important;
+			height: auto !important;
+			text-decoration: none !important;
+		}
+
+		div {
+			display: block !important;
+			width: 100px !important;
+			height: 100px !important;
+			background-image: url('assets/interface/AB.png') !important;
+			background-repeat: no-repeat !important;
+			background-size: cover !important;
+			margin: 0 !important;
+			flex-shrink: 0 !important;
+		}
+
+		span {
+			display: block !important;
+			font-size: 1rem !important;
+			line-height: 1.1 !important;
+			text-align: center !important;
+			color: #fff !important;
+			text-shadow: 0.1em 0.1em 0.1em #000, 0 0 0.7em red !important;
+			white-space: normal !important;
+		}
+	}
+
+	/* Hide gameTitle */
+	#gameTitle {
+		display: none !important;
+	}
+
+	/* Fullscreen button at top-right */
+	#fullscreen {
+		width: 100px !important;
+		height: auto !important;
+		min-height: 100px !important;
+		position: fixed !important;
+		top: 0 !important;
+		right: 0 !important;
+		z-index: 100 !important;
+
+		div {
+			width: 100px !important;
+			height: 100px !important;
+			background-color: rgba(0, 0, 0, 0.55) !important;
+			background-image: url('assets/interface/frame.png'), url('assets/icons/fullscreen.svg') !important;
+			background-repeat: no-repeat !important;
+			background-size: cover !important;
+			margin-bottom: 3px !important;
+		}
+
+		span {
+			display: block !important;
+			font-size: 0.85rem !important;
+			line-height: 1.1 !important;
+			text-align: center !important;
+			color: #fff !important;
+			text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000 !important;
+		}
+	}
+
+	/* Version button at bottom-right */
+	#version {
+		width: 100px !important;
+		height: auto !important;
+		min-height: 100px !important;
+		position: fixed !important;
+		bottom: 0 !important;
+		right: 0 !important;
+		z-index: 100 !important;
+
+		a {
+			width: 100px !important;
+			height: auto !important;
+			display: flex !important;
+			flex-direction: column !important;
+			align-items: center !important;
+			justify-content: flex-end !important;
+			gap: 4px !important;
+			padding-bottom: 8px !important;
+
+			div {
+				width: 100px !important;
+				height: 100px !important;
+				background-size: cover !important;
+				flex-shrink: 0 !important;
+			}
+		}
+	}
+
+	/* START button middle-right */
+	#start-btn {
+		display: none !important;
+	}
+
+	#startButton,
+	#startMatchButton {
+		display: none !important;
+	}
+
+	#start {
+		display: block !important;
+		width: 100px !important;
+		height: 100px !important;
+		position: fixed !important;
+		right: 0 !important;
+		top: 50% !important;
+		transform: translateY(-50%) !important;
+		z-index: 100 !important;
+	}
+
+	#start button {
+		width: 100px !important;
+		height: 100px !important;
+		background-size: cover !important;
+	}
+
+	/* Contribute/Swampler at bottom-left */
+	#contribute {
+		width: 90px !important;
+		height: 122px !important;
+		position: fixed !important;
+		bottom: 0 !important;
+		left: 0 !important;
+		z-index: 100 !important;
+
+		div {
+			width: 90px !important;
+			height: 122px !important;
+			background-size: contain !important;
+		}
+	}
+
+	/* Reset setupFrame transform */
+	.setupFrame {
+		transform: none !important;
+	}
+
+	/* Lobby error positioning */
+	.lobby-error {
+		transform: translateY(-50%) !important;
+	}
+}
+
 @media (max-height: 555px) {
 	#start-btn {
 		display: none;
@@ -846,7 +1240,8 @@ a {
 		position: fixed;
 		right: 0;
 		top: 50%;
-		transform: translateY(-50%);
+		/* !important cancels styles.less landscape scale/translate so the button stays middle-right */
+		transform: translateY(-50%) !important;
 		z-index: 100;
 
 		button {
@@ -867,9 +1262,423 @@ a {
 	}
 }
 
+/* Mobile viewport (~530x487): Position START button on right side */
+@media (max-width: 555px) and (max-height: 479px) and (min-height: 401px) {
+	#start-btn {
+		display: none;
+	}
+
+	#startButton,
+	#startMatchButton {
+		display: none !important;
+	}
+
+	#start {
+		display: block;
+		width: 80px;
+		height: 80px;
+		position: fixed;
+		right: 10px;
+		top: 50%;
+		/* !important cancels styles.less landscape scale/translate so the button stays middle-right */
+		transform: translateY(-50%) !important;
+		z-index: 100;
+	}
+
+	#start button {
+		display: block;
+		width: 80px;
+		height: 80px;
+		border: none;
+		cursor: pointer;
+		background-color: rgba(0, 0, 0, 0.55);
+		background-image: url('assets/interface/frame.png'), url('assets/icons/start.svg');
+		background-repeat: no-repeat;
+		background-size: cover;
+	}
+
+	#start span {
+		animation: fading 2.5s infinite;
+		font-size: 0.7em;
+	}
+}
+
 @media (max-height: 555px) and (max-width: 1023px) {
 	#matchMaking {
 		background: black url('assets/interface/skulls.jpg') repeat;
+	}
+}
+
+/* Tiny landscape viewport (~500x403): Override styles.less landscape transforms
+   and position fixed elements: #websiteButton (upper-left), #fullscreen (top-right),
+   #start (middle-right between fullscreen/version), #version (bottom-right), #contribute (bottom-left) */
+/* Reset all styles.less landscape transforms */
+@media (max-width: 570px) and (max-height: 479px) and (orientation: landscape) {
+	#fullscreen,
+	#version,
+	#websiteButton,
+	#start,
+	#contribute,
+	.setupFrame,
+	.lobby-error {
+		transform: none !important;
+	}
+}
+
+/* Website button (AB text) at upper-left, same size as fullscreen button */
+@media (max-width: 570px) and (max-height: 479px) and (orientation: landscape) {
+	#websiteButton {
+		display: block !important;
+		width: 100px !important;
+		height: auto !important;
+		min-height: 100px !important;
+		position: fixed !important;
+		top: 0 !important;
+		left: 0 !important;
+		z-index: 100 !important;
+		margin: 0 !important;
+		padding: 0 !important;
+
+		a {
+			display: flex !important;
+			flex-direction: column !important;
+			align-items: center !important;
+			gap: 2px !important;
+			width: 100% !important;
+			height: auto !important;
+			text-decoration: none !important;
+		}
+
+		div {
+			display: block !important;
+			width: 100px !important;
+			height: 100px !important;
+			background-image: url('assets/interface/AB.png') !important;
+			background-repeat: no-repeat !important;
+			background-size: cover !important;
+			margin: 0 !important;
+			flex-shrink: 0 !important;
+		}
+
+		span {
+			display: block !important;
+			font-size: 1rem !important;
+			line-height: 1.1 !important;
+			text-align: center !important;
+			color: #fff !important;
+			text-shadow: 0.1em 0.1em 0.1em #000, 0 0 0.7em red !important;
+			white-space: normal !important;
+		}
+	}
+}
+
+/* Hide gameTitle */
+@media (max-width: 570px) and (max-height: 479px) and (orientation: landscape) {
+	#gameTitle {
+		display: none !important;
+	}
+}
+
+/* Fullscreen button at top-right */
+@media (max-width: 570px) and (max-height: 479px) and (orientation: landscape) {
+	#fullscreen {
+		width: 100px !important;
+		height: auto !important;
+		min-height: 100px !important;
+		position: fixed !important;
+		top: 0 !important;
+		right: 0 !important;
+		z-index: 100 !important;
+
+		div {
+			width: 100px !important;
+			height: 100px !important;
+			background-color: rgba(0, 0, 0, 0.55) !important;
+			background-image: url('assets/interface/frame.png'), url('assets/icons/fullscreen.svg') !important;
+			background-repeat: no-repeat !important;
+			background-size: cover !important;
+			margin-bottom: 3px !important;
+		}
+
+		span {
+			display: block !important;
+			font-size: 0.85rem !important;
+			line-height: 1.1 !important;
+			text-align: center !important;
+			color: #fff !important;
+			text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000 !important;
+		}
+	}
+}
+
+/* Version button at bottom-right */
+@media (max-width: 570px) and (max-height: 479px) and (orientation: landscape) {
+	#version {
+		width: 100px !important;
+		height: auto !important;
+		min-height: 100px !important;
+		position: fixed !important;
+		bottom: 0 !important;
+		right: 0 !important;
+		z-index: 100 !important;
+
+		a {
+			width: 100px !important;
+			height: auto !important;
+			display: flex !important;
+			flex-direction: column !important;
+			align-items: center !important;
+			justify-content: flex-end !important;
+			gap: 4px !important;
+			padding-bottom: 8px !important;
+
+			div {
+				width: 100px !important;
+				height: 100px !important;
+				background-size: cover !important;
+				flex-shrink: 0 !important;
+			}
+		}
+	}
+}
+
+/* START button vertically centered between fullscreen and version on right margin,
+   same size as fullscreen/version (100x100) and flush to right edge */
+@media (max-width: 570px) and (max-height: 479px) and (orientation: landscape) {
+	#start-btn {
+		display: none !important;
+	}
+
+	#startButton,
+	#startMatchButton {
+		display: none !important;
+	}
+
+	#start {
+		display: block !important;
+		width: 100px !important;
+		height: 100px !important;
+		position: fixed !important;
+		right: 0 !important;
+		top: 50% !important;
+		transform: translateY(-50%) !important;
+		z-index: 100 !important;
+	}
+
+	#start button {
+		width: 100px !important;
+		height: 100px !important;
+		background-size: cover !important;
+	}
+}
+
+/* Contribute/Swampler at bottom-left */
+@media (max-width: 570px) and (max-height: 479px) and (orientation: landscape) {
+	#contribute {
+		width: 70px !important;
+		height: 95px !important;
+		position: fixed !important;
+		bottom: 0 !important;
+		left: 0 !important;
+		z-index: 100 !important;
+
+		div {
+			width: 70px !important;
+			height: 95px !important;
+			background-size: contain !important;
+		}
+	}
+}
+
+/* Reset setupFrame transform */
+@media (max-width: 570px) and (max-height: 479px) and (orientation: landscape) {
+	.setupFrame {
+		transform: none !important;
+	}
+}
+
+/* Lobby error positioning */
+@media (max-width: 570px) and (max-height: 479px) and (orientation: landscape) {
+	.lobby-error {
+		transform: translateY(-50%) !important;
+	}
+}
+
+/* Medium height viewport (~500x504): Show websiteButton (AB text) at upper-left, make START same size as fullscreen/version */
+@media (max-width: 555px) and (max-height: 555px) and (min-height: 480px) {
+	/* Cancel styles.less landscape transforms for this range */
+	#fullscreen,
+	#version,
+	#websiteButton,
+	#start,
+	#contribute,
+	.setupFrame,
+	.lobby-error {
+		transform: none !important;
+	}
+
+	/* Website button (AB text) at upper-left, same size as fullscreen button */
+	#websiteButton {
+		display: block !important;
+		width: 100px !important;
+		height: auto !important;
+		min-height: 100px !important;
+		position: fixed !important;
+		top: 0 !important;
+		left: 0 !important;
+		z-index: 100 !important;
+		margin: 0 !important;
+		padding: 0 !important;
+
+		a {
+			display: flex !important;
+			flex-direction: column !important;
+			align-items: center !important;
+			gap: 2px !important;
+			width: 100% !important;
+			height: auto !important;
+			text-decoration: none !important;
+		}
+
+		div {
+			display: block !important;
+			width: 100px !important;
+			height: 100px !important;
+			background-image: url('assets/interface/AB.png') !important;
+			background-repeat: no-repeat !important;
+			background-size: cover !important;
+			margin: 0 !important;
+			flex-shrink: 0 !important;
+		}
+
+		span {
+			display: block !important;
+			font-size: 1rem !important;
+			line-height: 1.1 !important;
+			text-align: center !important;
+			color: #fff !important;
+			text-shadow: 0.1em 0.1em 0.1em #000, 0 0 0.7em red !important;
+			white-space: normal !important;
+		}
+	}
+
+	/* Hide gameTitle */
+	#gameTitle {
+		display: none !important;
+	}
+
+	/* Fullscreen button at top-right */
+	#fullscreen {
+		width: 100px !important;
+		height: auto !important;
+		min-height: 100px !important;
+		position: fixed !important;
+		top: 0 !important;
+		right: 0 !important;
+		z-index: 100 !important;
+
+		div {
+			width: 100px !important;
+			height: 100px !important;
+			background-color: rgba(0, 0, 0, 0.55) !important;
+			background-image: url('assets/interface/frame.png'), url('assets/icons/fullscreen.svg') !important;
+			background-repeat: no-repeat !important;
+			background-size: cover !important;
+			margin-bottom: 3px !important;
+		}
+
+		span {
+			display: block !important;
+			font-size: 0.85rem !important;
+			line-height: 1.1 !important;
+			text-align: center !important;
+			color: #fff !important;
+			text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000 !important;
+		}
+	}
+
+	/* Version button at bottom-right */
+	#version {
+		width: 100px !important;
+		height: auto !important;
+		min-height: 100px !important;
+		position: fixed !important;
+		bottom: 0 !important;
+		right: 0 !important;
+		z-index: 100 !important;
+
+		a {
+			width: 100px !important;
+			height: auto !important;
+			display: flex !important;
+			flex-direction: column !important;
+			align-items: center !important;
+			justify-content: flex-end !important;
+			gap: 4px !important;
+			padding-bottom: 8px !important;
+
+			div {
+				width: 100px !important;
+				height: 100px !important;
+				background-size: cover !important;
+				flex-shrink: 0 !important;
+			}
+		}
+	}
+
+	/* START button vertically centered between fullscreen and version on right margin,
+	   same size as fullscreen/version (100x100) and flush to right edge */
+	#start-btn {
+		display: none !important;
+	}
+
+	#startButton,
+	#startMatchButton {
+		display: none !important;
+	}
+
+	#start {
+		display: block !important;
+		width: 100px !important;
+		height: 100px !important;
+		position: fixed !important;
+		right: 0 !important;
+		/* Centered between fullscreen (top: 0-100) and version (bottom: 0-100) */
+		top: 50% !important;
+		transform: translateY(-50%) !important;
+		z-index: 100 !important;
+	}
+
+	#start button {
+		width: 100px !important;
+		height: 100px !important;
+		background-size: cover !important;
+	}
+
+	/* Contribute/Swampler at bottom-left */
+	#contribute {
+		width: 90px !important;
+		height: 122px !important;
+		position: fixed !important;
+		bottom: 0 !important;
+		left: 0 !important;
+		z-index: 100 !important;
+
+		div {
+			width: 90px !important;
+			height: 122px !important;
+			background-size: contain !important;
+		}
+	}
+
+	/* Reset setupFrame transform */
+	.setupFrame {
+		transform: none !important;
+	}
+
+	/* Lobby error positioning */
+	.lobby-error {
+		transform: translateY(-50%) !important;
 	}
 }
 
@@ -914,10 +1723,18 @@ a {
 }
 
 body.devvit-mode {
-	#pre-match .setupFrame,
-	#gameSetupContainer > #gameTitle,
-	#gameSetupContainer > #websiteButton,
-	#gameSetupContainer > #contribute,
+	#pre-match .setupFrame {
+		display: none !important;
+	}
+	#gameSetupContainer > #gameTitle {
+		display: none !important;
+	}
+	#gameSetupContainer > #websiteButton {
+		display: none !important;
+	}
+	#gameSetupContainer > #contribute {
+		display: none !important;
+	}
 	#gameSetupContainer > #version {
 		display: none !important;
 	}
@@ -944,4 +1761,82 @@ body.devvit-mode {
 		background-position: center;
 		overflow-x: hidden;
 	}
+}
+
+/* In-game fullscreen control: keep it inside the right-panel grid and do not
+   inherit the fixed top-right pre-match positioning from responsive rules. */
+body.in-game #ui #fullscreen {
+	position: relative !important;
+	top: auto !important;
+	right: auto !important;
+	bottom: auto !important;
+	left: auto !important;
+	width: 80px !important;
+	height: 80px !important;
+	min-height: 0 !important;
+	transform: none !important;
+	z-index: inherit !important;
+	overflow: hidden !important;
+}
+
+body.in-game #ui #fullscreen div {
+	width: 80px !important;
+	height: 80px !important;
+}
+
+/* Final override for small landscape/mobile screens. This must stay after all
+   responsive fixed-button rules so those rules cannot re-enable the controls. */
+@media (max-width: 555px) and (max-height: 400px) {
+	#gameTitle,
+	#websiteButton,
+	#fullscreen,
+	#start,
+	#version,
+	#contribute {
+		display: none !important;
+	}
+
+	#start-btn {
+		display: flex !important;
+		position: relative !important;
+		align-items: center !important;
+		justify-content: center !important;
+		width: 100% !important;
+		height: 32px !important;
+		min-height: 0 !important;
+		margin: 1px 2px !important;
+		padding: 0 !important;
+		transform: none !important;
+		left: auto !important;
+		top: auto !important;
+		bottom: auto !important;
+		background: none !important;
+		border-radius: 0 !important;
+	}
+
+	#startButton {
+		display: inline-block !important;
+		position: relative !important;
+		left: auto !important;
+		top: auto !important;
+		transform: none !important;
+	}
+
+	#startMatchButton {
+		display: none !important;
+	}
+}
+
+.gameOption[hidden] {
+	display: none !important;
+}
+
+body.prematch-prompt-only #start-btn {
+	position: fixed !important;
+	top: 50% !important;
+	left: 50% !important;
+	transform: translate(-50%, -50%) !important;
+	width: 100% !important;
+	height: 32px !important;
+	margin: 0 !important;
 }

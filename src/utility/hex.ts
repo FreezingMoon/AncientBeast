@@ -779,7 +779,7 @@ export class Hex {
 	cleanOverlayVisualState(classes = '') {
 		classes =
 			classes ||
-			'creature reachable weakDmg active moveto selected hover h_player0 h_player1 h_player2 h_player3 player0 player1 player2 player3';
+			'creature reachable targetCursor targetOverflow weakDmg active moveto selected hover h_player0 h_player1 h_player2 h_player3 player0 player1 player2 player3';
 		const a = classes.split(' ');
 
 		for (let i = 0, len = a.length; i < len; i++) {
@@ -1099,7 +1099,7 @@ export class Hex {
 		}
 
 		// Overlay Hex
-		targetAlpha = Boolean(this.overlayClasses.match(/hover|creature/g));
+		targetAlpha = Boolean(this.overlayClasses.match(/hover|creature|targetCursor/g));
 
 		if (hasCrashingGlobeTarget) {
 			if (isHoveringCrashingGlobeTarget) {
@@ -1114,12 +1114,32 @@ export class Hex {
 			this.overlay.visible = true;
 			const player = this.overlayClasses.match(/0|1|2|3/);
 
-			if (
+			if (this.overlayClasses.match(/\bhover\b/) && this.overlayClasses.match(/\bactive\b/)) {
+				loadTextureIfChanged(this.overlay, `hex_p${player}`);
+				this.grid.overlayHexesGroup.bringToTop(this.overlay);
+			} else if (this.overlayClasses.match(/\btargetCursor\b/)) {
+				targetAlpha = true;
+				loadTextureIfChanged(this.overlay, 'input');
+				this.overlay.setOrigin(0.5, 0.5);
+				alignIn(this.overlay, this.hitBox, ALIGN_CENTER);
+				this.grid.overlayHexesGroup.bringToTop(this.overlay);
+			} else if (
 				this.overlayClasses.match(/\bhover\b/) &&
-				this.overlayClasses.match(/\bactive\b|\bselected\b/)
+				this.overlayClasses.match(/\bselected\b/)
 			) {
 				loadTextureIfChanged(this.overlay, `hex_p${player}`);
 				this.grid.overlayHexesGroup.bringToTop(this.overlay);
+			} else if (this.overlayClasses.match(/\btargetOverflow\b/)) {
+				// Unaffected base hex of a partially targeted multi-hex unit:
+				// preserve the player color-coded filled outline on display
+				// without replacing it with `hex_path` when hovered.
+				if (this.overlayClasses.match(/\bhover\b/)) {
+					targetAlpha = true;
+					loadTextureIfChanged(this.overlay, `hex_hover_p${player}`);
+					this.grid.overlayHexesGroup.bringToTop(this.overlay);
+				} else {
+					targetAlpha = false;
+				}
 			} else if (this.overlayClasses.match(/reachable/)) {
 				targetAlpha = true;
 				loadTextureIfChanged(this.overlay, 'hex_path');
@@ -1150,6 +1170,7 @@ export class Hex {
 			this.overlay.visible = true;
 			loadTextureIfChanged(this.overlay, 'input');
 			this.overlay.setOrigin(0.5, 0.5);
+			alignIn(this.overlay, this.hitBox, ALIGN_CENTER);
 		}
 
 		// Do not override overlay.alpha for active/selected hexes: the glowInterval
@@ -1186,13 +1207,16 @@ export class Hex {
 		// resolved alpha — rather than from the absence of a player class, which
 		// is also true of every plain hex — keeps the shared spin loop down to
 		// the one or two cursors the player can see.
+		const isStaticTargetCursor = Boolean(this.overlayClasses.match(/\btargetCursor\b/));
 		const overlayShowsCursor =
 			!isGlowControlled &&
+			!isStaticTargetCursor &&
 			((this.overlay.key === 'input' && this.overlay.alpha > 0) ||
 				(hasCrashingGlobeTarget && this.display.alpha > 0));
 
 		const showsHoverCursor =
 			!overlayShowsCursor &&
+			!isStaticTargetCursor &&
 			!this.forcedHidden &&
 			this.grid?.selectedHex === this &&
 			!this.grid.materialize_overlay?._previewPos &&

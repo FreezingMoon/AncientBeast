@@ -108,6 +108,13 @@ export function applyPlatformMute(
 		return;
 	}
 	setAudioMode(currentAudioMode, soundSysInstance, uiInstance);
+
+	// When unmuting via platform (e.g., CrazyGames player bar), the user's click
+	// on the mute button doesn't propagate to the iframe, so we must explicitly
+	// resume the AudioContext if it's suspended.
+	if (!muted && soundSysInstance.context?.state === 'suspended') {
+		void soundSysInstance.context.resume();
+	}
 }
 
 export function getCurrentAudioSettings(soundSysInstance?: {
