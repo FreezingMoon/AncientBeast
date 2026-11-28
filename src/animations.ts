@@ -22,6 +22,8 @@ import {
 import { loadTexture, isTextureReady } from './assets';
 import { getFrameSize } from './display/texture';
 import { getDepthAtBand } from './display/layer';
+import { spawnChainLightning } from './vfx/lightning/effect';
+import { electroShockerLook } from './vfx/lightning/look';
 
 // to fix @ts-expect-error 2554: properly type the arguments for the trigger functions in `game.ts`
 
@@ -2515,6 +2517,42 @@ export class Animations {
 			.to({ angle: tilt }, speed, Easing.Cubic.Out)
 			.to({ angle: 0 }, settle, Easing.Cubic.Out)
 			.start();
+	}
+
+	/**
+	 * Shock damage hit effect (#1068): a few short lightning sparks crackle over
+	 * the unit's cardboard for a moment, one after the other.
+	 */
+	shockSparks(creature: Creature) {
+		const engine = this.game.gameEngine;
+		const sprite = creature.sprite;
+		const grp = creature.grp;
+		if (!engine || !sprite || !grp || creature.dead) {
+			return;
+		}
+
+		const { width, height } = getFrameSize(sprite);
+		const baseX = (grp.x ?? 0) + (sprite.x ?? 0);
+		const baseY = (grp.y ?? 0) + (sprite.y ?? 0);
+		// A random spot on the body, away from the cardboard's outer edges
+		const spot = () => ({
+			x: baseX + (Math.random() - 0.5) * width * 0.7,
+			y: baseY - height * (0.15 + Math.random() * 0.7),
+		});
+
+		for (let i = 0; i < 3; i++) {
+			after(i * 90, () => {
+				if (creature.dead) {
+					return;
+				}
+				spawnChainLightning(engine, [spot(), spot(), spot()], {
+					parent: this.game.grid.creatureGroup,
+					surfaceSource: { textures: this.game.Phaser?.textures },
+					depth: getDepthAtBand(creature.y, 'EFFECT_OVER_UNITS'),
+					look: electroShockerLook(),
+				});
+			});
+		}
 	}
 
 	/**
