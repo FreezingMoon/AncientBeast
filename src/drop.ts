@@ -105,6 +105,8 @@ export class Drop {
 
 		game.log('%CreatureName' + creature.id + '% picks up ' + this.name + ':');
 		creature.hint(this.name, 'msg_effects');
+		// Pickup jingle (#1099)
+		game.soundsys?.playSFX('sounds/pickup');
 
 		creature.dropCollection.push(this);
 
