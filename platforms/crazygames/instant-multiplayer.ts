@@ -6,6 +6,7 @@
 // bootstrap only passes a few callbacks.
 import $j from 'jquery';
 import type Game from '../../src/game';
+import { DemoModeManager, type DemoModeOptions } from '../../src/utils/demoModeManager';
 
 export type InstantMultiplayerContext = {
 	game: Game;
@@ -46,4 +47,19 @@ export function startInstantMultiplayerLobby(ctx: InstantMultiplayerContext): vo
 			renderGameModeType(game.multiplayer);
 			updateLobbyUi();
 		});
+}
+
+/**
+ * Initializes Kiosk Demo Mode for idle auto-play when no players are connected.
+ */
+export function initKioskDemoMode(options: Partial<DemoModeOptions> = {}): DemoModeManager {
+	const demoManager = new DemoModeManager({
+		kioskMode: true,
+		idleTimeoutMs: options.idleTimeoutMs ?? 15000,
+		fuseDurationMs: options.fuseDurationMs ?? 5000,
+		...options,
+	});
+
+	demoManager.setKioskMode(true);
+	return demoManager;
 }
