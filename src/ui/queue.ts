@@ -83,6 +83,22 @@ export class Queue {
 		this.vignettes.forEach((v) => v.xray(creatureId));
 	}
 
+	/**
+	 * Dim the avatars of the given creatures, e.g. the units an ability can't
+	 * target from where the active unit stands (#1636). `null` clears it.
+	 */
+	dimCreatures(creatureIds: number[] | null) {
+		this.vignettes.forEach((v) => {
+			if (CreatureVignette.is(v)) {
+				const vignette = v as CreatureVignette;
+				vignette.el.classList.toggle(
+					'non-viable',
+					Boolean(creatureIds?.includes(vignette.creature.id)),
+				);
+			}
+		});
+	}
+
 	bounce(creatureId: number, bounceHeight = 40) {
 		Queue.throttledBounce(this.vignettes, creatureId, bounceHeight);
 	}
