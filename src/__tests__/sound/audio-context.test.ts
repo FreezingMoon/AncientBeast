@@ -1,10 +1,13 @@
 import { describe, expect, jest, test } from '@jest/globals';
 import {
 	GESTURE_EVENTS,
+	IFRAME_GESTURE_EVENTS,
 	playAudioOnNextGesture,
 	resolveAudioContextCtor,
 	unlockAudioContextOnGesture,
 } from '../../sound/audio-context';
+
+const TOTAL_GESTURE_EVENTS = GESTURE_EVENTS.length + IFRAME_GESTURE_EVENTS.length;
 
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -70,7 +73,7 @@ describe('unlockAudioContextOnGesture', () => {
 		const resume = jest.fn(() => Promise.resolve());
 
 		unlockAudioContextOnGesture({ state: 'suspended', resume }, target);
-		expect(target.count()).toBe(GESTURE_EVENTS.length);
+		expect(target.count()).toBe(TOTAL_GESTURE_EVENTS);
 
 		target.fire('pointerdown');
 		expect(resume).toHaveBeenCalledTimes(1);
@@ -101,7 +104,7 @@ describe('unlockAudioContextOnGesture', () => {
 		target.fire('pointerdown');
 		await flush();
 
-		expect(target.count()).toBe(GESTURE_EVENTS.length);
+		expect(target.count()).toBe(TOTAL_GESTURE_EVENTS);
 
 		target.fire('keydown');
 		expect(resume).toHaveBeenCalledTimes(2);
@@ -112,7 +115,7 @@ describe('unlockAudioContextOnGesture', () => {
 		const resume = jest.fn(() => Promise.resolve());
 
 		const cancel = unlockAudioContextOnGesture({ state: 'suspended', resume }, target);
-		expect(target.count()).toBe(GESTURE_EVENTS.length);
+		expect(target.count()).toBe(TOTAL_GESTURE_EVENTS);
 
 		cancel();
 		expect(target.count()).toBe(0);
@@ -125,7 +128,7 @@ describe('playAudioOnNextGesture', () => {
 		const play = jest.fn(() => Promise.resolve());
 
 		playAudioOnNextGesture(play, target);
-		expect(target.count()).toBe(GESTURE_EVENTS.length);
+		expect(target.count()).toBe(TOTAL_GESTURE_EVENTS);
 
 		target.fire('touchend');
 
@@ -143,6 +146,6 @@ describe('playAudioOnNextGesture', () => {
 		target.fire('pointerdown');
 		await flush();
 
-		expect(target.count()).toBe(GESTURE_EVENTS.length);
+		expect(target.count()).toBe(TOTAL_GESTURE_EVENTS);
 	});
 });
