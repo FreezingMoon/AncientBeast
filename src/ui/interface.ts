@@ -1213,6 +1213,7 @@ export class UI {
 					},
 					mouseover: () => {
 						this.hoveredAbilityIndex = i;
+						this.morphAbilityIcon(b, i);
 						if (this.selectedAbility == -1) {
 							this.showAbilityCosts(i);
 						}
@@ -1261,6 +1262,7 @@ export class UI {
 						if (this.hoveredAbilityIndex === i) {
 							this.hoveredAbilityIndex = -1;
 						}
+						b.$button.removeClass('morph-interdiction morph-cycle');
 						if (this.selectedAbility == -1) {
 							this.hideAbilityCosts();
 						}
@@ -1960,6 +1962,34 @@ export class UI {
 			} else {
 				this.healthBar.previewSize(0);
 			}
+		}
+	}
+
+	/**
+	 * Morph ability icons on hover (#1594): an ability that can't be used right
+	 * now turns into the interdiction sign, and the passive one turns into a
+	 * cycle sign when other abilities are usable (it cycles through them).
+	 * The icon fades back when the pointer leaves the button.
+	 */
+	morphAbilityIcon(button: Button, index: number) {
+		const creature = this.game.activeCreature;
+		const ability = creature?.abilities[index];
+		if (!ability || this.game.botController?.isBotTurn() || this.selectedAbility === index) {
+			return;
+		}
+
+		// require() also refreshes the ability's message, which the tooltip shows
+		const isUsable = (candidate: typeof ability) => {
+			const message = candidate.message;
+			const usable = !candidate.used && Boolean(candidate.require());
+			candidate.message = message;
+			return usable;
+		};
+
+		if (index === 0) {
+			button.$button.toggleClass('morph-cycle', creature.abilities.slice(1).some(isUsable));
+		} else if (!isUsable(ability)) {
+			button.$button.addClass('morph-interdiction');
 		}
 	}
 
