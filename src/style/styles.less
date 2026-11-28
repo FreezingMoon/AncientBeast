@@ -5817,6 +5817,20 @@ body.devvit-mode .scrim {
 	-webkit-backface-visibility: hidden !important;
 }
 
+/* Card parallax (#1592): the card tilts towards the pointer while the unit
+   artwork drifts the other way behind the margin. Variables come from
+   ui/card-parallax.ts; the flip animation stays on the card sides. */
+#dash.active #card {
+	transform: perspective(900px) rotateX(var(--card-tilt-x, 0deg)) rotateY(var(--card-tilt-y, 0deg));
+	transition: transform 0.15s ease-out;
+}
+
+#dash.active #card .card.sideA {
+	background-position:
+		center,
+		calc(50% + var(--card-art-x, 0px)) calc(50% + var(--card-art-y, 0px)) !important;
+}
+
 #dash.active #card .card.sideA.flipping,
 #dash.active #card .card.sideB.flipping {
 	transform: rotateY(90deg) !important;
