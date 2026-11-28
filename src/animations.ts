@@ -2518,6 +2518,77 @@ export class Animations {
 	}
 
 	/**
+	 * Burn damage impact (#1125): a quick fiery explosion bursts over the unit,
+	 * a few glowing puffs flying out from the middle of its body and fading.
+	 */
+	burnExplosion(creature: Creature) {
+		const game = this.game;
+		const engine = game.gameEngine;
+		const sprite = creature.sprite;
+		const grp = creature.grp;
+		if (!engine || !sprite || !grp || creature.dead) {
+			return;
+		}
+
+		let surface: CanvasSurface;
+		try {
+			surface = createGameCanvasSurface(game, 48, 48);
+			const ctx = surface.ctx;
+			const grad = ctx.createRadialGradient(24, 24, 0, 24, 24, 24);
+			grad.addColorStop(0, 'rgba(255, 250, 200, 1)');
+			grad.addColorStop(0.3, 'rgba(255, 190, 60, 0.95)');
+			grad.addColorStop(0.65, 'rgba(240, 80, 20, 0.6)');
+			grad.addColorStop(1, 'rgba(160, 20, 0, 0)');
+			ctx.fillStyle = grad;
+			ctx.beginPath();
+			ctx.arc(24, 24, 24, 0, Math.PI * 2);
+			ctx.fill();
+			surface.commit();
+		} catch {
+			return;
+		}
+
+		const { height } = getFrameSize(sprite);
+		const x = (grp.x ?? 0) + (sprite.x ?? 0);
+		const y = (grp.y ?? 0) + (sprite.y ?? 0) - height * 0.45;
+		const depth = getDepthAtBand(creature.y, 'EFFECT_OVER_UNITS');
+		const puffs = 9;
+		let alive = puffs;
+
+		for (let i = 0; i < puffs; i++) {
+			const puff = engine.add.sprite(x, y, surface.key, undefined, game.grid.creatureGroup);
+			puff.setOrigin(0.5, 0.5);
+			puff.setDepth?.(depth);
+			puff.alpha = 0.95;
+			const start = 0.4 + Math.random() * 0.4;
+			puff.setScale(start, start);
+			// The first puff is the flash at the center, the others fly outwards
+			const angle = (i / puffs) * Math.PI * 2 + Math.random() * 0.6;
+			const reach = i === 0 ? 0 : 25 + Math.random() * 35;
+			const end = i === 0 ? 3 : 1.4 + Math.random() * 0.8;
+			const duration = 380 + Math.random() * 180;
+			engine
+				.tween(puff)
+				.to(
+					{ x: x + Math.cos(angle) * reach, y: y + Math.sin(angle) * reach * 0.7, alpha: 0 },
+					duration,
+					Easing.Quadratic.Out,
+					true,
+				);
+			engine
+				.tween(puff.scale)
+				.to({ x: end, y: end }, duration, Easing.Quadratic.Out, true)
+				.onComplete.addOnce(() => {
+					puff.destroy();
+					alive--;
+					if (alive === 0) {
+						surface.destroy();
+					}
+				});
+		}
+	}
+
+	/**
 	 * Backward tilt for a unit taking damage — the opposite lean of
 	 * {@link tiltForward}, as if the blow shoved the body back. The lean
 	 * scales with the damage dealt (capped at {@link TILT_MAX_DAMAGE}),

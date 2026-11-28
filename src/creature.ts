@@ -1867,6 +1867,13 @@ export class Creature {
 				this.status.frozen = false;
 			}
 
+			// Burn hit effect (#1125): an explosion when burn is the main kind of damage
+			if ((dmg.burn ?? 0) > 0 && (dmg.burn ?? 0) * 2 >= dmgAmount) {
+				(
+					game as unknown as { animations: { burnExplosion?: (c: Creature) => void } }
+				).animations.burnExplosion?.(this);
+			}
+
 			// Health display Update
 			// Note: update health after adding effects as some effects may affect
 			this.updateHealth();
